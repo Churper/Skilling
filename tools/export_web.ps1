@@ -125,6 +125,8 @@ body {
     $statusRegex = [regex]::new('<div id="status">[\s\S]*?<script src="index\.js"></script>', [System.Text.RegularExpressions.RegexOptions]::Singleline)
     $content = $styleRegex.Replace($content, $customStyle, 1)
     $content = $statusRegex.Replace($content, "$customStatus`r`n`t`t<script src=""index.js""></script>", 1)
+    $content = $content -replace '"focusCanvas":true', '"focusCanvas":false'
+    $content = $content -replace 'const engine = new Engine\(GODOT_CONFIG\);', "const engine = new Engine(GODOT_CONFIG);`r`nwindow.addEventListener('keydown', (event) => {`r`n`tif (event.key === 'F5' || ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'r')) {`r`n`t`tevent.stopImmediatePropagation();`r`n`t`twindow.location.reload();`r`n`t}`r`n}, true);"
 
     $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
     [System.IO.File]::WriteAllText($fullOutputPath, $content, $utf8NoBom)
