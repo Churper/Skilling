@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/fishing_pole.gd" id="2_pole"]
@@ -13,6 +13,10 @@ roughness = 0.95
 
 [sub_resource type="BoxShape3D" id="Shape_ground"]
 size = Vector3(120, 1, 120)
+
+[sub_resource type="CapsuleShape3D" id="Shape_player"]
+radius = 0.35
+height = 1.25
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_main"]
 sky_top_color = Color(0.0901961, 0.121569, 0.203922, 1)
@@ -29,24 +33,29 @@ sky = SubResource("Sky_main")
 ambient_light_source = 2
 ambient_light_sky_contribution = 1.0
 
-[sub_resource type="CylinderMesh" id="Mesh_rod"]
-top_radius = 0.008
-bottom_radius = 0.012
-height = 1.8
+[sub_resource type="BoxMesh" id="Mesh_rod"]
+size = Vector3(0.06, 0.06, 1.9)
 
 [sub_resource type="StandardMaterial3D" id="Material_rod"]
-albedo_color = Color(0.141176, 0.102, 0.0745, 1)
-metallic = 0.25
-roughness = 0.55
+albedo_color = Color(0.372549, 0.266667, 0.176471, 1)
+metallic = 0.0
+roughness = 0.92
 
-[sub_resource type="SphereMesh" id="Mesh_reel"]
-radius = 0.06
-height = 0.12
+[sub_resource type="BoxMesh" id="Mesh_grip"]
+size = Vector3(0.09, 0.07, 0.28)
+
+[sub_resource type="StandardMaterial3D" id="Material_grip"]
+albedo_color = Color(0.14902, 0.129412, 0.117647, 1)
+metallic = 0.0
+roughness = 0.98
+
+[sub_resource type="BoxMesh" id="Mesh_reel"]
+size = Vector3(0.13, 0.08, 0.12)
 
 [sub_resource type="StandardMaterial3D" id="Material_reel"]
-albedo_color = Color(0.470588, 0.576471, 0.65098, 1)
-metallic = 0.75
-roughness = 0.28
+albedo_color = Color(0.6, 0.403922, 0.239216, 1)
+metallic = 0.0
+roughness = 0.9
 
 [node name="Main" type="Node3D"]
 script = ExtResource("3_bootstrap")
@@ -71,9 +80,14 @@ shape = SubResource("Shape_ground")
 
 [node name="Player" type="CharacterBody3D" parent="."]
 script = ExtResource("1_player")
-position = Vector3(0, 1.8, 8)
+position = Vector3(0, 2.2, 8)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+position = Vector3(0, 0.95, 0)
+shape = SubResource("Shape_player")
 
 [node name="Head" type="Node3D" parent="Player"]
+position = Vector3(0, 1.35, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Player/Head"]
 current = true
@@ -87,12 +101,16 @@ position = Vector3(0.34, -0.31, -0.72)
 rotation_degrees = Vector3(-5, -4, -8)
 
 [node name="Rod" type="MeshInstance3D" parent="Player/Head/Camera3D/FishingPole"]
-position = Vector3(0, 0, -0.64)
-rotation_degrees = Vector3(90, 0, 0)
+position = Vector3(0.0, 0.0, -0.66)
 mesh = SubResource("Mesh_rod")
 material_override = SubResource("Material_rod")
 
+[node name="Grip" type="MeshInstance3D" parent="Player/Head/Camera3D/FishingPole"]
+position = Vector3(0.0, -0.02, -0.18)
+mesh = SubResource("Mesh_grip")
+material_override = SubResource("Material_grip")
+
 [node name="Reel" type="MeshInstance3D" parent="Player/Head/Camera3D/FishingPole"]
-position = Vector3(-0.045, -0.07, -0.23)
+position = Vector3(-0.08, -0.06, -0.24)
 mesh = SubResource("Mesh_reel")
 material_override = SubResource("Material_reel")
