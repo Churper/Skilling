@@ -4,6 +4,13 @@
 
 const WATER_LAYER: int = 2
 const FISH_TYPES: PackedStringArray = ["Minnow", "Trout", "Bass", "Salmon", "Golden Koi"]
+const FISH_XP: Dictionary = {
+	"Minnow": 10,
+	"Trout": 16,
+	"Bass": 24,
+	"Salmon": 38,
+	"Golden Koi": 72,
+}
 
 @onready var camera: Camera3D = $Player/Head/Camera3D
 @onready var pole: Node3D = $Player/Head/Camera3D/FishingPole
@@ -27,6 +34,14 @@ var inventory_labels: Dictionary = {}
 var total_label: Label
 var status_label: Label
 
+var fishing_level: int = 1
+var fishing_xp: int = 0
+var fishing_level_label: Label
+var fishing_xp_label: Label
+var fishing_xp_bar: ProgressBar
+var xp_drop_label: Label
+var xp_drop_timer: float = 0.0
+
 func _ready() -> void:
 	randomize()
 	_ensure_cast_input_map()
@@ -39,6 +54,7 @@ func _ready() -> void:
 	for fish_name in FISH_TYPES:
 		inventory[fish_name] = 0
 	_update_inventory_ui()
+	_update_fishing_ui()
 	_set_status("Click water to cast")
 
 	var window: Window = get_window()
@@ -52,6 +68,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		_try_cast()
 
 func _process(delta: float) -> void:
+	if xp_drop_timer > 0.0 and xp_drop_label:
+		xp_drop_timer -= delta
+		xp_drop_label.visible = true
+		xp_drop_label.modulate = Color(0.62, 0.94, 1.0, clamp(xp_drop_timer / 1.2, 0.0, 1.0))
+		xp_drop_label.offset_top -= delta * 10.0
+		xp_drop_label.offset_bottom -= delta * 10.0
+		if xp_drop_timer <= 0.0:
+			xp_drop_label.visible = false
+			xp_drop_label.offset_top = -118
+			xp_drop_label.offset_bottom = -82
+
 	if cast_state == 0:
 		return
 
@@ -63,7 +90,13 @@ func _process(delta: float) -> void:
 	if cast_state == 1 and cast_timer <= 0.0:
 		var fish_name: String = _roll_fish()
 		_add_fish(fish_name)
-		_set_status("Caught %s" % fish_name)
+		var xp_drop: int = _get_fish_xp(fish_name)
+		var levels_gained: int = _add_fishing_xp(xp_drop)
+		_show_xp_drop(xp_drop)
+		if levels_gained > 0:
+			_set_status("Caught %s (+%d XP) • Fishing Lv %d" % [fish_name, xp_drop, fishing_level])
+		else:
+			_set_status("Caught %s (+%d XP)" % [fish_name, xp_drop])
 		cast_state = 2
 		cast_timer = 0.85
 	elif cast_state == 2 and cast_timer <= 0.0:
@@ -302,16 +335,66 @@ func _build_hud() -> void:
 	crosshair.add_theme_font_size_override("font_size", 26)
 	root.add_child(crosshair)
 
-	var panel: PanelContainer = PanelContainer.new()
-	panel.anchor_left = 1.0
-	panel.anchor_right = 1.0
-	panel.anchor_top = 0.0
-	panel.anchor_bottom = 0.0
-	panel.offset_left = -300
-	panel.offset_right = -18
-	panel.offset_top = 18
-	panel.offset_bottom = 250
-	root.add_child(panel)
+	var fishing_panel: PanelContainer = PanelContainer.new()
+	fishing_panel.anchor_left = 0.0
+	fishing_panel.anchor_right = 0.0
+	fishing_panel.anchor_top = 0.0
+	fishing_panel.anchor_bottom = 0.0
+	fishing_panel.offset_left = 18
+	fishing_panel.offset_right = 310
+	fishing_panel.offset_top = 18
+	fishing_panel.offset_bottom = 168
+	root.add_child(fishing_panel)
+
+	var fishing_style: StyleBoxFlat = StyleBoxFlat.new()
+	fishing_style.bg_color = Color(0.05, 0.10, 0.15, 0.84)
+	fishing_style.border_color = Color(0.28, 0.60, 0.66, 0.9)
+	fishing_style.border_width_left = 2
+	fishing_style.border_width_right = 2
+	fishing_style.border_width_top = 2
+	fishing_style.border_width_bottom = 2
+	fishing_style.corner_radius_top_left = 10
+	fishing_style.corner_radius_top_right = 10
+	fishing_style.corner_radius_bottom_left = 10
+	fishing_style.corner_radius_bottom_right = 10
+	fishing_panel.add_theme_stylebox_override("panel", fishing_style)
+
+	var fishing_column: VBoxContainer = VBoxContainer.new()
+	fishing_column.add_theme_constant_override("separation", 5)
+	fishing_panel.add_child(fishing_column)
+
+	var fishing_title: Label = Label.new()
+	fishing_title.text = "Fishing"
+	fishing_title.add_theme_font_size_override("font_size", 24)
+	fishing_column.add_child(fishing_title)
+
+	fishing_level_label = Label.new()
+	fishing_level_label.text = "Level 1"
+	fishing_level_label.add_theme_font_size_override("font_size", 18)
+	fishing_column.add_child(fishing_level_label)
+
+	fishing_xp_label = Label.new()
+	fishing_xp_label.text = "0 / 100 XP"
+	fishing_column.add_child(fishing_xp_label)
+
+	fishing_xp_bar = ProgressBar.new()
+	fishing_xp_bar.min_value = 0
+	fishing_xp_bar.max_value = 100
+	fishing_xp_bar.value = 0
+	fishing_xp_bar.show_percentage = false
+	fishing_xp_bar.custom_minimum_size = Vector2(0, 14)
+	fishing_column.add_child(fishing_xp_bar)
+
+	var inventory_panel: PanelContainer = PanelContainer.new()
+	inventory_panel.anchor_left = 1.0
+	inventory_panel.anchor_right = 1.0
+	inventory_panel.anchor_top = 0.0
+	inventory_panel.anchor_bottom = 0.0
+	inventory_panel.offset_left = -300
+	inventory_panel.offset_right = -18
+	inventory_panel.offset_top = 18
+	inventory_panel.offset_bottom = 250
+	root.add_child(inventory_panel)
 
 	var panel_style: StyleBoxFlat = StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.05, 0.10, 0.15, 0.82)
@@ -324,11 +407,11 @@ func _build_hud() -> void:
 	panel_style.corner_radius_top_right = 10
 	panel_style.corner_radius_bottom_left = 10
 	panel_style.corner_radius_bottom_right = 10
-	panel.add_theme_stylebox_override("panel", panel_style)
+	inventory_panel.add_theme_stylebox_override("panel", panel_style)
 
 	var column: VBoxContainer = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 4)
-	panel.add_child(column)
+	inventory_panel.add_child(column)
 
 	var title: Label = Label.new()
 	title.text = "Catch Inventory"
@@ -359,13 +442,29 @@ func _build_hud() -> void:
 	total_row.add_child(total_label)
 	column.add_child(total_row)
 
+	xp_drop_label = Label.new()
+	xp_drop_label.anchor_left = 0.5
+	xp_drop_label.anchor_right = 0.5
+	xp_drop_label.anchor_top = 1.0
+	xp_drop_label.anchor_bottom = 1.0
+	xp_drop_label.offset_left = -120
+	xp_drop_label.offset_right = 120
+	xp_drop_label.offset_top = -118
+	xp_drop_label.offset_bottom = -82
+	xp_drop_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	xp_drop_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	xp_drop_label.add_theme_font_size_override("font_size", 24)
+	xp_drop_label.text = "+0 XP"
+	xp_drop_label.visible = false
+	root.add_child(xp_drop_label)
+
 	status_label = Label.new()
 	status_label.anchor_left = 0.5
 	status_label.anchor_right = 0.5
 	status_label.anchor_top = 1.0
 	status_label.anchor_bottom = 1.0
-	status_label.offset_left = -210
-	status_label.offset_right = 210
+	status_label.offset_left = -260
+	status_label.offset_right = 260
 	status_label.offset_top = -66
 	status_label.offset_bottom = -30
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -472,6 +571,43 @@ func _roll_fish() -> String:
 	if r < 0.98:
 		return "Salmon"
 	return "Golden Koi"
+
+func _get_fish_xp(fish_name: String) -> int:
+	return int(FISH_XP.get(fish_name, 10))
+
+func _xp_needed_for_level(level: int) -> int:
+	return 90 + (level - 1) * 28
+
+func _add_fishing_xp(amount: int) -> int:
+	var levels_gained: int = 0
+	fishing_xp += amount
+	var needed: int = _xp_needed_for_level(fishing_level)
+	while fishing_xp >= needed:
+		fishing_xp -= needed
+		fishing_level += 1
+		levels_gained += 1
+		needed = _xp_needed_for_level(fishing_level)
+	_update_fishing_ui()
+	return levels_gained
+
+func _update_fishing_ui() -> void:
+	var needed: int = _xp_needed_for_level(fishing_level)
+	if fishing_level_label:
+		fishing_level_label.text = "Level %d" % fishing_level
+	if fishing_xp_label:
+		fishing_xp_label.text = "%d / %d XP" % [fishing_xp, needed]
+	if fishing_xp_bar:
+		fishing_xp_bar.max_value = needed
+		fishing_xp_bar.value = fishing_xp
+
+func _show_xp_drop(amount: int) -> void:
+	if xp_drop_label:
+		xp_drop_label.text = "+%d XP" % amount
+		xp_drop_label.modulate = Color(0.62, 0.94, 1.0, 1.0)
+		xp_drop_label.offset_top = -118
+		xp_drop_label.offset_bottom = -82
+		xp_drop_label.visible = true
+	xp_drop_timer = 1.2
 
 func _add_fish(fish_name: String) -> void:
 	if not inventory.has(fish_name):
