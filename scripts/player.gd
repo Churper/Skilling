@@ -11,7 +11,7 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready() -> void:
 	_ensure_default_input_map()
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
@@ -19,11 +19,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		head.rotate_x(-event.relative.y * mouse_sensitivity)
 		head.rotation.x = clamp(head.rotation.x, deg_to_rad(-85.0), deg_to_rad(85.0))
 
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		_set_mouse_captured(Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED)
+
+	if event.is_action_pressed("toggle_mouse_capture"):
+		_set_mouse_captured(Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED)
+
 	if event.is_action_pressed("ui_cancel"):
-		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-		else:
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		_set_mouse_captured(false)
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
@@ -49,6 +52,7 @@ func _ensure_default_input_map() -> void:
 	_add_action_key("move_left", Key.KEY_A)
 	_add_action_key("move_right", Key.KEY_D)
 	_add_action_key("jump", Key.KEY_SPACE)
+	_add_action_key("toggle_mouse_capture", Key.KEY_TAB)
 
 func _add_action_key(action_name: StringName, keycode: Key) -> void:
 	if not InputMap.has_action(action_name):
@@ -61,3 +65,6 @@ func _add_action_key(action_name: StringName, keycode: Key) -> void:
 	var ev := InputEventKey.new()
 	ev.physical_keycode = keycode
 	InputMap.action_add_event(action_name, ev)
+
+func _set_mouse_captured(captured: bool) -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if captured else Input.MOUSE_MODE_VISIBLE)

@@ -55,7 +55,7 @@ func _ready() -> void:
 		inventory[fish_name] = 0
 	_update_inventory_ui()
 	_update_fishing_ui()
-	_set_status("Click water to cast")
+	_set_status("Right click or Tab: look mode • Left click: cast")
 
 	var window: Window = get_window()
 	window.size_changed.connect(_on_window_size_changed)
@@ -102,7 +102,7 @@ func _process(delta: float) -> void:
 	elif cast_state == 2 and cast_timer <= 0.0:
 		_hide_cast_visuals()
 		cast_state = 0
-		_set_status("Click water to cast")
+		_set_status("Right click or Tab: look mode • Left click: cast")
 
 func _apply_window_scaling() -> void:
 	var window: Window = get_window()
