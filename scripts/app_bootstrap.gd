@@ -1,37 +1,495 @@
-extends Node3D
+﻿extends Node3D
 
 @export var base_fov: float = 82.0
 
+const WATER_LAYER: int = 2
+const FISH_TYPES: PackedStringArray = ["Minnow", "Trout", "Bass", "Salmon", "Golden Koi"]
+
 @onready var camera: Camera3D = $Player/Head/Camera3D
+@onready var pole: Node3D = $Player/Head/Camera3D/FishingPole
+@onready var ground_mesh: MeshInstance3D = $Ground
+@onready var world_env: WorldEnvironment = $WorldEnvironment
+@onready var sun_light: DirectionalLight3D = $Sun
+
+var water_root: Node3D
+var water_mesh: MeshInstance3D
+var water_area: Area3D
+var bobber: MeshInstance3D
+var cast_line: MeshInstance3D
+
+var cast_state: int = 0
+var cast_timer: float = 0.0
+var bobber_time: float = 0.0
+var last_cast_point: Vector3 = Vector3.ZERO
+
+var inventory: Dictionary = {}
+var inventory_labels: Dictionary = {}
+var total_label: Label
+var status_label: Label
 
 func _ready() -> void:
-	var window := get_window()
-	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+	randomize()
+	_ensure_cast_input_map()
+	_apply_window_scaling()
+	_style_world_low_poly()
+	_create_water_zone()
+	_spawn_lowpoly_props()
+	_build_hud()
+
+	for fish_name in FISH_TYPES:
+		inventory[fish_name] = 0
+	_update_inventory_ui()
+	_set_status("Click water to cast")
+
+	var window: Window = get_window()
 	window.size_changed.connect(_on_window_size_changed)
 	_on_window_size_changed()
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("cast"):
+		if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
+			return
+		_try_cast()
+
+func _process(delta: float) -> void:
+	if cast_state == 0:
+		return
+
+	cast_timer -= delta
+	bobber_time += delta
+	_update_bobber_visual(delta)
+	_update_cast_line()
+
+	if cast_state == 1 and cast_timer <= 0.0:
+		var fish_name: String = _roll_fish()
+		_add_fish(fish_name)
+		_set_status("Caught %s" % fish_name)
+		cast_state = 2
+		cast_timer = 0.85
+	elif cast_state == 2 and cast_timer <= 0.0:
+		_hide_cast_visuals()
+		cast_state = 0
+		_set_status("Click water to cast")
+
+func _apply_window_scaling() -> void:
+	var window: Window = get_window()
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+
 func _on_window_size_changed() -> void:
-	var window := get_window()
-	var size := window.size
+	var window: Window = get_window()
+	var size: Vector2i = window.size
 	if size.x <= 0 or size.y <= 0:
 		return
 
-	# Keep perf predictable on very large/high-density displays.
 	var shortest_side: int = min(size.x, size.y)
-	var scale_factor := 1.0
+	var scale_factor: float = 1.0
 	if shortest_side >= 1400:
 		scale_factor = 0.9
 	if shortest_side >= 2000:
 		scale_factor = 0.8
 	window.content_scale_factor = scale_factor
 
-	# Small FOV adaptation for portrait/ultrawide so framing stays consistent.
 	if camera:
-		var aspect := float(size.x) / float(size.y)
+		var aspect: float = float(size.x) / float(size.y)
 		if aspect < 1.0:
 			camera.fov = clamp(base_fov + (1.0 - aspect) * 10.0, base_fov, 94.0)
 		elif aspect > 2.1:
 			camera.fov = clamp(base_fov - (aspect - 2.1) * 6.0, 76.0, base_fov)
 		else:
 			camera.fov = base_fov
+
+func _ensure_cast_input_map() -> void:
+	if not InputMap.has_action("cast"):
+		InputMap.add_action("cast")
+
+	for existing in InputMap.action_get_events("cast"):
+		if existing is InputEventMouseButton and existing.button_index == MOUSE_BUTTON_LEFT:
+			return
+
+	var mouse_event: InputEventMouseButton = InputEventMouseButton.new()
+	mouse_event.button_index = MOUSE_BUTTON_LEFT
+	InputMap.action_add_event("cast", mouse_event)
+
+func _style_world_low_poly() -> void:
+	if world_env and world_env.environment:
+		var env: Environment = world_env.environment
+		var sky_mat: ProceduralSkyMaterial = ProceduralSkyMaterial.new()
+		sky_mat.sky_top_color = Color(0.30, 0.56, 0.73)
+		sky_mat.sky_horizon_color = Color(0.70, 0.85, 0.90)
+		sky_mat.ground_horizon_color = Color(0.39, 0.49, 0.37)
+		sky_mat.ground_bottom_color = Color(0.23, 0.31, 0.24)
+		var sky: Sky = Sky.new()
+		sky.sky_material = sky_mat
+		env.background_mode = Environment.BG_SKY
+		env.sky = sky
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+		env.ambient_light_color = Color(0.74, 0.85, 0.80)
+		env.ambient_light_energy = 0.45
+
+	if ground_mesh:
+		var ground_mat: StandardMaterial3D = StandardMaterial3D.new()
+		ground_mat.albedo_color = Color(0.32, 0.46, 0.30)
+		ground_mat.roughness = 1.0
+		ground_mat.metallic = 0.0
+		ground_mesh.material_override = ground_mat
+
+	if sun_light:
+		sun_light.light_energy = 1.3
+		sun_light.shadow_enabled = false
+
+func _create_water_zone() -> void:
+	water_root = Node3D.new()
+	water_root.name = "WaterZone"
+	add_child(water_root)
+
+	var shore_disk: MeshInstance3D = MeshInstance3D.new()
+	var shore_mesh: CylinderMesh = CylinderMesh.new()
+	shore_mesh.top_radius = 26.0
+	shore_mesh.bottom_radius = 27.5
+	shore_mesh.height = 0.8
+	shore_mesh.radial_segments = 16
+	shore_disk.mesh = shore_mesh
+	shore_disk.position = Vector3(0.0, -0.42, 0.0)
+	var shore_mat: StandardMaterial3D = StandardMaterial3D.new()
+	shore_mat.albedo_color = Color(0.63, 0.58, 0.44)
+	shore_mat.roughness = 1.0
+	shore_disk.material_override = shore_mat
+	water_root.add_child(shore_disk)
+
+	water_mesh = MeshInstance3D.new()
+	var pond_mesh: PlaneMesh = PlaneMesh.new()
+	pond_mesh.size = Vector2(42.0, 42.0)
+	water_mesh.mesh = pond_mesh
+	water_mesh.position = Vector3(0.0, 0.02, 0.0)
+	var water_mat: StandardMaterial3D = StandardMaterial3D.new()
+	water_mat.albedo_color = Color(0.24, 0.63, 0.72, 0.86)
+	water_mat.roughness = 0.10
+	water_mat.metallic = 0.12
+	water_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	water_mesh.material_override = water_mat
+	water_root.add_child(water_mesh)
+
+	water_area = Area3D.new()
+	water_area.name = "WaterArea"
+	water_area.collision_layer = WATER_LAYER
+	water_area.collision_mask = 0
+	water_area.monitoring = false
+	water_area.add_to_group("cast_water")
+	water_area.position = Vector3(0.0, 0.02, 0.0)
+	var cast_shape: CollisionShape3D = CollisionShape3D.new()
+	var cast_box: BoxShape3D = BoxShape3D.new()
+	cast_box.size = Vector3(42.0, 1.6, 42.0)
+	cast_shape.shape = cast_box
+	water_area.add_child(cast_shape)
+	water_root.add_child(water_area)
+
+	cast_line = MeshInstance3D.new()
+	cast_line.name = "CastLine"
+	var line_mesh: CylinderMesh = CylinderMesh.new()
+	line_mesh.top_radius = 0.004
+	line_mesh.bottom_radius = 0.004
+	line_mesh.height = 1.0
+	line_mesh.radial_segments = 6
+	cast_line.mesh = line_mesh
+	var line_mat: StandardMaterial3D = StandardMaterial3D.new()
+	line_mat.albedo_color = Color(0.93, 0.98, 1.0)
+	line_mat.roughness = 0.2
+	line_mat.metallic = 0.0
+	cast_line.material_override = line_mat
+	cast_line.visible = false
+	add_child(cast_line)
+
+	bobber = MeshInstance3D.new()
+	bobber.name = "Bobber"
+	var bobber_mesh: SphereMesh = SphereMesh.new()
+	bobber_mesh.radius = 0.08
+	bobber_mesh.height = 0.16
+	bobber_mesh.radial_segments = 8
+	bobber_mesh.rings = 4
+	bobber.mesh = bobber_mesh
+	var bobber_mat: StandardMaterial3D = StandardMaterial3D.new()
+	bobber_mat.albedo_color = Color(0.95, 0.30, 0.20)
+	bobber_mat.roughness = 0.6
+	bobber.material_override = bobber_mat
+	bobber.visible = false
+	add_child(bobber)
+
+func _spawn_lowpoly_props() -> void:
+	var rock_positions: Array[Vector3] = [
+		Vector3(16.0, 0.0, 15.0),
+		Vector3(-14.0, 0.0, 18.0),
+		Vector3(20.0, 0.0, -10.0),
+		Vector3(-18.0, 0.0, -12.0),
+		Vector3(8.0, 0.0, -20.0),
+		Vector3(-6.0, 0.0, 21.0),
+	]
+
+	for i in rock_positions.size():
+		var rock: MeshInstance3D = MeshInstance3D.new()
+		var rock_mesh: BoxMesh = BoxMesh.new()
+		rock_mesh.size = Vector3(2.5 + i * 0.2, 1.0 + float(i % 3) * 0.35, 2.0 + float(i % 2) * 0.45)
+		rock.mesh = rock_mesh
+		rock.position = rock_positions[i] + Vector3(0.0, rock_mesh.size.y * 0.5 - 0.05, 0.0)
+		rock.rotation_degrees.y = 15.0 + i * 27.0
+		var rock_mat: StandardMaterial3D = StandardMaterial3D.new()
+		rock_mat.albedo_color = Color(0.45 + float(i % 2) * 0.05, 0.43, 0.40)
+		rock_mat.roughness = 1.0
+		rock.material_override = rock_mat
+		add_child(rock)
+
+	var tree_positions: Array[Vector3] = [
+		Vector3(23.0, 0.0, 8.0),
+		Vector3(-23.0, 0.0, 6.0),
+		Vector3(21.0, 0.0, -14.0),
+		Vector3(-21.0, 0.0, -16.0),
+	]
+
+	for p in tree_positions:
+		_spawn_tree(p)
+
+func _spawn_tree(pos: Vector3) -> void:
+	var trunk: MeshInstance3D = MeshInstance3D.new()
+	var trunk_mesh: CylinderMesh = CylinderMesh.new()
+	trunk_mesh.top_radius = 0.18
+	trunk_mesh.bottom_radius = 0.22
+	trunk_mesh.height = 2.4
+	trunk_mesh.radial_segments = 6
+	trunk.mesh = trunk_mesh
+	trunk.position = pos + Vector3(0.0, 1.2, 0.0)
+	var trunk_mat: StandardMaterial3D = StandardMaterial3D.new()
+	trunk_mat.albedo_color = Color(0.35, 0.25, 0.18)
+	trunk_mat.roughness = 1.0
+	trunk.material_override = trunk_mat
+	add_child(trunk)
+
+	var canopy: MeshInstance3D = MeshInstance3D.new()
+	var canopy_mesh: SphereMesh = SphereMesh.new()
+	canopy_mesh.radius = 1.35
+	canopy_mesh.height = 2.4
+	canopy_mesh.radial_segments = 7
+	canopy_mesh.rings = 4
+	canopy.mesh = canopy_mesh
+	canopy.position = pos + Vector3(0.0, 3.0, 0.0)
+	var canopy_mat: StandardMaterial3D = StandardMaterial3D.new()
+	canopy_mat.albedo_color = Color(0.25, 0.58, 0.31)
+	canopy_mat.roughness = 1.0
+	canopy.material_override = canopy_mat
+	add_child(canopy)
+
+func _build_hud() -> void:
+	var layer: CanvasLayer = CanvasLayer.new()
+	layer.layer = 20
+	add_child(layer)
+
+	var root: Control = Control.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(root)
+
+	var crosshair: Label = Label.new()
+	crosshair.text = "+"
+	crosshair.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	crosshair.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	crosshair.anchor_left = 0.5
+	crosshair.anchor_right = 0.5
+	crosshair.anchor_top = 0.5
+	crosshair.anchor_bottom = 0.5
+	crosshair.offset_left = -12
+	crosshair.offset_right = 12
+	crosshair.offset_top = -16
+	crosshair.offset_bottom = 16
+	crosshair.add_theme_font_size_override("font_size", 26)
+	root.add_child(crosshair)
+
+	var panel: PanelContainer = PanelContainer.new()
+	panel.anchor_left = 1.0
+	panel.anchor_right = 1.0
+	panel.anchor_top = 0.0
+	panel.anchor_bottom = 0.0
+	panel.offset_left = -300
+	panel.offset_right = -18
+	panel.offset_top = 18
+	panel.offset_bottom = 250
+	root.add_child(panel)
+
+	var panel_style: StyleBoxFlat = StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.05, 0.10, 0.15, 0.82)
+	panel_style.border_color = Color(0.24, 0.52, 0.62, 0.9)
+	panel_style.border_width_left = 2
+	panel_style.border_width_right = 2
+	panel_style.border_width_top = 2
+	panel_style.border_width_bottom = 2
+	panel_style.corner_radius_top_left = 10
+	panel_style.corner_radius_top_right = 10
+	panel_style.corner_radius_bottom_left = 10
+	panel_style.corner_radius_bottom_right = 10
+	panel.add_theme_stylebox_override("panel", panel_style)
+
+	var column: VBoxContainer = VBoxContainer.new()
+	column.add_theme_constant_override("separation", 4)
+	panel.add_child(column)
+
+	var title: Label = Label.new()
+	title.text = "Catch Inventory"
+	title.add_theme_font_size_override("font_size", 20)
+	column.add_child(title)
+
+	for fish_name in FISH_TYPES:
+		var row: HBoxContainer = HBoxContainer.new()
+		var fish_label: Label = Label.new()
+		fish_label.text = fish_name
+		fish_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var count_label: Label = Label.new()
+		count_label.text = "0"
+		count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		row.add_child(fish_label)
+		row.add_child(count_label)
+		column.add_child(row)
+		inventory_labels[fish_name] = count_label
+
+	var total_row: HBoxContainer = HBoxContainer.new()
+	var total_title: Label = Label.new()
+	total_title.text = "Total"
+	total_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	total_label = Label.new()
+	total_label.text = "0"
+	total_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	total_row.add_child(total_title)
+	total_row.add_child(total_label)
+	column.add_child(total_row)
+
+	status_label = Label.new()
+	status_label.anchor_left = 0.5
+	status_label.anchor_right = 0.5
+	status_label.anchor_top = 1.0
+	status_label.anchor_bottom = 1.0
+	status_label.offset_left = -210
+	status_label.offset_right = 210
+	status_label.offset_top = -66
+	status_label.offset_bottom = -30
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	status_label.add_theme_font_size_override("font_size", 18)
+	root.add_child(status_label)
+
+func _try_cast() -> void:
+	if cast_state == 1:
+		return
+
+	var center: Vector2 = get_viewport().get_visible_rect().size * 0.5
+	var ray_origin: Vector3 = camera.project_ray_origin(center)
+	var ray_direction: Vector3 = camera.project_ray_normal(center)
+
+	var params: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_direction * 500.0)
+	params.collide_with_areas = true
+	params.collide_with_bodies = false
+	params.collision_mask = WATER_LAYER
+
+	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(params)
+	if hit.is_empty() or not hit.has("position"):
+		_set_status("Cast on water")
+		return
+
+	var hit_pos: Vector3 = hit["position"]
+	_start_cast(hit_pos)
+
+func _start_cast(point: Vector3) -> void:
+	last_cast_point = point
+	cast_state = 1
+	cast_timer = randf_range(1.1, 2.3)
+	bobber_time = 0.0
+	_place_bobber(point)
+	if pole and pole.has_method("play_cast_kick"):
+		pole.call("play_cast_kick")
+	_set_status("Casting...")
+
+func _place_bobber(point: Vector3) -> void:
+	if not bobber:
+		return
+	bobber.visible = true
+	bobber.global_position = point + Vector3(0.0, 0.08, 0.0)
+	if cast_line:
+		cast_line.visible = true
+	_update_cast_line()
+
+func _hide_cast_visuals() -> void:
+	if bobber:
+		bobber.visible = false
+	if cast_line:
+		cast_line.visible = false
+
+func _update_bobber_visual(delta: float) -> void:
+	if not bobber or not bobber.visible:
+		return
+
+	var float_wave: float = sin(bobber_time * 6.0) * 0.028
+	var lift: float = 0.08 + float_wave
+	if cast_state == 2:
+		lift += sin(bobber_time * 22.0) * 0.015
+	bobber.global_position = last_cast_point + Vector3(0.0, lift, 0.0)
+	bobber.rotate_y(delta * 1.8)
+
+func _update_cast_line() -> void:
+	if not cast_line or not bobber or not bobber.visible:
+		return
+
+	var tip: Vector3 = _get_pole_tip_world_position()
+	var target: Vector3 = bobber.global_position
+	var diff: Vector3 = target - tip
+	var distance: float = diff.length()
+	if distance < 0.02:
+		cast_line.visible = false
+		return
+
+	cast_line.visible = true
+	var up: Vector3 = diff.normalized()
+	var tangent: Vector3 = up.cross(Vector3.FORWARD)
+	if tangent.length() < 0.001:
+		tangent = up.cross(Vector3.RIGHT)
+	tangent = tangent.normalized()
+	var binormal: Vector3 = tangent.cross(up).normalized()
+
+	cast_line.global_basis = Basis(tangent, up, binormal)
+	cast_line.global_position = tip + diff * 0.5
+	cast_line.scale = Vector3(1.0, distance, 1.0)
+
+func _get_pole_tip_world_position() -> Vector3:
+	if pole:
+		var rod: MeshInstance3D = pole.get_node_or_null("Rod") as MeshInstance3D
+		if rod:
+			return rod.to_global(Vector3(0.0, 0.0, -0.9))
+	return camera.global_position + camera.global_basis * Vector3(0.2, -0.2, -0.8)
+
+func _roll_fish() -> String:
+	var r: float = randf()
+	if r < 0.38:
+		return "Minnow"
+	if r < 0.68:
+		return "Trout"
+	if r < 0.88:
+		return "Bass"
+	if r < 0.98:
+		return "Salmon"
+	return "Golden Koi"
+
+func _add_fish(fish_name: String) -> void:
+	if not inventory.has(fish_name):
+		inventory[fish_name] = 0
+	inventory[fish_name] = int(inventory[fish_name]) + 1
+	_update_inventory_ui()
+
+func _update_inventory_ui() -> void:
+	var total: int = 0
+	for fish_name in FISH_TYPES:
+		var fish_count: int = int(inventory.get(fish_name, 0))
+		total += fish_count
+		if inventory_labels.has(fish_name):
+			var label: Label = inventory_labels[fish_name]
+			label.text = str(fish_count)
+	if total_label:
+		total_label.text = str(total)
+
+func _set_status(text_value: String) -> void:
+	if status_label:
+		status_label.text = text_value
