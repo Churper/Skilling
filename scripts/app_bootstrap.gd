@@ -63,8 +63,6 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("cast"):
-		if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
-			return
 		_try_cast()
 
 func _process(delta: float) -> void:
@@ -476,9 +474,12 @@ func _try_cast() -> void:
 	if cast_state == 1:
 		return
 
-	var center: Vector2 = get_viewport().get_visible_rect().size * 0.5
-	var ray_origin: Vector3 = camera.project_ray_origin(center)
-	var ray_direction: Vector3 = camera.project_ray_normal(center)
+	var screen_point: Vector2 = get_viewport().get_visible_rect().size * 0.5
+	if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
+		screen_point = get_viewport().get_mouse_position()
+
+	var ray_origin: Vector3 = camera.project_ray_origin(screen_point)
+	var ray_direction: Vector3 = camera.project_ray_normal(screen_point)
 
 	var params: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_direction * 500.0)
 	params.collide_with_areas = true
