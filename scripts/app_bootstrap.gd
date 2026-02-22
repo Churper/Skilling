@@ -64,13 +64,21 @@ func _ready() -> void:
 		inventory[fish_name] = 0
 	_update_inventory_ui()
 	_update_fishing_ui()
-	_set_status("Right click or Tab: look mode • Left click: cast")
+	_set_status("Hold right click or Tab: look mode • Tap/click water: cast")
 
 	var window: Window = get_window()
 	window.size_changed.connect(_on_window_size_changed)
 	_on_window_size_changed()
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch and event.pressed:
+		_try_cast_from_screen(event.position)
+		return
+
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		_try_cast_from_screen(event.position)
+		return
+
 	if event.is_action_pressed("cast"):
 		_try_cast()
 
@@ -101,9 +109,9 @@ func _process(delta: float) -> void:
 		var levels_gained: int = _add_fishing_xp(xp_drop)
 		_show_xp_drop(xp_drop)
 		if levels_gained > 0:
-			_set_status("Caught %s (+%d XP) • Fishing Lv %d • Click cast to reel in" % [fish_name, xp_drop, fishing_level])
+			_set_status("Caught %s (+%d XP) • Fishing Lv %d • Tap/click to reel in" % [fish_name, xp_drop, fishing_level])
 		else:
-			_set_status("Caught %s (+%d XP) • Click cast to reel in" % [fish_name, xp_drop])
+			_set_status("Caught %s (+%d XP) • Tap/click to reel in" % [fish_name, xp_drop])
 		cast_timer = randf_range(0.85, 1.9)
 
 func _apply_window_scaling() -> void:
@@ -118,12 +126,7 @@ func _on_window_size_changed() -> void:
 		return
 
 	var shortest_side: int = min(size.x, size.y)
-	var scale_factor: float = 1.0
-	if shortest_side >= 1400:
-		scale_factor = 0.9
-	if shortest_side >= 2000:
-		scale_factor = 0.8
-	window.content_scale_factor = scale_factor
+	window.content_scale_factor = 1.0
 
 	if camera:
 		var aspect: float = float(size.x) / float(size.y)
@@ -251,43 +254,41 @@ func _create_water_material() -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = """
 shader_type spatial;
-render_mode blend_mix, depth_draw_opaque, cull_disabled, diffuse_burley, specular_schlick_ggx;
+render_mode blend_mix, depth_draw_alpha_prepass, cull_disabled, unshaded;
 
-uniform vec4 shallow_color : source_color = vec4(0.36, 0.80, 0.90, 0.68);
-uniform vec4 deep_color : source_color = vec4(0.08, 0.38, 0.56, 0.86);
-uniform vec4 rim_tint : source_color = vec4(0.58, 0.89, 0.98, 0.30);
-uniform float wave_speed = 0.55;
-uniform float ripple_scale = 2.2;
-uniform float normal_strength = 0.10;
-uniform float roughness_base = 0.12;
-uniform float clarity_boost = 0.18;
+uniform vec4 shallow_color : source_color = vec4(0.56, 0.93, 1.0, 0.48);
+uniform vec4 deep_color : source_color = vec4(0.10, 0.46, 0.72, 0.72);
+uniform vec4 edge_foam_color : source_color = vec4(0.84, 0.98, 1.0, 0.78);
+uniform float wave_height = 0.07;
+uniform float wave_speed = 1.35;
+uniform float ripple_density = 15.0;
+
+void vertex() {
+	float t = TIME * wave_speed;
+	float wave_a = sin(UV.x * 20.0 + t * 1.5);
+	float wave_b = cos(UV.y * 16.0 - t * 1.2);
+	float wave_c = sin((UV.x + UV.y) * 10.0 + t * 1.8);
+	VERTEX.y += (wave_a + wave_b + wave_c) * wave_height * 0.333;
+}
 
 void fragment() {
 	float t = TIME * wave_speed;
-	vec2 uv = UV * ripple_scale;
+	float dist = distance(UV, vec2(0.5));
+	float shore_blend = smoothstep(0.02, 0.65, dist);
+	vec3 base_color = mix(deep_color.rgb, shallow_color.rgb, shore_blend);
 
-	float wave_1 = sin((uv.x * 6.28318) + (t * 1.2));
-	float wave_2 = sin((uv.y * 8.48230) - (t * 0.9));
-	float wave_3 = sin(((uv.x + uv.y) * 5.65487) + (t * 1.5));
-	float ripple = (wave_1 + wave_2 + wave_3) * 0.3333;
+	float ripple_a = sin((UV.x + UV.y) * ripple_density + t * 3.1);
+	float ripple_b = cos((UV.x - UV.y) * (ripple_density * 0.75) - t * 2.4);
+	float ripple = ripple_a * 0.6 + ripple_b * 0.4;
+	float ripple_mask = smoothstep(0.28, 0.88, ripple * 0.5 + 0.5);
 
-	float depth_mask = smoothstep(0.08, 0.52, distance(UV, vec2(0.5)));
-	vec3 water_color = mix(deep_color.rgb, shallow_color.rgb, depth_mask);
-	float alpha = mix(deep_color.a, shallow_color.a, depth_mask);
+	float shore_ring = smoothstep(0.74, 0.96, dist);
+	float foam = shore_ring * smoothstep(0.45, 0.95, ripple_mask);
+	base_color += vec3(0.10, 0.20, 0.26) * ripple_mask;
+	base_color = mix(base_color, edge_foam_color.rgb, foam * 0.7);
 
-	float dx = cos((uv.x * 6.28318) + (t * 1.2)) * 0.55 + cos(((uv.x + uv.y) * 5.65487) + (t * 1.5)) * 0.35;
-	float dz = cos((uv.y * 8.48230) - (t * 0.9)) * 0.55 + cos(((uv.x + uv.y) * 5.65487) + (t * 1.5)) * 0.35;
-	vec3 normal_wave = normalize(vec3(dx * normal_strength, 1.0, dz * normal_strength));
-	NORMAL = normal_wave;
-
-	float fresnel = pow(1.0 - max(dot(normalize(VIEW), normal_wave), 0.0), 3.1);
-	float sparkle = max(0.0, ripple) * 0.06;
-
-	ALBEDO = water_color + vec3(clarity_boost * (1.0 - depth_mask) + sparkle);
-	ALBEDO += rim_tint.rgb * (fresnel * rim_tint.a);
-	ROUGHNESS = clamp(roughness_base - ripple * 0.05, 0.03, 0.28);
-	METALLIC = 0.03;
-	ALPHA = clamp(alpha + fresnel * 0.05, 0.52, 0.95);
+	ALBEDO = base_color;
+	ALPHA = clamp(mix(deep_color.a, shallow_color.a, shore_blend) + foam * 0.22, 0.38, 0.84);
 }
 """
 
@@ -627,12 +628,21 @@ func _try_cast() -> void:
 	if cast_state == 1:
 		_hide_cast_visuals()
 		cast_state = 0
-		_set_status("Right click or Tab: look mode • Left click: cast")
+		_set_status("Hold right click or Tab: look mode • Tap/click water: cast")
 		return
 
 	var screen_point: Vector2 = get_viewport().get_visible_rect().size * 0.5
 	if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
 		screen_point = get_viewport().get_mouse_position()
+
+	_try_cast_from_screen(screen_point)
+
+func _try_cast_from_screen(screen_point: Vector2) -> void:
+	if cast_state == 1:
+		_hide_cast_visuals()
+		cast_state = 0
+		_set_status("Hold right click or Tab: look mode • Tap/click water: cast")
+		return
 
 	var ray_origin: Vector3 = camera.project_ray_origin(screen_point)
 	var ray_direction: Vector3 = camera.project_ray_normal(screen_point)
@@ -658,7 +668,7 @@ func _start_cast(point: Vector3) -> void:
 	_place_bobber(point)
 	if pole and pole.has_method("play_cast_kick"):
 		pole.call("play_cast_kick")
-	_set_status("Fishing... wait for bites • Click cast again to reel in")
+	_set_status("Fishing... wait for bites • Tap/click again to reel in")
 
 func _place_bobber(point: Vector3) -> void:
 	if not bobber:

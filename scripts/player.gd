@@ -19,6 +19,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		head.rotate_x(-event.relative.y * mouse_sensitivity)
 		head.rotation.x = clamp(head.rotation.x, deg_to_rad(-85.0), deg_to_rad(85.0))
 
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
+		_set_mouse_captured(event.pressed)
+
 	if event.is_action_pressed("toggle_mouse_capture"):
 		_set_mouse_captured(Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED)
 

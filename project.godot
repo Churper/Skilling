@@ -20,7 +20,7 @@ window/size/viewport_height=720
 window/size/resizable=true
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-window/dpi/allow_hidpi=false
+window/dpi/allow_hidpi=true
 
 [physics]
 common/physics_ticks_per_second=60
