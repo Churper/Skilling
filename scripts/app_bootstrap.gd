@@ -31,8 +31,15 @@ var last_cast_point: Vector3 = Vector3.ZERO
 
 var inventory: Dictionary = {}
 var inventory_labels: Dictionary = {}
+var inventory_name_labels: Array[Label] = []
 var total_label: Label
 var status_label: Label
+var hud_root: Control
+var hud_crosshair: Label
+var hud_fishing_panel: PanelContainer
+var hud_inventory_panel: PanelContainer
+var hud_fishing_title: Label
+var hud_inventory_title: Label
 
 var fishing_level: int = 1
 var fishing_xp: int = 0
@@ -41,6 +48,8 @@ var fishing_xp_label: Label
 var fishing_xp_bar: ProgressBar
 var xp_drop_label: Label
 var xp_drop_timer: float = 0.0
+var xp_drop_base_top: float = -118.0
+var xp_drop_base_bottom: float = -82.0
 
 func _ready() -> void:
 	randomize()
@@ -74,8 +83,8 @@ func _process(delta: float) -> void:
 		xp_drop_label.offset_bottom -= delta * 10.0
 		if xp_drop_timer <= 0.0:
 			xp_drop_label.visible = false
-			xp_drop_label.offset_top = -118
-			xp_drop_label.offset_bottom = -82
+			xp_drop_label.offset_top = xp_drop_base_top
+			xp_drop_label.offset_bottom = xp_drop_base_bottom
 
 	if cast_state == 0:
 		return
@@ -92,15 +101,10 @@ func _process(delta: float) -> void:
 		var levels_gained: int = _add_fishing_xp(xp_drop)
 		_show_xp_drop(xp_drop)
 		if levels_gained > 0:
-			_set_status("Caught %s (+%d XP) • Fishing Lv %d" % [fish_name, xp_drop, fishing_level])
+			_set_status("Caught %s (+%d XP) • Fishing Lv %d • Click cast to reel in" % [fish_name, xp_drop, fishing_level])
 		else:
-			_set_status("Caught %s (+%d XP)" % [fish_name, xp_drop])
-		cast_state = 2
-		cast_timer = 0.85
-	elif cast_state == 2 and cast_timer <= 0.0:
-		_hide_cast_visuals()
-		cast_state = 0
-		_set_status("Right click or Tab: look mode • Left click: cast")
+			_set_status("Caught %s (+%d XP) • Click cast to reel in" % [fish_name, xp_drop])
+		cast_timer = randf_range(0.85, 1.9)
 
 func _apply_window_scaling() -> void:
 	var window: Window = get_window()
@@ -129,6 +133,8 @@ func _on_window_size_changed() -> void:
 			camera.fov = clamp(base_fov - (aspect - 2.1) * 6.0, 76.0, base_fov)
 		else:
 			camera.fov = base_fov
+
+	_apply_hud_layout()
 
 func _ensure_cast_input_map() -> void:
 	if not InputMap.has_action("cast"):
@@ -193,12 +199,7 @@ func _create_water_zone() -> void:
 	pond_mesh.size = Vector2(42.0, 42.0)
 	water_mesh.mesh = pond_mesh
 	water_mesh.position = Vector3(0.0, 0.02, 0.0)
-	var water_mat: StandardMaterial3D = StandardMaterial3D.new()
-	water_mat.albedo_color = Color(0.24, 0.63, 0.72, 0.86)
-	water_mat.roughness = 0.10
-	water_mat.metallic = 0.12
-	water_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	water_mesh.material_override = water_mat
+	water_mesh.material_override = _create_water_material()
 	water_root.add_child(water_mesh)
 
 	water_area = Area3D.new()
@@ -245,6 +246,54 @@ func _create_water_zone() -> void:
 	bobber.material_override = bobber_mat
 	bobber.visible = false
 	add_child(bobber)
+
+func _create_water_material() -> ShaderMaterial:
+	var shader := Shader.new()
+	shader.code = """
+shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_disabled, diffuse_burley, specular_schlick_ggx;
+
+uniform vec4 shallow_color : source_color = vec4(0.36, 0.80, 0.90, 0.68);
+uniform vec4 deep_color : source_color = vec4(0.08, 0.38, 0.56, 0.86);
+uniform vec4 rim_tint : source_color = vec4(0.58, 0.89, 0.98, 0.30);
+uniform float wave_speed = 0.55;
+uniform float ripple_scale = 2.2;
+uniform float normal_strength = 0.10;
+uniform float roughness_base = 0.12;
+uniform float clarity_boost = 0.18;
+
+void fragment() {
+	float t = TIME * wave_speed;
+	vec2 uv = UV * ripple_scale;
+
+	float wave_1 = sin((uv.x * 6.28318) + (t * 1.2));
+	float wave_2 = sin((uv.y * 8.48230) - (t * 0.9));
+	float wave_3 = sin(((uv.x + uv.y) * 5.65487) + (t * 1.5));
+	float ripple = (wave_1 + wave_2 + wave_3) * 0.3333;
+
+	float depth_mask = smoothstep(0.08, 0.52, distance(UV, vec2(0.5)));
+	vec3 water_color = mix(deep_color.rgb, shallow_color.rgb, depth_mask);
+	float alpha = mix(deep_color.a, shallow_color.a, depth_mask);
+
+	float dx = cos((uv.x * 6.28318) + (t * 1.2)) * 0.55 + cos(((uv.x + uv.y) * 5.65487) + (t * 1.5)) * 0.35;
+	float dz = cos((uv.y * 8.48230) - (t * 0.9)) * 0.55 + cos(((uv.x + uv.y) * 5.65487) + (t * 1.5)) * 0.35;
+	vec3 normal_wave = normalize(vec3(dx * normal_strength, 1.0, dz * normal_strength));
+	NORMAL = normal_wave;
+
+	float fresnel = pow(1.0 - max(dot(normalize(VIEW), normal_wave), 0.0), 3.1);
+	float sparkle = max(0.0, ripple) * 0.06;
+
+	ALBEDO = water_color + vec3(clarity_boost * (1.0 - depth_mask) + sparkle);
+	ALBEDO += rim_tint.rgb * (fresnel * rim_tint.a);
+	ROUGHNESS = clamp(roughness_base - ripple * 0.05, 0.03, 0.28);
+	METALLIC = 0.03;
+	ALPHA = clamp(alpha + fresnel * 0.05, 0.52, 0.95);
+}
+"""
+
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	return material
 
 func _spawn_lowpoly_props() -> void:
 	var rock_positions: Array[Vector3] = [
@@ -313,36 +362,36 @@ func _build_hud() -> void:
 	layer.layer = 20
 	add_child(layer)
 
-	var root: Control = Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layer.add_child(root)
+	hud_root = Control.new()
+	hud_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hud_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(hud_root)
 
-	var crosshair: Label = Label.new()
-	crosshair.text = "+"
-	crosshair.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	crosshair.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	crosshair.anchor_left = 0.5
-	crosshair.anchor_right = 0.5
-	crosshair.anchor_top = 0.5
-	crosshair.anchor_bottom = 0.5
-	crosshair.offset_left = -12
-	crosshair.offset_right = 12
-	crosshair.offset_top = -16
-	crosshair.offset_bottom = 16
-	crosshair.add_theme_font_size_override("font_size", 26)
-	root.add_child(crosshair)
+	hud_crosshair = Label.new()
+	hud_crosshair.text = "+"
+	hud_crosshair.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hud_crosshair.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hud_crosshair.anchor_left = 0.5
+	hud_crosshair.anchor_right = 0.5
+	hud_crosshair.anchor_top = 0.5
+	hud_crosshair.anchor_bottom = 0.5
+	hud_crosshair.offset_left = -12
+	hud_crosshair.offset_right = 12
+	hud_crosshair.offset_top = -16
+	hud_crosshair.offset_bottom = 16
+	hud_crosshair.add_theme_font_size_override("font_size", 26)
+	hud_root.add_child(hud_crosshair)
 
-	var fishing_panel: PanelContainer = PanelContainer.new()
-	fishing_panel.anchor_left = 0.0
-	fishing_panel.anchor_right = 0.0
-	fishing_panel.anchor_top = 0.0
-	fishing_panel.anchor_bottom = 0.0
-	fishing_panel.offset_left = 18
-	fishing_panel.offset_right = 310
-	fishing_panel.offset_top = 18
-	fishing_panel.offset_bottom = 168
-	root.add_child(fishing_panel)
+	hud_fishing_panel = PanelContainer.new()
+	hud_fishing_panel.anchor_left = 0.0
+	hud_fishing_panel.anchor_right = 0.0
+	hud_fishing_panel.anchor_top = 0.0
+	hud_fishing_panel.anchor_bottom = 0.0
+	hud_fishing_panel.offset_left = 18
+	hud_fishing_panel.offset_right = 310
+	hud_fishing_panel.offset_top = 18
+	hud_fishing_panel.offset_bottom = 168
+	hud_root.add_child(hud_fishing_panel)
 
 	var fishing_style: StyleBoxFlat = StyleBoxFlat.new()
 	fishing_style.bg_color = Color(0.05, 0.10, 0.15, 0.84)
@@ -355,16 +404,16 @@ func _build_hud() -> void:
 	fishing_style.corner_radius_top_right = 10
 	fishing_style.corner_radius_bottom_left = 10
 	fishing_style.corner_radius_bottom_right = 10
-	fishing_panel.add_theme_stylebox_override("panel", fishing_style)
+	hud_fishing_panel.add_theme_stylebox_override("panel", fishing_style)
 
 	var fishing_column: VBoxContainer = VBoxContainer.new()
 	fishing_column.add_theme_constant_override("separation", 5)
-	fishing_panel.add_child(fishing_column)
+	hud_fishing_panel.add_child(fishing_column)
 
-	var fishing_title: Label = Label.new()
-	fishing_title.text = "Fishing"
-	fishing_title.add_theme_font_size_override("font_size", 24)
-	fishing_column.add_child(fishing_title)
+	hud_fishing_title = Label.new()
+	hud_fishing_title.text = "Fishing"
+	hud_fishing_title.add_theme_font_size_override("font_size", 24)
+	fishing_column.add_child(hud_fishing_title)
 
 	fishing_level_label = Label.new()
 	fishing_level_label.text = "Level 1"
@@ -383,16 +432,16 @@ func _build_hud() -> void:
 	fishing_xp_bar.custom_minimum_size = Vector2(0, 14)
 	fishing_column.add_child(fishing_xp_bar)
 
-	var inventory_panel: PanelContainer = PanelContainer.new()
-	inventory_panel.anchor_left = 1.0
-	inventory_panel.anchor_right = 1.0
-	inventory_panel.anchor_top = 0.0
-	inventory_panel.anchor_bottom = 0.0
-	inventory_panel.offset_left = -300
-	inventory_panel.offset_right = -18
-	inventory_panel.offset_top = 18
-	inventory_panel.offset_bottom = 250
-	root.add_child(inventory_panel)
+	hud_inventory_panel = PanelContainer.new()
+	hud_inventory_panel.anchor_left = 1.0
+	hud_inventory_panel.anchor_right = 1.0
+	hud_inventory_panel.anchor_top = 0.0
+	hud_inventory_panel.anchor_bottom = 0.0
+	hud_inventory_panel.offset_left = -300
+	hud_inventory_panel.offset_right = -18
+	hud_inventory_panel.offset_top = 18
+	hud_inventory_panel.offset_bottom = 250
+	hud_root.add_child(hud_inventory_panel)
 
 	var panel_style: StyleBoxFlat = StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.05, 0.10, 0.15, 0.82)
@@ -405,22 +454,23 @@ func _build_hud() -> void:
 	panel_style.corner_radius_top_right = 10
 	panel_style.corner_radius_bottom_left = 10
 	panel_style.corner_radius_bottom_right = 10
-	inventory_panel.add_theme_stylebox_override("panel", panel_style)
+	hud_inventory_panel.add_theme_stylebox_override("panel", panel_style)
 
 	var column: VBoxContainer = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 4)
-	inventory_panel.add_child(column)
+	hud_inventory_panel.add_child(column)
 
-	var title: Label = Label.new()
-	title.text = "Catch Inventory"
-	title.add_theme_font_size_override("font_size", 20)
-	column.add_child(title)
+	hud_inventory_title = Label.new()
+	hud_inventory_title.text = "Catch Inventory"
+	hud_inventory_title.add_theme_font_size_override("font_size", 20)
+	column.add_child(hud_inventory_title)
 
 	for fish_name in FISH_TYPES:
 		var row: HBoxContainer = HBoxContainer.new()
 		var fish_label: Label = Label.new()
 		fish_label.text = fish_name
 		fish_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		inventory_name_labels.append(fish_label)
 		var count_label: Label = Label.new()
 		count_label.text = "0"
 		count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -447,14 +497,14 @@ func _build_hud() -> void:
 	xp_drop_label.anchor_bottom = 1.0
 	xp_drop_label.offset_left = -120
 	xp_drop_label.offset_right = 120
-	xp_drop_label.offset_top = -118
-	xp_drop_label.offset_bottom = -82
+	xp_drop_label.offset_top = xp_drop_base_top
+	xp_drop_label.offset_bottom = xp_drop_base_bottom
 	xp_drop_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	xp_drop_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	xp_drop_label.add_theme_font_size_override("font_size", 24)
 	xp_drop_label.text = "+0 XP"
 	xp_drop_label.visible = false
-	root.add_child(xp_drop_label)
+	hud_root.add_child(xp_drop_label)
 
 	status_label = Label.new()
 	status_label.anchor_left = 0.5
@@ -468,10 +518,116 @@ func _build_hud() -> void:
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	status_label.add_theme_font_size_override("font_size", 18)
-	root.add_child(status_label)
+	hud_root.add_child(status_label)
+
+	_apply_hud_layout()
+
+func _apply_hud_layout() -> void:
+	if not hud_root:
+		return
+
+	var window: Window = get_window()
+	var size: Vector2i = window.size
+	if size.x <= 0 or size.y <= 0:
+		return
+
+	var is_portrait: bool = size.y > size.x
+	var shortest: int = min(size.x, size.y)
+	var mobile: bool = shortest <= 900
+	var font_scale: float = 1.0
+	if shortest <= 420:
+		font_scale = 1.45
+	elif shortest <= 520:
+		font_scale = 1.30
+	elif shortest <= 700:
+		font_scale = 1.18
+	elif shortest >= 1500:
+		font_scale = 1.10
+
+	var pad: float = 14.0 if mobile else 18.0
+	var panel_gap: float = 10.0 if mobile else 14.0
+	var fishing_w: float = clamp(size.x * 0.32, 260.0, 410.0)
+	var inv_w: float = clamp(size.x * 0.30, 250.0, 380.0)
+	var fishing_h: float = 170.0
+	var inventory_h: float = 262.0
+
+	if is_portrait:
+		hud_crosshair.visible = false
+		hud_fishing_panel.anchor_left = 0.0
+		hud_fishing_panel.anchor_right = 1.0
+		hud_fishing_panel.offset_left = pad
+		hud_fishing_panel.offset_right = -pad
+		hud_fishing_panel.offset_top = pad
+		hud_fishing_panel.offset_bottom = pad + 196.0
+
+		hud_inventory_panel.anchor_left = 0.0
+		hud_inventory_panel.anchor_right = 1.0
+		hud_inventory_panel.offset_left = pad
+		hud_inventory_panel.offset_right = -pad
+		hud_inventory_panel.offset_top = hud_fishing_panel.offset_bottom + panel_gap
+		hud_inventory_panel.offset_bottom = hud_inventory_panel.offset_top + 246.0
+	else:
+		hud_crosshair.visible = true
+		hud_fishing_panel.anchor_left = 0.0
+		hud_fishing_panel.anchor_right = 0.0
+		hud_fishing_panel.offset_left = pad
+		hud_fishing_panel.offset_right = pad + fishing_w
+		hud_fishing_panel.offset_top = pad
+		hud_fishing_panel.offset_bottom = pad + fishing_h
+
+		hud_inventory_panel.anchor_left = 1.0
+		hud_inventory_panel.anchor_right = 1.0
+		hud_inventory_panel.offset_left = -(inv_w + pad)
+		hud_inventory_panel.offset_right = -pad
+		hud_inventory_panel.offset_top = pad
+		hud_inventory_panel.offset_bottom = pad + inventory_h
+
+	var title_size: int = int(round(24.0 * font_scale))
+	var level_size: int = int(round(18.0 * font_scale))
+	var body_size: int = int(round(16.0 * font_scale))
+	var small_size: int = int(round(15.0 * font_scale))
+	var xp_drop_size: int = int(round(24.0 * font_scale))
+	var status_size: int = int(round(18.0 * font_scale))
+
+	hud_fishing_title.add_theme_font_size_override("font_size", title_size)
+	if hud_inventory_title:
+		hud_inventory_title.add_theme_font_size_override("font_size", int(round(20.0 * font_scale)))
+	if fishing_level_label:
+		fishing_level_label.add_theme_font_size_override("font_size", level_size)
+	if fishing_xp_label:
+		fishing_xp_label.add_theme_font_size_override("font_size", body_size)
+	if total_label:
+		total_label.add_theme_font_size_override("font_size", body_size)
+	if fishing_xp_bar:
+		fishing_xp_bar.custom_minimum_size = Vector2(0, 16.0 if mobile else 14.0)
+
+	for fish_label in inventory_name_labels:
+		fish_label.add_theme_font_size_override("font_size", small_size)
+	for count_label in inventory_labels.values():
+		var count_text: Label = count_label as Label
+		if count_text:
+			count_text.add_theme_font_size_override("font_size", small_size)
+
+	xp_drop_label.add_theme_font_size_override("font_size", xp_drop_size)
+	xp_drop_label.offset_left = -160.0 if mobile else -120.0
+	xp_drop_label.offset_right = 160.0 if mobile else 120.0
+	xp_drop_base_top = -136.0 if mobile else -118.0
+	xp_drop_base_bottom = -92.0 if mobile else -82.0
+	if xp_drop_timer <= 0.0:
+		xp_drop_label.offset_top = xp_drop_base_top
+		xp_drop_label.offset_bottom = xp_drop_base_bottom
+
+	status_label.add_theme_font_size_override("font_size", status_size)
+	status_label.offset_left = -360.0 if mobile else -280.0
+	status_label.offset_right = 360.0 if mobile else 280.0
+	status_label.offset_top = -88.0 if mobile else -66.0
+	status_label.offset_bottom = -40.0 if mobile else -30.0
 
 func _try_cast() -> void:
 	if cast_state == 1:
+		_hide_cast_visuals()
+		cast_state = 0
+		_set_status("Right click or Tab: look mode • Left click: cast")
 		return
 
 	var screen_point: Vector2 = get_viewport().get_visible_rect().size * 0.5
@@ -497,12 +653,12 @@ func _try_cast() -> void:
 func _start_cast(point: Vector3) -> void:
 	last_cast_point = point
 	cast_state = 1
-	cast_timer = randf_range(1.1, 2.3)
+	cast_timer = randf_range(1.0, 2.0)
 	bobber_time = 0.0
 	_place_bobber(point)
 	if pole and pole.has_method("play_cast_kick"):
 		pole.call("play_cast_kick")
-	_set_status("Casting...")
+	_set_status("Fishing... wait for bites • Click cast again to reel in")
 
 func _place_bobber(point: Vector3) -> void:
 	if not bobber:
@@ -525,8 +681,7 @@ func _update_bobber_visual(delta: float) -> void:
 
 	var float_wave: float = sin(bobber_time * 6.0) * 0.028
 	var lift: float = 0.08 + float_wave
-	if cast_state == 2:
-		lift += sin(bobber_time * 22.0) * 0.015
+	lift += sin(bobber_time * 12.0) * 0.008
 	bobber.global_position = last_cast_point + Vector3(0.0, lift, 0.0)
 	bobber.rotate_y(delta * 1.8)
 
@@ -605,8 +760,8 @@ func _show_xp_drop(amount: int) -> void:
 	if xp_drop_label:
 		xp_drop_label.text = "+%d XP" % amount
 		xp_drop_label.modulate = Color(0.62, 0.94, 1.0, 1.0)
-		xp_drop_label.offset_top = -118
-		xp_drop_label.offset_bottom = -82
+		xp_drop_label.offset_top = xp_drop_base_top
+		xp_drop_label.offset_bottom = xp_drop_base_bottom
 		xp_drop_label.visible = true
 	xp_drop_timer = 1.2
 
