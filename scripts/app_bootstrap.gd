@@ -116,8 +116,9 @@ func _process(delta: float) -> void:
 
 func _apply_window_scaling() -> void:
 	var window: Window = get_window()
-	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
+	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
+	window.content_scale_factor = 1.0
 
 func _on_window_size_changed() -> void:
 	var window: Window = get_window()
@@ -281,14 +282,16 @@ void fragment() {
 	float ripple_b = cos((UV.x - UV.y) * (ripple_density * 0.75) - t * 2.4);
 	float ripple = ripple_a * 0.6 + ripple_b * 0.4;
 	float ripple_mask = smoothstep(0.28, 0.88, ripple * 0.5 + 0.5);
+	float stripe = smoothstep(0.88, 0.97, ripple * 0.5 + 0.5);
 
 	float shore_ring = smoothstep(0.74, 0.96, dist);
 	float foam = shore_ring * smoothstep(0.45, 0.95, ripple_mask);
 	base_color += vec3(0.10, 0.20, 0.26) * ripple_mask;
+	base_color += vec3(0.16, 0.28, 0.34) * stripe;
 	base_color = mix(base_color, edge_foam_color.rgb, foam * 0.7);
 
 	ALBEDO = base_color;
-	ALPHA = clamp(mix(deep_color.a, shallow_color.a, shore_blend) + foam * 0.22, 0.38, 0.84);
+	ALPHA = clamp(mix(deep_color.a, shallow_color.a, shore_blend) + foam * 0.18, 0.24, 0.72);
 }
 """
 
@@ -653,12 +656,25 @@ func _try_cast_from_screen(screen_point: Vector2) -> void:
 	params.collision_mask = WATER_LAYER
 
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(params)
-	if hit.is_empty() or not hit.has("position"):
-		_set_status("Cast on water")
+	if not hit.is_empty() and hit.has("position"):
+		var hit_pos: Vector3 = hit["position"]
+		_start_cast(hit_pos)
 		return
 
-	var hit_pos: Vector3 = hit["position"]
-	_start_cast(hit_pos)
+	# Touch/click fallback for mobile/web scaling cases:
+	# intersect the water plane and ensure point is inside pond bounds.
+	var plane_y: float = water_mesh.global_position.y if water_mesh else 0.02
+	var ray_to_plane: float = (plane_y - ray_origin.y) / ray_direction.y if abs(ray_direction.y) > 0.0001 else -1.0
+	if ray_to_plane <= 0.0:
+		_set_status("Cast on water")
+		return
+	var plane_hit: Vector3 = ray_origin + ray_direction * ray_to_plane
+	var local_hit: Vector3 = plane_hit - water_area.global_position
+	if abs(local_hit.x) <= 21.0 and abs(local_hit.z) <= 21.0:
+		_start_cast(plane_hit)
+		return
+
+	_set_status("Cast on water")
 
 func _start_cast(point: Vector3) -> void:
 	last_cast_point = point
