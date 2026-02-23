@@ -1,9 +1,9 @@
 :root {
-  --bg0: #081623;
-  --bg1: #0f2a3f;
-  --panel: rgba(7, 18, 28, 0.68);
-  --line: rgba(147, 216, 255, 0.35);
-  --text: #e9f8ff;
+  --bg0: #0b1f33;
+  --bg1: #10314d;
+  --panel: rgba(8, 24, 38, 0.62);
+  --line: rgba(171, 233, 255, 0.34);
+  --text: #effbff;
 }
 
 html, body {
@@ -13,7 +13,7 @@ html, body {
   overflow: hidden;
   background: radial-gradient(1200px 70% at 50% 120%, #17385a 0%, #081623 72%);
   color: var(--text);
-  font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+  font-family: "Avenir Next", "Segoe UI", "Trebuchet MS", Arial, sans-serif;
 }
 
 #game-canvas {
@@ -27,23 +27,24 @@ html, body {
   position: fixed;
   left: 14px;
   top: 14px;
-  max-width: min(520px, 88vw);
-  padding: 12px 14px;
+  max-width: min(560px, 90vw);
+  padding: 13px 15px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--panel);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 12px 32px rgba(8, 19, 30, 0.34);
   pointer-events: none;
 }
 
 #hud h1 {
-  margin: 0 0 6px;
-  font-size: clamp(20px, 2.7vw, 30px);
-  letter-spacing: 0.04em;
+  margin: 0 0 7px;
+  font-size: clamp(22px, 3vw, 36px);
+  letter-spacing: 0.02em;
 }
 
 #hud p {
-  margin: 2px 0;
-  font-size: clamp(12px, 1.5vw, 15px);
+  margin: 3px 0;
+  font-size: clamp(12px, 1.45vw, 16px);
   line-height: 1.3;
 }
