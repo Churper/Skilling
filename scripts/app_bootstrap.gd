@@ -820,10 +820,13 @@ func _start_cast(point: Vector3) -> void:
 	_set_status(_status_text("casting", "Fishing... wait for bites - Tap/click again to reel in"))
 
 func _move_player_to_screen_point(ray_origin: Vector3, ray_direction: Vector3) -> void:
+	if not player:
+		return
+
 	var params: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_direction * 500.0)
 	params.collide_with_areas = false
 	params.collide_with_bodies = true
-	params.collision_mask = 1
+	params.collision_mask = 0xFFFFFFFF
 	if player:
 		params.exclude = [player.get_rid()]
 
@@ -834,12 +837,19 @@ func _move_player_to_screen_point(ray_origin: Vector3, ray_direction: Vector3) -
 	else:
 		var ground_y: float = 0.0
 		var t: float = (ground_y - ray_origin.y) / ray_direction.y if abs(ray_direction.y) > 0.0001 else -1.0
-		if t <= 0.0:
-			return
-		target = ray_origin + ray_direction * t
+		if t > 0.0:
+			target = ray_origin + ray_direction * t
+		else:
+			# Camera might be aimed above horizon; still create a reachable walk target.
+			var forward_flat: Vector3 = Vector3(ray_direction.x, 0.0, ray_direction.z).normalized()
+			if forward_flat.length() < 0.001:
+				forward_flat = -player.global_basis.z
+				forward_flat.y = 0.0
+				forward_flat = forward_flat.normalized()
+			target = player.global_position + forward_flat * 8.0
 
 	target.y = player.global_position.y
-	if player and player.has_method("set_click_move_target"):
+	if player.has_method("set_click_move_target"):
 		player.call("set_click_move_target", target)
 
 func _place_bobber(point: Vector3) -> void:
