@@ -6,6 +6,7 @@ export function initializeUI() {
 
   const labelByTab = {
     inventory: "Inventory",
+    tools: "Tools",
     skills: "Skills",
     friends: "Friends",
   };

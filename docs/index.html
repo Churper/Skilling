@@ -15,20 +15,29 @@
     </header>
     <nav id="ui-dock" aria-label="Main tabs">
       <button type="button" class="ui-tab-btn is-active" data-tab="inventory">Inventory</button>
+      <button type="button" class="ui-tab-btn" data-tab="tools">Tools</button>
       <button type="button" class="ui-tab-btn" data-tab="skills">Skills</button>
       <button type="button" class="ui-tab-btn" data-tab="friends">Friends</button>
     </nav>
     <aside id="ui-panel" aria-live="polite">
       <h2 id="ui-panel-title">Inventory</h2>
       <section class="ui-panel-section" data-tab-panel="inventory">
+        <p>Bag</p>
         <p>Your bag is empty.</p>
-        <p>Fish, tools, and drops will appear here.</p>
+        <p>Fish, tools, and drops appear here.</p>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="tools" hidden>
+        <p>Tools</p>
+        <p>Bronze Rod (Starter)</p>
+        <p>More tools are coming soon.</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="skills" hidden>
+        <p>Skills</p>
         <p>Fishing Lv. 1</p>
         <p>More skills coming soon.</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="friends" hidden>
+        <p>Friends</p>
         <p>Friends list is coming soon.</p>
         <p>This is a placeholder tab.</p>
       </section>
