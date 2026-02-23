@@ -3,7 +3,7 @@
     "fishing_title": "Fishing",
     "inventory_title": "Catch Inventory",
     "status": {
-      "ready": "Hold right click or Tab: look mode • Tap/click water: cast",
+      "ready": "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast",
       "reel_prompt": "Tap/click to reel in",
       "casting": "Fishing... wait for bites • Tap/click again to reel in",
       "cast_on_water": "Cast on water"

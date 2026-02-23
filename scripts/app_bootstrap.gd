@@ -20,6 +20,9 @@ var cast_state: int = 0
 var cast_timer: float = 0.0
 var bobber_time: float = 0.0
 var last_cast_point: Vector3 = Vector3.ZERO
+var touch_cast_active: bool = false
+var touch_cast_moved: bool = false
+var touch_cast_start: Vector2 = Vector2.ZERO
 var game_config: Dictionary = {}
 var fish_types: PackedStringArray = PackedStringArray()
 var fish_xp: Dictionary = {}
@@ -62,7 +65,7 @@ func _ready() -> void:
 		inventory[fish_name] = 0
 	_update_inventory_ui()
 	_update_fishing_ui()
-	_set_status(_status_text("ready", "Hold right click or Tab: look mode • Tap/click water: cast"))
+	_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast"))
 
 	var window: Window = get_window()
 	window.size_changed.connect(_on_window_size_changed)
@@ -122,7 +125,7 @@ func _default_game_config() -> Dictionary:
 			"fishing_title": "Fishing",
 			"inventory_title": "Catch Inventory",
 			"status": {
-				"ready": "Hold right click or Tab: look mode • Tap/click water: cast",
+				"ready": "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast",
 				"reel_prompt": "Tap/click to reel in",
 				"casting": "Fishing... wait for bites • Tap/click again to reel in",
 				"cast_on_water": "Cast on water"
@@ -171,8 +174,21 @@ func _status_text(key: String, fallback: String) -> String:
 	return str(status_cfg.get(key, fallback))
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventScreenTouch and event.pressed:
-		_try_cast_from_screen(event.position)
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			touch_cast_active = true
+			touch_cast_moved = false
+			touch_cast_start = event.position
+		elif touch_cast_active:
+			if not touch_cast_moved:
+				_try_cast_from_screen(event.position)
+			touch_cast_active = false
+			touch_cast_moved = false
+		return
+
+	if event is InputEventScreenDrag:
+		if touch_cast_active and event.position.distance_to(touch_cast_start) > 16.0:
+			touch_cast_moved = true
 		return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -756,7 +772,7 @@ func _try_cast() -> void:
 	if cast_state == 1:
 		_hide_cast_visuals()
 		cast_state = 0
-		_set_status(_status_text("ready", "Hold right click or Tab: look mode • Tap/click water: cast"))
+		_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast"))
 		return
 
 	var screen_point: Vector2 = get_viewport().get_visible_rect().size * 0.5
@@ -769,7 +785,7 @@ func _try_cast_from_screen(screen_point: Vector2) -> void:
 	if cast_state == 1:
 		_hide_cast_visuals()
 		cast_state = 0
-		_set_status(_status_text("ready", "Hold right click or Tab: look mode • Tap/click water: cast"))
+		_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast"))
 		return
 
 	var ray_origin: Vector3 = camera.project_ray_origin(screen_point)
