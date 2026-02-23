@@ -106,16 +106,19 @@ export function createMoveMarker(scene) {
   const marker = new THREE.Group();
   const markerRing = new THREE.Mesh(
     new THREE.TorusGeometry(0.62, 0.06, 10, 40),
-    new THREE.MeshBasicMaterial({ color: "#fef8a2", transparent: true, opacity: 0.9 })
+    new THREE.MeshBasicMaterial({ color: "#fef8a2", transparent: true, opacity: 0.9, depthWrite: false, depthTest: false })
   );
   markerRing.rotation.x = Math.PI / 2;
+  markerRing.renderOrder = 95;
   marker.add(markerRing);
   const markerBeam = new THREE.Mesh(
     new THREE.CylinderGeometry(0.05, 0.14, 1.15, 10),
-    new THREE.MeshBasicMaterial({ color: "#f4ec8a", transparent: true, opacity: 0.42 })
+    new THREE.MeshBasicMaterial({ color: "#f4ec8a", transparent: true, opacity: 0.42, depthWrite: false, depthTest: false })
   );
-  markerBeam.position.y = 0.58;
+  markerBeam.position.y = 0.66;
+  markerBeam.renderOrder = 95;
   marker.add(markerBeam);
+  marker.renderOrder = 95;
   marker.visible = false;
   scene.add(marker);
   return { marker, markerRing, markerBeam };

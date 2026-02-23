@@ -68,8 +68,10 @@ ui?.setSkills({
 
 const moveTarget = new THREE.Vector3();
 const resourceTargetPos = new THREE.Vector3();
+const markerTarget = new THREE.Vector3();
 let hasMoveTarget = false;
 let markerBaseY = 0;
+let markerOnWater = false;
 let pendingResource = null;
 
 player.geometry.computeBoundingBox();
@@ -93,11 +95,14 @@ player.position.y = getPlayerStandY(player.position.x, player.position.z);
 function setMoveTarget(point, preservePending = false) {
   if (!point) return;
   if (!preservePending) pendingResource = null;
+  markerTarget.copy(point);
   moveTarget.copy(point);
   moveTarget.y = getPlayerGroundY(point.x, point.z);
   hasMoveTarget = true;
   marker.visible = true;
-  markerBaseY = moveTarget.y + 0.03;
+  const waterY = getWaterSurfaceHeight(point.x, point.z, waterUniforms.uTime.value);
+  markerOnWater = Number.isFinite(waterY);
+  markerBaseY = (markerOnWater ? waterY : moveTarget.y) + 0.1;
   marker.position.set(point.x, markerBaseY, point.z);
 }
 
@@ -246,6 +251,12 @@ function animate() {
   playerBlob.position.set(player.position.x, groundY + 0.03, player.position.z);
 
   if (marker.visible) {
+    if (markerOnWater) {
+      const waterY = getWaterSurfaceHeight(markerTarget.x, markerTarget.z, waterUniforms.uTime.value);
+      if (Number.isFinite(waterY)) markerBaseY = waterY + 0.1;
+    } else {
+      markerBaseY = getPlayerGroundY(markerTarget.x, markerTarget.z) + 0.1;
+    }
     markerRing.rotation.z += dt * 1.8;
     marker.position.y = markerBaseY + Math.sin(t * 4.0) * 0.03;
     markerBeam.material.opacity = 0.32 + Math.sin(t * 6.0) * 0.1;

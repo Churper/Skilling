@@ -168,6 +168,10 @@ function createGround(scene) {
   const colGrassLight = new THREE.Color("#8ab26f");
   const colBeachBlend = new THREE.Color("#ceb785");
   const colTmp = new THREE.Color();
+  const lightX = 0.54;
+  const lightY = 0.78;
+  const lightZ = 0.31;
+  const sampleStep = 0.8;
 
   for (let i = 0; i < tPos.count; i++) {
     const x = tPos.getX(i);
@@ -177,11 +181,26 @@ function createGround(scene) {
     tPos.setZ(i, y);
 
     const noise = sampleTerrainNoise(x, z);
-    const hillShade = THREE.MathUtils.clamp((y + 0.8) / 1.75, 0, 1);
+    const hx = sampleTerrainHeight(x + sampleStep, z) - sampleTerrainHeight(x - sampleStep, z);
+    const hz = sampleTerrainHeight(x, z + sampleStep) - sampleTerrainHeight(x, z - sampleStep);
+    const nx = -hx;
+    const ny = 2.0;
+    const nz = -hz;
+    const invLen = 1 / Math.hypot(nx, ny, nz);
+    const litRaw = THREE.MathUtils.clamp((nx * lightX + ny * lightY + nz * lightZ) * invLen * 0.5 + 0.5, 0, 1);
+    const litBanded = Math.floor(litRaw * 4.5) / 4;
+    const litStylized = THREE.MathUtils.lerp(litRaw, litBanded, 0.52);
+
+    const hillShadeRaw = THREE.MathUtils.clamp((y + 0.8) / 1.75, 0, 1);
+    const hillShadeBanded = Math.floor(hillShadeRaw * 5.0) / 4.0;
+    const hillShade = THREE.MathUtils.lerp(hillShadeRaw, hillShadeBanded, 0.45);
+    const tonal = THREE.MathUtils.clamp(litStylized * 0.72 + hillShade * 0.48, 0, 1);
     const shoreBlend = THREE.MathUtils.smoothstep(r, 21.4, 34.0);
-    colTmp.copy(colGrassDark).lerp(colGrassLight, hillShade * 0.85 + noise * 0.04 + 0.08);
-    colTmp.lerp(colBeachBlend, shoreBlend * 0.38);
-    colTmp.multiplyScalar(0.92 + (noise + 0.8) * 0.05);
+
+    colTmp.copy(colGrassDark).lerp(colGrassLight, tonal * 0.95 + noise * 0.03 + 0.02);
+    colTmp.lerp(colBeachBlend, shoreBlend * 0.42);
+    const contrastBand = Math.floor(tonal * 3.2) / 3.0;
+    colTmp.multiplyScalar(0.86 + contrastBand * 0.24);
     tCol.push(colTmp.r, colTmp.g, colTmp.b);
   }
   terrainGeo.setAttribute("color", new THREE.Float32BufferAttribute(tCol, 3));
