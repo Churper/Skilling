@@ -158,58 +158,42 @@ function createLakeBowlMesh(radius = 24.15, segments = 140) {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#9cf8ff") },
-    uDeep: { value: new THREE.Color("#0b4f8e") },
+    uShallow: { value: new THREE.Color("#9af2ff") },
+    uDeep: { value: new THREE.Color("#0b4a86") },
   };
 
   const lakeFloor = createLakeBowlMesh();
   scene.add(lakeFloor);
 
   const shallowShelf = new THREE.Mesh(
-    new THREE.RingGeometry(21.6, 24.3, 140),
-    new THREE.MeshBasicMaterial({ color: "#e8d8ab", transparent: true, opacity: 0.44, depthWrite: false, side: THREE.DoubleSide })
+    new THREE.RingGeometry(22.0, 24.36, 140),
+    new THREE.MeshBasicMaterial({ color: "#ead9aa", transparent: true, opacity: 0.5, depthWrite: false, side: THREE.DoubleSide })
   );
   shallowShelf.rotation.x = -Math.PI / 2;
-  shallowShelf.position.y = 0.564;
+  shallowShelf.position.y = 0.566;
   scene.add(shallowShelf);
 
-  const innerWallShade = new THREE.Mesh(
-    new THREE.RingGeometry(22.5, 24.35, 140),
-    new THREE.MeshBasicMaterial({ color: "#185a87", transparent: true, opacity: 0.34, depthWrite: false, side: THREE.DoubleSide })
+  const slopeShade = new THREE.Mesh(
+    new THREE.RingGeometry(20.2, 23.0, 140),
+    new THREE.MeshBasicMaterial({ color: "#1b5b88", transparent: true, opacity: 0.26, depthWrite: false, side: THREE.DoubleSide })
   );
-  innerWallShade.rotation.x = -Math.PI / 2;
-  innerWallShade.position.y = 0.54;
-  scene.add(innerWallShade);
-
-  const innerFoamBand = new THREE.Mesh(
-    new THREE.RingGeometry(24.08, 24.5, 140),
-    new THREE.MeshBasicMaterial({ color: "#f6ffff", transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide })
-  );
-  innerFoamBand.rotation.x = -Math.PI / 2;
-  innerFoamBand.position.y = 0.588;
-  scene.add(innerFoamBand);
-
-  const dropBand = new THREE.Mesh(
-    new THREE.RingGeometry(23.3, 24.0, 140),
-    new THREE.MeshBasicMaterial({ color: "#1e6d9e", transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide })
-  );
-  dropBand.rotation.x = -Math.PI / 2;
-  dropBand.position.y = 0.538;
-  scene.add(dropBand);
+  slopeShade.rotation.x = -Math.PI / 2;
+  slopeShade.position.y = 0.535;
+  scene.add(slopeShade);
 
   const causticMap = createCausticTexture();
   const floorCaustics = new THREE.Mesh(
-    new THREE.CircleGeometry(23.95, 140),
+    new THREE.CircleGeometry(24.0, 140),
     new THREE.MeshBasicMaterial({
       map: causticMap,
       transparent: true,
-      opacity: 0.025,
+      opacity: 0.018,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     })
   );
   floorCaustics.rotation.x = -Math.PI / 2;
-  floorCaustics.position.y = 0.547;
+  floorCaustics.position.y = 0.544;
   scene.add(floorCaustics);
 
   const waterMat = new THREE.ShaderMaterial({
@@ -223,9 +207,9 @@ function createWater(scene) {
       void main() {
         vUv = uv;
         vec3 p = position;
-        float w0 = sin((uv.x * 6.8 + uv.y * 4.8) + uTime * 1.38) * 0.013;
-        float w1 = sin((uv.x * 10.6 - uv.y * 5.7) - uTime * 0.95) * 0.009;
-        float w2 = sin((uv.x * 15.4 + uv.y * 10.6) + uTime * 1.62) * 0.005;
+        float w0 = sin((uv.x * 5.4 + uv.y * 3.8) + uTime * 1.08) * 0.009;
+        float w1 = sin((uv.x * 8.6 - uv.y * 4.4) - uTime * 0.8) * 0.006;
+        float w2 = sin((uv.x * 12.6 + uv.y * 8.6) + uTime * 1.22) * 0.003;
         p.y += w0 + w1 + w2;
         vec4 worldPos = modelMatrix * vec4(p, 1.0);
         vWorldPos = worldPos.xyz;
@@ -239,83 +223,45 @@ function createWater(scene) {
       uniform vec3 uShallow;
       uniform vec3 uDeep;
 
-      float hash21(vec2 p) {
-        p = fract(p * vec2(123.34, 456.21));
-        p += dot(p, p + 45.32);
-        return fract(p.x * p.y);
-      }
-
-      float noise(vec2 p) {
-        vec2 i = floor(p);
-        vec2 f = fract(p);
-        float a = hash21(i);
-        float b = hash21(i + vec2(1.0, 0.0));
-        float c = hash21(i + vec2(0.0, 1.0));
-        float d = hash21(i + vec2(1.0, 1.0));
-        vec2 u = f * f * (3.0 - 2.0 * f);
-        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-      }
-
-      float fbm(vec2 p) {
-        float v = 0.0;
-        float a = 0.55;
-        for (int i = 0; i < 4; i++) {
-          v += noise(p) * a;
-          p *= 2.05;
-          a *= 0.5;
-        }
-        return v;
-      }
-
       void main() {
         float t = uTime;
-        float distCenter = distance(vUv, vec2(0.5));
-        float shore = smoothstep(0.06, 0.98, distCenter);
-        float depth = 1.0 - shore;
+        float distCenter = distance(vUv, vec2(0.5));     // 0 center, 1 edge
+        float edge = smoothstep(0.79, 1.0, distCenter);  // shoreline mask
+        float depth = 1.0 - smoothstep(0.10, 0.97, distCenter);
         vec2 wp = vWorldPos.xz;
 
-        vec2 flowA = wp * 0.13 + vec2(t * 0.11, -t * 0.08);
-        vec2 flowB = wp * 0.18 + vec2(-t * 0.08, t * 0.07);
-        float causticA = fbm(flowA);
-        float causticB = fbm(flowB);
-        float caustic = smoothstep(0.62, 0.95, causticA * 0.58 + causticB * 0.42);
+        float waveA = sin(wp.x * 0.19 + wp.y * 0.07 + t * 1.15) * 0.5 + 0.5;
+        float waveB = sin(wp.y * 0.16 - wp.x * 0.12 - t * 0.92) * 0.5 + 0.5;
+        float waves = waveA * 0.58 + waveB * 0.42;
+        float highlights = smoothstep(0.86, 1.0, waves);
 
-        float waveA = sin(wp.x * 0.24 + wp.y * 0.08 + t * 1.3) * 0.5 + 0.5;
-        float waveB = sin(wp.y * 0.21 - wp.x * 0.13 - t * 1.05) * 0.5 + 0.5;
-        float ripples = waveA * 0.6 + waveB * 0.4;
-        float crest = smoothstep(0.9, 1.0, ripples);
-
-        vec3 base = mix(uShallow, uDeep, pow(depth, 1.2));
-        base += vec3(0.02, 0.045, 0.075) * caustic;
-        base += vec3(0.035, 0.06, 0.085) * crest * 0.34;
+        vec3 base = mix(uShallow, uDeep, pow(depth, 1.38));
+        base += vec3(0.03, 0.05, 0.07) * highlights * (0.25 + edge * 0.75);
 
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 2.6);
-        base += vec3(0.06, 0.11, 0.16) * fresnel * 0.72;
+        base += vec3(0.05, 0.09, 0.13) * fresnel;
 
-        float spark = smoothstep(0.84, 1.0, sin((wp.x + wp.y) * 0.34 + t * 1.55) * 0.5 + 0.5);
-        base += vec3(0.03, 0.04, 0.04) * spark * (0.35 + 0.65 * shore);
+        float foamEdge = smoothstep(0.90, 1.0, distCenter + (waves - 0.5) * 0.03);
+        vec3 color = mix(base, vec3(0.99, 1.0, 1.0), foamEdge * 0.8);
 
-        float foamEdge = smoothstep(0.92, 1.0, shore + (ripples - 0.5) * 0.03) * smoothstep(0.56, 1.0, caustic);
-        vec3 color = mix(base, vec3(0.985, 1.0, 1.0), foamEdge * 0.78);
-
-        float alpha = mix(0.18, 0.76, pow(depth, 1.38)) + foamEdge * 0.08 + fresnel * 0.02;
-        gl_FragColor = vec4(color, clamp(alpha, 0.14, 0.8));
+        float alpha = mix(0.12, 0.80, pow(depth, 1.55)) + foamEdge * 0.08 + fresnel * 0.02;
+        gl_FragColor = vec4(color, clamp(alpha, 0.1, 0.86));
       }
     `,
   });
 
-  const water = new THREE.Mesh(new THREE.CircleGeometry(24.55, 140), waterMat);
+  const water = new THREE.Mesh(new THREE.CircleGeometry(24.42, 140), waterMat);
   water.rotation.x = -Math.PI / 2;
-  water.position.y = 0.587;
+  water.position.y = 0.586;
   scene.add(water);
 
   const deepTint = new THREE.Mesh(
-    new THREE.CircleGeometry(21.6, 80),
-    new THREE.MeshBasicMaterial({ color: "#0a4a86", transparent: true, opacity: 0.24, depthWrite: false })
+    new THREE.CircleGeometry(20.6, 80),
+    new THREE.MeshBasicMaterial({ color: "#084376", transparent: true, opacity: 0.28, depthWrite: false })
   );
   deepTint.rotation.x = -Math.PI / 2;
-  deepTint.position.y = 0.43;
+  deepTint.position.y = 0.415;
   scene.add(deepTint);
 
   return { waterUniforms, causticMap };
@@ -328,9 +274,9 @@ function createCausticTexture() {
   const ctx = c.getContext("2d");
   ctx.fillStyle = "rgba(0,0,0,0)";
   ctx.fillRect(0, 0, c.width, c.height);
-  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.strokeStyle = "rgba(255,255,255,0.10)";
   ctx.lineWidth = 2;
-  for (let i = 0; i < 28; i++) {
+  for (let i = 0; i < 20; i++) {
     const y = (i / 28) * c.height;
     ctx.beginPath();
     ctx.moveTo(0, y + Math.sin(i * 0.6) * 3);
@@ -343,7 +289,7 @@ function createCausticTexture() {
   tex.wrapT = THREE.RepeatWrapping;
   tex.minFilter = THREE.LinearFilter;
   tex.magFilter = THREE.LinearFilter;
-  tex.repeat.set(1.4, 1.4);
+  tex.repeat.set(1.15, 1.15);
   return tex;
 }
 
@@ -498,34 +444,34 @@ function addWaterRocks(scene) {
 function addLakeRings(scene) {
   const beachRing = new THREE.Mesh(
     new THREE.RingGeometry(26, 33.5, 120),
-    toonMat("#ddcfab", { side: THREE.DoubleSide })
+    toonMat("#dece9f", { side: THREE.DoubleSide })
   );
   beachRing.rotation.x = -Math.PI / 2;
   beachRing.position.y = 0.62;
   scene.add(beachRing);
 
+  const shorelineShadow = new THREE.Mesh(
+    new THREE.RingGeometry(24.95, 25.9, 120),
+    new THREE.MeshBasicMaterial({ color: "#5f7f82", transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide })
+  );
+  shorelineShadow.rotation.x = -Math.PI / 2;
+  shorelineShadow.position.y = 0.612;
+  scene.add(shorelineShadow);
+
   const shorelineFoam = new THREE.Mesh(
-    new THREE.RingGeometry(25.2, 26.6, 120),
-    new THREE.MeshBasicMaterial({ color: "#f8ffff", transparent: true, opacity: 0.26, depthWrite: false, side: THREE.DoubleSide })
+    new THREE.RingGeometry(24.62, 24.95, 120),
+    new THREE.MeshBasicMaterial({ color: "#f7feff", transparent: true, opacity: 0.58, depthWrite: false, side: THREE.DoubleSide })
   );
   shorelineFoam.rotation.x = -Math.PI / 2;
-  shorelineFoam.position.y = 0.64;
+  shorelineFoam.position.y = 0.589;
   scene.add(shorelineFoam);
 
-  const shorelineAO = new THREE.Mesh(
-    new THREE.RingGeometry(26.5, 28.3, 120),
-    new THREE.MeshBasicMaterial({ color: "#6c8d86", transparent: true, opacity: 0.09, depthWrite: false, side: THREE.DoubleSide })
-  );
-  shorelineAO.rotation.x = -Math.PI / 2;
-  shorelineAO.position.y = 0.61;
-  scene.add(shorelineAO);
-
   const poolEdge = new THREE.Mesh(
-    new THREE.RingGeometry(24.8, 25.2, 120),
-    toonMat("#edf8ff", { side: THREE.DoubleSide })
+    new THREE.RingGeometry(24.95, 25.15, 120),
+    toonMat("#f2fbff", { side: THREE.DoubleSide })
   );
   poolEdge.rotation.x = -Math.PI / 2;
-  poolEdge.position.y = 0.66;
+  poolEdge.position.y = 0.62;
   scene.add(poolEdge);
 }
 
