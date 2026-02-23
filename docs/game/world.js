@@ -127,7 +127,6 @@ function createWater(scene) {
       uniform float uTime;
       uniform vec3 uShallow;
       uniform vec3 uDeep;
-      uniform vec3 cameraPosition;
 
       float hash21(vec2 p) {
         p = fract(p * vec2(123.34, 456.21));
