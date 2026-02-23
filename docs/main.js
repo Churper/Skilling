@@ -6,7 +6,7 @@ import { createInputController } from "./game/input.js";
 
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
-const { ground, skyMat, waterUniforms, addShadowBlob } = createWorld(scene);
+const { ground, skyMat, waterUniforms, causticMap, addShadowBlob } = createWorld(scene);
 const { player, playerBlob } = createPlayer(scene, addShadowBlob);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
 
@@ -42,6 +42,8 @@ function animate() {
   const dt = Math.min(0.033, clock.getDelta());
   const t = clock.elapsedTime;
   waterUniforms.uTime.value += dt;
+  causticMap.offset.x = t * 0.016;
+  causticMap.offset.y = -t * 0.01;
   skyMat.uniforms.uTime.value = t;
 
   moveDir.set(0, 0, 0);
