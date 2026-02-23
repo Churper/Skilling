@@ -152,8 +152,8 @@ scene.add(shorelineAO);
 
 const waterUniforms = {
   uTime: { value: 0 },
-  uShallow: { value: new THREE.Color("#45d7ff") },
-  uDeep: { value: new THREE.Color("#1f5bff") },
+  uShallow: { value: new THREE.Color("#58ddff") },
+  uDeep: { value: new THREE.Color("#2271ff") },
 };
 
 const waterMat = new THREE.ShaderMaterial({
@@ -162,6 +162,7 @@ const waterMat = new THREE.ShaderMaterial({
   uniforms: waterUniforms,
   vertexShader: `
     varying vec2 vUv;
+    varying vec3 vWorldPos;
     uniform float uTime;
     void main() {
       vUv = uv;
@@ -169,39 +170,71 @@ const waterMat = new THREE.ShaderMaterial({
       float w0 = sin((uv.x * 12.0 + uv.y * 8.0) + uTime * 1.9) * 0.10;
       float w1 = sin((uv.x * 19.0 - uv.y * 11.0) - uTime * 1.35) * 0.06;
       p.y += w0 + w1;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+      vec4 worldPos = modelMatrix * vec4(p, 1.0);
+      vWorldPos = worldPos.xyz;
+      gl_Position = projectionMatrix * viewMatrix * worldPos;
     }
   `,
   fragmentShader: `
     varying vec2 vUv;
+    varying vec3 vWorldPos;
     uniform float uTime;
     uniform vec3 uShallow;
     uniform vec3 uDeep;
+    uniform vec3 cameraPosition;
 
-    float waveBand(vec2 uv, vec2 dir, float speed, float scale, float t) {
-      float v = sin(dot(uv, dir) * scale + t * speed);
-      return smoothstep(0.60, 0.94, v * 0.5 + 0.5);
+    float hash21(vec2 p) {
+      p = fract(p * vec2(123.34, 456.21));
+      p += dot(p, p + 45.32);
+      return fract(p.x * p.y);
+    }
+
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      float a = hash21(i);
+      float b = hash21(i + vec2(1.0, 0.0));
+      float c = hash21(i + vec2(0.0, 1.0));
+      float d = hash21(i + vec2(1.0, 1.0));
+      vec2 u = f * f * (3.0 - 2.0 * f);
+      return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+    }
+
+    float fbm(vec2 p) {
+      float v = 0.0;
+      float a = 0.55;
+      for (int i = 0; i < 4; i++) {
+        v += noise(p) * a;
+        p *= 2.05;
+        a *= 0.5;
+      }
+      return v;
     }
 
     void main() {
-      float d = distance(vUv, vec2(0.5));
-      float shore = smoothstep(0.02, 0.72, d);
-      vec3 col = mix(uDeep, uShallow, shore);
-
+      vec2 uv = vUv;
       float t = uTime;
-      float b0 = waveBand(vUv, normalize(vec2(1.0, 0.35)), 4.0, 34.0, t);
-      float b1 = waveBand(vUv, normalize(vec2(-0.65, 1.0)), -3.2, 28.0, t);
-      float b2 = waveBand(vUv, normalize(vec2(0.8, -1.0)), 3.4, 19.0, t);
-      float ripple = b0 * 0.50 + b1 * 0.35 + b2 * 0.22;
+      float distCenter = distance(uv, vec2(0.5));
+      float shore = smoothstep(0.03, 0.78, distCenter);
 
-      col += vec3(0.10, 0.22, 0.31) * ripple;
-      col += vec3(0.13, 0.20, 0.24) * smoothstep(0.85, 1.0, ripple);
+      vec2 flowA = uv * 5.0 + vec2(t * 0.06, t * 0.09);
+      vec2 flowB = uv * 7.0 + vec2(-t * 0.05, t * 0.04);
+      float causticA = fbm(flowA);
+      float causticB = fbm(flowB);
+      float caustic = smoothstep(0.48, 0.88, causticA * 0.62 + causticB * 0.38);
 
-      float foam = smoothstep(0.79, 1.0, d) * smoothstep(0.52, 0.95, ripple);
-      col = mix(col, vec3(0.95, 0.99, 1.0), foam * 0.75);
+      vec3 base = mix(uDeep, uShallow, shore);
+      base += vec3(0.08, 0.17, 0.26) * caustic;
 
-      float alpha = 0.87 - shore * 0.17 + foam * 0.08;
-      gl_FragColor = vec4(col, alpha);
+      vec3 viewDir = normalize(cameraPosition - vWorldPos);
+      float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 2.6);
+      base += vec3(0.10, 0.16, 0.20) * fresnel;
+
+      float foamEdge = smoothstep(0.78, 1.0, distCenter) * smoothstep(0.45, 0.95, caustic);
+      vec3 color = mix(base, vec3(0.96, 0.995, 1.0), foamEdge * 0.7);
+
+      float alpha = 0.80 - shore * 0.12 + foamEdge * 0.09 + fresnel * 0.05;
+      gl_FragColor = vec4(color, clamp(alpha, 0.68, 0.94));
     }
   `,
 });
@@ -213,7 +246,7 @@ scene.add(water);
 
 const deepTint = new THREE.Mesh(
   new THREE.CircleGeometry(21.6, 80),
-  new THREE.MeshBasicMaterial({ color: "#1136a7", transparent: true, opacity: 0.24, depthWrite: false })
+  new THREE.MeshBasicMaterial({ color: "#1b4bc7", transparent: true, opacity: 0.14, depthWrite: false })
 );
 deepTint.rotation.x = -Math.PI / 2;
 deepTint.position.y = 0.42;
