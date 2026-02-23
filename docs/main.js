@@ -1,5 +1,5 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js";
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/controls/OrbitControls.js";
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 const canvas = document.getElementById("game-canvas");
 
@@ -9,8 +9,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("#89d1ff");
-scene.fog = new THREE.Fog("#8fd6ff", 28, 105);
+scene.background = new THREE.Color("#76bde8");
+scene.fog = new THREE.Fog("#7ec5ec", 26, 110);
 
 const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.1, 300);
 camera.position.set(18, 18, 18);
@@ -37,14 +37,14 @@ controls.touches.ONE = THREE.TOUCH.PAN;
 controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
 
 const groundGeo = new THREE.PlaneGeometry(140, 140, 1, 1);
-const groundMat = new THREE.MeshStandardMaterial({ color: "#4f8e4f", roughness: 0.92, metalness: 0.02 });
+const groundMat = new THREE.MeshStandardMaterial({ color: "#5a9252", roughness: 0.9, metalness: 0.02 });
 const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
 
 const shore = new THREE.Mesh(
   new THREE.CylinderGeometry(26.4, 27.2, 0.9, 28, 1, false),
-  new THREE.MeshStandardMaterial({ color: "#c7b584", roughness: 0.98, metalness: 0 })
+  new THREE.MeshStandardMaterial({ color: "#dccb95", roughness: 0.95, metalness: 0 })
 );
 shore.position.y = -0.45;
 scene.add(shore);
