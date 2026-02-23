@@ -5,7 +5,7 @@ import { createPlayer, createMoveMarker } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
 
-const REQUIRED_TOOL = {
+const TOOL_FOR_RESOURCE = {
   fishing: "fishing",
   mining: "pickaxe",
   woodcutting: "axe",
@@ -57,14 +57,18 @@ const skills = {
 
 const ui = initializeUI({
   onToolSelect: (tool) => {
-    equippedTool = tool;
-    setEquippedTool(tool);
-    ui?.setStatus(`Equipped ${TOOL_LABEL[tool]}.`, "info");
+    equipTool(tool, true);
   },
 });
 
-setEquippedTool(equippedTool);
-ui?.setActiveTool(equippedTool);
+function equipTool(tool, announce = false) {
+  equippedTool = tool;
+  setEquippedTool(tool);
+  ui?.setActiveTool(tool);
+  if (announce) ui?.setStatus(`Equipped ${TOOL_LABEL[tool]}.`, "info");
+}
+
+equipTool(equippedTool, false);
 ui?.setInventory(inventory);
 ui?.setSkills({
   fishing: skills.fishing.level,
@@ -172,14 +176,6 @@ function tryGather(node) {
   const resourceType = node.userData.resourceType;
   if (!resourceType) return;
 
-  const requiredTool = REQUIRED_TOOL[resourceType];
-  if (equippedTool !== requiredTool) {
-    ui?.setStatus(`Need ${TOOL_LABEL[requiredTool]} equipped to gather this.`, "warn");
-    const warnPos = resourceWorldPosition(node, resourceTargetPos);
-    spawnClickEffect(warnPos.x, warnPos.z, "warn");
-    return;
-  }
-
   const skillKey = SKILL_BY_RESOURCE[resourceType];
   const itemKey = INVENTORY_BY_RESOURCE[resourceType];
   const xpGain = XP_BY_RESOURCE[resourceType];
@@ -225,13 +221,8 @@ function onInteractResource(node, hitPoint) {
   }
 
   const resourceType = node.userData.resourceType;
-  const requiredTool = REQUIRED_TOOL[resourceType];
-  if (equippedTool !== requiredTool) {
-    ui?.setStatus(`Need ${TOOL_LABEL[requiredTool]} equipped to use ${node.userData.resourceLabel}.`, "warn");
-    pendingResource = null;
-    activeGather = null;
-    return;
-  }
+  const neededTool = TOOL_FOR_RESOURCE[resourceType];
+  if (neededTool && equippedTool !== neededTool) equipTool(neededTool, false);
 
   pendingResource = node;
   activeGather = null;
@@ -336,11 +327,17 @@ function animate() {
       player.rotation.y += delta * Math.min(1, dt * 15);
     }
 
-    activeGather.elapsed += dt;
-    if (activeGather.elapsed >= activeGather.duration) {
-      tryGather(activeGather.node);
+    if (distToNode > 3.0) {
+      pendingResource = activeGather.node;
       activeGather = null;
-      pendingResource = null;
+      setMoveTarget(resourceTargetPos, true);
+      ui?.setStatus(`Walking to ${pendingResource.userData.resourceLabel}...`, "info");
+    } else {
+      activeGather.elapsed += dt;
+      if (activeGather.elapsed >= activeGather.duration) {
+        activeGather.elapsed = 0;
+        tryGather(activeGather.node);
+      }
     }
   }
 
