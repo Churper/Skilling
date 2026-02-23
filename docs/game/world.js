@@ -4,9 +4,9 @@ function addSky(scene) {
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: {
-      cTop: { value: new THREE.Color("#4da4ea") },
-      cMid: { value: new THREE.Color("#8ed3ff") },
-      cBot: { value: new THREE.Color("#e8f8ff") },
+      cTop: { value: new THREE.Color("#3d87d1") },
+      cMid: { value: new THREE.Color("#77c0f0") },
+      cBot: { value: new THREE.Color("#d8effb") },
       uTime: { value: 0 },
     },
     vertexShader: `
@@ -58,7 +58,7 @@ function addSky(scene) {
         c = mix(c, cTop, smoothstep(0.60, 1.0, h));
         vec2 uv = normalize(vPos).xz * 3.2 + vec2(uTime * 0.01, -uTime * 0.004);
         float cloud = smoothstep(0.62, 0.9, fbm(uv + vec2(0.0, 8.0)));
-        c = mix(c, vec3(1.0), cloud * smoothstep(0.46, 0.9, h) * 0.36);
+        c = mix(c, vec3(1.0), cloud * smoothstep(0.46, 0.9, h) * 0.24);
         gl_FragColor = vec4(c, 1.0);
       }
     `,
@@ -76,10 +76,10 @@ function createGround(scene) {
     const z = tPos.getY(i);
     const r = Math.hypot(x, z);
     const h = Math.sin(x * 0.045) * 0.6 + Math.cos(z * 0.037) * 0.56 + Math.sin((x + z) * 0.021) * 0.42;
-    const lakeBasin = (1.0 - THREE.MathUtils.smoothstep(r, 0, 31)) * 0.95;
+    const lakeBasin = (1.0 - THREE.MathUtils.smoothstep(r, 0, 31)) * 0.72;
     tPos.setZ(i, h * 0.33 - lakeBasin);
-    const g = 0.66 + h * 0.05;
-    tCol.push(0.56, g, 0.56);
+    const g = 0.58 + h * 0.05;
+    tCol.push(0.46, g, 0.47);
   }
   terrainGeo.setAttribute("color", new THREE.Float32BufferAttribute(tCol, 3));
   terrainGeo.computeVertexNormals();
@@ -96,14 +96,13 @@ function createGround(scene) {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#45d9ff") },
-    uDeep: { value: new THREE.Color("#007edc") },
+    uShallow: { value: new THREE.Color("#72deff") },
+    uDeep: { value: new THREE.Color("#1b79d2") },
   };
 
   const waterMat = new THREE.ShaderMaterial({
-    transparent: false,
-    depthWrite: true,
-    toneMapped: false,
+    transparent: true,
+    depthWrite: false,
     uniforms: waterUniforms,
     vertexShader: `
       varying vec2 vUv;
@@ -112,9 +111,9 @@ function createWater(scene) {
       void main() {
         vUv = uv;
         vec3 p = position;
-        float w0 = sin((uv.x * 11.0 + uv.y * 7.0) + uTime * 1.85) * 0.12;
-        float w1 = sin((uv.x * 18.0 - uv.y * 9.0) - uTime * 1.3) * 0.08;
-        float w2 = sin((uv.x * 24.0 + uv.y * 20.0) + uTime * 2.5) * 0.04;
+        float w0 = sin((uv.x * 11.0 + uv.y * 7.0) + uTime * 1.85) * 0.09;
+        float w1 = sin((uv.x * 18.0 - uv.y * 9.0) - uTime * 1.3) * 0.06;
+        float w2 = sin((uv.x * 24.0 + uv.y * 20.0) + uTime * 2.5) * 0.03;
         p.y += w0 + w1 + w2;
         vec4 worldPos = modelMatrix * vec4(p, 1.0);
         vWorldPos = worldPos.xyz;
@@ -174,36 +173,37 @@ function createWater(scene) {
         float streaks = smoothstep(0.62, 0.95, caustic) * smoothstep(0.45, 1.0, shore);
 
         vec3 base = mix(uDeep, uShallow, shore);
-        base += vec3(0.14, 0.2, 0.24) * caustic;
-        base += vec3(0.22, 0.28, 0.3) * crest * 0.5;
+        base += vec3(0.10, 0.16, 0.2) * caustic;
+        base += vec3(0.14, 0.19, 0.23) * crest * 0.46;
 
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 2.6);
-        base += vec3(0.18, 0.24, 0.28) * fresnel;
+        base += vec3(0.14, 0.2, 0.24) * fresnel;
 
         float spark = smoothstep(0.74, 1.0, sin((uv.x + uv.y) * 32.0 + t * 2.0) * 0.5 + 0.5);
-        base += vec3(0.16, 0.18, 0.18) * spark * (0.32 + 0.68 * shore);
+        base += vec3(0.12, 0.14, 0.14) * spark * (0.32 + 0.68 * shore);
 
         float foamEdge = smoothstep(0.78, 1.0, distCenter) * smoothstep(0.45, 0.95, caustic);
         vec3 color = mix(base, vec3(0.98, 1.0, 1.0), foamEdge * 0.76);
         color = mix(color, vec3(0.96, 1.0, 1.0), streaks * 0.18);
 
-        gl_FragColor = vec4(color, 1.0);
+        float alpha = 0.76 + foamEdge * 0.12 + fresnel * 0.08 - (1.0 - shore) * 0.09;
+        gl_FragColor = vec4(color, clamp(alpha, 0.66, 0.92));
       }
     `,
   });
 
-  const water = new THREE.Mesh(new THREE.PlaneGeometry(50, 50, 140, 140), waterMat);
+  const water = new THREE.Mesh(new THREE.CircleGeometry(24.6, 140), waterMat);
   water.rotation.x = -Math.PI / 2;
-  water.position.y = 0.72;
+  water.position.y = 0.58;
   scene.add(water);
 
   const deepTint = new THREE.Mesh(
     new THREE.CircleGeometry(21.6, 80),
-    new THREE.MeshBasicMaterial({ color: "#0b6cc4", transparent: true, opacity: 0.12, depthWrite: false })
+    new THREE.MeshBasicMaterial({ color: "#0b66be", transparent: true, opacity: 0.2, depthWrite: false })
   );
   deepTint.rotation.x = -Math.PI / 2;
-  deepTint.position.y = 0.42;
+  deepTint.position.y = 0.38;
   scene.add(deepTint);
 
   return waterUniforms;
@@ -256,6 +256,27 @@ function addRock(scene, blobTex, x, z, scale = 1) {
   rock.rotation.y = Math.random() * Math.PI;
   scene.add(rock);
   addShadowBlob(scene, blobTex, x, z, 1.45 * scale, 0.17);
+}
+
+function addWaterRock(scene, x, z, scale = 1) {
+  const geo = new THREE.DodecahedronGeometry(0.75 * scale, 0);
+  const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const nx = p.getX(i);
+    const ny = p.getY(i);
+    const nz = p.getZ(i);
+    const jitter = 1.0 + Math.sin(nx * 8.2 + ny * 6.4 + nz * 7.6) * 0.08;
+    p.setXYZ(i, nx * jitter, ny * jitter, nz * jitter);
+  }
+  geo.computeVertexNormals();
+
+  const rock = new THREE.Mesh(
+    geo,
+    new THREE.MeshStandardMaterial({ color: "#7f8f96", roughness: 0.92, metalness: 0.0 })
+  );
+  rock.position.set(x, 0.47, z);
+  rock.rotation.y = Math.random() * Math.PI;
+  scene.add(rock);
 }
 
 function addTree(scene, blobTex, x, z, scale = 1) {
@@ -330,6 +351,12 @@ function addShoreDecor(scene, blobTex) {
   );
 }
 
+function addWaterRocks(scene) {
+  [[-7.2, 4.3, 1.05], [5.6, 7.1, 0.95], [8.8, -4.5, 1.1], [-6.5, -6.2, 0.9], [0.6, 9.2, 0.8]].forEach(
+    ([x, z, s]) => addWaterRock(scene, x, z, s)
+  );
+}
+
 function addLakeRings(scene) {
   const beachRing = new THREE.Mesh(
     new THREE.RingGeometry(26, 33.5, 120),
@@ -369,6 +396,7 @@ export function createWorld(scene) {
   const ground = createGround(scene);
   addLakeRings(scene);
   const waterUniforms = createWater(scene);
+  addWaterRocks(scene);
   const blobTex = radialTexture();
   addShoreDecor(scene, blobTex);
   const addBlob = (x, z, radius, opacity) => addShadowBlob(scene, blobTex, x, z, radius, opacity);
