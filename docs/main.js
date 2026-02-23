@@ -35,10 +35,16 @@ const XP_BY_RESOURCE = {
   woodcutting: 16,
 };
 
+const GATHER_DURATION_BY_RESOURCE = {
+  fishing: 0.95,
+  mining: 0.72,
+  woodcutting: 0.72,
+};
+
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
 const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld } = createWorld(scene);
-const { player, playerBlob, setEquippedTool } = createPlayer(scene, addShadowBlob);
+const { player, playerBlob, setEquippedTool, updateAnimation } = createPlayer(scene, addShadowBlob);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
 
 let equippedTool = "fishing";
@@ -73,6 +79,55 @@ let hasMoveTarget = false;
 let markerBaseY = 0;
 let markerOnWater = false;
 let pendingResource = null;
+let activeGather = null;
+
+const clickEffects = [];
+const clickRingGeo = new THREE.RingGeometry(0.28, 0.38, 24);
+
+function getSurfaceIndicatorY(x, z, time = waterUniforms.uTime.value) {
+  const waterY = getWaterSurfaceHeight(x, z, time);
+  if (Number.isFinite(waterY)) return waterY;
+  return getPlayerGroundY(x, z);
+}
+
+function spawnClickEffect(x, z, tone = "neutral") {
+  const colorByTone = {
+    neutral: "#f6efab",
+    success: "#96efbf",
+    warn: "#ffd2a3",
+  };
+  const effectMat = new THREE.MeshBasicMaterial({
+    color: colorByTone[tone] || colorByTone.neutral,
+    transparent: true,
+    opacity: 0.95,
+    depthWrite: false,
+    depthTest: false,
+    side: THREE.DoubleSide,
+  });
+  const ring = new THREE.Mesh(clickRingGeo, effectMat);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.set(x, getSurfaceIndicatorY(x, z) + 0.12, z);
+  ring.renderOrder = 98;
+  scene.add(ring);
+  clickEffects.push({ ring, age: 0, duration: 0.3 });
+}
+
+function updateClickEffects(dt) {
+  for (let i = clickEffects.length - 1; i >= 0; i--) {
+    const fx = clickEffects[i];
+    fx.age += dt;
+    const t = THREE.MathUtils.clamp(fx.age / fx.duration, 0, 1);
+    const scale = 1 + t * 2.4;
+    fx.ring.scale.setScalar(scale);
+    fx.ring.material.opacity = 1 - t;
+    fx.ring.position.y += dt * 0.28;
+    if (t >= 1) {
+      scene.remove(fx.ring);
+      fx.ring.material.dispose();
+      clickEffects.splice(i, 1);
+    }
+  }
+}
 
 player.geometry.computeBoundingBox();
 const playerFootOffset = -player.geometry.boundingBox.min.y;
@@ -95,6 +150,7 @@ player.position.y = getPlayerStandY(player.position.x, player.position.z);
 function setMoveTarget(point, preservePending = false) {
   if (!point) return;
   if (!preservePending) pendingResource = null;
+  if (!preservePending) activeGather = null;
   markerTarget.copy(point);
   moveTarget.copy(point);
   moveTarget.y = getPlayerGroundY(point.x, point.z);
@@ -119,6 +175,8 @@ function tryGather(node) {
   const requiredTool = REQUIRED_TOOL[resourceType];
   if (equippedTool !== requiredTool) {
     ui?.setStatus(`Need ${TOOL_LABEL[requiredTool]} equipped to gather this.`, "warn");
+    const warnPos = resourceWorldPosition(node, resourceTargetPos);
+    spawnClickEffect(warnPos.x, warnPos.z, "warn");
     return;
   }
 
@@ -143,18 +201,40 @@ function tryGather(node) {
   } else {
     ui?.setStatus(`+1 ${itemKey}, +${xpGain} XP ${skillKey}.`, "success");
   }
+  const successPos = resourceWorldPosition(node, resourceTargetPos);
+  spawnClickEffect(successPos.x, successPos.z, "success");
 }
 
-function onInteractResource(node) {
+function startGather(node) {
+  activeGather = {
+    node,
+    resourceType: node.userData.resourceType,
+    elapsed: 0,
+    duration: GATHER_DURATION_BY_RESOURCE[node.userData.resourceType] ?? 0.8,
+  };
+  hasMoveTarget = false;
+  marker.visible = false;
+  ui?.setStatus(`Gathering ${node.userData.resourceLabel}...`, "info");
+}
+
+function onInteractResource(node, hitPoint) {
+  if (hitPoint) spawnClickEffect(hitPoint.x, hitPoint.z, "neutral");
+  else {
+    const clickPos = resourceWorldPosition(node, resourceTargetPos);
+    spawnClickEffect(clickPos.x, clickPos.z, "neutral");
+  }
+
   const resourceType = node.userData.resourceType;
   const requiredTool = REQUIRED_TOOL[resourceType];
   if (equippedTool !== requiredTool) {
     ui?.setStatus(`Need ${TOOL_LABEL[requiredTool]} equipped to use ${node.userData.resourceLabel}.`, "warn");
     pendingResource = null;
+    activeGather = null;
     return;
   }
 
   pendingResource = node;
+  activeGather = null;
   resourceWorldPosition(node, resourceTargetPos);
   const distance = resourceTargetPos.distanceTo(player.position);
   if (distance > 2.7) {
@@ -162,8 +242,7 @@ function onInteractResource(node) {
     ui?.setStatus(`Walking to ${node.userData.resourceLabel}...`, "info");
     return;
   }
-  tryGather(node);
-  pendingResource = null;
+  startGather(node);
 }
 
 const input = createInputController({
@@ -181,6 +260,7 @@ const camForward = new THREE.Vector3();
 const camRight = new THREE.Vector3();
 const moveDir = new THREE.Vector3();
 const desiredTarget = new THREE.Vector3();
+const gatherDir = new THREE.Vector3();
 const fogAboveWater = new THREE.Color("#88a8b6");
 const fogUnderwater = new THREE.Color("#4b88a4");
 let underwaterFogActive = false;
@@ -212,6 +292,7 @@ function animate() {
     hasMoveTarget = false;
     marker.visible = false;
     pendingResource = null;
+    activeGather = null;
     moveDir.normalize();
   } else if (hasMoveTarget) {
     moveDir.subVectors(moveTarget, player.position);
@@ -226,7 +307,7 @@ function animate() {
     }
   }
 
-  if (moveDir.lengthSq() > 0.0001) {
+  if (moveDir.lengthSq() > 0.0001 && !activeGather) {
     player.position.addScaledVector(moveDir, 7.0 * dt);
     const targetYaw = Math.atan2(moveDir.x, moveDir.z);
     let delta = targetYaw - player.rotation.y;
@@ -234,14 +315,32 @@ function animate() {
     player.rotation.y += delta * Math.min(1, dt * 13);
   }
 
-  if (pendingResource) {
+  if (pendingResource && !activeGather) {
     resourceWorldPosition(pendingResource, resourceTargetPos);
     const gatherDistance = resourceTargetPos.distanceTo(player.position);
     if (gatherDistance <= 2.7) {
-      tryGather(pendingResource);
+      startGather(pendingResource);
+    }
+  }
+
+  if (activeGather) {
+    resourceWorldPosition(activeGather.node, resourceTargetPos);
+    const dirToNode = gatherDir.subVectors(resourceTargetPos, player.position);
+    dirToNode.y = 0;
+    const distToNode = dirToNode.length();
+    if (distToNode > 0.001) {
+      dirToNode.divideScalar(distToNode);
+      const targetYaw = Math.atan2(dirToNode.x, dirToNode.z);
+      let delta = targetYaw - player.rotation.y;
+      delta = Math.atan2(Math.sin(delta), Math.cos(delta));
+      player.rotation.y += delta * Math.min(1, dt * 15);
+    }
+
+    activeGather.elapsed += dt;
+    if (activeGather.elapsed >= activeGather.duration) {
+      tryGather(activeGather.node);
+      activeGather = null;
       pendingResource = null;
-      hasMoveTarget = false;
-      marker.visible = false;
     }
   }
 
@@ -249,6 +348,12 @@ function animate() {
   const standY = groundY + playerFootOffset;
   player.position.y = THREE.MathUtils.damp(player.position.y, standY, 16, dt);
   playerBlob.position.set(player.position.x, groundY + 0.03, player.position.z);
+  updateAnimation(dt, {
+    moving: moveDir.lengthSq() > 0.0001 && !activeGather,
+    gathering: !!activeGather,
+    resourceType: activeGather?.resourceType,
+  });
+  updateClickEffects(dt);
 
   if (marker.visible) {
     if (markerOnWater) {
