@@ -3,9 +3,9 @@
     "fishing_title": "Fishing",
     "inventory_title": "Catch Inventory",
     "status": {
-      "ready": "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast",
+      "ready": "Hold middle mouse or Tab: look mode - Left click/tap ground to walk - Left click/tap water to cast - Drag finger to pan",
       "reel_prompt": "Tap/click to reel in",
-      "casting": "Fishing... wait for bites • Tap/click again to reel in",
+      "casting": "Fishing... wait for bites - Tap/click again to reel in",
       "cast_on_water": "Cast on water"
     }
   },
@@ -28,12 +28,12 @@
   },
   "world": {
     "water": {
-      "shallow_color": [0.56, 0.93, 1.0, 0.48],
-      "deep_color": [0.10, 0.46, 0.72, 0.72],
-      "edge_foam_color": [0.84, 0.98, 1.0, 0.78],
-      "wave_height": 0.07,
-      "wave_speed": 1.35,
-      "ripple_density": 15.0
+      "shallow_color": [0.20, 0.90, 1.00, 0.58],
+      "deep_color": [0.02, 0.26, 0.82, 0.84],
+      "edge_foam_color": [0.92, 1.00, 1.00, 0.92],
+      "wave_height": 0.085,
+      "wave_speed": 1.55,
+      "ripple_density": 18.0
     },
     "rocks": [
       { "position": [16.0, 0.0, 15.0], "size": [2.5, 1.0, 2.0], "rotation_y": 15.0, "color": [0.50, 0.43, 0.40] },

@@ -5,6 +5,7 @@
 const WATER_LAYER: int = 2
 
 @onready var camera: Camera3D = $Player/Head/Camera3D
+@onready var player: CharacterBody3D = $Player
 @onready var pole: Node3D = $Player/Head/Camera3D/FishingPole
 @onready var ground_mesh: MeshInstance3D = $Ground
 @onready var world_env: WorldEnvironment = $WorldEnvironment
@@ -65,7 +66,7 @@ func _ready() -> void:
 		inventory[fish_name] = 0
 	_update_inventory_ui()
 	_update_fishing_ui()
-	_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast"))
+	_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode - Left click/tap ground to walk - Left click/tap water to cast - Drag finger to pan"))
 
 	var window: Window = get_window()
 	window.size_changed.connect(_on_window_size_changed)
@@ -125,9 +126,9 @@ func _default_game_config() -> Dictionary:
 			"fishing_title": "Fishing",
 			"inventory_title": "Catch Inventory",
 			"status": {
-				"ready": "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast",
+				"ready": "Hold middle mouse or Tab: look mode - Left click/tap ground to walk - Left click/tap water to cast - Drag finger to pan",
 				"reel_prompt": "Tap/click to reel in",
-				"casting": "Fishing... wait for bites • Tap/click again to reel in",
+				"casting": "Fishing... wait for bites - Tap/click again to reel in",
 				"cast_on_water": "Cast on water"
 			}
 		},
@@ -772,7 +773,7 @@ func _try_cast() -> void:
 	if cast_state == 1:
 		_hide_cast_visuals()
 		cast_state = 0
-		_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast"))
+		_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode - Left click/tap ground to walk - Left click/tap water to cast - Drag finger to pan"))
 		return
 
 	var screen_point: Vector2 = get_viewport().get_visible_rect().size * 0.5
@@ -782,12 +783,6 @@ func _try_cast() -> void:
 	_try_cast_from_screen(screen_point)
 
 func _try_cast_from_screen(screen_point: Vector2) -> void:
-	if cast_state == 1:
-		_hide_cast_visuals()
-		cast_state = 0
-		_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode • Drag finger to pan • Tap/click water: cast"))
-		return
-
 	var ray_origin: Vector3 = camera.project_ray_origin(screen_point)
 	var ray_direction: Vector3 = camera.project_ray_normal(screen_point)
 
@@ -799,7 +794,12 @@ func _try_cast_from_screen(screen_point: Vector2) -> void:
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(params)
 	if not hit.is_empty() and hit.has("position"):
 		var hit_pos: Vector3 = hit["position"]
-		_start_cast(hit_pos)
+		if cast_state == 1:
+			_hide_cast_visuals()
+			cast_state = 0
+			_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode - Left click/tap ground to walk - Left click/tap water to cast - Drag finger to pan"))
+		else:
+			_start_cast(hit_pos)
 		return
 
 	# Touch/click fallback for mobile/web scaling cases:
@@ -807,15 +807,20 @@ func _try_cast_from_screen(screen_point: Vector2) -> void:
 	var plane_y: float = water_mesh.global_position.y if water_mesh else 0.02
 	var ray_to_plane: float = (plane_y - ray_origin.y) / ray_direction.y if abs(ray_direction.y) > 0.0001 else -1.0
 	if ray_to_plane <= 0.0:
-		_set_status(_status_text("cast_on_water", "Cast on water"))
+		_move_player_to_screen_point(ray_origin, ray_direction)
 		return
 	var plane_hit: Vector3 = ray_origin + ray_direction * ray_to_plane
 	var local_hit: Vector3 = plane_hit - water_area.global_position
 	if abs(local_hit.x) <= 21.0 and abs(local_hit.z) <= 21.0:
-		_start_cast(plane_hit)
+		if cast_state == 1:
+			_hide_cast_visuals()
+			cast_state = 0
+			_set_status(_status_text("ready", "Hold middle mouse or Tab: look mode - Left click/tap ground to walk - Left click/tap water to cast - Drag finger to pan"))
+		else:
+			_start_cast(plane_hit)
 		return
 
-	_set_status(_status_text("cast_on_water", "Cast on water"))
+	_move_player_to_screen_point(ray_origin, ray_direction)
 
 func _start_cast(point: Vector3) -> void:
 	last_cast_point = point
@@ -825,7 +830,30 @@ func _start_cast(point: Vector3) -> void:
 	_place_bobber(point)
 	if pole and pole.has_method("play_cast_kick"):
 		pole.call("play_cast_kick")
-	_set_status(_status_text("casting", "Fishing... wait for bites • Tap/click again to reel in"))
+	_set_status(_status_text("casting", "Fishing... wait for bites - Tap/click again to reel in"))
+
+func _move_player_to_screen_point(ray_origin: Vector3, ray_direction: Vector3) -> void:
+	var params: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_direction * 500.0)
+	params.collide_with_areas = false
+	params.collide_with_bodies = true
+	params.collision_mask = 1
+	if player:
+		params.exclude = [player.get_rid()]
+
+	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(params)
+	var target: Vector3
+	if not hit.is_empty() and hit.has("position"):
+		target = hit["position"]
+	else:
+		var ground_y: float = 0.0
+		var t: float = (ground_y - ray_origin.y) / ray_direction.y if abs(ray_direction.y) > 0.0001 else -1.0
+		if t <= 0.0:
+			return
+		target = ray_origin + ray_direction * t
+
+	target.y = player.global_position.y
+	if player and player.has_method("set_click_move_target"):
+		player.call("set_click_move_target", target)
 
 func _place_bobber(point: Vector3) -> void:
 	if not bobber:

@@ -4,8 +4,11 @@
 @export var acceleration: float = 12.0
 @export var jump_velocity: float = 4.3
 @export var mouse_sensitivity: float = 0.0022
+@export var click_move_stop_distance: float = 0.45
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var click_move_active: bool = false
+var click_move_target: Vector3 = Vector3.ZERO
 
 @onready var head: Node3D = $Head
 
@@ -45,8 +48,21 @@ func _physics_process(delta: float) -> void:
 		velocity.y = jump_velocity
 
 	var input_vec := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	var local_dir := Vector3(input_vec.x, 0.0, input_vec.y)
-	var world_dir := (transform.basis * local_dir).normalized()
+	if input_vec.length() > 0.01:
+		click_move_active = false
+
+	var world_dir := Vector3.ZERO
+	if click_move_active:
+		var to_target := click_move_target - global_position
+		to_target.y = 0.0
+		if to_target.length() <= click_move_stop_distance:
+			click_move_active = false
+		else:
+			world_dir = to_target.normalized()
+			look_at(global_position + world_dir, Vector3.UP)
+	else:
+		var local_dir := Vector3(input_vec.x, 0.0, input_vec.y)
+		world_dir = (transform.basis * local_dir).normalized()
 
 	var target_x := world_dir.x * move_speed
 	var target_z := world_dir.z * move_speed
@@ -55,6 +71,11 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move_toward(velocity.z, target_z, acceleration * delta)
 
 	move_and_slide()
+
+func set_click_move_target(target: Vector3) -> void:
+	click_move_target = target
+	click_move_target.y = global_position.y
+	click_move_active = true
 
 func _ensure_default_input_map() -> void:
 	_add_action_key("move_forward", Key.KEY_W)
