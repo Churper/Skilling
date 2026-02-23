@@ -3,12 +3,14 @@ import { createSceneContext } from "./game/scene.js";
 import { createWorld } from "./game/world.js";
 import { createPlayer, createMoveMarker } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
+import { initializeUI } from "./game/ui.js";
 
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
 const { ground, skyMat, waterUniforms, causticMap, addShadowBlob } = createWorld(scene);
 const { player, playerBlob } = createPlayer(scene, addShadowBlob);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
+initializeUI();
 
 const moveTarget = new THREE.Vector3();
 let hasMoveTarget = false;

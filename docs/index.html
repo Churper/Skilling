@@ -8,10 +8,31 @@
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
-  <div id="hud">
-    <h1>Skilling</h1>
-    <p>Left click/tap terrain to move (marker stays until arrival).</p>
-    <p>WASD moves camera-relative. Middle drag rotates angle. Right drag pans. Wheel zooms.</p>
+  <div id="ui-root">
+    <header id="ui-brand" aria-label="Game title">
+      <h1>Skilling</h1>
+      <p>Early Build</p>
+    </header>
+    <nav id="ui-dock" aria-label="Main tabs">
+      <button type="button" class="ui-tab-btn is-active" data-tab="inventory">Inventory</button>
+      <button type="button" class="ui-tab-btn" data-tab="skills">Skills</button>
+      <button type="button" class="ui-tab-btn" data-tab="friends">Friends</button>
+    </nav>
+    <aside id="ui-panel" aria-live="polite">
+      <h2 id="ui-panel-title">Inventory</h2>
+      <section class="ui-panel-section" data-tab-panel="inventory">
+        <p>Your bag is empty.</p>
+        <p>Fish, tools, and drops will appear here.</p>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="skills" hidden>
+        <p>Fishing Lv. 1</p>
+        <p>More skills coming soon.</p>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="friends" hidden>
+        <p>Friends list is coming soon.</p>
+        <p>This is a placeholder tab.</p>
+      </section>
+    </aside>
   </div>
   <script type="importmap">
     {
