@@ -34,9 +34,7 @@ const worldUp = new THREE.Vector3(0, 1, 0);
 const camForward = new THREE.Vector3();
 const camRight = new THREE.Vector3();
 const moveDir = new THREE.Vector3();
-const playerTarget = new THREE.Vector3();
 const desiredTarget = new THREE.Vector3();
-const cameraPanOffset = new THREE.Vector3();
 
 const clock = new THREE.Clock();
 
@@ -91,17 +89,9 @@ function animate() {
     markerBeam.material.opacity = 0.32 + Math.sin(t * 6.0) * 0.1;
   }
 
-  playerTarget.set(player.position.x, 1.08, player.position.z);
-  if (input.isMiddlePanning()) {
-    controls.update();
-    cameraPanOffset.subVectors(controls.target, playerTarget);
-    cameraPanOffset.y = 0;
-    cameraPanOffset.clampLength(0, 16);
-  } else {
-    desiredTarget.copy(playerTarget).add(cameraPanOffset);
-    controls.target.lerp(desiredTarget, Math.min(1, dt * 10.0));
-    controls.update();
-  }
+  desiredTarget.set(player.position.x, 1.08, player.position.z);
+  controls.target.lerp(desiredTarget, Math.min(1, dt * 8.0));
+  controls.update();
 
   composer.render();
   requestAnimationFrame(animate);

@@ -6,7 +6,6 @@ export function createInputController({ domElement, camera, ground, player, setM
   const pointer = new THREE.Vector2();
   const walkPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -player.position.y);
   let downInfo = null;
-  let isMiddlePanning = false;
 
   function pointerToNdc(clientX, clientY) {
     pointer.x = (clientX / window.innerWidth) * 2 - 1;
@@ -25,7 +24,6 @@ export function createInputController({ domElement, camera, ground, player, setM
   }
 
   domElement.addEventListener("pointerdown", (event) => {
-    if (event.button === 1) isMiddlePanning = true;
     downInfo = { id: event.pointerId, x: event.clientX, y: event.clientY, button: event.button, moved: false };
   });
 
@@ -35,7 +33,6 @@ export function createInputController({ domElement, camera, ground, player, setM
   });
 
   const onPointerRelease = (event) => {
-    if (event.button === 1) isMiddlePanning = false;
     if (!downInfo || downInfo.id !== event.pointerId) return;
     if (!downInfo.moved && downInfo.button === 0) {
       setMoveTarget(getGroundPoint(event.clientX, event.clientY));
@@ -52,8 +49,5 @@ export function createInputController({ domElement, camera, ground, player, setM
   });
   window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
 
-  return {
-    keys,
-    isMiddlePanning: () => isMiddlePanning,
-  };
+  return { keys };
 }

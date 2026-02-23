@@ -29,14 +29,14 @@ export function createSceneContext(canvas) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
-  controls.panSpeed = 1.35;
+  controls.panSpeed = 0.9;
   controls.minDistance = 16;
   controls.maxDistance = 44;
   controls.minPolarAngle = 0.75;
   controls.maxPolarAngle = 1.07;
   controls.mouseButtons.LEFT = -1;
-  controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
-  controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
+  controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
+  controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
   controls.touches.ONE = THREE.TOUCH.PAN;
   controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
   controls.target.set(0, 1.1, 0);

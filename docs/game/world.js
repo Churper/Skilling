@@ -96,13 +96,14 @@ function createGround(scene) {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#6edfff") },
-    uDeep: { value: new THREE.Color("#1f7fd1") },
+    uShallow: { value: new THREE.Color("#45d9ff") },
+    uDeep: { value: new THREE.Color("#007edc") },
   };
 
   const waterMat = new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
+    transparent: false,
+    depthWrite: true,
+    toneMapped: false,
     uniforms: waterUniforms,
     vertexShader: `
       varying vec2 vUv;
@@ -174,22 +175,21 @@ function createWater(scene) {
         float streaks = smoothstep(0.62, 0.95, caustic) * smoothstep(0.45, 1.0, shore);
 
         vec3 base = mix(uDeep, uShallow, shore);
-        base += vec3(0.16, 0.23, 0.26) * caustic;
-        base += vec3(0.18, 0.24, 0.25) * crest * 0.38;
+        base += vec3(0.14, 0.2, 0.24) * caustic;
+        base += vec3(0.22, 0.28, 0.3) * crest * 0.5;
 
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 2.6);
-        base += vec3(0.2, 0.27, 0.3) * fresnel;
+        base += vec3(0.18, 0.24, 0.28) * fresnel;
 
         float spark = smoothstep(0.74, 1.0, sin((uv.x + uv.y) * 32.0 + t * 2.0) * 0.5 + 0.5);
-        base += vec3(0.14, 0.16, 0.16) * spark * (0.32 + 0.68 * shore);
+        base += vec3(0.16, 0.18, 0.18) * spark * (0.32 + 0.68 * shore);
 
         float foamEdge = smoothstep(0.78, 1.0, distCenter) * smoothstep(0.45, 0.95, caustic);
         vec3 color = mix(base, vec3(0.98, 1.0, 1.0), foamEdge * 0.76);
         color = mix(color, vec3(0.96, 1.0, 1.0), streaks * 0.18);
 
-        float alpha = 0.94 - shore * 0.04 + foamEdge * 0.05 + fresnel * 0.02;
-        gl_FragColor = vec4(color, clamp(alpha, 0.88, 0.98));
+        gl_FragColor = vec4(color, 1.0);
       }
     `,
   });
@@ -201,7 +201,7 @@ function createWater(scene) {
 
   const deepTint = new THREE.Mesh(
     new THREE.CircleGeometry(21.6, 80),
-    new THREE.MeshBasicMaterial({ color: "#59bae6", transparent: true, opacity: 0.075, depthWrite: false })
+    new THREE.MeshBasicMaterial({ color: "#0b6cc4", transparent: true, opacity: 0.12, depthWrite: false })
   );
   deepTint.rotation.x = -Math.PI / 2;
   deepTint.position.y = 0.42;
