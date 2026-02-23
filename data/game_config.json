@@ -28,12 +28,12 @@
   },
   "world": {
     "water": {
-      "shallow_color": [0.20, 0.90, 1.00, 0.58],
-      "deep_color": [0.02, 0.26, 0.82, 0.84],
-      "edge_foam_color": [0.92, 1.00, 1.00, 0.92],
-      "wave_height": 0.085,
-      "wave_speed": 1.55,
-      "ripple_density": 18.0
+      "shallow_color": [0.10, 0.95, 1.00, 0.82],
+      "deep_color": [0.00, 0.22, 0.95, 0.92],
+      "edge_foam_color": [0.95, 1.00, 1.00, 0.98],
+      "wave_height": 0.09,
+      "wave_speed": 1.7,
+      "ripple_density": 20.0
     },
     "rocks": [
       { "position": [16.0, 0.0, 15.0], "size": [2.5, 1.0, 2.0], "rotation_y": 15.0, "color": [0.50, 0.43, 0.40] },

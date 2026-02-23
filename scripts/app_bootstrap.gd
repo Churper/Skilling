@@ -373,7 +373,7 @@ func _create_water_material() -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = """
 shader_type spatial;
-render_mode blend_mix, depth_draw_alpha_prepass, cull_disabled, diffuse_burley, specular_schlick_ggx;
+render_mode blend_mix, depth_draw_opaque, cull_disabled, unshaded;
 
 uniform vec4 shallow_color : source_color = vec4(0.56, 0.93, 1.0, 0.48);
 uniform vec4 deep_color : source_color = vec4(0.10, 0.46, 0.72, 0.72);
@@ -381,7 +381,6 @@ uniform vec4 edge_foam_color : source_color = vec4(0.84, 0.98, 1.0, 0.78);
 uniform float wave_height = 0.07;
 uniform float wave_speed = 1.35;
 uniform float ripple_density = 15.0;
-uniform float normal_strength = 0.14;
 
 void vertex() {
 	float t = TIME * wave_speed;
@@ -400,30 +399,18 @@ void fragment() {
 	float ripple_a = sin((UV.x + UV.y) * ripple_density + t * 3.1);
 	float ripple_b = cos((UV.x - UV.y) * (ripple_density * 0.75) - t * 2.4);
 	float ripple = ripple_a * 0.6 + ripple_b * 0.4;
-	float ripple_mask = smoothstep(0.28, 0.88, ripple * 0.5 + 0.5);
-	float stripe = smoothstep(0.88, 0.97, ripple * 0.5 + 0.5);
-	float stripe_dark = smoothstep(0.02, 0.18, ripple * 0.5 + 0.5);
+	float ripple_soft = smoothstep(0.20, 0.85, ripple * 0.5 + 0.5);
+	float ripple_white = smoothstep(0.78, 0.98, ripple * 0.5 + 0.5);
 
 	float shore_ring = smoothstep(0.74, 0.96, dist);
-	float foam = shore_ring * smoothstep(0.45, 0.95, ripple_mask);
-	base_color += vec3(0.12, 0.24, 0.30) * ripple_mask;
-	base_color += vec3(0.24, 0.36, 0.40) * stripe;
-	base_color -= vec3(0.08, 0.16, 0.18) * stripe_dark;
+	float foam = shore_ring * ripple_soft;
+	base_color += vec3(0.12, 0.28, 0.40) * ripple_soft;
+	base_color += vec3(0.32, 0.45, 0.50) * ripple_white;
 	base_color = mix(base_color, edge_foam_color.rgb, foam * 0.7);
 
-	float dx = cos((UV.x + UV.y) * ripple_density + t * 3.1) * 0.6 + cos((UV.x - UV.y) * (ripple_density * 0.75) - t * 2.4) * 0.4;
-	float dz = sin(UV.x * 20.0 + t * 1.5) * 0.5 + sin(UV.y * 16.0 - t * 1.2) * 0.5;
-	vec3 wave_normal = normalize(vec3(dx * normal_strength, 1.0, dz * normal_strength));
-	NORMAL = wave_normal;
-
-	float fresnel = pow(1.0 - max(dot(normalize(VIEW), wave_normal), 0.0), 3.2);
-	float spec_band = smoothstep(0.72, 0.97, ripple_mask + fresnel * 0.45);
-
 	ALBEDO = base_color;
-	EMISSION = (vec3(0.03, 0.08, 0.12) + edge_foam_color.rgb * 0.12) * (0.55 + spec_band * 0.45);
-	ROUGHNESS = clamp(0.20 - ripple_mask * 0.08, 0.05, 0.24);
-	METALLIC = 0.02;
-	ALPHA = clamp(mix(deep_color.a, shallow_color.a, shore_blend) + foam * 0.18, 0.24, 0.72);
+	EMISSION = base_color * 0.35 + edge_foam_color.rgb * (0.14 + ripple_white * 0.26);
+	ALPHA = clamp(mix(deep_color.a, shallow_color.a, shore_blend) + foam * 0.12, 0.72, 0.96);
 }
 """
 
