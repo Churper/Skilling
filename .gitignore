@@ -1,5 +1,13 @@
-﻿.import/
-.export/
+# System
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Local engine cache (leftover from old Godot setup)
 .godot/
-mono_crash.*.json
-data_*/
