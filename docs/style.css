@@ -1,0 +1,49 @@
+:root {
+  --bg0: #081623;
+  --bg1: #0f2a3f;
+  --panel: rgba(7, 18, 28, 0.68);
+  --line: rgba(147, 216, 255, 0.35);
+  --text: #e9f8ff;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: radial-gradient(1200px 70% at 50% 120%, #17385a 0%, #081623 72%);
+  color: var(--text);
+  font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+#hud {
+  position: fixed;
+  left: 14px;
+  top: 14px;
+  max-width: min(520px, 88vw);
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+#hud h1 {
+  margin: 0 0 6px;
+  font-size: clamp(20px, 2.7vw, 30px);
+  letter-spacing: 0.04em;
+}
+
+#hud p {
+  margin: 2px 0;
+  font-size: clamp(12px, 1.5vw, 15px);
+  line-height: 1.3;
+}
