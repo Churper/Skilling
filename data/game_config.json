@@ -1,0 +1,53 @@
+{
+  "ui": {
+    "fishing_title": "Fishing",
+    "inventory_title": "Catch Inventory",
+    "status": {
+      "ready": "Hold right click or Tab: look mode • Tap/click water: cast",
+      "reel_prompt": "Tap/click to reel in",
+      "casting": "Fishing... wait for bites • Tap/click again to reel in",
+      "cast_on_water": "Cast on water"
+    }
+  },
+  "fishing": {
+    "xp_curve": {
+      "base": 90,
+      "per_level": 28
+    },
+    "fish": [
+      { "id": "Minnow", "xp": 10, "weight": 38 },
+      { "id": "Trout", "xp": 16, "weight": 30 },
+      { "id": "Bass", "xp": 24, "weight": 20 },
+      { "id": "Salmon", "xp": 38, "weight": 10 },
+      { "id": "Golden Koi", "xp": 72, "weight": 2 }
+    ],
+    "potions": [
+      { "id": "small_net", "name": "Small Net", "type": "utility", "cost": 30, "effect": "roll_bonus", "value": 0.05 },
+      { "id": "water_lens", "name": "Water Lens", "type": "utility", "cost": 55, "effect": "rare_bonus", "value": 0.08 }
+    ]
+  },
+  "world": {
+    "water": {
+      "shallow_color": [0.56, 0.93, 1.0, 0.48],
+      "deep_color": [0.10, 0.46, 0.72, 0.72],
+      "edge_foam_color": [0.84, 0.98, 1.0, 0.78],
+      "wave_height": 0.07,
+      "wave_speed": 1.35,
+      "ripple_density": 15.0
+    },
+    "rocks": [
+      { "position": [16.0, 0.0, 15.0], "size": [2.5, 1.0, 2.0], "rotation_y": 15.0, "color": [0.50, 0.43, 0.40] },
+      { "position": [-14.0, 0.0, 18.0], "size": [2.7, 1.35, 2.45], "rotation_y": 42.0, "color": [0.45, 0.43, 0.40] },
+      { "position": [20.0, 0.0, -10.0], "size": [2.9, 1.7, 2.0], "rotation_y": 69.0, "color": [0.50, 0.43, 0.40] },
+      { "position": [-18.0, 0.0, -12.0], "size": [3.1, 1.0, 2.45], "rotation_y": 96.0, "color": [0.45, 0.43, 0.40] },
+      { "position": [8.0, 0.0, -20.0], "size": [3.3, 1.35, 2.0], "rotation_y": 123.0, "color": [0.50, 0.43, 0.40] },
+      { "position": [-6.0, 0.0, 21.0], "size": [3.5, 1.7, 2.45], "rotation_y": 150.0, "color": [0.45, 0.43, 0.40] }
+    ],
+    "trees": [
+      { "position": [23.0, 0.0, 8.0], "trunk_color": [0.35, 0.25, 0.18], "canopy_color": [0.25, 0.58, 0.31] },
+      { "position": [-23.0, 0.0, 6.0], "trunk_color": [0.35, 0.25, 0.18], "canopy_color": [0.25, 0.58, 0.31] },
+      { "position": [21.0, 0.0, -14.0], "trunk_color": [0.35, 0.25, 0.18], "canopy_color": [0.25, 0.58, 0.31] },
+      { "position": [-21.0, 0.0, -16.0], "trunk_color": [0.35, 0.25, 0.18], "canopy_color": [0.25, 0.58, 0.31] }
+    ]
+  }
+}

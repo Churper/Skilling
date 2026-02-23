@@ -3,14 +3,6 @@
 @export var base_fov: float = 82.0
 
 const WATER_LAYER: int = 2
-const FISH_TYPES: PackedStringArray = ["Minnow", "Trout", "Bass", "Salmon", "Golden Koi"]
-const FISH_XP: Dictionary = {
-	"Minnow": 10,
-	"Trout": 16,
-	"Bass": 24,
-	"Salmon": 38,
-	"Golden Koi": 72,
-}
 
 @onready var camera: Camera3D = $Player/Head/Camera3D
 @onready var pole: Node3D = $Player/Head/Camera3D/FishingPole
@@ -28,6 +20,11 @@ var cast_state: int = 0
 var cast_timer: float = 0.0
 var bobber_time: float = 0.0
 var last_cast_point: Vector3 = Vector3.ZERO
+var game_config: Dictionary = {}
+var fish_types: PackedStringArray = PackedStringArray()
+var fish_xp: Dictionary = {}
+var fish_roll_table: Array[Dictionary] = []
+var potion_defs: Array[Dictionary] = []
 
 var inventory: Dictionary = {}
 var inventory_labels: Dictionary = {}
@@ -53,6 +50,7 @@ var xp_drop_base_bottom: float = -82.0
 
 func _ready() -> void:
 	randomize()
+	_load_game_config()
 	_ensure_cast_input_map()
 	_apply_window_scaling()
 	_style_world_low_poly()
@@ -60,15 +58,117 @@ func _ready() -> void:
 	_spawn_lowpoly_props()
 	_build_hud()
 
-	for fish_name in FISH_TYPES:
+	for fish_name in fish_types:
 		inventory[fish_name] = 0
 	_update_inventory_ui()
 	_update_fishing_ui()
-	_set_status("Hold right click or Tab: look mode • Tap/click water: cast")
+	_set_status(_status_text("ready", "Hold right click or Tab: look mode • Tap/click water: cast"))
 
 	var window: Window = get_window()
 	window.size_changed.connect(_on_window_size_changed)
 	_on_window_size_changed()
+
+func _load_game_config() -> void:
+	var defaults: Dictionary = _default_game_config()
+	var config_path := "res://data/game_config.json"
+	if FileAccess.file_exists(config_path):
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(config_path))
+		if parsed is Dictionary:
+			game_config = parsed
+		else:
+			push_warning("Invalid JSON at %s. Using defaults." % config_path)
+	else:
+		push_warning("Missing %s. Using defaults." % config_path)
+
+	if game_config.is_empty():
+		game_config = defaults
+
+	var fishing: Dictionary = game_config.get("fishing", {}) as Dictionary
+	var fish_entries: Array = fishing.get("fish", []) as Array
+	if fish_entries.is_empty():
+		var defaults_fishing: Dictionary = defaults.get("fishing", {}) as Dictionary
+		fish_entries = defaults_fishing.get("fish", []) as Array
+
+	fish_types = PackedStringArray()
+	fish_xp.clear()
+	fish_roll_table.clear()
+	var total_weight: float = 0.0
+	for entry_var in fish_entries:
+		var entry: Dictionary = entry_var as Dictionary
+		var fish_id: String = str(entry.get("id", "")).strip_edges()
+		if fish_id.is_empty():
+			continue
+		var xp: int = int(entry.get("xp", 10))
+		var weight: float = max(0.01, float(entry.get("weight", 1.0)))
+		fish_types.append(fish_id)
+		fish_xp[fish_id] = xp
+		total_weight += weight
+		fish_roll_table.append({"id": fish_id, "threshold": total_weight})
+
+	if fish_types.is_empty():
+		fish_types = PackedStringArray(["Minnow"])
+		fish_xp["Minnow"] = 10
+		fish_roll_table = [{"id": "Minnow", "threshold": 1.0}]
+
+	var potion_entries: Array = fishing.get("potions", []) as Array
+	potion_defs.clear()
+	for potion_var in potion_entries:
+		if potion_var is Dictionary:
+			potion_defs.append(potion_var)
+
+func _default_game_config() -> Dictionary:
+	return {
+		"ui": {
+			"fishing_title": "Fishing",
+			"inventory_title": "Catch Inventory",
+			"status": {
+				"ready": "Hold right click or Tab: look mode • Tap/click water: cast",
+				"reel_prompt": "Tap/click to reel in",
+				"casting": "Fishing... wait for bites • Tap/click again to reel in",
+				"cast_on_water": "Cast on water"
+			}
+		},
+		"fishing": {
+			"xp_curve": {"base": 90, "per_level": 28},
+			"fish": [
+				{"id": "Minnow", "xp": 10, "weight": 38},
+				{"id": "Trout", "xp": 16, "weight": 30},
+				{"id": "Bass", "xp": 24, "weight": 20},
+				{"id": "Salmon", "xp": 38, "weight": 10},
+				{"id": "Golden Koi", "xp": 72, "weight": 2}
+			],
+			"potions": []
+		},
+		"world": {
+			"water": {
+				"shallow_color": [0.56, 0.93, 1.0, 0.48],
+				"deep_color": [0.10, 0.46, 0.72, 0.72],
+				"edge_foam_color": [0.84, 0.98, 1.0, 0.78],
+				"wave_height": 0.07,
+				"wave_speed": 1.35,
+				"ripple_density": 15.0
+			},
+			"rocks": [
+				{"position": [16.0, 0.0, 15.0], "size": [2.5, 1.0, 2.0], "rotation_y": 15.0, "color": [0.50, 0.43, 0.40]},
+				{"position": [-14.0, 0.0, 18.0], "size": [2.7, 1.35, 2.45], "rotation_y": 42.0, "color": [0.45, 0.43, 0.40]},
+				{"position": [20.0, 0.0, -10.0], "size": [2.9, 1.7, 2.0], "rotation_y": 69.0, "color": [0.50, 0.43, 0.40]},
+				{"position": [-18.0, 0.0, -12.0], "size": [3.1, 1.0, 2.45], "rotation_y": 96.0, "color": [0.45, 0.43, 0.40]},
+				{"position": [8.0, 0.0, -20.0], "size": [3.3, 1.35, 2.0], "rotation_y": 123.0, "color": [0.50, 0.43, 0.40]},
+				{"position": [-6.0, 0.0, 21.0], "size": [3.5, 1.7, 2.45], "rotation_y": 150.0, "color": [0.45, 0.43, 0.40]}
+			],
+			"trees": [
+				{"position": [23.0, 0.0, 8.0], "trunk_color": [0.35, 0.25, 0.18], "canopy_color": [0.25, 0.58, 0.31]},
+				{"position": [-23.0, 0.0, 6.0], "trunk_color": [0.35, 0.25, 0.18], "canopy_color": [0.25, 0.58, 0.31]},
+				{"position": [21.0, 0.0, -14.0], "trunk_color": [0.35, 0.25, 0.18], "canopy_color": [0.25, 0.58, 0.31]},
+				{"position": [-21.0, 0.0, -16.0], "trunk_color": [0.35, 0.25, 0.18], "canopy_color": [0.25, 0.58, 0.31]}
+			]
+		}
+	}
+
+func _status_text(key: String, fallback: String) -> String:
+	var ui_cfg: Dictionary = game_config.get("ui", {}) as Dictionary
+	var status_cfg: Dictionary = ui_cfg.get("status", {}) as Dictionary
+	return str(status_cfg.get(key, fallback))
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch and event.pressed:
@@ -108,10 +208,11 @@ func _process(delta: float) -> void:
 		var xp_drop: int = _get_fish_xp(fish_name)
 		var levels_gained: int = _add_fishing_xp(xp_drop)
 		_show_xp_drop(xp_drop)
+		var reel_prompt: String = _status_text("reel_prompt", "Tap/click to reel in")
 		if levels_gained > 0:
-			_set_status("Caught %s (+%d XP) • Fishing Lv %d • Tap/click to reel in" % [fish_name, xp_drop, fishing_level])
+			_set_status("Caught %s (+%d XP) • Fishing Lv %d • %s" % [fish_name, xp_drop, fishing_level, reel_prompt])
 		else:
-			_set_status("Caught %s (+%d XP) • Tap/click to reel in" % [fish_name, xp_drop])
+			_set_status("Caught %s (+%d XP) • %s" % [fish_name, xp_drop, reel_prompt])
 		cast_timer = randf_range(0.85, 1.9)
 
 func _apply_window_scaling() -> void:
@@ -297,42 +398,51 @@ void fragment() {
 
 	var material := ShaderMaterial.new()
 	material.shader = shader
+	var world_cfg: Dictionary = game_config.get("world", {}) as Dictionary
+	var water_cfg: Dictionary = world_cfg.get("water", {}) as Dictionary
+	material.set_shader_parameter("shallow_color", _color_from_json(water_cfg.get("shallow_color", [0.56, 0.93, 1.0, 0.48]), Color(0.56, 0.93, 1.0, 0.48)))
+	material.set_shader_parameter("deep_color", _color_from_json(water_cfg.get("deep_color", [0.10, 0.46, 0.72, 0.72]), Color(0.10, 0.46, 0.72, 0.72)))
+	material.set_shader_parameter("edge_foam_color", _color_from_json(water_cfg.get("edge_foam_color", [0.84, 0.98, 1.0, 0.78]), Color(0.84, 0.98, 1.0, 0.78)))
+	material.set_shader_parameter("wave_height", float(water_cfg.get("wave_height", 0.07)))
+	material.set_shader_parameter("wave_speed", float(water_cfg.get("wave_speed", 1.35)))
+	material.set_shader_parameter("ripple_density", float(water_cfg.get("ripple_density", 15.0)))
 	return material
 
 func _spawn_lowpoly_props() -> void:
-	var rock_positions: Array[Vector3] = [
-		Vector3(16.0, 0.0, 15.0),
-		Vector3(-14.0, 0.0, 18.0),
-		Vector3(20.0, 0.0, -10.0),
-		Vector3(-18.0, 0.0, -12.0),
-		Vector3(8.0, 0.0, -20.0),
-		Vector3(-6.0, 0.0, 21.0),
-	]
+	var world_cfg: Dictionary = game_config.get("world", {}) as Dictionary
+	var rock_defs: Array = world_cfg.get("rocks", []) as Array
+	if rock_defs.is_empty():
+		var default_world: Dictionary = _default_game_config().get("world", {}) as Dictionary
+		rock_defs = default_world.get("rocks", []) as Array
 
-	for i in rock_positions.size():
+	for i in rock_defs.size():
+		var rock_def: Dictionary = rock_defs[i] as Dictionary
 		var rock: MeshInstance3D = MeshInstance3D.new()
 		var rock_mesh: BoxMesh = BoxMesh.new()
-		rock_mesh.size = Vector3(2.5 + i * 0.2, 1.0 + float(i % 3) * 0.35, 2.0 + float(i % 2) * 0.45)
+		rock_mesh.size = _vec3_from_json(
+			rock_def.get("size", [2.5 + i * 0.2, 1.0 + float(i % 3) * 0.35, 2.0 + float(i % 2) * 0.45]),
+			Vector3(2.5 + i * 0.2, 1.0 + float(i % 3) * 0.35, 2.0 + float(i % 2) * 0.45)
+		)
 		rock.mesh = rock_mesh
-		rock.position = rock_positions[i] + Vector3(0.0, rock_mesh.size.y * 0.5 - 0.05, 0.0)
-		rock.rotation_degrees.y = 15.0 + i * 27.0
+		var rock_pos: Vector3 = _vec3_from_json(rock_def.get("position", [0.0, 0.0, 0.0]), Vector3.ZERO)
+		rock.position = rock_pos + Vector3(0.0, rock_mesh.size.y * 0.5 - 0.05, 0.0)
+		rock.rotation_degrees.y = float(rock_def.get("rotation_y", 15.0 + i * 27.0))
 		var rock_mat: StandardMaterial3D = StandardMaterial3D.new()
-		rock_mat.albedo_color = Color(0.45 + float(i % 2) * 0.05, 0.43, 0.40)
+		rock_mat.albedo_color = _color_from_json(rock_def.get("color", [0.45 + float(i % 2) * 0.05, 0.43, 0.40]), Color(0.5, 0.43, 0.40))
 		rock_mat.roughness = 1.0
 		rock.material_override = rock_mat
 		add_child(rock)
 
-	var tree_positions: Array[Vector3] = [
-		Vector3(23.0, 0.0, 8.0),
-		Vector3(-23.0, 0.0, 6.0),
-		Vector3(21.0, 0.0, -14.0),
-		Vector3(-21.0, 0.0, -16.0),
-	]
+	var tree_defs: Array = world_cfg.get("trees", []) as Array
+	if tree_defs.is_empty():
+		var default_world: Dictionary = _default_game_config().get("world", {}) as Dictionary
+		tree_defs = default_world.get("trees", []) as Array
+	for tree_var in tree_defs:
+		if tree_var is Dictionary:
+			_spawn_tree(tree_var as Dictionary)
 
-	for p in tree_positions:
-		_spawn_tree(p)
-
-func _spawn_tree(pos: Vector3) -> void:
+func _spawn_tree(tree_def: Dictionary) -> void:
+	var pos: Vector3 = _vec3_from_json(tree_def.get("position", [0.0, 0.0, 0.0]), Vector3.ZERO)
 	var trunk: MeshInstance3D = MeshInstance3D.new()
 	var trunk_mesh: CylinderMesh = CylinderMesh.new()
 	trunk_mesh.top_radius = 0.18
@@ -342,7 +452,7 @@ func _spawn_tree(pos: Vector3) -> void:
 	trunk.mesh = trunk_mesh
 	trunk.position = pos + Vector3(0.0, 1.2, 0.0)
 	var trunk_mat: StandardMaterial3D = StandardMaterial3D.new()
-	trunk_mat.albedo_color = Color(0.35, 0.25, 0.18)
+	trunk_mat.albedo_color = _color_from_json(tree_def.get("trunk_color", [0.35, 0.25, 0.18]), Color(0.35, 0.25, 0.18))
 	trunk_mat.roughness = 1.0
 	trunk.material_override = trunk_mat
 	add_child(trunk)
@@ -356,7 +466,7 @@ func _spawn_tree(pos: Vector3) -> void:
 	canopy.mesh = canopy_mesh
 	canopy.position = pos + Vector3(0.0, 3.0, 0.0)
 	var canopy_mat: StandardMaterial3D = StandardMaterial3D.new()
-	canopy_mat.albedo_color = Color(0.25, 0.58, 0.31)
+	canopy_mat.albedo_color = _color_from_json(tree_def.get("canopy_color", [0.25, 0.58, 0.31]), Color(0.25, 0.58, 0.31))
 	canopy_mat.roughness = 1.0
 	canopy.material_override = canopy_mat
 	add_child(canopy)
@@ -415,7 +525,8 @@ func _build_hud() -> void:
 	hud_fishing_panel.add_child(fishing_column)
 
 	hud_fishing_title = Label.new()
-	hud_fishing_title.text = "Fishing"
+	var ui_cfg: Dictionary = game_config.get("ui", {}) as Dictionary
+	hud_fishing_title.text = str(ui_cfg.get("fishing_title", "Fishing"))
 	hud_fishing_title.add_theme_font_size_override("font_size", 24)
 	fishing_column.add_child(hud_fishing_title)
 
@@ -465,11 +576,11 @@ func _build_hud() -> void:
 	hud_inventory_panel.add_child(column)
 
 	hud_inventory_title = Label.new()
-	hud_inventory_title.text = "Catch Inventory"
+	hud_inventory_title.text = str(ui_cfg.get("inventory_title", "Catch Inventory"))
 	hud_inventory_title.add_theme_font_size_override("font_size", 20)
 	column.add_child(hud_inventory_title)
 
-	for fish_name in FISH_TYPES:
+	for fish_name in fish_types:
 		var row: HBoxContainer = HBoxContainer.new()
 		var fish_label: Label = Label.new()
 		fish_label.text = fish_name
@@ -631,7 +742,7 @@ func _try_cast() -> void:
 	if cast_state == 1:
 		_hide_cast_visuals()
 		cast_state = 0
-		_set_status("Hold right click or Tab: look mode • Tap/click water: cast")
+		_set_status(_status_text("ready", "Hold right click or Tab: look mode • Tap/click water: cast"))
 		return
 
 	var screen_point: Vector2 = get_viewport().get_visible_rect().size * 0.5
@@ -644,7 +755,7 @@ func _try_cast_from_screen(screen_point: Vector2) -> void:
 	if cast_state == 1:
 		_hide_cast_visuals()
 		cast_state = 0
-		_set_status("Hold right click or Tab: look mode • Tap/click water: cast")
+		_set_status(_status_text("ready", "Hold right click or Tab: look mode • Tap/click water: cast"))
 		return
 
 	var ray_origin: Vector3 = camera.project_ray_origin(screen_point)
@@ -666,7 +777,7 @@ func _try_cast_from_screen(screen_point: Vector2) -> void:
 	var plane_y: float = water_mesh.global_position.y if water_mesh else 0.02
 	var ray_to_plane: float = (plane_y - ray_origin.y) / ray_direction.y if abs(ray_direction.y) > 0.0001 else -1.0
 	if ray_to_plane <= 0.0:
-		_set_status("Cast on water")
+		_set_status(_status_text("cast_on_water", "Cast on water"))
 		return
 	var plane_hit: Vector3 = ray_origin + ray_direction * ray_to_plane
 	var local_hit: Vector3 = plane_hit - water_area.global_position
@@ -674,7 +785,7 @@ func _try_cast_from_screen(screen_point: Vector2) -> void:
 		_start_cast(plane_hit)
 		return
 
-	_set_status("Cast on water")
+	_set_status(_status_text("cast_on_water", "Cast on water"))
 
 func _start_cast(point: Vector3) -> void:
 	last_cast_point = point
@@ -684,7 +795,7 @@ func _start_cast(point: Vector3) -> void:
 	_place_bobber(point)
 	if pole and pole.has_method("play_cast_kick"):
 		pole.call("play_cast_kick")
-	_set_status("Fishing... wait for bites • Tap/click again to reel in")
+	_set_status(_status_text("casting", "Fishing... wait for bites • Tap/click again to reel in"))
 
 func _place_bobber(point: Vector3) -> void:
 	if not bobber:
@@ -743,22 +854,24 @@ func _get_pole_tip_world_position() -> Vector3:
 	return camera.global_position + camera.global_basis * Vector3(0.2, -0.2, -0.8)
 
 func _roll_fish() -> String:
-	var r: float = randf()
-	if r < 0.38:
+	if fish_roll_table.is_empty():
 		return "Minnow"
-	if r < 0.68:
-		return "Trout"
-	if r < 0.88:
-		return "Bass"
-	if r < 0.98:
-		return "Salmon"
-	return "Golden Koi"
+	var max_threshold: float = float(fish_roll_table[fish_roll_table.size() - 1].get("threshold", 1.0))
+	var r: float = randf() * max_threshold
+	for entry in fish_roll_table:
+		if r <= float(entry.get("threshold", max_threshold)):
+			return str(entry.get("id", "Minnow"))
+	return str(fish_roll_table[fish_roll_table.size() - 1].get("id", "Minnow"))
 
 func _get_fish_xp(fish_name: String) -> int:
-	return int(FISH_XP.get(fish_name, 10))
+	return int(fish_xp.get(fish_name, 10))
 
 func _xp_needed_for_level(level: int) -> int:
-	return 90 + (level - 1) * 28
+	var fishing_cfg: Dictionary = game_config.get("fishing", {}) as Dictionary
+	var xp_curve: Dictionary = fishing_cfg.get("xp_curve", {}) as Dictionary
+	var xp_base: int = int(xp_curve.get("base", 90))
+	var xp_per_level: int = int(xp_curve.get("per_level", 28))
+	return xp_base + (level - 1) * xp_per_level
 
 func _add_fishing_xp(amount: int) -> int:
 	var levels_gained: int = 0
@@ -799,7 +912,7 @@ func _add_fish(fish_name: String) -> void:
 
 func _update_inventory_ui() -> void:
 	var total: int = 0
-	for fish_name in FISH_TYPES:
+	for fish_name in fish_types:
 		var fish_count: int = int(inventory.get(fish_name, 0))
 		total += fish_count
 		if inventory_labels.has(fish_name):
@@ -807,6 +920,21 @@ func _update_inventory_ui() -> void:
 			label.text = str(fish_count)
 	if total_label:
 		total_label.text = str(total)
+
+func _vec3_from_json(value: Variant, fallback: Vector3) -> Vector3:
+	if value is Array:
+		var arr: Array = value as Array
+		if arr.size() >= 3:
+			return Vector3(float(arr[0]), float(arr[1]), float(arr[2]))
+	return fallback
+
+func _color_from_json(value: Variant, fallback: Color) -> Color:
+	if value is Array:
+		var arr: Array = value as Array
+		if arr.size() >= 3:
+			var alpha: float = float(arr[3]) if arr.size() >= 4 else fallback.a
+			return Color(float(arr[0]), float(arr[1]), float(arr[2]), alpha)
+	return fallback
 
 func _set_status(text_value: String) -> void:
 	if status_label:
