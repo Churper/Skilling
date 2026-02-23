@@ -3,7 +3,6 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 
 const canvas = document.getElementById("game-canvas");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
@@ -11,25 +10,29 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.36;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog("#87c7e8", 45, 210);
+scene.fog = new THREE.Fog("#d7f3ff", 165, 520);
 
 const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 500);
 camera.position.set(28, 30, 28);
 
-scene.add(new THREE.HemisphereLight("#f2fbff", "#4e8053", 0.82));
-const sun = new THREE.DirectionalLight("#fff6de", 1.45);
+scene.add(new THREE.HemisphereLight("#ffffff", "#c2d8b1", 1.26));
+const sun = new THREE.DirectionalLight("#fff9ee", 1.7);
 sun.position.set(45, 52, 16);
 scene.add(sun);
+const fill = new THREE.DirectionalLight("#d6f7ff", 0.58);
+fill.position.set(-36, 24, -22);
+scene.add(fill);
 
 const skyMat = new THREE.ShaderMaterial({
   side: THREE.BackSide,
   uniforms: {
-    cTop: { value: new THREE.Color("#61b8ed") },
-    cMid: { value: new THREE.Color("#96d5ff") },
-    cBot: { value: new THREE.Color("#e6f7ff") },
+    cTop: { value: new THREE.Color("#6ac2ff") },
+    cMid: { value: new THREE.Color("#a7e4ff") },
+    cBot: { value: new THREE.Color("#f3fcff") },
+    uTime: { value: 0 },
   },
   vertexShader: `
     varying vec3 vPos;
@@ -43,11 +46,44 @@ const skyMat = new THREE.ShaderMaterial({
     uniform vec3 cTop;
     uniform vec3 cMid;
     uniform vec3 cBot;
+    uniform float uTime;
     varying vec3 vPos;
+
+    float hash21(vec2 p) {
+      p = fract(p * vec2(123.34, 456.21));
+      p += dot(p, p + 45.32);
+      return fract(p.x * p.y);
+    }
+
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      float a = hash21(i);
+      float b = hash21(i + vec2(1.0, 0.0));
+      float c = hash21(i + vec2(0.0, 1.0));
+      float d = hash21(i + vec2(1.0, 1.0));
+      vec2 u = f * f * (3.0 - 2.0 * f);
+      return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+    }
+
+    float fbm(vec2 p) {
+      float v = 0.0;
+      float a = 0.55;
+      for (int i = 0; i < 4; i++) {
+        v += noise(p) * a;
+        p *= 2.05;
+        a *= 0.5;
+      }
+      return v;
+    }
+
     void main() {
       float h = normalize(vPos).y * 0.5 + 0.5;
       vec3 c = mix(cBot, cMid, smoothstep(0.0, 0.62, h));
       c = mix(c, cTop, smoothstep(0.60, 1.0, h));
+      vec2 uv = normalize(vPos).xz * 3.2 + vec2(uTime * 0.01, -uTime * 0.004);
+      float cloud = smoothstep(0.62, 0.9, fbm(uv + vec2(0.0, 8.0)));
+      c = mix(c, vec3(1.0), cloud * smoothstep(0.46, 0.9, h) * 0.36);
       gl_FragColor = vec4(c, 1.0);
     }
   `,
@@ -70,40 +106,7 @@ controls.target.set(0, 1.1, 0);
 
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.26, 0.8, 0.9));
-
-const gradePass = new ShaderPass({
-  uniforms: {
-    tDiffuse: { value: null },
-    saturation: { value: 1.09 },
-    contrast: { value: 1.06 },
-    vignette: { value: 0.20 },
-  },
-  vertexShader: `
-    varying vec2 vUv;
-    void main() {
-      vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: `
-    uniform sampler2D tDiffuse;
-    uniform float saturation;
-    uniform float contrast;
-    uniform float vignette;
-    varying vec2 vUv;
-    void main() {
-      vec4 src = texture2D(tDiffuse, vUv);
-      float luma = dot(src.rgb, vec3(0.2126, 0.7152, 0.0722));
-      vec3 sat = mix(vec3(luma), src.rgb, saturation);
-      vec3 con = (sat - 0.5) * contrast + 0.5;
-      float d = distance(vUv, vec2(0.5));
-      con *= (1.0 - smoothstep(0.35, 0.82, d) * vignette);
-      gl_FragColor = vec4(con, src.a);
-    }
-  `,
-});
-composer.addPass(gradePass);
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.16, 0.5, 0.95));
 
 const terrainGeo = new THREE.PlaneGeometry(230, 230, 140, 140);
 const tPos = terrainGeo.attributes.position;
@@ -113,22 +116,22 @@ for (let i = 0; i < tPos.count; i++) {
   const z = tPos.getY(i);
   const h = Math.sin(x * 0.045) * 0.6 + Math.cos(z * 0.037) * 0.56 + Math.sin((x + z) * 0.021) * 0.42;
   tPos.setZ(i, h * 0.45);
-  const g = 0.50 + h * 0.08;
-  tCol.push(0.30, g, 0.32);
+  const g = 0.73 + h * 0.06;
+  tCol.push(0.56, g, 0.56);
 }
 terrainGeo.setAttribute("color", new THREE.Float32BufferAttribute(tCol, 3));
 terrainGeo.computeVertexNormals();
 
 const ground = new THREE.Mesh(
   terrainGeo,
-  new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.93, metalness: 0.0 })
+  new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.92, metalness: 0.0 })
 );
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
 
 const beachRing = new THREE.Mesh(
   new THREE.RingGeometry(26, 33.5, 120),
-  new THREE.MeshStandardMaterial({ color: "#d8c79c", roughness: 0.95, metalness: 0.0, side: THREE.DoubleSide })
+  new THREE.MeshStandardMaterial({ color: "#f4e7c5", roughness: 0.86, metalness: 0.0, side: THREE.DoubleSide })
 );
 beachRing.rotation.x = -Math.PI / 2;
 beachRing.position.y = 0.62;
@@ -136,7 +139,7 @@ scene.add(beachRing);
 
 const shorelineFoam = new THREE.Mesh(
   new THREE.RingGeometry(25.2, 26.6, 120),
-  new THREE.MeshBasicMaterial({ color: "#f6ffff", transparent: true, opacity: 0.34, depthWrite: false, side: THREE.DoubleSide })
+  new THREE.MeshBasicMaterial({ color: "#fbffff", transparent: true, opacity: 0.44, depthWrite: false, side: THREE.DoubleSide })
 );
 shorelineFoam.rotation.x = -Math.PI / 2;
 shorelineFoam.position.y = 0.64;
@@ -144,16 +147,24 @@ scene.add(shorelineFoam);
 
 const shorelineAO = new THREE.Mesh(
   new THREE.RingGeometry(26.5, 28.3, 120),
-  new THREE.MeshBasicMaterial({ color: "#50614d", transparent: true, opacity: 0.17, depthWrite: false, side: THREE.DoubleSide })
+  new THREE.MeshBasicMaterial({ color: "#9db79b", transparent: true, opacity: 0.03, depthWrite: false, side: THREE.DoubleSide })
 );
 shorelineAO.rotation.x = -Math.PI / 2;
 shorelineAO.position.y = 0.61;
 scene.add(shorelineAO);
 
+const poolEdge = new THREE.Mesh(
+  new THREE.RingGeometry(24.8, 25.2, 120),
+  new THREE.MeshStandardMaterial({ color: "#f7fbff", roughness: 0.42, metalness: 0.0, side: THREE.DoubleSide })
+);
+poolEdge.rotation.x = -Math.PI / 2;
+poolEdge.position.y = 0.66;
+scene.add(poolEdge);
+
 const waterUniforms = {
   uTime: { value: 0 },
-  uShallow: { value: new THREE.Color("#58ddff") },
-  uDeep: { value: new THREE.Color("#2271ff") },
+  uShallow: { value: new THREE.Color("#95eeff") },
+  uDeep: { value: new THREE.Color("#35a6df") },
 };
 
 const waterMat = new THREE.ShaderMaterial({
@@ -167,9 +178,10 @@ const waterMat = new THREE.ShaderMaterial({
     void main() {
       vUv = uv;
       vec3 p = position;
-      float w0 = sin((uv.x * 12.0 + uv.y * 8.0) + uTime * 1.9) * 0.10;
-      float w1 = sin((uv.x * 19.0 - uv.y * 11.0) - uTime * 1.35) * 0.06;
-      p.y += w0 + w1;
+      float w0 = sin((uv.x * 11.0 + uv.y * 7.0) + uTime * 1.85) * 0.12;
+      float w1 = sin((uv.x * 18.0 - uv.y * 9.0) - uTime * 1.3) * 0.08;
+      float w2 = sin((uv.x * 24.0 + uv.y * 20.0) + uTime * 2.5) * 0.04;
+      p.y += w0 + w1 + w2;
       vec4 worldPos = modelMatrix * vec4(p, 1.0);
       vWorldPos = worldPos.xyz;
       gl_Position = projectionMatrix * viewMatrix * worldPos;
@@ -215,38 +227,48 @@ const waterMat = new THREE.ShaderMaterial({
       vec2 uv = vUv;
       float t = uTime;
       float distCenter = distance(uv, vec2(0.5));
-      float shore = smoothstep(0.03, 0.78, distCenter);
+      float shore = smoothstep(0.03, 0.9, distCenter);
 
-      vec2 flowA = uv * 5.0 + vec2(t * 0.06, t * 0.09);
-      vec2 flowB = uv * 7.0 + vec2(-t * 0.05, t * 0.04);
+      vec2 flowA = uv * 6.5 + vec2(t * 0.08, t * 0.1);
+      vec2 flowB = uv * 9.0 + vec2(-t * 0.06, t * 0.05);
       float causticA = fbm(flowA);
       float causticB = fbm(flowB);
-      float caustic = smoothstep(0.48, 0.88, causticA * 0.62 + causticB * 0.38);
+      float caustic = smoothstep(0.36, 0.8, causticA * 0.62 + causticB * 0.38);
+
+      float waveA = sin((uv.x * 44.0 + uv.y * 16.0) + t * 2.8) * 0.5 + 0.5;
+      float waveB = sin((uv.y * 38.0 - uv.x * 13.0) - t * 2.3) * 0.5 + 0.5;
+      float crest = smoothstep(0.78, 0.98, waveA * 0.55 + waveB * 0.45);
+      float streaks = smoothstep(0.62, 0.95, caustic) * smoothstep(0.45, 1.0, shore);
 
       vec3 base = mix(uDeep, uShallow, shore);
-      base += vec3(0.08, 0.17, 0.26) * caustic;
+      base += vec3(0.16, 0.23, 0.26) * caustic;
+      base += vec3(0.18, 0.24, 0.25) * crest * 0.38;
 
       vec3 viewDir = normalize(cameraPosition - vWorldPos);
       float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 2.6);
-      base += vec3(0.10, 0.16, 0.20) * fresnel;
+      base += vec3(0.2, 0.27, 0.3) * fresnel;
+
+      float spark = smoothstep(0.74, 1.0, sin((uv.x + uv.y) * 32.0 + t * 2.0) * 0.5 + 0.5);
+      base += vec3(0.14, 0.16, 0.16) * spark * (0.32 + 0.68 * shore);
 
       float foamEdge = smoothstep(0.78, 1.0, distCenter) * smoothstep(0.45, 0.95, caustic);
-      vec3 color = mix(base, vec3(0.96, 0.995, 1.0), foamEdge * 0.7);
+      vec3 color = mix(base, vec3(0.98, 1.0, 1.0), foamEdge * 0.76);
+      color = mix(color, vec3(0.96, 1.0, 1.0), streaks * 0.18);
 
-      float alpha = 0.80 - shore * 0.12 + foamEdge * 0.09 + fresnel * 0.05;
-      gl_FragColor = vec4(color, clamp(alpha, 0.68, 0.94));
+      float alpha = 0.9 - shore * 0.05 + foamEdge * 0.06 + fresnel * 0.03;
+      gl_FragColor = vec4(color, clamp(alpha, 0.8, 0.96));
     }
   `,
 });
 
 const water = new THREE.Mesh(new THREE.PlaneGeometry(50, 50, 140, 140), waterMat);
 water.rotation.x = -Math.PI / 2;
-water.position.y = 0.58;
+water.position.y = 0.6;
 scene.add(water);
 
 const deepTint = new THREE.Mesh(
   new THREE.CircleGeometry(21.6, 80),
-  new THREE.MeshBasicMaterial({ color: "#1b4bc7", transparent: true, opacity: 0.14, depthWrite: false })
+  new THREE.MeshBasicMaterial({ color: "#59bae6", transparent: true, opacity: 0.075, depthWrite: false })
 );
 deepTint.rotation.x = -Math.PI / 2;
 deepTint.position.y = 0.42;
@@ -272,7 +294,7 @@ const blobTex = radialTexture();
 function addShadowBlob(x, z, radius = 1.8, opacity = 0.2) {
   const blob = new THREE.Mesh(
     new THREE.PlaneGeometry(radius * 2, radius * 2),
-    new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, color: "#11242e", opacity })
+    new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, color: "#3f4f4f", opacity })
   );
   blob.rotation.x = -Math.PI / 2;
   blob.position.set(x, 0.17, z);
@@ -294,7 +316,7 @@ function addRock(x, z, scale = 1) {
 
   const rock = new THREE.Mesh(
     geo,
-    new THREE.MeshStandardMaterial({ color: "#7e8682", roughness: 0.95, metalness: 0.01 })
+    new THREE.MeshStandardMaterial({ color: "#98a49f", roughness: 0.92, metalness: 0.0 })
   );
   rock.position.set(x, 0.8 * scale, z);
   rock.rotation.y = Math.random() * Math.PI;
@@ -304,29 +326,33 @@ function addRock(x, z, scale = 1) {
 
 function addTree(x, z, scale = 1) {
   const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.22 * scale, 0.3 * scale, 2.2 * scale, 7),
-    new THREE.MeshStandardMaterial({ color: "#6d4d2d", roughness: 0.98 })
+    new THREE.CylinderGeometry(0.3 * scale, 0.46 * scale, 4.3 * scale, 8),
+    new THREE.MeshStandardMaterial({ color: "#9f7b63", roughness: 0.95 })
   );
-  trunk.position.set(x, 1.12 * scale, z);
+  trunk.position.set(x, 2.16 * scale, z);
+  trunk.rotation.z = (Math.random() - 0.5) * 0.16;
   scene.add(trunk);
 
-  const mat = new THREE.MeshStandardMaterial({ color: "#42a05a", roughness: 0.9 });
-  const a = new THREE.Mesh(new THREE.ConeGeometry(1.55 * scale, 2.5 * scale, 8), mat);
-  a.position.set(x, 3.02 * scale, z);
-  scene.add(a);
+  const leafMat = new THREE.MeshStandardMaterial({ color: "#7fe2c5", roughness: 0.9 });
+  const top = new THREE.Vector3(x, 4.3 * scale, z);
+  for (let i = 0; i < 7; i++) {
+    const frond = new THREE.Mesh(new THREE.ConeGeometry(0.34 * scale, 3.0 * scale, 6), leafMat);
+    frond.position.copy(top);
+    frond.rotation.y = (i / 7) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+    frond.rotation.z = Math.PI * 0.5 + 0.34 + (Math.random() - 0.5) * 0.08;
+    frond.position.x += Math.cos(frond.rotation.y) * 0.14 * scale;
+    frond.position.z += Math.sin(frond.rotation.y) * 0.14 * scale;
+    scene.add(frond);
+  }
 
-  const b = new THREE.Mesh(new THREE.ConeGeometry(1.2 * scale, 1.9 * scale, 8), mat);
-  b.position.set(x, 4.0 * scale, z + 0.15 * scale);
-  scene.add(b);
-
-  addShadowBlob(x, z, 2.15 * scale, 0.21);
+  addShadowBlob(x, z, 2.6 * scale, 0.16);
 }
 
 function addReedPatch(x, z, count = 7) {
   for (let i = 0; i < count; i++) {
     const reed = new THREE.Mesh(
       new THREE.CylinderGeometry(0.03, 0.04, 0.95 + Math.random() * 0.45, 5),
-      new THREE.MeshStandardMaterial({ color: "#7ba05b", roughness: 0.92 })
+      new THREE.MeshStandardMaterial({ color: "#93b86e", roughness: 0.92 })
     );
     reed.position.set(x + (Math.random() - 0.5) * 0.9, 0.48, z + (Math.random() - 0.5) * 0.9);
     reed.rotation.z = (Math.random() - 0.5) * 0.28;
@@ -337,6 +363,29 @@ function addReedPatch(x, z, count = 7) {
 [[-28, 21], [28, 20], [-21, -24], [20, -26], [0, 30], [34, -2], [-33, 0]].forEach(([x, z], i) => addTree(x, z, 0.85 + (i % 4) * 0.08));
 [[10, 25, 1.15], [-11, 23, 1.08], [23, 10, 0.9], [-24, -3, 1.22], [16, -19, 1.0], [-5, -27, 1.12]].forEach(([x, z, s]) => addRock(x, z, s));
 [[19, 17], [24, -8], [-19, 14], [-21, -11], [4, 24], [-3, 24], [17, -18], [-13, -20], [26, 5], [-26, 4]].forEach(([x, z]) => addReedPatch(x, z));
+
+function addLounge(x, z, rot = 0) {
+  const base = new THREE.Mesh(
+    new THREE.BoxGeometry(2.3, 0.24, 1.05),
+    new THREE.MeshStandardMaterial({ color: "#ffe600", roughness: 0.55 })
+  );
+  base.position.set(x, 0.72, z);
+  base.rotation.y = rot;
+  scene.add(base);
+
+  const back = new THREE.Mesh(
+    new THREE.BoxGeometry(2.0, 0.2, 0.7),
+    new THREE.MeshStandardMaterial({ color: "#ffe84a", roughness: 0.56 })
+  );
+  back.position.set(x - Math.sin(rot) * 0.42, 0.98, z - Math.cos(rot) * 0.42);
+  back.rotation.y = rot;
+  back.rotation.x = -0.28;
+  scene.add(back);
+
+  addShadowBlob(x, z, 1.7, 0.12);
+}
+
+[[14, 18, Math.PI * 0.1], [17, 13, Math.PI * 0.1], [-15, 18, -Math.PI * 0.15], [-18, 13, -Math.PI * 0.15]].forEach(([x, z, r]) => addLounge(x, z, r));
 
 const player = new THREE.Mesh(
   new THREE.CapsuleGeometry(0.45, 0.95, 6, 12),
@@ -437,6 +486,7 @@ function animate() {
   const dt = Math.min(0.033, clock.getDelta());
   const t = clock.elapsedTime;
   waterUniforms.uTime.value += dt;
+  skyMat.uniforms.uTime.value = t;
 
   moveDir.set(0, 0, 0);
   camera.getWorldDirection(camForward);

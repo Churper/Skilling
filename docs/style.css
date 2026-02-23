@@ -1,9 +1,9 @@
 :root {
-  --bg0: #0b1f33;
-  --bg1: #10314d;
-  --panel: rgba(8, 24, 38, 0.62);
-  --line: rgba(171, 233, 255, 0.34);
-  --text: #effbff;
+  --bg0: #8dd7ff;
+  --bg1: #d7f3ff;
+  --panel: rgba(10, 46, 64, 0.56);
+  --line: rgba(210, 244, 255, 0.4);
+  --text: #f4fcff;
 }
 
 html, body {
@@ -11,7 +11,7 @@ html, body {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: radial-gradient(1200px 70% at 50% 120%, #17385a 0%, #081623 72%);
+  background: radial-gradient(1300px 72% at 50% 120%, #84d8ff 0%, #6dbbe4 72%);
   color: var(--text);
   font-family: "Avenir Next", "Segoe UI", "Trebuchet MS", Arial, sans-serif;
 }
@@ -28,12 +28,12 @@ html, body {
   left: 14px;
   top: 14px;
   max-width: min(560px, 90vw);
-  padding: 13px 15px;
+  padding: 14px 16px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--panel);
   backdrop-filter: blur(6px);
-  box-shadow: 0 12px 32px rgba(8, 19, 30, 0.34);
+  box-shadow: 0 10px 24px rgba(8, 28, 40, 0.28);
   pointer-events: none;
 }
 
