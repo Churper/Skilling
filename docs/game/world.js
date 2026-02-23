@@ -76,10 +76,11 @@ function createGround(scene) {
     const z = tPos.getY(i);
     const r = Math.hypot(x, z);
     const h = Math.sin(x * 0.045) * 0.6 + Math.cos(z * 0.037) * 0.56 + Math.sin((x + z) * 0.021) * 0.42;
-    const lakeBasin = (1.0 - THREE.MathUtils.smoothstep(r, 0, 31)) * 0.72;
-    tPos.setZ(i, h * 0.33 - lakeBasin);
-    const g = 0.58 + h * 0.05;
-    tCol.push(0.46, g, 0.47);
+    const bowlFalloff = 1.0 - THREE.MathUtils.smoothstep(r, 0, 30.5);
+    const lakeBasin = Math.pow(bowlFalloff, 1.55) * 1.06;
+    tPos.setZ(i, h * 0.30 - lakeBasin);
+    const g = 0.53 + h * 0.045;
+    tCol.push(0.42, g, 0.43);
   }
   terrainGeo.setAttribute("color", new THREE.Float32BufferAttribute(tCol, 3));
   terrainGeo.computeVertexNormals();
@@ -93,34 +94,64 @@ function createGround(scene) {
   return ground;
 }
 
+function createLakeBowlMesh(radius = 24.15, segments = 140) {
+  const geo = new THREE.CircleGeometry(radius, segments);
+  const p = geo.attributes.position;
+  const colors = [];
+  const deep = new THREE.Color("#2f7bb2");
+  const mid = new THREE.Color("#58b6db");
+  const shelf = new THREE.Color("#d7c79f");
+
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i);
+    const z = p.getY(i);
+    const r = Math.min(1, Math.hypot(x, z) / radius);
+    const depth = Math.pow(1 - r, 1.45);
+    const lip = THREE.MathUtils.smoothstep(r, 0.82, 1.0);
+    p.setZ(i, -(0.05 + depth * 0.44 + lip * 0.06));
+
+    const c = new THREE.Color();
+    if (r < 0.68) {
+      c.copy(deep).lerp(mid, r / 0.68);
+    } else {
+      c.copy(mid).lerp(shelf, (r - 0.68) / 0.32);
+    }
+    c.multiplyScalar(0.84 + (1 - r) * 0.2);
+    colors.push(c.r, c.g, c.b);
+  }
+
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  geo.computeVertexNormals();
+
+  const bowl = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, side: THREE.DoubleSide }));
+  bowl.rotation.x = -Math.PI / 2;
+  bowl.position.y = 0.58;
+  return bowl;
+}
+
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#86edff") },
-    uDeep: { value: new THREE.Color("#1f8fdd") },
+    uShallow: { value: new THREE.Color("#7ce8ff") },
+    uDeep: { value: new THREE.Color("#218ad8") },
   };
 
-  const lakeFloor = new THREE.Mesh(
-    new THREE.CircleGeometry(24.15, 140),
-    new THREE.MeshBasicMaterial({ map: createLakeFloorTexture() })
-  );
-  lakeFloor.rotation.x = -Math.PI / 2;
-  lakeFloor.position.y = 0.36;
+  const lakeFloor = createLakeBowlMesh();
   scene.add(lakeFloor);
 
   const causticMap = createCausticTexture();
   const floorCaustics = new THREE.Mesh(
-    new THREE.CircleGeometry(24.1, 140),
+    new THREE.CircleGeometry(24.0, 140),
     new THREE.MeshBasicMaterial({
       map: causticMap,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.09,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     })
   );
   floorCaustics.rotation.x = -Math.PI / 2;
-  floorCaustics.position.y = 0.37;
+  floorCaustics.position.y = 0.53;
   scene.add(floorCaustics);
 
   const waterMat = new THREE.ShaderMaterial({
@@ -134,9 +165,9 @@ function createWater(scene) {
       void main() {
         vUv = uv;
         vec3 p = position;
-        float w0 = sin((uv.x * 11.0 + uv.y * 7.0) + uTime * 1.85) * 0.09;
-        float w1 = sin((uv.x * 18.0 - uv.y * 9.0) - uTime * 1.3) * 0.06;
-        float w2 = sin((uv.x * 24.0 + uv.y * 20.0) + uTime * 2.5) * 0.03;
+        float w0 = sin((uv.x * 9.0 + uv.y * 6.0) + uTime * 1.7) * 0.06;
+        float w1 = sin((uv.x * 15.0 - uv.y * 8.0) - uTime * 1.2) * 0.04;
+        float w2 = sin((uv.x * 22.0 + uv.y * 16.0) + uTime * 2.3) * 0.02;
         p.y += w0 + w1 + w2;
         vec4 worldPos = modelMatrix * vec4(p, 1.0);
         vWorldPos = worldPos.xyz;
@@ -183,72 +214,54 @@ function createWater(scene) {
         float t = uTime;
         float distCenter = distance(uv, vec2(0.5));
         float shore = smoothstep(0.03, 0.9, distCenter);
+        vec2 wp = vWorldPos.xz * 0.12;
 
-        vec2 flowA = uv * 6.5 + vec2(t * 0.08, t * 0.1);
-        vec2 flowB = uv * 9.0 + vec2(-t * 0.06, t * 0.05);
+        vec2 flowA = wp * 2.3 + vec2(t * 0.18, -t * 0.10);
+        vec2 flowB = wp * 3.1 + vec2(-t * 0.14, t * 0.12);
         float causticA = fbm(flowA);
         float causticB = fbm(flowB);
-        float caustic = smoothstep(0.36, 0.8, causticA * 0.62 + causticB * 0.38);
+        float caustic = smoothstep(0.44, 0.84, causticA * 0.58 + causticB * 0.42);
 
-        float waveA = sin((uv.x * 44.0 + uv.y * 16.0) + t * 2.8) * 0.5 + 0.5;
-        float waveB = sin((uv.y * 38.0 - uv.x * 13.0) - t * 2.3) * 0.5 + 0.5;
-        float crest = smoothstep(0.78, 0.98, waveA * 0.55 + waveB * 0.45);
+        float waveA = sin(wp.x * 8.0 + wp.y * 2.6 + t * 1.8) * 0.5 + 0.5;
+        float waveB = sin(wp.y * 7.2 - wp.x * 3.1 - t * 1.5) * 0.5 + 0.5;
+        float crest = smoothstep(0.84, 1.0, waveA * 0.58 + waveB * 0.42);
         float streaks = smoothstep(0.62, 0.95, caustic) * smoothstep(0.45, 1.0, shore);
 
         vec3 base = mix(uDeep, uShallow, shore);
-        base += vec3(0.09, 0.14, 0.18) * caustic;
-        base += vec3(0.13, 0.18, 0.21) * crest * 0.44;
+        base += vec3(0.08, 0.13, 0.17) * caustic;
+        base += vec3(0.11, 0.16, 0.2) * crest * 0.42;
 
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 2.6);
-        base += vec3(0.1, 0.16, 0.2) * fresnel;
+        base += vec3(0.08, 0.14, 0.19) * fresnel;
 
-        float spark = smoothstep(0.74, 1.0, sin((uv.x + uv.y) * 32.0 + t * 2.0) * 0.5 + 0.5);
-        base += vec3(0.1, 0.12, 0.12) * spark * (0.32 + 0.68 * shore);
+        float spark = smoothstep(0.75, 1.0, sin((wp.x + wp.y) * 6.6 + t * 1.9) * 0.5 + 0.5);
+        base += vec3(0.09, 0.1, 0.1) * spark * (0.36 + 0.64 * shore);
 
-        float foamEdge = smoothstep(0.78, 1.0, distCenter) * smoothstep(0.45, 0.95, caustic);
-        vec3 color = mix(base, vec3(0.98, 1.0, 1.0), foamEdge * 0.82);
-        color = mix(color, vec3(0.96, 1.0, 1.0), streaks * 0.18);
+        float foamEdge = smoothstep(0.84, 1.0, distCenter) * smoothstep(0.46, 0.98, caustic);
+        vec3 color = mix(base, vec3(0.98, 1.0, 1.0), foamEdge * 0.88);
+        color = mix(color, vec3(0.95, 1.0, 1.0), streaks * 0.12);
 
-        float alpha = mix(0.72, 0.44, shore) + foamEdge * 0.14 + fresnel * 0.05;
-        gl_FragColor = vec4(color, clamp(alpha, 0.34, 0.86));
+        float alpha = mix(0.60, 0.30, shore) + foamEdge * 0.16 + fresnel * 0.04;
+        gl_FragColor = vec4(color, clamp(alpha, 0.28, 0.82));
       }
     `,
   });
 
-  const water = new THREE.Mesh(new THREE.CircleGeometry(24.6, 140), waterMat);
+  const water = new THREE.Mesh(new THREE.CircleGeometry(24.55, 140), waterMat);
   water.rotation.x = -Math.PI / 2;
-  water.position.y = 0.58;
+  water.position.y = 0.585;
   scene.add(water);
 
   const deepTint = new THREE.Mesh(
     new THREE.CircleGeometry(21.6, 80),
-    new THREE.MeshBasicMaterial({ color: "#0f6bbf", transparent: true, opacity: 0.08, depthWrite: false })
+    new THREE.MeshBasicMaterial({ color: "#176fc0", transparent: true, opacity: 0.06, depthWrite: false })
   );
   deepTint.rotation.x = -Math.PI / 2;
-  deepTint.position.y = 0.4;
+  deepTint.position.y = 0.405;
   scene.add(deepTint);
 
   return { waterUniforms, causticMap };
-}
-
-function createLakeFloorTexture() {
-  const c = document.createElement("canvas");
-  c.width = 512;
-  c.height = 512;
-  const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(256, 256, 18, 256, 256, 256);
-  g.addColorStop(0.0, "#3896cf");
-  g.addColorStop(0.45, "#46b2df");
-  g.addColorStop(0.78, "#80d8ea");
-  g.addColorStop(1.0, "#d9cfaa");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, c.width, c.height);
-
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.generateMipmaps = true;
-  return tex;
 }
 
 function createCausticTexture() {
@@ -258,20 +271,21 @@ function createCausticTexture() {
   const ctx = c.getContext("2d");
   ctx.fillStyle = "rgba(0,0,0,0)";
   ctx.fillRect(0, 0, c.width, c.height);
-  ctx.strokeStyle = "rgba(255,255,255,0.62)";
-  ctx.lineWidth = 5;
-  for (let i = 0; i < 22; i++) {
-    const x = (i / 22) * c.width;
-    ctx.beginPath();
-    ctx.moveTo(x - 26, 0);
-    ctx.bezierCurveTo(x + 20, 40, x - 20, 120, x + 26, c.height);
-    ctx.stroke();
+  for (let i = 0; i < 120; i++) {
+    const x = Math.random() * c.width;
+    const y = Math.random() * c.height;
+    const r = 8 + Math.random() * 16;
+    const g = ctx.createRadialGradient(x, y, r * 0.2, x, y, r);
+    g.addColorStop(0, "rgba(255,255,255,0.35)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
   }
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(1.4, 1.4);
+  tex.repeat.set(2.2, 2.2);
   return tex;
 }
 
