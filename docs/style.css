@@ -1,11 +1,11 @@
 :root {
-  --ui-bg: rgba(9, 30, 44, 0.72);
-  --ui-line: rgba(186, 223, 244, 0.36);
+  --ui-bg: rgba(8, 27, 39, 0.78);
+  --ui-line: rgba(188, 228, 248, 0.28);
   --ui-text: #ebf7ff;
   --ui-subtext: #b7d4e3;
-  --ui-accent: #5cc8ff;
+  --ui-accent: #55cbff;
   --ui-accent-soft: rgba(92, 200, 255, 0.18);
-  --ui-shadow: 0 12px 34px rgba(5, 20, 30, 0.34);
+  --ui-shadow: 0 14px 30px rgba(4, 18, 27, 0.3);
 }
 
 html,
@@ -36,11 +36,11 @@ body {
   position: fixed;
   left: 18px;
   top: 16px;
-  min-width: 170px;
-  padding: 10px 14px;
+  min-width: 160px;
+  padding: 9px 13px;
   border: 1px solid var(--ui-line);
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(12, 44, 63, 0.76), rgba(7, 24, 36, 0.76));
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(13, 47, 67, 0.82), rgba(7, 26, 37, 0.8));
   backdrop-filter: blur(8px);
   box-shadow: var(--ui-shadow);
   pointer-events: none;
@@ -55,9 +55,9 @@ body {
 
 #ui-brand p {
   margin: 6px 0 0;
-  font-size: clamp(11px, 1.2vw, 13px);
+  font-size: clamp(10px, 1.1vw, 12px);
   color: var(--ui-subtext);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -70,16 +70,16 @@ body {
   gap: 10px;
   padding: 8px;
   border: 1px solid var(--ui-line);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(10, 41, 58, 0.86), rgba(8, 27, 39, 0.86));
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(11, 42, 59, 0.9), rgba(8, 27, 39, 0.88));
   backdrop-filter: blur(8px);
   box-shadow: var(--ui-shadow);
   pointer-events: auto;
 }
 
 .ui-tab-btn {
-  min-width: 108px;
-  padding: 11px 14px;
+  min-width: 100px;
+  padding: 10px 12px;
   border: 1px solid transparent;
   border-radius: 12px;
   color: var(--ui-text);
@@ -105,15 +105,15 @@ body {
 
 #ui-panel {
   position: fixed;
-  top: 84px;
+  top: 22px;
   right: 18px;
-  width: min(320px, calc(100vw - 36px));
+  width: min(286px, calc(100vw - 36px));
   border: 1px solid var(--ui-line);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(11, 40, 57, 0.86), rgba(8, 28, 42, 0.86));
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(12, 43, 61, 0.9), rgba(8, 28, 42, 0.88));
   backdrop-filter: blur(9px);
   box-shadow: var(--ui-shadow);
-  padding: 14px 14px 12px;
+  padding: 12px 13px 10px;
   pointer-events: auto;
 }
 

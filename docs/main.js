@@ -44,8 +44,8 @@ function animate() {
   const dt = Math.min(0.033, clock.getDelta());
   const t = clock.elapsedTime;
   waterUniforms.uTime.value += dt;
-  causticMap.offset.x = t * 0.016;
-  causticMap.offset.y = -t * 0.01;
+  causticMap.offset.x = t * 0.008;
+  causticMap.offset.y = -t * 0.006;
   skyMat.uniforms.uTime.value = t;
 
   moveDir.set(0, 0, 0);
