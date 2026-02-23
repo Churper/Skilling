@@ -1,5 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
 const canvas = document.getElementById("game-canvas");
 
@@ -8,10 +11,10 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.08;
+renderer.toneMappingExposure = 1.06;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog("#90d0ef", 36, 180);
+scene.fog = new THREE.Fog("#91cfee", 34, 200);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 450);
 camera.position.set(30, 26, 28);
@@ -20,9 +23,9 @@ const skyGeo = new THREE.SphereGeometry(360, 32, 16);
 const skyMat = new THREE.ShaderMaterial({
   side: THREE.BackSide,
   uniforms: {
-    topColor: { value: new THREE.Color("#66c0f0") },
-    midColor: { value: new THREE.Color("#97d6ff") },
-    botColor: { value: new THREE.Color("#dff4ff") },
+    topColor: { value: new THREE.Color("#60b7ec") },
+    midColor: { value: new THREE.Color("#96d4ff") },
+    botColor: { value: new THREE.Color("#e2f5ff") },
   },
   vertexShader: `
     varying vec3 vWorld;
@@ -47,8 +50,8 @@ const skyMat = new THREE.ShaderMaterial({
 });
 scene.add(new THREE.Mesh(skyGeo, skyMat));
 
-scene.add(new THREE.HemisphereLight("#f6feff", "#4b7f50", 0.85));
-const sun = new THREE.DirectionalLight("#fffaf0", 1.45);
+scene.add(new THREE.HemisphereLight("#f4fdff", "#4f7f52", 0.86));
+const sun = new THREE.DirectionalLight("#fff6df", 1.48);
 sun.position.set(34, 44, 12);
 scene.add(sun);
 
@@ -60,11 +63,21 @@ controls.minDistance = 8;
 controls.maxDistance = 62;
 controls.minPolarAngle = 0.48;
 controls.maxPolarAngle = 1.33;
-controls.mouseButtons.LEFT = -1; // preserve click-to-move
-controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN; // requested wheel-hold pan
+controls.mouseButtons.LEFT = -1;
+controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN; // wheel-hold pan
 controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
 controls.touches.ONE = THREE.TOUCH.PAN;
 controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.34,
+  0.75,
+  0.86
+);
+composer.addPass(bloomPass);
 
 const terrainGeo = new THREE.PlaneGeometry(180, 180, 120, 120);
 const pos = terrainGeo.attributes.position;
@@ -86,7 +99,6 @@ const ground = new THREE.Mesh(
   new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.94, metalness: 0.0 })
 );
 ground.rotation.x = -Math.PI / 2;
-ground.receiveShadow = false;
 scene.add(ground);
 
 const shore = new THREE.Mesh(
@@ -95,6 +107,34 @@ const shore = new THREE.Mesh(
 );
 shore.position.y = 0.05;
 scene.add(shore);
+
+function makeRadialTexture(inner = 0.2, outer = 1.0) {
+  const c = document.createElement("canvas");
+  c.width = 256;
+  c.height = 256;
+  const ctx = c.getContext("2d");
+  const g = ctx.createRadialGradient(128, 128, 128 * inner, 128, 128, 128 * outer);
+  g.addColorStop(0.0, "rgba(255,255,255,1)");
+  g.addColorStop(0.7, "rgba(255,255,255,0.45)");
+  g.addColorStop(1.0, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 256, 256);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+const shadowTex = makeRadialTexture(0.05, 1.0);
+function addShadowBlob(x, z, radius = 1.6, opacity = 0.2) {
+  const blob = new THREE.Mesh(
+    new THREE.PlaneGeometry(radius * 2, radius * 2),
+    new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, color: "#10222c", opacity })
+  );
+  blob.rotation.x = -Math.PI / 2;
+  blob.position.set(x, 0.12, z);
+  scene.add(blob);
+  return blob;
+}
 
 const waterUniforms = {
   uTime: { value: 0 },
@@ -159,11 +199,49 @@ scene.add(water);
 
 const deepTint = new THREE.Mesh(
   new THREE.CircleGeometry(20.5, 64),
-  new THREE.MeshBasicMaterial({ color: "#0b2f8f", transparent: true, opacity: 0.30 })
+  new THREE.MeshBasicMaterial({ color: "#0b2f8f", transparent: true, opacity: 0.30, depthWrite: false })
 );
 deepTint.rotation.x = -Math.PI / 2;
 deepTint.position.y = 0.35;
 scene.add(deepTint);
+
+const shorelineFoam = new THREE.Mesh(
+  new THREE.RingGeometry(20.9, 23.1, 96),
+  new THREE.MeshBasicMaterial({ color: "#e9ffff", transparent: true, opacity: 0.32, depthWrite: false })
+);
+shorelineFoam.rotation.x = -Math.PI / 2;
+shorelineFoam.position.y = 0.62;
+scene.add(shorelineFoam);
+
+const shorelineAO = new THREE.Mesh(
+  new THREE.RingGeometry(22.6, 29.2, 96),
+  new THREE.MeshBasicMaterial({ color: "#38412f", transparent: true, opacity: 0.22, depthWrite: false })
+);
+shorelineAO.rotation.x = -Math.PI / 2;
+shorelineAO.position.y = 0.11;
+scene.add(shorelineAO);
+
+function addRock(x, z, scale = 1) {
+  const geo = new THREE.DodecahedronGeometry(1.0 * scale, 0);
+  const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const nx = p.getX(i);
+    const ny = p.getY(i);
+    const nz = p.getZ(i);
+    const jitter = 1.0 + (Math.sin(nx * 7.3 + ny * 5.1 + nz * 6.7) * 0.08);
+    p.setXYZ(i, nx * jitter, ny * jitter, nz * jitter);
+  }
+  geo.computeVertexNormals();
+
+  const rock = new THREE.Mesh(
+    geo,
+    new THREE.MeshStandardMaterial({ color: "#7d847f", roughness: 0.94, metalness: 0.02 })
+  );
+  rock.position.set(x, 0.7 * scale, z);
+  rock.rotation.set(0, Math.random() * Math.PI, 0);
+  scene.add(rock);
+  addShadowBlob(x, z, 1.5 * scale, 0.17);
+}
 
 function addTree(x, z, scale = 1) {
   const trunk = new THREE.Mesh(
@@ -173,15 +251,33 @@ function addTree(x, z, scale = 1) {
   trunk.position.set(x, 1.1 * scale, z);
   scene.add(trunk);
 
-  const canopy = new THREE.Mesh(
-    new THREE.ConeGeometry(1.55 * scale, 2.5 * scale, 8),
-    new THREE.MeshStandardMaterial({ color: "#42a05a", roughness: 0.9 })
-  );
-  canopy.position.set(x, 3.0 * scale, z);
-  scene.add(canopy);
+  const foliageMat = new THREE.MeshStandardMaterial({ color: "#42a05a", roughness: 0.9 });
+  const crownA = new THREE.Mesh(new THREE.ConeGeometry(1.55 * scale, 2.5 * scale, 8), foliageMat);
+  crownA.position.set(x, 3.0 * scale, z);
+  scene.add(crownA);
+
+  const crownB = new THREE.Mesh(new THREE.ConeGeometry(1.2 * scale, 1.9 * scale, 8), foliageMat);
+  crownB.position.set(x, 4.0 * scale, z + 0.15 * scale);
+  scene.add(crownB);
+
+  addShadowBlob(x, z, 2.2 * scale, 0.2);
+}
+
+function addReedPatch(x, z, count = 6) {
+  for (let i = 0; i < count; i++) {
+    const reed = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03, 0.04, 0.9 + Math.random() * 0.45, 5),
+      new THREE.MeshStandardMaterial({ color: "#7ea35f", roughness: 0.92 })
+    );
+    reed.position.set(x + (Math.random() - 0.5) * 0.9, 0.46, z + (Math.random() - 0.5) * 0.9);
+    reed.rotation.z = (Math.random() - 0.5) * 0.25;
+    scene.add(reed);
+  }
 }
 
 [[-24, 20], [24, 22], [-20, -22], [18, -24], [0, 28]].forEach(([x, z], i) => addTree(x, z, 0.9 + i * 0.05));
+[[8, 24, 1.2], [-10, 20, 1.1], [21, 8, 0.95], [-22, -4, 1.3], [14, -18, 1.05]].forEach(([x, z, s]) => addRock(x, z, s));
+[[19, 16], [23, -7], [-18, 14], [-21, -10], [3, 24], [-3, 23], [16, -18], [-13, -19]].forEach(([x, z]) => addReedPatch(x, z));
 
 const player = new THREE.Mesh(
   new THREE.CapsuleGeometry(0.45, 0.95, 6, 12),
@@ -189,6 +285,7 @@ const player = new THREE.Mesh(
 );
 player.position.set(0, 1.2, 10);
 scene.add(player);
+const playerShadow = addShadowBlob(player.position.x, player.position.z, 1.5, 0.24);
 
 const moveTarget = new THREE.Vector3();
 let hasMoveTarget = false;
@@ -213,14 +310,10 @@ function getGroundPoint(clientX, clientY) {
   raycaster.setFromCamera(pointer, camera);
 
   const hit = raycaster.intersectObject(ground, false)[0];
-  if (hit) {
-    return hit.point;
-  }
+  if (hit) return hit.point;
 
   const out = new THREE.Vector3();
-  if (raycaster.ray.intersectPlane(walkPlane, out)) {
-    return out;
-  }
+  if (raycaster.ray.intersectPlane(walkPlane, out)) return out;
   return null;
 }
 
@@ -232,20 +325,12 @@ function setMoveTarget(point) {
 }
 
 renderer.domElement.addEventListener("pointerdown", (event) => {
-  downInfo = {
-    id: event.pointerId,
-    x: event.clientX,
-    y: event.clientY,
-    button: event.button,
-    moved: false,
-  };
+  downInfo = { id: event.pointerId, x: event.clientX, y: event.clientY, button: event.button, moved: false };
 });
 
 renderer.domElement.addEventListener("pointermove", (event) => {
   if (!downInfo || downInfo.id !== event.pointerId) return;
-  if (Math.hypot(event.clientX - downInfo.x, event.clientY - downInfo.y) > 8) {
-    downInfo.moved = true;
-  }
+  if (Math.hypot(event.clientX - downInfo.x, event.clientY - downInfo.y) > 8) downInfo.moved = true;
 });
 
 renderer.domElement.addEventListener("pointerup", (event) => {
@@ -258,19 +343,16 @@ renderer.domElement.addEventListener("pointerup", (event) => {
 
 window.addEventListener("keydown", (event) => {
   const key = event.key.toLowerCase();
-  if (["w", "a", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright"].includes(key)) {
-    keys.add(key);
-  }
+  if (["w", "a", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright"].includes(key)) keys.add(key);
 });
-
-window.addEventListener("keyup", (event) => {
-  keys.delete(event.key.toLowerCase());
-});
+window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  bloomPass.setSize(window.innerWidth, window.innerHeight);
 });
 
 const clock = new THREE.Clock();
@@ -315,11 +397,12 @@ function animate() {
     player.rotation.y += delta * Math.min(1, dt * 13);
   }
 
+  playerShadow.position.set(player.position.x, 0.14, player.position.z);
   desiredTarget.set(player.position.x, 1.0, player.position.z);
   controls.target.lerp(desiredTarget, Math.min(1, dt * 4.5));
   controls.update();
 
-  renderer.render(scene, camera);
+  composer.render();
   requestAnimationFrame(animate);
 }
 
