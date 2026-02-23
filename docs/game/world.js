@@ -44,6 +44,8 @@ const TREE_CORE_GEO = new THREE.OctahedronGeometry(0.62, 0);
 const TREE_TRUNK_MAT = toonMat("#8b6a4e");
 const TREE_LEAF_MAT = toonMat("#6fd1a8");
 const TREE_CORE_MAT = toonMat("#65c39d");
+const FISH_SPOT_RING_MAT = new THREE.MeshBasicMaterial({ color: "#dcf8ff", transparent: true, opacity: 0.72 });
+const FISH_SPOT_BOBBER_MAT = toonMat("#ffcc58");
 
 function sampleTerrainNoise(x, z) {
   return Math.sin(x * 0.045) * 0.6 + Math.cos(z * 0.037) * 0.56 + Math.sin((x + z) * 0.021) * 0.42;
@@ -84,6 +86,11 @@ export function getWaterSurfaceHeight(x, z, time = 0) {
   const w1 = Math.sin((uvx * 10.5 - uvy * 7.2) - time * 1.0) * 0.007;
   const w2 = Math.sin((uvx * 19.0 + uvy * 12.0) + time * 1.58) * 0.003;
   return WATER_SURFACE_Y + w0 + w1 + w2;
+}
+
+function setResourceNode(node, resourceType, label) {
+  node.userData.resourceType = resourceType;
+  node.userData.resourceLabel = label;
 }
 
 function addSky(scene) {
@@ -434,7 +441,7 @@ function addShadowBlob(scene, blobTex, x, z, radius = 1.8, opacity = 0.2) {
   return blob;
 }
 
-function addRock(scene, blobTex, x, z, scale = 1) {
+function addRock(scene, blobTex, x, z, scale = 1, resourceNodes = null) {
   const geo = new THREE.DodecahedronGeometry(1.0 * scale, 0);
   const p = geo.attributes.position;
   for (let i = 0; i < p.count; i++) {
@@ -454,7 +461,9 @@ function addRock(scene, blobTex, x, z, scale = 1) {
   rock.position.set(x, baseY + 0.78 * scale, z);
   rock.rotation.y = Math.random() * Math.PI;
   rock.renderOrder = RENDER_DECOR;
+  setResourceNode(rock, "mining", "Rock");
   scene.add(rock);
+  if (resourceNodes) resourceNodes.push(rock);
   addShadowBlob(scene, blobTex, x, z, 1.45 * scale, 0.17);
 }
 
@@ -481,21 +490,25 @@ function addWaterRock(scene, x, z, scale = 1) {
   scene.add(rock);
 }
 
-function addTree(scene, blobTex, x, z, scale = 1) {
+function addTree(scene, blobTex, x, z, scale = 1, resourceNodes = null) {
   const baseY = getWorldSurfaceHeight(x, z);
+  const tree = new THREE.Group();
+  tree.position.set(x, baseY, z);
+  setResourceNode(tree, "woodcutting", "Tree");
+
   const trunk = new THREE.Mesh(TREE_TRUNK_GEO, TREE_TRUNK_MAT);
   trunk.scale.setScalar(scale);
-  trunk.position.set(x, baseY + 2.05 * scale, z);
+  trunk.position.set(0, 2.05 * scale, 0);
   trunk.rotation.z = (Math.random() - 0.5) * 0.16;
   trunk.renderOrder = RENDER_DECOR;
-  scene.add(trunk);
+  tree.add(trunk);
 
-  const crownY = baseY + 4.18 * scale;
+  const crownY = 4.18 * scale;
   const core = new THREE.Mesh(TREE_CORE_GEO, TREE_CORE_MAT);
   core.scale.setScalar(scale * 0.72);
-  core.position.set(x, crownY, z);
+  core.position.set(0, crownY, 0);
   core.renderOrder = RENDER_DECOR;
-  scene.add(core);
+  tree.add(core);
 
   for (let i = 0; i < 6; i++) {
     const frond = new THREE.Mesh(TREE_LEAF_GEO, TREE_LEAF_MAT);
@@ -504,14 +517,16 @@ function addTree(scene, blobTex, x, z, scale = 1) {
     frond.rotation.y = yaw;
     frond.rotation.x = -0.3 + (Math.random() - 0.5) * 0.06;
     frond.position.set(
-      x + Math.cos(yaw) * 0.22 * scale,
+      Math.cos(yaw) * 0.22 * scale,
       crownY + (Math.random() - 0.5) * 0.05 * scale,
-      z + Math.sin(yaw) * 0.22 * scale
+      Math.sin(yaw) * 0.22 * scale
     );
     frond.renderOrder = RENDER_DECOR;
-    scene.add(frond);
+    tree.add(frond);
   }
 
+  scene.add(tree);
+  if (resourceNodes) resourceNodes.push(tree);
   addShadowBlob(scene, blobTex, x, z, 2.2 * scale, 0.15);
 }
 
@@ -553,12 +568,12 @@ function addLounge(scene, blobTex, x, z, rot = 0) {
   addShadowBlob(scene, blobTex, x, z, 1.7, 0.12);
 }
 
-function addShoreDecor(scene, blobTex) {
+function addShoreDecor(scene, blobTex, resourceNodes) {
   [[-28, 21], [28, 20], [-21, -24], [20, -26], [0, 30], [34, -2], [-33, 0]].forEach(([x, z], i) =>
-    addTree(scene, blobTex, x, z, 0.85 + (i % 4) * 0.08)
+    addTree(scene, blobTex, x, z, 0.85 + (i % 4) * 0.08, resourceNodes)
   );
   [[10, 25, 1.15], [-11, 23, 1.08], [23, 10, 0.9], [-24, -3, 1.22], [16, -19, 1.0], [-5, -27, 1.12]].forEach(
-    ([x, z, s]) => addRock(scene, blobTex, x, z, s)
+    ([x, z, s]) => addRock(scene, blobTex, x, z, s, resourceNodes)
   );
   [[19, 17], [24, -8], [-19, 14], [-21, -11], [4, 24], [-3, 24], [17, -18], [-13, -20], [26, 5], [-26, 4]].forEach(
     ([x, z]) => addReedPatch(scene, x, z)
@@ -572,6 +587,54 @@ function addWaterRocks(scene) {
   [[-7.2, 4.3, 1.05], [5.6, 7.1, 0.95], [8.8, -4.5, 1.1], [-6.5, -6.2, 0.9], [0.6, 9.2, 0.8]].forEach(
     ([x, z, s]) => addWaterRock(scene, x, z, s)
   );
+}
+
+function addFishingSpots(scene, resourceNodes) {
+  const spots = [];
+  const ringGeo = new THREE.TorusGeometry(0.5, 0.045, 8, 24);
+  const bobberGeo = new THREE.SphereGeometry(0.13, 8, 7);
+  const coordinates = [
+    [-6.5, 10.4],
+    [8.4, 9.2],
+    [10.6, -5.3],
+    [-9.2, -7.4],
+    [2.3, 13.1],
+  ];
+
+  for (let i = 0; i < coordinates.length; i++) {
+    const [x, z] = coordinates[i];
+    const spot = new THREE.Group();
+    setResourceNode(spot, "fishing", "Fishing Spot");
+    spot.userData.bobPhase = i * 1.23;
+    spot.position.set(x, WATER_SURFACE_Y + 0.02, z);
+    spot.renderOrder = RENDER_WATER + 2;
+
+    const ring = new THREE.Mesh(ringGeo, FISH_SPOT_RING_MAT.clone());
+    ring.rotation.x = Math.PI / 2;
+    spot.add(ring);
+
+    const bobber = new THREE.Mesh(bobberGeo, FISH_SPOT_BOBBER_MAT);
+    bobber.position.y = 0.12;
+    spot.add(bobber);
+
+    spot.userData.ring = ring;
+    scene.add(spot);
+    resourceNodes.push(spot);
+    spots.push(spot);
+  }
+  return spots;
+}
+
+function updateFishingSpots(spots, time) {
+  for (const spot of spots) {
+    const phase = spot.userData.bobPhase || 0;
+    const bob = Math.sin(time * 2.0 + phase) * 0.03;
+    spot.position.y = WATER_SURFACE_Y + 0.02 + bob;
+    if (spot.userData.ring) {
+      spot.userData.ring.scale.setScalar(1 + Math.sin(time * 2.2 + phase) * 0.06);
+      spot.userData.ring.material.opacity = 0.62 + Math.sin(time * 2.4 + phase) * 0.08;
+    }
+  }
 }
 
 function addLakeRings(scene) {
@@ -622,13 +685,18 @@ function addLakeRings(scene) {
 }
 
 export function createWorld(scene) {
+  const resourceNodes = [];
   const skyMat = addSky(scene);
   const ground = createGround(scene);
   addLakeRings(scene);
   const { waterUniforms, causticMap } = createWater(scene);
   addWaterRocks(scene);
   const blobTex = radialTexture();
-  addShoreDecor(scene, blobTex);
+  addShoreDecor(scene, blobTex, resourceNodes);
+  const fishingSpots = addFishingSpots(scene, resourceNodes);
   const addBlob = (x, z, radius, opacity) => addShadowBlob(scene, blobTex, x, z, radius, opacity);
-  return { ground, skyMat, waterUniforms, causticMap, addShadowBlob: addBlob };
+  const updateWorld = (time) => {
+    updateFishingSpots(fishingSpots, time);
+  };
+  return { ground, skyMat, waterUniforms, causticMap, addShadowBlob: addBlob, resourceNodes, updateWorld };
 }

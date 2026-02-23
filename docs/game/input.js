@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export function createInputController({ domElement, camera, ground, player, setMoveTarget }) {
+export function createInputController({ domElement, camera, ground, player, setMoveTarget, interactables = [], onInteract = null }) {
   const keys = new Set();
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
@@ -23,6 +23,27 @@ export function createInputController({ domElement, camera, ground, player, setM
     return null;
   }
 
+  function findInteractableRoot(object) {
+    let node = object;
+    while (node) {
+      if (node.userData && node.userData.resourceType) return node;
+      node = node.parent;
+    }
+    return null;
+  }
+
+  function getInteractable(clientX, clientY) {
+    if (!interactables.length) return null;
+    pointerToNdc(clientX, clientY);
+    raycaster.setFromCamera(pointer, camera);
+    const hits = raycaster.intersectObjects(interactables, true);
+    for (const hit of hits) {
+      const root = findInteractableRoot(hit.object);
+      if (root) return { root, hit };
+    }
+    return null;
+  }
+
   domElement.addEventListener("pointerdown", (event) => {
     downInfo = { id: event.pointerId, x: event.clientX, y: event.clientY, button: event.button, moved: false };
   });
@@ -35,6 +56,12 @@ export function createInputController({ domElement, camera, ground, player, setM
   const onPointerRelease = (event) => {
     if (!downInfo || downInfo.id !== event.pointerId) return;
     if (!downInfo.moved && downInfo.button === 0) {
+      const interaction = getInteractable(event.clientX, event.clientY);
+      if (interaction) {
+        if (typeof onInteract === "function") onInteract(interaction.root, interaction.hit.point);
+        downInfo = null;
+        return;
+      }
       setMoveTarget(getGroundPoint(event.clientX, event.clientY));
     }
     downInfo = null;

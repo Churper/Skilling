@@ -5,20 +5,80 @@ import { createPlayer, createMoveMarker } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
 
+const REQUIRED_TOOL = {
+  fishing: "fishing",
+  mining: "pickaxe",
+  woodcutting: "axe",
+};
+
+const TOOL_LABEL = {
+  axe: "Axe",
+  pickaxe: "Pickaxe",
+  fishing: "Fishing Pole",
+};
+
+const SKILL_BY_RESOURCE = {
+  fishing: "fishing",
+  mining: "mining",
+  woodcutting: "woodcutting",
+};
+
+const INVENTORY_BY_RESOURCE = {
+  fishing: "fish",
+  mining: "ore",
+  woodcutting: "logs",
+};
+
+const XP_BY_RESOURCE = {
+  fishing: 18,
+  mining: 16,
+  woodcutting: 16,
+};
+
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
-const { ground, skyMat, waterUniforms, causticMap, addShadowBlob } = createWorld(scene);
-const { player, playerBlob } = createPlayer(scene, addShadowBlob);
+const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld } = createWorld(scene);
+const { player, playerBlob, setEquippedTool } = createPlayer(scene, addShadowBlob);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
-initializeUI();
+
+let equippedTool = "fishing";
+const inventory = { fish: 0, ore: 0, logs: 0 };
+const skills = {
+  fishing: { xp: 0, level: 1 },
+  mining: { xp: 0, level: 1 },
+  woodcutting: { xp: 0, level: 1 },
+};
+
+const ui = initializeUI({
+  onToolSelect: (tool) => {
+    equippedTool = tool;
+    setEquippedTool(tool);
+    ui?.setStatus(`Equipped ${TOOL_LABEL[tool]}.`, "info");
+  },
+});
+
+setEquippedTool(equippedTool);
+ui?.setActiveTool(equippedTool);
+ui?.setInventory(inventory);
+ui?.setSkills({
+  fishing: skills.fishing.level,
+  mining: skills.mining.level,
+  woodcutting: skills.woodcutting.level,
+});
 
 const moveTarget = new THREE.Vector3();
+const resourceTargetPos = new THREE.Vector3();
 let hasMoveTarget = false;
 let markerBaseY = 0;
+let pendingResource = null;
 
 player.geometry.computeBoundingBox();
 const playerFootOffset = -player.geometry.boundingBox.min.y;
 const playerHeadOffset = player.geometry.boundingBox.max.y;
+
+function xpToLevel(xp) {
+  return Math.floor(Math.sqrt(xp / 34)) + 1;
+}
 
 function getPlayerGroundY(x, z) {
   return getWorldSurfaceHeight(x, z);
@@ -30,8 +90,9 @@ function getPlayerStandY(x, z) {
 
 player.position.y = getPlayerStandY(player.position.x, player.position.z);
 
-function setMoveTarget(point) {
+function setMoveTarget(point, preservePending = false) {
   if (!point) return;
+  if (!preservePending) pendingResource = null;
   moveTarget.copy(point);
   moveTarget.y = getPlayerGroundY(point.x, point.z);
   hasMoveTarget = true;
@@ -40,12 +101,74 @@ function setMoveTarget(point) {
   marker.position.set(point.x, markerBaseY, point.z);
 }
 
+function resourceWorldPosition(node, out) {
+  node.getWorldPosition(out);
+  out.y = getPlayerGroundY(out.x, out.z);
+  return out;
+}
+
+function tryGather(node) {
+  const resourceType = node.userData.resourceType;
+  if (!resourceType) return;
+
+  const requiredTool = REQUIRED_TOOL[resourceType];
+  if (equippedTool !== requiredTool) {
+    ui?.setStatus(`Need ${TOOL_LABEL[requiredTool]} equipped to gather this.`, "warn");
+    return;
+  }
+
+  const skillKey = SKILL_BY_RESOURCE[resourceType];
+  const itemKey = INVENTORY_BY_RESOURCE[resourceType];
+  const xpGain = XP_BY_RESOURCE[resourceType];
+  const prevLevel = skills[skillKey].level;
+  skills[skillKey].xp += xpGain;
+  skills[skillKey].level = xpToLevel(skills[skillKey].xp);
+  inventory[itemKey] += 1;
+
+  ui?.setInventory(inventory);
+  ui?.setSkills({
+    fishing: skills.fishing.level,
+    mining: skills.mining.level,
+    woodcutting: skills.woodcutting.level,
+  });
+
+  const leveled = skills[skillKey].level > prevLevel;
+  if (leveled) {
+    ui?.setStatus(`${node.userData.resourceLabel} gathered. ${skillKey} level ${skills[skillKey].level}!`, "success");
+  } else {
+    ui?.setStatus(`+1 ${itemKey}, +${xpGain} XP ${skillKey}.`, "success");
+  }
+}
+
+function onInteractResource(node) {
+  const resourceType = node.userData.resourceType;
+  const requiredTool = REQUIRED_TOOL[resourceType];
+  if (equippedTool !== requiredTool) {
+    ui?.setStatus(`Need ${TOOL_LABEL[requiredTool]} equipped to use ${node.userData.resourceLabel}.`, "warn");
+    pendingResource = null;
+    return;
+  }
+
+  pendingResource = node;
+  resourceWorldPosition(node, resourceTargetPos);
+  const distance = resourceTargetPos.distanceTo(player.position);
+  if (distance > 2.7) {
+    setMoveTarget(resourceTargetPos, true);
+    ui?.setStatus(`Walking to ${node.userData.resourceLabel}...`, "info");
+    return;
+  }
+  tryGather(node);
+  pendingResource = null;
+}
+
 const input = createInputController({
   domElement: renderer.domElement,
   camera,
   ground,
   player,
   setMoveTarget,
+  interactables: resourceNodes,
+  onInteract: onInteractResource,
 });
 
 const worldUp = new THREE.Vector3(0, 1, 0);
@@ -66,6 +189,7 @@ function animate() {
   causticMap.offset.x = t * 0.0034;
   causticMap.offset.y = -t * 0.0026;
   skyMat.uniforms.uTime.value = t;
+  updateWorld?.(t);
 
   moveDir.set(0, 0, 0);
   camera.getWorldDirection(camForward);
@@ -82,6 +206,7 @@ function animate() {
   if (keyboardMove) {
     hasMoveTarget = false;
     marker.visible = false;
+    pendingResource = null;
     moveDir.normalize();
   } else if (hasMoveTarget) {
     moveDir.subVectors(moveTarget, player.position);
@@ -102,6 +227,17 @@ function animate() {
     let delta = targetYaw - player.rotation.y;
     delta = Math.atan2(Math.sin(delta), Math.cos(delta));
     player.rotation.y += delta * Math.min(1, dt * 13);
+  }
+
+  if (pendingResource) {
+    resourceWorldPosition(pendingResource, resourceTargetPos);
+    const gatherDistance = resourceTargetPos.distanceTo(player.position);
+    if (gatherDistance <= 2.7) {
+      tryGather(pendingResource);
+      pendingResource = null;
+      hasMoveTarget = false;
+      marker.visible = false;
+    }
   }
 
   const groundY = getPlayerGroundY(player.position.x, player.position.z);

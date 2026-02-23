@@ -23,18 +23,26 @@
       <h2 id="ui-panel-title">Inventory</h2>
       <section class="ui-panel-section" data-tab-panel="inventory">
         <p>Bag</p>
-        <p>Your bag is empty.</p>
-        <p>Fish, tools, and drops appear here.</p>
+        <div class="ui-stat-row"><span>Fish</span><strong id="ui-inv-fish">0</strong></div>
+        <div class="ui-stat-row"><span>Ore</span><strong id="ui-inv-ore">0</strong></div>
+        <div class="ui-stat-row"><span>Logs</span><strong id="ui-inv-logs">0</strong></div>
+        <p id="ui-status-line" class="ui-status" data-tone="info">Click trees, rocks, or fishing spots to gather.</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="tools" hidden>
         <p>Tools</p>
-        <p>Bronze Rod (Starter)</p>
-        <p>More tools are coming soon.</p>
+        <div id="ui-tool-list">
+          <button type="button" class="ui-tool-btn" data-tool="axe"><span class="ui-icon">&#x1FA93;</span><span>Axe</span></button>
+          <button type="button" class="ui-tool-btn" data-tool="pickaxe"><span class="ui-icon">&#x26CF;</span><span>Pickaxe</span></button>
+          <button type="button" class="ui-tool-btn is-active" data-tool="fishing"><span class="ui-icon">&#x1F3A3;</span><span>Fishing Pole</span></button>
+        </div>
+        <p id="ui-equipped-tool">Equipped: Fishing Pole</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="skills" hidden>
         <p>Skills</p>
-        <p>Fishing Lv. 1</p>
-        <p>More skills coming soon.</p>
+        <div class="ui-stat-row"><span><span class="ui-icon">&#x1F41F;</span>Fishing</span><strong id="ui-skill-fishing">1</strong></div>
+        <div class="ui-stat-row"><span><span class="ui-icon">&#x1FAA8;</span>Mining</span><strong id="ui-skill-mining">1</strong></div>
+        <div class="ui-stat-row"><span><span class="ui-icon">&#x1FAB5;</span>Woodcutting</span><strong id="ui-skill-woodcutting">1</strong></div>
+        <p class="ui-note">Levels increase from gathering XP.</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="friends" hidden>
         <p>Friends</p>
