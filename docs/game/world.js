@@ -220,9 +220,9 @@ function createLakeBowlMesh(radius = LAKE_RADIUS, segments = 180) {
   const geo = new THREE.CircleGeometry(radius, segments);
   const p = geo.attributes.position;
   const colors = [];
-  const deep = new THREE.Color("#062f5b");
-  const mid = new THREE.Color("#2779ad");
-  const shelf = new THREE.Color("#d6c291");
+  const deep = new THREE.Color("#4a3d2d");
+  const mid = new THREE.Color("#6f5c3f");
+  const shelf = new THREE.Color("#a48a5d");
 
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i);
@@ -238,7 +238,16 @@ function createLakeBowlMesh(radius = LAKE_RADIUS, segments = 180) {
     } else {
       c.copy(mid).lerp(shelf, (r - 0.58) / 0.42);
     }
-    c.multiplyScalar(0.9 + (1 - r) * 0.26);
+
+    // Add subtle sediment/pebble variation so the floor reads like a natural river bed.
+    const n0 = Math.sin(x * 0.28 + z * 0.19) * 0.5 + 0.5;
+    const n1 = Math.sin(x * 0.52 - z * 0.33 + 1.6) * 0.5 + 0.5;
+    const sediment = n0 * 0.62 + n1 * 0.38;
+    const sedimentBand = Math.floor(sediment * 4.0) / 4.0;
+    const tonal = THREE.MathUtils.lerp(sediment, sedimentBand, 0.45);
+
+    c.offsetHSL(0.0, -0.05 + tonal * 0.05, -0.12 + tonal * 0.2);
+    c.multiplyScalar(0.84 + (1 - r) * 0.06 + tonal * 0.14);
     colors.push(c.r, c.g, c.b);
   }
 
@@ -255,7 +264,7 @@ function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
     uShallow: { value: new THREE.Color("#a8f6ff") },
-    uDeep: { value: new THREE.Color("#0a4a86") },
+    uDeep: { value: new THREE.Color("#1c6288") },
   };
 
   const lakeFloor = createLakeBowlMesh();
@@ -338,9 +347,9 @@ function createWater(scene) {
 
         vec3 color = mix(base, vec3(0.95, 0.99, 1.0), foam * 0.3);
 
-        float alpha = mix(0.25, 0.8, pow(depth01, 1.04));
+        float alpha = mix(0.22, 0.74, pow(depth01, 1.04));
         alpha += rippleLines * 0.04 + foam * 0.08 + fresnel * 0.03;
-        gl_FragColor = vec4(color, clamp(alpha, 0.22, 0.88));
+        gl_FragColor = vec4(color, clamp(alpha, 0.2, 0.82));
       }
     `,
   });
