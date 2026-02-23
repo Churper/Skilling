@@ -9,21 +9,22 @@ export function createSceneContext(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor("#8fb5c5", 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.86;
+  renderer.toneMappingExposure = 0.9;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog("#88a8b6", 220, 620);
+  scene.fog = new THREE.Fog("#88a8b6", 180, 560);
 
-  const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 500);
+  const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.1, 500);
   camera.position.set(28, 30, 28);
 
-  scene.add(new THREE.HemisphereLight("#eaf7ff", "#7d9f6a", 0.65));
-  const sun = new THREE.DirectionalLight("#fff1d4", 1.18);
+  scene.add(new THREE.HemisphereLight("#e8f6ff", "#789766", 0.72));
+  const sun = new THREE.DirectionalLight("#fff0d1", 1.22);
   sun.position.set(45, 52, 16);
   scene.add(sun);
-  const fill = new THREE.DirectionalLight("#c8e8fb", 0.18);
+  const fill = new THREE.DirectionalLight("#bfe3fb", 0.22);
   fill.position.set(-36, 24, -22);
   scene.add(fill);
 
@@ -44,7 +45,7 @@ export function createSceneContext(canvas) {
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.042, 0.3, 1.1));
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.07, 0.35, 1.15));
   composer.addPass(new OutputPass());
 
   window.addEventListener("resize", () => {

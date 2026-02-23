@@ -1,9 +1,23 @@
 import * as THREE from "three";
 
 export function createPlayer(scene, addShadowBlob) {
+  const gradient = document.createElement("canvas");
+  gradient.width = 6;
+  gradient.height = 1;
+  const gctx = gradient.getContext("2d");
+  [28, 74, 126, 182, 232, 255].forEach((v, i) => {
+    gctx.fillStyle = `rgb(${v},${v},${v})`;
+    gctx.fillRect(i, 0, 1, 1);
+  });
+  const gradientMap = new THREE.CanvasTexture(gradient);
+  gradientMap.colorSpace = THREE.NoColorSpace;
+  gradientMap.minFilter = THREE.NearestFilter;
+  gradientMap.magFilter = THREE.NearestFilter;
+  gradientMap.generateMipmaps = false;
+
   const player = new THREE.Mesh(
     new THREE.CapsuleGeometry(0.45, 0.95, 6, 12),
-    new THREE.MeshStandardMaterial({ color: "#ffd463", roughness: 0.68, metalness: 0.04 })
+    new THREE.MeshToonMaterial({ color: "#f6cf66", gradientMap })
   );
   player.position.set(0, 1.2, 10);
   scene.add(player);

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { createSceneContext } from "./game/scene.js";
-import { createWorld } from "./game/world.js";
+import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight } from "./game/world.js";
 import { createPlayer, createMoveMarker } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
@@ -14,14 +14,30 @@ initializeUI();
 
 const moveTarget = new THREE.Vector3();
 let hasMoveTarget = false;
+let markerBaseY = 0;
+
+player.geometry.computeBoundingBox();
+const playerFootOffset = -player.geometry.boundingBox.min.y;
+const playerHeadOffset = player.geometry.boundingBox.max.y;
+
+function getPlayerGroundY(x, z) {
+  return getWorldSurfaceHeight(x, z);
+}
+
+function getPlayerStandY(x, z) {
+  return getPlayerGroundY(x, z) + playerFootOffset;
+}
+
+player.position.y = getPlayerStandY(player.position.x, player.position.z);
 
 function setMoveTarget(point) {
   if (!point) return;
   moveTarget.copy(point);
-  moveTarget.y = player.position.y;
+  moveTarget.y = getPlayerGroundY(point.x, point.z);
   hasMoveTarget = true;
   marker.visible = true;
-  marker.position.set(point.x, player.position.y + 0.02, point.z);
+  markerBaseY = moveTarget.y + 0.03;
+  marker.position.set(point.x, markerBaseY, point.z);
 }
 
 const input = createInputController({
@@ -37,6 +53,9 @@ const camForward = new THREE.Vector3();
 const camRight = new THREE.Vector3();
 const moveDir = new THREE.Vector3();
 const desiredTarget = new THREE.Vector3();
+const fogAboveWater = new THREE.Color("#88a8b6");
+const fogUnderwater = new THREE.Color("#4b88a4");
+let underwaterFogActive = false;
 
 const clock = new THREE.Clock();
 
@@ -85,15 +104,26 @@ function animate() {
     player.rotation.y += delta * Math.min(1, dt * 13);
   }
 
-  playerBlob.position.set(player.position.x, 0.17, player.position.z);
+  const groundY = getPlayerGroundY(player.position.x, player.position.z);
+  const standY = groundY + playerFootOffset;
+  player.position.y = THREE.MathUtils.damp(player.position.y, standY, 16, dt);
+  playerBlob.position.set(player.position.x, groundY + 0.03, player.position.z);
 
   if (marker.visible) {
     markerRing.rotation.z += dt * 1.8;
-    marker.position.y = player.position.y + 0.02 + Math.sin(t * 4.0) * 0.03;
+    marker.position.y = markerBaseY + Math.sin(t * 4.0) * 0.03;
     markerBeam.material.opacity = 0.32 + Math.sin(t * 6.0) * 0.1;
   }
 
-  desiredTarget.set(player.position.x, 1.08, player.position.z);
+  const waterY = getWaterSurfaceHeight(player.position.x, player.position.z, waterUniforms.uTime.value);
+  const playerHeadY = player.position.y + playerHeadOffset;
+  const isUnderwater = Number.isFinite(waterY) && waterY > playerHeadY;
+  if (scene.fog && isUnderwater !== underwaterFogActive) {
+    underwaterFogActive = isUnderwater;
+    scene.fog.color.copy(isUnderwater ? fogUnderwater : fogAboveWater);
+  }
+
+  desiredTarget.set(player.position.x, player.position.y + 0.1, player.position.z);
   controls.target.lerp(desiredTarget, Math.min(1, dt * 8.0));
   controls.update();
 

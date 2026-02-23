@@ -26,13 +26,60 @@ function toonMat(color, options = {}) {
   return new THREE.MeshToonMaterial({ color, gradientMap: TOON_GRADIENT, ...options });
 }
 
+const TERRAIN_BASIN_RADIUS = 31.0;
+const LAKE_RADIUS = 24.15;
+const WATER_RADIUS = 24.34;
+const LAKE_BOWL_Y = 0.58;
+const WATER_SURFACE_Y = 0.596;
+
+function sampleTerrainNoise(x, z) {
+  return Math.sin(x * 0.045) * 0.6 + Math.cos(z * 0.037) * 0.56 + Math.sin((x + z) * 0.021) * 0.42;
+}
+
+function sampleTerrainHeight(x, z) {
+  const r = Math.hypot(x, z);
+  const noise = sampleTerrainNoise(x, z);
+  const bowlFalloff = 1.0 - THREE.MathUtils.smoothstep(r, 0, TERRAIN_BASIN_RADIUS);
+  const lakeBasin = Math.pow(bowlFalloff, 1.65) * 1.15;
+  return noise * 0.29 - lakeBasin;
+}
+
+function sampleLakeFloorHeight(x, z) {
+  const r = Math.hypot(x, z);
+  if (r > LAKE_RADIUS) return -Infinity;
+
+  const radius01 = Math.min(1, r / LAKE_RADIUS);
+  const depth = Math.pow(1 - radius01, 1.82);
+  const lip = THREE.MathUtils.smoothstep(radius01, 0.74, 1.0);
+  const localY = -(0.1 + depth * 1.95 + lip * 0.08);
+  return LAKE_BOWL_Y + localY;
+}
+
+export function getWorldSurfaceHeight(x, z) {
+  const terrain = sampleTerrainHeight(x, z);
+  const lakeFloor = sampleLakeFloorHeight(x, z);
+  return Number.isFinite(lakeFloor) ? lakeFloor : terrain;
+}
+
+export function getWaterSurfaceHeight(x, z, time = 0) {
+  const r = Math.hypot(x, z);
+  if (r > WATER_RADIUS) return -Infinity;
+
+  const uvx = x / (WATER_RADIUS * 2) + 0.5;
+  const uvy = z / (WATER_RADIUS * 2) + 0.5;
+  const w0 = Math.sin((uvx * 6.2 + uvy * 4.9) + time * 1.22) * 0.012;
+  const w1 = Math.sin((uvx * 10.5 - uvy * 7.2) - time * 1.0) * 0.007;
+  const w2 = Math.sin((uvx * 19.0 + uvy * 12.0) + time * 1.58) * 0.003;
+  return WATER_SURFACE_Y + w0 + w1 + w2;
+}
+
 function addSky(scene) {
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: {
-      cTop: { value: new THREE.Color("#3d87d1") },
-      cMid: { value: new THREE.Color("#77c0f0") },
-      cBot: { value: new THREE.Color("#d8effb") },
+      cTop: { value: new THREE.Color("#2f83d2") },
+      cMid: { value: new THREE.Color("#77caf8") },
+      cBot: { value: new THREE.Color("#e8f7ff") },
       uTime: { value: 0 },
     },
     vertexShader: `
@@ -97,16 +144,25 @@ function createGround(scene) {
   const terrainGeo = new THREE.PlaneGeometry(230, 230, 140, 140);
   const tPos = terrainGeo.attributes.position;
   const tCol = [];
+  const colGrassDark = new THREE.Color("#5f8e59");
+  const colGrassLight = new THREE.Color("#8ab26f");
+  const colBeachBlend = new THREE.Color("#ceb785");
+  const colTmp = new THREE.Color();
+
   for (let i = 0; i < tPos.count; i++) {
     const x = tPos.getX(i);
     const z = tPos.getY(i);
     const r = Math.hypot(x, z);
-    const h = Math.sin(x * 0.045) * 0.6 + Math.cos(z * 0.037) * 0.56 + Math.sin((x + z) * 0.021) * 0.42;
-    const bowlFalloff = 1.0 - THREE.MathUtils.smoothstep(r, 0, 31.0);
-    const lakeBasin = Math.pow(bowlFalloff, 1.65) * 1.15;
-    tPos.setZ(i, h * 0.29 - lakeBasin);
-    const g = 0.54 + h * 0.04;
-    tCol.push(0.41, g, 0.42);
+    const y = sampleTerrainHeight(x, z);
+    tPos.setZ(i, y);
+
+    const noise = sampleTerrainNoise(x, z);
+    const hillShade = THREE.MathUtils.clamp((y + 0.8) / 1.75, 0, 1);
+    const shoreBlend = THREE.MathUtils.smoothstep(r, 21.4, 34.0);
+    colTmp.copy(colGrassDark).lerp(colGrassLight, hillShade * 0.85 + noise * 0.04 + 0.08);
+    colTmp.lerp(colBeachBlend, shoreBlend * 0.38);
+    colTmp.multiplyScalar(0.92 + (noise + 0.8) * 0.05);
+    tCol.push(colTmp.r, colTmp.g, colTmp.b);
   }
   terrainGeo.setAttribute("color", new THREE.Float32BufferAttribute(tCol, 3));
   terrainGeo.computeVertexNormals();
@@ -120,13 +176,13 @@ function createGround(scene) {
   return ground;
 }
 
-function createLakeBowlMesh(radius = 24.15, segments = 140) {
+function createLakeBowlMesh(radius = LAKE_RADIUS, segments = 180) {
   const geo = new THREE.CircleGeometry(radius, segments);
   const p = geo.attributes.position;
   const colors = [];
-  const deep = new THREE.Color("#0a3f68");
-  const mid = new THREE.Color("#2d89bc");
-  const shelf = new THREE.Color("#d8c08d");
+  const deep = new THREE.Color("#062f5b");
+  const mid = new THREE.Color("#2779ad");
+  const shelf = new THREE.Color("#d6c291");
 
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i);
@@ -134,15 +190,15 @@ function createLakeBowlMesh(radius = 24.15, segments = 140) {
     const r = Math.min(1, Math.hypot(x, z) / radius);
     const depth = Math.pow(1 - r, 1.82);
     const lip = THREE.MathUtils.smoothstep(r, 0.74, 1.0);
-    p.setZ(i, -(0.07 + depth * 0.78 + lip * 0.06));
+    p.setZ(i, -(0.1 + depth * 1.95 + lip * 0.08));
 
     const c = new THREE.Color();
-    if (r < 0.6) {
-      c.copy(deep).lerp(mid, r / 0.6);
+    if (r < 0.58) {
+      c.copy(deep).lerp(mid, r / 0.58);
     } else {
-      c.copy(mid).lerp(shelf, (r - 0.6) / 0.4);
+      c.copy(mid).lerp(shelf, (r - 0.58) / 0.42);
     }
-    c.multiplyScalar(0.93 + (1 - r) * 0.2);
+    c.multiplyScalar(0.9 + (1 - r) * 0.26);
     colors.push(c.r, c.g, c.b);
   }
 
@@ -151,7 +207,7 @@ function createLakeBowlMesh(radius = 24.15, segments = 140) {
 
   const bowl = new THREE.Mesh(geo, toonMat("#ffffff", { vertexColors: true, side: THREE.DoubleSide }));
   bowl.rotation.x = -Math.PI / 2;
-  bowl.position.y = 0.58;
+  bowl.position.y = LAKE_BOWL_Y;
   return bowl;
 }
 
@@ -166,19 +222,19 @@ function createWater(scene) {
   scene.add(lakeFloor);
 
   const shallowShelf = new THREE.Mesh(
-    new THREE.RingGeometry(22.2, 24.28, 180),
+    new THREE.RingGeometry(22.3, 24.3, 180),
     new THREE.MeshBasicMaterial({ color: "#d7c291", transparent: true, opacity: 0.34, depthWrite: false, side: THREE.DoubleSide })
   );
   shallowShelf.rotation.x = -Math.PI / 2;
-  shallowShelf.position.y = 0.548;
+  shallowShelf.position.y = 0.54;
   scene.add(shallowShelf);
 
   const dropoffBand = new THREE.Mesh(
-    new THREE.RingGeometry(19.6, 22.8, 180),
-    new THREE.MeshBasicMaterial({ color: "#1c5f90", transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide })
+    new THREE.RingGeometry(18.8, 22.6, 180),
+    new THREE.MeshBasicMaterial({ color: "#1b5b89", transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide })
   );
   dropoffBand.rotation.x = -Math.PI / 2;
-  dropoffBand.position.y = 0.525;
+  dropoffBand.position.y = 0.48;
   scene.add(dropoffBand);
 
   const causticMap = createCausticTexture();
@@ -187,13 +243,13 @@ function createWater(scene) {
     new THREE.MeshBasicMaterial({
       map: causticMap,
       transparent: true,
-      opacity: 0.055,
+      opacity: 0.045,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     })
   );
   floorCaustics.rotation.x = -Math.PI / 2;
-  floorCaustics.position.y = 0.512;
+  floorCaustics.position.y = 0.34;
   scene.add(floorCaustics);
 
   const foamStripMap = createFoamStripTexture();
@@ -210,7 +266,7 @@ function createWater(scene) {
     })
   );
   shorelineFoam.rotation.x = -Math.PI / 2;
-  shorelineFoam.position.y = 0.603;
+  shorelineFoam.position.y = 0.607;
   scene.add(shorelineFoam);
 
   const waterMat = new THREE.ShaderMaterial({
@@ -302,17 +358,17 @@ function createWater(scene) {
     `,
   });
 
-  const water = new THREE.Mesh(new THREE.CircleGeometry(24.34, 180), waterMat);
+  const water = new THREE.Mesh(new THREE.CircleGeometry(WATER_RADIUS, 180), waterMat);
   water.rotation.x = -Math.PI / 2;
-  water.position.y = 0.596;
+  water.position.y = WATER_SURFACE_Y;
   scene.add(water);
 
   const deepTint = new THREE.Mesh(
-    new THREE.CircleGeometry(19.8, 100),
-    new THREE.MeshBasicMaterial({ color: "#063a6a", transparent: true, opacity: 0.28, depthWrite: false })
+    new THREE.CircleGeometry(18.7, 100),
+    new THREE.MeshBasicMaterial({ color: "#063867", transparent: true, opacity: 0.35, depthWrite: false })
   );
   deepTint.rotation.x = -Math.PI / 2;
-  deepTint.position.y = 0.46;
+  deepTint.position.y = 0.12;
   scene.add(deepTint);
 
   return { waterUniforms, causticMap };
@@ -408,12 +464,13 @@ function radialTexture(inner = 0.05, outer = 1.0) {
 }
 
 function addShadowBlob(scene, blobTex, x, z, radius = 1.8, opacity = 0.2) {
+  const baseY = getWorldSurfaceHeight(x, z);
   const blob = new THREE.Mesh(
     new THREE.PlaneGeometry(radius * 2, radius * 2),
-    new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, color: "#3f4f4f", opacity })
+    new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, color: "#344347", opacity })
   );
   blob.rotation.x = -Math.PI / 2;
-  blob.position.set(x, 0.17, z);
+  blob.position.set(x, baseY + 0.03, z);
   scene.add(blob);
   return blob;
 }
@@ -430,11 +487,12 @@ function addRock(scene, blobTex, x, z, scale = 1) {
   }
   geo.computeVertexNormals();
 
+  const baseY = getWorldSurfaceHeight(x, z);
   const rock = new THREE.Mesh(
     geo,
-    toonMat("#98a49f")
+    toonMat("#8e9d98")
   );
-  rock.position.set(x, 0.8 * scale, z);
+  rock.position.set(x, baseY + 0.78 * scale, z);
   rock.rotation.y = Math.random() * Math.PI;
   scene.add(rock);
   addShadowBlob(scene, blobTex, x, z, 1.45 * scale, 0.17);
@@ -452,26 +510,28 @@ function addWaterRock(scene, x, z, scale = 1) {
   }
   geo.computeVertexNormals();
 
+  const baseY = getWorldSurfaceHeight(x, z);
   const rock = new THREE.Mesh(
     geo,
-    toonMat("#7f8f96")
+    toonMat("#738993")
   );
-  rock.position.set(x, 0.47, z);
+  rock.position.set(x, baseY + 0.42, z);
   rock.rotation.y = Math.random() * Math.PI;
   scene.add(rock);
 }
 
 function addTree(scene, blobTex, x, z, scale = 1) {
+  const baseY = getWorldSurfaceHeight(x, z);
   const trunk = new THREE.Mesh(
     new THREE.CylinderGeometry(0.3 * scale, 0.46 * scale, 4.3 * scale, 8),
-    toonMat("#9f7b63")
+    toonMat("#8f6d4f")
   );
-  trunk.position.set(x, 2.16 * scale, z);
+  trunk.position.set(x, baseY + 2.16 * scale, z);
   trunk.rotation.z = (Math.random() - 0.5) * 0.16;
   scene.add(trunk);
 
-  const leafMat = toonMat("#7fe2c5");
-  const top = new THREE.Vector3(x, 4.3 * scale, z);
+  const leafMat = toonMat("#73cfa9");
+  const top = new THREE.Vector3(x, baseY + 4.3 * scale, z);
   for (let i = 0; i < 7; i++) {
     const frond = new THREE.Mesh(new THREE.ConeGeometry(0.34 * scale, 3.0 * scale, 6), leafMat);
     frond.position.copy(top);
@@ -486,31 +546,33 @@ function addTree(scene, blobTex, x, z, scale = 1) {
 }
 
 function addReedPatch(scene, x, z, count = 7) {
+  const baseY = getWorldSurfaceHeight(x, z);
   for (let i = 0; i < count; i++) {
     const reed = new THREE.Mesh(
       new THREE.CylinderGeometry(0.03, 0.04, 0.95 + Math.random() * 0.45, 5),
-      toonMat("#93b86e")
+      toonMat("#89b162")
     );
-    reed.position.set(x + (Math.random() - 0.5) * 0.9, 0.48, z + (Math.random() - 0.5) * 0.9);
+    reed.position.set(x + (Math.random() - 0.5) * 0.9, baseY + 0.48, z + (Math.random() - 0.5) * 0.9);
     reed.rotation.z = (Math.random() - 0.5) * 0.28;
     scene.add(reed);
   }
 }
 
 function addLounge(scene, blobTex, x, z, rot = 0) {
+  const baseY = getWorldSurfaceHeight(x, z);
   const base = new THREE.Mesh(
     new THREE.BoxGeometry(2.3, 0.24, 1.05),
-    toonMat("#ffe600")
+    toonMat("#f4d93e")
   );
-  base.position.set(x, 0.72, z);
+  base.position.set(x, baseY + 0.72, z);
   base.rotation.y = rot;
   scene.add(base);
 
   const back = new THREE.Mesh(
     new THREE.BoxGeometry(2.0, 0.2, 0.7),
-    toonMat("#ffe84a")
+    toonMat("#f8df67")
   );
-  back.position.set(x - Math.sin(rot) * 0.42, 0.98, z - Math.cos(rot) * 0.42);
+  back.position.set(x - Math.sin(rot) * 0.42, baseY + 0.98, z - Math.cos(rot) * 0.42);
   back.rotation.y = rot;
   back.rotation.x = -0.28;
   scene.add(back);
@@ -542,7 +604,7 @@ function addWaterRocks(scene) {
 function addLakeRings(scene) {
   const beachRing = new THREE.Mesh(
     new THREE.RingGeometry(26, 33.5, 120),
-    toonMat("#dece9f", { side: THREE.DoubleSide })
+    toonMat("#ddcd9e", { side: THREE.DoubleSide })
   );
   beachRing.rotation.x = -Math.PI / 2;
   beachRing.position.y = 0.62;
@@ -550,7 +612,7 @@ function addLakeRings(scene) {
 
   const wetSand = new THREE.Mesh(
     new THREE.RingGeometry(24.66, 26.06, 160),
-    new THREE.MeshBasicMaterial({ color: "#bcc2b2", transparent: true, opacity: 0.24, depthWrite: false, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ color: "#b9bda9", transparent: true, opacity: 0.32, depthWrite: false, side: THREE.DoubleSide })
   );
   wetSand.rotation.x = -Math.PI / 2;
   wetSand.position.y = 0.618;
@@ -558,18 +620,18 @@ function addLakeRings(scene) {
 
   const innerSandShelf = new THREE.Mesh(
     new THREE.RingGeometry(23.2, 24.58, 160),
-    new THREE.MeshBasicMaterial({ color: "#e8d7ad", transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ color: "#e5d2a6", transparent: true, opacity: 0.26, depthWrite: false, side: THREE.DoubleSide })
   );
   innerSandShelf.rotation.x = -Math.PI / 2;
-  innerSandShelf.position.y = 0.57;
+  innerSandShelf.position.y = 0.55;
   scene.add(innerSandShelf);
 
   const poolEdge = new THREE.Mesh(
     new THREE.RingGeometry(24.84, 25.04, 160),
-    new THREE.MeshBasicMaterial({ color: "#f1fbff", transparent: true, opacity: 0.58, depthWrite: false, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ color: "#f1fbff", transparent: true, opacity: 0.72, depthWrite: false, side: THREE.DoubleSide })
   );
   poolEdge.rotation.x = -Math.PI / 2;
-  poolEdge.position.y = 0.622;
+  poolEdge.position.y = 0.624;
   scene.add(poolEdge);
 }
 
