@@ -220,9 +220,9 @@ function createLakeBowlMesh(radius = LAKE_RADIUS, segments = 180) {
   const geo = new THREE.CircleGeometry(radius, segments);
   const p = geo.attributes.position;
   const colors = [];
-  const deep = new THREE.Color("#4a3d2d");
-  const mid = new THREE.Color("#6f5c3f");
-  const shelf = new THREE.Color("#a48a5d");
+  const deep = new THREE.Color("#4f3f2e");
+  const mid = new THREE.Color("#6e5a3f");
+  const shelf = new THREE.Color("#9f855a");
 
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i);
@@ -233,28 +233,34 @@ function createLakeBowlMesh(radius = LAKE_RADIUS, segments = 180) {
     p.setZ(i, -(0.1 + depth * 1.95 + lip * 0.08));
 
     const c = new THREE.Color();
-    if (r < 0.58) {
-      c.copy(deep).lerp(mid, r / 0.58);
-    } else {
-      c.copy(mid).lerp(shelf, (r - 0.58) / 0.42);
-    }
+    const tMid = THREE.MathUtils.smoothstep(r, 0.0, 0.68);
+    const tShelf = THREE.MathUtils.smoothstep(r, 0.5, 1.0);
+    c.copy(deep).lerp(mid, tMid);
+    c.lerp(shelf, tShelf * 0.82);
 
-    // Add subtle sediment/pebble variation so the floor reads like a natural river bed.
-    const n0 = Math.sin(x * 0.28 + z * 0.19) * 0.5 + 0.5;
-    const n1 = Math.sin(x * 0.52 - z * 0.33 + 1.6) * 0.5 + 0.5;
-    const sediment = n0 * 0.62 + n1 * 0.38;
-    const sedimentBand = Math.floor(sediment * 4.0) / 4.0;
-    const tonal = THREE.MathUtils.lerp(sediment, sedimentBand, 0.45);
+    // Subtle sediment variation without hard banding.
+    const n0 = Math.sin(x * 0.27 + z * 0.18) * 0.5 + 0.5;
+    const n1 = Math.sin(x * 0.5 - z * 0.31 + 1.7) * 0.5 + 0.5;
+    const n2 = Math.sin((x + z) * 0.16 + 2.4) * 0.5 + 0.5;
+    const sediment = n0 * 0.46 + n1 * 0.34 + n2 * 0.2;
 
-    c.offsetHSL(0.0, -0.05 + tonal * 0.05, -0.12 + tonal * 0.2);
-    c.multiplyScalar(0.84 + (1 - r) * 0.06 + tonal * 0.14);
+    c.offsetHSL(0.0, -0.03 + sediment * 0.03, -0.08 + sediment * 0.14);
+    c.multiplyScalar(0.9 + sediment * 0.1 - r * 0.05);
     colors.push(c.r, c.g, c.b);
   }
 
   geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.computeVertexNormals();
 
-  const bowl = new THREE.Mesh(geo, toonMat("#ffffff", { vertexColors: true, side: THREE.DoubleSide }));
+  const bowl = new THREE.Mesh(
+    geo,
+    new THREE.MeshStandardMaterial({
+      vertexColors: true,
+      roughness: 1,
+      metalness: 0,
+      side: THREE.DoubleSide,
+    })
+  );
   bowl.rotation.x = -Math.PI / 2;
   bowl.position.y = LAKE_BOWL_Y;
   return bowl;
@@ -264,7 +270,7 @@ function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
     uShallow: { value: new THREE.Color("#a8f6ff") },
-    uDeep: { value: new THREE.Color("#1c6288") },
+    uDeep: { value: new THREE.Color("#0f5786") },
   };
 
   const lakeFloor = createLakeBowlMesh();
@@ -347,9 +353,9 @@ function createWater(scene) {
 
         vec3 color = mix(base, vec3(0.95, 0.99, 1.0), foam * 0.3);
 
-        float alpha = mix(0.22, 0.74, pow(depth01, 1.04));
+        float alpha = mix(0.24, 0.78, pow(depth01, 1.04));
         alpha += rippleLines * 0.04 + foam * 0.08 + fresnel * 0.03;
-        gl_FragColor = vec4(color, clamp(alpha, 0.2, 0.82));
+        gl_FragColor = vec4(color, clamp(alpha, 0.22, 0.85));
       }
     `,
   });
