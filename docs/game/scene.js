@@ -30,11 +30,11 @@ export function createSceneContext(canvas) {
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.14;
-  controls.rotateSpeed = 0.85;
+  controls.dampingFactor = 0.1;
+  controls.rotateSpeed = 0.9;
   controls.panSpeed = 0.0;
-  controls.zoomSpeed = 1.0;
-  controls.minDistance = 7;
+  controls.zoomSpeed = 1.08;
+  controls.minDistance = 4.5;
   controls.maxDistance = 58;
   controls.minPolarAngle = 0.68;
   controls.maxPolarAngle = 1.16;
@@ -45,7 +45,7 @@ export function createSceneContext(canvas) {
   if ("maxTargetRadius" in controls) controls.maxTargetRadius = 0;
   controls.mouseButtons.LEFT = -1;
   controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
-  controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
+  controls.mouseButtons.RIGHT = -1;
   controls.touches.ONE = THREE.TOUCH.PAN;
   controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
   controls.target.set(0, 1.1, 0);

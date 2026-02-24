@@ -250,13 +250,18 @@ const worldUp = new THREE.Vector3(0, 1, 0);
 const camForward = new THREE.Vector3();
 const camRight = new THREE.Vector3();
 const moveDir = new THREE.Vector3();
-const desiredTarget = new THREE.Vector3();
 const gatherDir = new THREE.Vector3();
+const cameraFocus = new THREE.Vector3();
+const cameraFocusDelta = new THREE.Vector3();
 const fogAboveWater = new THREE.Color("#88a8b6");
 const fogUnderwater = new THREE.Color("#4b88a4");
 let underwaterFogActive = false;
 
 const clock = new THREE.Clock();
+
+// Initialize the orbit pivot to the player to prevent startup camera spin.
+cameraFocus.set(player.position.x, player.position.y + 0.1, player.position.z);
+controls.target.copy(cameraFocus);
 
 function animate() {
   const dt = Math.min(0.033, clock.getDelta());
@@ -372,8 +377,13 @@ function animate() {
     scene.fog.color.copy(isUnderwater ? fogUnderwater : fogAboveWater);
   }
 
-  desiredTarget.set(player.position.x, player.position.y + 0.1, player.position.z);
-  controls.target.lerp(desiredTarget, Math.min(1, dt * 18.0));
+  cameraFocus.set(player.position.x, player.position.y + 0.1, player.position.z);
+  cameraFocusDelta.subVectors(cameraFocus, controls.target);
+  if (cameraFocusDelta.lengthSq() > 0.0000001) {
+    // Translate camera with pivot so user zoom/rotation settings stay unchanged.
+    controls.target.copy(cameraFocus);
+    camera.position.add(cameraFocusDelta);
+  }
   controls.update();
 
   composer.render();
