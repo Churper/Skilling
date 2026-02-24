@@ -43,7 +43,7 @@ export function createSceneContext(canvas) {
   controls.enablePan = false;
   if ("zoomToCursor" in controls) controls.zoomToCursor = false;
   if ("minTargetRadius" in controls) controls.minTargetRadius = 0;
-  if ("maxTargetRadius" in controls) controls.maxTargetRadius = 0;
+  if ("maxTargetRadius" in controls) controls.maxTargetRadius = Infinity;
   controls.mouseButtons.LEFT = -1;
   controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
   controls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE;
