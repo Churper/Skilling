@@ -1,16 +1,13 @@
 import * as THREE from "three";
 
-export function createPlayer(scene, addShadowBlob) {
-  // Slime body: low-poly squished sphere with flat bottom, bulged middle
+function createSlimeGeometry() {
   const slimeGeo = new THREE.SphereGeometry(0.51, 10, 8);
   const pos = slimeGeo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     let x = pos.getX(i);
     let y = pos.getY(i);
     let z = pos.getZ(i);
-    // Flatter bottom but keep overall body rounder.
     if (y < 0) y *= 0.52;
-    // Bulge middle xz
     const yNorm = (y + 0.5) / 1.0;
     const bulge = 1.0 + 0.2 * Math.sin(yNorm * Math.PI);
     x *= bulge * 1.02;
@@ -19,6 +16,33 @@ export function createPlayer(scene, addShadowBlob) {
     pos.setXYZ(i, x, y, z);
   }
   slimeGeo.computeVertexNormals();
+  return slimeGeo;
+}
+
+function addSlimeFace(root, color = "#0d110f") {
+  const faceGroup = new THREE.Group();
+  faceGroup.position.set(0, 0.16, 0.44);
+  root.add(faceGroup);
+
+  const faceMat = new THREE.MeshBasicMaterial({ color });
+  const eyeGeo = new THREE.SphereGeometry(0.042, 8, 8);
+  const leftEye = new THREE.Mesh(eyeGeo, faceMat);
+  leftEye.position.set(-0.105, 0.08, 0.082);
+  const rightEye = new THREE.Mesh(eyeGeo, faceMat);
+  rightEye.position.set(0.105, 0.08, 0.082);
+  faceGroup.add(leftEye, rightEye);
+
+  const mouth = new THREE.Mesh(
+    new THREE.TorusGeometry(0.018, 0.006, 5, 10),
+    faceMat
+  );
+  mouth.position.set(0, -0.016, 0.086);
+  mouth.rotation.x = Math.PI * 0.08;
+  faceGroup.add(mouth);
+}
+
+export function createPlayer(scene, addShadowBlob) {
+  const slimeGeo = createSlimeGeometry();
 
   const slimeMaterial = new THREE.MeshPhongMaterial({
     color: "#58df78",
@@ -36,26 +60,7 @@ export function createPlayer(scene, addShadowBlob) {
   );
   player.position.set(0, 1.2, 10);
 
-  // Keep facial features as opaque meshes so they stay crisp and black.
-  const faceGroup = new THREE.Group();
-  faceGroup.position.set(0, 0.16, 0.44);
-  player.add(faceGroup);
-
-  const faceMat = new THREE.MeshBasicMaterial({ color: "#0d110f" });
-  const eyeGeo = new THREE.SphereGeometry(0.042, 8, 8);
-  const leftEye = new THREE.Mesh(eyeGeo, faceMat);
-  leftEye.position.set(-0.105, 0.08, 0.082);
-  const rightEye = new THREE.Mesh(eyeGeo, faceMat);
-  rightEye.position.set(0.105, 0.08, 0.082);
-  faceGroup.add(leftEye, rightEye);
-
-  const mouth = new THREE.Mesh(
-    new THREE.TorusGeometry(0.018, 0.006, 5, 10),
-    faceMat
-  );
-  mouth.position.set(0, -0.016, 0.086);
-  mouth.rotation.x = Math.PI * 0.08;
-  faceGroup.add(mouth);
+  addSlimeFace(player);
 
   const toolAnchor = new THREE.Group();
   toolAnchor.position.set(0.0, 0.18, 0.1);
@@ -177,6 +182,49 @@ export function createPlayer(scene, addShadowBlob) {
     slimeMaterial.color.set(hexColor || "#58df78");
   }
   return { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor };
+}
+
+export function createRemotePlayerAvatar(scene, addShadowBlob, options = {}) {
+  const slimeGeo = createSlimeGeometry();
+  const slimeMaterial = new THREE.MeshPhongMaterial({
+    color: options.color || "#6ed998",
+    transparent: true,
+    opacity: 0.68,
+    shininess: 34,
+    specular: new THREE.Color("#d8ffe4"),
+    flatShading: true,
+    side: THREE.FrontSide,
+  });
+
+  const player = new THREE.Mesh(slimeGeo, slimeMaterial);
+  player.position.set(0, 1.2, 10);
+  addSlimeFace(player);
+  scene.add(player);
+  const playerBlob = addShadowBlob(player.position.x, player.position.z, 0.95, 0.19);
+
+  let animTime = 0;
+  function updateAnimation(dt, moving = false) {
+    animTime += dt;
+    const idle = Math.sin(animTime * 1.8) * 0.022;
+    const move = moving ? Math.sin(animTime * 6.4) * 0.03 : 0;
+    const targetScaleY = 1 + idle + move;
+    player.scale.y = THREE.MathUtils.damp(player.scale.y, targetScaleY, 10, dt);
+    player.scale.x = THREE.MathUtils.damp(player.scale.x, 1, 10, dt);
+    player.scale.z = THREE.MathUtils.damp(player.scale.z, 1, 10, dt);
+  }
+
+  function setColor(hexColor) {
+    slimeMaterial.color.set(hexColor || "#6ed998");
+  }
+
+  function dispose() {
+    scene.remove(player);
+    if (playerBlob) scene.remove(playerBlob);
+    slimeGeo.dispose();
+    slimeMaterial.dispose();
+  }
+
+  return { player, playerBlob, updateAnimation, setColor, dispose };
 }
 
 function createAxeMesh() {

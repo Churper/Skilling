@@ -835,6 +835,175 @@ function addBlacksmith(scene, blobTex, x, z, interactables = null) {
   if (interactables) interactables.push(smith);
 }
 
+function addConstructionYard(scene, blobTex, x, z, interactables = null) {
+  const baseY = getWorldSurfaceHeight(x, z);
+  const yard = new THREE.Group();
+  yard.position.set(x, baseY, z);
+  setServiceNode(yard, "construction", "House Construction Yard");
+
+  const lot = new THREE.Mesh(
+    new THREE.CylinderGeometry(9.4, 9.8, 0.34, 36),
+    toonMat("#cdb88f")
+  );
+  lot.position.y = 0.17;
+  lot.renderOrder = RENDER_SHORE;
+  yard.add(lot);
+
+  const lotRing = new THREE.Mesh(
+    new THREE.TorusGeometry(6.0, 0.18, 8, 48),
+    toonMat("#ebdfc2")
+  );
+  lotRing.rotation.x = Math.PI * 0.5;
+  lotRing.position.y = 0.36;
+  lotRing.renderOrder = RENDER_SHORE + 1;
+  yard.add(lotRing);
+
+  const buildPad = new THREE.Mesh(
+    new THREE.CylinderGeometry(5.2, 5.2, 0.12, 26),
+    toonMat("#f2e8cf")
+  );
+  buildPad.position.y = 0.31;
+  buildPad.renderOrder = RENDER_SHORE + 1;
+  yard.add(buildPad);
+
+  const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 1.45, 6), toonMat("#8f6742"));
+  signPost.position.set(-3.8, 0.98, 3.7);
+  signPost.renderOrder = RENDER_DECOR;
+  yard.add(signPost);
+
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.7, 0.1), toonMat("#2f536d"));
+  sign.position.set(-3.8, 1.52, 3.78);
+  sign.renderOrder = RENDER_DECOR + 1;
+  yard.add(sign);
+
+  const hammerHead = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.11, 0.12), toonMat("#dce6ed"));
+  hammerHead.position.set(-3.98, 1.54, 3.86);
+  hammerHead.renderOrder = RENDER_DECOR + 2;
+  yard.add(hammerHead);
+
+  const hammerHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.28, 6), toonMat("#9d7549"));
+  hammerHandle.position.set(-3.72, 1.5, 3.86);
+  hammerHandle.rotation.z = Math.PI * 0.35;
+  hammerHandle.renderOrder = RENDER_DECOR + 2;
+  yard.add(hammerHandle);
+
+  const houseGroup = new THREE.Group();
+  houseGroup.position.set(0.15, 0.31, -0.2);
+  yard.add(houseGroup);
+
+  const foundation = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.35, 3.7), toonMat("#b7aea0"));
+  foundation.position.y = 0.18;
+  foundation.renderOrder = RENDER_DECOR;
+  houseGroup.add(foundation);
+
+  const frame = new THREE.Group();
+  houseGroup.add(frame);
+  const frameBaseMat = toonMat("#9c7048");
+  const frameBeamGeo = new THREE.BoxGeometry(0.2, 1.5, 0.2);
+  for (const [fx, fz] of [[-2.0, -1.5], [2.0, -1.5], [-2.0, 1.5], [2.0, 1.5]]) {
+    const post = new THREE.Mesh(frameBeamGeo, frameBaseMat);
+    post.position.set(fx, 1.0, fz);
+    post.renderOrder = RENDER_DECOR + 1;
+    frame.add(post);
+  }
+  const beamGeo = new THREE.BoxGeometry(4.25, 0.2, 0.2);
+  const beamFront = new THREE.Mesh(beamGeo, frameBaseMat);
+  beamFront.position.set(0, 1.74, 1.5);
+  beamFront.renderOrder = RENDER_DECOR + 1;
+  frame.add(beamFront);
+  const beamBack = beamFront.clone();
+  beamBack.position.z = -1.5;
+  frame.add(beamBack);
+
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(4.2, 2.0, 3.2), toonMat("#d8c09a"));
+  walls.position.y = 1.25;
+  walls.renderOrder = RENDER_DECOR + 2;
+  houseGroup.add(walls);
+
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.28, 0.09), toonMat("#7d5737"));
+  door.position.set(0, 0.86, 1.66);
+  door.renderOrder = RENDER_DECOR + 3;
+  houseGroup.add(door);
+
+  const windowLeft = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.5, 0.09), toonMat("#83c8df"));
+  windowLeft.position.set(-1.15, 1.45, 1.66);
+  windowLeft.renderOrder = RENDER_DECOR + 3;
+  houseGroup.add(windowLeft);
+  const windowRight = windowLeft.clone();
+  windowRight.position.x = 1.15;
+  houseGroup.add(windowRight);
+
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(3.08, 1.38, 4), toonMat("#91684e"));
+  roof.position.y = 2.78;
+  roof.rotation.y = Math.PI * 0.25;
+  roof.renderOrder = RENDER_DECOR + 3;
+  houseGroup.add(roof);
+
+  const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.86, 0.34), toonMat("#757980"));
+  chimney.position.set(1.0, 3.0, -0.4);
+  chimney.renderOrder = RENDER_DECOR + 4;
+  houseGroup.add(chimney);
+
+  const logPile = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.92, 0.46, 8), toonMat("#9a6d45"));
+  logPile.position.set(-2.7, 0.45, -2.3);
+  logPile.renderOrder = RENDER_DECOR;
+  yard.add(logPile);
+
+  const orePile = new THREE.Mesh(new THREE.DodecahedronGeometry(0.72, 0), toonMat("#7f878f"));
+  orePile.position.set(2.6, 0.7, -2.15);
+  orePile.scale.y = 0.56;
+  orePile.renderOrder = RENDER_DECOR;
+  yard.add(orePile);
+
+  const completionGlow = new THREE.Mesh(new THREE.CylinderGeometry(2.65, 2.65, 0.08, 26), toonMat("#8adfa6"));
+  completionGlow.position.y = 0.36;
+  completionGlow.renderOrder = RENDER_DECOR;
+  completionGlow.visible = false;
+  yard.add(completionGlow);
+
+  let currentStage = -1;
+  const setProgress = (progress, stock = { logs: 0, ore: 0 }) => {
+    const p = THREE.MathUtils.clamp(progress, 0, 1);
+    foundation.scale.set(1, 0.5 + p * 0.5, 1);
+
+    frame.visible = p >= 0.12;
+    frame.scale.y = THREE.MathUtils.clamp((p - 0.12) / 0.22, 0.2, 1);
+
+    walls.visible = p >= 0.33;
+    walls.scale.set(1, THREE.MathUtils.clamp((p - 0.33) / 0.28, 0.12, 1), 1);
+
+    const roofBlend = THREE.MathUtils.clamp((p - 0.62) / 0.2, 0, 1);
+    roof.visible = p >= 0.62;
+    roof.scale.setScalar(0.45 + roofBlend * 0.55);
+
+    chimney.visible = p >= 0.82;
+    chimney.scale.y = THREE.MathUtils.clamp((p - 0.82) / 0.18, 0.25, 1);
+
+    const logsRatio = THREE.MathUtils.clamp((stock.logs || 0) / 120, 0, 1);
+    const oreRatio = THREE.MathUtils.clamp((stock.ore || 0) / 80, 0, 1);
+    logPile.scale.set(0.4 + logsRatio * 0.9, 0.45 + logsRatio * 1.0, 0.4 + logsRatio * 0.9);
+    orePile.scale.set(0.45 + oreRatio * 0.8, 0.32 + oreRatio * 0.85, 0.45 + oreRatio * 0.8);
+
+    completionGlow.visible = p >= 1;
+
+    if (p >= 1) currentStage = 4;
+    else if (p >= 0.82) currentStage = 3;
+    else if (p >= 0.62) currentStage = 2;
+    else if (p >= 0.33) currentStage = 1;
+    else currentStage = 0;
+  };
+
+  setProgress(0);
+  scene.add(yard);
+  addShadowBlob(scene, blobTex, x, z, 4.6, 0.16);
+  if (interactables) interactables.push(yard);
+  return {
+    node: yard,
+    setProgress,
+    getStage: () => currentStage,
+  };
+}
+
 function addServicePlaza(scene, blobTex, resourceNodes) {
   const cx = 0;
   const cz = -34;
@@ -881,6 +1050,10 @@ function addServicePlaza(scene, blobTex, resourceNodes) {
   addBank(scene, blobTex, cx - 6.2, cz + 1.5, resourceNodes);
   addStore(scene, blobTex, cx + 6.2, cz + 1.5, resourceNodes);
   addBlacksmith(scene, blobTex, cx, cz - 6.8, resourceNodes);
+
+  // Construction yard sits beside the service plaza with matching footprint.
+  const constructionSite = addConstructionYard(scene, blobTex, cx + 22.5, cz, resourceNodes);
+  return { constructionSite };
 }
 
 function addShoreDecor(scene, blobTex, resourceNodes) {
@@ -1137,10 +1310,10 @@ export function createWorld(scene) {
   addWildflowers(scene);
   addExtraReeds(scene);
   const fishingSpots = addFishingSpots(scene, resourceNodes);
-  addServicePlaza(scene, blobTex, resourceNodes);
+  const { constructionSite } = addServicePlaza(scene, blobTex, resourceNodes);
   const addBlob = (x, z, radius, opacity) => addShadowBlob(scene, blobTex, x, z, radius, opacity);
   const updateWorld = (time) => {
     updateFishingSpots(fishingSpots, time);
   };
-  return { ground, skyMat, waterUniforms, causticMap, addShadowBlob: addBlob, resourceNodes, updateWorld };
+  return { ground, skyMat, waterUniforms, causticMap, addShadowBlob: addBlob, resourceNodes, updateWorld, constructionSite };
 }

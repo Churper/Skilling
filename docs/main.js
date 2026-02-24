@@ -4,73 +4,41 @@ import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight } from "./gam
 import { createPlayer, createMoveMarker } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
-
-const TOOL_FOR_RESOURCE = {
-  fishing: "fishing",
-  mining: "pickaxe",
-  woodcutting: "axe",
-};
-
-const TOOL_LABEL = {
-  axe: "Axe",
-  pickaxe: "Pickaxe",
-  fishing: "Fishing Pole",
-};
-
-const SKILL_BY_RESOURCE = {
-  fishing: "fishing",
-  mining: "mining",
-  woodcutting: "woodcutting",
-};
-
-const INVENTORY_BY_RESOURCE = {
-  fishing: "fish",
-  mining: "ore",
-  woodcutting: "logs",
-};
-
-const XP_BY_RESOURCE = {
-  fishing: 18,
-  mining: 16,
-  woodcutting: 16,
-};
-
-const GATHER_DURATION_BY_RESOURCE = {
-  fishing: 0.95,
-  mining: 0.72,
-  woodcutting: 0.72,
-};
-
-const BAG_CAPACITY = 28;
-const SELL_PRICE_BY_ITEM = {
-  fish: 4,
-  ore: 7,
-  logs: 5,
-};
-const TOOL_UPGRADE_BASE_COST = 28;
-const TOOL_UPGRADE_COST_STEP = 24;
-const TOOL_UPGRADE_MAX_LEVEL = 8;
-const SLIME_COLOR_SHOP = [
-  { id: "lime", label: "Lime", color: "#58df78", cost: 0 },
-  { id: "mint", label: "Mint", color: "#79f0b2", cost: 40 },
-  { id: "aqua", label: "Aqua", color: "#62e4d9", cost: 55 },
-  { id: "sunset", label: "Sunset", color: "#f5b35f", cost: 60 },
-  { id: "violet", label: "Violet", color: "#af89f6", cost: 75 },
-  { id: "rose", label: "Rose", color: "#f57fb3", cost: 90 },
-];
+import {
+  TOOL_FOR_RESOURCE,
+  TOOL_LABEL,
+  SKILL_BY_RESOURCE,
+  INVENTORY_BY_RESOURCE,
+  XP_BY_RESOURCE,
+  GATHER_DURATION_BY_RESOURCE,
+  BAG_CAPACITY,
+  BAG_ITEM_KEYS,
+  SELL_PRICE_BY_ITEM,
+  TOOL_UPGRADE_BASE_COST,
+  TOOL_UPGRADE_COST_STEP,
+  TOOL_UPGRADE_MAX_LEVEL,
+  HOUSE_BUILD_TARGET,
+  SLIME_COLOR_SHOP,
+} from "./game/config.js";
+import { createBagSystem } from "./game/systems/bagSystem.js";
+import { createConstructionProgress } from "./game/systems/constructionProgress.js";
+import { xpToLevel, getGatherFailChance } from "./game/systems/progression.js";
+import { createRemotePlayers } from "./game/systems/remotePlayers.js";
+import { createRealtimeClient, resolveOnlineConfig } from "./game/net/realtimeClient.js";
 
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
-const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld } = createWorld(scene);
+const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld, constructionSite } = createWorld(scene);
 const { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor } = createPlayer(scene, addShadowBlob);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
 
 let equippedTool = "fishing";
-const inventory = { fish: 0, ore: 0, logs: 0 };
-const bagSlots = Array(BAG_CAPACITY).fill(null);
-const bankStorage = { fish: 0, ore: 0, logs: 0 };
+const bagSystem = createBagSystem({ capacity: BAG_CAPACITY, itemKeys: BAG_ITEM_KEYS });
+const inventory = bagSystem.counts;
+const bagSlots = bagSystem.slots;
 let coins = 0;
 const toolUpgrades = { axe: 0, pickaxe: 0, fishing: 0 };
+const constructionProgress = createConstructionProgress({ target: HOUSE_BUILD_TARGET });
 let currentSlimeColorId = "lime";
 const unlockedSlimeColors = new Set(["lime"]);
 const skills = {
@@ -78,6 +46,12 @@ const skills = {
   mining: { xp: 0, level: 1 },
   woodcutting: { xp: 0, level: 1 },
 };
+const onlineConfig = resolveOnlineConfig();
+const remotePlayers = createRemotePlayers({
+  scene,
+  addShadowBlob,
+  getGroundY: (x, z) => getPlayerGroundY(x, z),
+});
 
 const ui = initializeUI({
   onToolSelect: (tool) => {
@@ -103,26 +77,15 @@ function equipTool(tool, announce = false) {
 }
 
 function bagUsedCount() {
-  let used = 0;
-  for (const slot of bagSlots) {
-    if (slot) used += 1;
-  }
-  return used;
+  return bagSystem.usedCount();
 }
 
 function bagIsFull() {
-  return bagUsedCount() >= BAG_CAPACITY;
+  return bagSystem.isFull();
 }
 
 function updateInventoryCountsFromSlots() {
-  inventory.fish = 0;
-  inventory.ore = 0;
-  inventory.logs = 0;
-  for (const slot of bagSlots) {
-    if (slot && Object.prototype.hasOwnProperty.call(inventory, slot)) {
-      inventory[slot] += 1;
-    }
-  }
+  bagSystem.recount();
 }
 
 function syncInventoryUI() {
@@ -139,44 +102,98 @@ function syncInventoryUI() {
 }
 
 function addItemToBag(itemKey) {
-  const slotIndex = bagSlots.indexOf(null);
-  if (slotIndex < 0) return false;
-  bagSlots[slotIndex] = itemKey;
-  updateInventoryCountsFromSlots();
-  return true;
+  return bagSystem.addItem(itemKey);
 }
 
 function clearBagToBank() {
-  let moved = 0;
-  for (let i = 0; i < bagSlots.length; i++) {
-    const item = bagSlots[i];
-    if (!item) continue;
-    bankStorage[item] += 1;
-    bagSlots[i] = null;
-    moved += 1;
-  }
-  updateInventoryCountsFromSlots();
-  return moved;
+  return bagSystem.clearToBank();
 }
 
 function sellBagToStore() {
-  let sold = 0;
-  let coinsGained = 0;
-  for (let i = 0; i < bagSlots.length; i++) {
-    const item = bagSlots[i];
-    if (!item) continue;
-    sold += 1;
-    coinsGained += SELL_PRICE_BY_ITEM[item] ?? 0;
-    bagSlots[i] = null;
-  }
+  const { sold, coinsGained } = bagSystem.sellAll(SELL_PRICE_BY_ITEM);
   coins += coinsGained;
-  updateInventoryCountsFromSlots();
   return { sold, coinsGained };
 }
 
+function consumeBuildMaterialsFromBag() {
+  const { removed, total } = bagSystem.consumeMatching((item) => item === "logs" || item === "ore");
+  return { logs: removed.logs || 0, ore: removed.ore || 0, total };
+}
+
+function getHouseBuildProgress01() {
+  return constructionProgress.getProgress01();
+}
+
+function syncHouseBuildVisual() {
+  if (!constructionSite || typeof constructionSite.setProgress !== "function") return;
+  constructionSite.setProgress(getHouseBuildProgress01(), constructionProgress.getStock());
+}
+
+function getHouseBuildMissing() {
+  return constructionProgress.getMissing();
+}
+
+function getSlimeColorById(colorId) {
+  const entry = SLIME_COLOR_SHOP.find((it) => it.id === colorId);
+  return entry?.color || "#58df78";
+}
+
+function getCurrentSlimeColorHex() {
+  return getSlimeColorById(currentSlimeColorId);
+}
+
+let onlineConnected = false;
+function syncFriendsUI() {
+  ui?.setFriendsState?.({ connected: onlineConnected, peers: remotePlayers.count() });
+}
+
+const netClient = createRealtimeClient({
+  wsUrl: onlineConfig.wsUrl,
+  room: onlineConfig.room,
+  name: onlineConfig.name,
+  color: getCurrentSlimeColorHex(),
+  onConnected: ({ room }) => {
+    onlineConnected = true;
+    syncFriendsUI();
+    ui?.setStatus(`Online connected: room ${room}.`, "info");
+  },
+  onDisconnected: ({ reconnecting }) => {
+    onlineConnected = false;
+    remotePlayers.clear();
+    syncFriendsUI();
+    if (reconnecting) ui?.setStatus("Online disconnected. Reconnecting...", "warn");
+  },
+  onWelcome: (msg) => {
+    remotePlayers.setSnapshot(msg?.peers || []);
+    syncFriendsUI();
+  },
+  onPeerJoin: (peer) => {
+    remotePlayers.upsertPeer(peer);
+    syncFriendsUI();
+  },
+  onPeerLeave: (id) => {
+    remotePlayers.removePeer(id);
+    syncFriendsUI();
+  },
+  onPeerState: (msg) => {
+    remotePlayers.applyState(msg.id, msg.state, { name: msg.name, color: msg.color });
+    syncFriendsUI();
+  },
+});
+
+if (netClient.isEnabled) {
+  netClient.connect();
+} else {
+  syncFriendsUI();
+}
+window.addEventListener("beforeunload", () => {
+  netClient.disconnect();
+});
+
 equipTool(equippedTool, false);
-setSlimeColor("#58df78");
+setSlimeColor(getCurrentSlimeColorHex());
 syncInventoryUI();
+syncHouseBuildVisual();
 ui?.setSkills({
   fishing: skills.fishing.level,
   mining: skills.mining.level,
@@ -429,10 +446,6 @@ const playerFootOffset = -player.geometry.boundingBox.min.y;
 const playerHeadOffset = player.geometry.boundingBox.max.y;
 const playerGroundSink = 0.0;
 
-function xpToLevel(xp) {
-  return Math.floor(Math.sqrt(xp / 34)) + 1;
-}
-
 function getPlayerGroundY(x, z) {
   return getWorldSurfaceHeight(x, z);
 }
@@ -463,12 +476,6 @@ function resourceWorldPosition(node, out) {
   node.getWorldPosition(out);
   out.y = getPlayerGroundY(out.x, out.z);
   return out;
-}
-
-function getGatherFailChance(skillLevel) {
-  const lvl = Math.max(1, skillLevel || 1);
-  const chance = 0.44 - (lvl - 1) * 0.015;
-  return THREE.MathUtils.clamp(chance, 0.04, 0.44);
 }
 
 function tryGather(node) {
@@ -602,7 +609,9 @@ function buyOrEquipSlimeColor(colorId) {
     unlockedSlimeColors.add(colorId);
   }
   currentSlimeColorId = colorId;
-  setSlimeColor(entry.color);
+  const nextColor = getCurrentSlimeColorHex();
+  setSlimeColor(nextColor);
+  netClient.updateProfile({ color: nextColor });
   syncInventoryUI();
   ui?.setStatus(`Slime color equipped: ${entry.label}.`, "success");
 }
@@ -658,6 +667,35 @@ function runServiceAction(node) {
   if (serviceType === "blacksmith") {
     ui?.openBlacksmith(getBlacksmithState());
     ui?.setStatus("Blacksmith open. Buy tool upgrades with coins.", "info");
+    return;
+  }
+
+  if (serviceType === "construction") {
+    const deposited = consumeBuildMaterialsFromBag();
+    if (deposited.total <= 0) {
+      const missing = getHouseBuildMissing();
+      if (missing.logs <= 0 && missing.ore <= 0) {
+        ui?.setStatus("Construction complete. House is fully upgraded.", "success");
+      } else {
+        ui?.setStatus(`Bring Logs + Ore. Missing ${missing.logs} logs and ${missing.ore} ore.`, "warn");
+      }
+      return;
+    }
+
+    const applied = constructionProgress.deposit({ logs: deposited.logs, ore: deposited.ore });
+    syncHouseBuildVisual();
+    syncInventoryUI();
+
+    const progressPercent = Math.round(getHouseBuildProgress01() * 100);
+    const missing = getHouseBuildMissing();
+    if (missing.logs <= 0 && missing.ore <= 0) {
+      ui?.setStatus("Construction complete. The new house is finished.", "success");
+      return;
+    }
+    ui?.setStatus(
+      `Built +${applied.logsAdded} logs, +${applied.oreAdded} ore (${progressPercent}%). Remaining ${missing.logs} logs, ${missing.ore} ore.`,
+      "success"
+    );
   }
 }
 
@@ -851,15 +889,17 @@ function animate() {
   const standY = groundY + playerFootOffset - playerGroundSink;
   player.position.y = standY;
   playerBlob.position.set(player.position.x, groundY + 0.03, player.position.z);
+  const isMovingNow = moveDir.lengthSq() > 0.0001 && !activeGather;
   updateAnimation(dt, {
-    moving: moveDir.lengthSq() > 0.0001 && !activeGather,
+    moving: isMovingNow,
     gathering: !!activeGather,
     resourceType: activeGather?.resourceType,
   });
   updateClickEffects(dt);
   updateEmoteBubbles(dt);
   updateFloatingDrops(dt);
-  updateSlimeTrail(dt, t, moveDir.lengthSq() > 0.0001 && !activeGather);
+  updateSlimeTrail(dt, t, isMovingNow);
+  remotePlayers.update(dt);
 
   if (marker.visible) {
     if (markerOnWater) {
@@ -886,6 +926,15 @@ function animate() {
   camera.position.add(cameraDelta);
   controls.target.copy(cameraFocus);
   controls.update();
+
+  netClient.sendState({
+    x: player.position.x,
+    z: player.position.z,
+    yaw: player.rotation.y,
+    moving: isMovingNow,
+    gathering: !!activeGather,
+    tool: equippedTool,
+  });
 
   composer.render();
   requestAnimationFrame(animate);

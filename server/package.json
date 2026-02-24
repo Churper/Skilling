@@ -1,0 +1,14 @@
+{
+  "name": "skilling-realtime-relay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "WebSocket relay for Skilling online presence",
+  "type": "commonjs",
+  "main": "relay.js",
+  "scripts": {
+    "start": "node relay.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

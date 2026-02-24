@@ -37,6 +37,8 @@ export function initializeUI(options = {}) {
   const fishLevelEl = document.getElementById("ui-skill-fishing");
   const miningLevelEl = document.getElementById("ui-skill-mining");
   const woodcutLevelEl = document.getElementById("ui-skill-woodcutting");
+  const friendsOnlineEl = document.getElementById("ui-friends-online");
+  const friendsCountEl = document.getElementById("ui-friends-count");
   const smithButtons = Array.from(document.querySelectorAll("[data-smith-upgrade]"));
   const smithLevelEls = Array.from(document.querySelectorAll("[data-smith-level]"));
   const smithCostEls = Array.from(document.querySelectorAll("[data-smith-cost]"));
@@ -153,6 +155,13 @@ export function initializeUI(options = {}) {
     if (!statusEl) return;
     statusEl.textContent = text;
     statusEl.dataset.tone = tone;
+  }
+
+  function setFriendsState(payload = {}) {
+    const connected = !!payload.connected;
+    const peers = Math.max(0, Math.floor(Number(payload.peers) || 0));
+    if (friendsOnlineEl) friendsOnlineEl.textContent = connected ? "Online" : "Offline";
+    if (friendsCountEl) friendsCountEl.textContent = `Players online: ${connected ? peers + 1 : 1}`;
   }
 
   function setBlacksmith(payload = {}) {
@@ -286,6 +295,7 @@ export function initializeUI(options = {}) {
   setPanelCollapsed(false);
   setActive("inventory");
   setActiveTool("fishing");
+  setFriendsState({ connected: false, peers: 0 });
 
   return {
     setActiveTool,
@@ -293,6 +303,7 @@ export function initializeUI(options = {}) {
     setCoins,
     setSkills,
     setStatus,
+    setFriendsState,
     setBlacksmith,
     openBlacksmith,
     setStore,
