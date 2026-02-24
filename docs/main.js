@@ -186,6 +186,38 @@ function updateEmoteBubbles(dt) {
   }
 }
 
+// ── Slime trail ──
+const slimeTrails = [];
+const trailGeo = new THREE.CircleGeometry(0.18, 8);
+let lastTrailTime = 0;
+
+function updateSlimeTrail(dt, t, isMoving) {
+  if (isMoving && t - lastTrailTime > 0.1) {
+    lastTrailTime = t;
+    const mat = new THREE.MeshBasicMaterial({
+      color: "#5deb7a", transparent: true, opacity: 0.22, depthWrite: false,
+    });
+    const drop = new THREE.Mesh(trailGeo, mat);
+    drop.rotation.x = -Math.PI / 2;
+    const gy = getPlayerGroundY(player.position.x, player.position.z);
+    drop.position.set(player.position.x, gy + 0.02, player.position.z);
+    drop.renderOrder = 1;
+    scene.add(drop);
+    slimeTrails.push({ mesh: drop, age: 0, duration: 5.0 });
+  }
+  for (let i = slimeTrails.length - 1; i >= 0; i--) {
+    const tr = slimeTrails[i];
+    tr.age += dt;
+    tr.mesh.material.opacity = (1 - tr.age / tr.duration) * 0.22;
+    tr.mesh.scale.setScalar(1 + tr.age * 0.12);
+    if (tr.age >= tr.duration) {
+      scene.remove(tr.mesh);
+      tr.mesh.material.dispose();
+      slimeTrails.splice(i, 1);
+    }
+  }
+}
+
 player.geometry.computeBoundingBox();
 const playerFootOffset = -player.geometry.boundingBox.min.y;
 const playerHeadOffset = player.geometry.boundingBox.max.y;
@@ -415,6 +447,7 @@ function animate() {
   });
   updateClickEffects(dt);
   updateEmoteBubbles(dt);
+  updateSlimeTrail(dt, t, moveDir.lengthSq() > 0.0001 && !activeGather);
 
   if (marker.visible) {
     if (markerOnWater) {

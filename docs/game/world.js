@@ -39,6 +39,24 @@ const RENDER_SHORE = 1;
 const RENDER_WATER = 2;
 const RENDER_DECOR = 3;
 
+// Organic lake shape — sine harmonics vary radius by angle
+function getLakeRadiusAtAngle(a) {
+  return LAKE_RADIUS
+    + Math.sin(a * 1.0 + 0.5) * 2.8
+    + Math.sin(a * 2.3 + 1.8) * 1.6
+    + Math.cos(a * 3.1 + 0.3) * 1.0
+    + Math.sin(a * 5.2 + 2.5) * 0.5;
+}
+function getWaterRadiusAtAngle(a) {
+  return getLakeRadiusAtAngle(a) + (WATER_RADIUS - LAKE_RADIUS);
+}
+function getLakeRadiusAt(x, z) {
+  return getLakeRadiusAtAngle(Math.atan2(z, x));
+}
+function getWaterRadiusAt(x, z) {
+  return getWaterRadiusAtAngle(Math.atan2(z, x));
+}
+
 const TREE_TRUNK_GEO = new THREE.CylinderGeometry(0.18, 0.38, 4.6, 6);
 const TREE_LEAF_GEO = new THREE.BoxGeometry(0.22, 0.06, 2.6);
 const TREE_CORE_GEO = new THREE.OctahedronGeometry(0.55, 0);
@@ -72,9 +90,10 @@ function sampleTerrainHeight(x, z) {
 
 function sampleLakeFloorHeight(x, z) {
   const r = Math.hypot(x, z);
-  if (r > LAKE_RADIUS) return -Infinity;
+  const lakeR = getLakeRadiusAt(x, z);
+  if (r > lakeR) return -Infinity;
 
-  const radius01 = Math.min(1, r / LAKE_RADIUS);
+  const radius01 = Math.min(1, r / lakeR);
   const depth = Math.pow(1 - radius01, 1.82);
   const lip = THREE.MathUtils.smoothstep(radius01, 0.74, 1.0);
   const localY = -(0.1 + depth * 1.95 + lip * 0.08);
@@ -89,14 +108,16 @@ export function getWorldSurfaceHeight(x, z) {
 
 export function getWaterSurfaceHeight(x, z, time = 0) {
   const r = Math.hypot(x, z);
-  if (r > WATER_RADIUS) return -Infinity;
+  const waterR = getWaterRadiusAt(x, z);
+  if (r > waterR) return -Infinity;
 
-  const uvx = x / (WATER_RADIUS * 2) + 0.5;
-  const uvy = z / (WATER_RADIUS * 2) + 0.5;
-  const w0 = Math.sin((uvx * 5.9 + uvy * 4.7) + time * 1.22) * 0.011;
-  const w1 = Math.sin((uvx * 9.6 - uvy * 7.4) - time * 1.0) * 0.006;
-  const w2 = Math.sin((uvx * 14.4 + uvy * 11.2) + time * 1.42) * 0.003;
-  const w3 = Math.sin((uvx * 3.2 + uvy * 2.5) + time * 0.75) * 0.015;
+  const maxR = 32;
+  const uvx = x / (maxR * 2) + 0.5;
+  const uvy = z / (maxR * 2) + 0.5;
+  const w0 = Math.sin((uvx * 5.9 + uvy * 4.7) + time * 1.22) * 0.018;
+  const w1 = Math.sin((uvx * 9.6 - uvy * 7.4) - time * 1.0) * 0.01;
+  const w2 = Math.sin((uvx * 14.4 + uvy * 11.2) + time * 1.42) * 0.005;
+  const w3 = Math.sin((uvx * 3.2 + uvy * 2.5) + time * 0.75) * 0.022;
   return WATER_SURFACE_Y + w0 + w1 + w2 + w3;
 }
 
@@ -190,8 +211,9 @@ function createGround(scene) {
     const z = tPos.getY(i);
     const r = Math.hypot(x, z);
     let y = sampleTerrainHeight(x, z);
-    if (r < WATER_RADIUS + 0.5) {
-      y -= (1.0 - THREE.MathUtils.smoothstep(r, WATER_RADIUS - 3, WATER_RADIUS + 0.5)) * 3.0;
+    const waterR = getWaterRadiusAt(x, z);
+    if (r < waterR + 0.5) {
+      y -= (1.0 - THREE.MathUtils.smoothstep(r, waterR - 3, waterR + 0.5)) * 3.0;
     }
     tPos.setZ(i, y);
 
@@ -216,7 +238,7 @@ function createGround(scene) {
     colTmp.lerp(colBeachBlend, shoreBlend * 0.42);
     const contrastBand = Math.floor(tonal * 3.2) / 3.0;
     colTmp.multiplyScalar(0.86 + contrastBand * 0.24);
-    const waterProx = 1.0 - THREE.MathUtils.smoothstep(r, WATER_RADIUS - 2, WATER_RADIUS + 4);
+    const waterProx = 1.0 - THREE.MathUtils.smoothstep(r, waterR - 2, waterR + 4);
     if (waterProx > 0) colTmp.lerp(colBeachBlend, waterProx * 0.85);
     tCol.push(colTmp.r, colTmp.g, colTmp.b);
   }
@@ -233,52 +255,70 @@ function createGround(scene) {
   return ground;
 }
 
-function createLakeBowlMesh(radius = LAKE_RADIUS, segments = 180) {
-  const geo = new THREE.CircleGeometry(radius, segments);
-  const p = geo.attributes.position;
+function createLakeBowlMesh() {
+  const segments = 128;
+  const rings = 20;
+  const positions = [];
   const colors = [];
+  const indices = [];
   const deep = new THREE.Color("#4f3f2e");
   const mid = new THREE.Color("#6e5a3f");
   const shelf = new THREE.Color("#9f855a");
 
-  for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i);
-    const z = p.getY(i);
-    const r = Math.min(1, Math.hypot(x, z) / radius);
-    const depth = Math.pow(1 - r, 1.82);
-    const lip = THREE.MathUtils.smoothstep(r, 0.74, 1.0);
-    p.setZ(i, -(0.1 + depth * 1.95 + lip * 0.08));
+  // Center vertex
+  positions.push(0, -(0.1 + 1.95), 0);
+  const cDeep = new THREE.Color().copy(deep);
+  colors.push(cDeep.r, cDeep.g, cDeep.b);
 
-    const c = new THREE.Color();
-    const tMid = THREE.MathUtils.smoothstep(r, 0.0, 0.68);
-    const tShelf = THREE.MathUtils.smoothstep(r, 0.5, 1.0);
-    c.copy(deep).lerp(mid, tMid);
-    c.lerp(shelf, tShelf * 0.82);
+  for (let r = 1; r <= rings; r++) {
+    const ringT = r / rings;
+    for (let s = 0; s < segments; s++) {
+      const angle = (s / segments) * Math.PI * 2;
+      const lakeR = getLakeRadiusAtAngle(angle);
+      const radius = lakeR * ringT;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+      const depth = Math.pow(1 - ringT, 1.82);
+      const lip = THREE.MathUtils.smoothstep(ringT, 0.74, 1.0);
+      const y = -(0.1 + depth * 1.95 + lip * 0.08);
+      positions.push(x, y, z);
 
-    // Subtle sediment variation without hard banding.
-    const n0 = Math.sin(x * 0.27 + z * 0.18) * 0.5 + 0.5;
-    const n1 = Math.sin(x * 0.5 - z * 0.31 + 1.7) * 0.5 + 0.5;
-    const n2 = Math.sin((x + z) * 0.16 + 2.4) * 0.5 + 0.5;
-    const sediment = n0 * 0.46 + n1 * 0.34 + n2 * 0.2;
-
-    c.offsetHSL(0.0, -0.03 + sediment * 0.03, -0.08 + sediment * 0.14);
-    c.multiplyScalar(0.9 + sediment * 0.1 - r * 0.05);
-    colors.push(c.r, c.g, c.b);
+      const c = new THREE.Color();
+      const tMid = THREE.MathUtils.smoothstep(ringT, 0.0, 0.68);
+      const tShelf = THREE.MathUtils.smoothstep(ringT, 0.5, 1.0);
+      c.copy(deep).lerp(mid, tMid);
+      c.lerp(shelf, tShelf * 0.82);
+      const n0 = Math.sin(x * 0.27 + z * 0.18) * 0.5 + 0.5;
+      const n1 = Math.sin(x * 0.5 - z * 0.31 + 1.7) * 0.5 + 0.5;
+      const sediment = n0 * 0.55 + n1 * 0.45;
+      c.offsetHSL(0.0, -0.03 + sediment * 0.03, -0.08 + sediment * 0.14);
+      c.multiplyScalar(0.9 + sediment * 0.1 - ringT * 0.05);
+      colors.push(c.r, c.g, c.b);
+    }
   }
 
+  for (let s = 0; s < segments; s++) {
+    indices.push(0, s + 1, ((s + 1) % segments) + 1);
+  }
+  for (let r = 1; r < rings; r++) {
+    const inner = 1 + (r - 1) * segments;
+    const outer = 1 + r * segments;
+    for (let s = 0; s < segments; s++) {
+      const sn = (s + 1) % segments;
+      indices.push(inner + s, outer + s, outer + sn);
+      indices.push(inner + s, outer + sn, inner + sn);
+    }
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setIndex(indices);
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.computeVertexNormals();
 
-  const bowl = new THREE.Mesh(
-    geo,
-    new THREE.MeshStandardMaterial({
-      vertexColors: true,
-      roughness: 1,
-      metalness: 0,
-      side: THREE.DoubleSide,
-    })
-  );
-  bowl.rotation.x = -Math.PI / 2;
+  const bowl = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+    vertexColors: true, roughness: 1, metalness: 0, side: THREE.DoubleSide,
+  }));
   bowl.position.y = LAKE_BOWL_Y;
   return bowl;
 }
@@ -299,22 +339,54 @@ function createWater(scene) {
   // Keep caustic texture for main.js compat
   const causticMap = createCausticTexture();
 
+  // Build subdivided organic water mesh
+  const wSegs = 128, wRings = 20, maxR = 32;
+  const wPos = [0, 0, 0], wUvs = [0.5, 0.5], wRads = [0], wIdx = [];
+  for (let r = 1; r <= wRings; r++) {
+    const rt = r / wRings;
+    for (let s = 0; s < wSegs; s++) {
+      const a = (s / wSegs) * Math.PI * 2;
+      const rad = getWaterRadiusAtAngle(a) * rt;
+      const x = Math.cos(a) * rad, z = Math.sin(a) * rad;
+      wPos.push(x, 0, z);
+      wUvs.push(x / (maxR * 2) + 0.5, z / (maxR * 2) + 0.5);
+      wRads.push(rt);
+    }
+  }
+  for (let s = 0; s < wSegs; s++) wIdx.push(0, s + 1, ((s + 1) % wSegs) + 1);
+  for (let r = 1; r < wRings; r++) {
+    const inner = 1 + (r - 1) * wSegs, outer = 1 + r * wSegs;
+    for (let s = 0; s < wSegs; s++) {
+      const sn = (s + 1) % wSegs;
+      wIdx.push(inner + s, outer + s, outer + sn, inner + s, outer + sn, inner + sn);
+    }
+  }
+  const waterGeo = new THREE.BufferGeometry();
+  waterGeo.setIndex(wIdx);
+  waterGeo.setAttribute("position", new THREE.Float32BufferAttribute(wPos, 3));
+  waterGeo.setAttribute("uv", new THREE.Float32BufferAttribute(wUvs, 2));
+  waterGeo.setAttribute("aRadial", new THREE.Float32BufferAttribute(wRads, 1));
+  waterGeo.computeVertexNormals();
+
   const waterMat = new THREE.ShaderMaterial({
-    transparent: false,
-    depthWrite: true,
+    transparent: true,
+    depthWrite: false,
     uniforms: waterUniforms,
     vertexShader: `
+      attribute float aRadial;
       varying vec2 vUv;
       varying vec3 vWorldPos;
+      varying float vRadial;
       uniform float uTime;
       void main() {
         vUv = uv;
+        vRadial = aRadial;
         vec3 p = position;
-        float w0 = sin((uv.x * 5.9 + uv.y * 4.7) + uTime * 1.22) * 0.011;
-        float w1 = sin((uv.x * 9.6 - uv.y * 7.4) - uTime * 1.0) * 0.006;
-        float w2 = sin((uv.x * 14.4 + uv.y * 11.2) + uTime * 1.42) * 0.003;
-        float w3 = sin((uv.x * 3.2 + uv.y * 2.5) + uTime * 0.75) * 0.015;
-        p.y += w0 + w1 + w2 + w3;
+        float w0 = sin((uv.x * 5.9 + uv.y * 4.7) + uTime * 1.22) * 0.018;
+        float w1 = sin((uv.x * 9.6 - uv.y * 7.4) - uTime * 1.0) * 0.01;
+        float w2 = sin((uv.x * 14.4 + uv.y * 11.2) + uTime * 1.42) * 0.005;
+        float w3 = sin((uv.x * 3.2 + uv.y * 2.5) + uTime * 0.75) * 0.022;
+        p.y += (w0 + w1 + w2 + w3) * (1.0 - aRadial * 0.3);
         vec4 worldPos = modelMatrix * vec4(p, 1.0);
         vWorldPos = worldPos.xyz;
         gl_Position = projectionMatrix * viewMatrix * worldPos;
@@ -323,6 +395,7 @@ function createWater(scene) {
     fragmentShader: `
       varying vec2 vUv;
       varying vec3 vWorldPos;
+      varying float vRadial;
       uniform float uTime;
       uniform vec3 uShallow;
       uniform vec3 uMid;
@@ -332,7 +405,6 @@ function createWater(scene) {
       float hash(vec2 p) {
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
       }
-
       float noise(vec2 p) {
         vec2 i = floor(p);
         vec2 f = fract(p);
@@ -346,21 +418,20 @@ function createWater(scene) {
 
       void main() {
         float t = uTime;
-        float radial = clamp(distance(vUv, vec2(0.5)) / 0.5, 0.0, 1.0);
+        float radial = vRadial;
         vec2 wp = vWorldPos.xz;
 
-        // Gentle depth gradient — mostly bright, subtle deep center
+        // Gentle depth gradient
         vec3 col = uMid;
         col = mix(uDeep, col, smoothstep(0.0, 0.4, radial));
         col = mix(col, uShallow, smoothstep(0.6, 0.9, radial));
 
-        // Animated caustic light patterns on surface
+        // Animated caustic light patterns
         vec2 cuv1 = wp * 0.22 + vec2(t * 0.08, t * 0.06);
         vec2 cuv2 = wp * 0.34 + vec2(-t * 0.06, t * 0.09);
         vec2 cuv3 = wp * 0.16 + vec2(t * 0.04, -t * 0.07);
         float caustic = noise(cuv1) + noise(cuv2) * 0.7 + noise(cuv3) * 0.5;
-        caustic = caustic / 2.2;
-        float causticBright = smoothstep(0.32, 0.68, caustic) * 0.14;
+        float causticBright = smoothstep(0.32, 0.68, caustic / 2.2) * 0.14;
         col += causticBright * vec3(0.7, 0.96, 1.0) * (1.0 - radial * 0.4);
 
         // Wave-perturbed normal for reflections
@@ -369,47 +440,44 @@ function createWater(scene) {
           1.0,
           sin(wp.y * 1.6 - t * 0.9) * 0.05 + cos(wp.y * 3.0 + t * 0.7) * 0.025
         ));
-
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
 
-        // Sun specular highlight
+        // Sun specular
         float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 60.0);
         col += vec3(1.0, 0.98, 0.94) * spec * 0.38 * (1.0 - radial * 0.3);
 
-        // Small scattered sparkles
+        // Small sparkles
         vec3 sparkleN = normalize(vec3(
-          sin(wp.x * 5.2 + t * 2.2) * 0.12,
-          1.0,
+          sin(wp.x * 5.2 + t * 2.2) * 0.12, 1.0,
           cos(wp.y * 5.2 - t * 1.9) * 0.12
         ));
         float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 200.0);
         col += vec3(1.0) * sparkle * 0.22;
 
-        // Fresnel — sky reflection at glancing angles
+        // Fresnel
         float NdotV = max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0);
         float fresnel = pow(1.0 - NdotV, 3.5) * 0.18;
         col = mix(col, vec3(0.78, 0.93, 1.0), fresnel);
 
         // Animated shore foam band
-        float foamAngle = atan(vUv.y - 0.5, vUv.x - 0.5);
-        float foamWobble = sin(foamAngle * 8.0 + t * 1.2) * 0.012
-                         + sin(foamAngle * 13.0 - t * 0.8) * 0.008;
+        float foamWobble = sin(atan(wp.y, wp.x) * 8.0 + t * 1.2) * 0.02
+                         + sin(atan(wp.y, wp.x) * 13.0 - t * 0.8) * 0.015;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.85, 0.92, foamEdge) * (1.0 - smoothstep(0.92, 0.98, foamEdge));
-        col = mix(col, vec3(1.0, 1.0, 0.97), foam * 0.55);
+        float foam = smoothstep(0.82, 0.90, foamEdge) * (1.0 - smoothstep(0.90, 0.98, foamEdge));
+        col = mix(col, vec3(1.0, 1.0, 0.97), foam * 0.6);
 
-        // Blend outer edge to beach
-        float edgeBlend = smoothstep(0.94, 1.0, radial);
-        col = mix(col, uBeach, edgeBlend);
+        // Transparency: transparent at shore, opaque at center
+        float alpha = mix(0.88, 0.18, smoothstep(0.75, 1.0, radial));
+        // Extra foam opacity
+        alpha = max(alpha, foam * 0.7);
 
-        gl_FragColor = vec4(col, 1.0);
+        gl_FragColor = vec4(col, alpha);
       }
     `,
   });
 
-  const water = new THREE.Mesh(new THREE.CircleGeometry(WATER_RADIUS, 256), waterMat);
-  water.rotation.x = -Math.PI / 2;
+  const water = new THREE.Mesh(waterGeo, waterMat);
   water.position.y = WATER_SURFACE_Y;
   water.renderOrder = RENDER_WATER;
   scene.add(water);
@@ -719,12 +787,32 @@ function createConformingRing(innerRadius, outerRadius, radialSegments = 14, the
 }
 
 function addLakeRings(scene) {
-  const beachRing = new THREE.Mesh(
-    createConformingRing(WATER_RADIUS - 0.5, 34, 18, 320, SHORE_LIFT),
-    toonMat("#e0c888", { side: THREE.DoubleSide })
-  );
-  beachRing.rotation.x = -Math.PI / 2;
-  beachRing.position.y = 0;
+  const segs = 180, rings = 12, outerR = 36;
+  const positions = [], indices = [];
+  const vpr = segs + 1; // vertices per ring row (close the loop)
+  for (let r = 0; r <= rings; r++) {
+    const rt = r / rings;
+    for (let s = 0; s <= segs; s++) {
+      const angle = (s / segs) * Math.PI * 2;
+      const innerR = getWaterRadiusAtAngle(angle) - 0.5;
+      const radius = innerR + (outerR - innerR) * rt;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+      const y = getWorldSurfaceHeight(x, z);
+      positions.push(x, Number.isFinite(y) ? y + SHORE_LIFT : SHORE_LIFT, z);
+    }
+  }
+  for (let r = 0; r < rings; r++) {
+    for (let s = 0; s < segs; s++) {
+      const a = r * vpr + s, b = a + 1, c = (r + 1) * vpr + s, d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setIndex(indices);
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.computeVertexNormals();
+  const beachRing = new THREE.Mesh(geo, toonMat("#e0c888", { side: THREE.DoubleSide }));
   beachRing.renderOrder = RENDER_SHORE;
   scene.add(beachRing);
 }

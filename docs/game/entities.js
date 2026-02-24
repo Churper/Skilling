@@ -50,6 +50,15 @@ export function createPlayer(scene, addShadowBlob) {
   mouth.position.set(0, 0.04, 0.42);
   player.add(mouth);
 
+  // Toe bumps — chonky slug nubs at bottom-front
+  const bumpGeo = new THREE.SphereGeometry(0.09, 5, 4);
+  for (const bp of [{ x: -0.16, z: 0.28 }, { x: 0.0, z: 0.34 }, { x: 0.16, z: 0.28 }]) {
+    const bump = new THREE.Mesh(bumpGeo, player.material);
+    bump.position.set(bp.x, -0.12, bp.z);
+    bump.scale.set(1, 0.5, 1.1);
+    player.add(bump);
+  }
+
   const toolAnchor = new THREE.Group();
   toolAnchor.position.set(-0.38, 0.08, 0.18);
   player.add(toolAnchor);
@@ -66,15 +75,15 @@ export function createPlayer(scene, addShadowBlob) {
   let currentTool = "fishing";
 
   const carryPose = {
-    axe:     { x: -0.38, y: 0.08, z: 0.18, rx: -0.12, ry: 0.3, rz: 0.38 },
-    pickaxe: { x: -0.38, y: 0.08, z: 0.18, rx: -0.15, ry: 0.3, rz: 0.32 },
-    fishing: { x: -0.36, y: 0.08, z: 0.18, rx: -0.18, ry: 0.1, rz: 0.15 },
+    axe:     { x: -0.38, y: 0.08, z: 0.18, rx: -0.12, ry: -0.3, rz: 0.38 },
+    pickaxe: { x: -0.38, y: 0.08, z: 0.18, rx: -0.15, ry: -0.3, rz: 0.32 },
+    fishing: { x: -0.36, y: 0.08, z: 0.18, rx: -0.18, ry: -0.1, rz: 0.15 },
   };
 
   const gatherPose = {
     axe:     { x: -0.34, y: 0.14, z: 0.22, rx: -1.0, ry: -0.08, rz: -0.08 },
     pickaxe: { x: -0.34, y: 0.14, z: 0.22, rx: -1.05, ry: -0.10, rz: -0.06 },
-    fishing: { x: -0.34, y: 0.16, z: 0.22, rx: -1.2, ry: 0.12, rz: -0.18 },
+    fishing: { x: -0.34, y: 0.16, z: 0.22, rx: -1.2, ry: -0.12, rz: -0.18 },
   };
 
   function setEquippedTool(tool) {
