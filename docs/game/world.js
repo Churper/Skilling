@@ -331,9 +331,9 @@ function createLakeBowlMesh() {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#93f5ef") },
-    uMid: { value: new THREE.Color("#53d9dd") },
-    uDeep: { value: new THREE.Color("#1e9cc7") },
+    uShallow: { value: new THREE.Color("#b4fff7") },
+    uMid: { value: new THREE.Color("#69ebf0") },
+    uDeep: { value: new THREE.Color("#22b4df") },
     uBeach: { value: new THREE.Color("#e3cea1") },
   };
 
@@ -376,7 +376,7 @@ function createWater(scene) {
   const waterMat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
-    side: THREE.DoubleSide,
+    side: THREE.FrontSide,
     uniforms: waterUniforms,
     vertexShader: `
       attribute float aRadial;
@@ -431,15 +431,15 @@ function createWater(scene) {
         vec3 col = uMid;
         col = mix(uDeep, col, smoothstep(0.0, 0.4, radial));
         col = mix(col, uShallow, smoothstep(0.52, 0.9, radial));
-        float shoreTint = smoothstep(0.74, 0.98, radial);
-        col = mix(col, mix(uBeach, uShallow, 0.58), shoreTint * 0.30);
+        float shoreTint = smoothstep(0.72, 0.96, radial);
+        col = mix(col, vec3(0.83, 0.98, 0.95), shoreTint * 0.26);
 
         // Animated caustic light patterns
         vec2 cuv1 = wp * 0.22 + vec2(t * 0.08, t * 0.06);
         vec2 cuv2 = wp * 0.34 + vec2(-t * 0.06, t * 0.09);
         vec2 cuv3 = wp * 0.16 + vec2(t * 0.04, -t * 0.07);
         float caustic = noise(cuv1) + noise(cuv2) * 0.7 + noise(cuv3) * 0.5;
-        float causticBright = smoothstep(0.34, 0.72, caustic / 2.2) * 0.18;
+        float causticBright = smoothstep(0.33, 0.72, caustic / 2.2) * 0.22;
         col += causticBright * vec3(0.7, 0.96, 1.0) * (1.0 - radial * 0.4);
 
         // Wave-perturbed normal for reflections
@@ -452,16 +452,16 @@ function createWater(scene) {
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
 
         // Sun specular
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 62.0);
-        col += vec3(1.0, 0.99, 0.95) * spec * 0.34 * (1.0 - radial * 0.28);
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 64.0);
+        col += vec3(1.0, 0.99, 0.95) * spec * 0.4 * (1.0 - radial * 0.24);
 
         // Small sparkles
         vec3 sparkleN = normalize(vec3(
           sin(wp.x * 5.2 + t * 2.2) * 0.12, 1.0,
           cos(wp.y * 5.2 - t * 1.9) * 0.12
         ));
-        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 185.0);
-        col += vec3(1.0) * sparkle * 0.20;
+        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 170.0);
+        col += vec3(1.0) * sparkle * 0.25;
 
         // Fresnel
         float NdotV = max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0);
@@ -472,15 +472,17 @@ function createWater(scene) {
         float foamWobble = sin(atan(wp.y, wp.x) * 8.0 + t * 1.2) * 0.014
                          + sin(atan(wp.y, wp.x) * 13.0 - t * 0.8) * 0.010;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.905, 0.965, foamEdge) * (1.0 - smoothstep(0.97, 1.0, foamEdge));
+        float foam = smoothstep(0.91, 0.967, foamEdge) * (1.0 - smoothstep(0.973, 1.0, foamEdge));
         col = mix(col, vec3(1.0, 1.0, 0.98), foam * 0.84);
 
-        // Keep water clear and remove blue tint beyond froth.
-        float bodyAlpha = mix(0.42, 0.04, smoothstep(0.12, 0.88, radial));
-        float edgeBodyCut = 1.0 - smoothstep(0.90, 0.962, radial);
-        float hardOuterCut = 1.0 - smoothstep(0.972, 1.0, radial);
+        // Use the same wobbling edge as foam so no tinted band leaks outside froth.
+        float bodyAlpha = mix(0.46, 0.06, smoothstep(0.1, 0.86, radial));
+        float edgeBodyCut = 1.0 - smoothstep(0.905, 0.958, foamEdge);
+        float hardOuterCut = 1.0 - smoothstep(0.966, 0.988, foamEdge);
         float alpha = bodyAlpha * edgeBodyCut * hardOuterCut;
-        alpha = max(alpha, foam * 0.88);
+        alpha = max(alpha, foam * 0.92);
+
+        if (alpha < 0.01) discard;
 
         gl_FragColor = vec4(col, alpha);
       }
