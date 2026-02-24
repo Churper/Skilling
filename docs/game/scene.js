@@ -39,12 +39,13 @@ export function createSceneContext(canvas) {
   controls.minPolarAngle = 0.68;
   controls.maxPolarAngle = 1.16;
   controls.screenSpacePanning = false;
+  controls.enableRotate = false;
   controls.enablePan = false;
   if ("zoomToCursor" in controls) controls.zoomToCursor = false;
   if ("minTargetRadius" in controls) controls.minTargetRadius = 0;
   if ("maxTargetRadius" in controls) controls.maxTargetRadius = 0;
   controls.mouseButtons.LEFT = -1;
-  controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
+  controls.mouseButtons.MIDDLE = -1;
   controls.mouseButtons.RIGHT = -1;
   controls.touches.ONE = THREE.TOUCH.PAN;
   controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
