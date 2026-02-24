@@ -268,10 +268,12 @@ function updateEmoteBubbles(dt) {
 }
 
 // ── Slime trail ──
-const ENABLE_SLIME_TRAIL = false;
+const ENABLE_SLIME_TRAIL = true;
 const slimeTrails = [];
-const trailGeo = new THREE.CircleGeometry(0.18, 8);
+const trailSegmentGeo = new THREE.PlaneGeometry(1, 1);
 let lastTrailTime = 0;
+let hasTrailPoint = false;
+const lastTrailPoint = new THREE.Vector2();
 
 function updateSlimeTrail(dt, t, isMoving) {
   if (!ENABLE_SLIME_TRAIL) {
@@ -280,26 +282,72 @@ function updateSlimeTrail(dt, t, isMoving) {
       slimeTrails[i].mesh.material.dispose();
       slimeTrails.splice(i, 1);
     }
+    hasTrailPoint = false;
     return;
   }
-  if (isMoving && t - lastTrailTime > 0.1) {
-    lastTrailTime = t;
-    const mat = new THREE.MeshBasicMaterial({
-      color: "#5deb7a", transparent: true, opacity: 0.22, depthWrite: false,
-    });
-    const drop = new THREE.Mesh(trailGeo, mat);
-    drop.rotation.x = -Math.PI / 2;
-    const gy = getPlayerGroundY(player.position.x, player.position.z);
-    drop.position.set(player.position.x, gy + 0.02, player.position.z);
-    drop.renderOrder = 1;
-    scene.add(drop);
-    slimeTrails.push({ mesh: drop, age: 0, duration: 5.0 });
+
+  if (!isMoving) {
+    hasTrailPoint = false;
   }
+
+  if (isMoving && t - lastTrailTime > 0.045) {
+    lastTrailTime = t;
+    const x = player.position.x;
+    const z = player.position.z;
+    if (!hasTrailPoint) {
+      lastTrailPoint.set(x, z);
+      hasTrailPoint = true;
+    } else {
+      const dx = x - lastTrailPoint.x;
+      const dz = z - lastTrailPoint.y;
+      const dist = Math.hypot(dx, dz);
+      if (dist > 0.03) {
+        const midX = (lastTrailPoint.x + x) * 0.5;
+        const midZ = (lastTrailPoint.y + z) * 0.5;
+        const gy = getPlayerGroundY(midX, midZ);
+        const width = THREE.MathUtils.clamp(0.15 + dist * 0.1, 0.15, 0.24);
+        const length = dist + 0.22;
+        const heading = Math.atan2(dx, dz);
+        const mat = new THREE.MeshBasicMaterial({
+          color: "#4fd472",
+          transparent: true,
+          opacity: 0.27,
+          depthWrite: false,
+          depthTest: true,
+          side: THREE.DoubleSide,
+        });
+        const segment = new THREE.Mesh(trailSegmentGeo, mat);
+        segment.rotation.x = -Math.PI / 2;
+        segment.rotation.y = heading;
+        segment.position.set(midX, gy + 0.018, midZ);
+        segment.scale.set(width, length, 1);
+        segment.renderOrder = 1;
+        scene.add(segment);
+        slimeTrails.push({
+          mesh: segment,
+          age: 0,
+          duration: 2.3,
+          baseWidth: width,
+          baseLength: length,
+          baseY: gy + 0.018,
+        });
+      }
+      lastTrailPoint.set(x, z);
+    }
+  }
+
   for (let i = slimeTrails.length - 1; i >= 0; i--) {
     const tr = slimeTrails[i];
     tr.age += dt;
-    tr.mesh.material.opacity = (1 - tr.age / tr.duration) * 0.22;
-    tr.mesh.scale.setScalar(1 + tr.age * 0.12);
+    const life = THREE.MathUtils.clamp(tr.age / tr.duration, 0, 1);
+    const fade = Math.pow(1 - life, 1.35);
+    tr.mesh.material.opacity = fade * 0.27;
+    tr.mesh.scale.set(
+      tr.baseWidth * (1 + life * 0.08),
+      tr.baseLength * (1 + life * 0.12),
+      1
+    );
+    tr.mesh.position.y = tr.baseY + life * 0.03;
     if (tr.age >= tr.duration) {
       scene.remove(tr.mesh);
       tr.mesh.material.dispose();
