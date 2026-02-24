@@ -2,23 +2,20 @@ import * as THREE from "three";
 
 export function createPlayer(scene, addShadowBlob) {
   // Slime body: low-poly squished sphere with flat bottom, bulged middle
-  const slimeGeo = new THREE.SphereGeometry(0.52, 9, 7);
+  const slimeGeo = new THREE.SphereGeometry(0.5, 8, 6);
   const pos = slimeGeo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     let x = pos.getX(i);
     let y = pos.getY(i);
     let z = pos.getZ(i);
-
-    // Flatten underside, keep a soft rounded shoulder profile.
-    if (y < -0.08) y = -0.08 + (y + 0.08) * 0.24;
-    const yNorm = THREE.MathUtils.clamp((y + 0.52) / 1.04, 0, 1);
-    const belly = Math.sin(yNorm * Math.PI);
-    const bulge = 1.0 + belly * 0.19;
-    x *= bulge * 1.02;
-    z *= bulge * 1.02;
-
-    // Slightly taller cap to avoid a pancake look.
-    y *= y > 0 ? 1.16 : 1.03;
+    // Flatten bottom
+    if (y < 0) y *= 0.42;
+    // Bulge middle xz
+    const yNorm = (y + 0.5) / 1.0;
+    const bulge = 1.0 + 0.26 * Math.sin(yNorm * Math.PI);
+    x *= bulge * 1.04;
+    y *= 1.12;
+    z *= bulge * 1.04;
     pos.setXYZ(i, x, y, z);
   }
   slimeGeo.computeVertexNormals();
