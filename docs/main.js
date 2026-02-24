@@ -227,7 +227,6 @@ function onInteractResource(node, hitPoint) {
     spawnClickEffect(clickPos.x, clickPos.z, clickTone);
   }
 
-  const resourceType = node.userData.resourceType;
   const neededTool = TOOL_FOR_RESOURCE[resourceType];
   if (neededTool && equippedTool !== neededTool) equipTool(neededTool, false);
 
