@@ -251,21 +251,19 @@ const camForward = new THREE.Vector3();
 const camRight = new THREE.Vector3();
 const moveDir = new THREE.Vector3();
 const desiredTarget = new THREE.Vector3();
-const followTarget = new THREE.Vector3();
 const gatherDir = new THREE.Vector3();
 const fogAboveWater = new THREE.Color("#88a8b6");
 const fogUnderwater = new THREE.Color("#4b88a4");
-const cameraTargetOffset = new THREE.Vector3();
 const wheelZoomVec = new THREE.Vector3();
-const wheelFocusTarget = new THREE.Vector3();
+const wheelTarget = new THREE.Vector3();
 let underwaterFogActive = false;
-let wheelCameraLockUntil = 0;
 
 const clock = new THREE.Clock();
-const nowMs = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
 
 renderer.domElement.addEventListener("wheel", (event) => {
-  const toCamera = wheelZoomVec.subVectors(camera.position, controls.target);
+  wheelTarget.set(player.position.x, player.position.y + 0.1, player.position.z);
+  controls.target.copy(wheelTarget);
+  const toCamera = wheelZoomVec.subVectors(camera.position, wheelTarget);
   const currentDistance = toCamera.length();
   if (currentDistance <= 0.0001) return;
 
@@ -275,11 +273,8 @@ renderer.domElement.addEventListener("wheel", (event) => {
   const maxDistance = controls.maxDistance ?? 500;
   const nextDistance = THREE.MathUtils.clamp(currentDistance * zoomFactor, minDistance, maxDistance);
 
-  wheelFocusTarget.set(player.position.x, player.position.y + 0.1, player.position.z);
-  controls.target.lerp(wheelFocusTarget, wheelUp ? 0.78 : 0.28);
   toCamera.normalize().multiplyScalar(nextDistance);
-  camera.position.copy(controls.target).add(toCamera);
-  wheelCameraLockUntil = nowMs() + 420;
+  camera.position.copy(wheelTarget).add(toCamera);
   event.preventDefault();
   event.stopPropagation();
 }, { passive: false, capture: true });
@@ -399,11 +394,7 @@ function animate() {
   }
 
   desiredTarget.set(player.position.x, player.position.y + 0.1, player.position.z);
-  if (nowMs() < wheelCameraLockUntil) {
-    cameraTargetOffset.subVectors(controls.target, desiredTarget);
-  }
-  followTarget.copy(desiredTarget).add(cameraTargetOffset);
-  controls.target.lerp(followTarget, Math.min(1, dt * 12.5));
+  controls.target.lerp(desiredTarget, Math.min(1, dt * 18.0));
   controls.update();
 
   composer.render();
