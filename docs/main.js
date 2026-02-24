@@ -252,22 +252,19 @@ const camRight = new THREE.Vector3();
 const moveDir = new THREE.Vector3();
 const gatherDir = new THREE.Vector3();
 const cameraFocus = new THREE.Vector3();
-const cameraBack = new THREE.Vector3();
-const cameraDesired = new THREE.Vector3();
+const cameraFocusDelta = new THREE.Vector3();
+const cameraInitBack = new THREE.Vector3();
 const fogAboveWater = new THREE.Color("#88a8b6");
 const fogUnderwater = new THREE.Color("#4b88a4");
 let underwaterFogActive = false;
 
 const clock = new THREE.Clock();
-const cameraMinDistance = controls.minDistance ?? 4.5;
-const cameraMaxDistance = controls.maxDistance ?? 58;
-const cameraDistanceSpan = Math.max(0.001, cameraMaxDistance - cameraMinDistance);
 
 // Initialize chase camera centered above and behind player.
-cameraFocus.set(player.position.x, player.position.y + 0.1, player.position.z);
+cameraFocus.set(player.position.x, player.position.y + 0.85, player.position.z);
 controls.target.copy(cameraFocus);
-cameraBack.set(Math.sin(player.rotation.y + Math.PI), 0, Math.cos(player.rotation.y + Math.PI));
-camera.position.copy(cameraFocus).addScaledVector(cameraBack, 16).addScaledVector(worldUp, 7);
+cameraInitBack.set(Math.sin(player.rotation.y + Math.PI), 0, Math.cos(player.rotation.y + Math.PI));
+camera.position.copy(cameraFocus).addScaledVector(cameraInitBack, 12).addScaledVector(worldUp, 6);
 
 function animate() {
   const dt = Math.min(0.033, clock.getDelta());
@@ -384,20 +381,11 @@ function animate() {
   }
 
   cameraFocus.set(player.position.x, player.position.y + 0.85, player.position.z);
-  controls.target.copy(cameraFocus);
-  const cameraDistance = THREE.MathUtils.clamp(
-    camera.position.distanceTo(cameraFocus),
-    cameraMinDistance,
-    cameraMaxDistance
-  );
-  const dist01 = (cameraDistance - cameraMinDistance) / cameraDistanceSpan;
-  const chaseBackDistance = THREE.MathUtils.lerp(5.2, 18.0, dist01);
-  const chaseHeight = THREE.MathUtils.lerp(2.7, 8.8, dist01);
-  cameraBack.set(Math.sin(player.rotation.y + Math.PI), 0, Math.cos(player.rotation.y + Math.PI));
-  cameraDesired.copy(cameraFocus)
-    .addScaledVector(cameraBack, chaseBackDistance)
-    .addScaledVector(worldUp, chaseHeight);
-  camera.position.lerp(cameraDesired, Math.min(1, dt * 7.2));
+  cameraFocusDelta.subVectors(cameraFocus, controls.target);
+  if (cameraFocusDelta.lengthSq() > 0.0000001) {
+    controls.target.add(cameraFocusDelta);
+    camera.position.add(cameraFocusDelta);
+  }
   controls.update();
 
   composer.render();
