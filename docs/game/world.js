@@ -28,7 +28,7 @@ function toonMat(color, options = {}) {
 
 const TERRAIN_BASIN_RADIUS = 31.0;
 const LAKE_RADIUS = 24.15;
-const WATER_RADIUS = 24.2;
+const WATER_RADIUS = 24.34;
 const LAKE_BOWL_Y = 0.58;
 const WATER_SURFACE_Y = 0.596;
 const SHORE_TRANSITION_INNER = 24.18;
@@ -111,14 +111,11 @@ export function getWaterSurfaceHeight(x, z, time = 0) {
   const waterR = getWaterRadiusAt(x, z);
   if (r > waterR) return -Infinity;
 
-  const maxR = 32;
-  const uvx = x / (maxR * 2) + 0.5;
-  const uvy = z / (maxR * 2) + 0.5;
-  const w0 = Math.sin((uvx * 5.9 + uvy * 4.7) + time * 1.22) * 0.018;
-  const w1 = Math.sin((uvx * 9.6 - uvy * 7.4) - time * 1.0) * 0.01;
-  const w2 = Math.sin((uvx * 14.4 + uvy * 11.2) + time * 1.42) * 0.005;
-  const w3 = Math.sin((uvx * 3.2 + uvy * 2.5) + time * 0.75) * 0.022;
-  return WATER_SURFACE_Y + w0 + w1 + w2 + w3;
+  const w0 = Math.sin(x * 0.21 + z * 0.17 + time * 1.18) * 0.019;
+  const w1 = Math.sin(x * 0.36 - z * 0.29 - time * 0.93) * 0.011;
+  const w2 = Math.sin(x * 0.58 + z * 0.46 + time * 1.36) * 0.006;
+  const w3 = Math.sin((x + z) * 0.12 + time * 0.74) * 0.014;
+  return WATER_SURFACE_Y + (w0 + w1 + w2 + w3) * 0.95;
 }
 
 function setResourceNode(node, resourceType, label) {
@@ -331,9 +328,9 @@ function createLakeBowlMesh() {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#b4fff7") },
-    uMid: { value: new THREE.Color("#69ebf0") },
-    uDeep: { value: new THREE.Color("#22b4df") },
+    uShallow: { value: new THREE.Color("#b6fff9") },
+    uMid: { value: new THREE.Color("#6ce8f2") },
+    uDeep: { value: new THREE.Color("#2ebada") },
     uBeach: { value: new THREE.Color("#e3cea1") },
   };
 
@@ -376,7 +373,7 @@ function createWater(scene) {
   const waterMat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
-    side: THREE.FrontSide,
+    side: THREE.DoubleSide,
     uniforms: waterUniforms,
     vertexShader: `
       attribute float aRadial;
@@ -388,11 +385,12 @@ function createWater(scene) {
         vUv = uv;
         vRadial = aRadial;
         vec3 p = position;
-        float w0 = sin((uv.x * 5.9 + uv.y * 4.7) + uTime * 1.22) * 0.018;
-        float w1 = sin((uv.x * 9.6 - uv.y * 7.4) - uTime * 1.0) * 0.01;
-        float w2 = sin((uv.x * 14.4 + uv.y * 11.2) + uTime * 1.42) * 0.005;
-        float w3 = sin((uv.x * 3.2 + uv.y * 2.5) + uTime * 0.75) * 0.022;
-        p.y += (w0 + w1 + w2 + w3) * (1.0 - aRadial * 0.3);
+        vec2 pp = p.xz;
+        float w0 = sin(pp.x * 0.21 + pp.y * 0.17 + uTime * 1.18) * 0.019;
+        float w1 = sin(pp.x * 0.36 - pp.y * 0.29 - uTime * 0.93) * 0.011;
+        float w2 = sin(pp.x * 0.58 + pp.y * 0.46 + uTime * 1.36) * 0.006;
+        float w3 = sin((pp.x + pp.y) * 0.12 + uTime * 0.74) * 0.014;
+        p.y += (w0 + w1 + w2 + w3) * (1.0 - aRadial * 0.22);
         vec4 worldPos = modelMatrix * vec4(p, 1.0);
         vWorldPos = worldPos.xyz;
         gl_Position = projectionMatrix * viewMatrix * worldPos;
@@ -427,20 +425,19 @@ function createWater(scene) {
         float radial = vRadial;
         vec2 wp = vWorldPos.xz;
 
-        // Tropical depth gradient with a warmer edge tint.
-        vec3 col = uMid;
-        col = mix(uDeep, col, smoothstep(0.0, 0.4, radial));
-        col = mix(col, uShallow, smoothstep(0.52, 0.9, radial));
-        float shoreTint = smoothstep(0.72, 0.96, radial);
-        col = mix(col, vec3(0.83, 0.98, 0.95), shoreTint * 0.26);
+        // Bright, fresh tropical gradient.
+        vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.55, radial));
+        col = mix(col, uShallow, smoothstep(0.48, 0.93, radial));
+        float clarity = smoothstep(0.22, 0.92, radial);
+        col = mix(col, vec3(0.84, 0.98, 0.98), clarity * 0.18);
 
         // Animated caustic light patterns
         vec2 cuv1 = wp * 0.22 + vec2(t * 0.08, t * 0.06);
         vec2 cuv2 = wp * 0.34 + vec2(-t * 0.06, t * 0.09);
         vec2 cuv3 = wp * 0.16 + vec2(t * 0.04, -t * 0.07);
         float caustic = noise(cuv1) + noise(cuv2) * 0.7 + noise(cuv3) * 0.5;
-        float causticBright = smoothstep(0.33, 0.72, caustic / 2.2) * 0.22;
-        col += causticBright * vec3(0.7, 0.96, 1.0) * (1.0 - radial * 0.4);
+        float causticBright = smoothstep(0.34, 0.72, caustic / 2.2) * 0.2;
+        col += causticBright * vec3(0.76, 0.98, 1.0) * (1.0 - radial * 0.36);
 
         // Wave-perturbed normal for reflections
         vec3 waveN = normalize(vec3(
@@ -452,16 +449,16 @@ function createWater(scene) {
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
 
         // Sun specular
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 64.0);
-        col += vec3(1.0, 0.99, 0.95) * spec * 0.4 * (1.0 - radial * 0.24);
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 62.0);
+        col += vec3(1.0, 0.99, 0.95) * spec * 0.34 * (1.0 - radial * 0.2);
 
         // Small sparkles
         vec3 sparkleN = normalize(vec3(
           sin(wp.x * 5.2 + t * 2.2) * 0.12, 1.0,
           cos(wp.y * 5.2 - t * 1.9) * 0.12
         ));
-        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 170.0);
-        col += vec3(1.0) * sparkle * 0.25;
+        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 180.0);
+        col += vec3(1.0) * sparkle * 0.2;
 
         // Fresnel
         float NdotV = max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0);
@@ -469,20 +466,17 @@ function createWater(scene) {
         col = mix(col, vec3(0.82, 0.95, 1.0), fresnel);
 
         // Animated shore foam sits right at the boundary.
-        float foamWobble = sin(atan(wp.y, wp.x) * 8.0 + t * 1.2) * 0.014
-                         + sin(atan(wp.y, wp.x) * 13.0 - t * 0.8) * 0.010;
+        float foamWobble = sin(atan(wp.y, wp.x) * 8.0 + t * 1.2) * 0.010
+                         + sin(atan(wp.y, wp.x) * 13.0 - t * 0.8) * 0.008;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.91, 0.967, foamEdge) * (1.0 - smoothstep(0.973, 1.0, foamEdge));
-        col = mix(col, vec3(1.0, 1.0, 0.98), foam * 0.84);
+        float foam = smoothstep(0.90, 0.965, foamEdge) * (1.0 - smoothstep(0.97, 0.995, foamEdge));
+        col = mix(col, vec3(1.0, 1.0, 0.98), foam * 0.9);
 
-        // Use the same wobbling edge as foam so no tinted band leaks outside froth.
-        float bodyAlpha = mix(0.46, 0.06, smoothstep(0.1, 0.86, radial));
-        float edgeBodyCut = 1.0 - smoothstep(0.905, 0.958, foamEdge);
-        float hardOuterCut = 1.0 - smoothstep(0.966, 0.988, foamEdge);
-        float alpha = bodyAlpha * edgeBodyCut * hardOuterCut;
-        alpha = max(alpha, foam * 0.92);
-
-        if (alpha < 0.01) discard;
+        // Keep shoreline connected: fade with same edge driver as foam.
+        float bodyAlpha = mix(0.58, 0.16, smoothstep(0.06, 0.86, radial));
+        float edgeFade = 1.0 - smoothstep(0.958, 0.985, foamEdge);
+        float alpha = max(bodyAlpha * edgeFade, foam * 0.95);
+        if (alpha < 0.002) discard;
 
         gl_FragColor = vec4(col, alpha);
       }
