@@ -22,7 +22,7 @@ export function createPlayer(scene, addShadowBlob) {
   player.position.set(0, 1.2, 10);
 
   const toolAnchor = new THREE.Group();
-  toolAnchor.position.set(0.42, 0.12, 0.18);
+  toolAnchor.position.set(-0.42, 0.12, 0.18);
   player.add(toolAnchor);
 
   const toolMeshes = {
@@ -37,15 +37,15 @@ export function createPlayer(scene, addShadowBlob) {
   let currentTool = "fishing";
 
   const carryPose = {
-    axe:     { x: 0.48, y: 0.0, z: 0.14, rx: -0.5, ry: 0.0, rz: -0.12 },
-    pickaxe: { x: 0.48, y: 0.0, z: 0.14, rx: -0.55, ry: 0.0, rz: -0.10 },
-    fishing: { x: 0.44, y: 0.05, z: 0.16, rx: -0.3, ry: -0.05, rz: -0.08 },
+    axe:     { x: -0.48, y: 0.0, z: 0.14, rx: -0.5, ry: 0.0, rz: 0.12 },
+    pickaxe: { x: -0.48, y: 0.0, z: 0.14, rx: -0.55, ry: 0.0, rz: 0.10 },
+    fishing: { x: -0.44, y: 0.05, z: 0.16, rx: -0.3, ry: 0.05, rz: 0.08 },
   };
 
   const gatherPose = {
-    axe:     { x: 0.42, y: 0.12, z: 0.18, rx: -1.12, ry: 0.16, rz: 0.16 },
-    pickaxe: { x: 0.42, y: 0.12, z: 0.18, rx: -1.18, ry: 0.19, rz: 0.14 },
-    fishing: { x: 0.4, y: 0.16, z: 0.21, rx: -1.36, ry: -0.14, rz: 0.26 },
+    axe:     { x: -0.42, y: 0.12, z: 0.18, rx: -1.12, ry: -0.16, rz: -0.16 },
+    pickaxe: { x: -0.42, y: 0.12, z: 0.18, rx: -1.18, ry: -0.19, rz: -0.14 },
+    fishing: { x: -0.4, y: 0.16, z: 0.21, rx: -1.36, ry: 0.14, rz: -0.26 },
   };
 
   function setEquippedTool(tool) {
@@ -88,7 +88,7 @@ export function createPlayer(scene, addShadowBlob) {
         toolRotX += Math.sin(animTime * 4.8) * 0.2 + Math.max(0, twitch) * 0.045;
         toolRotY += Math.sin(animTime * 1.8) * 0.05;
         toolRotZ += Math.sin(animTime * 3.3) * 0.08;
-        toolPosX += cast * 0.022;
+        toolPosX -= cast * 0.022;
         toolPosY += cast * 0.034;
         toolPosZ += cast * 0.012;
       } else {
@@ -101,9 +101,9 @@ export function createPlayer(scene, addShadowBlob) {
         targetRoll = Math.sin(animTime * 3.4) * (isMining ? -0.008 : 0.01);
         targetScaleY = 1 - impact * 0.036;
         toolRotX += -windup * 0.18 + swing * 0.46;
-        toolRotY += impact * (isMining ? -0.12 : 0.08);
-        toolRotZ += impact * (isMining ? 0.1 : 0.15);
-        toolPosX += impact * 0.018;
+        toolRotY += impact * (isMining ? 0.12 : -0.08);
+        toolRotZ -= impact * (isMining ? 0.1 : 0.15);
+        toolPosX -= impact * 0.018;
         toolPosY += impact * 0.03 - windup * 0.008;
         toolPosZ += impact * 0.008;
       }
@@ -112,9 +112,9 @@ export function createPlayer(scene, addShadowBlob) {
       targetPitch = stride * 0.013;
       targetRoll = Math.sin(animTime * 3.6) * 0.008;
       targetScaleY = 1 + Math.sin(animTime * 7.2 + 0.9) * 0.01;
-      toolRotX += stride * 0.06;
-      toolRotZ += Math.sin(animTime * 7.2 + 1.0) * 0.025;
-      toolPosY += stride * 0.01;
+      toolRotX -= stride * 0.06;
+      toolRotZ -= Math.sin(animTime * 7.2 + 1.0) * 0.025;
+      toolPosY += Math.abs(stride) * 0.008;
     }
 
     player.rotation.x = THREE.MathUtils.damp(player.rotation.x, targetPitch, 14, dt);

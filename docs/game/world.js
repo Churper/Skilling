@@ -90,10 +90,11 @@ export function getWaterSurfaceHeight(x, z, time = 0) {
 
   const uvx = x / (WATER_RADIUS * 2) + 0.5;
   const uvy = z / (WATER_RADIUS * 2) + 0.5;
-  const w0 = Math.sin((uvx * 6.2 + uvy * 4.9) + time * 1.22) * 0.012;
-  const w1 = Math.sin((uvx * 10.5 - uvy * 7.2) - time * 1.0) * 0.007;
-  const w2 = Math.sin((uvx * 19.0 + uvy * 12.0) + time * 1.58) * 0.003;
-  return WATER_SURFACE_Y + w0 + w1 + w2;
+  const w0 = Math.sin((uvx * 5.9 + uvy * 4.7) + time * 1.22) * 0.018;
+  const w1 = Math.sin((uvx * 9.6 - uvy * 7.4) - time * 1.0) * 0.01;
+  const w2 = Math.sin((uvx * 14.4 + uvy * 11.2) + time * 1.42) * 0.005;
+  const w3 = Math.sin((uvx * 3.2 + uvy * 2.5) + time * 0.75) * 0.025;
+  return WATER_SURFACE_Y + w0 + w1 + w2 + w3;
 }
 
 function setResourceNode(node, resourceType, label) {
@@ -282,8 +283,8 @@ function createLakeBowlMesh(radius = LAKE_RADIUS, segments = 180) {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#5dd8e8") },
-    uDeep: { value: new THREE.Color("#1874b8") },
+    uShallow: { value: new THREE.Color("#3eddd2") },
+    uDeep: { value: new THREE.Color("#0c62a8") },
   };
 
   const lakeFloor = createLakeBowlMesh();
@@ -300,7 +301,7 @@ function createWater(scene) {
       map: foamStripMap,
       color: "#f6fdff",
       transparent: true,
-      opacity: 0.46,
+      opacity: 0.62,
       depthWrite: false,
       depthTest: false,
       blending: THREE.AdditiveBlending,
@@ -326,10 +327,11 @@ function createWater(scene) {
       void main() {
         vUv = uv;
         vec3 p = position;
-        float w0 = sin((uv.x * 5.9 + uv.y * 4.7) + uTime * 1.22) * 0.011;
-        float w1 = sin((uv.x * 9.6 - uv.y * 7.4) - uTime * 1.0) * 0.006;
-        float w2 = sin((uv.x * 14.4 + uv.y * 11.2) + uTime * 1.42) * 0.003;
-        p.y += w0 + w1 + w2;
+        float w0 = sin((uv.x * 5.9 + uv.y * 4.7) + uTime * 1.22) * 0.018;
+        float w1 = sin((uv.x * 9.6 - uv.y * 7.4) - uTime * 1.0) * 0.01;
+        float w2 = sin((uv.x * 14.4 + uv.y * 11.2) + uTime * 1.42) * 0.005;
+        float w3 = sin((uv.x * 3.2 + uv.y * 2.5) + uTime * 0.75) * 0.025;
+        p.y += w0 + w1 + w2 + w3;
         vec4 worldPos = modelMatrix * vec4(p, 1.0);
         vWorldPos = worldPos.xyz;
         gl_Position = projectionMatrix * viewMatrix * worldPos;
@@ -346,32 +348,49 @@ function createWater(scene) {
         float t = uTime;
         float radial = clamp(distance(vUv, vec2(0.5)) / 0.5, 0.0, 1.0);
         vec2 wp = vWorldPos.xz;
+        float depth = pow(1.0 - radial, 1.0);
+        vec3 col = mix(uShallow, uDeep, pow(depth, 0.5));
 
-        float depth01 = pow(1.0 - radial, 1.1);
+        vec2 uv1 = wp * 0.35 + vec2(t * 0.12, -t * 0.08);
+        float c1 = sin(uv1.x * 6.28) * sin(uv1.y * 6.28);
+        vec2 uv2 = wp * 0.28 + vec2(-t * 0.09, t * 0.11);
+        float c2 = sin(uv2.x * 6.28 + 1.5) * sin(uv2.y * 6.28 + 2.0);
+        float caustic = pow(max(0.0, (c1 + c2 + 0.3) * 0.5), 1.5);
+        col += vec3(0.12, 0.18, 0.16) * caustic * depth * 0.7;
 
-        vec3 base = mix(uShallow, uDeep, pow(depth01, 0.6));
-
-        float w1 = sin(wp.x * 0.7 + wp.y * 0.5 + t * 1.1) * 0.5 + 0.5;
-        float w2 = sin(wp.x * 0.4 - wp.y * 0.8 - t * 0.7) * 0.5 + 0.5;
-        float w3 = sin((wp.x + wp.y) * 0.35 + t * 0.85) * 0.5 + 0.5;
-        float highlight = smoothstep(0.55, 0.88, w1 * 0.45 + w2 * 0.35 + w3 * 0.2);
-        base += vec3(0.06, 0.1, 0.12) * highlight * 0.22;
-
-        float sparkle = pow(max(0.0, sin(wp.x * 1.4 + t * 1.6) * sin(wp.y * 1.2 - t * 1.1)), 12.0);
-        base += vec3(0.2, 0.22, 0.18) * sparkle * 0.15 * smoothstep(0.3, 0.0, radial);
+        float r1 = sin(wp.x * 1.8 + wp.y * 1.0 + t * 2.0);
+        float r2 = sin(wp.x * 0.6 - wp.y * 2.2 - t * 1.5);
+        float r3 = sin((wp.x + wp.y) * 1.3 + t * 1.2);
+        float ripple = smoothstep(0.6, 1.0, r1 * 0.5 + 0.5) * 0.5
+                     + smoothstep(0.65, 1.0, r2 * 0.5 + 0.5) * 0.35
+                     + smoothstep(0.7, 1.0, r3 * 0.5 + 0.5) * 0.25;
+        col += vec3(0.14, 0.2, 0.22) * ripple * 0.4;
 
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
-        float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 2.5);
-        base += vec3(0.1, 0.14, 0.18) * fresnel * 0.4;
+        float NdotV = max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0);
+        float fresnel = pow(1.0 - NdotV, 3.0);
+        col = mix(col, vec3(0.7, 0.88, 0.98), fresnel * 0.45);
 
-        float shore = smoothstep(0.86, 0.99, radial);
-        float foamNoise = sin(atan(wp.y, wp.x) * 14.0 + t * 1.6) * 0.5 + 0.5;
-        float foam = shore * smoothstep(0.25, 0.75, foamNoise);
-        base = mix(base, vec3(0.93, 0.97, 1.0), foam * 0.4);
+        vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
+        vec3 waveN = normalize(vec3(
+          sin(wp.x * 1.5 + t * 1.2) * 0.06 + sin(wp.x * 3.0 - t * 0.8) * 0.03,
+          1.0,
+          sin(wp.y * 1.5 - t * 1.0) * 0.06 + sin(wp.y * 3.0 + t * 0.9) * 0.03
+        ));
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 64.0);
+        col += vec3(1.0, 0.97, 0.9) * spec * 0.35 * (1.0 - radial * 0.5);
 
-        float alpha = mix(0.84, 0.96, pow(depth01, 0.65));
-        alpha += fresnel * 0.02 + foam * 0.03;
-        gl_FragColor = vec4(base, clamp(alpha, 0.82, 0.97));
+        float shore = smoothstep(0.82, 0.99, radial);
+        float angle = atan(wp.y, wp.x);
+        float foamA = sin(angle * 12.0 + t * 1.6) * 0.5 + 0.5;
+        float foamB = sin(angle * 7.0 - t * 2.1 + 3.0) * 0.5 + 0.5;
+        float foam = shore * (smoothstep(0.25, 0.7, foamA) * 0.65 + smoothstep(0.35, 0.8, foamB) * 0.35);
+        col = mix(col, vec3(0.96, 0.99, 1.0), foam * 0.6);
+
+        float edgeFade = smoothstep(1.0, 0.96, radial);
+        float alpha = mix(0.9, 0.97, pow(depth, 0.6));
+        alpha = clamp(alpha + fresnel * 0.02, 0.88, 0.98) * edgeFade;
+        gl_FragColor = vec4(col, alpha);
       }
     `,
   });
@@ -703,7 +722,7 @@ function createConformingRing(innerRadius, outerRadius, radialSegments = 14, the
 function addLakeRings(scene) {
   const beachRing = new THREE.Mesh(
     createConformingRing(WATER_RADIUS - 0.5, 34, 18, 320, SHORE_LIFT),
-    toonMat("#ddcd9e", { side: THREE.DoubleSide })
+    toonMat("#e0c888", { side: THREE.DoubleSide })
   );
   beachRing.rotation.x = -Math.PI / 2;
   beachRing.position.y = 0;

@@ -45,17 +45,18 @@ export function createInputController({ domElement, camera, ground, player, setM
   }
 
   domElement.addEventListener("pointerdown", (event) => {
-    downInfo = { id: event.pointerId, x: event.clientX, y: event.clientY, button: event.button, moved: false };
+    if (event.button !== 0) return;
+    downInfo = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
   });
 
   domElement.addEventListener("pointermove", (event) => {
-    if (!downInfo || downInfo.id !== event.pointerId) return;
+    if (!downInfo || !(event.buttons & 1)) return;
     if (Math.hypot(event.clientX - downInfo.x, event.clientY - downInfo.y) > 8) downInfo.moved = true;
   });
 
   const onPointerRelease = (event) => {
-    if (!downInfo || downInfo.id !== event.pointerId) return;
-    if (!downInfo.moved && downInfo.button === 0) {
+    if (!downInfo || event.button !== 0) return;
+    if (!downInfo.moved) {
       const interaction = getInteractable(event.clientX, event.clientY);
       if (interaction) {
         if (typeof onInteract === "function") onInteract(interaction.root, interaction.hit.point);
