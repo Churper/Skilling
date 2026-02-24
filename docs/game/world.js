@@ -786,6 +786,107 @@ function addStore(scene, blobTex, x, z, interactables = null) {
   if (interactables) interactables.push(store);
 }
 
+function addBlacksmith(scene, blobTex, x, z, interactables = null) {
+  const baseY = getWorldSurfaceHeight(x, z);
+  const smith = new THREE.Group();
+  smith.position.set(x, baseY, z);
+  setServiceNode(smith, "blacksmith", "Blacksmith Forge");
+
+  const base = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.36, 1.7), toonMat("#545b64"));
+  base.position.y = 0.2;
+  base.renderOrder = RENDER_DECOR;
+  smith.add(base);
+
+  const house = new THREE.Mesh(new THREE.BoxGeometry(2.1, 1.15, 1.4), toonMat("#7b8793"));
+  house.position.y = 0.95;
+  house.renderOrder = RENDER_DECOR;
+  smith.add(house);
+
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(1.45, 0.65, 4), toonMat("#4a4f59"));
+  roof.position.y = 1.88;
+  roof.rotation.y = Math.PI * 0.25;
+  roof.renderOrder = RENDER_DECOR;
+  smith.add(roof);
+
+  const forge = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.34, 0.5, 7), toonMat("#3f454f"));
+  forge.position.set(0, 0.53, 0.82);
+  forge.renderOrder = RENDER_DECOR;
+  smith.add(forge);
+
+  const ember = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 7), toonMat("#ff9b54"));
+  ember.position.set(0, 0.67, 0.82);
+  ember.renderOrder = RENDER_DECOR;
+  smith.add(ember);
+
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.46, 0.09), toonMat("#273547"));
+  sign.position.set(0, 1.2, 0.9);
+  sign.renderOrder = RENDER_DECOR;
+  smith.add(sign);
+
+  const hammerHead = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.09, 0.09), toonMat("#dce6ed"));
+  hammerHead.position.set(-0.07, 1.23, 0.96);
+  hammerHead.renderOrder = RENDER_DECOR + 1;
+  smith.add(hammerHead);
+
+  const hammerHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.24, 6), toonMat("#9d7549"));
+  hammerHandle.position.set(0.05, 1.2, 0.96);
+  hammerHandle.rotation.z = Math.PI * 0.35;
+  hammerHandle.renderOrder = RENDER_DECOR + 1;
+  smith.add(hammerHandle);
+
+  scene.add(smith);
+  addShadowBlob(scene, blobTex, x, z, 1.85, 0.18);
+  if (interactables) interactables.push(smith);
+}
+
+function addServicePlaza(scene, blobTex, resourceNodes) {
+  const cx = 0;
+  const cz = -34;
+  const cy = getWorldSurfaceHeight(cx, cz);
+
+  const plaza = new THREE.Mesh(
+    new THREE.CylinderGeometry(9.4, 9.8, 0.34, 36),
+    toonMat("#d5c9a9")
+  );
+  plaza.position.set(cx, cy + 0.17, cz);
+  plaza.renderOrder = RENDER_SHORE;
+  scene.add(plaza);
+
+  const innerRing = new THREE.Mesh(
+    new THREE.TorusGeometry(5.9, 0.17, 8, 48),
+    toonMat("#efe5cc")
+  );
+  innerRing.rotation.x = Math.PI * 0.5;
+  innerRing.position.set(cx, cy + 0.36, cz);
+  innerRing.renderOrder = RENDER_SHORE + 1;
+  scene.add(innerRing);
+
+  const centerPad = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.25, 1.25, 0.12, 20),
+    toonMat("#f4ecd9")
+  );
+  centerPad.position.set(cx, cy + 0.31, cz);
+  centerPad.renderOrder = RENDER_SHORE + 1;
+  scene.add(centerPad);
+
+  const markerMat = toonMat("#36607c");
+  for (let i = 0; i < 3; i++) {
+    const a = i * ((Math.PI * 2) / 3) - Math.PI * 0.5;
+    const mx = cx + Math.cos(a) * 4.2;
+    const mz = cz + Math.sin(a) * 4.2;
+    const y = getWorldSurfaceHeight(mx, mz);
+    const marker = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.1, 18), markerMat);
+    marker.position.set(mx, y + 0.24, mz);
+    marker.renderOrder = RENDER_SHORE + 1;
+    scene.add(marker);
+  }
+
+  // Clear, grouped service buildings around one plaza.
+  addBank(scene, blobTex, cx - 6.2, cz + 1.5, resourceNodes);
+  addStore(scene, blobTex, cx + 6.2, cz + 1.5, resourceNodes);
+  addBlacksmith(scene, blobTex, cx, cz - 6.8, resourceNodes);
+}
+
 function addShoreDecor(scene, blobTex, resourceNodes) {
   [[-28, 21], [28, 20], [-21, -24], [20, -26], [0, 30], [34, -2], [-33, 0]].forEach(([x, z], i) =>
     addTree(scene, blobTex, x, z, 0.85 + (i % 4) * 0.08, resourceNodes)
@@ -1040,8 +1141,7 @@ export function createWorld(scene) {
   addWildflowers(scene);
   addExtraReeds(scene);
   const fishingSpots = addFishingSpots(scene, resourceNodes);
-  addBank(scene, blobTex, -27.5, -31.5, resourceNodes);
-  addStore(scene, blobTex, 27.5, -31.5, resourceNodes);
+  addServicePlaza(scene, blobTex, resourceNodes);
   const addBlob = (x, z, radius, opacity) => addShadowBlob(scene, blobTex, x, z, radius, opacity);
   const updateWorld = (time) => {
     updateFishingSpots(fishingSpots, time);

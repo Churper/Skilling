@@ -47,6 +47,9 @@ const SELL_PRICE_BY_ITEM = {
   ore: 7,
   logs: 5,
 };
+const TOOL_UPGRADE_BASE_COST = 28;
+const TOOL_UPGRADE_COST_STEP = 24;
+const TOOL_UPGRADE_MAX_LEVEL = 8;
 
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
@@ -59,6 +62,7 @@ const inventory = { fish: 0, ore: 0, logs: 0 };
 const bagSlots = Array(BAG_CAPACITY).fill(null);
 const bankStorage = { fish: 0, ore: 0, logs: 0 };
 let coins = 0;
+const toolUpgrades = { axe: 0, pickaxe: 0, fishing: 0 };
 const skills = {
   fishing: { xp: 0, level: 1 },
   mining: { xp: 0, level: 1 },
@@ -436,15 +440,25 @@ function tryGather(node) {
 }
 
 function startGather(node) {
+  const resourceType = node.userData.resourceType;
+  const neededTool = TOOL_FOR_RESOURCE[resourceType] || "fishing";
+  const toolLevel = toolUpgrades[neededTool] || 0;
+  const speedMultiplier = 1 + toolLevel * 0.1;
+  const baseDuration = GATHER_DURATION_BY_RESOURCE[resourceType] ?? 0.8;
   activeGather = {
     node,
-    resourceType: node.userData.resourceType,
+    resourceType,
     elapsed: 0,
-    duration: GATHER_DURATION_BY_RESOURCE[node.userData.resourceType] ?? 0.8,
+    duration: baseDuration / speedMultiplier,
   };
   hasMoveTarget = false;
   marker.visible = false;
   ui?.setStatus(`Gathering ${node.userData.resourceLabel}...`, "info");
+}
+
+function getToolUpgradeCost(tool) {
+  const level = toolUpgrades[tool] || 0;
+  return TOOL_UPGRADE_BASE_COST + level * TOOL_UPGRADE_COST_STEP;
 }
 
 function runServiceAction(node) {
@@ -470,6 +484,29 @@ function runServiceAction(node) {
     } else {
       ui?.setStatus(`Sold ${sold} item${sold === 1 ? "" : "s"} for ${coinsGained} coins.`, "success");
     }
+    return;
+  }
+
+  if (serviceType === "blacksmith") {
+    const tool = equippedTool || "fishing";
+    const currentLevel = toolUpgrades[tool] || 0;
+    if (currentLevel >= TOOL_UPGRADE_MAX_LEVEL) {
+      ui?.setStatus(`Blacksmith: ${TOOL_LABEL[tool]} is already maxed.`, "warn");
+      return;
+    }
+    const cost = getToolUpgradeCost(tool);
+    if (coins < cost) {
+      ui?.setStatus(`Blacksmith: ${TOOL_LABEL[tool]} upgrade costs ${cost} coins.`, "warn");
+      return;
+    }
+    coins -= cost;
+    toolUpgrades[tool] = currentLevel + 1;
+    syncInventoryUI();
+    const nextCost = getToolUpgradeCost(tool);
+    ui?.setStatus(
+      `${TOOL_LABEL[tool]} upgraded to +${toolUpgrades[tool]} speed. Next: ${nextCost} coins.`,
+      "success"
+    );
   }
 }
 
