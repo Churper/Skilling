@@ -74,6 +74,9 @@ const ui = initializeUI({
     equipTool(tool, true);
   },
   onEmote: (emoji) => showEmote(emoji),
+  onBlacksmithUpgrade: (tool) => {
+    purchaseToolUpgrade(tool);
+  },
 });
 
 function equipTool(tool, announce = false) {
@@ -115,6 +118,7 @@ function syncInventoryUI() {
     capacity: BAG_CAPACITY,
   });
   ui?.setCoins(coins);
+  ui?.setBlacksmith(getBlacksmithState());
 }
 
 function addItemToBag(itemKey) {
@@ -461,6 +465,47 @@ function getToolUpgradeCost(tool) {
   return TOOL_UPGRADE_BASE_COST + level * TOOL_UPGRADE_COST_STEP;
 }
 
+function getBlacksmithState() {
+  const tools = {};
+  for (const tool of Object.keys(TOOL_LABEL)) {
+    const level = toolUpgrades[tool] || 0;
+    const maxed = level >= TOOL_UPGRADE_MAX_LEVEL;
+    tools[tool] = {
+      level,
+      cost: maxed ? 0 : getToolUpgradeCost(tool),
+      maxed,
+    };
+  }
+  return { coins, tools };
+}
+
+function purchaseToolUpgrade(tool) {
+  if (!tool || !Object.prototype.hasOwnProperty.call(toolUpgrades, tool)) return;
+  const currentLevel = toolUpgrades[tool] || 0;
+  if (currentLevel >= TOOL_UPGRADE_MAX_LEVEL) {
+    ui?.setStatus(`Blacksmith: ${TOOL_LABEL[tool]} is already maxed.`, "warn");
+    ui?.setBlacksmith(getBlacksmithState());
+    return;
+  }
+  const cost = getToolUpgradeCost(tool);
+  if (coins < cost) {
+    ui?.setStatus(`Blacksmith: ${TOOL_LABEL[tool]} upgrade costs ${cost} coins.`, "warn");
+    ui?.setBlacksmith(getBlacksmithState());
+    return;
+  }
+  coins -= cost;
+  toolUpgrades[tool] = currentLevel + 1;
+  syncInventoryUI();
+  const next = getToolUpgradeCost(tool);
+  const maxed = toolUpgrades[tool] >= TOOL_UPGRADE_MAX_LEVEL;
+  ui?.setStatus(
+    maxed
+      ? `${TOOL_LABEL[tool]} upgraded to +${toolUpgrades[tool]} (MAX).`
+      : `${TOOL_LABEL[tool]} upgraded to +${toolUpgrades[tool]}. Next: ${next} coins.`,
+    "success"
+  );
+}
+
 function runServiceAction(node) {
   const serviceType = node.userData.serviceType;
   if (!serviceType) return;
@@ -488,25 +533,8 @@ function runServiceAction(node) {
   }
 
   if (serviceType === "blacksmith") {
-    const tool = equippedTool || "fishing";
-    const currentLevel = toolUpgrades[tool] || 0;
-    if (currentLevel >= TOOL_UPGRADE_MAX_LEVEL) {
-      ui?.setStatus(`Blacksmith: ${TOOL_LABEL[tool]} is already maxed.`, "warn");
-      return;
-    }
-    const cost = getToolUpgradeCost(tool);
-    if (coins < cost) {
-      ui?.setStatus(`Blacksmith: ${TOOL_LABEL[tool]} upgrade costs ${cost} coins.`, "warn");
-      return;
-    }
-    coins -= cost;
-    toolUpgrades[tool] = currentLevel + 1;
-    syncInventoryUI();
-    const nextCost = getToolUpgradeCost(tool);
-    ui?.setStatus(
-      `${TOOL_LABEL[tool]} upgraded to +${toolUpgrades[tool]} speed. Next: ${nextCost} coins.`,
-      "success"
-    );
+    ui?.openBlacksmith(getBlacksmithState());
+    ui?.setStatus("Blacksmith open. Buy tool upgrades with coins.", "info");
   }
 }
 

@@ -17,7 +17,7 @@ const ITEM_LABEL = {
 };
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -37,10 +37,14 @@ export function initializeUI(options = {}) {
   const fishLevelEl = document.getElementById("ui-skill-fishing");
   const miningLevelEl = document.getElementById("ui-skill-mining");
   const woodcutLevelEl = document.getElementById("ui-skill-woodcutting");
+  const smithButtons = Array.from(document.querySelectorAll("[data-smith-upgrade]"));
+  const smithLevelEls = Array.from(document.querySelectorAll("[data-smith-level]"));
+  const smithCostEls = Array.from(document.querySelectorAll("[data-smith-cost]"));
 
   const labelByTab = {
     inventory: "Inventory",
     tools: "Tools",
+    blacksmith: "Blacksmith",
     skills: "Skills",
     emotes: "Emotes",
     friends: "Friends",
@@ -147,6 +151,41 @@ export function initializeUI(options = {}) {
     statusEl.dataset.tone = tone;
   }
 
+  function setBlacksmith(payload = {}) {
+    const coins = Math.max(0, Math.floor(Number(payload.coins) || 0));
+    const tools = payload.tools || {};
+
+    for (const levelEl of smithLevelEls) {
+      const tool = levelEl.dataset.smithLevel;
+      const state = tools[tool] || {};
+      levelEl.textContent = String(state.level ?? 0);
+    }
+    for (const costEl of smithCostEls) {
+      const tool = costEl.dataset.smithCost;
+      const state = tools[tool] || {};
+      costEl.textContent = state.maxed ? "MAX" : String(state.cost ?? 0);
+    }
+    for (const button of smithButtons) {
+      const tool = button.dataset.smithUpgrade;
+      const state = tools[tool] || {};
+      const affordable = !state.maxed && coins >= (state.cost ?? 0);
+      button.disabled = !!state.maxed;
+      button.classList.toggle("is-unaffordable", !state.maxed && !affordable);
+      button.title = state.maxed
+        ? "Max level"
+        : affordable
+          ? `Buy upgrade for ${state.cost} coins`
+          : `Need ${state.cost ?? 0} coins`;
+    }
+  }
+
+  function openBlacksmith(payload = {}) {
+    setBlacksmith(payload);
+    setPanelCollapsed(false);
+    setActive("blacksmith");
+    if (mobileQuery.matches) setMobileMenuOpen(true);
+  }
+
   for (const button of buttons) {
     button.addEventListener("click", () => {
       const tab = button.dataset.tab;
@@ -165,6 +204,13 @@ export function initializeUI(options = {}) {
       setActiveTool(tool);
       if (typeof onToolSelect === "function") onToolSelect(tool);
       if (mobileQuery.matches) setMobileMenuOpen(false);
+    });
+  }
+
+  for (const button of smithButtons) {
+    button.addEventListener("click", () => {
+      const tool = button.dataset.smithUpgrade;
+      if (typeof onBlacksmithUpgrade === "function") onBlacksmithUpgrade(tool);
     });
   }
 
@@ -201,5 +247,7 @@ export function initializeUI(options = {}) {
     setCoins,
     setSkills,
     setStatus,
+    setBlacksmith,
+    openBlacksmith,
   };
 }
