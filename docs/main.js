@@ -59,6 +59,7 @@ const ui = initializeUI({
   onToolSelect: (tool) => {
     equipTool(tool, true);
   },
+  onEmote: (emoji) => showEmote(emoji),
 });
 
 function equipTool(tool, announce = false) {
@@ -133,6 +134,54 @@ function updateClickEffects(dt) {
       scene.remove(fx.ring);
       fx.ring.material.dispose();
       clickEffects.splice(i, 1);
+    }
+  }
+}
+
+// ── Emote chat bubbles ──
+const emoteBubbles = [];
+let bubbleLayer = null;
+
+function getBubbleLayer() {
+  if (!bubbleLayer) {
+    bubbleLayer = document.createElement("div");
+    bubbleLayer.id = "chat-bubble-layer";
+    document.body.appendChild(bubbleLayer);
+  }
+  return bubbleLayer;
+}
+
+function showEmote(emoji) {
+  for (const b of emoteBubbles) b.el.remove();
+  emoteBubbles.length = 0;
+  const el = document.createElement("div");
+  el.className = "chat-bubble";
+  el.textContent = emoji;
+  getBubbleLayer().appendChild(el);
+  emoteBubbles.push({ el, age: 0, duration: 3.0 });
+}
+
+const _bubbleProj = new THREE.Vector3();
+
+function updateEmoteBubbles(dt) {
+  if (!emoteBubbles.length) return;
+  _bubbleProj.set(player.position.x, player.position.y + playerHeadOffset + 0.45, player.position.z);
+  _bubbleProj.project(camera);
+  const hw = renderer.domElement.clientWidth * 0.5;
+  const hh = renderer.domElement.clientHeight * 0.5;
+  const sx = _bubbleProj.x * hw + hw;
+  const sy = -_bubbleProj.y * hh + hh;
+  for (let i = emoteBubbles.length - 1; i >= 0; i--) {
+    const b = emoteBubbles[i];
+    b.age += dt;
+    b.el.style.left = sx + "px";
+    b.el.style.top = sy + "px";
+    if (b.age > b.duration - 0.5) {
+      b.el.style.opacity = String(Math.max(0, (b.duration - b.age) / 0.5));
+    }
+    if (b.age >= b.duration) {
+      b.el.remove();
+      emoteBubbles.splice(i, 1);
     }
   }
 }
@@ -365,6 +414,7 @@ function animate() {
     resourceType: activeGather?.resourceType,
   });
   updateClickEffects(dt);
+  updateEmoteBubbles(dt);
 
   if (marker.visible) {
     if (markerOnWater) {

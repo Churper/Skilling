@@ -39,12 +39,12 @@ const RENDER_SHORE = 1;
 const RENDER_WATER = 2;
 const RENDER_DECOR = 3;
 
-const TREE_TRUNK_GEO = new THREE.CylinderGeometry(0.24, 0.36, 4.1, 7);
-const TREE_LEAF_GEO = new THREE.BoxGeometry(0.2, 0.08, 2.28);
-const TREE_CORE_GEO = new THREE.OctahedronGeometry(0.62, 0);
-const TREE_TRUNK_MAT = toonMat("#8b6a4e");
-const TREE_LEAF_MAT = toonMat("#6fd1a8");
-const TREE_CORE_MAT = toonMat("#65c39d");
+const TREE_TRUNK_GEO = new THREE.CylinderGeometry(0.18, 0.38, 4.6, 6);
+const TREE_LEAF_GEO = new THREE.BoxGeometry(0.22, 0.06, 2.6);
+const TREE_CORE_GEO = new THREE.OctahedronGeometry(0.55, 0);
+const TREE_TRUNK_MAT = toonMat("#a0734e");
+const TREE_LEAF_MAT = toonMat("#4cc992");
+const TREE_CORE_MAT = toonMat("#3dba84");
 const FISH_SPOT_RING_MAT = new THREE.MeshBasicMaterial({ color: "#dcf8ff", transparent: true, opacity: 0.72 });
 const FISH_SPOT_BOBBER_MAT = toonMat("#ffcc58");
 
@@ -63,8 +63,11 @@ function sampleTerrainHeight(x, z) {
   const bowlFalloff = 1.0 - THREE.MathUtils.smoothstep(r, 0, TERRAIN_BASIN_RADIUS);
   const lakeBasin = Math.pow(bowlFalloff, 1.65) * 1.15;
   const roughnessBoost = THREE.MathUtils.smoothstep(r, 17.5, 96.0);
-  const amplitude = THREE.MathUtils.lerp(0.31, 0.45, roughnessBoost);
-  return noise * amplitude - lakeBasin;
+  const amplitude = THREE.MathUtils.lerp(0.31, 0.55, roughnessBoost);
+  // Rolling hills around the shore
+  const hillNoise = Math.sin(x * 0.065 + z * 0.048) * Math.cos(x * 0.031 - z * 0.057);
+  const hillBoost = THREE.MathUtils.smoothstep(r, 26.0, 60.0) * hillNoise * 0.8;
+  return noise * amplitude - lakeBasin + hillBoost;
 }
 
 function sampleLakeFloorHeight(x, z) {
@@ -106,9 +109,9 @@ function addSky(scene) {
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: {
-      cTop: { value: new THREE.Color("#3a8ed6") },
-      cMid: { value: new THREE.Color("#8dcef4") },
-      cBot: { value: new THREE.Color("#fff0d8") },
+      cTop: { value: new THREE.Color("#2e8ed8") },
+      cMid: { value: new THREE.Color("#7dcdf8") },
+      cBot: { value: new THREE.Color("#fffae8") },
       uTime: { value: 0 },
     },
     vertexShader: `
@@ -173,9 +176,9 @@ function createGround(scene) {
   const terrainGeo = new THREE.PlaneGeometry(230, 230, 140, 140);
   const tPos = terrainGeo.attributes.position;
   const tCol = [];
-  const colGrassDark = new THREE.Color("#5f8e59");
-  const colGrassLight = new THREE.Color("#8ab26f");
-  const colBeachBlend = new THREE.Color("#ceb785");
+  const colGrassDark = new THREE.Color("#4d8c42");
+  const colGrassLight = new THREE.Color("#7dba5e");
+  const colBeachBlend = new THREE.Color("#dcc28a");
   const colTmp = new THREE.Color();
   const lightX = 0.54;
   const lightY = 0.78;
@@ -283,9 +286,9 @@ function createLakeBowlMesh(radius = LAKE_RADIUS, segments = 180) {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#7eeadf") },
-    uMid: { value: new THREE.Color("#3cc4c4") },
-    uDeep: { value: new THREE.Color("#1a7ab5") },
+    uShallow: { value: new THREE.Color("#88f0e8") },
+    uMid: { value: new THREE.Color("#4dd8e8") },
+    uDeep: { value: new THREE.Color("#38b4d4") },
     uBeach: { value: new THREE.Color("#e0c888") },
   };
 
@@ -326,38 +329,78 @@ function createWater(scene) {
       uniform vec3 uDeep;
       uniform vec3 uBeach;
 
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
+
+      float noise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(
+          mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+          mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+          u.y
+        );
+      }
+
       void main() {
         float t = uTime;
         float radial = clamp(distance(vUv, vec2(0.5)) / 0.5, 0.0, 1.0);
-
-        // 3-zone radial gradient: deep center -> mid -> shallow edge
-        vec3 col = uDeep;
-        col = mix(col, uMid, smoothstep(0.0, 0.45, radial));
-        col = mix(col, uShallow, smoothstep(0.45, 0.85, radial));
-
-        // Single subtle sun specular with gently wave-perturbed normal
-        vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec2 wp = vWorldPos.xz;
+
+        // Gentle depth gradient — mostly bright, subtle deep center
+        vec3 col = uMid;
+        col = mix(uDeep, col, smoothstep(0.0, 0.4, radial));
+        col = mix(col, uShallow, smoothstep(0.6, 0.9, radial));
+
+        // Animated caustic light patterns on surface
+        vec2 cuv1 = wp * 0.22 + vec2(t * 0.08, t * 0.06);
+        vec2 cuv2 = wp * 0.34 + vec2(-t * 0.06, t * 0.09);
+        vec2 cuv3 = wp * 0.16 + vec2(t * 0.04, -t * 0.07);
+        float caustic = noise(cuv1) + noise(cuv2) * 0.7 + noise(cuv3) * 0.5;
+        caustic = caustic / 2.2;
+        float causticBright = smoothstep(0.32, 0.68, caustic) * 0.14;
+        col += causticBright * vec3(0.7, 0.96, 1.0) * (1.0 - radial * 0.4);
+
+        // Wave-perturbed normal for reflections
         vec3 waveN = normalize(vec3(
-          sin(wp.x * 1.2 + t * 0.8) * 0.04,
+          sin(wp.x * 1.6 + t * 1.0) * 0.05 + sin(wp.x * 3.4 - t * 0.8) * 0.025,
           1.0,
-          sin(wp.y * 1.2 - t * 0.7) * 0.04
+          sin(wp.y * 1.6 - t * 0.9) * 0.05 + cos(wp.y * 3.0 + t * 0.7) * 0.025
         ));
+
+        vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 80.0);
-        col += vec3(1.0, 0.98, 0.92) * spec * 0.3 * (1.0 - radial * 0.4);
 
-        // Clean fresnel: sky tint at edges
+        // Sun specular highlight
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 60.0);
+        col += vec3(1.0, 0.98, 0.94) * spec * 0.38 * (1.0 - radial * 0.3);
+
+        // Small scattered sparkles
+        vec3 sparkleN = normalize(vec3(
+          sin(wp.x * 5.2 + t * 2.2) * 0.12,
+          1.0,
+          cos(wp.y * 5.2 - t * 1.9) * 0.12
+        ));
+        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 200.0);
+        col += vec3(1.0) * sparkle * 0.22;
+
+        // Fresnel — sky reflection at glancing angles
         float NdotV = max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0);
-        float fresnel = pow(1.0 - NdotV, 4.0) * 0.25;
-        col = mix(col, vec3(0.75, 0.9, 1.0), fresnel);
+        float fresnel = pow(1.0 - NdotV, 3.5) * 0.18;
+        col = mix(col, vec3(0.78, 0.93, 1.0), fresnel);
 
-        // Thin static edge foam band
-        float foam = smoothstep(0.92, 0.97, radial) * (1.0 - smoothstep(0.97, 1.0, radial));
-        col = mix(col, vec3(1.0, 1.0, 1.0), foam * 0.45);
+        // Animated shore foam band
+        float foamAngle = atan(vUv.y - 0.5, vUv.x - 0.5);
+        float foamWobble = sin(foamAngle * 8.0 + t * 1.2) * 0.012
+                         + sin(foamAngle * 13.0 - t * 0.8) * 0.008;
+        float foamEdge = radial + foamWobble;
+        float foam = smoothstep(0.85, 0.92, foamEdge) * (1.0 - smoothstep(0.92, 0.98, foamEdge));
+        col = mix(col, vec3(1.0, 1.0, 0.97), foam * 0.55);
 
-        // Blend outer edge to beach color for seamless shore transition
-        float edgeBlend = smoothstep(0.93, 1.0, radial);
+        // Blend outer edge to beach
+        float edgeBlend = smoothstep(0.94, 1.0, radial);
         col = mix(col, uBeach, edgeBlend);
 
         gl_FragColor = vec4(col, 1.0);
@@ -501,30 +544,50 @@ function addTree(scene, blobTex, x, z, scale = 1, resourceNodes = null) {
   tree.position.set(x, baseY, z);
   setResourceNode(tree, "woodcutting", "Tree");
 
+  // Slightly curved trunk using two segments
+  const lean = (Math.random() - 0.5) * 0.2;
   const trunk = new THREE.Mesh(TREE_TRUNK_GEO, TREE_TRUNK_MAT);
   trunk.scale.setScalar(scale);
-  trunk.position.set(0, 2.05 * scale, 0);
-  trunk.rotation.z = (Math.random() - 0.5) * 0.16;
+  trunk.position.set(lean * 0.3, 2.3 * scale, 0);
+  trunk.rotation.z = lean;
   trunk.renderOrder = RENDER_DECOR;
   tree.add(trunk);
 
-  const crownY = 4.18 * scale;
+  // Trunk ring details
+  const ringMat = toonMat("#8a6340");
+  for (let r = 0; r < 3; r++) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.32 * scale, 0.04 * scale, 5, 8),
+      ringMat
+    );
+    ring.position.set(lean * 0.15, (1.2 + r * 1.4) * scale, 0);
+    ring.rotation.x = Math.PI / 2 + lean * 0.2;
+    ring.renderOrder = RENDER_DECOR;
+    tree.add(ring);
+  }
+
+  const crownY = 4.6 * scale;
   const core = new THREE.Mesh(TREE_CORE_GEO, TREE_CORE_MAT);
-  core.scale.setScalar(scale * 0.72);
-  core.position.set(0, crownY, 0);
+  core.scale.setScalar(scale * 0.65);
+  core.position.set(lean * 0.5, crownY, 0);
   core.renderOrder = RENDER_DECOR;
   tree.add(core);
 
-  for (let i = 0; i < 6; i++) {
-    const frond = new THREE.Mesh(TREE_LEAF_GEO, TREE_LEAF_MAT);
-    frond.scale.setScalar(scale);
-    const yaw = (i / 6) * Math.PI * 2 + (Math.random() - 0.5) * 0.14;
+  // 8 palm fronds — long, drooping, varied
+  const frondCount = 8;
+  const frondLeafGeo = new THREE.BoxGeometry(0.24, 0.05, 2.8);
+  const frondColors = [TREE_LEAF_MAT, toonMat("#58d49e"), toonMat("#42c088")];
+  for (let i = 0; i < frondCount; i++) {
+    const mat = frondColors[i % frondColors.length];
+    const frond = new THREE.Mesh(frondLeafGeo, mat);
+    frond.scale.set(scale * (0.9 + Math.random() * 0.2), scale, scale * (0.85 + Math.random() * 0.3));
+    const yaw = (i / frondCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
     frond.rotation.y = yaw;
-    frond.rotation.x = -0.3 + (Math.random() - 0.5) * 0.06;
+    frond.rotation.x = -0.35 - Math.random() * 0.15;
     frond.position.set(
-      Math.cos(yaw) * 0.22 * scale,
-      crownY + (Math.random() - 0.5) * 0.05 * scale,
-      Math.sin(yaw) * 0.22 * scale
+      Math.cos(yaw) * 0.3 * scale + lean * 0.5,
+      crownY + (Math.random() - 0.5) * 0.08 * scale,
+      Math.sin(yaw) * 0.3 * scale
     );
     frond.renderOrder = RENDER_DECOR;
     tree.add(frond);
@@ -532,7 +595,7 @@ function addTree(scene, blobTex, x, z, scale = 1, resourceNodes = null) {
 
   scene.add(tree);
   if (resourceNodes) resourceNodes.push(tree);
-  addShadowBlob(scene, blobTex, x, z, 2.2 * scale, 0.15);
+  addShadowBlob(scene, blobTex, x, z, 2.4 * scale, 0.16);
 }
 
 function addReedPatch(scene, x, z, count = 7) {
@@ -738,54 +801,12 @@ function addWildflowers(scene) {
 
 function addExtraTrees(scene, blobTex, resourceNodes) {
   const extraTrees = [
-    [-35, 14, 0.92],
-    [36, -10, 0.88],
-    [-15, 32, 0.95],
-    [25, -28, 0.82],
+    [-35, 14, 0.92], [36, -10, 0.88], [-15, 32, 0.95], [25, -28, 0.82],
+    [-38, -8, 1.0], [32, 16, 0.9], [12, -34, 0.86], [-10, -33, 0.94],
+    [40, 4, 0.84], [-30, 22, 0.88], [22, 32, 0.92], [-36, -18, 0.86],
   ];
-  const leafHues = ["#6fd1a8", "#5ec99a", "#7dddb0", "#62c490"];
-  for (let i = 0; i < extraTrees.length; i++) {
-    const [x, z, scale] = extraTrees[i];
-    const baseY = getWorldSurfaceHeight(x, z);
-    const tree = new THREE.Group();
-    tree.position.set(x, baseY, z);
-    setResourceNode(tree, "woodcutting", "Tree");
-
-    const trunk = new THREE.Mesh(TREE_TRUNK_GEO, TREE_TRUNK_MAT);
-    trunk.scale.setScalar(scale);
-    trunk.position.set(0, 2.05 * scale, 0);
-    trunk.rotation.z = (Math.random() - 0.5) * 0.16;
-    trunk.renderOrder = RENDER_DECOR;
-    tree.add(trunk);
-
-    const crownY = 4.18 * scale;
-    const leafColor = leafHues[i % leafHues.length];
-    const coreMat = toonMat(leafColor);
-    const core = new THREE.Mesh(TREE_CORE_GEO, coreMat);
-    core.scale.setScalar(scale * 0.72);
-    core.position.set(0, crownY, 0);
-    core.renderOrder = RENDER_DECOR;
-    tree.add(core);
-
-    const leafMat = toonMat(leafColor);
-    for (let j = 0; j < 6; j++) {
-      const frond = new THREE.Mesh(TREE_LEAF_GEO, leafMat);
-      frond.scale.setScalar(scale);
-      const yaw = (j / 6) * Math.PI * 2 + (Math.random() - 0.5) * 0.14;
-      frond.rotation.y = yaw;
-      frond.rotation.x = -0.3 + (Math.random() - 0.5) * 0.06;
-      frond.position.set(
-        Math.cos(yaw) * 0.22 * scale,
-        crownY + (Math.random() - 0.5) * 0.05 * scale,
-        Math.sin(yaw) * 0.22 * scale
-      );
-      frond.renderOrder = RENDER_DECOR;
-      tree.add(frond);
-    }
-
-    scene.add(tree);
-    resourceNodes.push(tree);
-    addShadowBlob(scene, blobTex, x, z, 2.2 * scale, 0.15);
+  for (const [x, z, scale] of extraTrees) {
+    addTree(scene, blobTex, x, z, scale, resourceNodes);
   }
 }
 
@@ -811,6 +832,29 @@ function addExtraReeds(scene) {
   }
 }
 
+function addBushes(scene) {
+  const bushPositions = [
+    [26, 17, 0.7], [-23, 15, 0.6], [18, -21, 0.8], [-19, -17, 0.65],
+    [30, 4, 0.55], [-28, -4, 0.7], [14, 26, 0.6], [-12, 26, 0.65],
+    [32, -14, 0.5], [-34, 10, 0.55], [8, -28, 0.6], [-6, 30, 0.7],
+    [28, 22, 0.5], [-26, 20, 0.55], [35, -6, 0.6], [-32, -12, 0.5],
+  ];
+  const bushColors = ["#4daf6a", "#3d9e5c", "#5cbc78", "#48a862"];
+  for (const [x, z, scale] of bushPositions) {
+    const baseY = getWorldSurfaceHeight(x, z);
+    const color = bushColors[Math.floor(Math.random() * bushColors.length)];
+    const bush = new THREE.Mesh(
+      new THREE.DodecahedronGeometry(0.6 * scale, 1),
+      toonMat(color)
+    );
+    bush.position.set(x, baseY + 0.35 * scale, z);
+    bush.scale.set(1, 0.65, 1);
+    bush.rotation.y = Math.random() * Math.PI;
+    bush.renderOrder = RENDER_DECOR;
+    scene.add(bush);
+  }
+}
+
 export function createWorld(scene) {
   const resourceNodes = [];
   const skyMat = addSky(scene);
@@ -821,6 +865,7 @@ export function createWorld(scene) {
   const blobTex = radialTexture();
   addShoreDecor(scene, blobTex, resourceNodes);
   addExtraTrees(scene, blobTex, resourceNodes);
+  addBushes(scene);
   addLilyPads(scene);
   addWildflowers(scene);
   addExtraReeds(scene);

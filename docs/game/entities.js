@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
 export function createPlayer(scene, addShadowBlob) {
-  // Slime body: squished sphere with flat bottom, bulged middle, domed top
-  const slimeGeo = new THREE.SphereGeometry(0.5, 16, 12);
+  // Slime body: low-poly squished sphere with flat bottom, bulged middle
+  const slimeGeo = new THREE.SphereGeometry(0.5, 8, 6);
   const pos = slimeGeo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     let x = pos.getX(i);
@@ -11,8 +11,8 @@ export function createPlayer(scene, addShadowBlob) {
     // Flatten bottom
     if (y < 0) y *= 0.3;
     // Bulge middle xz
-    const yNorm = (y + 0.5) / 1.0; // 0 at bottom, 1 at top
-    const bulge = 1.0 + 0.2 * Math.sin(yNorm * Math.PI);
+    const yNorm = (y + 0.5) / 1.0;
+    const bulge = 1.0 + 0.22 * Math.sin(yNorm * Math.PI);
     x *= bulge;
     z *= bulge;
     pos.setXYZ(i, x, y, z);
@@ -22,13 +22,15 @@ export function createPlayer(scene, addShadowBlob) {
   const player = new THREE.Mesh(
     slimeGeo,
     new THREE.MeshPhysicalMaterial({
-      color: "#4dbd4d",
+      color: "#5deb7a",
       transparent: true,
-      opacity: 0.6,
-      roughness: 0.15,
+      opacity: 0.38,
+      roughness: 0.05,
       metalness: 0.0,
-      clearcoat: 0.8,
-      clearcoatRoughness: 0.1,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.04,
+      flatShading: true,
+      side: THREE.DoubleSide,
     })
   );
   player.position.set(0, 1.2, 10);
@@ -49,7 +51,7 @@ export function createPlayer(scene, addShadowBlob) {
   player.add(mouth);
 
   const toolAnchor = new THREE.Group();
-  toolAnchor.position.set(-0.52, 0.05, 0.12);
+  toolAnchor.position.set(-0.38, 0.08, 0.18);
   player.add(toolAnchor);
 
   const toolMeshes = {
@@ -64,15 +66,15 @@ export function createPlayer(scene, addShadowBlob) {
   let currentTool = "fishing";
 
   const carryPose = {
-    axe:     { x: -0.52, y: -0.05, z: 0.10, rx: -0.5, ry: 0.0, rz: 0.12 },
-    pickaxe: { x: -0.52, y: -0.05, z: 0.10, rx: -0.55, ry: 0.0, rz: 0.10 },
-    fishing: { x: -0.48, y: 0.0, z: 0.12, rx: -0.3, ry: 0.05, rz: 0.08 },
+    axe:     { x: -0.38, y: 0.08, z: 0.18, rx: -0.12, ry: 0.3, rz: 0.38 },
+    pickaxe: { x: -0.38, y: 0.08, z: 0.18, rx: -0.15, ry: 0.3, rz: 0.32 },
+    fishing: { x: -0.36, y: 0.08, z: 0.18, rx: -0.18, ry: 0.1, rz: 0.15 },
   };
 
   const gatherPose = {
-    axe:     { x: -0.46, y: 0.06, z: 0.14, rx: -1.12, ry: -0.16, rz: -0.16 },
-    pickaxe: { x: -0.46, y: 0.06, z: 0.14, rx: -1.18, ry: -0.19, rz: -0.14 },
-    fishing: { x: -0.44, y: 0.10, z: 0.16, rx: -1.36, ry: 0.14, rz: -0.26 },
+    axe:     { x: -0.34, y: 0.14, z: 0.22, rx: -1.0, ry: -0.08, rz: -0.08 },
+    pickaxe: { x: -0.34, y: 0.14, z: 0.22, rx: -1.05, ry: -0.10, rz: -0.06 },
+    fishing: { x: -0.34, y: 0.16, z: 0.22, rx: -1.2, ry: 0.12, rz: -0.18 },
   };
 
   function setEquippedTool(tool) {

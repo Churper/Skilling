@@ -5,7 +5,7 @@ const TOOL_LABEL = {
 };
 
 export function initializeUI(options = {}) {
-  const { onToolSelect } = options;
+  const { onToolSelect, onEmote } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -25,6 +25,7 @@ export function initializeUI(options = {}) {
     inventory: "Inventory",
     tools: "Tools",
     skills: "Skills",
+    emotes: "Emotes",
     friends: "Friends",
   };
 
@@ -72,6 +73,14 @@ export function initializeUI(options = {}) {
       const tool = button.dataset.tool;
       setActiveTool(tool);
       if (typeof onToolSelect === "function") onToolSelect(tool);
+    });
+  }
+
+  const emoteButtons = Array.from(document.querySelectorAll(".ui-emote-btn"));
+  for (const button of emoteButtons) {
+    button.addEventListener("click", () => {
+      const emote = button.dataset.emote;
+      if (typeof onEmote === "function") onEmote(emote);
     });
   }
 
