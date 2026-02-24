@@ -73,13 +73,13 @@ export function createPlayer(scene, addShadowBlob) {
 
   const carryPose = {
     axe:     { x: -0.36, y: 0.19, z: 0.11, rx: 0.64, ry: -0.74, rz: -0.08 },
-    pickaxe: { x: 0.36, y: 0.18, z: 0.1, rx: 0.32, ry: -1.02, rz: 0.14 },
+    pickaxe: { x: -0.36, y: 0.19, z: 0.11, rx: 0.58, ry: -0.82, rz: -0.06 },
     fishing: { x: -0.36, y: 0.2, z: 0.12, rx: 0.94, ry: -0.78, rz: -0.05 },
   };
 
   const gatherPose = {
     axe:     { x: -0.34, y: 0.25, z: 0.13, rx: -0.24, ry: -0.88, rz: 0.03 },
-    pickaxe: { x: 0.34, y: 0.25, z: 0.12, rx: -0.58, ry: -1.34, rz: -0.14 },
+    pickaxe: { x: -0.34, y: 0.25, z: 0.13, rx: -0.36, ry: -0.9, rz: 0.02 },
     fishing: { x: -0.34, y: 0.25, z: 0.14, rx: 1.42, ry: -0.72, rz: -0.24 },
   };
 
@@ -136,8 +136,8 @@ export function createPlayer(scene, addShadowBlob) {
         targetRoll = Math.sin(animTime * 3.4) * (isMining ? -0.008 : 0.01);
         targetScaleY = 1 - impact * 0.036;
         toolRotX += -windup * 0.18 + swing * 0.46;
-        toolRotY += impact * (isMining ? -0.12 : 0.08);
-        toolRotZ += impact * (isMining ? 0.1 : 0.15);
+        toolRotY += impact * 0.04;
+        toolRotZ += impact * (isMining ? 0.08 : 0.11);
         toolPosX += impact * 0.018;
         toolPosY += impact * 0.03 - windup * 0.008;
         toolPosZ += impact * 0.008;
@@ -215,8 +215,8 @@ function createAxeMesh() {
   pommel.position.set(0, -0.06, 0);
   mesh.add(pommel);
 
-  // Keep axe blade alignment in the same direction family as fishing hold.
-  mesh.rotation.y = -Math.PI * 0.5;
+  // Match fishing-pole side/orientation direction.
+  mesh.rotation.y = Math.PI * 0.5;
   mesh.scale.setScalar(0.9);
   return mesh;
 }
@@ -265,6 +265,7 @@ function createPickaxeMesh() {
   pommel.position.set(0, -0.06, 0);
   mesh.add(pommel);
 
+  mesh.rotation.y = Math.PI * 0.5;
   mesh.scale.setScalar(0.9);
   return mesh;
 }
