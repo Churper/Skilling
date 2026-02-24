@@ -51,23 +51,13 @@ export function createPlayer(scene, addShadowBlob) {
   faceGroup.add(leftEye, rightEye);
 
   const mouthMat = new THREE.MeshBasicMaterial({ color: "#0b0f0d" });
-  const mouthCenter = new THREE.Mesh(
-    new THREE.SphereGeometry(0.016, 7, 7),
+  const smile = new THREE.Mesh(
+    new THREE.TorusGeometry(0.06, 0.008, 6, 14, Math.PI),
     mouthMat
   );
-  mouthCenter.position.set(0, -0.004, 0.088);
-  faceGroup.add(mouthCenter);
-
-  const mouthCurveGeo = new THREE.TorusGeometry(0.038, 0.008, 6, 10, Math.PI);
-  const mouthLeft = new THREE.Mesh(mouthCurveGeo, mouthMat);
-  mouthLeft.position.set(-0.042, -0.03, 0.084);
-  mouthLeft.rotation.x = Math.PI;
-  mouthLeft.rotation.z = Math.PI * 0.22;
-  const mouthRight = new THREE.Mesh(mouthCurveGeo, mouthMat);
-  mouthRight.position.set(0.042, -0.03, 0.084);
-  mouthRight.rotation.x = Math.PI;
-  mouthRight.rotation.z = -Math.PI * 0.22;
-  faceGroup.add(mouthLeft, mouthRight);
+  smile.position.set(0, -0.03, 0.084);
+  smile.rotation.x = Math.PI;
+  faceGroup.add(smile);
 
   const toolAnchor = new THREE.Group();
   toolAnchor.position.set(0.0, 0.18, 0.1);
