@@ -427,7 +427,7 @@ function updateSlimeTrail(dt, t, isMoving) {
 player.geometry.computeBoundingBox();
 const playerFootOffset = -player.geometry.boundingBox.min.y;
 const playerHeadOffset = player.geometry.boundingBox.max.y;
-const playerGroundSink = 0.038;
+const playerGroundSink = 0.0;
 
 function xpToLevel(xp) {
   return Math.floor(Math.sqrt(xp / 34)) + 1;
@@ -849,7 +849,7 @@ function animate() {
 
   const groundY = getPlayerGroundY(player.position.x, player.position.z);
   const standY = groundY + playerFootOffset - playerGroundSink;
-  player.position.y = THREE.MathUtils.damp(player.position.y, standY, 16, dt);
+  player.position.y = standY;
   playerBlob.position.set(player.position.x, groundY + 0.03, player.position.z);
   updateAnimation(dt, {
     moving: moveDir.lengthSq() > 0.0001 && !activeGather,

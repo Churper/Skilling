@@ -2,20 +2,20 @@ import * as THREE from "three";
 
 export function createPlayer(scene, addShadowBlob) {
   // Slime body: low-poly squished sphere with flat bottom, bulged middle
-  const slimeGeo = new THREE.SphereGeometry(0.5, 8, 6);
+  const slimeGeo = new THREE.SphereGeometry(0.51, 10, 8);
   const pos = slimeGeo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     let x = pos.getX(i);
     let y = pos.getY(i);
     let z = pos.getZ(i);
-    // Flatten bottom
-    if (y < 0) y *= 0.42;
+    // Flatter bottom but keep overall body rounder.
+    if (y < 0) y *= 0.52;
     // Bulge middle xz
     const yNorm = (y + 0.5) / 1.0;
-    const bulge = 1.0 + 0.26 * Math.sin(yNorm * Math.PI);
-    x *= bulge * 1.04;
-    y *= 1.12;
-    z *= bulge * 1.04;
+    const bulge = 1.0 + 0.2 * Math.sin(yNorm * Math.PI);
+    x *= bulge * 1.02;
+    y *= 1.08;
+    z *= bulge * 1.02;
     pos.setXYZ(i, x, y, z);
   }
   slimeGeo.computeVertexNormals();
@@ -49,14 +49,13 @@ export function createPlayer(scene, addShadowBlob) {
   rightEye.position.set(0.105, 0.08, 0.082);
   faceGroup.add(leftEye, rightEye);
 
-  const mouthMat = new THREE.MeshBasicMaterial({ color: "#0b0f0d" });
-  const smile = new THREE.Mesh(
-    new THREE.TorusGeometry(0.06, 0.008, 6, 14, Math.PI),
-    mouthMat
+  const mouth = new THREE.Mesh(
+    new THREE.TorusGeometry(0.018, 0.006, 5, 10),
+    faceMat
   );
-  smile.position.set(0, -0.03, 0.084);
-  smile.rotation.x = Math.PI;
-  faceGroup.add(smile);
+  mouth.position.set(0, -0.016, 0.086);
+  mouth.rotation.x = Math.PI * 0.08;
+  faceGroup.add(mouth);
 
   const toolAnchor = new THREE.Group();
   toolAnchor.position.set(0.0, 0.18, 0.1);
@@ -137,12 +136,13 @@ export function createPlayer(scene, addShadowBlob) {
         targetPitch = impact * 0.07 + windup * 0.02;
         targetRoll = Math.sin(animTime * 3.4) * (isMining ? -0.008 : 0.01);
         targetScaleY = 1 - impact * 0.036;
-        toolRotX += -windup * 0.18 + swing * 0.46;
-        toolRotY += impact * 0.04;
-        toolRotZ += impact * (isMining ? 0.08 : 0.11);
-        toolPosX += impact * 0.018;
+        // Swing direction tuned to match held orientation.
+        toolRotX += windup * 0.16 - swing * 0.44;
+        toolRotY += impact * -0.03;
+        toolRotZ += impact * (isMining ? -0.08 : -0.1);
+        toolPosX += impact * -0.016;
         toolPosY += impact * 0.03 - windup * 0.008;
-        toolPosZ += impact * 0.008;
+        toolPosZ += impact * 0.01;
       }
     } else if (moving) {
       const stride = Math.sin(animTime * 7.2);
