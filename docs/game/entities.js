@@ -20,17 +20,19 @@ export function createPlayer(scene, addShadowBlob) {
   }
   slimeGeo.computeVertexNormals();
 
+  const slimeMaterial = new THREE.MeshPhongMaterial({
+    color: "#58df78",
+    transparent: true,
+    opacity: 0.68,
+    shininess: 38,
+    specular: new THREE.Color("#d8ffe4"),
+    flatShading: true,
+    side: THREE.FrontSide,
+  });
+
   const player = new THREE.Mesh(
     slimeGeo,
-    new THREE.MeshPhongMaterial({
-      color: "#58df78",
-      transparent: true,
-      opacity: 0.68,
-      shininess: 38,
-      specular: new THREE.Color("#d8ffe4"),
-      flatShading: true,
-      side: THREE.FrontSide,
-    })
+    slimeMaterial
   );
   player.position.set(0, 1.2, 10);
 
@@ -171,7 +173,10 @@ export function createPlayer(scene, addShadowBlob) {
 
   scene.add(player);
   const playerBlob = addShadowBlob(player.position.x, player.position.z, 1.0, 0.22);
-  return { player, playerBlob, setEquippedTool, updateAnimation };
+  function setSlimeColor(hexColor) {
+    slimeMaterial.color.set(hexColor || "#58df78");
+  }
+  return { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor };
 }
 
 function createAxeMesh() {

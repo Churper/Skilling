@@ -395,6 +395,76 @@ body {
   filter: none;
 }
 
+.ui-store-actions {
+  margin-bottom: 10px;
+}
+
+.ui-store-sell-btn {
+  width: 100%;
+  border-radius: 9px;
+  border: 1px solid rgba(244, 205, 126, 0.48);
+  background: linear-gradient(180deg, rgba(99, 68, 24, 0.92), rgba(58, 37, 12, 0.92));
+  color: #ffe3a1;
+  font-family: var(--ui-font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 9px 10px;
+  cursor: pointer;
+}
+
+.ui-store-sell-btn:hover {
+  filter: brightness(1.06);
+}
+
+.ui-store-dyes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.ui-dye-btn {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  border-radius: 9px;
+  border: 1px solid rgba(162, 214, 241, 0.26);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  color: var(--ui-ink-1);
+  font-family: var(--ui-font-body);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 9px;
+  cursor: pointer;
+}
+
+.ui-dye-btn small {
+  color: var(--ui-ink-2);
+  font-size: 11px;
+}
+
+.ui-dye-btn:hover {
+  border-color: var(--ui-frame-strong);
+}
+
+.ui-dye-btn.is-active {
+  border-color: rgba(117, 210, 250, 0.75);
+  background: linear-gradient(180deg, rgba(89, 198, 246, 0.32), rgba(89, 198, 246, 0.13));
+}
+
+.ui-dye-btn.is-unaffordable {
+  border-color: rgba(230, 153, 108, 0.45);
+}
+
+.ui-dye-swatch {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: var(--sw, #58df78);
+}
+
 #ui-equipped-tool,
 .ui-note,
 .ui-status {
@@ -530,7 +600,7 @@ body {
   transform: translate(-50%, -100%);
   padding: 4px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(146, 220, 255, 0.42);
+  border: none;
   background: linear-gradient(180deg, rgba(10, 44, 64, 0.92), rgba(8, 27, 42, 0.95));
   color: #d7f5ff;
   font-family: var(--ui-font-heading);
@@ -554,6 +624,11 @@ body {
   border-color: rgba(255, 225, 149, 0.56);
   background: linear-gradient(180deg, rgba(81, 58, 18, 0.93), rgba(49, 34, 10, 0.95));
   color: #ffe6a8;
+}
+
+.xp-drop-warn {
+  background: linear-gradient(180deg, rgba(92, 43, 33, 0.93), rgba(56, 25, 18, 0.95));
+  color: #ffd0b3;
 }
 
 @keyframes bubble-pop {

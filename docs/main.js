@@ -50,11 +50,19 @@ const SELL_PRICE_BY_ITEM = {
 const TOOL_UPGRADE_BASE_COST = 28;
 const TOOL_UPGRADE_COST_STEP = 24;
 const TOOL_UPGRADE_MAX_LEVEL = 8;
+const SLIME_COLOR_SHOP = [
+  { id: "lime", label: "Lime", color: "#58df78", cost: 0 },
+  { id: "mint", label: "Mint", color: "#79f0b2", cost: 40 },
+  { id: "aqua", label: "Aqua", color: "#62e4d9", cost: 55 },
+  { id: "sunset", label: "Sunset", color: "#f5b35f", cost: 60 },
+  { id: "violet", label: "Violet", color: "#af89f6", cost: 75 },
+  { id: "rose", label: "Rose", color: "#f57fb3", cost: 90 },
+];
 
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
 const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld } = createWorld(scene);
-const { player, playerBlob, setEquippedTool, updateAnimation } = createPlayer(scene, addShadowBlob);
+const { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor } = createPlayer(scene, addShadowBlob);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
 
 let equippedTool = "fishing";
@@ -63,6 +71,8 @@ const bagSlots = Array(BAG_CAPACITY).fill(null);
 const bankStorage = { fish: 0, ore: 0, logs: 0 };
 let coins = 0;
 const toolUpgrades = { axe: 0, pickaxe: 0, fishing: 0 };
+let currentSlimeColorId = "lime";
+const unlockedSlimeColors = new Set(["lime"]);
 const skills = {
   fishing: { xp: 0, level: 1 },
   mining: { xp: 0, level: 1 },
@@ -76,6 +86,12 @@ const ui = initializeUI({
   onEmote: (emoji) => showEmote(emoji),
   onBlacksmithUpgrade: (tool) => {
     purchaseToolUpgrade(tool);
+  },
+  onStoreSell: () => {
+    sellBagViaStoreUI();
+  },
+  onStoreColor: (colorId) => {
+    buyOrEquipSlimeColor(colorId);
   },
 });
 
@@ -119,6 +135,7 @@ function syncInventoryUI() {
   });
   ui?.setCoins(coins);
   ui?.setBlacksmith(getBlacksmithState());
+  ui?.setStore(getStoreState());
 }
 
 function addItemToBag(itemKey) {
@@ -158,6 +175,7 @@ function sellBagToStore() {
 }
 
 equipTool(equippedTool, false);
+setSlimeColor("#58df78");
 syncInventoryUI();
 ui?.setSkills({
   fishing: skills.fishing.level,
@@ -447,6 +465,12 @@ function resourceWorldPosition(node, out) {
   return out;
 }
 
+function getGatherFailChance(skillLevel) {
+  const lvl = Math.max(1, skillLevel || 1);
+  const chance = 0.44 - (lvl - 1) * 0.015;
+  return THREE.MathUtils.clamp(chance, 0.04, 0.44);
+}
+
 function tryGather(node) {
   const resourceType = node.userData.resourceType;
   if (!resourceType) return;
@@ -455,7 +479,7 @@ function tryGather(node) {
   const itemKey = INVENTORY_BY_RESOURCE[resourceType];
   const xpGain = XP_BY_RESOURCE[resourceType];
 
-  if (!addItemToBag(itemKey)) {
+  if (bagIsFull()) {
     activeGather = null;
     pendingResource = null;
     ui?.setStatus(`Bag full (${bagUsedCount()}/${BAG_CAPACITY}). Click Bank to deposit or Store to sell.`, "warn");
@@ -464,7 +488,19 @@ function tryGather(node) {
     return;
   }
 
-  const prevLevel = skills[skillKey].level;
+  const preLevel = skills[skillKey].level;
+  const failChance = getGatherFailChance(preLevel);
+  if (Math.random() < failChance) {
+    const failPos = resourceWorldPosition(node, resourceTargetPos);
+    spawnClickEffect(failPos.x, failPos.z, "warn");
+    spawnFloatingDrop(failPos.x, failPos.z, "Miss", "warn");
+    ui?.setStatus(`Missed ${node.userData.resourceLabel}.`, "warn");
+    return;
+  }
+
+  if (!addItemToBag(itemKey)) return;
+
+  const prevLevel = preLevel;
   skills[skillKey].xp += xpGain;
   skills[skillKey].level = xpToLevel(skills[skillKey].xp);
 
@@ -479,12 +515,11 @@ function tryGather(node) {
   if (leveled) {
     ui?.setStatus(`${node.userData.resourceLabel} gathered. ${skillKey} level ${skills[skillKey].level}!`, "success");
   } else {
-    ui?.setStatus(`+1 ${itemKey}, +${xpGain} XP ${skillKey}.`, "success");
+    ui?.setStatus(`+${xpGain} XP ${skillKey}.`, "success");
   }
   const successPos = resourceWorldPosition(node, resourceTargetPos);
   spawnClickEffect(successPos.x, successPos.z, "success");
   spawnFloatingDrop(successPos.x, successPos.z, `+${xpGain} XP`, "xp");
-  spawnFloatingDrop(successPos.x + 0.14, successPos.z - 0.1, `+1 ${itemKey}`, "item");
   if (leveled) {
     spawnFloatingDrop(successPos.x - 0.14, successPos.z + 0.1, `${skillKey} Lv ${skills[skillKey].level}!`, "level");
   }
@@ -524,6 +559,52 @@ function getBlacksmithState() {
     };
   }
   return { coins, tools };
+}
+
+function getStoreState() {
+  const colors = {};
+  for (const entry of SLIME_COLOR_SHOP) {
+    const unlocked = unlockedSlimeColors.has(entry.id);
+    colors[entry.id] = {
+      label: entry.label,
+      cost: entry.cost,
+      unlocked,
+      color: entry.color,
+    };
+  }
+  return {
+    coins,
+    selectedColorId: currentSlimeColorId,
+    colors,
+  };
+}
+
+function sellBagViaStoreUI() {
+  const { sold, coinsGained } = sellBagToStore();
+  syncInventoryUI();
+  if (sold <= 0) {
+    ui?.setStatus("Store: nothing to sell from your bag.", "warn");
+  } else {
+    ui?.setStatus(`Sold ${sold} item${sold === 1 ? "" : "s"} for ${coinsGained} coins.`, "success");
+  }
+}
+
+function buyOrEquipSlimeColor(colorId) {
+  const entry = SLIME_COLOR_SHOP.find((it) => it.id === colorId);
+  if (!entry) return;
+  if (!unlockedSlimeColors.has(colorId)) {
+    if (coins < entry.cost) {
+      ui?.setStatus(`Store: ${entry.label} costs ${entry.cost} coins.`, "warn");
+      ui?.setStore(getStoreState());
+      return;
+    }
+    coins -= entry.cost;
+    unlockedSlimeColors.add(colorId);
+  }
+  currentSlimeColorId = colorId;
+  setSlimeColor(entry.color);
+  syncInventoryUI();
+  ui?.setStatus(`Slime color equipped: ${entry.label}.`, "success");
 }
 
 function purchaseToolUpgrade(tool) {
@@ -569,13 +650,8 @@ function runServiceAction(node) {
   }
 
   if (serviceType === "store") {
-    const { sold, coinsGained } = sellBagToStore();
-    syncInventoryUI();
-    if (sold <= 0) {
-      ui?.setStatus("Store: nothing to sell from your bag.", "warn");
-    } else {
-      ui?.setStatus(`Sold ${sold} item${sold === 1 ? "" : "s"} for ${coinsGained} coins.`, "success");
-    }
+    ui?.openStore(getStoreState());
+    ui?.setStatus("Store open. Sell your bag and buy slime colors.", "info");
     return;
   }
 

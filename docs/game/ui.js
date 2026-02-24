@@ -17,7 +17,7 @@ const ITEM_LABEL = {
 };
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -40,11 +40,15 @@ export function initializeUI(options = {}) {
   const smithButtons = Array.from(document.querySelectorAll("[data-smith-upgrade]"));
   const smithLevelEls = Array.from(document.querySelectorAll("[data-smith-level]"));
   const smithCostEls = Array.from(document.querySelectorAll("[data-smith-cost]"));
+  const storeSellButton = document.getElementById("ui-store-sell-btn");
+  const dyeButtons = Array.from(document.querySelectorAll("[data-store-color]"));
+  const dyeCostEls = Array.from(document.querySelectorAll("[data-store-cost]"));
 
   const labelByTab = {
     inventory: "Inventory",
     tools: "Tools",
     blacksmith: "Blacksmith",
+    store: "Store",
     skills: "Skills",
     emotes: "Emotes",
     friends: "Friends",
@@ -186,6 +190,36 @@ export function initializeUI(options = {}) {
     if (mobileQuery.matches) setMobileMenuOpen(true);
   }
 
+  function setStore(payload = {}) {
+    const coins = Math.max(0, Math.floor(Number(payload.coins) || 0));
+    const colors = payload.colors || {};
+    const selected = payload.selectedColorId || "";
+    for (const costEl of dyeCostEls) {
+      const id = costEl.dataset.storeCost;
+      const state = colors[id] || {};
+      costEl.textContent = state.unlocked ? "Owned" : `${state.cost ?? 0}c`;
+    }
+    for (const button of dyeButtons) {
+      const id = button.dataset.storeColor;
+      const state = colors[id] || {};
+      const affordable = !!state.unlocked || coins >= (state.cost ?? 0);
+      button.classList.toggle("is-active", id === selected);
+      button.classList.toggle("is-unaffordable", !state.unlocked && !affordable);
+      button.title = state.unlocked
+        ? "Equip color"
+        : affordable
+          ? `Buy for ${state.cost} coins`
+          : `Need ${state.cost ?? 0} coins`;
+    }
+  }
+
+  function openStore(payload = {}) {
+    setStore(payload);
+    setPanelCollapsed(false);
+    setActive("store");
+    if (mobileQuery.matches) setMobileMenuOpen(true);
+  }
+
   for (const button of buttons) {
     button.addEventListener("click", () => {
       const tab = button.dataset.tab;
@@ -211,6 +245,18 @@ export function initializeUI(options = {}) {
     button.addEventListener("click", () => {
       const tool = button.dataset.smithUpgrade;
       if (typeof onBlacksmithUpgrade === "function") onBlacksmithUpgrade(tool);
+    });
+  }
+
+  for (const button of dyeButtons) {
+    button.addEventListener("click", () => {
+      const id = button.dataset.storeColor;
+      if (typeof onStoreColor === "function") onStoreColor(id);
+    });
+  }
+  if (storeSellButton) {
+    storeSellButton.addEventListener("click", () => {
+      if (typeof onStoreSell === "function") onStoreSell();
     });
   }
 
@@ -249,5 +295,7 @@ export function initializeUI(options = {}) {
     setStatus,
     setBlacksmith,
     openBlacksmith,
+    setStore,
+    openStore,
   };
 }
