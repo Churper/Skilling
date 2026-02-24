@@ -221,7 +221,7 @@ function updateSlimeTrail(dt, t, isMoving) {
 player.geometry.computeBoundingBox();
 const playerFootOffset = -player.geometry.boundingBox.min.y;
 const playerHeadOffset = player.geometry.boundingBox.max.y;
-const playerGroundSink = 0.05;
+const playerGroundSink = 0.018;
 
 function xpToLevel(xp) {
   return Math.floor(Math.sqrt(xp / 34)) + 1;

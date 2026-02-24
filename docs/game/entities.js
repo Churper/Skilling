@@ -24,13 +24,13 @@ export function createPlayer(scene, addShadowBlob) {
     new THREE.MeshPhysicalMaterial({
       color: "#5deb7a",
       transparent: true,
-      opacity: 0.52,
+      opacity: 0.6,
       roughness: 0.05,
       metalness: 0.0,
       clearcoat: 1.0,
       clearcoatRoughness: 0.04,
       flatShading: true,
-      side: THREE.DoubleSide,
+      side: THREE.FrontSide,
     })
   );
   player.position.set(0, 1.2, 10);
@@ -59,14 +59,14 @@ export function createPlayer(scene, addShadowBlob) {
     player.add(bump);
   }
 
-  // Opaque inner core prevents the ground from showing through the slime body.
-  const innerCore = new THREE.Mesh(
-    new THREE.SphereGeometry(0.34, 8, 6),
-    new THREE.MeshToonMaterial({ color: "#4acb69" })
+  // Lower-only filler prevents ground bleed at the feet without a visible inner-sphere ring.
+  const baseFill = new THREE.Mesh(
+    new THREE.SphereGeometry(0.46, 10, 8, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5),
+    new THREE.MeshToonMaterial({ color: "#4ecf6d" })
   );
-  innerCore.scale.set(1.0, 0.78, 1.0);
-  innerCore.position.set(0, -0.02, 0);
-  player.add(innerCore);
+  baseFill.scale.set(0.95, 0.52, 0.95);
+  baseFill.position.set(0, -0.17, 0);
+  player.add(baseFill);
 
   const toolAnchor = new THREE.Group();
   toolAnchor.position.set(0.38, 0.08, 0.18);
@@ -86,13 +86,13 @@ export function createPlayer(scene, addShadowBlob) {
   const carryPose = {
     axe:     { x: 0.38, y: 0.08, z: 0.18, rx: -0.12, ry: 0.30, rz: -0.38 },
     pickaxe: { x: 0.38, y: 0.08, z: 0.18, rx: -0.15, ry: 0.30, rz: -0.32 },
-    fishing: { x: 0.36, y: 0.08, z: 0.18, rx: -0.18, ry: 0.10, rz: -0.15 },
+    fishing: { x: 0.36, y: 0.08, z: 0.18, rx: 0.18, ry: 0.10, rz: -0.15 },
   };
 
   const gatherPose = {
     axe:     { x: 0.34, y: 0.14, z: 0.22, rx: -1.0, ry: 0.08, rz: 0.08 },
     pickaxe: { x: 0.34, y: 0.14, z: 0.22, rx: -1.05, ry: 0.10, rz: 0.06 },
-    fishing: { x: 0.34, y: 0.16, z: 0.22, rx: -1.2, ry: 0.12, rz: 0.18 },
+    fishing: { x: 0.34, y: 0.16, z: 0.22, rx: 1.2, ry: 0.12, rz: 0.18 },
   };
 
   function setEquippedTool(tool) {

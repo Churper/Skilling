@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Skilling</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -17,11 +20,26 @@
       Menu
     </button>
     <nav id="ui-dock" aria-label="Main tabs">
-      <button type="button" class="ui-tab-btn is-active" data-tab="inventory">Inventory</button>
-      <button type="button" class="ui-tab-btn" data-tab="tools">Tools</button>
-      <button type="button" class="ui-tab-btn" data-tab="skills">Skills</button>
-      <button type="button" class="ui-tab-btn" data-tab="emotes">Emotes</button>
-      <button type="button" class="ui-tab-btn" data-tab="friends">Friends</button>
+      <button type="button" class="ui-tab-btn is-active" data-tab="inventory">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F4E6;</span>
+        <span class="ui-tab-label">Inventory</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="tools">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F6E0;</span>
+        <span class="ui-tab-label">Tools</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="skills">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F3AF;</span>
+        <span class="ui-tab-label">Skills</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="emotes">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F60A;</span>
+        <span class="ui-tab-label">Emotes</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="friends">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F465;</span>
+        <span class="ui-tab-label">Friends</span>
+      </button>
     </nav>
     <aside id="ui-panel" aria-live="polite">
       <h2 id="ui-panel-title">Inventory</h2>
@@ -35,34 +53,34 @@
       <section class="ui-panel-section" data-tab-panel="tools" hidden>
         <p>Tools</p>
         <div id="ui-tool-list">
-          <button type="button" class="ui-tool-btn" data-tool="axe"><span class="ui-icon">&#x1FA93;</span><span>Axe</span></button>
-          <button type="button" class="ui-tool-btn" data-tool="pickaxe"><span class="ui-icon">&#x26CF;</span><span>Pickaxe</span></button>
-          <button type="button" class="ui-tool-btn is-active" data-tool="fishing"><span class="ui-icon">&#x1F3A3;</span><span>Fishing Pole</span></button>
+          <button type="button" class="ui-tool-btn" data-tool="axe"><span class="ui-icon" aria-hidden="true">&#x1FA93;</span><span>Axe</span></button>
+          <button type="button" class="ui-tool-btn" data-tool="pickaxe"><span class="ui-icon" aria-hidden="true">&#x26CF;</span><span>Pickaxe</span></button>
+          <button type="button" class="ui-tool-btn is-active" data-tool="fishing"><span class="ui-icon" aria-hidden="true">&#x1F3A3;</span><span>Fishing Pole</span></button>
         </div>
         <p id="ui-equipped-tool">Equipped: Fishing Pole</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="skills" hidden>
         <p>Skills</p>
-        <div class="ui-stat-row"><span><span class="ui-icon">&#x1F41F;</span>Fishing</span><strong id="ui-skill-fishing">1</strong></div>
-        <div class="ui-stat-row"><span><span class="ui-icon">&#x1FAA8;</span>Mining</span><strong id="ui-skill-mining">1</strong></div>
-        <div class="ui-stat-row"><span><span class="ui-icon">&#x1FAB5;</span>Woodcutting</span><strong id="ui-skill-woodcutting">1</strong></div>
+        <div class="ui-stat-row"><span><span class="ui-icon" aria-hidden="true">&#x1F41F;</span>Fishing</span><strong id="ui-skill-fishing">1</strong></div>
+        <div class="ui-stat-row"><span><span class="ui-icon" aria-hidden="true">&#x1FAA8;</span>Mining</span><strong id="ui-skill-mining">1</strong></div>
+        <div class="ui-stat-row"><span><span class="ui-icon" aria-hidden="true">&#x1FAB5;</span>Woodcutting</span><strong id="ui-skill-woodcutting">1</strong></div>
         <p class="ui-note">Levels increase from gathering XP.</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="emotes" hidden>
         <p>Emotes</p>
         <div id="ui-emote-list">
-          <button type="button" class="ui-emote-btn" data-emote="💖">💖</button>
-          <button type="button" class="ui-emote-btn" data-emote="✨">✨</button>
-          <button type="button" class="ui-emote-btn" data-emote="🌸">🌸</button>
-          <button type="button" class="ui-emote-btn" data-emote="🥺">🥺</button>
-          <button type="button" class="ui-emote-btn" data-emote="😊">😊</button>
-          <button type="button" class="ui-emote-btn" data-emote="💫">💫</button>
-          <button type="button" class="ui-emote-btn" data-emote="🎀">🎀</button>
-          <button type="button" class="ui-emote-btn" data-emote="🍡">🍡</button>
-          <button type="button" class="ui-emote-btn" data-emote="😤">😤</button>
-          <button type="button" class="ui-emote-btn" data-emote="💤">💤</button>
-          <button type="button" class="ui-emote-btn" data-emote="👋">👋</button>
-          <button type="button" class="ui-emote-btn" data-emote="⭐">⭐</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F496;" title="Sparkle Heart">&#x1F496;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x2728;" title="Sparkles">&#x2728;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F338;" title="Cherry Blossom">&#x1F338;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F97A;" title="Pleaded Face">&#x1F97A;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F60A;" title="Smile">&#x1F60A;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F4AB;" title="Dizzy">&#x1F4AB;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F380;" title="Ribbon">&#x1F380;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F361;" title="Dango">&#x1F361;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F624;" title="Angry Face">&#x1F624;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F4A4;" title="Sleep">&#x1F4A4;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F44B;" title="Wave">&#x1F44B;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x2B50;" title="Star">&#x2B50;</button>
         </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="friends" hidden>
