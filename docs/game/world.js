@@ -33,7 +33,7 @@ const LAKE_BOWL_Y = 0.58;
 const WATER_SURFACE_Y = 0.596;
 const SHORE_TRANSITION_INNER = 24.18;
 const SHORE_TRANSITION_OUTER = 26.1;
-const SHORE_LIFT = 0.028;
+const SHORE_LIFT = 0.05;
 const RENDER_GROUND = 0;
 const RENDER_SHORE = 1;
 const RENDER_WATER = 2;
@@ -107,15 +107,17 @@ export function getWorldSurfaceHeight(x, z) {
 }
 
 export function getWaterSurfaceHeight(x, z, time = 0) {
-  const r = Math.hypot(x, z);
+  const dist = Math.hypot(x, z);
   const waterR = getWaterRadiusAt(x, z);
-  if (r > waterR) return -Infinity;
+  if (dist > waterR) return -Infinity;
 
-  const w0 = Math.sin(x * 0.21 + z * 0.17 + time * 1.18) * 0.019;
-  const w1 = Math.sin(x * 0.36 - z * 0.29 - time * 0.93) * 0.011;
-  const w2 = Math.sin(x * 0.58 + z * 0.46 + time * 1.36) * 0.006;
-  const w3 = Math.sin((x + z) * 0.12 + time * 0.74) * 0.014;
-  return WATER_SURFACE_Y + (w0 + w1 + w2 + w3) * 0.95;
+  const w0 = Math.sin(x * 0.16 + z * 0.12 + time * 0.82) * 0.032;
+  const w1 = Math.sin(x * 0.28 - z * 0.22 + time * 0.65) * 0.022;
+  const w2 = Math.cos(x * 0.11 + z * 0.34 - time * 0.74) * 0.026;
+  const w3 = Math.sin(x * 0.48 + z * 0.38 + time * 1.3) * 0.012;
+  const w4 = Math.sin(x * 0.65 - z * 0.52 - time * 1.05) * 0.008;
+  const damp = 1.0 - (dist / waterR) * 0.18;
+  return WATER_SURFACE_Y + (w0 + w1 + w2 + w3 + w4) * damp;
 }
 
 function setResourceNode(node, resourceType, label) {
@@ -215,7 +217,7 @@ function createGround(scene) {
     let y = sampleTerrainHeight(x, z);
     const waterR = getWaterRadiusAt(x, z);
     if (r < waterR + 0.5) {
-      y -= (1.0 - THREE.MathUtils.smoothstep(r, waterR - 3, waterR + 0.5)) * 3.0;
+      y -= (1.0 - THREE.MathUtils.smoothstep(r, waterR - 1.5, waterR + 0.5)) * 1.2;
     }
     tPos.setZ(i, y);
 
@@ -263,9 +265,9 @@ function createLakeBowlMesh() {
   const positions = [];
   const colors = [];
   const indices = [];
-  const deep = new THREE.Color("#3a8aa8");
-  const mid = new THREE.Color("#66b6c3");
-  const shelf = new THREE.Color("#c6b789");
+  const deep = new THREE.Color("#2a7a9c");
+  const mid = new THREE.Color("#52a8b8");
+  const shelf = new THREE.Color("#c4b68a");
 
   // Center vertex
   positions.push(0, -(0.1 + 1.95), 0);
@@ -328,9 +330,9 @@ function createLakeBowlMesh() {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#b6fff9") },
-    uMid: { value: new THREE.Color("#6ce8f2") },
-    uDeep: { value: new THREE.Color("#2ebada") },
+    uShallow: { value: new THREE.Color("#9ef8f0") },
+    uMid: { value: new THREE.Color("#4dd8ee") },
+    uDeep: { value: new THREE.Color("#1a9ec8") },
     uBeach: { value: new THREE.Color("#e3cea1") },
   };
 
@@ -386,11 +388,20 @@ function createWater(scene) {
         vRadial = aRadial;
         vec3 p = position;
         vec2 pp = p.xz;
-        float w0 = sin(pp.x * 0.21 + pp.y * 0.17 + uTime * 1.18) * 0.019;
-        float w1 = sin(pp.x * 0.36 - pp.y * 0.29 - uTime * 0.93) * 0.011;
-        float w2 = sin(pp.x * 0.58 + pp.y * 0.46 + uTime * 1.36) * 0.006;
-        float w3 = sin((pp.x + pp.y) * 0.12 + uTime * 0.74) * 0.014;
-        p.y += (w0 + w1 + w2 + w3) * (1.0 - aRadial * 0.22);
+        float t = uTime;
+        // Large gentle swells
+        float w0 = sin(pp.x * 0.16 + pp.y * 0.12 + t * 0.82) * 0.032;
+        float w1 = sin(pp.x * 0.28 - pp.y * 0.22 + t * 0.65) * 0.022;
+        float w2 = cos(pp.x * 0.11 + pp.y * 0.34 - t * 0.74) * 0.026;
+        // Medium waves
+        float w3 = sin(pp.x * 0.48 + pp.y * 0.38 + t * 1.3) * 0.012;
+        float w4 = sin(pp.x * 0.65 - pp.y * 0.52 - t * 1.05) * 0.008;
+        float w5 = cos(pp.x * 0.42 - pp.y * 0.56 + t * 1.15) * 0.010;
+        // Small detail ripples
+        float w6 = sin(pp.x * 1.2 + pp.y * 0.85 + t * 2.0) * 0.004;
+        float w7 = sin(pp.x * 0.9 - pp.y * 1.3 + t * 1.7) * 0.004;
+        float damp = 1.0 - aRadial * 0.18;
+        p.y += (w0 + w1 + w2 + w3 + w4 + w5 + w6 + w7) * damp;
         vec4 worldPos = modelMatrix * vec4(p, 1.0);
         vWorldPos = worldPos.xyz;
         gl_Position = projectionMatrix * viewMatrix * worldPos;
@@ -409,6 +420,9 @@ function createWater(scene) {
       float hash(vec2 p) {
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
       }
+      float hash2(vec2 p) {
+        return fract(sin(dot(p, vec2(269.5, 183.3))) * 43758.5453);
+      }
       float noise(vec2 p) {
         vec2 i = floor(p);
         vec2 f = fract(p);
@@ -419,63 +433,117 @@ function createWater(scene) {
           u.y
         );
       }
+      float fbm(vec2 p) {
+        float v = 0.0;
+        float a = 0.5;
+        mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
+        for (int i = 0; i < 5; i++) {
+          v += noise(p) * a;
+          p = rot * p * 2.0;
+          a *= 0.5;
+        }
+        return v;
+      }
+      // Voronoi for caustic cell patterns
+      float voronoi(vec2 p) {
+        vec2 ip = floor(p);
+        vec2 fp = fract(p);
+        float d = 1.0;
+        for (int y = -1; y <= 1; y++) {
+          for (int x = -1; x <= 1; x++) {
+            vec2 nb = vec2(float(x), float(y));
+            vec2 pt = vec2(hash(ip + nb), hash2(ip + nb));
+            pt = 0.5 + 0.5 * sin(uTime * 0.4 + 6.2831 * pt);
+            vec2 diff = nb + pt - fp;
+            d = min(d, dot(diff, diff));
+          }
+        }
+        return sqrt(d);
+      }
 
       void main() {
         float t = uTime;
         float radial = vRadial;
         vec2 wp = vWorldPos.xz;
 
-        // Bright, fresh tropical gradient.
-        vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.55, radial));
-        col = mix(col, uShallow, smoothstep(0.48, 0.93, radial));
-        float clarity = smoothstep(0.22, 0.92, radial);
-        col = mix(col, vec3(0.84, 0.98, 0.98), clarity * 0.18);
+        // Vibrant tropical depth gradient
+        vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.48, radial));
+        col = mix(col, uShallow, smoothstep(0.38, 0.86, radial));
+        float clarity = smoothstep(0.18, 0.82, radial);
+        col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.2);
 
-        // Animated caustic light patterns
-        vec2 cuv1 = wp * 0.22 + vec2(t * 0.08, t * 0.06);
-        vec2 cuv2 = wp * 0.34 + vec2(-t * 0.06, t * 0.09);
-        vec2 cuv3 = wp * 0.16 + vec2(t * 0.04, -t * 0.07);
-        float caustic = noise(cuv1) + noise(cuv2) * 0.7 + noise(cuv3) * 0.5;
-        float causticBright = smoothstep(0.34, 0.72, caustic / 2.2) * 0.2;
-        col += causticBright * vec3(0.76, 0.98, 1.0) * (1.0 - radial * 0.36);
+        // Animated voronoi caustics — bright cell-like light patterns
+        vec2 cuv = wp * 0.14;
+        float c1 = voronoi(cuv + vec2(t * 0.05, t * 0.03));
+        float c2 = voronoi(cuv * 1.5 + vec2(-t * 0.04, t * 0.06));
+        float caustic = c1 * 0.55 + c2 * 0.45;
+        float causticBright = (1.0 - smoothstep(0.0, 0.42, caustic)) * 0.3;
+        causticBright *= smoothstep(0.04, 0.35, radial) * (1.0 - radial * 0.45);
+        col += causticBright * vec3(0.68, 0.95, 1.0);
 
-        // Wave-perturbed normal for reflections
+        // Secondary FBM caustic shimmer layer
+        float shimmer = fbm(wp * 0.25 + vec2(t * 0.06, -t * 0.04));
+        col = mix(col, col * 1.12, shimmer * 0.18 * (1.0 - radial * 0.4));
+
+        // Animated concentric ripple rings
+        float dist1 = length(wp - vec2(2.5, 4.0));
+        float dist2 = length(wp - vec2(-5.0, -2.5));
+        float dist3 = length(wp - vec2(7.0, -4.0));
+        float ripple = sin(dist1 * 2.6 - t * 2.2) * 0.5 + 0.5;
+        ripple += sin(dist2 * 2.4 - t * 1.8) * 0.5 + 0.5;
+        ripple += sin(dist3 * 2.8 - t * 2.6) * 0.5 + 0.5;
+        col += ripple * 0.018 * vec3(0.75, 0.92, 1.0) * (1.0 - radial * 0.5);
+
+        // Wave-perturbed normal for reflections (multi-octave)
         vec3 waveN = normalize(vec3(
-          sin(wp.x * 1.6 + t * 1.0) * 0.05 + sin(wp.x * 3.4 - t * 0.8) * 0.025,
+          sin(wp.x * 1.1 + t * 0.75) * 0.065 + sin(wp.x * 2.6 - t * 0.55) * 0.035
+            + sin(wp.x * 0.4 + wp.y * 0.3 + t * 0.45) * 0.04,
           1.0,
-          sin(wp.y * 1.6 - t * 0.9) * 0.05 + cos(wp.y * 3.0 + t * 0.7) * 0.025
+          sin(wp.y * 1.1 - t * 0.65) * 0.065 + cos(wp.y * 2.3 + t * 0.45) * 0.035
+            + sin(wp.y * 0.45 - wp.x * 0.35 + t * 0.55) * 0.04
         ));
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
 
-        // Sun specular
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 62.0);
-        col += vec3(1.0, 0.99, 0.95) * spec * 0.34 * (1.0 - radial * 0.2);
+        // Sun specular — broad highlight
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 42.0);
+        col += vec3(1.0, 0.97, 0.9) * spec * 0.5 * (1.0 - radial * 0.15);
 
-        // Small sparkles
+        // Softer wide specular spread
+        float specSoft = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 6.0);
+        col += vec3(0.92, 0.96, 1.0) * specSoft * 0.07;
+
+        // Fine sparkle detail
         vec3 sparkleN = normalize(vec3(
-          sin(wp.x * 5.2 + t * 2.2) * 0.12, 1.0,
-          cos(wp.y * 5.2 - t * 1.9) * 0.12
+          sin(wp.x * 6.5 + t * 2.6) * 0.16 + sin(wp.x * 10.0 - t * 1.9) * 0.08,
+          1.0,
+          cos(wp.y * 6.5 - t * 2.3) * 0.16 + cos(wp.y * 10.0 + t * 1.7) * 0.08
         ));
-        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 180.0);
-        col += vec3(1.0) * sparkle * 0.2;
+        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 240.0);
+        col += vec3(1.0) * sparkle * 0.38;
 
-        // Fresnel
-        float NdotV = max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0);
-        float fresnel = pow(1.0 - NdotV, 3.0) * 0.22;
-        col = mix(col, vec3(0.82, 0.95, 1.0), fresnel);
+        // Fresnel — sky/environment reflection
+        float NdotV = max(dot(viewDir, waveN), 0.0);
+        float fresnel = pow(1.0 - NdotV, 3.5) * 0.34;
+        vec3 skyCol = mix(vec3(0.52, 0.78, 0.92), vec3(0.32, 0.62, 0.85), waveN.y);
+        col = mix(col, skyCol, fresnel);
 
-        // Animated shore foam sits right at the boundary.
-        float foamWobble = sin(atan(wp.y, wp.x) * 8.0 + t * 1.2) * 0.010
-                         + sin(atan(wp.y, wp.x) * 13.0 - t * 0.8) * 0.008;
+        // Shore foam — noise-driven, animated, multi-frequency
+        float foamNoise = fbm(wp * 0.7 + vec2(t * 0.1, -t * 0.07));
+        float ang = atan(wp.y, wp.x);
+        float foamWobble = sin(ang * 8.0 + t * 1.2) * 0.013
+                         + sin(ang * 13.0 - t * 0.8) * 0.010
+                         + sin(ang * 21.0 + t * 1.6) * 0.005;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.90, 0.965, foamEdge) * (1.0 - smoothstep(0.97, 0.995, foamEdge));
-        col = mix(col, vec3(1.0, 1.0, 0.98), foam * 0.9);
+        float foam = smoothstep(0.87, 0.95, foamEdge) * (1.0 - smoothstep(0.955, 0.993, foamEdge));
+        foam *= 0.65 + foamNoise * 0.55;
+        foam = clamp(foam, 0.0, 1.0);
+        col = mix(col, vec3(1.0, 1.0, 0.96), foam * 0.94);
 
-        // Keep shoreline connected: fade with same edge driver as foam.
-        float bodyAlpha = mix(0.58, 0.16, smoothstep(0.06, 0.86, radial));
-        float edgeFade = 1.0 - smoothstep(0.958, 0.985, foamEdge);
-        float alpha = max(bodyAlpha * edgeFade, foam * 0.95);
+        // Alpha — more opaque center, clean edge transition
+        float bodyAlpha = mix(0.74, 0.2, smoothstep(0.04, 0.8, radial));
+        float edgeFade = 1.0 - smoothstep(0.95, 0.988, foamEdge);
+        float alpha = max(bodyAlpha * edgeFade, foam * 0.96);
         if (alpha < 0.002) discard;
 
         gl_FragColor = vec4(col, alpha);
@@ -1139,19 +1207,32 @@ function createConformingRing(innerRadius, outerRadius, radialSegments = 14, the
 }
 
 function addLakeRings(scene) {
-  const segs = 180, rings = 12, outerR = 36;
+  const segs = 180, rings = 14, outerR = 36;
   const positions = [], indices = [];
   const vpr = segs + 1; // vertices per ring row (close the loop)
   for (let r = 0; r <= rings; r++) {
     const rt = r / rings;
     for (let s = 0; s <= segs; s++) {
       const angle = (s / segs) * Math.PI * 2;
-      const innerR = getWaterRadiusAtAngle(angle) - 0.5;
+      const innerR = getLakeRadiusAtAngle(angle) - 1.5;
       const radius = innerR + (outerR - innerR) * rt;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
-      const y = getWorldSurfaceHeight(x, z);
-      positions.push(x, Number.isFinite(y) ? y + SHORE_LIFT : SHORE_LIFT, z);
+      const distR = Math.hypot(x, z);
+      const waterR = getWaterRadiusAtAngle(angle);
+      let y;
+      if (distR < waterR - 0.3) {
+        // Inside water boundary — submerge below water surface
+        y = WATER_SURFACE_Y - 0.08;
+      } else if (distR < waterR + 1.0) {
+        // Transition zone — smooth rise from submerged to shore level
+        const t = THREE.MathUtils.smoothstep(distR, waterR - 0.3, waterR + 1.0);
+        const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.01);
+        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.08, shoreH + SHORE_LIFT, t);
+      } else {
+        y = sampleTerrainHeight(x, z) + SHORE_LIFT;
+      }
+      positions.push(x, y, z);
     }
   }
   for (let r = 0; r < rings; r++) {
