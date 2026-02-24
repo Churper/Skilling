@@ -229,6 +229,7 @@ function updateClickEffects(dt) {
 
 // ── Emote chat bubbles ──
 const emoteBubbles = [];
+const floatingDrops = [];
 let bubbleLayer = null;
 
 function getBubbleLayer() {
@@ -276,6 +277,47 @@ function updateEmoteBubbles(dt) {
 }
 
 // ── Slime trail ──
+const _dropProj = new THREE.Vector3();
+
+function spawnFloatingDrop(x, z, text, tone = "xp") {
+  const el = document.createElement("div");
+  el.className = `xp-drop xp-drop-${tone}`;
+  el.textContent = text;
+  getBubbleLayer().appendChild(el);
+  floatingDrops.push({
+    el,
+    age: 0,
+    duration: tone === "level" ? 1.4 : 1.05,
+    x,
+    z,
+    y: getSurfaceIndicatorY(x, z) + 0.26,
+    driftX: (Math.random() - 0.5) * 0.28,
+    rise: tone === "level" ? 0.88 : 0.66,
+  });
+}
+
+function updateFloatingDrops(dt) {
+  if (!floatingDrops.length) return;
+  const hw = renderer.domElement.clientWidth * 0.5;
+  const hh = renderer.domElement.clientHeight * 0.5;
+  for (let i = floatingDrops.length - 1; i >= 0; i--) {
+    const d = floatingDrops[i];
+    d.age += dt;
+    const t = THREE.MathUtils.clamp(d.age / d.duration, 0, 1);
+    const eased = 1 - Math.pow(1 - t, 2);
+    _dropProj.set(d.x + d.driftX * eased, d.y + d.rise * eased, d.z);
+    _dropProj.project(camera);
+    d.el.style.left = (_dropProj.x * hw + hw) + "px";
+    d.el.style.top = (-_dropProj.y * hh + hh) + "px";
+    d.el.style.opacity = String(Math.max(0, 1 - t * 1.15));
+    d.el.style.transform = `translate(-50%, -100%) scale(${0.92 + t * 0.12})`;
+    if (t >= 1) {
+      d.el.remove();
+      floatingDrops.splice(i, 1);
+    }
+  }
+}
+
 const ENABLE_SLIME_TRAIL = true;
 const slimeTrails = [];
 const trailSegmentGeo = new THREE.PlaneGeometry(1, 1);
@@ -441,6 +483,11 @@ function tryGather(node) {
   }
   const successPos = resourceWorldPosition(node, resourceTargetPos);
   spawnClickEffect(successPos.x, successPos.z, "success");
+  spawnFloatingDrop(successPos.x, successPos.z, `+${xpGain} XP`, "xp");
+  spawnFloatingDrop(successPos.x + 0.14, successPos.z - 0.1, `+1 ${itemKey}`, "item");
+  if (leveled) {
+    spawnFloatingDrop(successPos.x - 0.14, successPos.z + 0.1, `${skillKey} Lv ${skills[skillKey].level}!`, "level");
+  }
 }
 
 function startGather(node) {
@@ -735,6 +782,7 @@ function animate() {
   });
   updateClickEffects(dt);
   updateEmoteBubbles(dt);
+  updateFloatingDrops(dt);
   updateSlimeTrail(dt, t, moveDir.lengthSq() > 0.0001 && !activeGather);
 
   if (marker.visible) {

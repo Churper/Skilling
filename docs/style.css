@@ -525,6 +525,37 @@ body {
   transition: opacity 0.3s ease;
 }
 
+.xp-drop {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(146, 220, 255, 0.42);
+  background: linear-gradient(180deg, rgba(10, 44, 64, 0.92), rgba(8, 27, 42, 0.95));
+  color: #d7f5ff;
+  font-family: var(--ui-font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
+  pointer-events: none;
+  z-index: 11;
+}
+
+.xp-drop-item {
+  border-color: rgba(148, 233, 172, 0.5);
+  background: linear-gradient(180deg, rgba(18, 64, 41, 0.92), rgba(10, 35, 24, 0.95));
+  color: #c8ffd9;
+}
+
+.xp-drop-level {
+  border-color: rgba(255, 225, 149, 0.56);
+  background: linear-gradient(180deg, rgba(81, 58, 18, 0.93), rgba(49, 34, 10, 0.95));
+  color: #ffe6a8;
+}
+
 @keyframes bubble-pop {
   from {
     transform: translate(-50%, -100%) scale(0.15);
