@@ -126,6 +126,11 @@ function setResourceNode(node, resourceType, label) {
   node.userData.resourceLabel = label;
 }
 
+function setServiceNode(node, serviceType, label) {
+  node.userData.serviceType = serviceType;
+  node.userData.resourceLabel = label;
+}
+
 function addSky(scene) {
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
@@ -461,17 +466,18 @@ function createWater(scene) {
         float fresnel = pow(1.0 - NdotV, 3.5) * 0.18;
         col = mix(col, vec3(0.78, 0.93, 1.0), fresnel);
 
-        // Animated shore foam band
-        float foamWobble = sin(atan(wp.y, wp.x) * 8.0 + t * 1.2) * 0.02
-                         + sin(atan(wp.y, wp.x) * 13.0 - t * 0.8) * 0.015;
+        // Animated shore foam sits right at the boundary.
+        float foamWobble = sin(atan(wp.y, wp.x) * 8.0 + t * 1.2) * 0.014
+                         + sin(atan(wp.y, wp.x) * 13.0 - t * 0.8) * 0.010;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.82, 0.90, foamEdge) * (1.0 - smoothstep(0.90, 0.98, foamEdge));
-        col = mix(col, vec3(1.0, 1.0, 0.97), foam * 0.6);
+        float foam = smoothstep(0.92, 0.975, foamEdge) * (1.0 - smoothstep(0.975, 1.0, foamEdge));
+        col = mix(col, vec3(1.0, 1.0, 0.97), foam * 0.72);
 
-        // Transparency: transparent at shore, opaque at center
-        float alpha = mix(0.88, 0.18, smoothstep(0.75, 1.0, radial));
-        // Extra foam opacity
-        alpha = max(alpha, foam * 0.7);
+        // More transparent water body and hard fade before the outer edge.
+        float baseAlpha = mix(0.56, 0.06, smoothstep(0.28, 0.90, radial));
+        float edgeFade = 1.0 - smoothstep(0.95, 1.0, radial);
+        float alpha = baseAlpha * edgeFade;
+        alpha = max(alpha, foam * 0.76);
 
         gl_FragColor = vec4(col, alpha);
       }
@@ -703,6 +709,78 @@ function addLounge(scene, blobTex, x, z, rot = 0) {
   scene.add(back);
 
   addShadowBlob(scene, blobTex, x, z, 1.7, 0.12);
+}
+
+function addBank(scene, blobTex, x, z, interactables = null) {
+  const baseY = getWorldSurfaceHeight(x, z);
+  const bank = new THREE.Group();
+  bank.position.set(x, baseY, z);
+  setServiceNode(bank, "bank", "Bank Chest");
+
+  const base = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.32, 1.4), toonMat("#4e7f9b"));
+  base.position.y = 0.2;
+  base.renderOrder = RENDER_DECOR;
+  bank.add(base);
+
+  const chest = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.66, 0.82), toonMat("#c89d4d"));
+  chest.position.y = 0.66;
+  chest.renderOrder = RENDER_DECOR;
+  bank.add(chest);
+
+  const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 1.26, 7, 1, false, 0, Math.PI), toonMat("#d7b16a"));
+  lid.rotation.z = Math.PI * 0.5;
+  lid.position.y = 1.0;
+  lid.renderOrder = RENDER_DECOR;
+  bank.add(lid);
+
+  const lock = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.24, 0.08), toonMat("#e7de8a"));
+  lock.position.set(0, 0.64, 0.45);
+  lock.renderOrder = RENDER_DECOR;
+  bank.add(lock);
+
+  scene.add(bank);
+  addShadowBlob(scene, blobTex, x, z, 1.65, 0.16);
+  if (interactables) interactables.push(bank);
+}
+
+function addStore(scene, blobTex, x, z, interactables = null) {
+  const baseY = getWorldSurfaceHeight(x, z);
+  const store = new THREE.Group();
+  store.position.set(x, baseY, z);
+  setServiceNode(store, "store", "General Store");
+
+  const booth = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.34, 1.3), toonMat("#7f5c38"));
+  booth.position.y = 0.22;
+  booth.renderOrder = RENDER_DECOR;
+  store.add(booth);
+
+  const awning = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.22, 1.36), toonMat("#e7a74a"));
+  awning.position.y = 1.46;
+  awning.renderOrder = RENDER_DECOR;
+  store.add(awning);
+
+  const postL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.2, 6), toonMat("#a97a4e"));
+  postL.position.set(-0.95, 0.78, 0.44);
+  postL.renderOrder = RENDER_DECOR;
+  store.add(postL);
+  const postR = postL.clone();
+  postR.position.x = 0.95;
+  store.add(postR);
+
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.42, 0.08), toonMat("#3f657d"));
+  sign.position.set(0, 1.0, 0.71);
+  sign.renderOrder = RENDER_DECOR;
+  store.add(sign);
+
+  const coin = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.04, 12), toonMat("#f1d173"));
+  coin.rotation.x = Math.PI * 0.5;
+  coin.position.set(0, 1.0, 0.76);
+  coin.renderOrder = RENDER_DECOR;
+  store.add(coin);
+
+  scene.add(store);
+  addShadowBlob(scene, blobTex, x, z, 1.75, 0.16);
+  if (interactables) interactables.push(store);
 }
 
 function addShoreDecor(scene, blobTex, resourceNodes) {
@@ -959,6 +1037,8 @@ export function createWorld(scene) {
   addWildflowers(scene);
   addExtraReeds(scene);
   const fishingSpots = addFishingSpots(scene, resourceNodes);
+  addBank(scene, blobTex, -27.5, -31.5, resourceNodes);
+  addStore(scene, blobTex, 27.5, -31.5, resourceNodes);
   const addBlob = (x, z, radius, opacity) => addShadowBlob(scene, blobTex, x, z, radius, opacity);
   const updateWorld = (time) => {
     updateFishingSpots(fishingSpots, time);

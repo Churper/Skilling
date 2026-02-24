@@ -41,6 +41,13 @@ const GATHER_DURATION_BY_RESOURCE = {
   woodcutting: 0.72,
 };
 
+const BAG_CAPACITY = 28;
+const SELL_PRICE_BY_ITEM = {
+  fish: 4,
+  ore: 7,
+  logs: 5,
+};
+
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
 const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld } = createWorld(scene);
@@ -49,6 +56,9 @@ const { marker, markerRing, markerBeam } = createMoveMarker(scene);
 
 let equippedTool = "fishing";
 const inventory = { fish: 0, ore: 0, logs: 0 };
+const bagSlots = Array(BAG_CAPACITY).fill(null);
+const bankStorage = { fish: 0, ore: 0, logs: 0 };
+let coins = 0;
 const skills = {
   fishing: { xp: 0, level: 1 },
   mining: { xp: 0, level: 1 },
@@ -69,8 +79,78 @@ function equipTool(tool, announce = false) {
   if (announce) ui?.setStatus(`Equipped ${TOOL_LABEL[tool]}.`, "info");
 }
 
+function bagUsedCount() {
+  let used = 0;
+  for (const slot of bagSlots) {
+    if (slot) used += 1;
+  }
+  return used;
+}
+
+function bagIsFull() {
+  return bagUsedCount() >= BAG_CAPACITY;
+}
+
+function updateInventoryCountsFromSlots() {
+  inventory.fish = 0;
+  inventory.ore = 0;
+  inventory.logs = 0;
+  for (const slot of bagSlots) {
+    if (slot && Object.prototype.hasOwnProperty.call(inventory, slot)) {
+      inventory[slot] += 1;
+    }
+  }
+}
+
+function syncInventoryUI() {
+  updateInventoryCountsFromSlots();
+  ui?.setInventory({
+    counts: inventory,
+    slots: bagSlots,
+    used: bagUsedCount(),
+    capacity: BAG_CAPACITY,
+  });
+  ui?.setCoins(coins);
+}
+
+function addItemToBag(itemKey) {
+  const slotIndex = bagSlots.indexOf(null);
+  if (slotIndex < 0) return false;
+  bagSlots[slotIndex] = itemKey;
+  updateInventoryCountsFromSlots();
+  return true;
+}
+
+function clearBagToBank() {
+  let moved = 0;
+  for (let i = 0; i < bagSlots.length; i++) {
+    const item = bagSlots[i];
+    if (!item) continue;
+    bankStorage[item] += 1;
+    bagSlots[i] = null;
+    moved += 1;
+  }
+  updateInventoryCountsFromSlots();
+  return moved;
+}
+
+function sellBagToStore() {
+  let sold = 0;
+  let coinsGained = 0;
+  for (let i = 0; i < bagSlots.length; i++) {
+    const item = bagSlots[i];
+    if (!item) continue;
+    sold += 1;
+    coinsGained += SELL_PRICE_BY_ITEM[item] ?? 0;
+    bagSlots[i] = null;
+  }
+  coins += coinsGained;
+  updateInventoryCountsFromSlots();
+  return { sold, coinsGained };
+}
+
 equipTool(equippedTool, false);
-ui?.setInventory(inventory);
+syncInventoryUI();
 ui?.setSkills({
   fishing: skills.fishing.level,
   mining: skills.mining.level,
@@ -84,6 +164,7 @@ let hasMoveTarget = false;
 let markerBaseY = 0;
 let markerOnWater = false;
 let pendingResource = null;
+let pendingService = null;
 let activeGather = null;
 
 const clickEffects = [];
@@ -240,6 +321,7 @@ player.position.y = getPlayerStandY(player.position.x, player.position.z);
 function setMoveTarget(point, preservePending = false) {
   if (!point) return;
   if (!preservePending) pendingResource = null;
+  if (!preservePending) pendingService = null;
   if (!preservePending) activeGather = null;
   markerTarget.copy(point);
   moveTarget.copy(point);
@@ -265,12 +347,21 @@ function tryGather(node) {
   const skillKey = SKILL_BY_RESOURCE[resourceType];
   const itemKey = INVENTORY_BY_RESOURCE[resourceType];
   const xpGain = XP_BY_RESOURCE[resourceType];
+
+  if (!addItemToBag(itemKey)) {
+    activeGather = null;
+    pendingResource = null;
+    ui?.setStatus(`Bag full (${bagUsedCount()}/${BAG_CAPACITY}). Click Bank to deposit or Store to sell.`, "warn");
+    const fullPos = resourceWorldPosition(node, resourceTargetPos);
+    spawnClickEffect(fullPos.x, fullPos.z, "warn");
+    return;
+  }
+
   const prevLevel = skills[skillKey].level;
   skills[skillKey].xp += xpGain;
   skills[skillKey].level = xpToLevel(skills[skillKey].xp);
-  inventory[itemKey] += 1;
 
-  ui?.setInventory(inventory);
+  syncInventoryUI();
   ui?.setSkills({
     fishing: skills.fishing.level,
     mining: skills.mining.level,
@@ -299,8 +390,69 @@ function startGather(node) {
   ui?.setStatus(`Gathering ${node.userData.resourceLabel}...`, "info");
 }
 
-function onInteractResource(node, hitPoint) {
+function runServiceAction(node) {
+  const serviceType = node.userData.serviceType;
+  if (!serviceType) return;
+
+  if (serviceType === "bank") {
+    const moved = clearBagToBank();
+    syncInventoryUI();
+    if (moved <= 0) {
+      ui?.setStatus("Bank: your bag is already empty.", "warn");
+    } else {
+      ui?.setStatus(`Banked ${moved} item${moved === 1 ? "" : "s"}.`, "success");
+    }
+    return;
+  }
+
+  if (serviceType === "store") {
+    const { sold, coinsGained } = sellBagToStore();
+    syncInventoryUI();
+    if (sold <= 0) {
+      ui?.setStatus("Store: nothing to sell from your bag.", "warn");
+    } else {
+      ui?.setStatus(`Sold ${sold} item${sold === 1 ? "" : "s"} for ${coinsGained} coins.`, "success");
+    }
+  }
+}
+
+function onInteractNode(node, hitPoint) {
+  if (node.userData?.serviceType) {
+    if (hitPoint) spawnClickEffect(hitPoint.x, hitPoint.z, "neutral");
+    else {
+      const clickPos = resourceWorldPosition(node, resourceTargetPos);
+      spawnClickEffect(clickPos.x, clickPos.z, "neutral");
+    }
+
+    pendingResource = null;
+    activeGather = null;
+    pendingService = node;
+    resourceWorldPosition(node, resourceTargetPos);
+    const distance = resourceTargetPos.distanceTo(player.position);
+    if (distance > 2.7) {
+      setMoveTarget(resourceTargetPos, true);
+      ui?.setStatus(`Walking to ${node.userData.resourceLabel}...`, "info");
+      return;
+    }
+    hasMoveTarget = false;
+    marker.visible = false;
+    runServiceAction(node);
+    pendingService = null;
+    return;
+  }
+
   const resourceType = node.userData.resourceType;
+  if (!resourceType) return;
+  if (bagIsFull()) {
+    ui?.setStatus(`Bag full (${bagUsedCount()}/${BAG_CAPACITY}). Visit Bank or Store first.`, "warn");
+    if (hitPoint) spawnClickEffect(hitPoint.x, hitPoint.z, "warn");
+    else {
+      const fullPos = resourceWorldPosition(node, resourceTargetPos);
+      spawnClickEffect(fullPos.x, fullPos.z, "warn");
+    }
+    return;
+  }
+
   const toneLookup = { woodcutting: "tree", mining: "rock", fishing: "fish" };
   const clickTone = toneLookup[resourceType] || "neutral";
   if (hitPoint) spawnClickEffect(hitPoint.x, hitPoint.z, clickTone);
@@ -312,6 +464,7 @@ function onInteractResource(node, hitPoint) {
   const neededTool = TOOL_FOR_RESOURCE[resourceType];
   if (neededTool && equippedTool !== neededTool) equipTool(neededTool, false);
 
+  pendingService = null;
   pendingResource = node;
   activeGather = null;
   resourceWorldPosition(node, resourceTargetPos);
@@ -331,7 +484,7 @@ const input = createInputController({
   player,
   setMoveTarget,
   interactables: resourceNodes,
-  onInteract: onInteractResource,
+  onInteract: onInteractNode,
 });
 
 const worldUp = new THREE.Vector3(0, 1, 0);
@@ -379,6 +532,7 @@ function animate() {
     hasMoveTarget = false;
     marker.visible = false;
     pendingResource = null;
+    pendingService = null;
     activeGather = null;
     moveDir.normalize();
   } else if (hasMoveTarget) {
@@ -407,6 +561,17 @@ function animate() {
     const gatherDistance = resourceTargetPos.distanceTo(player.position);
     if (gatherDistance <= 2.7) {
       startGather(pendingResource);
+    }
+  }
+
+  if (pendingService && !activeGather) {
+    resourceWorldPosition(pendingService, resourceTargetPos);
+    const serviceDistance = resourceTargetPos.distanceTo(player.position);
+    if (serviceDistance <= 2.7) {
+      runServiceAction(pendingService);
+      pendingService = null;
+      hasMoveTarget = false;
+      marker.visible = false;
     }
   }
 

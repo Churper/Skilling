@@ -4,6 +4,18 @@ const TOOL_LABEL = {
   fishing: "Fishing Pole",
 };
 
+const ITEM_ICON = {
+  fish: "\u{1F41F}",
+  ore: "\u{1FAA8}",
+  logs: "\u{1FAB5}",
+};
+
+const ITEM_LABEL = {
+  fish: "Fish",
+  ore: "Ore",
+  logs: "Logs",
+};
+
 export function initializeUI(options = {}) {
   const { onToolSelect, onEmote } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
@@ -19,6 +31,9 @@ export function initializeUI(options = {}) {
   const invFishEl = document.getElementById("ui-inv-fish");
   const invOreEl = document.getElementById("ui-inv-ore");
   const invLogsEl = document.getElementById("ui-inv-logs");
+  const bagCapacityEl = document.getElementById("ui-bag-capacity");
+  const inventoryGridEl = document.getElementById("ui-inventory-grid");
+  const coinsEl = document.getElementById("ui-coins-value");
   const fishLevelEl = document.getElementById("ui-skill-fishing");
   const miningLevelEl = document.getElementById("ui-skill-mining");
   const woodcutLevelEl = document.getElementById("ui-skill-woodcutting");
@@ -32,6 +47,14 @@ export function initializeUI(options = {}) {
   };
 
   const mobileQuery = window.matchMedia("(max-width: 760px)");
+  let activeTab = "inventory";
+  let panelCollapsed = false;
+
+  function setPanelCollapsed(collapsed) {
+    panelCollapsed = !!collapsed;
+    if (uiRoot) uiRoot.classList.toggle("panel-collapsed", panelCollapsed);
+  }
+
   function setMobileMenuOpen(open) {
     if (!uiRoot) return;
     const shouldOpen = mobileQuery.matches ? !!open : true;
@@ -43,6 +66,7 @@ export function initializeUI(options = {}) {
   }
 
   function refreshMobileLayout() {
+    setPanelCollapsed(false);
     if (!mobileQuery.matches) {
       setMobileMenuOpen(true);
       return;
@@ -51,6 +75,7 @@ export function initializeUI(options = {}) {
   }
 
   function setActive(tab) {
+    activeTab = tab;
     for (const button of buttons) {
       button.classList.toggle("is-active", button.dataset.tab === tab);
     }
@@ -67,10 +92,47 @@ export function initializeUI(options = {}) {
     if (equippedToolEl) equippedToolEl.textContent = `Equipped: ${TOOL_LABEL[tool] || "Unknown"}`;
   }
 
-  function setInventory(inventory) {
-    if (invFishEl) invFishEl.textContent = String(inventory.fish ?? 0);
-    if (invOreEl) invOreEl.textContent = String(inventory.ore ?? 0);
-    if (invLogsEl) invLogsEl.textContent = String(inventory.logs ?? 0);
+  function renderInventoryGrid(slots, capacity) {
+    if (!inventoryGridEl) return;
+    inventoryGridEl.innerHTML = "";
+    const slotCount = Math.max(capacity || 0, slots.length || 0);
+    for (let i = 0; i < slotCount; i++) {
+      const itemType = slots[i] || null;
+      const slot = document.createElement("div");
+      slot.className = itemType ? "ui-bag-slot" : "ui-bag-slot is-empty";
+      if (itemType) {
+        slot.title = ITEM_LABEL[itemType] || "Item";
+        const icon = document.createElement("span");
+        icon.className = "ui-bag-slot-icon";
+        icon.textContent = ITEM_ICON[itemType] || "?";
+        slot.append(icon);
+      } else {
+        slot.title = "Empty";
+        const empty = document.createElement("span");
+        empty.className = "ui-bag-slot-empty";
+        slot.append(empty);
+      }
+      inventoryGridEl.append(slot);
+    }
+  }
+
+  function setInventory(payload) {
+    const counts = payload?.counts ?? payload ?? {};
+    const slots = Array.isArray(payload?.slots) ? payload.slots : [];
+    const capacity = Number.isFinite(payload?.capacity) ? payload.capacity : slots.length;
+    const used = Number.isFinite(payload?.used) ? payload.used : slots.filter((slot) => !!slot).length;
+
+    if (invFishEl) invFishEl.textContent = String(counts.fish ?? 0);
+    if (invOreEl) invOreEl.textContent = String(counts.ore ?? 0);
+    if (invLogsEl) invLogsEl.textContent = String(counts.logs ?? 0);
+    if (bagCapacityEl && capacity > 0) bagCapacityEl.textContent = `${used}/${capacity}`;
+    renderInventoryGrid(slots, capacity);
+  }
+
+  function setCoins(amount) {
+    if (!coinsEl) return;
+    const value = Math.max(0, Math.floor(Number(amount) || 0));
+    coinsEl.textContent = String(value);
   }
 
   function setSkills(skills) {
@@ -87,8 +149,13 @@ export function initializeUI(options = {}) {
 
   for (const button of buttons) {
     button.addEventListener("click", () => {
-      setActive(button.dataset.tab);
-      if (mobileQuery.matches) setMobileMenuOpen(false);
+      const tab = button.dataset.tab;
+      if (tab === activeTab) {
+        setPanelCollapsed(!panelCollapsed);
+        return;
+      }
+      setPanelCollapsed(false);
+      setActive(tab);
     });
   }
 
@@ -113,6 +180,7 @@ export function initializeUI(options = {}) {
   if (mobileToggle) {
     mobileToggle.addEventListener("click", () => {
       const open = !uiRoot?.classList.contains("mobile-open");
+      if (open) setPanelCollapsed(false);
       setMobileMenuOpen(open);
     });
   }
@@ -123,12 +191,14 @@ export function initializeUI(options = {}) {
   }
 
   refreshMobileLayout();
+  setPanelCollapsed(false);
   setActive("inventory");
   setActiveTool("fishing");
 
   return {
     setActiveTool,
     setInventory,
+    setCoins,
     setSkills,
     setStatus,
   };

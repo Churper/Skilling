@@ -9,12 +9,13 @@ export function createPlayer(scene, addShadowBlob) {
     let y = pos.getY(i);
     let z = pos.getZ(i);
     // Flatten bottom
-    if (y < 0) y *= 0.3;
+    if (y < 0) y *= 0.42;
     // Bulge middle xz
     const yNorm = (y + 0.5) / 1.0;
-    const bulge = 1.0 + 0.22 * Math.sin(yNorm * Math.PI);
-    x *= bulge;
-    z *= bulge;
+    const bulge = 1.0 + 0.26 * Math.sin(yNorm * Math.PI);
+    x *= bulge * 1.04;
+    y *= 1.12;
+    z *= bulge * 1.04;
     pos.setXYZ(i, x, y, z);
   }
   slimeGeo.computeVertexNormals();
@@ -35,29 +36,28 @@ export function createPlayer(scene, addShadowBlob) {
   );
   player.position.set(0, 1.2, 10);
 
-  // Face — eyes and mouth
-  const eyeMat = new THREE.MeshBasicMaterial({ color: "#1a1a1a" });
-  const eyeGeo = new THREE.SphereGeometry(0.055, 8, 8);
+  // Face: eyes and mouth.
+  const eyeMat = new THREE.MeshBasicMaterial({ color: "#000000" });
+  const eyeGeo = new THREE.SphereGeometry(0.062, 8, 8);
   const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-  leftEye.position.set(-0.12, 0.18, 0.38);
+  leftEye.position.set(-0.115, 0.2, 0.395);
   player.add(leftEye);
   const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-  rightEye.position.set(0.12, 0.18, 0.38);
+  rightEye.position.set(0.115, 0.2, 0.395);
   player.add(rightEye);
-  const mouthGeo = new THREE.SphereGeometry(0.03, 8, 8);
-  const mouth = new THREE.Mesh(mouthGeo, eyeMat);
-  mouth.scale.set(1, 0.5, 1);
-  mouth.position.set(0, 0.04, 0.42);
-  player.add(mouth);
-
-  // Toe bumps — chonky slug nubs at bottom-front
-  const bumpGeo = new THREE.SphereGeometry(0.09, 5, 4);
-  for (const bp of [{ x: -0.16, z: 0.28 }, { x: 0.0, z: 0.34 }, { x: 0.16, z: 0.28 }]) {
-    const bump = new THREE.Mesh(bumpGeo, player.material);
-    bump.position.set(bp.x, -0.12, bp.z);
-    bump.scale.set(1, 0.5, 1.1);
-    player.add(bump);
-  }
+  const mouthMat = new THREE.MeshBasicMaterial({ color: "#08110a" });
+  const mouthLobeGeo = new THREE.SphereGeometry(0.026, 8, 8);
+  const mouthLeft = new THREE.Mesh(mouthLobeGeo, mouthMat);
+  mouthLeft.scale.set(1.1, 0.72, 1.0);
+  mouthLeft.position.set(-0.032, 0.045, 0.43);
+  player.add(mouthLeft);
+  const mouthRight = new THREE.Mesh(mouthLobeGeo, mouthMat);
+  mouthRight.scale.set(1.1, 0.72, 1.0);
+  mouthRight.position.set(0.032, 0.045, 0.43);
+  player.add(mouthRight);
+  const mouthNose = new THREE.Mesh(new THREE.SphereGeometry(0.013, 8, 8), mouthMat);
+  mouthNose.position.set(0, 0.07, 0.432);
+  player.add(mouthNose);
 
   // Lower-only filler prevents ground bleed at the feet without a visible inner-sphere ring.
   const baseFill = new THREE.Mesh(
@@ -86,13 +86,13 @@ export function createPlayer(scene, addShadowBlob) {
   const carryPose = {
     axe:     { x: 0.38, y: 0.08, z: 0.18, rx: -0.12, ry: 0.30, rz: -0.38 },
     pickaxe: { x: 0.38, y: 0.08, z: 0.18, rx: -0.15, ry: 0.30, rz: -0.32 },
-    fishing: { x: 0.36, y: 0.08, z: 0.18, rx: 0.18, ry: 0.10, rz: -0.15 },
+    fishing: { x: 0.33, y: 0.1, z: 0.21, rx: 0.58, ry: 0.05, rz: -0.06 },
   };
 
   const gatherPose = {
     axe:     { x: 0.34, y: 0.14, z: 0.22, rx: -1.0, ry: 0.08, rz: 0.08 },
     pickaxe: { x: 0.34, y: 0.14, z: 0.22, rx: -1.05, ry: 0.10, rz: 0.06 },
-    fishing: { x: 0.34, y: 0.16, z: 0.22, rx: 1.2, ry: 0.12, rz: 0.18 },
+    fishing: { x: 0.33, y: 0.17, z: 0.23, rx: 1.34, ry: 0.08, rz: 0.16 },
   };
 
   function setEquippedTool(tool) {
@@ -230,6 +230,8 @@ function createAxeMesh() {
   pommel.position.set(0, -0.06, 0);
   mesh.add(pommel);
 
+  // Flip local forward so axe blade faces the same play direction as other tools.
+  mesh.rotation.y = Math.PI;
   mesh.scale.setScalar(0.9);
   return mesh;
 }

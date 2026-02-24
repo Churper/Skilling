@@ -6,6 +6,7 @@ export function createInputController({ domElement, camera, ground, player, setM
   const pointer = new THREE.Vector2();
   const walkPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -player.position.y);
   let downInfo = null;
+  let mouseHoldMove = null;
 
   function pointerToNdc(clientX, clientY) {
     pointer.x = (clientX / window.innerWidth) * 2 - 1;
@@ -26,7 +27,7 @@ export function createInputController({ domElement, camera, ground, player, setM
   function findInteractableRoot(object) {
     let node = object;
     while (node) {
-      if (node.userData && node.userData.resourceType) return node;
+      if (node.userData && (node.userData.resourceType || node.userData.serviceType)) return node;
       node = node.parent;
     }
     return null;
@@ -52,8 +53,10 @@ export function createInputController({ domElement, camera, ground, player, setM
       const interaction = getInteractable(event.clientX, event.clientY);
       if (interaction) {
         if (typeof onInteract === "function") onInteract(interaction.root, interaction.hit.point);
+        mouseHoldMove = null;
         return;
       }
+      mouseHoldMove = { id: event.pointerId };
       setMoveTarget(getGroundPoint(event.clientX, event.clientY));
       return;
     }
@@ -63,11 +66,19 @@ export function createInputController({ domElement, camera, ground, player, setM
   });
 
   domElement.addEventListener("pointermove", (event) => {
+    if (event.pointerType === "mouse" && mouseHoldMove && (event.buttons & 1)) {
+      setMoveTarget(getGroundPoint(event.clientX, event.clientY));
+      return;
+    }
     if (!downInfo || !(event.buttons & 1)) return;
     if (Math.hypot(event.clientX - downInfo.x, event.clientY - downInfo.y) > 8) downInfo.moved = true;
   });
 
   const onPointerRelease = (event) => {
+    if (mouseHoldMove && event.pointerId === mouseHoldMove.id) {
+      mouseHoldMove = null;
+    }
+
     if (!downInfo || event.button !== 0) return;
     if (!downInfo.moved) {
       const interaction = getInteractable(event.clientX, event.clientY);

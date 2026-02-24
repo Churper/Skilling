@@ -16,6 +16,10 @@
       <h1>Skilling</h1>
       <p>Early Build</p>
     </header>
+    <div id="ui-coins-chip" aria-live="polite" aria-label="Gold coins">
+      <span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span>
+      <strong id="ui-coins-value">0</strong>
+    </div>
     <button type="button" id="ui-mobile-toggle" aria-expanded="false" aria-controls="ui-dock ui-panel">
       Menu
     </button>
@@ -45,10 +49,15 @@
       <h2 id="ui-panel-title">Inventory</h2>
       <section class="ui-panel-section" data-tab-panel="inventory">
         <p>Bag</p>
-        <div class="ui-stat-row"><span>Fish</span><strong id="ui-inv-fish">0</strong></div>
-        <div class="ui-stat-row"><span>Ore</span><strong id="ui-inv-ore">0</strong></div>
-        <div class="ui-stat-row"><span>Logs</span><strong id="ui-inv-logs">0</strong></div>
-        <p id="ui-status-line" class="ui-status" data-tone="info">Click trees, rocks, or fishing spots to gather.</p>
+        <div class="ui-bag-head">
+          <strong id="ui-bag-capacity">0/28</strong>
+          <span>Full bag? Use Bank or Store.</span>
+        </div>
+        <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
+        <div class="ui-stat-row ui-stat-row-mini"><span>Fish</span><strong id="ui-inv-fish">0</strong></div>
+        <div class="ui-stat-row ui-stat-row-mini"><span>Ore</span><strong id="ui-inv-ore">0</strong></div>
+        <div class="ui-stat-row ui-stat-row-mini"><span>Logs</span><strong id="ui-inv-logs">0</strong></div>
+        <p id="ui-status-line" class="ui-status" data-tone="info">Gather resources. Bank stores items. Store sells for coins.</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="tools" hidden>
         <p>Tools</p>
