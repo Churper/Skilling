@@ -72,13 +72,13 @@ export function createPlayer(scene, addShadowBlob) {
   let currentTool = "fishing";
 
   const carryPose = {
-    axe:     { x: -0.36, y: 0.18, z: 0.1, rx: 0.42, ry: 1.08, rz: -0.18 },
+    axe:     { x: -0.36, y: 0.19, z: 0.11, rx: 0.64, ry: -0.74, rz: -0.08 },
     pickaxe: { x: 0.36, y: 0.18, z: 0.1, rx: 0.32, ry: -1.02, rz: 0.14 },
     fishing: { x: -0.36, y: 0.2, z: 0.12, rx: 0.94, ry: -0.78, rz: -0.05 },
   };
 
   const gatherPose = {
-    axe:     { x: -0.34, y: 0.25, z: 0.12, rx: -0.44, ry: 1.28, rz: 0.16 },
+    axe:     { x: -0.34, y: 0.25, z: 0.13, rx: -0.24, ry: -0.88, rz: 0.03 },
     pickaxe: { x: 0.34, y: 0.25, z: 0.12, rx: -0.58, ry: -1.34, rz: -0.14 },
     fishing: { x: -0.34, y: 0.25, z: 0.14, rx: 1.42, ry: -0.72, rz: -0.24 },
   };
@@ -215,8 +215,8 @@ function createAxeMesh() {
   pommel.position.set(0, -0.06, 0);
   mesh.add(pommel);
 
-  // Horizontal flip so axe matches right-hand fishing hold orientation.
-  mesh.rotation.y = Math.PI * 0.5;
+  // Keep axe blade alignment in the same direction family as fishing hold.
+  mesh.rotation.y = -Math.PI * 0.5;
   mesh.scale.setScalar(0.9);
   return mesh;
 }
