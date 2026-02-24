@@ -22,54 +22,48 @@ export function createPlayer(scene, addShadowBlob) {
 
   const player = new THREE.Mesh(
     slimeGeo,
-    new THREE.MeshPhysicalMaterial({
-      color: "#5deb7a",
-      transparent: true,
-      opacity: 0.6,
-      roughness: 0.05,
-      metalness: 0.0,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.04,
+    new THREE.MeshToonMaterial({
+      color: "#67e37f",
       flatShading: true,
       side: THREE.FrontSide,
     })
   );
   player.position.set(0, 1.2, 10);
 
-  // Face: eyes and mouth.
-  const eyeMat = new THREE.MeshBasicMaterial({ color: "#000000" });
-  const eyeGeo = new THREE.SphereGeometry(0.062, 8, 8);
-  const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-  leftEye.position.set(-0.115, 0.2, 0.395);
-  player.add(leftEye);
-  const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-  rightEye.position.set(0.115, 0.2, 0.395);
-  player.add(rightEye);
-  const mouthMat = new THREE.MeshBasicMaterial({ color: "#08110a" });
-  const mouthLobeGeo = new THREE.SphereGeometry(0.026, 8, 8);
-  const mouthLeft = new THREE.Mesh(mouthLobeGeo, mouthMat);
-  mouthLeft.scale.set(1.1, 0.72, 1.0);
-  mouthLeft.position.set(-0.032, 0.045, 0.43);
-  player.add(mouthLeft);
-  const mouthRight = new THREE.Mesh(mouthLobeGeo, mouthMat);
-  mouthRight.scale.set(1.1, 0.72, 1.0);
-  mouthRight.position.set(0.032, 0.045, 0.43);
-  player.add(mouthRight);
-  const mouthNose = new THREE.Mesh(new THREE.SphereGeometry(0.013, 8, 8), mouthMat);
-  mouthNose.position.set(0, 0.07, 0.432);
-  player.add(mouthNose);
+  // Keep facial features as opaque meshes so they stay crisp and black.
+  const faceGroup = new THREE.Group();
+  faceGroup.position.set(0, 0.16, 0.44);
+  player.add(faceGroup);
 
-  // Lower-only filler prevents ground bleed at the feet without a visible inner-sphere ring.
-  const baseFill = new THREE.Mesh(
-    new THREE.SphereGeometry(0.46, 10, 8, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5),
-    new THREE.MeshToonMaterial({ color: "#4ecf6d" })
+  const faceMat = new THREE.MeshBasicMaterial({ color: "#0d110f" });
+  const eyeGeo = new THREE.SphereGeometry(0.042, 8, 8);
+  const leftEye = new THREE.Mesh(eyeGeo, faceMat);
+  leftEye.position.set(-0.105, 0.08, 0.082);
+  const rightEye = new THREE.Mesh(eyeGeo, faceMat);
+  rightEye.position.set(0.105, 0.08, 0.082);
+  faceGroup.add(leftEye, rightEye);
+
+  const mouthMat = new THREE.MeshBasicMaterial({ color: "#0b0f0d" });
+  const mouthCenter = new THREE.Mesh(
+    new THREE.SphereGeometry(0.016, 7, 7),
+    mouthMat
   );
-  baseFill.scale.set(0.95, 0.52, 0.95);
-  baseFill.position.set(0, -0.17, 0);
-  player.add(baseFill);
+  mouthCenter.position.set(0, -0.004, 0.088);
+  faceGroup.add(mouthCenter);
+
+  const mouthCurveGeo = new THREE.TorusGeometry(0.038, 0.008, 6, 10, Math.PI);
+  const mouthLeft = new THREE.Mesh(mouthCurveGeo, mouthMat);
+  mouthLeft.position.set(-0.042, -0.03, 0.084);
+  mouthLeft.rotation.x = Math.PI;
+  mouthLeft.rotation.z = Math.PI * 0.22;
+  const mouthRight = new THREE.Mesh(mouthCurveGeo, mouthMat);
+  mouthRight.position.set(0.042, -0.03, 0.084);
+  mouthRight.rotation.x = Math.PI;
+  mouthRight.rotation.z = -Math.PI * 0.22;
+  faceGroup.add(mouthLeft, mouthRight);
 
   const toolAnchor = new THREE.Group();
-  toolAnchor.position.set(0.38, 0.08, 0.18);
+  toolAnchor.position.set(0.44, 0.19, 0.07);
   player.add(toolAnchor);
 
   const toolMeshes = {
@@ -84,15 +78,15 @@ export function createPlayer(scene, addShadowBlob) {
   let currentTool = "fishing";
 
   const carryPose = {
-    axe:     { x: 0.38, y: 0.08, z: 0.18, rx: -0.12, ry: 0.30, rz: -0.38 },
-    pickaxe: { x: 0.38, y: 0.08, z: 0.18, rx: -0.15, ry: 0.30, rz: -0.32 },
-    fishing: { x: 0.33, y: 0.1, z: 0.21, rx: 0.58, ry: 0.05, rz: -0.06 },
+    axe:     { x: 0.44, y: 0.18, z: 0.07, rx: 0.34, ry: 1.12, rz: -0.22 },
+    pickaxe: { x: 0.44, y: 0.18, z: 0.07, rx: 0.28, ry: 1.05, rz: -0.18 },
+    fishing: { x: 0.38, y: 0.2, z: 0.13, rx: 0.94, ry: 0.78, rz: 0.05 },
   };
 
   const gatherPose = {
-    axe:     { x: 0.34, y: 0.14, z: 0.22, rx: -1.0, ry: 0.08, rz: 0.08 },
-    pickaxe: { x: 0.34, y: 0.14, z: 0.22, rx: -1.05, ry: 0.10, rz: 0.06 },
-    fishing: { x: 0.33, y: 0.17, z: 0.23, rx: 1.34, ry: 0.08, rz: 0.16 },
+    axe:     { x: 0.4, y: 0.25, z: 0.09, rx: -0.52, ry: 1.32, rz: 0.2 },
+    pickaxe: { x: 0.4, y: 0.25, z: 0.09, rx: -0.62, ry: 1.38, rz: 0.18 },
+    fishing: { x: 0.36, y: 0.25, z: 0.14, rx: 1.42, ry: 0.72, rz: 0.24 },
   };
 
   function setEquippedTool(tool) {
@@ -188,39 +182,36 @@ export function createPlayer(scene, addShadowBlob) {
 
 function createAxeMesh() {
   const mesh = new THREE.Group();
-  const handleMat = new THREE.MeshToonMaterial({ color: "#9b6f42" });
-  const metalMat = new THREE.MeshToonMaterial({ color: "#c7d4df" });
+  const handleMat = new THREE.MeshToonMaterial({ color: "#91633d" });
+  const metalMat = new THREE.MeshToonMaterial({ color: "#c9d5de" });
   const handle = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.026, 0.032, 0.82, 6),
+    new THREE.CylinderGeometry(0.023, 0.03, 0.86, 6),
     handleMat
   );
-  handle.position.set(0.0, 0.34, 0.0);
+  handle.position.set(0.0, 0.36, 0.0);
   mesh.add(handle);
 
   const bladeCore = new THREE.Mesh(
-    new THREE.BoxGeometry(0.25, 0.13, 0.075),
+    new THREE.BoxGeometry(0.1, 0.15, 0.22),
     metalMat
   );
-  bladeCore.position.set(0.08, 0.72, 0);
-  bladeCore.rotation.y = Math.PI * 0.06;
+  bladeCore.position.set(0, 0.74, 0.09);
   mesh.add(bladeCore);
 
   const bladeBit = new THREE.Mesh(
-    new THREE.ConeGeometry(0.09, 0.14, 4),
+    new THREE.ConeGeometry(0.094, 0.14, 4),
     metalMat
   );
-  bladeBit.position.set(0.2, 0.72, 0);
-  bladeBit.rotation.z = -Math.PI * 0.5;
-  bladeBit.rotation.x = Math.PI * 0.25;
+  bladeBit.position.set(0, 0.74, 0.24);
+  bladeBit.rotation.x = Math.PI * 0.5;
   mesh.add(bladeBit);
 
   const backSpike = new THREE.Mesh(
-    new THREE.ConeGeometry(0.04, 0.08, 4),
+    new THREE.ConeGeometry(0.04, 0.1, 4),
     metalMat
   );
-  backSpike.position.set(-0.07, 0.72, 0);
-  backSpike.rotation.z = Math.PI * 0.5;
-  backSpike.rotation.x = Math.PI * 0.25;
+  backSpike.position.set(0, 0.74, -0.09);
+  backSpike.rotation.x = -Math.PI * 0.5;
   mesh.add(backSpike);
 
   const pommel = new THREE.Mesh(
@@ -230,8 +221,8 @@ function createAxeMesh() {
   pommel.position.set(0, -0.06, 0);
   mesh.add(pommel);
 
-  // Flip local forward so axe blade faces the same play direction as other tools.
-  mesh.rotation.y = Math.PI;
+  // Keep the blade direction forward relative to carry poses.
+  mesh.rotation.y = Math.PI * 0.5;
   mesh.scale.setScalar(0.9);
   return mesh;
 }

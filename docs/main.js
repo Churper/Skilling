@@ -268,11 +268,20 @@ function updateEmoteBubbles(dt) {
 }
 
 // ── Slime trail ──
+const ENABLE_SLIME_TRAIL = false;
 const slimeTrails = [];
 const trailGeo = new THREE.CircleGeometry(0.18, 8);
 let lastTrailTime = 0;
 
 function updateSlimeTrail(dt, t, isMoving) {
+  if (!ENABLE_SLIME_TRAIL) {
+    for (let i = slimeTrails.length - 1; i >= 0; i--) {
+      scene.remove(slimeTrails[i].mesh);
+      slimeTrails[i].mesh.material.dispose();
+      slimeTrails.splice(i, 1);
+    }
+    return;
+  }
   if (isMoving && t - lastTrailTime > 0.1) {
     lastTrailTime = t;
     const mat = new THREE.MeshBasicMaterial({
@@ -302,7 +311,7 @@ function updateSlimeTrail(dt, t, isMoving) {
 player.geometry.computeBoundingBox();
 const playerFootOffset = -player.geometry.boundingBox.min.y;
 const playerHeadOffset = player.geometry.boundingBox.max.y;
-const playerGroundSink = 0.018;
+const playerGroundSink = 0.038;
 
 function xpToLevel(xp) {
   return Math.floor(Math.sqrt(xp / 34)) + 1;
