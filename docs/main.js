@@ -99,6 +99,9 @@ function spawnClickEffect(x, z, tone = "neutral") {
     neutral: "#f6efab",
     success: "#96efbf",
     warn: "#ffd2a3",
+    tree: "#96efbf",
+    rock: "#ffd2a3",
+    fish: "#a0d8f0",
   };
   const effectMat = new THREE.MeshBasicMaterial({
     color: colorByTone[tone] || colorByTone.neutral,
@@ -113,7 +116,8 @@ function spawnClickEffect(x, z, tone = "neutral") {
   ring.position.set(x, getSurfaceIndicatorY(x, z) + 0.12, z);
   ring.renderOrder = 98;
   scene.add(ring);
-  clickEffects.push({ ring, age: 0, duration: 0.3 });
+  const isResource = tone === "tree" || tone === "rock" || tone === "fish";
+  clickEffects.push({ ring, age: 0, duration: isResource ? 0.4 : 0.3 });
 }
 
 function updateClickEffects(dt) {
@@ -214,10 +218,13 @@ function startGather(node) {
 }
 
 function onInteractResource(node, hitPoint) {
-  if (hitPoint) spawnClickEffect(hitPoint.x, hitPoint.z, "neutral");
+  const resourceType = node.userData.resourceType;
+  const toneLookup = { woodcutting: "tree", mining: "rock", fishing: "fish" };
+  const clickTone = toneLookup[resourceType] || "neutral";
+  if (hitPoint) spawnClickEffect(hitPoint.x, hitPoint.z, clickTone);
   else {
     const clickPos = resourceWorldPosition(node, resourceTargetPos);
-    spawnClickEffect(clickPos.x, clickPos.z, "neutral");
+    spawnClickEffect(clickPos.x, clickPos.z, clickTone);
   }
 
   const resourceType = node.userData.resourceType;
@@ -254,14 +261,14 @@ const gatherDir = new THREE.Vector3();
 const cameraFocus = new THREE.Vector3();
 const cameraDelta = new THREE.Vector3();
 const cameraInitBack = new THREE.Vector3();
-const fogAboveWater = new THREE.Color("#88a8b6");
+const fogAboveWater = new THREE.Color("#b8ccb8");
 const fogUnderwater = new THREE.Color("#4b88a4");
 let underwaterFogActive = false;
 
 const clock = new THREE.Clock();
 
 // Initialize chase camera centered above and behind player.
-cameraFocus.set(player.position.x, player.position.y + 0.85, player.position.z);
+cameraFocus.set(player.position.x, player.position.y + 0.4, player.position.z);
 controls.target.copy(cameraFocus);
 cameraInitBack.set(Math.sin(player.rotation.y + Math.PI), 0, Math.cos(player.rotation.y + Math.PI));
 camera.position.copy(cameraFocus).addScaledVector(cameraInitBack, 12).addScaledVector(worldUp, 6);
@@ -380,7 +387,7 @@ function animate() {
     scene.fog.color.copy(isUnderwater ? fogUnderwater : fogAboveWater);
   }
 
-  cameraFocus.set(player.position.x, player.position.y + 0.85, player.position.z);
+  cameraFocus.set(player.position.x, player.position.y + 0.4, player.position.z);
   cameraDelta.subVectors(cameraFocus, controls.target);
   camera.position.add(cameraDelta);
   controls.target.copy(cameraFocus);

@@ -90,10 +90,10 @@ export function getWaterSurfaceHeight(x, z, time = 0) {
 
   const uvx = x / (WATER_RADIUS * 2) + 0.5;
   const uvy = z / (WATER_RADIUS * 2) + 0.5;
-  const w0 = Math.sin((uvx * 5.9 + uvy * 4.7) + time * 1.22) * 0.018;
-  const w1 = Math.sin((uvx * 9.6 - uvy * 7.4) - time * 1.0) * 0.01;
-  const w2 = Math.sin((uvx * 14.4 + uvy * 11.2) + time * 1.42) * 0.005;
-  const w3 = Math.sin((uvx * 3.2 + uvy * 2.5) + time * 0.75) * 0.025;
+  const w0 = Math.sin((uvx * 5.9 + uvy * 4.7) + time * 1.22) * 0.011;
+  const w1 = Math.sin((uvx * 9.6 - uvy * 7.4) - time * 1.0) * 0.006;
+  const w2 = Math.sin((uvx * 14.4 + uvy * 11.2) + time * 1.42) * 0.003;
+  const w3 = Math.sin((uvx * 3.2 + uvy * 2.5) + time * 0.75) * 0.015;
   return WATER_SURFACE_Y + w0 + w1 + w2 + w3;
 }
 
@@ -106,9 +106,9 @@ function addSky(scene) {
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: {
-      cTop: { value: new THREE.Color("#2f83d2") },
-      cMid: { value: new THREE.Color("#77caf8") },
-      cBot: { value: new THREE.Color("#e8f7ff") },
+      cTop: { value: new THREE.Color("#3a8ed6") },
+      cMid: { value: new THREE.Color("#8dcef4") },
+      cBot: { value: new THREE.Color("#fff0d8") },
       uTime: { value: 0 },
     },
     vertexShader: `
@@ -283,42 +283,22 @@ function createLakeBowlMesh(radius = LAKE_RADIUS, segments = 180) {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#3eddd2") },
-    uDeep: { value: new THREE.Color("#0c62a8") },
+    uShallow: { value: new THREE.Color("#7eeadf") },
+    uMid: { value: new THREE.Color("#3cc4c4") },
+    uDeep: { value: new THREE.Color("#1a7ab5") },
+    uBeach: { value: new THREE.Color("#e0c888") },
   };
 
   const lakeFloor = createLakeBowlMesh();
   lakeFloor.renderOrder = RENDER_SHORE;
   scene.add(lakeFloor);
 
-  // Keep this texture output so the main loop can animate offsets without special-casing.
+  // Keep caustic texture for main.js compat
   const causticMap = createCausticTexture();
 
-  const foamStripMap = createFoamStripTexture();
-  const shorelineFoam = new THREE.Mesh(
-    new THREE.RingGeometry(WATER_RADIUS - 0.24, WATER_RADIUS + 0.32, 320),
-    new THREE.MeshBasicMaterial({
-      map: foamStripMap,
-      color: "#f6fdff",
-      transparent: true,
-      opacity: 0.62,
-      depthWrite: false,
-      depthTest: false,
-      blending: THREE.AdditiveBlending,
-      polygonOffset: true,
-      polygonOffsetFactor: -2,
-      polygonOffsetUnits: -2,
-      side: THREE.DoubleSide,
-    })
-  );
-  shorelineFoam.rotation.x = -Math.PI / 2;
-  shorelineFoam.position.y = WATER_SURFACE_Y + 0.008;
-  shorelineFoam.renderOrder = RENDER_WATER + 1;
-  scene.add(shorelineFoam);
-
   const waterMat = new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
+    transparent: false,
+    depthWrite: true,
     uniforms: waterUniforms,
     vertexShader: `
       varying vec2 vUv;
@@ -327,10 +307,10 @@ function createWater(scene) {
       void main() {
         vUv = uv;
         vec3 p = position;
-        float w0 = sin((uv.x * 5.9 + uv.y * 4.7) + uTime * 1.22) * 0.018;
-        float w1 = sin((uv.x * 9.6 - uv.y * 7.4) - uTime * 1.0) * 0.01;
-        float w2 = sin((uv.x * 14.4 + uv.y * 11.2) + uTime * 1.42) * 0.005;
-        float w3 = sin((uv.x * 3.2 + uv.y * 2.5) + uTime * 0.75) * 0.025;
+        float w0 = sin((uv.x * 5.9 + uv.y * 4.7) + uTime * 1.22) * 0.011;
+        float w1 = sin((uv.x * 9.6 - uv.y * 7.4) - uTime * 1.0) * 0.006;
+        float w2 = sin((uv.x * 14.4 + uv.y * 11.2) + uTime * 1.42) * 0.003;
+        float w3 = sin((uv.x * 3.2 + uv.y * 2.5) + uTime * 0.75) * 0.015;
         p.y += w0 + w1 + w2 + w3;
         vec4 worldPos = modelMatrix * vec4(p, 1.0);
         vWorldPos = worldPos.xyz;
@@ -342,55 +322,45 @@ function createWater(scene) {
       varying vec3 vWorldPos;
       uniform float uTime;
       uniform vec3 uShallow;
+      uniform vec3 uMid;
       uniform vec3 uDeep;
+      uniform vec3 uBeach;
 
       void main() {
         float t = uTime;
         float radial = clamp(distance(vUv, vec2(0.5)) / 0.5, 0.0, 1.0);
-        vec2 wp = vWorldPos.xz;
-        float depth = pow(1.0 - radial, 1.0);
-        vec3 col = mix(uShallow, uDeep, pow(depth, 0.5));
 
-        vec2 uv1 = wp * 0.35 + vec2(t * 0.12, -t * 0.08);
-        float c1 = sin(uv1.x * 6.28) * sin(uv1.y * 6.28);
-        vec2 uv2 = wp * 0.28 + vec2(-t * 0.09, t * 0.11);
-        float c2 = sin(uv2.x * 6.28 + 1.5) * sin(uv2.y * 6.28 + 2.0);
-        float caustic = pow(max(0.0, (c1 + c2 + 0.3) * 0.5), 1.5);
-        col += vec3(0.12, 0.18, 0.16) * caustic * depth * 0.7;
+        // 3-zone radial gradient: deep center -> mid -> shallow edge
+        vec3 col = uDeep;
+        col = mix(col, uMid, smoothstep(0.0, 0.45, radial));
+        col = mix(col, uShallow, smoothstep(0.45, 0.85, radial));
 
-        float r1 = sin(wp.x * 1.8 + wp.y * 1.0 + t * 2.0);
-        float r2 = sin(wp.x * 0.6 - wp.y * 2.2 - t * 1.5);
-        float r3 = sin((wp.x + wp.y) * 1.3 + t * 1.2);
-        float ripple = smoothstep(0.6, 1.0, r1 * 0.5 + 0.5) * 0.5
-                     + smoothstep(0.65, 1.0, r2 * 0.5 + 0.5) * 0.35
-                     + smoothstep(0.7, 1.0, r3 * 0.5 + 0.5) * 0.25;
-        col += vec3(0.14, 0.2, 0.22) * ripple * 0.4;
-
+        // Single subtle sun specular with gently wave-perturbed normal
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
-        float NdotV = max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0);
-        float fresnel = pow(1.0 - NdotV, 3.0);
-        col = mix(col, vec3(0.7, 0.88, 0.98), fresnel * 0.45);
-
-        vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
+        vec2 wp = vWorldPos.xz;
         vec3 waveN = normalize(vec3(
-          sin(wp.x * 1.5 + t * 1.2) * 0.06 + sin(wp.x * 3.0 - t * 0.8) * 0.03,
+          sin(wp.x * 1.2 + t * 0.8) * 0.04,
           1.0,
-          sin(wp.y * 1.5 - t * 1.0) * 0.06 + sin(wp.y * 3.0 + t * 0.9) * 0.03
+          sin(wp.y * 1.2 - t * 0.7) * 0.04
         ));
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 64.0);
-        col += vec3(1.0, 0.97, 0.9) * spec * 0.35 * (1.0 - radial * 0.5);
+        vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 80.0);
+        col += vec3(1.0, 0.98, 0.92) * spec * 0.3 * (1.0 - radial * 0.4);
 
-        float shore = smoothstep(0.82, 0.99, radial);
-        float angle = atan(wp.y, wp.x);
-        float foamA = sin(angle * 12.0 + t * 1.6) * 0.5 + 0.5;
-        float foamB = sin(angle * 7.0 - t * 2.1 + 3.0) * 0.5 + 0.5;
-        float foam = shore * (smoothstep(0.25, 0.7, foamA) * 0.65 + smoothstep(0.35, 0.8, foamB) * 0.35);
-        col = mix(col, vec3(0.96, 0.99, 1.0), foam * 0.6);
+        // Clean fresnel: sky tint at edges
+        float NdotV = max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0);
+        float fresnel = pow(1.0 - NdotV, 4.0) * 0.25;
+        col = mix(col, vec3(0.75, 0.9, 1.0), fresnel);
 
-        float edgeFade = smoothstep(1.0, 0.96, radial);
-        float alpha = mix(0.9, 0.97, pow(depth, 0.6));
-        alpha = clamp(alpha + fresnel * 0.02, 0.88, 0.98) * edgeFade;
-        gl_FragColor = vec4(col, alpha);
+        // Thin static edge foam band
+        float foam = smoothstep(0.92, 0.97, radial) * (1.0 - smoothstep(0.97, 1.0, radial));
+        col = mix(col, vec3(1.0, 1.0, 1.0), foam * 0.45);
+
+        // Blend outer edge to beach color for seamless shore transition
+        float edgeBlend = smoothstep(0.93, 1.0, radial);
+        col = mix(col, uBeach, edgeBlend);
+
+        gl_FragColor = vec4(col, 1.0);
       }
     `,
   });
@@ -430,40 +400,6 @@ function createCausticTexture() {
   return tex;
 }
 
-function createFoamStripTexture() {
-  const c = document.createElement("canvas");
-  c.width = 1024;
-  c.height = 64;
-  const ctx = c.getContext("2d");
-  ctx.clearRect(0, 0, c.width, c.height);
-
-  for (let x = 0; x < c.width; x += 2) {
-    const a = THREE.MathUtils.clamp(
-      0.35 +
-        Math.sin(x * 0.027) * 0.18 +
-        Math.sin(x * 0.071 + 1.6) * 0.14,
-      0.28,
-      0.86
-    );
-    const g = ctx.createLinearGradient(0, 0, 0, c.height);
-    g.addColorStop(0.0, "rgba(255,255,255,0)");
-    g.addColorStop(0.33, `rgba(255,255,255,${(a * 0.42).toFixed(3)})`);
-    g.addColorStop(0.56, `rgba(255,255,255,${(a * 0.95).toFixed(3)})`);
-    g.addColorStop(0.84, `rgba(255,255,255,${(a * 0.28).toFixed(3)})`);
-    g.addColorStop(1.0, "rgba(255,255,255,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(x, 0, 2, c.height);
-  }
-
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.wrapT = THREE.ClampToEdgeWrapping;
-  tex.minFilter = THREE.LinearMipmapLinearFilter;
-  tex.magFilter = THREE.LinearFilter;
-  tex.repeat.set(1.4, 1);
-  return tex;
-}
 
 function radialTexture(inner = 0.05, outer = 1.0) {
   const c = document.createElement("canvas");
@@ -730,6 +666,151 @@ function addLakeRings(scene) {
   scene.add(beachRing);
 }
 
+function addLilyPads(scene) {
+  const padPositions = [
+    { x: -8, z: 6, r: 0.55, flower: false },
+    { x: -5, z: 12, r: 0.45, flower: true, flowerColor: "#f5a0c0" },
+    { x: 3, z: 14, r: 0.6, flower: false },
+    { x: 7, z: 11, r: 0.5, flower: true, flowerColor: "#f7e663" },
+    { x: -11, z: 3, r: 0.4, flower: false },
+    { x: 12, z: -3, r: 0.55, flower: false },
+    { x: -4, z: -10, r: 0.5, flower: true, flowerColor: "#f5a0c0" },
+    { x: 6, z: -8, r: 0.45, flower: false },
+    { x: -9, z: -5, r: 0.65, flower: false },
+    { x: 10, z: 5, r: 0.5, flower: false },
+  ];
+  for (const pad of padPositions) {
+    // Circle with wedge notch
+    const geo = new THREE.CircleGeometry(pad.r, 16, 0.2, Math.PI * 2 - 0.4);
+    const lilyMat = toonMat("#4a9e6b");
+    const lily = new THREE.Mesh(geo, lilyMat);
+    lily.rotation.x = -Math.PI / 2;
+    lily.rotation.z = Math.random() * Math.PI * 2;
+    lily.position.set(pad.x, WATER_SURFACE_Y + 0.01, pad.z);
+    lily.renderOrder = RENDER_WATER + 1;
+    scene.add(lily);
+    if (pad.flower) {
+      const flower = new THREE.Mesh(
+        new THREE.SphereGeometry(0.08, 8, 6),
+        toonMat(pad.flowerColor)
+      );
+      flower.position.set(pad.x + (Math.random() - 0.5) * 0.15, WATER_SURFACE_Y + 0.07, pad.z + (Math.random() - 0.5) * 0.15);
+      flower.renderOrder = RENDER_WATER + 2;
+      scene.add(flower);
+    }
+  }
+}
+
+function addWildflowers(scene) {
+  const patches = [
+    { cx: 26, cz: 14, count: 7 },
+    { cx: -24, cz: 12, count: 6 },
+    { cx: 18, cz: -22, count: 5 },
+    { cx: -20, cz: -18, count: 8 },
+    { cx: 30, cz: 0, count: 6 },
+  ];
+  const flowerColors = ["#f5a0c0", "#f7e663", "#c4a0f5", "#ff9e7a", "#a0d8f0"];
+  for (const patch of patches) {
+    for (let i = 0; i < patch.count; i++) {
+      const fx = patch.cx + (Math.random() - 0.5) * 3.5;
+      const fz = patch.cz + (Math.random() - 0.5) * 3.5;
+      const baseY = getWorldSurfaceHeight(fx, fz);
+      const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+      // Stem
+      const stem = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.015, 0.018, 0.35, 4),
+        toonMat("#5a9e48")
+      );
+      stem.position.set(fx, baseY + 0.18, fz);
+      stem.renderOrder = RENDER_DECOR;
+      scene.add(stem);
+      // Blossom
+      const blossom = new THREE.Mesh(
+        new THREE.SphereGeometry(0.055, 6, 6),
+        toonMat(color)
+      );
+      blossom.position.set(fx, baseY + 0.37, fz);
+      blossom.renderOrder = RENDER_DECOR;
+      scene.add(blossom);
+    }
+  }
+}
+
+function addExtraTrees(scene, blobTex, resourceNodes) {
+  const extraTrees = [
+    [-35, 14, 0.92],
+    [36, -10, 0.88],
+    [-15, 32, 0.95],
+    [25, -28, 0.82],
+  ];
+  const leafHues = ["#6fd1a8", "#5ec99a", "#7dddb0", "#62c490"];
+  for (let i = 0; i < extraTrees.length; i++) {
+    const [x, z, scale] = extraTrees[i];
+    const baseY = getWorldSurfaceHeight(x, z);
+    const tree = new THREE.Group();
+    tree.position.set(x, baseY, z);
+    setResourceNode(tree, "woodcutting", "Tree");
+
+    const trunk = new THREE.Mesh(TREE_TRUNK_GEO, TREE_TRUNK_MAT);
+    trunk.scale.setScalar(scale);
+    trunk.position.set(0, 2.05 * scale, 0);
+    trunk.rotation.z = (Math.random() - 0.5) * 0.16;
+    trunk.renderOrder = RENDER_DECOR;
+    tree.add(trunk);
+
+    const crownY = 4.18 * scale;
+    const leafColor = leafHues[i % leafHues.length];
+    const coreMat = toonMat(leafColor);
+    const core = new THREE.Mesh(TREE_CORE_GEO, coreMat);
+    core.scale.setScalar(scale * 0.72);
+    core.position.set(0, crownY, 0);
+    core.renderOrder = RENDER_DECOR;
+    tree.add(core);
+
+    const leafMat = toonMat(leafColor);
+    for (let j = 0; j < 6; j++) {
+      const frond = new THREE.Mesh(TREE_LEAF_GEO, leafMat);
+      frond.scale.setScalar(scale);
+      const yaw = (j / 6) * Math.PI * 2 + (Math.random() - 0.5) * 0.14;
+      frond.rotation.y = yaw;
+      frond.rotation.x = -0.3 + (Math.random() - 0.5) * 0.06;
+      frond.position.set(
+        Math.cos(yaw) * 0.22 * scale,
+        crownY + (Math.random() - 0.5) * 0.05 * scale,
+        Math.sin(yaw) * 0.22 * scale
+      );
+      frond.renderOrder = RENDER_DECOR;
+      tree.add(frond);
+    }
+
+    scene.add(tree);
+    resourceNodes.push(tree);
+    addShadowBlob(scene, blobTex, x, z, 2.2 * scale, 0.15);
+  }
+}
+
+function addExtraReeds(scene) {
+  const patches = [
+    [22, 12, 8], [-22, 10, 6], [15, 22, 7], [-14, 22, 5],
+    [25, -12, 6], [-25, -8, 7], [8, 26, 5], [-8, 26, 6],
+  ];
+  const reedColors = ["#89b162", "#7da858", "#96bd6e", "#80a954"];
+  for (const [x, z, count] of patches) {
+    const baseY = getWorldSurfaceHeight(x, z);
+    for (let i = 0; i < count; i++) {
+      const color = reedColors[Math.floor(Math.random() * reedColors.length)];
+      const reed = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.03, 0.04, 0.95 + Math.random() * 0.45, 5),
+        toonMat(color)
+      );
+      reed.position.set(x + (Math.random() - 0.5) * 0.9, baseY + 0.48, z + (Math.random() - 0.5) * 0.9);
+      reed.rotation.z = (Math.random() - 0.5) * 0.28;
+      reed.renderOrder = RENDER_DECOR;
+      scene.add(reed);
+    }
+  }
+}
+
 export function createWorld(scene) {
   const resourceNodes = [];
   const skyMat = addSky(scene);
@@ -739,6 +820,10 @@ export function createWorld(scene) {
   addWaterRocks(scene);
   const blobTex = radialTexture();
   addShoreDecor(scene, blobTex, resourceNodes);
+  addExtraTrees(scene, blobTex, resourceNodes);
+  addLilyPads(scene);
+  addWildflowers(scene);
+  addExtraReeds(scene);
   const fishingSpots = addFishingSpots(scene, resourceNodes);
   const addBlob = (x, z, radius, opacity) => addShadowBlob(scene, blobTex, x, z, radius, opacity);
   const updateWorld = (time) => {

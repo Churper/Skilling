@@ -46,6 +46,19 @@ export function createInputController({ domElement, camera, ground, player, setM
 
   domElement.addEventListener("pointerdown", (event) => {
     if (event.button !== 0) return;
+
+    // Mouse: fire immediately on pointerdown — no drag detection needed
+    if (event.pointerType === "mouse") {
+      const interaction = getInteractable(event.clientX, event.clientY);
+      if (interaction) {
+        if (typeof onInteract === "function") onInteract(interaction.root, interaction.hit.point);
+        return;
+      }
+      setMoveTarget(getGroundPoint(event.clientX, event.clientY));
+      return;
+    }
+
+    // Touch: use pointerup flow (allows drag/orbit distinction)
     downInfo = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
   });
 

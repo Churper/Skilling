@@ -1,28 +1,55 @@
 import * as THREE from "three";
 
 export function createPlayer(scene, addShadowBlob) {
-  const gradient = document.createElement("canvas");
-  gradient.width = 6;
-  gradient.height = 1;
-  const gctx = gradient.getContext("2d");
-  [28, 74, 126, 182, 232, 255].forEach((v, i) => {
-    gctx.fillStyle = `rgb(${v},${v},${v})`;
-    gctx.fillRect(i, 0, 1, 1);
-  });
-  const gradientMap = new THREE.CanvasTexture(gradient);
-  gradientMap.colorSpace = THREE.NoColorSpace;
-  gradientMap.minFilter = THREE.NearestFilter;
-  gradientMap.magFilter = THREE.NearestFilter;
-  gradientMap.generateMipmaps = false;
+  // Slime body: squished sphere with flat bottom, bulged middle, domed top
+  const slimeGeo = new THREE.SphereGeometry(0.5, 16, 12);
+  const pos = slimeGeo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    let x = pos.getX(i);
+    let y = pos.getY(i);
+    let z = pos.getZ(i);
+    // Flatten bottom
+    if (y < 0) y *= 0.3;
+    // Bulge middle xz
+    const yNorm = (y + 0.5) / 1.0; // 0 at bottom, 1 at top
+    const bulge = 1.0 + 0.2 * Math.sin(yNorm * Math.PI);
+    x *= bulge;
+    z *= bulge;
+    pos.setXYZ(i, x, y, z);
+  }
+  slimeGeo.computeVertexNormals();
 
   const player = new THREE.Mesh(
-    new THREE.CapsuleGeometry(0.45, 0.95, 6, 12),
-    new THREE.MeshToonMaterial({ color: "#f6cf66", gradientMap })
+    slimeGeo,
+    new THREE.MeshPhysicalMaterial({
+      color: "#4dbd4d",
+      transparent: true,
+      opacity: 0.6,
+      roughness: 0.15,
+      metalness: 0.0,
+      clearcoat: 0.8,
+      clearcoatRoughness: 0.1,
+    })
   );
   player.position.set(0, 1.2, 10);
 
+  // Face — eyes and mouth
+  const eyeMat = new THREE.MeshBasicMaterial({ color: "#1a1a1a" });
+  const eyeGeo = new THREE.SphereGeometry(0.055, 8, 8);
+  const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+  leftEye.position.set(-0.12, 0.18, 0.38);
+  player.add(leftEye);
+  const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+  rightEye.position.set(0.12, 0.18, 0.38);
+  player.add(rightEye);
+  const mouthGeo = new THREE.SphereGeometry(0.03, 8, 8);
+  const mouth = new THREE.Mesh(mouthGeo, eyeMat);
+  mouth.scale.set(1, 0.5, 1);
+  mouth.position.set(0, 0.04, 0.42);
+  player.add(mouth);
+
   const toolAnchor = new THREE.Group();
-  toolAnchor.position.set(-0.42, 0.12, 0.18);
+  toolAnchor.position.set(-0.52, 0.05, 0.12);
   player.add(toolAnchor);
 
   const toolMeshes = {
@@ -37,15 +64,15 @@ export function createPlayer(scene, addShadowBlob) {
   let currentTool = "fishing";
 
   const carryPose = {
-    axe:     { x: -0.48, y: 0.0, z: 0.14, rx: -0.5, ry: 0.0, rz: 0.12 },
-    pickaxe: { x: -0.48, y: 0.0, z: 0.14, rx: -0.55, ry: 0.0, rz: 0.10 },
-    fishing: { x: -0.44, y: 0.05, z: 0.16, rx: -0.3, ry: 0.05, rz: 0.08 },
+    axe:     { x: -0.52, y: -0.05, z: 0.10, rx: -0.5, ry: 0.0, rz: 0.12 },
+    pickaxe: { x: -0.52, y: -0.05, z: 0.10, rx: -0.55, ry: 0.0, rz: 0.10 },
+    fishing: { x: -0.48, y: 0.0, z: 0.12, rx: -0.3, ry: 0.05, rz: 0.08 },
   };
 
   const gatherPose = {
-    axe:     { x: -0.42, y: 0.12, z: 0.18, rx: -1.12, ry: -0.16, rz: -0.16 },
-    pickaxe: { x: -0.42, y: 0.12, z: 0.18, rx: -1.18, ry: -0.19, rz: -0.14 },
-    fishing: { x: -0.4, y: 0.16, z: 0.21, rx: -1.36, ry: 0.14, rz: -0.26 },
+    axe:     { x: -0.46, y: 0.06, z: 0.14, rx: -1.12, ry: -0.16, rz: -0.16 },
+    pickaxe: { x: -0.46, y: 0.06, z: 0.14, rx: -1.18, ry: -0.19, rz: -0.14 },
+    fishing: { x: -0.44, y: 0.10, z: 0.16, rx: -1.36, ry: 0.14, rz: -0.26 },
   };
 
   function setEquippedTool(tool) {
@@ -75,8 +102,8 @@ export function createPlayer(scene, addShadowBlob) {
     let toolPosY = basePose.y;
     let toolPosZ = basePose.z;
     const idle = Math.sin(animTime * 1.9);
-    toolPosY += idle * 0.003;
-    toolRotZ += Math.sin(animTime * 1.6) * 0.01;
+    toolPosY += idle * 0.005;
+    toolRotZ += Math.sin(animTime * 1.6) * 0.015;
 
     if (gathering) {
       if (resourceType === "fishing") {
@@ -111,10 +138,13 @@ export function createPlayer(scene, addShadowBlob) {
       const stride = Math.sin(animTime * 7.2);
       targetPitch = stride * 0.013;
       targetRoll = Math.sin(animTime * 3.6) * 0.008;
-      targetScaleY = 1 + Math.sin(animTime * 7.2 + 0.9) * 0.01;
+      targetScaleY = 1 + Math.sin(animTime * 7.2 + 0.9) * 0.025;
       toolRotX -= stride * 0.06;
       toolRotZ -= Math.sin(animTime * 7.2 + 1.0) * 0.025;
       toolPosY += Math.abs(stride) * 0.008;
+    } else {
+      // Idle slime breathing squish
+      targetScaleY = 1 + Math.sin(animTime * 1.9) * 0.035;
     }
 
     player.rotation.x = THREE.MathUtils.damp(player.rotation.x, targetPitch, 14, dt);
@@ -132,7 +162,7 @@ export function createPlayer(scene, addShadowBlob) {
   }
 
   scene.add(player);
-  const playerBlob = addShadowBlob(player.position.x, player.position.z, 1.5, 0.24);
+  const playerBlob = addShadowBlob(player.position.x, player.position.z, 1.0, 0.22);
   return { player, playerBlob, setEquippedTool, updateAnimation };
 }
 

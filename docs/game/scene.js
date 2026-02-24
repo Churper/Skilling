@@ -15,7 +15,7 @@ export function createSceneContext(canvas) {
   renderer.toneMappingExposure = 0.9;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog("#88a8b6", 180, 560);
+  scene.fog = new THREE.Fog("#b8ccb8", 180, 560);
 
   const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.1, 500);
   camera.position.set(28, 30, 28);
@@ -53,7 +53,7 @@ export function createSceneContext(canvas) {
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.07, 0.35, 1.15));
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.12, 0.4, 1.05));
   composer.addPass(new OutputPass());
 
   window.addEventListener("resize", () => {
