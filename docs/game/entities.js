@@ -36,8 +36,14 @@ export function createPlayer(scene, addShadowBlob) {
   toolAnchor.add(toolMeshes.axe, toolMeshes.pickaxe, toolMeshes.fishing);
   let currentTool = "fishing";
 
-  const toolPoseByType = {
-    axe: { x: 0.42, y: 0.12, z: 0.18, rx: -1.12, ry: 0.16, rz: 0.16 },
+  const carryPose = {
+    axe:     { x: 0.48, y: 0.0, z: 0.14, rx: -0.5, ry: 0.0, rz: -0.12 },
+    pickaxe: { x: 0.48, y: 0.0, z: 0.14, rx: -0.55, ry: 0.0, rz: -0.10 },
+    fishing: { x: 0.44, y: 0.05, z: 0.16, rx: -0.3, ry: -0.05, rz: -0.08 },
+  };
+
+  const gatherPose = {
+    axe:     { x: 0.42, y: 0.12, z: 0.18, rx: -1.12, ry: 0.16, rz: 0.16 },
     pickaxe: { x: 0.42, y: 0.12, z: 0.18, rx: -1.18, ry: 0.19, rz: 0.14 },
     fishing: { x: 0.4, y: 0.16, z: 0.21, rx: -1.36, ry: -0.14, rz: 0.26 },
   };
@@ -59,7 +65,9 @@ export function createPlayer(scene, addShadowBlob) {
     let targetPitch = 0;
     let targetRoll = 0;
     let targetScaleY = 1;
-    const basePose = toolPoseByType[currentTool] || toolPoseByType.fishing;
+    const basePose = gathering
+      ? (gatherPose[currentTool] || gatherPose.fishing)
+      : (carryPose[currentTool] || carryPose.fishing);
     let toolRotX = basePose.rx;
     let toolRotY = basePose.ry;
     let toolRotZ = basePose.rz;
@@ -67,8 +75,8 @@ export function createPlayer(scene, addShadowBlob) {
     let toolPosY = basePose.y;
     let toolPosZ = basePose.z;
     const idle = Math.sin(animTime * 1.9);
-    toolPosY += idle * 0.004;
-    toolRotZ += Math.sin(animTime * 1.6) * 0.018;
+    toolPosY += idle * 0.003;
+    toolRotZ += Math.sin(animTime * 1.6) * 0.01;
 
     if (gathering) {
       if (resourceType === "fishing") {
@@ -100,15 +108,13 @@ export function createPlayer(scene, addShadowBlob) {
         toolPosZ += impact * 0.008;
       }
     } else if (moving) {
-      const bob = Math.sin(animTime * 7.2);
-      targetPitch = bob * 0.013;
+      const stride = Math.sin(animTime * 7.2);
+      targetPitch = stride * 0.013;
       targetRoll = Math.sin(animTime * 3.6) * 0.008;
       targetScaleY = 1 + Math.sin(animTime * 7.2 + 0.9) * 0.01;
-      toolRotX += bob * 0.075;
-      toolRotY += Math.sin(animTime * 2.9) * 0.03;
-      toolRotZ += Math.sin(animTime * 4.6) * 0.045;
-      toolPosX += Math.sin(animTime * 3.6) * 0.008;
-      toolPosY += bob * 0.014;
+      toolRotX += stride * 0.06;
+      toolRotZ += Math.sin(animTime * 7.2 + 1.0) * 0.025;
+      toolPosY += stride * 0.01;
     }
 
     player.rotation.x = THREE.MathUtils.damp(player.rotation.x, targetPitch, 14, dt);
