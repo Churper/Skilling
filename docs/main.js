@@ -254,30 +254,9 @@ const desiredTarget = new THREE.Vector3();
 const gatherDir = new THREE.Vector3();
 const fogAboveWater = new THREE.Color("#88a8b6");
 const fogUnderwater = new THREE.Color("#4b88a4");
-const wheelZoomVec = new THREE.Vector3();
-const wheelTarget = new THREE.Vector3();
 let underwaterFogActive = false;
 
 const clock = new THREE.Clock();
-
-renderer.domElement.addEventListener("wheel", (event) => {
-  wheelTarget.set(player.position.x, player.position.y + 0.1, player.position.z);
-  controls.target.copy(wheelTarget);
-  const toCamera = wheelZoomVec.subVectors(camera.position, wheelTarget);
-  const currentDistance = toCamera.length();
-  if (currentDistance <= 0.0001) return;
-
-  const wheelUp = event.deltaY < 0;
-  const zoomFactor = wheelUp ? 0.84 : 1.14;
-  const minDistance = controls.minDistance ?? 0.1;
-  const maxDistance = controls.maxDistance ?? 500;
-  const nextDistance = THREE.MathUtils.clamp(currentDistance * zoomFactor, minDistance, maxDistance);
-
-  toCamera.normalize().multiplyScalar(nextDistance);
-  camera.position.copy(wheelTarget).add(toCamera);
-  event.preventDefault();
-  event.stopPropagation();
-}, { passive: false, capture: true });
 
 function animate() {
   const dt = Math.min(0.033, clock.getDelta());
