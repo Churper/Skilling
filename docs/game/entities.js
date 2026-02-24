@@ -22,7 +22,7 @@ export function createPlayer(scene, addShadowBlob) {
   player.position.set(0, 1.2, 10);
 
   const toolAnchor = new THREE.Group();
-  toolAnchor.position.set(0.35, 0.22, 0.1);
+  toolAnchor.position.set(0.42, 0.12, 0.18);
   player.add(toolAnchor);
 
   const toolMeshes = {
@@ -37,9 +37,9 @@ export function createPlayer(scene, addShadowBlob) {
   let currentTool = "fishing";
 
   const toolPoseByType = {
-    axe: { x: 0.35, y: 0.2, z: 0.08, rx: -0.54, ry: 0.08, rz: 0.9 },
-    pickaxe: { x: 0.35, y: 0.2, z: 0.08, rx: -0.62, ry: 0.1, rz: 0.85 },
-    fishing: { x: 0.33, y: 0.24, z: 0.13, rx: -0.98, ry: -0.08, rz: 0.44 },
+    axe: { x: 0.42, y: 0.12, z: 0.18, rx: -1.12, ry: 0.16, rz: 0.16 },
+    pickaxe: { x: 0.42, y: 0.12, z: 0.18, rx: -1.18, ry: 0.19, rz: 0.14 },
+    fishing: { x: 0.4, y: 0.16, z: 0.21, rx: -1.36, ry: -0.14, rz: 0.26 },
   };
 
   function setEquippedTool(tool) {
@@ -77,12 +77,12 @@ export function createPlayer(scene, addShadowBlob) {
         targetPitch = -0.015 + cast * 0.03;
         targetRoll = Math.sin(animTime * 2.6) * 0.013;
         targetScaleY = 0.994 + Math.sin(animTime * 4.8 + 0.9) * 0.01;
-        toolRotX += Math.sin(animTime * 4.8) * 0.23 + Math.max(0, twitch) * 0.05;
+        toolRotX += Math.sin(animTime * 4.8) * 0.2 + Math.max(0, twitch) * 0.045;
         toolRotY += Math.sin(animTime * 1.8) * 0.05;
         toolRotZ += Math.sin(animTime * 3.3) * 0.08;
-        toolPosX += cast * 0.03;
-        toolPosY += cast * 0.042;
-        toolPosZ += cast * 0.015;
+        toolPosX += cast * 0.022;
+        toolPosY += cast * 0.034;
+        toolPosZ += cast * 0.012;
       } else {
         const isMining = resourceType === "mining";
         const swingSpeed = isMining ? 6.8 : 7.6;
@@ -92,11 +92,11 @@ export function createPlayer(scene, addShadowBlob) {
         targetPitch = impact * 0.07 + windup * 0.02;
         targetRoll = Math.sin(animTime * 3.4) * (isMining ? -0.008 : 0.01);
         targetScaleY = 1 - impact * 0.036;
-        toolRotX += -windup * 0.22 + swing * 0.58;
+        toolRotX += -windup * 0.18 + swing * 0.46;
         toolRotY += impact * (isMining ? -0.12 : 0.08);
-        toolRotZ += impact * (isMining ? 0.12 : 0.2);
-        toolPosX += impact * 0.028;
-        toolPosY += impact * 0.045 - windup * 0.012;
+        toolRotZ += impact * (isMining ? 0.1 : 0.15);
+        toolPosX += impact * 0.018;
+        toolPosY += impact * 0.03 - windup * 0.008;
         toolPosZ += impact * 0.008;
       }
     } else if (moving) {
@@ -135,38 +135,46 @@ function createAxeMesh() {
   const handleMat = new THREE.MeshToonMaterial({ color: "#9b6f42" });
   const metalMat = new THREE.MeshToonMaterial({ color: "#c7d4df" });
   const handle = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.032, 0.04, 0.86, 6),
+    new THREE.CylinderGeometry(0.026, 0.032, 0.82, 6),
     handleMat
   );
-  handle.rotation.z = Math.PI * 0.39;
-  handle.position.set(0.02, 0.06, 0);
+  handle.position.set(0.0, 0.34, 0.0);
   mesh.add(handle);
 
   const bladeCore = new THREE.Mesh(
-    new THREE.BoxGeometry(0.27, 0.15, 0.08),
+    new THREE.BoxGeometry(0.25, 0.13, 0.075),
     metalMat
   );
-  bladeCore.position.set(0.2, 0.28, 0);
-  bladeCore.rotation.z = Math.PI * 0.15;
+  bladeCore.position.set(0.08, 0.72, 0);
+  bladeCore.rotation.y = Math.PI * 0.06;
   mesh.add(bladeCore);
 
   const bladeBit = new THREE.Mesh(
-    new THREE.ConeGeometry(0.1, 0.15, 4),
+    new THREE.ConeGeometry(0.09, 0.14, 4),
     metalMat
   );
-  bladeBit.position.set(0.35, 0.3, 0);
+  bladeBit.position.set(0.2, 0.72, 0);
   bladeBit.rotation.z = -Math.PI * 0.5;
   bladeBit.rotation.x = Math.PI * 0.25;
   mesh.add(bladeBit);
+
   const backSpike = new THREE.Mesh(
-    new THREE.ConeGeometry(0.045, 0.085, 4),
+    new THREE.ConeGeometry(0.04, 0.08, 4),
     metalMat
   );
-  backSpike.position.set(0.06, 0.28, 0);
+  backSpike.position.set(-0.07, 0.72, 0);
   backSpike.rotation.z = Math.PI * 0.5;
   backSpike.rotation.x = Math.PI * 0.25;
   mesh.add(backSpike);
-  mesh.scale.setScalar(1.04);
+
+  const pommel = new THREE.Mesh(
+    new THREE.SphereGeometry(0.035, 8, 8),
+    new THREE.MeshToonMaterial({ color: "#7f5a36" })
+  );
+  pommel.position.set(0, -0.06, 0);
+  mesh.add(pommel);
+
+  mesh.scale.setScalar(0.9);
   return mesh;
 }
 
@@ -175,38 +183,46 @@ function createPickaxeMesh() {
   const handleMat = new THREE.MeshToonMaterial({ color: "#9a6d41" });
   const metalMat = new THREE.MeshToonMaterial({ color: "#bdcad4" });
   const handle = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.03, 0.038, 0.94, 6),
+    new THREE.CylinderGeometry(0.026, 0.032, 0.92, 6),
     handleMat
   );
-  handle.rotation.z = Math.PI * 0.38;
-  handle.position.set(0.01, 0.08, 0);
+  handle.position.set(0, 0.39, 0);
   mesh.add(handle);
 
   const head = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.032, 0.032, 0.52, 6),
+    new THREE.CylinderGeometry(0.03, 0.03, 0.48, 6),
     metalMat
   );
-  head.position.set(0.2, 0.31, 0);
-  head.rotation.z = Math.PI * 0.15;
+  head.position.set(0, 0.82, 0);
   head.rotation.x = Math.PI * 0.5;
   mesh.add(head);
+
   const tipA = new THREE.Mesh(
-    new THREE.ConeGeometry(0.046, 0.11, 4),
+    new THREE.ConeGeometry(0.043, 0.11, 4),
     metalMat
   );
-  tipA.position.set(0.44, 0.31, 0);
+  tipA.position.set(0.23, 0.82, 0);
   tipA.rotation.z = -Math.PI * 0.5;
   tipA.rotation.x = Math.PI * 0.25;
   mesh.add(tipA);
+
   const tipB = new THREE.Mesh(
-    new THREE.ConeGeometry(0.046, 0.11, 4),
+    new THREE.ConeGeometry(0.043, 0.11, 4),
     metalMat
   );
-  tipB.position.set(-0.03, 0.31, 0);
+  tipB.position.set(-0.23, 0.82, 0);
   tipB.rotation.z = Math.PI * 0.5;
   tipB.rotation.x = Math.PI * 0.25;
   mesh.add(tipB);
-  mesh.scale.setScalar(1.03);
+
+  const pommel = new THREE.Mesh(
+    new THREE.SphereGeometry(0.033, 8, 8),
+    new THREE.MeshToonMaterial({ color: "#815d3b" })
+  );
+  pommel.position.set(0, -0.06, 0);
+  mesh.add(pommel);
+
+  mesh.scale.setScalar(0.9);
   return mesh;
 }
 
@@ -215,26 +231,42 @@ function createFishingPoleMesh() {
   const woodMat = new THREE.MeshToonMaterial({ color: "#a77a48" });
   const lineMat = new THREE.MeshToonMaterial({ color: "#d7eef7" });
   const pole = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.012, 0.026, 1.22, 6),
+    new THREE.CylinderGeometry(0.009, 0.02, 1.3, 6),
     woodMat
   );
-  pole.rotation.z = Math.PI * 0.56;
-  pole.position.set(0.04, 0.17, 0);
+  pole.position.set(0, 0.58, 0);
   mesh.add(pole);
 
+  const reel = new THREE.Mesh(
+    new THREE.TorusGeometry(0.045, 0.01, 6, 12),
+    new THREE.MeshToonMaterial({ color: "#d9edf4" })
+  );
+  reel.position.set(0.03, 0.2, 0);
+  reel.rotation.y = Math.PI * 0.5;
+  mesh.add(reel);
+
   const line = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.002, 0.002, 0.36, 4),
+    new THREE.CylinderGeometry(0.0015, 0.0015, 0.48, 4),
     lineMat
   );
-  line.position.set(0.63, 0.54, 0.03);
+  line.position.set(0, 1.06, 0.02);
   mesh.add(line);
+
   const bobber = new THREE.Mesh(
-    new THREE.SphereGeometry(0.016, 8, 8),
+    new THREE.SphereGeometry(0.015, 8, 8),
     new THREE.MeshToonMaterial({ color: "#fff5dd" })
   );
-  bobber.position.set(0.63, 0.35, 0.03);
+  bobber.position.set(0, 0.82, 0.02);
   mesh.add(bobber);
-  mesh.scale.setScalar(1.02);
+
+  const grip = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.013, 0.013, 0.15, 6),
+    new THREE.MeshToonMaterial({ color: "#6f4d30" })
+  );
+  grip.position.set(0, 0.02, 0);
+  mesh.add(grip);
+
+  mesh.scale.setScalar(0.88);
   return mesh;
 }
 

@@ -30,12 +30,18 @@ export function createSceneContext(canvas) {
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
-  controls.panSpeed = 0.9;
-  controls.minDistance = 16;
-  controls.maxDistance = 44;
-  controls.minPolarAngle = 0.75;
-  controls.maxPolarAngle = 1.07;
+  controls.dampingFactor = 0.14;
+  controls.rotateSpeed = 0.85;
+  controls.panSpeed = 0.62;
+  controls.zoomSpeed = 0.82;
+  controls.minDistance = 15;
+  controls.maxDistance = 48;
+  controls.minPolarAngle = 0.68;
+  controls.maxPolarAngle = 1.16;
+  controls.screenSpacePanning = false;
+  if ("zoomToCursor" in controls) controls.zoomToCursor = true;
+  if ("minTargetRadius" in controls) controls.minTargetRadius = 0;
+  if ("maxTargetRadius" in controls) controls.maxTargetRadius = 3.6;
   controls.mouseButtons.LEFT = -1;
   controls.mouseButtons.MIDDLE = THREE.MOUSE.ROTATE;
   controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;

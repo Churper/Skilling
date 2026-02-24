@@ -373,7 +373,7 @@ function animate() {
   }
 
   desiredTarget.set(player.position.x, player.position.y + 0.1, player.position.z);
-  controls.target.lerp(desiredTarget, Math.min(1, dt * 8.0));
+  controls.target.lerp(desiredTarget, Math.min(1, dt * 12.5));
   controls.update();
 
   composer.render();
