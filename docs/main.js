@@ -251,12 +251,20 @@ const camForward = new THREE.Vector3();
 const camRight = new THREE.Vector3();
 const moveDir = new THREE.Vector3();
 const desiredTarget = new THREE.Vector3();
+const followTarget = new THREE.Vector3();
 const gatherDir = new THREE.Vector3();
 const fogAboveWater = new THREE.Color("#88a8b6");
 const fogUnderwater = new THREE.Color("#4b88a4");
+const cameraTargetOffset = new THREE.Vector3();
 let underwaterFogActive = false;
+let wheelCameraLockUntil = 0;
 
 const clock = new THREE.Clock();
+const nowMs = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+
+renderer.domElement.addEventListener("wheel", () => {
+  wheelCameraLockUntil = nowMs() + 420;
+}, { passive: true });
 
 function animate() {
   const dt = Math.min(0.033, clock.getDelta());
@@ -373,7 +381,11 @@ function animate() {
   }
 
   desiredTarget.set(player.position.x, player.position.y + 0.1, player.position.z);
-  controls.target.lerp(desiredTarget, Math.min(1, dt * 12.5));
+  if (nowMs() < wheelCameraLockUntil) {
+    cameraTargetOffset.subVectors(controls.target, desiredTarget);
+  }
+  followTarget.copy(desiredTarget).add(cameraTargetOffset);
+  controls.target.lerp(followTarget, Math.min(1, dt * 12.5));
   controls.update();
 
   composer.render();
