@@ -261,9 +261,9 @@ function createLakeBowlMesh() {
   const positions = [];
   const colors = [];
   const indices = [];
-  const deep = new THREE.Color("#4f3f2e");
-  const mid = new THREE.Color("#6e5a3f");
-  const shelf = new THREE.Color("#9f855a");
+  const deep = new THREE.Color("#1a506e");
+  const mid = new THREE.Color("#2a7892");
+  const shelf = new THREE.Color("#58a0a8");
 
   // Center vertex
   positions.push(0, -(0.1 + 1.95), 0);
@@ -371,6 +371,7 @@ function createWater(scene) {
   const waterMat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
+    side: THREE.DoubleSide,
     uniforms: waterUniforms,
     vertexShader: `
       attribute float aRadial;

@@ -12,6 +12,8 @@ export function initializeUI(options = {}) {
   if (!buttons.length || !panels.length || !title) return null;
 
   const toolButtons = Array.from(document.querySelectorAll(".ui-tool-btn"));
+  const uiRoot = document.getElementById("ui-root");
+  const mobileToggle = document.getElementById("ui-mobile-toggle");
   const equippedToolEl = document.getElementById("ui-equipped-tool");
   const statusEl = document.getElementById("ui-status-line");
   const invFishEl = document.getElementById("ui-inv-fish");
@@ -28,6 +30,25 @@ export function initializeUI(options = {}) {
     emotes: "Emotes",
     friends: "Friends",
   };
+
+  const mobileQuery = window.matchMedia("(max-width: 760px)");
+  function setMobileMenuOpen(open) {
+    if (!uiRoot) return;
+    const shouldOpen = mobileQuery.matches ? !!open : true;
+    uiRoot.classList.toggle("mobile-open", shouldOpen);
+    if (mobileToggle) {
+      mobileToggle.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+      mobileToggle.textContent = shouldOpen ? "Close" : "Menu";
+    }
+  }
+
+  function refreshMobileLayout() {
+    if (!mobileQuery.matches) {
+      setMobileMenuOpen(true);
+      return;
+    }
+    setMobileMenuOpen(false);
+  }
 
   function setActive(tab) {
     for (const button of buttons) {
@@ -65,7 +86,10 @@ export function initializeUI(options = {}) {
   }
 
   for (const button of buttons) {
-    button.addEventListener("click", () => setActive(button.dataset.tab));
+    button.addEventListener("click", () => {
+      setActive(button.dataset.tab);
+      if (mobileQuery.matches) setMobileMenuOpen(false);
+    });
   }
 
   for (const button of toolButtons) {
@@ -73,6 +97,7 @@ export function initializeUI(options = {}) {
       const tool = button.dataset.tool;
       setActiveTool(tool);
       if (typeof onToolSelect === "function") onToolSelect(tool);
+      if (mobileQuery.matches) setMobileMenuOpen(false);
     });
   }
 
@@ -81,9 +106,23 @@ export function initializeUI(options = {}) {
     button.addEventListener("click", () => {
       const emote = button.dataset.emote;
       if (typeof onEmote === "function") onEmote(emote);
+      if (mobileQuery.matches) setMobileMenuOpen(false);
     });
   }
 
+  if (mobileToggle) {
+    mobileToggle.addEventListener("click", () => {
+      const open = !uiRoot?.classList.contains("mobile-open");
+      setMobileMenuOpen(open);
+    });
+  }
+  if (typeof mobileQuery.addEventListener === "function") {
+    mobileQuery.addEventListener("change", refreshMobileLayout);
+  } else if (typeof mobileQuery.addListener === "function") {
+    mobileQuery.addListener(refreshMobileLayout);
+  }
+
+  refreshMobileLayout();
   setActive("inventory");
   setActiveTool("fishing");
 

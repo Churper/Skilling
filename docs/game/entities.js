@@ -24,7 +24,7 @@ export function createPlayer(scene, addShadowBlob) {
     new THREE.MeshPhysicalMaterial({
       color: "#5deb7a",
       transparent: true,
-      opacity: 0.38,
+      opacity: 0.52,
       roughness: 0.05,
       metalness: 0.0,
       clearcoat: 1.0,
@@ -59,8 +59,17 @@ export function createPlayer(scene, addShadowBlob) {
     player.add(bump);
   }
 
+  // Opaque inner core prevents the ground from showing through the slime body.
+  const innerCore = new THREE.Mesh(
+    new THREE.SphereGeometry(0.34, 8, 6),
+    new THREE.MeshToonMaterial({ color: "#4acb69" })
+  );
+  innerCore.scale.set(1.0, 0.78, 1.0);
+  innerCore.position.set(0, -0.02, 0);
+  player.add(innerCore);
+
   const toolAnchor = new THREE.Group();
-  toolAnchor.position.set(-0.38, 0.08, 0.18);
+  toolAnchor.position.set(0.38, 0.08, 0.18);
   player.add(toolAnchor);
 
   const toolMeshes = {
@@ -75,15 +84,15 @@ export function createPlayer(scene, addShadowBlob) {
   let currentTool = "fishing";
 
   const carryPose = {
-    axe:     { x: -0.38, y: 0.08, z: 0.18, rx: -0.12, ry: -0.3, rz: 0.38 },
-    pickaxe: { x: -0.38, y: 0.08, z: 0.18, rx: -0.15, ry: -0.3, rz: 0.32 },
-    fishing: { x: -0.36, y: 0.08, z: 0.18, rx: -0.18, ry: -0.1, rz: 0.15 },
+    axe:     { x: 0.38, y: 0.08, z: 0.18, rx: -0.12, ry: 0.30, rz: -0.38 },
+    pickaxe: { x: 0.38, y: 0.08, z: 0.18, rx: -0.15, ry: 0.30, rz: -0.32 },
+    fishing: { x: 0.36, y: 0.08, z: 0.18, rx: -0.18, ry: 0.10, rz: -0.15 },
   };
 
   const gatherPose = {
-    axe:     { x: -0.34, y: 0.14, z: 0.22, rx: -1.0, ry: -0.08, rz: -0.08 },
-    pickaxe: { x: -0.34, y: 0.14, z: 0.22, rx: -1.05, ry: -0.10, rz: -0.06 },
-    fishing: { x: -0.34, y: 0.16, z: 0.22, rx: -1.2, ry: -0.12, rz: -0.18 },
+    axe:     { x: 0.34, y: 0.14, z: 0.22, rx: -1.0, ry: 0.08, rz: 0.08 },
+    pickaxe: { x: 0.34, y: 0.14, z: 0.22, rx: -1.05, ry: 0.10, rz: 0.06 },
+    fishing: { x: 0.34, y: 0.16, z: 0.22, rx: -1.2, ry: 0.12, rz: 0.18 },
   };
 
   function setEquippedTool(tool) {
@@ -126,7 +135,7 @@ export function createPlayer(scene, addShadowBlob) {
         toolRotX += Math.sin(animTime * 4.8) * 0.2 + Math.max(0, twitch) * 0.045;
         toolRotY += Math.sin(animTime * 1.8) * 0.05;
         toolRotZ += Math.sin(animTime * 3.3) * 0.08;
-        toolPosX -= cast * 0.022;
+        toolPosX += cast * 0.022;
         toolPosY += cast * 0.034;
         toolPosZ += cast * 0.012;
       } else {
@@ -139,9 +148,9 @@ export function createPlayer(scene, addShadowBlob) {
         targetRoll = Math.sin(animTime * 3.4) * (isMining ? -0.008 : 0.01);
         targetScaleY = 1 - impact * 0.036;
         toolRotX += -windup * 0.18 + swing * 0.46;
-        toolRotY += impact * (isMining ? 0.12 : -0.08);
-        toolRotZ -= impact * (isMining ? 0.1 : 0.15);
-        toolPosX -= impact * 0.018;
+        toolRotY += impact * (isMining ? -0.12 : 0.08);
+        toolRotZ += impact * (isMining ? 0.1 : 0.15);
+        toolPosX += impact * 0.018;
         toolPosY += impact * 0.03 - windup * 0.008;
         toolPosZ += impact * 0.008;
       }
@@ -150,8 +159,8 @@ export function createPlayer(scene, addShadowBlob) {
       targetPitch = stride * 0.013;
       targetRoll = Math.sin(animTime * 3.6) * 0.008;
       targetScaleY = 1 + Math.sin(animTime * 7.2 + 0.9) * 0.025;
-      toolRotX -= stride * 0.06;
-      toolRotZ -= Math.sin(animTime * 7.2 + 1.0) * 0.025;
+      toolRotX += stride * 0.06;
+      toolRotZ += Math.sin(animTime * 7.2 + 1.0) * 0.025;
       toolPosY += Math.abs(stride) * 0.008;
     } else {
       // Idle slime breathing squish
