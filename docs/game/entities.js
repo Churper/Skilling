@@ -22,8 +22,12 @@ export function createPlayer(scene, addShadowBlob) {
 
   const player = new THREE.Mesh(
     slimeGeo,
-    new THREE.MeshToonMaterial({
-      color: "#67e37f",
+    new THREE.MeshPhongMaterial({
+      color: "#58df78",
+      transparent: true,
+      opacity: 0.68,
+      shininess: 38,
+      specular: new THREE.Color("#d8ffe4"),
       flatShading: true,
       side: THREE.FrontSide,
     })
@@ -63,7 +67,7 @@ export function createPlayer(scene, addShadowBlob) {
   faceGroup.add(mouthLeft, mouthRight);
 
   const toolAnchor = new THREE.Group();
-  toolAnchor.position.set(0.44, 0.19, 0.07);
+  toolAnchor.position.set(0.0, 0.18, 0.1);
   player.add(toolAnchor);
 
   const toolMeshes = {
@@ -78,15 +82,15 @@ export function createPlayer(scene, addShadowBlob) {
   let currentTool = "fishing";
 
   const carryPose = {
-    axe:     { x: 0.44, y: 0.18, z: 0.07, rx: 0.34, ry: 1.12, rz: -0.22 },
-    pickaxe: { x: 0.44, y: 0.18, z: 0.07, rx: 0.28, ry: 1.05, rz: -0.18 },
-    fishing: { x: 0.38, y: 0.2, z: 0.13, rx: 0.94, ry: 0.78, rz: 0.05 },
+    axe:     { x: 0.36, y: 0.18, z: 0.1, rx: 0.42, ry: -1.08, rz: 0.18 },
+    pickaxe: { x: 0.36, y: 0.18, z: 0.1, rx: 0.32, ry: -1.02, rz: 0.14 },
+    fishing: { x: -0.36, y: 0.2, z: 0.12, rx: 0.94, ry: -0.78, rz: -0.05 },
   };
 
   const gatherPose = {
-    axe:     { x: 0.4, y: 0.25, z: 0.09, rx: -0.52, ry: 1.32, rz: 0.2 },
-    pickaxe: { x: 0.4, y: 0.25, z: 0.09, rx: -0.62, ry: 1.38, rz: 0.18 },
-    fishing: { x: 0.36, y: 0.25, z: 0.14, rx: 1.42, ry: 0.72, rz: 0.24 },
+    axe:     { x: 0.34, y: 0.25, z: 0.12, rx: -0.44, ry: -1.28, rz: -0.16 },
+    pickaxe: { x: 0.34, y: 0.25, z: 0.12, rx: -0.58, ry: -1.34, rz: -0.14 },
+    fishing: { x: -0.34, y: 0.25, z: 0.14, rx: 1.42, ry: -0.72, rz: -0.24 },
   };
 
   function setEquippedTool(tool) {
@@ -221,8 +225,8 @@ function createAxeMesh() {
   pommel.position.set(0, -0.06, 0);
   mesh.add(pommel);
 
-  // Keep the blade direction forward relative to carry poses.
-  mesh.rotation.y = Math.PI * 0.5;
+  // Align blade edge for hand poses.
+  mesh.rotation.y = -Math.PI * 0.5;
   mesh.scale.setScalar(0.9);
   return mesh;
 }
