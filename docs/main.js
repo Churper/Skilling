@@ -252,9 +252,7 @@ const camRight = new THREE.Vector3();
 const moveDir = new THREE.Vector3();
 const gatherDir = new THREE.Vector3();
 const cameraFocus = new THREE.Vector3();
-const cameraOffset = new THREE.Vector3();
-const cameraOffsetFlat = new THREE.Vector3();
-const cameraDesiredBack = new THREE.Vector3();
+const cameraDelta = new THREE.Vector3();
 const cameraInitBack = new THREE.Vector3();
 const fogAboveWater = new THREE.Color("#88a8b6");
 const fogUnderwater = new THREE.Color("#4b88a4");
@@ -360,7 +358,6 @@ function animate() {
     gathering: !!activeGather,
     resourceType: activeGather?.resourceType,
   });
-  const isWalking = moveDir.lengthSq() > 0.0001 && !activeGather;
   updateClickEffects(dt);
 
   if (marker.visible) {
@@ -384,22 +381,9 @@ function animate() {
   }
 
   cameraFocus.set(player.position.x, player.position.y + 0.85, player.position.z);
-  cameraOffset.subVectors(camera.position, controls.target);
-  if (cameraOffset.lengthSq() < 0.000001) {
-    cameraOffset.set(0, 6, 12);
-  }
-  if (isWalking) {
-    cameraOffsetFlat.set(cameraOffset.x, 0, cameraOffset.z);
-    const flatLen = Math.max(0.001, cameraOffsetFlat.length());
-    cameraDesiredBack
-      .set(Math.sin(player.rotation.y + Math.PI), 0, Math.cos(player.rotation.y + Math.PI))
-      .multiplyScalar(flatLen);
-    cameraOffsetFlat.lerp(cameraDesiredBack, Math.min(1, dt * 4.2));
-    cameraOffset.x = cameraOffsetFlat.x;
-    cameraOffset.z = cameraOffsetFlat.z;
-  }
+  cameraDelta.subVectors(cameraFocus, controls.target);
+  camera.position.add(cameraDelta);
   controls.target.copy(cameraFocus);
-  camera.position.copy(cameraFocus).add(cameraOffset);
   controls.update();
 
   composer.render();

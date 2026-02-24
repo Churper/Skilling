@@ -29,8 +29,8 @@ export function createSceneContext(canvas) {
   scene.add(fill);
 
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.1;
+  controls.enableDamping = false;
+  controls.dampingFactor = 0.0;
   controls.rotateSpeed = 0.9;
   controls.panSpeed = 0.0;
   controls.zoomSpeed = 1.08;
