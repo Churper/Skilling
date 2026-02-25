@@ -1093,6 +1093,44 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   };
 }
 
+function addTrainingDummy(scene, blobTex, x, z, interactables) {
+  const dummy = new THREE.Group();
+  const baseY = getWorldSurfaceHeight(x, z);
+  dummy.position.set(x, baseY, z);
+
+  // Body — vertical cylinder (wood)
+  const bodyMat = toonMat("#a07040");
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 1.4, 8), bodyMat);
+  body.position.y = 0.7;
+  dummy.add(body);
+
+  // Crossbar arms — horizontal cylinder
+  const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.0, 6), bodyMat);
+  arm.position.y = 1.1;
+  arm.rotation.z = Math.PI / 2;
+  dummy.add(arm);
+
+  // Head — sphere (burlap)
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), toonMat("#c4a868"));
+  head.position.y = 1.6;
+  dummy.add(head);
+
+  // Base stake
+  const stake = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.1, 10), toonMat("#8a6038"));
+  stake.position.y = 0.05;
+  dummy.add(stake);
+
+  setServiceNode(dummy, "dummy", "Training Dummy");
+  scene.add(dummy);
+
+  // Invisible hotspot for raycasting
+  const hotspot = addServiceHotspot(dummy, 0, 0.8, 0, 0.6, 1.8);
+  interactables.push(hotspot);
+
+  // Shadow blob
+  addShadowBlob(scene, blobTex, x, z, 0.5, 0.18);
+}
+
 function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = []) {
   const cx = 0;
   const cz = -34;
@@ -1139,6 +1177,11 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   addBank(scene, blobTex, cx - 6.2, cz + 1.5, resourceNodes);
   addStore(scene, blobTex, cx + 6.2, cz + 1.5, resourceNodes);
   addBlacksmith(scene, blobTex, cx, cz - 6.8, resourceNodes);
+
+  // Training dummies — row left of the plaza
+  addTrainingDummy(scene, blobTex, cx - 14, cz, resourceNodes);
+  addTrainingDummy(scene, blobTex, cx - 17, cz, resourceNodes);
+  addTrainingDummy(scene, blobTex, cx - 20, cz, resourceNodes);
 
   // Construction yard sits beside the service plaza with matching footprint.
   const constructionSite = addConstructionYard(scene, blobTex, cx + 22.5, cz, resourceNodes);
@@ -1249,17 +1292,17 @@ function addLakeRings(scene) {
     const rt = r / rings;
     for (let s = 0; s <= segs; s++) {
       const angle = (s / segs) * Math.PI * 2;
-      const innerR = getLakeRadiusAtAngle(angle) - 1.5;
+      const innerR = getLakeRadiusAtAngle(angle) - 4.0;
       const radius = innerR + (outerR - innerR) * rt;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const distR = Math.hypot(x, z);
       const waterR = getWaterRadiusAtAngle(angle);
       let y;
-      if (distR < waterR - 0.3) {
+      if (distR < waterR - 2.5) {
         y = WATER_SURFACE_Y - 0.08;
-      } else if (distR < waterR + 1.0) {
-        const t = THREE.MathUtils.smoothstep(distR, waterR - 0.3, waterR + 1.0);
+      } else if (distR < waterR + 2.5) {
+        const t = THREE.MathUtils.smoothstep(distR, waterR - 2.5, waterR + 2.5);
         const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.01);
         y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.08, shoreH + SHORE_LIFT, t);
       } else {
@@ -1268,7 +1311,7 @@ function addLakeRings(scene) {
       positions.push(x, y, z);
 
       // Vertex color: blend water-edge teal -> sand -> grass based on distance from water
-      const shoreT = THREE.MathUtils.smoothstep(distR, waterR - 0.5, waterR + 2.5);
+      const shoreT = THREE.MathUtils.smoothstep(distR, waterR - 2.0, waterR + 3.5);
       const grassT = THREE.MathUtils.smoothstep(distR, waterR + 2.0, waterR + 6.0);
       const c = new THREE.Color().copy(cWaterEdge).lerp(cSand, shoreT);
       c.lerp(cGrass, grassT);

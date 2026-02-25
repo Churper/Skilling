@@ -72,9 +72,10 @@ const ui = initializeUI({
   },
   onCombatStyle: (style) => {
     combatStyle = style;
-  },
-  onAttack: () => {
-    combatEffects.attack(combatStyle, player.position.clone(), player.rotation.y);
+    // Auto-equip weapon for combat style
+    if (style === "bow") equipTool("bow", false);
+    else if (style === "mage") equipTool("staff", false);
+    else if (style === "melee") equipTool("axe", false);
   },
 });
 
@@ -771,7 +772,41 @@ function runServiceAction(node) {
   }
 }
 
+function attackDummy(node) {
+  const dummyPos = new THREE.Vector3();
+  node.getWorldPosition(dummyPos);
+  const dx = dummyPos.x - player.position.x;
+  const dz = dummyPos.z - player.position.z;
+  const yaw = Math.atan2(dx, dz);
+  player.rotation.y = yaw;
+  combatEffects.attack(combatStyle, player.position.clone(), yaw, 0.5);
+  const minDmg = 1, maxDmg = 15;
+  const damage = Math.floor(Math.random() * (maxDmg - minDmg + 1)) + minDmg;
+  spawnFloatingDrop(dummyPos.x, dummyPos.z, `Hit ${damage}`, "combat");
+  ui?.setStatus(`Hit Training Dummy for ${damage} damage!`, "success");
+}
+
 function onInteractNode(node, hitPoint) {
+  // Training dummy: walk to it and auto-attack
+  if (node.userData?.serviceType === "dummy") {
+    const dummyPos = new THREE.Vector3();
+    node.getWorldPosition(dummyPos);
+    spawnClickEffect(dummyPos.x, dummyPos.z, "neutral");
+    const distance = dummyPos.distanceTo(player.position);
+    if (distance > 2.7) {
+      pendingResource = null;
+      activeGather = null;
+      pendingService = node;
+      pendingServicePos.copy(dummyPos);
+      pendingServicePos.y = getPlayerGroundY(dummyPos.x, dummyPos.z);
+      setMoveTarget(pendingServicePos, true);
+      ui?.setStatus("Walking to Training Dummy...", "info");
+      return;
+    }
+    attackDummy(node);
+    return;
+  }
+
   if (node.userData?.serviceType) {
     if (hitPoint) pendingServicePos.copy(hitPoint);
     else resourceWorldPosition(node, pendingServicePos);
@@ -880,14 +915,6 @@ function animate() {
   if (input.keys.has("d") || input.keys.has("arrowright")) moveDir.add(camRight);
   if (input.keys.has("a") || input.keys.has("arrowleft")) moveDir.sub(camRight);
 
-  if (input.keys.has(" ") || input.keys.has("f")) {
-    if (!window._combatCooldown) {
-      window._combatCooldown = true;
-      combatEffects.attack(combatStyle, player.position.clone(), player.rotation.y);
-      setTimeout(() => { window._combatCooldown = false; }, 400);
-    }
-  }
-
   const keyboardMove = moveDir.lengthSq() > 0.0001;
   if (keyboardMove) {
     hasMoveTarget = false;
@@ -930,7 +957,11 @@ function animate() {
   if (pendingService && !activeGather) {
     const serviceDistance = pendingServicePos.distanceTo(player.position);
     if (serviceDistance <= 2.7) {
-      runServiceAction(pendingService);
+      if (pendingService.userData?.serviceType === "dummy") {
+        attackDummy(pendingService);
+      } else {
+        runServiceAction(pendingService);
+      }
       pendingService = null;
       hasMoveTarget = false;
       marker.visible = false;

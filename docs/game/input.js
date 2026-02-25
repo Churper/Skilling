@@ -7,6 +7,9 @@ export function createInputController({ domElement, camera, ground, player, setM
   const walkPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -player.position.y);
   let downInfo = null;
 
+  // Suppress context menu on canvas so right-click doesn't pop a menu
+  domElement.addEventListener("contextmenu", (e) => e.preventDefault());
+
   function pointerToNdc(clientX, clientY) {
     pointer.x = (clientX / window.innerWidth) * 2 - 1;
     pointer.y = -(clientY / window.innerHeight) * 2 + 1;
