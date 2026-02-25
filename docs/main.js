@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { createSceneContext } from "./game/scene.js";
 import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight } from "./game/world.js";
-import { createPlayer, createMoveMarker } from "./game/entities.js";
+import { createPlayer, createMoveMarker, createCombatEffects } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
 import {
@@ -31,6 +31,8 @@ const { renderer, scene, camera, controls, composer } = createSceneContext(canva
 const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld, constructionSite, collisionObstacles = [] } = createWorld(scene);
 const { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor } = createPlayer(scene, addShadowBlob);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
+const combatEffects = createCombatEffects(scene);
+let combatStyle = "melee";
 
 let equippedTool = "fishing";
 const bagSystem = createBagSystem({ capacity: BAG_CAPACITY, itemKeys: BAG_ITEM_KEYS });
@@ -67,6 +69,12 @@ const ui = initializeUI({
   },
   onStoreColor: (colorId) => {
     buyOrEquipSlimeColor(colorId);
+  },
+  onCombatStyle: (style) => {
+    combatStyle = style;
+  },
+  onAttack: () => {
+    combatEffects.attack(combatStyle, player.position.clone(), player.rotation.y);
   },
 });
 
@@ -872,6 +880,14 @@ function animate() {
   if (input.keys.has("d") || input.keys.has("arrowright")) moveDir.add(camRight);
   if (input.keys.has("a") || input.keys.has("arrowleft")) moveDir.sub(camRight);
 
+  if (input.keys.has(" ") || input.keys.has("f")) {
+    if (!window._combatCooldown) {
+      window._combatCooldown = true;
+      combatEffects.attack(combatStyle, player.position.clone(), player.rotation.y);
+      setTimeout(() => { window._combatCooldown = false; }, 400);
+    }
+  }
+
   const keyboardMove = moveDir.lengthSq() > 0.0001;
   if (keyboardMove) {
     hasMoveTarget = false;
@@ -961,6 +977,7 @@ function animate() {
   updateClickEffects(dt);
   updateEmoteBubbles(dt);
   updateFloatingDrops(dt);
+  combatEffects.update(dt);
   updateSlimeTrail(dt, t, isMovingNow);
   remotePlayers.update(dt);
 

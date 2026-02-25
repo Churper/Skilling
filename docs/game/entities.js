@@ -367,6 +367,110 @@ function createFishingPoleMesh() {
   return mesh;
 }
 
+export function createCombatEffects(scene) {
+  const effects = [];
+
+  function attack(style, position, yaw) {
+    if (style === "melee") {
+      const geo = new THREE.TorusGeometry(0.7, 0.06, 8, 24, Math.PI * 0.8);
+      const mat = new THREE.MeshBasicMaterial({
+        color: "#ffe066",
+        transparent: true,
+        opacity: 0.9,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      });
+      const arc = new THREE.Mesh(geo, mat);
+      arc.position.copy(position);
+      arc.position.y += 0.3;
+      arc.rotation.y = yaw;
+      arc.rotation.x = Math.PI / 2;
+      scene.add(arc);
+      effects.push({ mesh: arc, age: 0, duration: 0.35, type: "melee" });
+    } else if (style === "bow") {
+      const group = new THREE.Group();
+      const shaft = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.015, 0.015, 0.6, 4),
+        new THREE.MeshBasicMaterial({ color: "#8B4513" })
+      );
+      shaft.rotation.z = Math.PI / 2;
+      group.add(shaft);
+      const tip = new THREE.Mesh(
+        new THREE.ConeGeometry(0.04, 0.12, 4),
+        new THREE.MeshBasicMaterial({ color: "#c0c0c0" })
+      );
+      tip.rotation.z = -Math.PI / 2;
+      tip.position.x = 0.36;
+      group.add(tip);
+      group.position.copy(position);
+      group.position.y += 0.4;
+      group.rotation.y = yaw;
+      scene.add(group);
+      effects.push({ mesh: group, age: 0, duration: 0.6, type: "bow", yaw, speed: 28 });
+    } else if (style === "mage") {
+      const fireColors = ["#ff4400", "#ff6600", "#ff8800", "#ffaa00", "#ffcc00", "#ff3300", "#ff5500", "#ff7700"];
+      for (let i = 0; i < 8; i++) {
+        const particle = new THREE.Mesh(
+          new THREE.SphereGeometry(0.06 + Math.random() * 0.04, 6, 6),
+          new THREE.MeshBasicMaterial({
+            color: fireColors[i],
+            transparent: true,
+            opacity: 0.9,
+            depthWrite: false,
+          })
+        );
+        const angle = (i / 8) * Math.PI * 2 + Math.random() * 0.3;
+        particle.position.copy(position);
+        particle.position.y += 0.4;
+        scene.add(particle);
+        effects.push({
+          mesh: particle,
+          age: 0,
+          duration: 0.7,
+          type: "mage",
+          vx: Math.sin(angle) * (3 + Math.random() * 2),
+          vy: 2 + Math.random() * 1.5,
+          vz: Math.cos(angle) * (3 + Math.random() * 2),
+        });
+      }
+    }
+  }
+
+  function update(dt) {
+    for (let i = effects.length - 1; i >= 0; i--) {
+      const fx = effects[i];
+      fx.age += dt;
+      const t = fx.age / fx.duration;
+      if (t >= 1) {
+        scene.remove(fx.mesh);
+        if (fx.mesh.material) fx.mesh.material.dispose();
+        if (fx.mesh.geometry) fx.mesh.geometry.dispose();
+        effects.splice(i, 1);
+        continue;
+      }
+      if (fx.type === "melee") {
+        const scale = 1 + t * 1.5;
+        fx.mesh.scale.setScalar(scale);
+        fx.mesh.rotation.y += dt * 12;
+        fx.mesh.material.opacity = (1 - t) * 0.9;
+      } else if (fx.type === "bow") {
+        fx.mesh.position.x += Math.sin(fx.yaw) * fx.speed * dt;
+        fx.mesh.position.z += Math.cos(fx.yaw) * fx.speed * dt;
+      } else if (fx.type === "mage") {
+        fx.mesh.position.x += fx.vx * dt;
+        fx.mesh.position.y += fx.vy * dt;
+        fx.mesh.position.z += fx.vz * dt;
+        fx.vy -= 9.8 * dt; // gravity
+        fx.mesh.material.opacity = (1 - t) * 0.9;
+        const s = 1 - t * 0.5;
+        fx.mesh.scale.setScalar(s);
+      }
+    }
+  }
+
+  return { attack, update };
+}
+
 export function createMoveMarker(scene) {
   const marker = new THREE.Group();
   const markerRing = new THREE.Mesh(

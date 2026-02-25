@@ -17,7 +17,7 @@ const ITEM_LABEL = {
 };
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -46,12 +46,16 @@ export function initializeUI(options = {}) {
   const dyeButtons = Array.from(document.querySelectorAll("[data-store-color]"));
   const dyeCostEls = Array.from(document.querySelectorAll("[data-store-cost]"));
 
+  const combatStyleButtons = Array.from(document.querySelectorAll(".ui-combat-btn"));
+  const attackButton = document.getElementById("ui-attack-btn");
+
   const labelByTab = {
     inventory: "Inventory",
     tools: "Tools",
     blacksmith: "Blacksmith",
     store: "Store",
     skills: "Skills",
+    combat: "Combat",
     emotes: "Emotes",
     friends: "Friends",
   };
@@ -266,6 +270,19 @@ export function initializeUI(options = {}) {
   if (storeSellButton) {
     storeSellButton.addEventListener("click", () => {
       if (typeof onStoreSell === "function") onStoreSell();
+    });
+  }
+
+  for (const button of combatStyleButtons) {
+    button.addEventListener("click", () => {
+      const style = button.dataset.combatStyle;
+      for (const b of combatStyleButtons) b.classList.toggle("is-active", b === button);
+      if (typeof onCombatStyle === "function") onCombatStyle(style);
+    });
+  }
+  if (attackButton) {
+    attackButton.addEventListener("click", () => {
+      if (typeof onAttack === "function") onAttack();
     });
   }
 

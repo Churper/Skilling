@@ -277,7 +277,7 @@ function createGround(scene) {
 }
 
 function createLakeBowlMesh() {
-  const segments = 128;
+  const segments = 360;
   const rings = 20;
   const positions = [];
   const colors = [];
@@ -347,7 +347,7 @@ function createLakeBowlMesh() {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#9ef8f0") },
+    uShallow: { value: new THREE.Color("#c4fef8") },
     uMid: { value: new THREE.Color("#4dd8ee") },
     uDeep: { value: new THREE.Color("#1a9ec8") },
     uBeach: { value: new THREE.Color("#e3cea1") },
@@ -361,7 +361,7 @@ function createWater(scene) {
   const causticMap = createCausticTexture();
 
   // Build subdivided organic water mesh
-  const wSegs = 128, wRings = 20, maxR = 32;
+  const wSegs = 360, wRings = 20, maxR = 32;
   const wPos = [0, 0, 0], wUvs = [0.5, 0.5], wRads = [0], wIdx = [];
   for (let r = 1; r <= wRings; r++) {
     const rt = r / wRings;
@@ -487,7 +487,7 @@ function createWater(scene) {
         vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.48, radial));
         col = mix(col, uShallow, smoothstep(0.38, 0.86, radial));
         float clarity = smoothstep(0.18, 0.82, radial);
-        col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.2);
+        col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.3);
 
         // Animated voronoi caustics — bright cell-like light patterns
         vec2 cuv = wp * 0.14;
@@ -523,12 +523,16 @@ function createWater(scene) {
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
 
         // Sun specular — broad highlight
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 42.0);
-        col += vec3(1.0, 0.97, 0.9) * spec * 0.5 * (1.0 - radial * 0.15);
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 32.0);
+        col += vec3(1.0, 0.97, 0.9) * spec * 0.7 * (1.0 - radial * 0.15);
 
         // Softer wide specular spread
-        float specSoft = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 6.0);
-        col += vec3(0.92, 0.96, 1.0) * specSoft * 0.07;
+        float specSoft = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 4.0);
+        col += vec3(0.92, 0.96, 1.0) * specSoft * 0.14;
+
+        // Ultra-wide sun lane
+        float sunLane = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 1.8);
+        col += vec3(1.0, 0.98, 0.92) * sunLane * 0.04;
 
         // Fine sparkle detail
         vec3 sparkleN = normalize(vec3(
@@ -536,8 +540,8 @@ function createWater(scene) {
           1.0,
           cos(wp.y * 6.5 - t * 2.3) * 0.16 + cos(wp.y * 10.0 + t * 1.7) * 0.08
         ));
-        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 240.0);
-        col += vec3(1.0) * sparkle * 0.38;
+        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 200.0);
+        col += vec3(1.0) * sparkle * 0.55;
 
         // Fresnel — sky/environment reflection
         float NdotV = max(dot(viewDir, waveN), 0.0);
@@ -557,9 +561,9 @@ function createWater(scene) {
         foam = clamp(foam, 0.0, 1.0);
         col = mix(col, vec3(1.0, 1.0, 0.96), foam * 0.94);
 
-        // Alpha — more opaque center, clean edge transition
-        float bodyAlpha = mix(0.74, 0.2, smoothstep(0.04, 0.8, radial));
-        float edgeFade = 1.0 - smoothstep(0.95, 0.988, foamEdge);
+        // Alpha — more transparent center, wider edge fade
+        float bodyAlpha = mix(0.55, 0.12, smoothstep(0.04, 0.8, radial));
+        float edgeFade = 1.0 - smoothstep(0.88, 0.995, foamEdge);
         float alpha = max(bodyAlpha * edgeFade, foam * 0.96);
         if (alpha < 0.002) discard;
 
@@ -1235,9 +1239,12 @@ function createConformingRing(innerRadius, outerRadius, radialSegments = 14, the
 }
 
 function addLakeRings(scene) {
-  const segs = 180, rings = 14, outerR = 36;
-  const positions = [], indices = [];
+  const segs = 360, rings = 20, outerR = 36;
+  const positions = [], colors = [], indices = [];
   const vpr = segs + 1; // vertices per ring row (close the loop)
+  const cWaterEdge = new THREE.Color("#a8ddd8");
+  const cSand = new THREE.Color("#e0c888");
+  const cGrass = new THREE.Color("#7dba5e");
   for (let r = 0; r <= rings; r++) {
     const rt = r / rings;
     for (let s = 0; s <= segs; s++) {
@@ -1250,10 +1257,8 @@ function addLakeRings(scene) {
       const waterR = getWaterRadiusAtAngle(angle);
       let y;
       if (distR < waterR - 0.3) {
-        // Inside water boundary — submerge below water surface
         y = WATER_SURFACE_Y - 0.08;
       } else if (distR < waterR + 1.0) {
-        // Transition zone — smooth rise from submerged to shore level
         const t = THREE.MathUtils.smoothstep(distR, waterR - 0.3, waterR + 1.0);
         const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.01);
         y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.08, shoreH + SHORE_LIFT, t);
@@ -1261,6 +1266,13 @@ function addLakeRings(scene) {
         y = sampleTerrainHeight(x, z) + SHORE_LIFT;
       }
       positions.push(x, y, z);
+
+      // Vertex color: blend water-edge teal -> sand -> grass based on distance from water
+      const shoreT = THREE.MathUtils.smoothstep(distR, waterR - 0.5, waterR + 2.5);
+      const grassT = THREE.MathUtils.smoothstep(distR, waterR + 2.0, waterR + 6.0);
+      const c = new THREE.Color().copy(cWaterEdge).lerp(cSand, shoreT);
+      c.lerp(cGrass, grassT);
+      colors.push(c.r, c.g, c.b);
     }
   }
   for (let r = 0; r < rings; r++) {
@@ -1272,8 +1284,9 @@ function addLakeRings(scene) {
   const geo = new THREE.BufferGeometry();
   geo.setIndex(indices);
   geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.computeVertexNormals();
-  const beachRing = new THREE.Mesh(geo, toonMat("#e0c888", { side: THREE.DoubleSide }));
+  const beachRing = new THREE.Mesh(geo, toonMat("#ffffff", { side: THREE.DoubleSide, vertexColors: true }));
   beachRing.renderOrder = RENDER_SHORE;
   scene.add(beachRing);
 }
