@@ -7,15 +7,13 @@ function createSlimeGeometry() {
     let x = pos.getX(i);
     let y = pos.getY(i);
     let z = pos.getZ(i);
-    // Flatten bottom more gently
-    if (y < 0) y *= 0.45;
+    // Nearly flat bottom — dome sits on ground
+    if (y < 0) y *= 0.1;
     const yNorm = (y + 0.5) / 1.0;
-    // Wider, rounder bulge peaking at lower chest
-    const bulge = 1.0 + 0.28 * Math.sin(yNorm * Math.PI * 0.85);
-    x *= bulge * 1.06;
-    // Taller body with slight chest emphasis
-    y *= 1.18;
-    z *= bulge * 1.06;
+    // Widest at base (y=0), dome/droplet shape
+    const bulge = 1.0 + 0.22 * Math.sin(yNorm * Math.PI * 0.5);
+    x *= bulge * 1.10;
+    z *= bulge * 1.10;
     pos.setXYZ(i, x, y, z);
   }
   slimeGeo.computeVertexNormals();
@@ -24,7 +22,7 @@ function createSlimeGeometry() {
 
 function addSlimeFace(root, color = "#0d110f") {
   const faceGroup = new THREE.Group();
-  faceGroup.position.set(0, 0.22, 0.46);
+  faceGroup.position.set(0, 0.16, 0.46);
   root.add(faceGroup);
 
   const faceMat = new THREE.MeshBasicMaterial({ color });
