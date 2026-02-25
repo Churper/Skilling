@@ -15,7 +15,7 @@
 - `docs/game/systems/remotePlayers.js`
   - Remote avatar lifecycle and interpolation for online peers.
 - `docs/game/net/realtimeClient.js`
-  - Browser realtime transport (WebSocket client, reconnect, state throttling).
+  - Browser realtime transport (WebSocket client + BroadcastChannel local fallback, reconnect, state throttling).
 - `docs/game/world.js`
   - All world mesh generation and service/resource nodes.
 - `docs/game/entities.js`

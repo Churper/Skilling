@@ -35,6 +35,11 @@ Then open `http://localhost:8080`.
 ## Online Play (Realtime Presence)
 `Skilling` now supports live room presence with remote player movement sync over WebSocket.
 
+### Dynamic by default (no URL params required)
+- Open the normal site URL in multiple tabs and they auto-connect locally via `BroadcastChannel`.
+- This mode is for same-browser tab testing and does not need a relay.
+- If a relay URL is provided once (`?ws=wss://...`), the client remembers it in local storage for later visits.
+
 ### Run relay locally
 ```powershell
 cd server
