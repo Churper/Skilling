@@ -1,21 +1,19 @@
 import * as THREE from "three";
 
 function createSlimeGeometry() {
-  const slimeGeo = new THREE.SphereGeometry(0.51, 12, 8);
+  const slimeGeo = new THREE.SphereGeometry(0.51, 12, 10);
   const pos = slimeGeo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     let x = pos.getX(i);
     let y = pos.getY(i);
     let z = pos.getZ(i);
-    // Flat bottom — dome sits on ground
-    if (y < 0) y *= 0.08;
-    // Scale up vertically so it's a tall dome, not a pancake
-    y *= 1.25;
-    const yNorm = THREE.MathUtils.clamp((y + 0.06) / 0.7, 0, 1);
-    // Widest at base, tapers into dome/droplet shape
-    const bulge = 1.0 + 0.28 * Math.sin(yNorm * Math.PI * 0.55);
-    x *= bulge * 1.08;
-    z *= bulge * 1.08;
+    // Nearly flat bottom — dome sits on ground
+    if (y < 0) y *= 0.1;
+    const yNorm = (y + 0.5) / 1.0;
+    // Widest at base (y=0), dome/droplet shape
+    const bulge = 1.0 + 0.22 * Math.sin(yNorm * Math.PI * 0.5);
+    x *= bulge * 1.10;
+    z *= bulge * 1.10;
     pos.setXYZ(i, x, y, z);
   }
   slimeGeo.computeVertexNormals();
@@ -24,22 +22,22 @@ function createSlimeGeometry() {
 
 function addSlimeFace(root, color = "#0d110f") {
   const faceGroup = new THREE.Group();
-  faceGroup.position.set(0, 0.28, 0.48);
+  faceGroup.position.set(0, 0.16, 0.46);
   root.add(faceGroup);
 
-  const faceMat = new THREE.MeshBasicMaterial({ color, depthTest: true, depthWrite: true });
-  const eyeGeo = new THREE.SphereGeometry(0.044, 8, 8);
+  const faceMat = new THREE.MeshBasicMaterial({ color });
+  const eyeGeo = new THREE.SphereGeometry(0.042, 8, 8);
   const leftEye = new THREE.Mesh(eyeGeo, faceMat);
-  leftEye.position.set(-0.105, 0.08, 0.10);
+  leftEye.position.set(-0.105, 0.08, 0.082);
   const rightEye = new THREE.Mesh(eyeGeo, faceMat);
-  rightEye.position.set(0.105, 0.08, 0.10);
+  rightEye.position.set(0.105, 0.08, 0.082);
   faceGroup.add(leftEye, rightEye);
 
   const mouth = new THREE.Mesh(
-    new THREE.TorusGeometry(0.02, 0.007, 5, 10),
+    new THREE.TorusGeometry(0.018, 0.006, 5, 10),
     faceMat
   );
-  mouth.position.set(0, -0.016, 0.11);
+  mouth.position.set(0, -0.016, 0.086);
   mouth.rotation.x = Math.PI * 0.08;
   faceGroup.add(mouth);
 }

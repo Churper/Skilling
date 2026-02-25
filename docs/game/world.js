@@ -470,7 +470,7 @@ function createWater(scene) {
         causticBright *= smoothstep(0.05, 0.4, radial) * (1.0 - radial * 0.6);
         col += causticBright * vec3(0.4, 0.85, 0.9);
 
-        // Sun specular with wave normals
+        // Simple sun specular
         vec3 waveN = normalize(vec3(
           sin(wp.x * 1.0 + t * 0.7) * 0.07 + sin(wp.x * 2.8 - t * 0.5) * 0.03,
           1.0,
@@ -478,12 +478,8 @@ function createWater(scene) {
         ));
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 48.0);
-        col += vec3(1.0, 0.97, 0.9) * spec * 0.6 * (1.0 - radial * 0.2);
-
-        // Soft broad sun shimmer
-        float shimmer = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 10.0);
-        col += vec3(0.95, 0.98, 1.0) * shimmer * 0.1;
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 52.0);
+        col += vec3(1.0, 0.97, 0.9) * spec * 0.4 * (1.0 - radial * 0.2);
 
         // Clean white shore foam ring
         float foam = smoothstep(0.94, 0.98, radial) * (1.0 - smoothstep(0.98, 1.0, radial));
@@ -1214,8 +1210,7 @@ function addLakeRings(scene) {
   const segs = 180, rings = 14, outerR = 36;
   const positions = [], colors = [], indices = [];
   const vpr = segs + 1;
-  const colWaterEdge = new THREE.Color("#60d8e0");
-  const colWetSand = new THREE.Color("#a0c8a8");
+  const colWetSand = new THREE.Color("#78b8a0");
   const colDrySand = new THREE.Color("#c8a870");
   const colGrassEdge = new THREE.Color("#5aa048");
   const colTmp = new THREE.Color();
@@ -1223,29 +1218,27 @@ function addLakeRings(scene) {
     const rt = r / rings;
     for (let s = 0; s <= segs; s++) {
       const angle = (s / segs) * Math.PI * 2;
-      const innerR = getLakeRadiusAtAngle(angle) - 4.5;
+      const innerR = getLakeRadiusAtAngle(angle) - 3.0;
       const radius = innerR + (outerR - innerR) * rt;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const distR = Math.hypot(x, z);
       const waterR = getWaterRadiusAtAngle(angle);
       let y;
-      if (distR < waterR - 0.5) {
-        y = WATER_SURFACE_Y - 0.3;
-      } else if (distR < waterR + 1.2) {
-        const blend = THREE.MathUtils.smoothstep(distR, waterR - 0.5, waterR + 1.2);
+      if (distR < waterR - 0.3) {
+        y = WATER_SURFACE_Y - 0.15;
+      } else if (distR < waterR + 1.0) {
+        const blend = THREE.MathUtils.smoothstep(distR, waterR - 0.3, waterR + 1.0);
         const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.01);
-        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.3, shoreH + SHORE_LIFT, blend);
+        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.15, shoreH + SHORE_LIFT, blend);
       } else {
         y = sampleTerrainHeight(x, z) + SHORE_LIFT;
       }
       positions.push(x, y, z);
-      // Vertex color gradient: water-edge → wet sand → dry sand → grass
-      const waterToWet = THREE.MathUtils.smoothstep(rt, 0.0, 0.18);
-      const wetToDry = THREE.MathUtils.smoothstep(rt, 0.18, 0.40);
-      const sandToGrass = THREE.MathUtils.smoothstep(rt, 0.45, 0.95);
-      colTmp.copy(colWaterEdge).lerp(colWetSand, waterToWet);
-      colTmp.lerp(colDrySand, wetToDry);
+      // Vertex color gradient: wet sand → dry sand → grass
+      const wetToDry = THREE.MathUtils.smoothstep(rt, 0.0, 0.3);
+      const sandToGrass = THREE.MathUtils.smoothstep(rt, 0.35, 0.88);
+      colTmp.copy(colWetSand).lerp(colDrySand, wetToDry);
       colTmp.lerp(colGrassEdge, sandToGrass * 0.65);
       // Noise variation for natural look
       const nv = Math.sin(x * 0.28 + z * 0.22) * 0.5 + 0.5;
@@ -1395,123 +1388,6 @@ function addBushes(scene) {
   }
 }
 
-function addHibiscusFlowers(scene) {
-  const flowerColors = ["#ff6b8a", "#ff8fa0", "#e8586e", "#ff9966", "#f5a0c0", "#ffb380"];
-  const petalGeo = new THREE.CircleGeometry(0.07, 5);
-  const centerGeo = new THREE.CircleGeometry(0.025, 8);
-  const centerMat = toonMat("#ffe066");
-  for (let i = 0; i < 40; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const shoreInner = getWaterRadiusAtAngle(angle) + 0.8;
-    const shoreOuter = shoreInner + 5.0;
-    const r = shoreInner + Math.random() * (shoreOuter - shoreInner);
-    const x = Math.cos(angle) * r;
-    const z = Math.sin(angle) * r;
-    const baseY = getWorldSurfaceHeight(x, z);
-    const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
-    const petalMat = toonMat(color);
-    const flowerGroup = new THREE.Group();
-    flowerGroup.position.set(x, baseY + 0.02, z);
-    flowerGroup.rotation.x = -Math.PI / 2;
-    flowerGroup.rotation.z = Math.random() * Math.PI * 2;
-    for (let p = 0; p < 5; p++) {
-      const petal = new THREE.Mesh(petalGeo, petalMat);
-      const pa = (p / 5) * Math.PI * 2;
-      petal.position.set(Math.cos(pa) * 0.055, Math.sin(pa) * 0.055, 0.001);
-      petal.rotation.z = pa;
-      flowerGroup.add(petal);
-    }
-    const center = new THREE.Mesh(centerGeo, centerMat);
-    center.position.z = 0.002;
-    flowerGroup.add(center);
-    flowerGroup.renderOrder = RENDER_DECOR;
-    scene.add(flowerGroup);
-  }
-}
-
-function addBeachShellsAndStarfish(scene) {
-  const shellColors = ["#f0e0c8", "#e8d0b0", "#d8c0a0", "#f5e8d8"];
-  const starColors = ["#ff9966", "#e87050", "#f0a878", "#d06848"];
-  const shellGeo = new THREE.ConeGeometry(0.06, 0.09, 8);
-  const starGeo = new THREE.CircleGeometry(0.08, 5);
-  for (let i = 0; i < 15; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const waterR = getWaterRadiusAtAngle(angle);
-    const r = waterR + 0.3 + Math.random() * 2.0;
-    const x = Math.cos(angle) * r;
-    const z = Math.sin(angle) * r;
-    const baseY = getWorldSurfaceHeight(x, z);
-    const color = shellColors[Math.floor(Math.random() * shellColors.length)];
-    const shell = new THREE.Mesh(shellGeo, toonMat(color));
-    shell.position.set(x, baseY + 0.02, z);
-    shell.rotation.z = Math.PI * 0.5;
-    shell.rotation.y = Math.random() * Math.PI * 2;
-    shell.renderOrder = RENDER_DECOR;
-    scene.add(shell);
-  }
-  for (let i = 0; i < 6; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const waterR = getWaterRadiusAtAngle(angle);
-    const r = waterR + 0.2 + Math.random() * 1.8;
-    const x = Math.cos(angle) * r;
-    const z = Math.sin(angle) * r;
-    const baseY = getWorldSurfaceHeight(x, z);
-    const color = starColors[Math.floor(Math.random() * starColors.length)];
-    const star = new THREE.Mesh(starGeo, toonMat(color));
-    star.position.set(x, baseY + 0.015, z);
-    star.rotation.x = -Math.PI / 2;
-    star.rotation.z = Math.random() * Math.PI * 2;
-    star.renderOrder = RENDER_DECOR;
-    scene.add(star);
-  }
-}
-
-function addButterflies(scene) {
-  const butterflies = [];
-  const wingColors = ["#ff8cb0", "#ff9966", "#80b0ff", "#b880e8", "#ffe040", "#ff6090", "#60d8b0", "#e870d0"];
-  for (let i = 0; i < 8; i++) {
-    const color = wingColors[i % wingColors.length];
-    const wingMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false });
-    const group = new THREE.Group();
-    const leftWing = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.08), wingMat);
-    leftWing.position.x = -0.06;
-    group.add(leftWing);
-    const rightWing = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.08), wingMat);
-    rightWing.position.x = 0.06;
-    group.add(rightWing);
-    const orbitAngle = (i / 8) * Math.PI * 2;
-    const orbitR = 28 + Math.random() * 5;
-    const baseHeight = 2.0 + Math.random() * 1.5;
-    const speed = 0.15 + Math.random() * 0.12;
-    const flapSpeed = 6 + Math.random() * 4;
-    const bobSpeed = 1.5 + Math.random() * 1.0;
-    // Set initial position so geometry never has NaN
-    const ix = Math.cos(orbitAngle) * orbitR;
-    const iz = Math.sin(orbitAngle) * orbitR;
-    const iy = sampleTerrainHeight(ix, iz) + baseHeight;
-    group.position.set(ix, iy, iz);
-    group.renderOrder = RENDER_DECOR;
-    scene.add(group);
-    butterflies.push({ group, leftWing, rightWing, orbitAngle, orbitR, baseHeight, speed, flapSpeed, bobSpeed });
-  }
-  return butterflies;
-}
-
-function updateButterflies(butterflies, time) {
-  for (const b of butterflies) {
-    b.orbitAngle += b.speed * 0.016;
-    const x = Math.cos(b.orbitAngle) * b.orbitR;
-    const z = Math.sin(b.orbitAngle) * b.orbitR;
-    const groundY = sampleTerrainHeight(x, z);
-    const y = groundY + b.baseHeight + Math.sin(time * b.bobSpeed) * 0.4;
-    b.group.position.set(x, y, z);
-    b.group.rotation.y = b.orbitAngle + Math.PI * 0.5;
-    const flap = Math.sin(time * b.flapSpeed) * 0.6;
-    b.leftWing.rotation.y = flap;
-    b.rightWing.rotation.y = -flap;
-  }
-}
-
 export function createWorld(scene) {
   const resourceNodes = [];
   const collisionObstacles = [];
@@ -1527,15 +1403,11 @@ export function createWorld(scene) {
   addLilyPads(scene);
   addWildflowers(scene);
   addExtraReeds(scene);
-  addHibiscusFlowers(scene);
-  addBeachShellsAndStarfish(scene);
-  const butterflies = addButterflies(scene);
   const fishingSpots = addFishingSpots(scene, resourceNodes);
   const { constructionSite } = addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles);
   const addBlob = (x, z, radius, opacity) => addShadowBlob(scene, blobTex, x, z, radius, opacity);
   const updateWorld = (time) => {
     updateFishingSpots(fishingSpots, time);
-    updateButterflies(butterflies, time);
   };
   return { ground, skyMat, waterUniforms, causticMap, addShadowBlob: addBlob, resourceNodes, updateWorld, constructionSite, collisionObstacles };
 }
