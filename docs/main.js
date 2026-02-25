@@ -562,6 +562,10 @@ function tryGather(node) {
   const preLevel = skills[skillKey].level;
   const failChance = getGatherFailChance(preLevel);
   if (Math.random() < failChance) {
+    const failPos = resourceWorldPosition(node, resourceTargetPos);
+    spawnClickEffect(failPos.x, failPos.z, "warn");
+    spawnFloatingDrop(failPos.x, failPos.z, "Miss", "warn");
+    ui?.setStatus(`Missed ${node.userData.resourceLabel}.`, "warn");
     return;
   }
 
@@ -836,7 +840,7 @@ const gatherDir = new THREE.Vector3();
 const cameraFocus = new THREE.Vector3();
 const cameraDelta = new THREE.Vector3();
 const cameraInitBack = new THREE.Vector3();
-const fogAboveWater = new THREE.Color("#80d8a8");
+const fogAboveWater = new THREE.Color("#b8ccb8");
 const fogUnderwater = new THREE.Color("#4b88a4");
 let underwaterFogActive = false;
 
