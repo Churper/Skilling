@@ -15,7 +15,7 @@ export function createSceneContext(canvas) {
   renderer.toneMappingExposure = 1.15;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog("#58c8f8", 300, 600);
+  scene.fog = new THREE.Fog("#80d8a8", 160, 480);
 
   const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.1, 500);
   camera.position.set(28, 30, 28);
