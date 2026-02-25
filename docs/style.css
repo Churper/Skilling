@@ -1,21 +1,21 @@
 :root {
   --ui-font-body: "Outfit", "Segoe UI Variable", "Segoe UI", sans-serif;
   --ui-font-heading: "Space Grotesk", "Outfit", sans-serif;
-  --ui-ink-1: #ebf7ff;
-  --ui-ink-2: #b3d2e4;
-  --ui-ink-3: #84a8bd;
-  --ui-accent-1: #66d5ff;
-  --ui-accent-2: #38b6e8;
+  --ui-ink-1: #fff5e8;
+  --ui-ink-2: #dcc8a8;
+  --ui-ink-3: #b09878;
+  --ui-accent-1: #ff9966;
+  --ui-accent-2: #e8764a;
   --ui-ok: #86f3b7;
   --ui-warn: #ffd599;
-  --ui-frame: rgba(138, 207, 244, 0.28);
-  --ui-frame-strong: rgba(146, 220, 255, 0.55);
-  --ui-card-top: rgba(15, 40, 55, 0.72);
-  --ui-card-bottom: rgba(10, 28, 40, 0.75);
-  --ui-card-top-soft: rgba(12, 42, 62, 0.76);
-  --ui-card-bottom-soft: rgba(7, 29, 44, 0.8);
-  --ui-shadow-lg: 0 18px 42px rgba(2, 11, 18, 0.34);
-  --ui-shadow-sm: 0 8px 18px rgba(2, 11, 18, 0.22);
+  --ui-frame: rgba(180, 160, 120, 0.28);
+  --ui-frame-strong: rgba(210, 180, 140, 0.55);
+  --ui-card-top: rgba(18, 42, 38, 0.72);
+  --ui-card-bottom: rgba(12, 32, 28, 0.75);
+  --ui-card-top-soft: rgba(16, 44, 36, 0.76);
+  --ui-card-bottom-soft: rgba(10, 34, 28, 0.8);
+  --ui-shadow-lg: 0 18px 42px rgba(4, 14, 12, 0.34);
+  --ui-shadow-sm: 0 8px 18px rgba(4, 14, 12, 0.22);
   --ui-radius-xl: 20px;
   --ui-radius-lg: 14px;
   --ui-radius-md: 10px;
@@ -71,7 +71,7 @@ body {
   right: 14px;
   bottom: 8px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(130, 204, 242, 0.6), transparent);
+  background: linear-gradient(90deg, transparent, rgba(210, 170, 120, 0.6), transparent);
 }
 
 #ui-brand h1 {
@@ -130,7 +130,7 @@ body {
   padding: 0 14px;
   border-radius: 11px;
   border: 1px solid var(--ui-frame-strong);
-  background: linear-gradient(180deg, rgba(19, 73, 103, 0.92), rgba(7, 33, 50, 0.94));
+  background: linear-gradient(180deg, rgba(24, 56, 48, 0.92), rgba(12, 38, 32, 0.94));
   color: var(--ui-ink-1);
   font-family: var(--ui-font-heading);
   font-size: 12px;
@@ -154,10 +154,10 @@ body {
   top: calc(16px + env(safe-area-inset-top));
   right: calc(16px + env(safe-area-inset-right));
   width: min(290px, calc(100vw - 32px));
-  max-height: min(42vh, 420px);
+  max-height: min(54vh, 540px);
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(164, 214, 241, 0.4) transparent;
+  scrollbar-color: rgba(210, 180, 140, 0.4) transparent;
   border: 1px solid var(--ui-frame);
   border-radius: var(--ui-radius-xl);
   background: linear-gradient(165deg, var(--ui-card-top), var(--ui-card-bottom));
@@ -176,7 +176,7 @@ body {
 
 #ui-panel::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(152, 208, 239, 0.35);
+  background: rgba(200, 170, 130, 0.35);
 }
 
 #ui-panel-title {
@@ -330,8 +330,8 @@ body {
 }
 
 .ui-tool-btn.is-active {
-  border-color: rgba(115, 210, 252, 0.82);
-  background: linear-gradient(180deg, rgba(90, 198, 246, 0.33), rgba(90, 198, 246, 0.12));
+  border-color: rgba(255, 153, 102, 0.82);
+  background: linear-gradient(180deg, rgba(255, 140, 80, 0.33), rgba(255, 140, 80, 0.12));
 }
 
 .ui-smith-list {
@@ -368,8 +368,8 @@ body {
 
 .ui-smith-buy-btn {
   border-radius: 8px;
-  border: 1px solid rgba(162, 214, 241, 0.3);
-  background: linear-gradient(180deg, rgba(90, 198, 246, 0.3), rgba(90, 198, 246, 0.12));
+  border: 1px solid rgba(210, 180, 140, 0.3);
+  background: linear-gradient(180deg, rgba(255, 140, 80, 0.3), rgba(255, 140, 80, 0.12));
   color: var(--ui-ink-1);
   font-family: var(--ui-font-heading);
   font-size: 12px;
@@ -449,8 +449,8 @@ body {
 }
 
 .ui-dye-btn.is-active {
-  border-color: rgba(117, 210, 250, 0.75);
-  background: linear-gradient(180deg, rgba(89, 198, 246, 0.32), rgba(89, 198, 246, 0.13));
+  border-color: rgba(255, 153, 102, 0.75);
+  background: linear-gradient(180deg, rgba(255, 140, 80, 0.32), rgba(255, 140, 80, 0.13));
 }
 
 .ui-dye-btn.is-unaffordable {
@@ -492,7 +492,7 @@ body {
   padding: 7px;
   border: 1px solid var(--ui-frame);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(11, 41, 59, 0.9), rgba(7, 28, 42, 0.92));
+  background: linear-gradient(180deg, rgba(16, 38, 34, 0.9), rgba(10, 28, 24, 0.92));
   box-shadow: var(--ui-shadow-lg);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -537,9 +537,9 @@ body {
 }
 
 .ui-tab-btn.is-active {
-  border-color: rgba(117, 210, 250, 0.75);
-  background: linear-gradient(180deg, rgba(89, 198, 246, 0.35), rgba(89, 198, 246, 0.13));
-  box-shadow: inset 0 0 0 1px rgba(145, 220, 255, 0.32);
+  border-color: rgba(255, 153, 102, 0.75);
+  background: linear-gradient(180deg, rgba(255, 140, 80, 0.35), rgba(255, 140, 80, 0.13));
+  box-shadow: inset 0 0 0 1px rgba(255, 180, 130, 0.32);
 }
 
 #ui-emote-list {
@@ -731,7 +731,7 @@ body {
     right: calc(10px + env(safe-area-inset-right));
     top: calc(116px + env(safe-area-inset-top));
     width: auto;
-    max-height: min(42vh, 340px);
+    max-height: min(52vh, 440px);
     padding: 12px 11px 10px;
     border-radius: 14px;
     transition: opacity 160ms ease, transform 160ms ease;
