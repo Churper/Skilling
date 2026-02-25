@@ -85,16 +85,16 @@ export function createPlayer(scene, addShadowBlob) {
     axe:     { x: -0.36, y: 0.19, z: 0.11, rx: 0.64, ry: -0.74, rz: -0.08 },
     pickaxe: { x: -0.36, y: 0.19, z: 0.11, rx: 0.58, ry: -0.82, rz: -0.06 },
     fishing: { x: -0.36, y: 0.2, z: 0.12, rx: 0.94, ry: -0.78, rz: -0.05 },
-    bow:     { x: -0.34, y: 0.2, z: 0.12, rx: 0.5, ry: -0.7, rz: -0.06 },
-    staff:   { x: -0.36, y: 0.22, z: 0.11, rx: 0.7, ry: -0.7, rz: -0.04 },
+    bow:     { x: -0.34, y: 0.22, z: 0.18, rx: 0.1, ry: 0.0, rz: -0.3 },
+    staff:   { x: -0.32, y: 0.2, z: 0.14, rx: 0.8, ry: -0.6, rz: -0.1 },
   };
 
   const gatherPose = {
     axe:     { x: -0.34, y: 0.25, z: 0.13, rx: -0.24, ry: -0.88, rz: 0.03 },
     pickaxe: { x: -0.34, y: 0.25, z: 0.13, rx: -0.36, ry: -0.9, rz: 0.02 },
     fishing: { x: -0.34, y: 0.25, z: 0.14, rx: 1.42, ry: -0.72, rz: -0.24 },
-    bow:     { x: -0.34, y: 0.24, z: 0.13, rx: -0.1, ry: -0.8, rz: 0.02 },
-    staff:   { x: -0.34, y: 0.26, z: 0.13, rx: -0.2, ry: -0.85, rz: 0.01 },
+    bow:     { x: -0.3, y: 0.28, z: 0.2, rx: -0.3, ry: 0.0, rz: -0.1 },
+    staff:   { x: -0.28, y: 0.3, z: 0.16, rx: 0.3, ry: -0.5, rz: 0.0 },
   };
 
   function setEquippedTool(tool) {
@@ -109,12 +109,15 @@ export function createPlayer(scene, addShadowBlob) {
     animTime += dt;
     const moving = !!state.moving;
     const gathering = !!state.gathering;
+    const attacking = !!state.attacking;
+    const combatStyle = state.combatStyle || "melee";
     const resourceType = state.resourceType || "fishing";
 
     let targetPitch = 0;
     let targetRoll = 0;
     let targetScaleY = 1;
-    const basePose = gathering
+    const useAttackPose = attacking || gathering;
+    const basePose = useAttackPose
       ? (gatherPose[currentTool] || gatherPose.fishing)
       : (carryPose[currentTool] || carryPose.fishing);
     let toolRotX = basePose.rx;
@@ -127,7 +130,41 @@ export function createPlayer(scene, addShadowBlob) {
     toolPosY += idle * 0.005;
     toolRotZ += Math.sin(animTime * 1.6) * 0.015;
 
-    if (gathering) {
+    if (attacking) {
+      if (combatStyle === "melee") {
+        const swingSpeed = 8.0;
+        const swing = Math.sin(animTime * swingSpeed);
+        const windup = Math.max(0, Math.sin(animTime * swingSpeed - 1.1));
+        const impact = Math.max(0, swing);
+        targetPitch = impact * 0.09 + windup * 0.03;
+        targetRoll = Math.sin(animTime * 4.0) * 0.01;
+        targetScaleY = 1 - impact * 0.05;
+        toolRotX += windup * 0.2 - swing * 0.5;
+        toolRotY += impact * -0.04;
+        toolRotZ += impact * -0.12;
+        toolPosX += impact * -0.02;
+        toolPosY += impact * 0.04 - windup * 0.01;
+        toolPosZ += impact * 0.015;
+      } else if (combatStyle === "bow") {
+        const draw = Math.sin(animTime * 5.5) * 0.5 + 0.5;
+        targetPitch = -0.02 + draw * 0.01;
+        targetRoll = Math.sin(animTime * 2.0) * 0.006;
+        targetScaleY = 1 - draw * 0.02;
+        toolRotX += draw * -0.15;
+        toolRotZ += draw * 0.06;
+        toolPosX += draw * -0.02;
+        toolPosY += draw * 0.03;
+      } else if (combatStyle === "mage") {
+        const hover = Math.sin(animTime * 3.2);
+        const pulse = Math.sin(animTime * 5.0) * 0.5 + 0.5;
+        targetPitch = hover * 0.012;
+        targetRoll = Math.sin(animTime * 1.8) * 0.008;
+        targetScaleY = 1 + hover * 0.03;
+        toolRotX += pulse * 0.12;
+        toolPosY += hover * 0.025 + pulse * 0.015;
+        toolPosZ += pulse * 0.01;
+      }
+    } else if (gathering) {
       if (resourceType === "fishing") {
         const cast = Math.sin(animTime * 4.8) * 0.5 + 0.5;
         const twitch = Math.sin(animTime * 9.6 + 0.4);
@@ -149,7 +186,6 @@ export function createPlayer(scene, addShadowBlob) {
         targetPitch = impact * 0.07 + windup * 0.02;
         targetRoll = Math.sin(animTime * 3.4) * (isMining ? -0.008 : 0.01);
         targetScaleY = 1 - impact * 0.036;
-        // Swing direction tuned to match held orientation.
         toolRotX += windup * 0.16 - swing * 0.44;
         toolRotY += impact * -0.03;
         toolRotZ += impact * (isMining ? -0.08 : -0.1);
@@ -393,7 +429,6 @@ function createBowMesh() {
   string.position.x = -0.08;
   mesh.add(string);
 
-  mesh.rotation.y = Math.PI * 0.5;
   mesh.scale.setScalar(0.88);
   return mesh;
 }

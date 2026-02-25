@@ -22,7 +22,7 @@ import {
 } from "./game/config.js";
 import { createBagSystem } from "./game/systems/bagSystem.js";
 import { createConstructionProgress } from "./game/systems/constructionProgress.js";
-import { xpToLevel, getGatherFailChance } from "./game/systems/progression.js";
+import { xpToLevel, xpForLevel, getGatherFailChance } from "./game/systems/progression.js";
 import { createRemotePlayers } from "./game/systems/remotePlayers.js";
 import { createRealtimeClient, resolveOnlineConfig } from "./game/net/realtimeClient.js";
 
@@ -47,6 +47,9 @@ const skills = {
   fishing: { xp: 0, level: 1 },
   mining: { xp: 0, level: 1 },
   woodcutting: { xp: 0, level: 1 },
+  melee: { xp: 0, level: 1 },
+  bow: { xp: 0, level: 1 },
+  mage: { xp: 0, level: 1 },
 };
 const onlineConfig = resolveOnlineConfig();
 const remotePlayers = createRemotePlayers({
@@ -109,6 +112,35 @@ function syncInventoryUI() {
   ui?.setCoins(coins);
   ui?.setBlacksmith(getBlacksmithState());
   ui?.setStore(getStoreState());
+}
+
+function getSkillProgress(skillKey) {
+  const s = skills[skillKey];
+  if (!s) return 0;
+  const curLevelXp = xpForLevel(s.level);
+  const nextLevelXp = xpForLevel(s.level + 1);
+  const range = nextLevelXp - curLevelXp;
+  if (range <= 0) return 100;
+  return Math.min(100, Math.round(((s.xp - curLevelXp) / range) * 100));
+}
+
+function syncSkillsUI() {
+  ui?.setSkills({
+    fishing: skills.fishing.level,
+    mining: skills.mining.level,
+    woodcutting: skills.woodcutting.level,
+    melee: skills.melee.level,
+    bow: skills.bow.level,
+    mage: skills.mage.level,
+    _progress: {
+      fishing: getSkillProgress("fishing"),
+      mining: getSkillProgress("mining"),
+      woodcutting: getSkillProgress("woodcutting"),
+      melee: getSkillProgress("melee"),
+      bow: getSkillProgress("bow"),
+      mage: getSkillProgress("mage"),
+    },
+  });
 }
 
 function addItemToBag(itemKey) {
@@ -211,11 +243,7 @@ equipTool(equippedTool, false);
 setSlimeColor(getCurrentSlimeColorHex());
 syncInventoryUI();
 syncHouseBuildVisual();
-ui?.setSkills({
-  fishing: skills.fishing.level,
-  mining: skills.mining.level,
-  woodcutting: skills.woodcutting.level,
-});
+syncSkillsUI();
 
 const moveTarget = new THREE.Vector3();
 const resourceTargetPos = new THREE.Vector3();
@@ -227,6 +255,19 @@ let pendingResource = null;
 let pendingService = null;
 const pendingServicePos = new THREE.Vector3();
 let activeGather = null;
+let activeAttack = null;
+
+function getAttackRange() {
+  if (combatStyle === "bow") return 8.0;
+  if (combatStyle === "mage") return 7.0;
+  return 2.7;
+}
+
+function getAttackInterval() {
+  if (combatStyle === "bow") return 1.0;
+  if (combatStyle === "mage") return 0.9;
+  return 0.7;
+}
 
 const clickEffects = [];
 const clickRingGeo = new THREE.RingGeometry(0.28, 0.38, 24);
@@ -532,6 +573,7 @@ function setMoveTarget(point, preservePending = false) {
   if (!preservePending) pendingResource = null;
   if (!preservePending) pendingService = null;
   if (!preservePending) activeGather = null;
+  if (!preservePending) activeAttack = null;
   markerTarget.copy(point);
   pushPointOutsideObstacles(markerTarget, playerCollisionRadius + 0.14);
   moveTarget.copy(point);
@@ -585,11 +627,7 @@ function tryGather(node) {
   skills[skillKey].level = xpToLevel(skills[skillKey].xp);
 
   syncInventoryUI();
-  ui?.setSkills({
-    fishing: skills.fishing.level,
-    mining: skills.mining.level,
-    woodcutting: skills.woodcutting.level,
-  });
+  syncSkillsUI();
 
   const leveled = skills[skillKey].level > prevLevel;
   if (leveled) {
@@ -772,7 +810,7 @@ function runServiceAction(node) {
   }
 }
 
-function attackDummy(node) {
+function performAttackHit(node) {
   const dummyPos = new THREE.Vector3();
   node.getWorldPosition(dummyPos);
   const dx = dummyPos.x - player.position.x;
@@ -783,19 +821,48 @@ function attackDummy(node) {
   const minDmg = 1, maxDmg = 15;
   const damage = Math.floor(Math.random() * (maxDmg - minDmg + 1)) + minDmg;
   spawnFloatingDrop(dummyPos.x, dummyPos.z, `Hit ${damage}`, "combat");
-  ui?.setStatus(`Hit Training Dummy for ${damage} damage!`, "success");
+
+  const combatXp = 10 + damage;
+  const combatSkill = skills[combatStyle];
+  if (combatSkill) {
+    const prevLevel = combatSkill.level;
+    combatSkill.xp += combatXp;
+    combatSkill.level = xpToLevel(combatSkill.xp);
+    syncSkillsUI();
+    if (combatSkill.level > prevLevel) {
+      spawnFloatingDrop(dummyPos.x - 0.14, dummyPos.z + 0.1, `${combatStyle} Lv ${combatSkill.level}!`, "level");
+      ui?.setStatus(`${combatStyle} level ${combatSkill.level}!`, "success");
+    } else {
+      spawnFloatingDrop(dummyPos.x + 0.14, dummyPos.z - 0.1, `+${combatXp} XP`, "xp");
+      ui?.setStatus(`Hit Training Dummy for ${damage} damage! +${combatXp} XP`, "success");
+    }
+  } else {
+    ui?.setStatus(`Hit Training Dummy for ${damage} damage!`, "success");
+  }
+}
+
+function startActiveAttack(node) {
+  activeAttack = { node, elapsed: 0, interval: getAttackInterval() };
+  activeGather = null;
+  pendingResource = null;
+  pendingService = null;
+  hasMoveTarget = false;
+  marker.visible = false;
+  performAttackHit(node);
 }
 
 function onInteractNode(node, hitPoint) {
-  // Training dummy: walk to it and auto-attack
+  // Training dummy: walk to it and auto-attack continuously
   if (node.userData?.serviceType === "dummy") {
     const dummyPos = new THREE.Vector3();
     node.getWorldPosition(dummyPos);
     spawnClickEffect(dummyPos.x, dummyPos.z, "neutral");
     const distance = dummyPos.distanceTo(player.position);
-    if (distance > 2.7) {
+    const range = getAttackRange();
+    if (distance > range) {
       pendingResource = null;
       activeGather = null;
+      activeAttack = null;
       pendingService = node;
       pendingServicePos.copy(dummyPos);
       pendingServicePos.y = getPlayerGroundY(dummyPos.x, dummyPos.z);
@@ -803,7 +870,7 @@ function onInteractNode(node, hitPoint) {
       ui?.setStatus("Walking to Training Dummy...", "info");
       return;
     }
-    attackDummy(node);
+    startActiveAttack(node);
     return;
   }
 
@@ -922,6 +989,7 @@ function animate() {
     pendingResource = null;
     pendingService = null;
     activeGather = null;
+    activeAttack = null;
     moveDir.normalize();
   } else if (hasMoveTarget) {
     moveDir.subVectors(moveTarget, player.position);
@@ -936,7 +1004,7 @@ function animate() {
     }
   }
 
-  if (moveDir.lengthSq() > 0.0001 && !activeGather) {
+  if (moveDir.lengthSq() > 0.0001 && !activeGather && !activeAttack) {
     player.position.addScaledVector(moveDir, 7.0 * dt);
     const targetYaw = Math.atan2(moveDir.x, moveDir.z);
     let delta = targetYaw - player.rotation.y;
@@ -954,15 +1022,16 @@ function animate() {
     }
   }
 
-  if (pendingService && !activeGather) {
+  if (pendingService && !activeGather && !activeAttack) {
     const serviceDistance = pendingServicePos.distanceTo(player.position);
-    if (serviceDistance <= 2.7) {
+    const arrivalDist = pendingService.userData?.serviceType === "dummy" ? getAttackRange() : 2.7;
+    if (serviceDistance <= arrivalDist) {
       if (pendingService.userData?.serviceType === "dummy") {
-        attackDummy(pendingService);
+        startActiveAttack(pendingService);
       } else {
         runServiceAction(pendingService);
+        pendingService = null;
       }
-      pendingService = null;
       hasMoveTarget = false;
       marker.visible = false;
     }
@@ -995,14 +1064,40 @@ function animate() {
     }
   }
 
+  if (activeAttack) {
+    const atkDummyPos = new THREE.Vector3();
+    activeAttack.node.getWorldPosition(atkDummyPos);
+    const atkDir = gatherDir.subVectors(atkDummyPos, player.position);
+    atkDir.y = 0;
+    const atkDist = atkDir.length();
+    if (atkDist > 0.001) {
+      atkDir.divideScalar(atkDist);
+      const targetYaw = Math.atan2(atkDir.x, atkDir.z);
+      let delta = targetYaw - player.rotation.y;
+      delta = Math.atan2(Math.sin(delta), Math.cos(delta));
+      player.rotation.y += delta * Math.min(1, dt * 15);
+    }
+    if (atkDist > getAttackRange() + 1.0) {
+      activeAttack = null;
+    } else {
+      activeAttack.elapsed += dt;
+      if (activeAttack.elapsed >= activeAttack.interval) {
+        activeAttack.elapsed = 0;
+        performAttackHit(activeAttack.node);
+      }
+    }
+  }
+
   const groundY = getPlayerGroundY(player.position.x, player.position.z);
   const standY = groundY + playerFootOffset - playerGroundSink;
   player.position.y = standY;
   playerBlob.position.set(player.position.x, groundY + 0.03, player.position.z);
-  const isMovingNow = moveDir.lengthSq() > 0.0001 && !activeGather;
+  const isMovingNow = moveDir.lengthSq() > 0.0001 && !activeGather && !activeAttack;
   updateAnimation(dt, {
     moving: isMovingNow,
     gathering: !!activeGather,
+    attacking: !!activeAttack,
+    combatStyle,
     resourceType: activeGather?.resourceType,
   });
   updateClickEffects(dt);

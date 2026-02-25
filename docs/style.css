@@ -8,12 +8,12 @@
   --ui-accent-2: #14a088;
   --ui-ok: #2a9e5c;
   --ui-warn: #d48a30;
-  --ui-frame: rgba(120, 210, 200, 0.3);
-  --ui-frame-strong: rgba(100, 200, 190, 0.5);
-  --ui-glass: rgba(220, 245, 240, 0.4);
-  --ui-glass-inner: rgba(255, 255, 255, 0.15);
-  --ui-shadow-lg: 0 18px 42px rgba(0, 40, 60, 0.1);
-  --ui-shadow-sm: 0 8px 18px rgba(0, 40, 60, 0.06);
+  --ui-frame: transparent;
+  --ui-frame-strong: rgba(120, 210, 200, 0.2);
+  --ui-glass: rgba(220, 245, 240, 0.18);
+  --ui-glass-inner: rgba(255, 255, 255, 0.07);
+  --ui-shadow-lg: 0 12px 32px rgba(0, 40, 60, 0.06);
+  --ui-shadow-sm: 0 8px 18px rgba(0, 40, 60, 0.04);
   --ui-radius-xl: 20px;
   --ui-radius-lg: 14px;
   --ui-radius-md: 10px;
@@ -54,22 +54,16 @@ body {
   left: calc(16px + env(safe-area-inset-left));
   min-width: 170px;
   padding: 12px 14px;
-  border: 1px solid var(--ui-frame);
+  border: none;
   border-radius: var(--ui-radius-lg);
   background: var(--ui-glass);
   box-shadow: var(--ui-shadow-lg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 #ui-brand::after {
-  content: "";
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 8px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(120, 210, 200, 0.35), transparent);
+  display: none;
 }
 
 #ui-brand h1 {
@@ -102,8 +96,8 @@ body {
   min-height: 38px;
   padding: 8px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(210, 190, 120, 0.35);
-  background: rgba(255, 245, 210, 0.6);
+  border: none;
+  background: rgba(255, 245, 210, 0.35);
   box-shadow: var(--ui-shadow-sm);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -130,7 +124,7 @@ body {
   height: 42px;
   padding: 0 14px;
   border-radius: 11px;
-  border: 1px solid var(--ui-frame-strong);
+  border: none;
   background: var(--ui-glass);
   color: var(--ui-ink-1);
   font-family: var(--ui-font-heading);
@@ -139,8 +133,8 @@ body {
   text-transform: uppercase;
   font-weight: 700;
   box-shadow: var(--ui-shadow-sm);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   cursor: pointer;
 }
 
@@ -161,12 +155,12 @@ body {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(120, 210, 200, 0.3) transparent;
-  border: 1px solid var(--ui-frame);
+  border: none;
   border-radius: var(--ui-radius-xl);
   background: var(--ui-glass);
   box-shadow: var(--ui-shadow-lg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   padding: 12px 12px 10px;
   pointer-events: auto;
   transform: translateY(0);
@@ -215,7 +209,7 @@ body {
   margin: 0 0 6px;
   padding: 6px 8px;
   border-radius: var(--ui-radius-md);
-  border: 1px solid var(--ui-frame);
+  border: none;
   background: var(--ui-glass-inner);
 }
 
@@ -256,7 +250,7 @@ body {
 .ui-bag-slot {
   aspect-ratio: 1;
   border-radius: 8px;
-  border: 1px solid var(--ui-frame);
+  border: none;
   background: var(--ui-glass-inner);
   display: flex;
   align-items: center;
@@ -312,7 +306,7 @@ body {
   gap: 8px;
   width: 100%;
   border-radius: var(--ui-radius-md);
-  border: 1px solid var(--ui-frame);
+  border: none;
   background: var(--ui-glass-inner);
   color: var(--ui-ink-1);
   font-family: var(--ui-font-body);
@@ -324,8 +318,7 @@ body {
 }
 
 .ui-tool-btn:hover {
-  border-color: var(--ui-frame-strong);
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .ui-tool-btn:active {
@@ -333,8 +326,8 @@ body {
 }
 
 .ui-tool-btn.is-active {
-  border-color: rgba(24, 184, 154, 0.6);
-  background: rgba(24, 184, 154, 0.25);
+  border: 1px solid rgba(24, 184, 154, 0.4);
+  background: rgba(24, 184, 154, 0.2);
 }
 
 .ui-smith-list {
@@ -350,7 +343,7 @@ body {
   align-items: center;
   padding: 7px 9px;
   border-radius: var(--ui-radius-md);
-  border: 1px solid var(--ui-frame);
+  border: none;
   background: var(--ui-glass-inner);
 }
 
@@ -383,8 +376,7 @@ body {
 }
 
 .ui-smith-buy-btn:hover {
-  border-color: var(--ui-frame-strong);
-  filter: brightness(1.04);
+  filter: brightness(1.06);
 }
 
 .ui-smith-buy-btn.is-unaffordable {
@@ -434,7 +426,7 @@ body {
   align-items: center;
   gap: 8px;
   border-radius: 9px;
-  border: 1px solid var(--ui-frame);
+  border: none;
   background: var(--ui-glass-inner);
   color: var(--ui-ink-1);
   font-family: var(--ui-font-body);
@@ -450,16 +442,16 @@ body {
 }
 
 .ui-dye-btn:hover {
-  border-color: var(--ui-frame-strong);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .ui-dye-btn.is-active {
-  border-color: rgba(24, 184, 154, 0.6);
-  background: rgba(24, 184, 154, 0.25);
+  border: 1px solid rgba(24, 184, 154, 0.4);
+  background: rgba(24, 184, 154, 0.2);
 }
 
 .ui-dye-btn.is-unaffordable {
-  border-color: rgba(212, 138, 48, 0.45);
+  background: rgba(212, 138, 48, 0.08);
 }
 
 .ui-dye-swatch {
@@ -485,6 +477,67 @@ body {
   color: var(--ui-ok);
 }
 
+/* ── Skill rows with progress bars ── */
+.ui-skill-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 6px;
+  padding: 7px 9px;
+  border-radius: var(--ui-radius-md);
+  background: var(--ui-glass-inner);
+}
+
+.ui-skill-icon {
+  font-size: 18px;
+  flex: 0 0 auto;
+  width: 24px;
+  text-align: center;
+}
+
+.ui-skill-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ui-skill-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.ui-skill-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ui-ink-2);
+}
+
+.ui-skill-level {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ui-ink-1);
+}
+
+.ui-skill-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.ui-skill-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ui-accent-1), var(--ui-accent-2));
+  width: 0%;
+  transition: width 300ms ease;
+}
+
+.ui-skill-bar-combat {
+  background: linear-gradient(90deg, #e08030, #d06020);
+}
+
 /* ── Combat panel ── */
 #ui-combat-styles {
   display: grid;
@@ -499,7 +552,7 @@ body {
   justify-content: center;
   aspect-ratio: 1;
   border-radius: var(--ui-radius-md);
-  border: 1px solid var(--ui-frame);
+  border: none;
   background: var(--ui-glass-inner);
   color: var(--ui-ink-1);
   font-size: 28px;
@@ -509,8 +562,7 @@ body {
 }
 
 .ui-combat-btn:hover {
-  border-color: var(--ui-frame-strong);
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.18);
   transform: scale(1.04);
 }
 
@@ -519,8 +571,8 @@ body {
 }
 
 .ui-combat-btn.is-active {
-  border-color: rgba(220, 140, 40, 0.6);
-  background: rgba(240, 160, 40, 0.2);
+  border: 1px solid rgba(220, 140, 40, 0.4);
+  background: rgba(240, 160, 40, 0.18);
 }
 
 .ui-combat-hint {
@@ -540,12 +592,12 @@ body {
   align-items: center;
   gap: 8px;
   padding: 8px;
-  border: 1px solid var(--ui-frame);
+  border: none;
   border-radius: 999px;
   background: var(--ui-glass);
   box-shadow: var(--ui-shadow-lg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   pointer-events: auto;
 }
 
@@ -583,14 +635,13 @@ body {
 
 .ui-tab-btn:hover {
   transform: translateY(-1px);
-  border-color: var(--ui-frame-strong);
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .ui-tab-btn.is-active {
-  border-color: rgba(24, 184, 154, 0.6);
-  background: rgba(24, 184, 154, 0.25);
-  box-shadow: inset 0 0 0 1px rgba(24, 184, 154, 0.15);
+  border: 1px solid rgba(24, 184, 154, 0.4);
+  background: rgba(24, 184, 154, 0.2);
+  box-shadow: none;
 }
 
 #ui-emote-list {
@@ -607,7 +658,7 @@ body {
   width: 100%;
   aspect-ratio: 1;
   border-radius: 10px;
-  border: 1px solid var(--ui-frame);
+  border: none;
   background: var(--ui-glass-inner);
   color: var(--ui-ink-1);
   font-size: 24px;
@@ -617,8 +668,7 @@ body {
 }
 
 .ui-emote-btn:hover {
-  border-color: var(--ui-frame-strong);
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   transform: scale(1.06);
 }
 

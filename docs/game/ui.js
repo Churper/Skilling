@@ -37,6 +37,15 @@ export function initializeUI(options = {}) {
   const fishLevelEl = document.getElementById("ui-skill-fishing");
   const miningLevelEl = document.getElementById("ui-skill-mining");
   const woodcutLevelEl = document.getElementById("ui-skill-woodcutting");
+  const meleeLevelEl = document.getElementById("ui-skill-melee");
+  const bowLevelEl = document.getElementById("ui-skill-bow");
+  const mageLevelEl = document.getElementById("ui-skill-mage");
+  const fishBarEl = document.getElementById("ui-skill-bar-fishing");
+  const miningBarEl = document.getElementById("ui-skill-bar-mining");
+  const woodcutBarEl = document.getElementById("ui-skill-bar-woodcutting");
+  const meleeBarEl = document.getElementById("ui-skill-bar-melee");
+  const bowBarEl = document.getElementById("ui-skill-bar-bow");
+  const mageBarEl = document.getElementById("ui-skill-bar-mage");
   const friendsOnlineEl = document.getElementById("ui-friends-online");
   const friendsCountEl = document.getElementById("ui-friends-count");
   const smithButtons = Array.from(document.querySelectorAll("[data-smith-upgrade]"));
@@ -153,6 +162,17 @@ export function initializeUI(options = {}) {
     if (fishLevelEl) fishLevelEl.textContent = String(skills.fishing ?? 1);
     if (miningLevelEl) miningLevelEl.textContent = String(skills.mining ?? 1);
     if (woodcutLevelEl) woodcutLevelEl.textContent = String(skills.woodcutting ?? 1);
+    if (meleeLevelEl) meleeLevelEl.textContent = String(skills.melee ?? 1);
+    if (bowLevelEl) bowLevelEl.textContent = String(skills.bow ?? 1);
+    if (mageLevelEl) mageLevelEl.textContent = String(skills.mage ?? 1);
+
+    const progress = skills._progress || {};
+    if (fishBarEl) fishBarEl.style.width = (progress.fishing ?? 0) + "%";
+    if (miningBarEl) miningBarEl.style.width = (progress.mining ?? 0) + "%";
+    if (woodcutBarEl) woodcutBarEl.style.width = (progress.woodcutting ?? 0) + "%";
+    if (meleeBarEl) meleeBarEl.style.width = (progress.melee ?? 0) + "%";
+    if (bowBarEl) bowBarEl.style.width = (progress.bow ?? 0) + "%";
+    if (mageBarEl) mageBarEl.style.width = (progress.mage ?? 0) + "%";
   }
 
   function setStatus(text, tone = "info") {
