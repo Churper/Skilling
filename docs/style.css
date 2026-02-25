@@ -10,10 +10,10 @@
   --ui-warn: #ffd599;
   --ui-frame: rgba(180, 160, 120, 0.28);
   --ui-frame-strong: rgba(210, 180, 140, 0.55);
-  --ui-card-top: rgba(18, 42, 38, 0.72);
-  --ui-card-bottom: rgba(12, 32, 28, 0.75);
-  --ui-card-top-soft: rgba(16, 44, 36, 0.76);
-  --ui-card-bottom-soft: rgba(10, 34, 28, 0.8);
+  --ui-card-top: rgba(42, 30, 18, 0.78);
+  --ui-card-bottom: rgba(28, 18, 10, 0.82);
+  --ui-card-top-soft: rgba(44, 32, 18, 0.78);
+  --ui-card-bottom-soft: rgba(30, 20, 10, 0.82);
   --ui-shadow-lg: 0 18px 42px rgba(4, 14, 12, 0.34);
   --ui-shadow-sm: 0 8px 18px rgba(4, 14, 12, 0.22);
   --ui-radius-xl: 20px;
@@ -130,7 +130,7 @@ body {
   padding: 0 14px;
   border-radius: 11px;
   border: 1px solid var(--ui-frame-strong);
-  background: linear-gradient(180deg, rgba(24, 56, 48, 0.92), rgba(12, 38, 32, 0.94));
+  background: linear-gradient(180deg, rgba(48, 34, 16, 0.92), rgba(30, 20, 8, 0.94));
   color: var(--ui-ink-1);
   font-family: var(--ui-font-heading);
   font-size: 12px;
@@ -492,7 +492,7 @@ body {
   padding: 7px;
   border: 1px solid var(--ui-frame);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(16, 38, 34, 0.9), rgba(10, 28, 24, 0.92));
+  background: linear-gradient(180deg, rgba(42, 30, 16, 0.92), rgba(28, 18, 8, 0.94));
   box-shadow: var(--ui-shadow-lg);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -503,12 +503,12 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-width: 96px;
-  padding: 10px 12px;
-  border-radius: 11px;
+  gap: 0;
+  min-width: 50px;
+  padding: 12px 14px;
+  border-radius: 13px;
   border: 1px solid transparent;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--ui-ink-1);
   font-family: var(--ui-font-heading);
   font-size: 12px;
@@ -523,11 +523,11 @@ body {
   align-items: center;
   justify-content: center;
   width: 1.2em;
-  font-size: 15px;
+  font-size: 22px;
 }
 
 .ui-tab-label {
-  white-space: nowrap;
+  display: none;
 }
 
 .ui-tab-btn:hover {
@@ -661,9 +661,8 @@ body {
   }
 
   .ui-tab-btn {
-    min-width: 104px;
-    font-size: 13px;
-    padding: 9px 10px;
+    min-width: 48px;
+    padding: 11px 13px;
   }
 }
 
@@ -715,15 +714,14 @@ body {
   }
 
   .ui-tab-btn {
-    min-width: 94px;
-    padding: 8px 10px;
-    border-radius: 10px;
-    font-size: 12px;
+    min-width: 44px;
+    padding: 10px 12px;
+    border-radius: 12px;
     flex: 0 0 auto;
   }
 
   .ui-tab-icon {
-    font-size: 14px;
+    font-size: 20px;
   }
 
   #ui-panel {
@@ -799,9 +797,8 @@ body {
   }
 
   .ui-tab-btn {
-    min-width: 86px;
-    padding: 8px 9px;
-    gap: 6px;
+    min-width: 42px;
+    padding: 10px 11px;
   }
 
   #ui-panel {

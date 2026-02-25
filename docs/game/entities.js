@@ -7,22 +7,15 @@ function createSlimeGeometry() {
     let x = pos.getX(i);
     let y = pos.getY(i);
     let z = pos.getZ(i);
-    // Nearly flat bottom — dome sits on ground
-    if (y < 0) y *= 0.1;
-    // Remap Y: stretch lower body, compress upper dome
-    const yNorm = (y + 0.5) / 1.0;
-    if (yNorm < 0.45) {
-      // Lower body — stretch upward for rounder midsection
-      y = THREE.MathUtils.lerp(-0.05, 0.22, yNorm / 0.45);
-    } else {
-      // Upper dome — compress rings together for smooth cap
-      const upper = (yNorm - 0.45) / 0.55;
-      y = THREE.MathUtils.lerp(0.22, 0.51, Math.pow(upper, 0.7));
-    }
-    // Widest at base (y=0), dome/droplet shape
-    const bulge = 1.0 + 0.22 * Math.sin(yNorm * Math.PI * 0.5);
-    x *= bulge * 1.10;
-    z *= bulge * 1.10;
+    // Flat bottom — dome sits on ground
+    if (y < 0) y *= 0.08;
+    // Scale up vertically so it's a tall dome, not a pancake
+    y *= 1.25;
+    const yNorm = THREE.MathUtils.clamp((y + 0.06) / 0.7, 0, 1);
+    // Widest at base, tapers into dome/droplet shape
+    const bulge = 1.0 + 0.28 * Math.sin(yNorm * Math.PI * 0.55);
+    x *= bulge * 1.08;
+    z *= bulge * 1.08;
     pos.setXYZ(i, x, y, z);
   }
   slimeGeo.computeVertexNormals();

@@ -466,28 +466,47 @@ function createWater(scene) {
         vec2 cuv1 = wp * 0.18 + vec2(t * 0.06, t * 0.04);
         vec2 cuv2 = wp * 0.28 + vec2(-t * 0.05, t * 0.07);
         float caustic = fbm(cuv1) * 0.55 + fbm(cuv2) * 0.45;
-        float causticBright = smoothstep(0.38, 0.68, caustic) * 0.15;
-        causticBright *= smoothstep(0.05, 0.4, radial) * (1.0 - radial * 0.6);
-        col += causticBright * vec3(0.4, 0.85, 0.9);
+        float causticBright = smoothstep(0.38, 0.68, caustic) * 0.18;
+        causticBright *= smoothstep(0.05, 0.4, radial) * (1.0 - radial * 0.5);
+        col += causticBright * vec3(0.5, 0.9, 0.95);
 
-        // Simple sun specular
+        // Animated wave normals for ripple pattern
         vec3 waveN = normalize(vec3(
-          sin(wp.x * 1.0 + t * 0.7) * 0.07 + sin(wp.x * 2.8 - t * 0.5) * 0.03,
+          sin(wp.x * 0.8 + t * 0.7) * 0.09 + sin(wp.x * 2.4 - t * 0.5) * 0.05 + sin(wp.x * 4.5 + wp.y * 2.0 + t * 1.4) * 0.02,
           1.0,
-          sin(wp.y * 1.0 - t * 0.6) * 0.07 + cos(wp.y * 2.5 + t * 0.4) * 0.03
+          sin(wp.y * 0.8 - t * 0.6) * 0.09 + cos(wp.y * 2.2 + t * 0.4) * 0.05 + cos(wp.y * 4.2 - wp.x * 1.8 + t * 1.2) * 0.02
         ));
+
+        // Fresnel — more transparent when looking straight down, reflective at grazing angles
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
+        float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 3.0);
+
+        // Sun specular — bright sparkles across the surface
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 52.0);
-        col += vec3(1.0, 0.97, 0.9) * spec * 0.4 * (1.0 - radial * 0.2);
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 38.0);
+        col += vec3(1.0, 0.98, 0.92) * spec * 0.7 * (1.0 - radial * 0.15);
 
-        // Clean white shore foam ring
-        float foam = smoothstep(0.94, 0.98, radial) * (1.0 - smoothstep(0.98, 1.0, radial));
-        col = mix(col, vec3(0.96, 0.99, 0.97), foam * 0.8);
+        // Secondary softer sun highlight for shimmer
+        float spec2 = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 12.0);
+        col += vec3(0.9, 0.95, 1.0) * spec2 * 0.15;
 
-        // Alpha — opaque center, clean edge fade
-        float alpha = mix(0.88, 0.0, smoothstep(0.95, 1.0, radial));
-        alpha = max(alpha, foam * 0.85);
+        // Light ripple highlights — faint white lines dancing on surface
+        float ripple1 = sin(wp.x * 3.0 + wp.y * 1.5 + t * 2.2) * sin(wp.x * 1.2 - wp.y * 2.8 + t * 1.6);
+        float ripple2 = sin(wp.x * 2.2 - wp.y * 3.0 + t * 1.8) * cos(wp.x * 1.8 + wp.y * 1.0 - t * 1.3);
+        float rippleLight = max(0.0, ripple1 * 0.5 + 0.5) * max(0.0, ripple2 * 0.5 + 0.5);
+        col += vec3(1.0, 1.0, 0.98) * rippleLight * 0.12 * (1.0 - radial * 0.4);
+
+        // Soft foam — multiple layered bands near shore
+        float foam1 = smoothstep(0.88, 0.94, radial) * (1.0 - smoothstep(0.94, 0.97, radial));
+        float foam2 = smoothstep(0.93, 0.97, radial) * (1.0 - smoothstep(0.97, 1.0, radial));
+        float foamNoise = fbm(wp * 1.5 + vec2(t * 0.12, -t * 0.08));
+        float foam = max(foam1 * 0.5, foam2 * 0.7) * smoothstep(0.35, 0.55, foamNoise);
+        col = mix(col, vec3(0.97, 1.0, 0.99), foam * 0.7);
+
+        // Alpha — transparent center (clear water), slight opacity from fresnel
+        float baseAlpha = mix(0.52, 0.78, fresnel);
+        float alpha = mix(baseAlpha, 0.0, smoothstep(0.96, 1.0, radial));
+        alpha = max(alpha, foam * 0.6);
         if (alpha < 0.002) discard;
 
         gl_FragColor = vec4(col, alpha);
@@ -1210,7 +1229,8 @@ function addLakeRings(scene) {
   const segs = 180, rings = 14, outerR = 36;
   const positions = [], colors = [], indices = [];
   const vpr = segs + 1;
-  const colWetSand = new THREE.Color("#58d0d8");
+  const colWaterEdge = new THREE.Color("#60d8e0");
+  const colWetSand = new THREE.Color("#a0c8a8");
   const colDrySand = new THREE.Color("#c8a870");
   const colGrassEdge = new THREE.Color("#5aa048");
   const colTmp = new THREE.Color();
@@ -1218,27 +1238,29 @@ function addLakeRings(scene) {
     const rt = r / rings;
     for (let s = 0; s <= segs; s++) {
       const angle = (s / segs) * Math.PI * 2;
-      const innerR = getLakeRadiusAtAngle(angle) - 3.0;
+      const innerR = getLakeRadiusAtAngle(angle) - 4.5;
       const radius = innerR + (outerR - innerR) * rt;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const distR = Math.hypot(x, z);
       const waterR = getWaterRadiusAtAngle(angle);
       let y;
-      if (distR < waterR - 0.3) {
-        y = WATER_SURFACE_Y - 0.22;
-      } else if (distR < waterR + 1.0) {
-        const blend = THREE.MathUtils.smoothstep(distR, waterR - 0.3, waterR + 1.0);
+      if (distR < waterR - 0.5) {
+        y = WATER_SURFACE_Y - 0.3;
+      } else if (distR < waterR + 1.2) {
+        const blend = THREE.MathUtils.smoothstep(distR, waterR - 0.5, waterR + 1.2);
         const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.01);
-        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.22, shoreH + SHORE_LIFT, blend);
+        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.3, shoreH + SHORE_LIFT, blend);
       } else {
         y = sampleTerrainHeight(x, z) + SHORE_LIFT;
       }
       positions.push(x, y, z);
-      // Vertex color gradient: wet sand → dry sand → grass
-      const wetToDry = THREE.MathUtils.smoothstep(rt, 0.0, 0.3);
-      const sandToGrass = THREE.MathUtils.smoothstep(rt, 0.35, 0.88);
-      colTmp.copy(colWetSand).lerp(colDrySand, wetToDry);
+      // Vertex color gradient: water-edge → wet sand → dry sand → grass
+      const waterToWet = THREE.MathUtils.smoothstep(rt, 0.0, 0.15);
+      const wetToDry = THREE.MathUtils.smoothstep(rt, 0.15, 0.35);
+      const sandToGrass = THREE.MathUtils.smoothstep(rt, 0.4, 0.88);
+      colTmp.copy(colWaterEdge).lerp(colWetSand, waterToWet);
+      colTmp.lerp(colDrySand, wetToDry);
       colTmp.lerp(colGrassEdge, sandToGrass * 0.65);
       // Noise variation for natural look
       const nv = Math.sin(x * 0.28 + z * 0.22) * 0.5 + 0.5;
