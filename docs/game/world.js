@@ -60,9 +60,9 @@ function getWaterRadiusAt(x, z) {
 const TREE_TRUNK_GEO = new THREE.CylinderGeometry(0.18, 0.38, 4.6, 6);
 const TREE_LEAF_GEO = new THREE.BoxGeometry(0.22, 0.06, 2.6);
 const TREE_CORE_GEO = new THREE.OctahedronGeometry(0.55, 0);
-const TREE_TRUNK_MAT = toonMat("#a0734e");
-const TREE_LEAF_MAT = toonMat("#4cc992");
-const TREE_CORE_MAT = toonMat("#3dba84");
+const TREE_TRUNK_MAT = toonMat("#8a6040");
+const TREE_LEAF_MAT = toonMat("#38b878");
+const TREE_CORE_MAT = toonMat("#2da870");
 const FISH_SPOT_RING_MAT = new THREE.MeshBasicMaterial({ color: "#dcf8ff", transparent: true, opacity: 0.72 });
 const FISH_SPOT_BOBBER_MAT = toonMat("#ffcc58");
 const SERVICE_HOTSPOT_MAT = new THREE.MeshBasicMaterial({
@@ -151,9 +151,9 @@ function addSky(scene) {
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: {
-      cTop: { value: new THREE.Color("#2e8ed8") },
-      cMid: { value: new THREE.Color("#7dcdf8") },
-      cBot: { value: new THREE.Color("#fffae8") },
+      cTop: { value: new THREE.Color("#2882c8") },
+      cMid: { value: new THREE.Color("#68c0ee") },
+      cBot: { value: new THREE.Color("#f0e8d0") },
       uTime: { value: 0 },
     },
     vertexShader: `
@@ -218,9 +218,9 @@ function createGround(scene) {
   const terrainGeo = new THREE.PlaneGeometry(230, 230, 140, 140);
   const tPos = terrainGeo.attributes.position;
   const tCol = [];
-  const colGrassDark = new THREE.Color("#4d8c42");
-  const colGrassLight = new THREE.Color("#7dba5e");
-  const colBeachBlend = new THREE.Color("#dcc28a");
+  const colGrassDark = new THREE.Color("#3b7a3b");
+  const colGrassLight = new THREE.Color("#58b050");
+  const colBeachBlend = new THREE.Color("#c4a06a");
   const colTmp = new THREE.Color();
   const lightX = 0.54;
   const lightY = 0.78;
@@ -255,12 +255,12 @@ function createGround(scene) {
     const tonal = THREE.MathUtils.clamp(litStylized * 0.72 + hillShade * 0.48, 0, 1);
     const shoreBlend = THREE.MathUtils.smoothstep(r, 21.4, 34.0);
 
-    colTmp.copy(colGrassDark).lerp(colGrassLight, tonal * 0.95 + noise * 0.03 + 0.02);
-    colTmp.lerp(colBeachBlend, shoreBlend * 0.42);
+    colTmp.copy(colGrassDark).lerp(colGrassLight, tonal * 0.92 + noise * 0.04 + 0.04);
+    colTmp.lerp(colBeachBlend, shoreBlend * 0.3);
     const contrastBand = Math.floor(tonal * 3.2) / 3.0;
-    colTmp.multiplyScalar(0.86 + contrastBand * 0.24);
-    const waterProx = 1.0 - THREE.MathUtils.smoothstep(r, waterR - 2, waterR + 4);
-    if (waterProx > 0) colTmp.lerp(colBeachBlend, waterProx * 0.85);
+    colTmp.multiplyScalar(0.88 + contrastBand * 0.2);
+    const waterProx = 1.0 - THREE.MathUtils.smoothstep(r, waterR - 1, waterR + 3);
+    if (waterProx > 0) colTmp.lerp(colBeachBlend, waterProx * 0.7);
     tCol.push(colTmp.r, colTmp.g, colTmp.b);
   }
   terrainGeo.setAttribute("color", new THREE.Float32BufferAttribute(tCol, 3));
@@ -282,9 +282,9 @@ function createLakeBowlMesh() {
   const positions = [];
   const colors = [];
   const indices = [];
-  const deep = new THREE.Color("#2a7a9c");
-  const mid = new THREE.Color("#52a8b8");
-  const shelf = new THREE.Color("#c4b68a");
+  const deep = new THREE.Color("#1a6888");
+  const mid = new THREE.Color("#3898a8");
+  const shelf = new THREE.Color("#b0a070");
 
   // Center vertex
   positions.push(0, -(0.1 + 1.95), 0);
@@ -347,10 +347,10 @@ function createLakeBowlMesh() {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#9ef8f0") },
-    uMid: { value: new THREE.Color("#4dd8ee") },
-    uDeep: { value: new THREE.Color("#1a9ec8") },
-    uBeach: { value: new THREE.Color("#e3cea1") },
+    uShallow: { value: new THREE.Color("#62dcd2") },
+    uMid: { value: new THREE.Color("#2cb8d4") },
+    uDeep: { value: new THREE.Color("#1480a8") },
+    uBeach: { value: new THREE.Color("#c4a06a") },
   };
 
   const lakeFloor = createLakeBowlMesh();
@@ -437,9 +437,6 @@ function createWater(scene) {
       float hash(vec2 p) {
         return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
       }
-      float hash2(vec2 p) {
-        return fract(sin(dot(p, vec2(269.5, 183.3))) * 43758.5453);
-      }
       float noise(vec2 p) {
         vec2 i = floor(p);
         vec2 f = fract(p);
@@ -451,31 +448,14 @@ function createWater(scene) {
         );
       }
       float fbm(vec2 p) {
-        float v = 0.0;
-        float a = 0.5;
+        float v = 0.0, a = 0.5;
         mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
           v += noise(p) * a;
           p = rot * p * 2.0;
           a *= 0.5;
         }
         return v;
-      }
-      // Voronoi for caustic cell patterns
-      float voronoi(vec2 p) {
-        vec2 ip = floor(p);
-        vec2 fp = fract(p);
-        float d = 1.0;
-        for (int y = -1; y <= 1; y++) {
-          for (int x = -1; x <= 1; x++) {
-            vec2 nb = vec2(float(x), float(y));
-            vec2 pt = vec2(hash(ip + nb), hash2(ip + nb));
-            pt = 0.5 + 0.5 * sin(uTime * 0.4 + 6.2831 * pt);
-            vec2 diff = nb + pt - fp;
-            d = min(d, dot(diff, diff));
-          }
-        }
-        return sqrt(d);
       }
 
       void main() {
@@ -483,84 +463,59 @@ function createWater(scene) {
         float radial = vRadial;
         vec2 wp = vWorldPos.xz;
 
-        // Vibrant tropical depth gradient
-        vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.48, radial));
-        col = mix(col, uShallow, smoothstep(0.38, 0.86, radial));
-        float clarity = smoothstep(0.18, 0.82, radial);
-        col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.2);
+        // Depth color — saturated, NOT milky
+        vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.55, radial));
+        col = mix(col, uShallow, smoothstep(0.5, 0.92, radial));
 
-        // Animated voronoi caustics — bright cell-like light patterns
-        vec2 cuv = wp * 0.14;
-        float c1 = voronoi(cuv + vec2(t * 0.05, t * 0.03));
-        float c2 = voronoi(cuv * 1.5 + vec2(-t * 0.04, t * 0.06));
-        float caustic = c1 * 0.55 + c2 * 0.45;
-        float causticBright = (1.0 - smoothstep(0.0, 0.42, caustic)) * 0.3;
-        causticBright *= smoothstep(0.04, 0.35, radial) * (1.0 - radial * 0.45);
-        col += causticBright * vec3(0.68, 0.95, 1.0);
+        // Subtle caustic light dapples (fbm-based, visible but not overpowering)
+        vec2 cuv1 = wp * 0.18 + vec2(t * 0.06, t * 0.04);
+        vec2 cuv2 = wp * 0.28 + vec2(-t * 0.05, t * 0.07);
+        float caustic = fbm(cuv1) * 0.55 + fbm(cuv2) * 0.45;
+        float causticBright = smoothstep(0.38, 0.68, caustic) * 0.15;
+        causticBright *= smoothstep(0.05, 0.4, radial) * (1.0 - radial * 0.6);
+        col += causticBright * vec3(0.4, 0.85, 0.9);
 
-        // Secondary FBM caustic shimmer layer
-        float shimmer = fbm(wp * 0.25 + vec2(t * 0.06, -t * 0.04));
-        col = mix(col, col * 1.12, shimmer * 0.18 * (1.0 - radial * 0.4));
-
-        // Animated concentric ripple rings
-        float dist1 = length(wp - vec2(2.5, 4.0));
-        float dist2 = length(wp - vec2(-5.0, -2.5));
-        float dist3 = length(wp - vec2(7.0, -4.0));
-        float ripple = sin(dist1 * 2.6 - t * 2.2) * 0.5 + 0.5;
-        ripple += sin(dist2 * 2.4 - t * 1.8) * 0.5 + 0.5;
-        ripple += sin(dist3 * 2.8 - t * 2.6) * 0.5 + 0.5;
-        col += ripple * 0.018 * vec3(0.75, 0.92, 1.0) * (1.0 - radial * 0.5);
-
-        // Wave-perturbed normal for reflections (multi-octave)
+        // Wave normal for specular and fresnel
         vec3 waveN = normalize(vec3(
-          sin(wp.x * 1.1 + t * 0.75) * 0.065 + sin(wp.x * 2.6 - t * 0.55) * 0.035
-            + sin(wp.x * 0.4 + wp.y * 0.3 + t * 0.45) * 0.04,
+          sin(wp.x * 1.0 + t * 0.7) * 0.07 + sin(wp.x * 2.8 - t * 0.5) * 0.03,
           1.0,
-          sin(wp.y * 1.1 - t * 0.65) * 0.065 + cos(wp.y * 2.3 + t * 0.45) * 0.035
-            + sin(wp.y * 0.45 - wp.x * 0.35 + t * 0.55) * 0.04
+          sin(wp.y * 1.0 - t * 0.6) * 0.07 + cos(wp.y * 2.5 + t * 0.4) * 0.03
         ));
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
 
-        // Sun specular — broad highlight
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 42.0);
-        col += vec3(1.0, 0.97, 0.9) * spec * 0.5 * (1.0 - radial * 0.15);
+        // Sun specular highlight
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 52.0);
+        col += vec3(1.0, 0.97, 0.9) * spec * 0.4 * (1.0 - radial * 0.2);
 
-        // Softer wide specular spread
-        float specSoft = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 6.0);
-        col += vec3(0.92, 0.96, 1.0) * specSoft * 0.07;
-
-        // Fine sparkle detail
+        // Sparkles
         vec3 sparkleN = normalize(vec3(
-          sin(wp.x * 6.5 + t * 2.6) * 0.16 + sin(wp.x * 10.0 - t * 1.9) * 0.08,
-          1.0,
-          cos(wp.y * 6.5 - t * 2.3) * 0.16 + cos(wp.y * 10.0 + t * 1.7) * 0.08
+          sin(wp.x * 6.0 + t * 2.4) * 0.14, 1.0,
+          cos(wp.y * 6.0 - t * 2.1) * 0.14
         ));
-        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 240.0);
-        col += vec3(1.0) * sparkle * 0.38;
+        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 200.0);
+        col += vec3(1.0) * sparkle * 0.25;
 
-        // Fresnel — sky/environment reflection
+        // Fresnel — blend toward sky tint at grazing angles
         float NdotV = max(dot(viewDir, waveN), 0.0);
-        float fresnel = pow(1.0 - NdotV, 3.5) * 0.34;
-        vec3 skyCol = mix(vec3(0.52, 0.78, 0.92), vec3(0.32, 0.62, 0.85), waveN.y);
-        col = mix(col, skyCol, fresnel);
+        float fresnel = pow(1.0 - NdotV, 4.0) * 0.28;
+        col = mix(col, vec3(0.45, 0.72, 0.88), fresnel);
 
-        // Shore foam — noise-driven, animated, multi-frequency
-        float foamNoise = fbm(wp * 0.7 + vec2(t * 0.1, -t * 0.07));
+        // Shore foam
+        float foamNoise = fbm(wp * 0.6 + vec2(t * 0.08, -t * 0.06));
         float ang = atan(wp.y, wp.x);
-        float foamWobble = sin(ang * 8.0 + t * 1.2) * 0.013
-                         + sin(ang * 13.0 - t * 0.8) * 0.010
-                         + sin(ang * 21.0 + t * 1.6) * 0.005;
+        float foamWobble = sin(ang * 8.0 + t * 1.1) * 0.012
+                         + sin(ang * 14.0 - t * 0.7) * 0.008;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.87, 0.95, foamEdge) * (1.0 - smoothstep(0.955, 0.993, foamEdge));
-        foam *= 0.65 + foamNoise * 0.55;
+        float foam = smoothstep(0.88, 0.955, foamEdge) * (1.0 - smoothstep(0.96, 0.995, foamEdge));
+        foam *= 0.6 + foamNoise * 0.5;
         foam = clamp(foam, 0.0, 1.0);
-        col = mix(col, vec3(1.0, 1.0, 0.96), foam * 0.94);
+        col = mix(col, vec3(0.95, 0.98, 0.96), foam * 0.88);
 
-        // Alpha — more opaque center, clean edge transition
-        float bodyAlpha = mix(0.74, 0.2, smoothstep(0.04, 0.8, radial));
-        float edgeFade = 1.0 - smoothstep(0.95, 0.988, foamEdge);
-        float alpha = max(bodyAlpha * edgeFade, foam * 0.96);
+        // Alpha — see-through edges, solid center
+        float bodyAlpha = mix(0.82, 0.12, smoothstep(0.0, 0.88, radial));
+        float edgeFade = 1.0 - smoothstep(0.95, 0.992, foamEdge);
+        float alpha = max(bodyAlpha * edgeFade, foam * 0.9);
         if (alpha < 0.002) discard;
 
         gl_FragColor = vec4(col, alpha);
@@ -663,7 +618,7 @@ function addRock(scene, blobTex, x, z, scale = 1, resourceNodes = null) {
   const baseY = getWorldSurfaceHeight(x, z);
   const rock = new THREE.Mesh(
     geo,
-    toonMat("#8e9d98")
+    toonMat("#8a8a80")
   );
   rock.position.set(x, baseY + 0.78 * scale, z);
   rock.rotation.y = Math.random() * Math.PI;
@@ -689,7 +644,7 @@ function addWaterRock(scene, x, z, scale = 1) {
   const baseY = getWorldSurfaceHeight(x, z);
   const rock = new THREE.Mesh(
     geo,
-    toonMat("#738993")
+    toonMat("#6e7878")
   );
   rock.position.set(x, baseY + 0.42, z);
   rock.rotation.y = Math.random() * Math.PI;
@@ -735,7 +690,7 @@ function addTree(scene, blobTex, x, z, scale = 1, resourceNodes = null) {
   // 8 palm fronds — long, drooping, varied
   const frondCount = 8;
   const frondLeafGeo = new THREE.BoxGeometry(0.24, 0.05, 2.8);
-  const frondColors = [TREE_LEAF_MAT, toonMat("#58d49e"), toonMat("#42c088")];
+  const frondColors = [TREE_LEAF_MAT, toonMat("#30a868"), toonMat("#28985c")];
   for (let i = 0; i < frondCount; i++) {
     const mat = frondColors[i % frondColors.length];
     const frond = new THREE.Mesh(frondLeafGeo, mat);
@@ -762,7 +717,7 @@ function addReedPatch(scene, x, z, count = 7) {
   for (let i = 0; i < count; i++) {
     const reed = new THREE.Mesh(
       new THREE.CylinderGeometry(0.03, 0.04, 0.95 + Math.random() * 0.45, 5),
-      toonMat("#89b162")
+      toonMat("#5a9848")
     );
     reed.position.set(x + (Math.random() - 0.5) * 0.9, baseY + 0.48, z + (Math.random() - 0.5) * 0.9);
     reed.rotation.z = (Math.random() - 0.5) * 0.28;
@@ -1236,8 +1191,12 @@ function createConformingRing(innerRadius, outerRadius, radialSegments = 14, the
 
 function addLakeRings(scene) {
   const segs = 180, rings = 14, outerR = 36;
-  const positions = [], indices = [];
-  const vpr = segs + 1; // vertices per ring row (close the loop)
+  const positions = [], colors = [], indices = [];
+  const vpr = segs + 1;
+  const colWetSand = new THREE.Color("#a89058");
+  const colDrySand = new THREE.Color("#c8a870");
+  const colGrassEdge = new THREE.Color("#5aa048");
+  const colTmp = new THREE.Color();
   for (let r = 0; r <= rings; r++) {
     const rt = r / rings;
     for (let s = 0; s <= segs; s++) {
@@ -1250,17 +1209,24 @@ function addLakeRings(scene) {
       const waterR = getWaterRadiusAtAngle(angle);
       let y;
       if (distR < waterR - 0.3) {
-        // Inside water boundary — submerge below water surface
         y = WATER_SURFACE_Y - 0.08;
       } else if (distR < waterR + 1.0) {
-        // Transition zone — smooth rise from submerged to shore level
-        const t = THREE.MathUtils.smoothstep(distR, waterR - 0.3, waterR + 1.0);
+        const blend = THREE.MathUtils.smoothstep(distR, waterR - 0.3, waterR + 1.0);
         const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.01);
-        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.08, shoreH + SHORE_LIFT, t);
+        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.08, shoreH + SHORE_LIFT, blend);
       } else {
         y = sampleTerrainHeight(x, z) + SHORE_LIFT;
       }
       positions.push(x, y, z);
+      // Vertex color gradient: wet sand → dry sand → grass
+      const wetToDry = THREE.MathUtils.smoothstep(rt, 0.0, 0.3);
+      const sandToGrass = THREE.MathUtils.smoothstep(rt, 0.35, 0.88);
+      colTmp.copy(colWetSand).lerp(colDrySand, wetToDry);
+      colTmp.lerp(colGrassEdge, sandToGrass * 0.65);
+      // Noise variation for natural look
+      const nv = Math.sin(x * 0.28 + z * 0.22) * 0.5 + 0.5;
+      colTmp.multiplyScalar(0.9 + nv * 0.14);
+      colors.push(colTmp.r, colTmp.g, colTmp.b);
     }
   }
   for (let r = 0; r < rings; r++) {
@@ -1272,8 +1238,9 @@ function addLakeRings(scene) {
   const geo = new THREE.BufferGeometry();
   geo.setIndex(indices);
   geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.computeVertexNormals();
-  const beachRing = new THREE.Mesh(geo, toonMat("#e0c888", { side: THREE.DoubleSide }));
+  const beachRing = new THREE.Mesh(geo, toonMat("#ffffff", { vertexColors: true, side: THREE.DoubleSide }));
   beachRing.renderOrder = RENDER_SHORE;
   scene.add(beachRing);
 }
@@ -1294,7 +1261,7 @@ function addLilyPads(scene) {
   for (const pad of padPositions) {
     // Circle with wedge notch
     const geo = new THREE.CircleGeometry(pad.r, 16, 0.2, Math.PI * 2 - 0.4);
-    const lilyMat = toonMat("#4a9e6b");
+    const lilyMat = toonMat("#388858");
     const lily = new THREE.Mesh(geo, lilyMat);
     lily.rotation.x = -Math.PI / 2;
     lily.rotation.z = Math.random() * Math.PI * 2;
@@ -1364,7 +1331,7 @@ function addExtraReeds(scene) {
     [22, 12, 8], [-22, 10, 6], [15, 22, 7], [-14, 22, 5],
     [25, -12, 6], [-25, -8, 7], [8, 26, 5], [-8, 26, 6],
   ];
-  const reedColors = ["#89b162", "#7da858", "#96bd6e", "#80a954"];
+  const reedColors = ["#5a9848", "#4e8a3c", "#68a854", "#558e42"];
   for (const [x, z, count] of patches) {
     const baseY = getWorldSurfaceHeight(x, z);
     for (let i = 0; i < count; i++) {
@@ -1388,7 +1355,7 @@ function addBushes(scene) {
     [32, -14, 0.5], [-34, 10, 0.55], [8, -28, 0.6], [-6, 30, 0.7],
     [28, 22, 0.5], [-26, 20, 0.55], [35, -6, 0.6], [-32, -12, 0.5],
   ];
-  const bushColors = ["#4daf6a", "#3d9e5c", "#5cbc78", "#48a862"];
+  const bushColors = ["#3a9050", "#2e8042", "#489858", "#348a48"];
   for (const [x, z, scale] of bushPositions) {
     const baseY = getWorldSurfaceHeight(x, z);
     const color = bushColors[Math.floor(Math.random() * bushColors.length)];

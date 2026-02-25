@@ -1,18 +1,21 @@
 import * as THREE from "three";
 
 function createSlimeGeometry() {
-  const slimeGeo = new THREE.SphereGeometry(0.51, 10, 8);
+  const slimeGeo = new THREE.SphereGeometry(0.51, 12, 10);
   const pos = slimeGeo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     let x = pos.getX(i);
     let y = pos.getY(i);
     let z = pos.getZ(i);
-    if (y < 0) y *= 0.52;
+    // Flatten bottom more gently
+    if (y < 0) y *= 0.45;
     const yNorm = (y + 0.5) / 1.0;
-    const bulge = 1.0 + 0.2 * Math.sin(yNorm * Math.PI);
-    x *= bulge * 1.02;
-    y *= 1.08;
-    z *= bulge * 1.02;
+    // Wider, rounder bulge peaking at lower chest
+    const bulge = 1.0 + 0.28 * Math.sin(yNorm * Math.PI * 0.85);
+    x *= bulge * 1.06;
+    // Taller body with slight chest emphasis
+    y *= 1.18;
+    z *= bulge * 1.06;
     pos.setXYZ(i, x, y, z);
   }
   slimeGeo.computeVertexNormals();
@@ -21,7 +24,7 @@ function createSlimeGeometry() {
 
 function addSlimeFace(root, color = "#0d110f") {
   const faceGroup = new THREE.Group();
-  faceGroup.position.set(0, 0.16, 0.44);
+  faceGroup.position.set(0, 0.22, 0.46);
   root.add(faceGroup);
 
   const faceMat = new THREE.MeshBasicMaterial({ color });
@@ -47,9 +50,9 @@ export function createPlayer(scene, addShadowBlob) {
   const slimeMaterial = new THREE.MeshPhongMaterial({
     color: "#58df78",
     transparent: true,
-    opacity: 0.68,
-    shininess: 38,
-    specular: new THREE.Color("#d8ffe4"),
+    opacity: 0.72,
+    shininess: 48,
+    specular: new THREE.Color("#c8ffe0"),
     flatShading: true,
     side: THREE.FrontSide,
   });
