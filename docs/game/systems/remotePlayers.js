@@ -19,6 +19,7 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY }) {
         moving: false,
         initialized: false,
         footOffset,
+        headOffset: avatar.player.geometry.boundingBox.max.y,
       };
       peers.set(peer.id, entry);
     }
@@ -90,6 +91,17 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY }) {
     for (const id of Array.from(peers.keys())) removePeer(id);
   }
 
+  function getEmoteAnchor(id, out = new THREE.Vector3()) {
+    const entry = peers.get(id);
+    if (!entry || !entry.initialized) return null;
+    out.set(
+      entry.avatar.player.position.x,
+      entry.avatar.player.position.y + entry.headOffset + 0.45,
+      entry.avatar.player.position.z
+    );
+    return out;
+  }
+
   return {
     upsertPeer,
     applyState,
@@ -98,5 +110,6 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY }) {
     update,
     count: () => peers.size,
     clear,
+    getEmoteAnchor,
   };
 }

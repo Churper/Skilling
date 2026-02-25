@@ -82,6 +82,13 @@ function sanitizeColor(value) {
   return trimmed;
 }
 
+function sanitizeEmoji(value) {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  return Array.from(trimmed).slice(0, 2).join("");
+}
+
 wss.on("connection", (ws) => {
   clients.set(ws, {
     id: randomId(),
@@ -170,6 +177,22 @@ wss.on("connection", (ws) => {
           name: meta.name,
           color: meta.color,
           state: meta.state,
+        },
+        ws
+      );
+      return;
+    }
+
+    if (msg.type === "emote") {
+      const emoji = sanitizeEmoji(msg.emoji);
+      if (!emoji) return;
+      broadcast(
+        meta.room,
+        {
+          type: "peer_emote",
+          id: meta.id,
+          name: meta.name,
+          emoji,
         },
         ws
       );

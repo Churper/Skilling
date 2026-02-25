@@ -52,12 +52,13 @@ const remotePlayers = createRemotePlayers({
   addShadowBlob,
   getGroundY: (x, z) => getPlayerGroundY(x, z),
 });
+let netClient = null;
 
 const ui = initializeUI({
   onToolSelect: (tool) => {
     equipTool(tool, true);
   },
-  onEmote: (emoji) => showEmote(emoji),
+  onEmote: (emoji) => triggerEmote(emoji),
   onBlacksmithUpgrade: (tool) => {
     purchaseToolUpgrade(tool);
   },
@@ -147,7 +148,7 @@ function syncFriendsUI() {
   ui?.setFriendsState?.({ connected: onlineConnected, peers: remotePlayers.count() });
 }
 
-const netClient = createRealtimeClient({
+netClient = createRealtimeClient({
   wsUrl: onlineConfig.wsUrl,
   room: onlineConfig.room,
   name: onlineConfig.name,
@@ -178,6 +179,13 @@ const netClient = createRealtimeClient({
   onPeerState: (msg) => {
     remotePlayers.applyState(msg.id, msg.state, { name: msg.name, color: msg.color });
     syncFriendsUI();
+  },
+  onPeerEmote: (msg) => {
+    showEmote(msg.emoji, {
+      key: `peer:${msg.id}`,
+      anchor: (out) => remotePlayers.getEmoteAnchor(msg.id, out),
+      duration: 2.8,
+    });
   },
 });
 
@@ -266,6 +274,7 @@ function updateClickEffects(dt) {
 const emoteBubbles = [];
 const floatingDrops = [];
 let bubbleLayer = null;
+const _localEmoteAnchor = new THREE.Vector3();
 
 function getBubbleLayer() {
   if (!bubbleLayer) {
@@ -276,31 +285,53 @@ function getBubbleLayer() {
   return bubbleLayer;
 }
 
-function showEmote(emoji) {
-  for (const b of emoteBubbles) b.el.remove();
-  emoteBubbles.length = 0;
+function getLocalEmoteAnchor(out = _localEmoteAnchor) {
+  out.set(player.position.x, player.position.y + playerHeadOffset + 0.45, player.position.z);
+  return out;
+}
+
+function showEmote(emoji, options = {}) {
+  if (typeof emoji !== "string" || !emoji.trim()) return;
+  const key = typeof options.key === "string" ? options.key : "local";
+  const anchor = typeof options.anchor === "function" ? options.anchor : getLocalEmoteAnchor;
+  const duration = Number.isFinite(options.duration) ? Math.max(0.5, options.duration) : 3.0;
+
+  for (let i = emoteBubbles.length - 1; i >= 0; i--) {
+    if (emoteBubbles[i].key !== key) continue;
+    emoteBubbles[i].el.remove();
+    emoteBubbles.splice(i, 1);
+  }
+
   const el = document.createElement("div");
   el.className = "chat-bubble";
-  el.textContent = emoji;
+  el.textContent = emoji.trim();
   getBubbleLayer().appendChild(el);
-  emoteBubbles.push({ el, age: 0, duration: 3.0 });
+  emoteBubbles.push({ key, anchor, el, age: 0, duration });
+}
+
+function triggerEmote(emoji) {
+  showEmote(emoji, { key: "local", anchor: getLocalEmoteAnchor, duration: 3.0 });
+  netClient?.sendEmote?.(emoji);
 }
 
 const _bubbleProj = new THREE.Vector3();
 
 function updateEmoteBubbles(dt) {
   if (!emoteBubbles.length) return;
-  _bubbleProj.set(player.position.x, player.position.y + playerHeadOffset + 0.45, player.position.z);
-  _bubbleProj.project(camera);
   const hw = renderer.domElement.clientWidth * 0.5;
   const hh = renderer.domElement.clientHeight * 0.5;
-  const sx = _bubbleProj.x * hw + hw;
-  const sy = -_bubbleProj.y * hh + hh;
   for (let i = emoteBubbles.length - 1; i >= 0; i--) {
     const b = emoteBubbles[i];
     b.age += dt;
-    b.el.style.left = sx + "px";
-    b.el.style.top = sy + "px";
+    const anchorPos = b.anchor(_bubbleProj);
+    if (!anchorPos) {
+      b.el.remove();
+      emoteBubbles.splice(i, 1);
+      continue;
+    }
+    anchorPos.project(camera);
+    b.el.style.left = (anchorPos.x * hw + hw) + "px";
+    b.el.style.top = (-anchorPos.y * hh + hh) + "px";
     if (b.age > b.duration - 0.5) {
       b.el.style.opacity = String(Math.max(0, (b.duration - b.age) / 0.5));
     }

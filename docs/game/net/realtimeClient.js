@@ -40,6 +40,7 @@ export function createRealtimeClient({
   onPeerJoin = null,
   onPeerLeave = null,
   onPeerState = null,
+  onPeerEmote = null,
 } = {}) {
   let ws = null;
   let connected = false;
@@ -114,6 +115,11 @@ export function createRealtimeClient({
     if (msg.type === "peer_state") {
       if (msg.id && msg.id === localId) return;
       if (typeof onPeerState === "function") onPeerState(msg);
+      return;
+    }
+    if (msg.type === "peer_emote") {
+      if (msg.id && msg.id === localId) return;
+      if (typeof onPeerEmote === "function") onPeerEmote(msg);
     }
   }
 
@@ -166,6 +172,14 @@ export function createRealtimeClient({
     sendRaw({ type: "profile", name, color });
   }
 
+  function sendEmote(emoji) {
+    if (!wsUrl) return;
+    if (typeof emoji !== "string") return;
+    const value = emoji.trim();
+    if (!value) return;
+    sendRaw({ type: "emote", emoji: value });
+  }
+
   return {
     isEnabled: !!wsUrl,
     getLocalId: () => localId,
@@ -173,5 +187,6 @@ export function createRealtimeClient({
     disconnect,
     sendState,
     updateProfile,
+    sendEmote,
   };
 }
