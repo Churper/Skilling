@@ -28,7 +28,7 @@ import { createRealtimeClient, resolveOnlineConfig } from "./game/net/realtimeCl
 
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
-const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld, constructionSite } = createWorld(scene);
+const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld, constructionSite, collisionObstacles = [] } = createWorld(scene);
 const { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor } = createPlayer(scene, addShadowBlob);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
 
@@ -216,6 +216,7 @@ let markerBaseY = 0;
 let markerOnWater = false;
 let pendingResource = null;
 let pendingService = null;
+const pendingServicePos = new THREE.Vector3();
 let activeGather = null;
 
 const clickEffects = [];
@@ -476,6 +477,36 @@ player.geometry.computeBoundingBox();
 const playerFootOffset = -player.geometry.boundingBox.min.y;
 const playerHeadOffset = player.geometry.boundingBox.max.y;
 const playerGroundSink = 0.0;
+const playerCollisionRadius = 0.48;
+
+function pushPointOutsideObstacles(point, extraRadius = 0) {
+  if (!collisionObstacles.length || !point) return point;
+  for (let i = 0; i < collisionObstacles.length; i++) {
+    const obstacle = collisionObstacles[i];
+    const minDistance = (obstacle.radius || 0) + extraRadius;
+    const dx = point.x - obstacle.x;
+    const dz = point.z - obstacle.z;
+    const distSq = dx * dx + dz * dz;
+    if (distSq >= minDistance * minDistance) continue;
+    if (distSq < 0.000001) {
+      point.x = obstacle.x + minDistance;
+      point.z = obstacle.z;
+      continue;
+    }
+    const dist = Math.sqrt(distSq);
+    const scale = minDistance / dist;
+    point.x = obstacle.x + dx * scale;
+    point.z = obstacle.z + dz * scale;
+  }
+  return point;
+}
+
+function resolvePlayerCollisions() {
+  if (!collisionObstacles.length) return;
+  // Two passes for stable separation when obstacles are close.
+  pushPointOutsideObstacles(player.position, playerCollisionRadius);
+  pushPointOutsideObstacles(player.position, playerCollisionRadius);
+}
 
 function getPlayerGroundY(x, z) {
   return getWorldSurfaceHeight(x, z);
@@ -493,14 +524,16 @@ function setMoveTarget(point, preservePending = false) {
   if (!preservePending) pendingService = null;
   if (!preservePending) activeGather = null;
   markerTarget.copy(point);
+  pushPointOutsideObstacles(markerTarget, playerCollisionRadius + 0.14);
   moveTarget.copy(point);
-  moveTarget.y = getPlayerGroundY(point.x, point.z);
+  pushPointOutsideObstacles(moveTarget, playerCollisionRadius + 0.14);
+  moveTarget.y = getPlayerGroundY(moveTarget.x, moveTarget.z);
   hasMoveTarget = true;
   marker.visible = true;
-  const waterY = getWaterSurfaceHeight(point.x, point.z, waterUniforms.uTime.value);
+  const waterY = getWaterSurfaceHeight(markerTarget.x, markerTarget.z, waterUniforms.uTime.value);
   markerOnWater = Number.isFinite(waterY);
   markerBaseY = (markerOnWater ? waterY : moveTarget.y) + 0.1;
-  marker.position.set(point.x, markerBaseY, point.z);
+  marker.position.set(markerTarget.x, markerBaseY, markerTarget.z);
 }
 
 function resourceWorldPosition(node, out) {
@@ -732,19 +765,17 @@ function runServiceAction(node) {
 
 function onInteractNode(node, hitPoint) {
   if (node.userData?.serviceType) {
-    if (hitPoint) spawnClickEffect(hitPoint.x, hitPoint.z, "neutral");
-    else {
-      const clickPos = resourceWorldPosition(node, resourceTargetPos);
-      spawnClickEffect(clickPos.x, clickPos.z, "neutral");
-    }
-
+    if (hitPoint) pendingServicePos.copy(hitPoint);
+    else resourceWorldPosition(node, pendingServicePos);
+    pushPointOutsideObstacles(pendingServicePos, playerCollisionRadius + 0.14);
+    pendingServicePos.y = getPlayerGroundY(pendingServicePos.x, pendingServicePos.z);
+    spawnClickEffect(pendingServicePos.x, pendingServicePos.z, "neutral");
     pendingResource = null;
     activeGather = null;
     pendingService = node;
-    resourceWorldPosition(node, resourceTargetPos);
-    const distance = resourceTargetPos.distanceTo(player.position);
+    const distance = pendingServicePos.distanceTo(player.position);
     if (distance > 2.7) {
-      setMoveTarget(resourceTargetPos, true);
+      setMoveTarget(pendingServicePos, true);
       ui?.setStatus(`Walking to ${node.userData.resourceLabel}...`, "info");
       return;
     }
@@ -870,6 +901,8 @@ function animate() {
     player.rotation.y += delta * Math.min(1, dt * 13);
   }
 
+  resolvePlayerCollisions();
+
   if (pendingResource && !activeGather) {
     resourceWorldPosition(pendingResource, resourceTargetPos);
     const gatherDistance = resourceTargetPos.distanceTo(player.position);
@@ -879,8 +912,7 @@ function animate() {
   }
 
   if (pendingService && !activeGather) {
-    resourceWorldPosition(pendingService, resourceTargetPos);
-    const serviceDistance = resourceTargetPos.distanceTo(player.position);
+    const serviceDistance = pendingServicePos.distanceTo(player.position);
     if (serviceDistance <= 2.7) {
       runServiceAction(pendingService);
       pendingService = null;

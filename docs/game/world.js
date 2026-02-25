@@ -65,6 +65,12 @@ const TREE_LEAF_MAT = toonMat("#4cc992");
 const TREE_CORE_MAT = toonMat("#3dba84");
 const FISH_SPOT_RING_MAT = new THREE.MeshBasicMaterial({ color: "#dcf8ff", transparent: true, opacity: 0.72 });
 const FISH_SPOT_BOBBER_MAT = toonMat("#ffcc58");
+const SERVICE_HOTSPOT_MAT = new THREE.MeshBasicMaterial({
+  transparent: true,
+  opacity: 0,
+  depthWrite: false,
+  depthTest: false,
+});
 
 function sampleTerrainNoise(x, z) {
   const n0 = Math.sin(x * 0.045) * 0.56;
@@ -128,6 +134,17 @@ function setResourceNode(node, resourceType, label) {
 function setServiceNode(node, serviceType, label) {
   node.userData.serviceType = serviceType;
   node.userData.resourceLabel = label;
+}
+
+function addServiceHotspot(parent, x, y, z, radius = 0.9, height = 1.6) {
+  const hotspot = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius, radius, height, 12),
+    SERVICE_HOTSPOT_MAT
+  );
+  hotspot.position.set(x, y, z);
+  hotspot.renderOrder = RENDER_DECOR + 10;
+  parent.add(hotspot);
+  return hotspot;
 }
 
 function addSky(scene) {
@@ -807,7 +824,7 @@ function addBank(scene, blobTex, x, z, interactables = null) {
 
   scene.add(bank);
   addShadowBlob(scene, blobTex, x, z, 1.65, 0.16);
-  if (interactables) interactables.push(bank);
+  if (interactables) interactables.push(addServiceHotspot(bank, 0, 0.95, 0.55, 0.86, 1.75));
 }
 
 function addStore(scene, blobTex, x, z, interactables = null) {
@@ -847,7 +864,7 @@ function addStore(scene, blobTex, x, z, interactables = null) {
 
   scene.add(store);
   addShadowBlob(scene, blobTex, x, z, 1.75, 0.16);
-  if (interactables) interactables.push(store);
+  if (interactables) interactables.push(addServiceHotspot(store, 0, 0.9, 0.66, 0.95, 1.8));
 }
 
 function addBlacksmith(scene, blobTex, x, z, interactables = null) {
@@ -900,7 +917,7 @@ function addBlacksmith(scene, blobTex, x, z, interactables = null) {
 
   scene.add(smith);
   addShadowBlob(scene, blobTex, x, z, 1.85, 0.18);
-  if (interactables) interactables.push(smith);
+  if (interactables) interactables.push(addServiceHotspot(smith, 0, 0.95, 0.9, 1.0, 1.95));
 }
 
 function addConstructionYard(scene, blobTex, x, z, interactables = null) {
@@ -1064,7 +1081,7 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   setProgress(0);
   scene.add(yard);
   addShadowBlob(scene, blobTex, x, z, 4.6, 0.16);
-  if (interactables) interactables.push(yard);
+  if (interactables) interactables.push(addServiceHotspot(yard, -3.8, 1.05, 3.7, 1.45, 2.1));
   return {
     node: yard,
     setProgress,
@@ -1072,7 +1089,7 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   };
 }
 
-function addServicePlaza(scene, blobTex, resourceNodes) {
+function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = []) {
   const cx = 0;
   const cz = -34;
   const cy = getWorldSurfaceHeight(cx, cz);
@@ -1121,6 +1138,17 @@ function addServicePlaza(scene, blobTex, resourceNodes) {
 
   // Construction yard sits beside the service plaza with matching footprint.
   const constructionSite = addConstructionYard(scene, blobTex, cx + 22.5, cz, resourceNodes);
+  const houseCenterX = cx + 22.65;
+  const houseCenterZ = cz - 0.2;
+  collisionObstacles.push(
+    { x: cx - 6.2, z: cz + 1.5, radius: 1.35, id: "bank" },
+    { x: cx + 6.2, z: cz + 1.5, radius: 1.45, id: "store" },
+    { x: cx, z: cz - 6.8, radius: 1.6, id: "blacksmith" },
+    // Wider, multi-circle collision hull so the player cannot enter and get trapped.
+    { x: houseCenterX, z: houseCenterZ, radius: 2.35, id: "house-core" },
+    { x: houseCenterX - 1.2, z: houseCenterZ, radius: 1.45, id: "house-left" },
+    { x: houseCenterX + 1.2, z: houseCenterZ, radius: 1.45, id: "house-right" }
+  );
   return { constructionSite };
 }
 
@@ -1378,6 +1406,7 @@ function addBushes(scene) {
 
 export function createWorld(scene) {
   const resourceNodes = [];
+  const collisionObstacles = [];
   const skyMat = addSky(scene);
   const ground = createGround(scene);
   addLakeRings(scene);
@@ -1391,10 +1420,10 @@ export function createWorld(scene) {
   addWildflowers(scene);
   addExtraReeds(scene);
   const fishingSpots = addFishingSpots(scene, resourceNodes);
-  const { constructionSite } = addServicePlaza(scene, blobTex, resourceNodes);
+  const { constructionSite } = addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles);
   const addBlob = (x, z, radius, opacity) => addShadowBlob(scene, blobTex, x, z, radius, opacity);
   const updateWorld = (time) => {
     updateFishingSpots(fishingSpots, time);
   };
-  return { ground, skyMat, waterUniforms, causticMap, addShadowBlob: addBlob, resourceNodes, updateWorld, constructionSite };
+  return { ground, skyMat, waterUniforms, causticMap, addShadowBlob: addBlob, resourceNodes, updateWorld, constructionSite, collisionObstacles };
 }

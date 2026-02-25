@@ -6,7 +6,6 @@ export function createInputController({ domElement, camera, ground, player, setM
   const pointer = new THREE.Vector2();
   const walkPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -player.position.y);
   let downInfo = null;
-  let mouseHoldMove = null;
 
   function pointerToNdc(clientX, clientY) {
     pointer.x = (clientX / window.innerWidth) * 2 - 1;
@@ -47,47 +46,33 @@ export function createInputController({ domElement, camera, ground, player, setM
 
   domElement.addEventListener("pointerdown", (event) => {
     if (event.button !== 0) return;
-
-    // Mouse: fire immediately on pointerdown — no drag detection needed
-    if (event.pointerType === "mouse") {
-      const interaction = getInteractable(event.clientX, event.clientY);
-      if (interaction) {
-        if (typeof onInteract === "function") onInteract(interaction.root, interaction.hit.point);
-        mouseHoldMove = null;
-        return;
-      }
-      mouseHoldMove = { id: event.pointerId };
-      setMoveTarget(getGroundPoint(event.clientX, event.clientY));
-      return;
-    }
-
-    // Touch: use pointerup flow (allows drag/orbit distinction)
-    downInfo = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+    downInfo = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      moved: false,
+      pointerType: event.pointerType || "mouse",
+      interaction: getInteractable(event.clientX, event.clientY),
+    };
   });
 
   domElement.addEventListener("pointermove", (event) => {
-    if (event.pointerType === "mouse" && mouseHoldMove && (event.buttons & 1)) {
-      setMoveTarget(getGroundPoint(event.clientX, event.clientY));
-      return;
-    }
-    if (!downInfo || !(event.buttons & 1)) return;
+    if (!downInfo || downInfo.id !== event.pointerId || !(event.buttons & 1)) return;
     if (Math.hypot(event.clientX - downInfo.x, event.clientY - downInfo.y) > 8) downInfo.moved = true;
+    if (downInfo.pointerType === "mouse" && downInfo.moved) {
+      setMoveTarget(getGroundPoint(event.clientX, event.clientY));
+    }
   });
 
   const onPointerRelease = (event) => {
-    if (mouseHoldMove && event.pointerId === mouseHoldMove.id) {
-      mouseHoldMove = null;
-    }
-
-    if (!downInfo || event.button !== 0) return;
+    if (!downInfo || downInfo.id !== event.pointerId || event.button !== 0) return;
     if (!downInfo.moved) {
-      const interaction = getInteractable(event.clientX, event.clientY);
-      if (interaction) {
-        if (typeof onInteract === "function") onInteract(interaction.root, interaction.hit.point);
-        downInfo = null;
-        return;
+      const interaction = downInfo.interaction || getInteractable(event.clientX, event.clientY);
+      if (interaction && typeof onInteract === "function") {
+        onInteract(interaction.root, interaction.hit.point);
+      } else {
+        setMoveTarget(getGroundPoint(event.clientX, event.clientY));
       }
-      setMoveTarget(getGroundPoint(event.clientX, event.clientY));
     }
     downInfo = null;
   };
