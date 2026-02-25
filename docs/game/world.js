@@ -466,47 +466,32 @@ function createWater(scene) {
         vec2 cuv1 = wp * 0.18 + vec2(t * 0.06, t * 0.04);
         vec2 cuv2 = wp * 0.28 + vec2(-t * 0.05, t * 0.07);
         float caustic = fbm(cuv1) * 0.55 + fbm(cuv2) * 0.45;
-        float causticBright = smoothstep(0.38, 0.68, caustic) * 0.18;
-        causticBright *= smoothstep(0.05, 0.4, radial) * (1.0 - radial * 0.5);
-        col += causticBright * vec3(0.5, 0.9, 0.95);
+        float causticBright = smoothstep(0.38, 0.68, caustic) * 0.15;
+        causticBright *= smoothstep(0.05, 0.4, radial) * (1.0 - radial * 0.6);
+        col += causticBright * vec3(0.4, 0.85, 0.9);
 
-        // Animated wave normals for ripple pattern
+        // Sun specular with wave normals
         vec3 waveN = normalize(vec3(
-          sin(wp.x * 0.8 + t * 0.7) * 0.09 + sin(wp.x * 2.4 - t * 0.5) * 0.05 + sin(wp.x * 4.5 + wp.y * 2.0 + t * 1.4) * 0.02,
+          sin(wp.x * 1.0 + t * 0.7) * 0.07 + sin(wp.x * 2.8 - t * 0.5) * 0.03,
           1.0,
-          sin(wp.y * 0.8 - t * 0.6) * 0.09 + cos(wp.y * 2.2 + t * 0.4) * 0.05 + cos(wp.y * 4.2 - wp.x * 1.8 + t * 1.2) * 0.02
+          sin(wp.y * 1.0 - t * 0.6) * 0.07 + cos(wp.y * 2.5 + t * 0.4) * 0.03
         ));
-
-        // Fresnel — more transparent when looking straight down, reflective at grazing angles
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
-        float fresnel = pow(1.0 - max(dot(viewDir, vec3(0.0, 1.0, 0.0)), 0.0), 3.0);
-
-        // Sun specular — bright sparkles across the surface
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 38.0);
-        col += vec3(1.0, 0.98, 0.92) * spec * 0.7 * (1.0 - radial * 0.15);
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 48.0);
+        col += vec3(1.0, 0.97, 0.9) * spec * 0.6 * (1.0 - radial * 0.2);
 
-        // Secondary softer sun highlight for shimmer
-        float spec2 = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 12.0);
-        col += vec3(0.9, 0.95, 1.0) * spec2 * 0.15;
+        // Soft broad sun shimmer
+        float shimmer = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 10.0);
+        col += vec3(0.95, 0.98, 1.0) * shimmer * 0.1;
 
-        // Light ripple highlights — faint white lines dancing on surface
-        float ripple1 = sin(wp.x * 3.0 + wp.y * 1.5 + t * 2.2) * sin(wp.x * 1.2 - wp.y * 2.8 + t * 1.6);
-        float ripple2 = sin(wp.x * 2.2 - wp.y * 3.0 + t * 1.8) * cos(wp.x * 1.8 + wp.y * 1.0 - t * 1.3);
-        float rippleLight = max(0.0, ripple1 * 0.5 + 0.5) * max(0.0, ripple2 * 0.5 + 0.5);
-        col += vec3(1.0, 1.0, 0.98) * rippleLight * 0.12 * (1.0 - radial * 0.4);
+        // Clean white shore foam ring
+        float foam = smoothstep(0.94, 0.98, radial) * (1.0 - smoothstep(0.98, 1.0, radial));
+        col = mix(col, vec3(0.96, 0.99, 0.97), foam * 0.8);
 
-        // Soft foam — multiple layered bands near shore
-        float foam1 = smoothstep(0.88, 0.94, radial) * (1.0 - smoothstep(0.94, 0.97, radial));
-        float foam2 = smoothstep(0.93, 0.97, radial) * (1.0 - smoothstep(0.97, 1.0, radial));
-        float foamNoise = fbm(wp * 1.5 + vec2(t * 0.12, -t * 0.08));
-        float foam = max(foam1 * 0.5, foam2 * 0.7) * smoothstep(0.35, 0.55, foamNoise);
-        col = mix(col, vec3(0.97, 1.0, 0.99), foam * 0.7);
-
-        // Alpha — transparent center (clear water), slight opacity from fresnel
-        float baseAlpha = mix(0.52, 0.78, fresnel);
-        float alpha = mix(baseAlpha, 0.0, smoothstep(0.96, 1.0, radial));
-        alpha = max(alpha, foam * 0.6);
+        // Alpha — opaque center, clean edge fade
+        float alpha = mix(0.88, 0.0, smoothstep(0.92, 1.0, radial));
+        alpha = max(alpha, foam * 0.85);
         if (alpha < 0.002) discard;
 
         gl_FragColor = vec4(col, alpha);
@@ -1256,9 +1241,9 @@ function addLakeRings(scene) {
       }
       positions.push(x, y, z);
       // Vertex color gradient: water-edge → wet sand → dry sand → grass
-      const waterToWet = THREE.MathUtils.smoothstep(rt, 0.0, 0.15);
-      const wetToDry = THREE.MathUtils.smoothstep(rt, 0.15, 0.35);
-      const sandToGrass = THREE.MathUtils.smoothstep(rt, 0.4, 0.88);
+      const waterToWet = THREE.MathUtils.smoothstep(rt, 0.0, 0.18);
+      const wetToDry = THREE.MathUtils.smoothstep(rt, 0.18, 0.40);
+      const sandToGrass = THREE.MathUtils.smoothstep(rt, 0.45, 0.95);
       colTmp.copy(colWaterEdge).lerp(colWetSand, waterToWet);
       colTmp.lerp(colDrySand, wetToDry);
       colTmp.lerp(colGrassEdge, sandToGrass * 0.65);
@@ -1483,24 +1468,28 @@ function addBeachShellsAndStarfish(scene) {
 
 function addButterflies(scene) {
   const butterflies = [];
-  const wingGeo = new THREE.PlaneGeometry(0.12, 0.08);
   const wingColors = ["#ff8cb0", "#ff9966", "#80b0ff", "#b880e8", "#ffe040", "#ff6090", "#60d8b0", "#e870d0"];
   for (let i = 0; i < 8; i++) {
     const color = wingColors[i % wingColors.length];
     const wingMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false });
     const group = new THREE.Group();
-    const leftWing = new THREE.Mesh(wingGeo, wingMat);
+    const leftWing = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.08), wingMat);
     leftWing.position.x = -0.06;
     group.add(leftWing);
-    const rightWing = new THREE.Mesh(wingGeo, wingMat);
+    const rightWing = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.08), wingMat);
     rightWing.position.x = 0.06;
     group.add(rightWing);
     const orbitAngle = (i / 8) * Math.PI * 2;
-    const orbitR = 26 + Math.random() * 4;
+    const orbitR = 28 + Math.random() * 5;
     const baseHeight = 2.0 + Math.random() * 1.5;
     const speed = 0.15 + Math.random() * 0.12;
     const flapSpeed = 6 + Math.random() * 4;
     const bobSpeed = 1.5 + Math.random() * 1.0;
+    // Set initial position so geometry never has NaN
+    const ix = Math.cos(orbitAngle) * orbitR;
+    const iz = Math.sin(orbitAngle) * orbitR;
+    const iy = sampleTerrainHeight(ix, iz) + baseHeight;
+    group.position.set(ix, iy, iz);
     group.renderOrder = RENDER_DECOR;
     scene.add(group);
     butterflies.push({ group, leftWing, rightWing, orbitAngle, orbitR, baseHeight, speed, flapSpeed, bobSpeed });
@@ -1513,7 +1502,7 @@ function updateButterflies(butterflies, time) {
     b.orbitAngle += b.speed * 0.016;
     const x = Math.cos(b.orbitAngle) * b.orbitR;
     const z = Math.sin(b.orbitAngle) * b.orbitR;
-    const groundY = getWorldSurfaceHeight(x, z);
+    const groundY = sampleTerrainHeight(x, z);
     const y = groundY + b.baseHeight + Math.sin(time * b.bobSpeed) * 0.4;
     b.group.position.set(x, y, z);
     b.group.rotation.y = b.orbitAngle + Math.PI * 0.5;

@@ -24,22 +24,22 @@ function createSlimeGeometry() {
 
 function addSlimeFace(root, color = "#0d110f") {
   const faceGroup = new THREE.Group();
-  faceGroup.position.set(0, 0.16, 0.46);
+  faceGroup.position.set(0, 0.28, 0.48);
   root.add(faceGroup);
 
-  const faceMat = new THREE.MeshBasicMaterial({ color });
-  const eyeGeo = new THREE.SphereGeometry(0.042, 8, 8);
+  const faceMat = new THREE.MeshBasicMaterial({ color, depthTest: true, depthWrite: true });
+  const eyeGeo = new THREE.SphereGeometry(0.044, 8, 8);
   const leftEye = new THREE.Mesh(eyeGeo, faceMat);
-  leftEye.position.set(-0.105, 0.08, 0.082);
+  leftEye.position.set(-0.105, 0.08, 0.10);
   const rightEye = new THREE.Mesh(eyeGeo, faceMat);
-  rightEye.position.set(0.105, 0.08, 0.082);
+  rightEye.position.set(0.105, 0.08, 0.10);
   faceGroup.add(leftEye, rightEye);
 
   const mouth = new THREE.Mesh(
-    new THREE.TorusGeometry(0.018, 0.006, 5, 10),
+    new THREE.TorusGeometry(0.02, 0.007, 5, 10),
     faceMat
   );
-  mouth.position.set(0, -0.016, 0.086);
+  mouth.position.set(0, -0.016, 0.11);
   mouth.rotation.x = Math.PI * 0.08;
   faceGroup.add(mouth);
 }
