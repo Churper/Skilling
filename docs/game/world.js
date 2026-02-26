@@ -61,10 +61,17 @@ const RENDER_GROUND = 0;
 const RENDER_SHORE = 1;
 const RENDER_WATER = 2;
 const RENDER_DECOR = 3;
+const SERVICE_LAYOUT = Object.freeze({
+  plaza: { x: -4.0, z: -29.0, radius: 14.2 },
+  construction: { x: 19.5, z: -27.2, radius: 12.0 },
+  training: { x: -21.0, z: -29.0, radius: 10.2 },
+  cave: { x: 46.5, z: -11.5 },
+});
 const DECOR_KEEP_OUT_ZONES = Object.freeze([
-  { x: 0, z: -34, radius: 14.4 },      // service plaza
-  { x: 22.5, z: -34, radius: 12.2 },   // house construction yard
-  { x: -17, z: -34, radius: 9.6 },     // training-dummy yard
+  { x: SERVICE_LAYOUT.plaza.x, z: SERVICE_LAYOUT.plaza.z, radius: SERVICE_LAYOUT.plaza.radius },
+  { x: SERVICE_LAYOUT.construction.x, z: SERVICE_LAYOUT.construction.z, radius: SERVICE_LAYOUT.construction.radius },
+  { x: SERVICE_LAYOUT.training.x, z: SERVICE_LAYOUT.training.z, radius: SERVICE_LAYOUT.training.radius },
+  { x: SERVICE_LAYOUT.cave.x, z: SERVICE_LAYOUT.cave.z, radius: 4.4 },
 ]);
 
 function isInDecorKeepOutZone(x, z, padding = 0) {
@@ -1105,6 +1112,114 @@ function addLounge(scene, blobTex, x, z, rot = 0) {
 }
 
 // ── Services (all unchanged) ──
+function addDirtPath(scene, points, options = {}) {
+  if (!Array.isArray(points) || points.length < 2) return;
+  const width = THREE.MathUtils.clamp(options.width ?? 1.5, 0.8, 3.0);
+  const samples = Math.max(12, Math.floor(options.samples ?? 52));
+  const pathHeight = options.height ?? 0.024;
+  const seed = options.seed ?? 0;
+  const coreMat = toonMat(options.color || "#b79669");
+  const edgeMat = toonMat(options.edgeColor || "#d8c39a", { transparent: true, opacity: 0.62 });
+  const coreGeo = new THREE.CylinderGeometry(1, 1, 0.04, 14);
+  const edgeGeo = new THREE.CylinderGeometry(1, 1, 0.022, 14);
+  const curve = new THREE.CatmullRomCurve3(
+    points.map(([x, z]) => new THREE.Vector3(x, 0, z)),
+    false,
+    "catmullrom",
+    0.14
+  );
+
+  for (let i = 0; i <= samples; i++) {
+    const t = i / samples;
+    const p = curve.getPoint(t);
+    const tangent = curve.getTangent(t);
+    const y = getWorldSurfaceHeight(p.x, p.z);
+    const wobble = Math.sin(t * 17.0 + seed * 1.7) * 0.08 + Math.sin(t * 39.0 - seed * 0.9) * 0.04;
+    const radius = width * (0.9 + wobble);
+
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    core.scale.set(radius, 1, radius * (0.94 + Math.sin(t * 9.0 + seed) * 0.05));
+    core.rotation.y = Math.atan2(tangent.x, tangent.z);
+    core.position.set(p.x, y + pathHeight, p.z);
+    core.renderOrder = RENDER_SHORE;
+    scene.add(core);
+
+    if (i % 2 === 0) {
+      const edge = new THREE.Mesh(edgeGeo, edgeMat);
+      edge.scale.set(radius * 1.08, 1, radius * 1.08);
+      edge.position.set(p.x, y + pathHeight + 0.014, p.z);
+      edge.renderOrder = RENDER_SHORE + 1;
+      scene.add(edge);
+    }
+  }
+}
+
+function addMountainCave(scene, blobTex, x, z) {
+  const baseY = getWorldSurfaceHeight(x, z);
+  const cave = new THREE.Group();
+  cave.position.set(x, baseY, z);
+
+  const apron = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 5.2, 0.08, 24), toonMat("#a88f65"));
+  apron.position.y = 0.03;
+  apron.renderOrder = RENDER_SHORE;
+  cave.add(apron);
+
+  const backMass = new THREE.Mesh(new THREE.DodecahedronGeometry(4.8, 0), toonMat("#6f706b"));
+  backMass.position.set(0, 2.7, -1.0);
+  backMass.scale.set(1.5, 1.1, 1.26);
+  backMass.renderOrder = RENDER_DECOR;
+  cave.add(backMass);
+
+  const leftMass = new THREE.Mesh(new THREE.DodecahedronGeometry(2.8, 0), toonMat("#7b7b74"));
+  leftMass.position.set(-3.0, 1.5, 0.7);
+  leftMass.scale.set(1.0, 1.1, 0.9);
+  leftMass.renderOrder = RENDER_DECOR;
+  cave.add(leftMass);
+
+  const rightMass = leftMass.clone();
+  rightMass.position.x = 3.0;
+  cave.add(rightMass);
+
+  const arch = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.95, 2.15, 0.95, 16, 1, false, 0, Math.PI),
+    toonMat("#8a806f")
+  );
+  arch.rotation.z = Math.PI * 0.5;
+  arch.position.set(0, 1.35, 2.05);
+  arch.renderOrder = RENDER_DECOR + 1;
+  cave.add(arch);
+
+  const tunnel = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.35, 1.55, 2.6, 16, 1, true),
+    toonMat("#1a1f24", { side: THREE.DoubleSide })
+  );
+  tunnel.rotation.x = Math.PI * 0.5;
+  tunnel.position.set(0, 0.98, 1.2);
+  tunnel.renderOrder = RENDER_DECOR + 1;
+  cave.add(tunnel);
+
+  const caveFloor = new THREE.Mesh(new THREE.CircleGeometry(1.44, 18), toonMat("#3b3227"));
+  caveFloor.rotation.x = -Math.PI * 0.5;
+  caveFloor.position.set(0, 0.06, 2.0);
+  caveFloor.renderOrder = RENDER_SHORE + 1;
+  cave.add(caveFloor);
+
+  for (const side of [-1, 1]) {
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.15, 6), toonMat("#805837"));
+    post.position.set(side * 2.15, 0.62, 2.15);
+    post.renderOrder = RENDER_DECOR + 2;
+    cave.add(post);
+
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), toonMat("#ffcc7a"));
+    lamp.position.set(side * 2.15, 1.18, 2.18);
+    lamp.renderOrder = RENDER_DECOR + 3;
+    cave.add(lamp);
+  }
+
+  scene.add(cave);
+  addShadowBlob(scene, blobTex, x, z, 3.8, 0.16);
+}
+
 function addBank(scene, blobTex, x, z, interactables = null) {
   const baseY = getWorldSurfaceHeight(x, z);
   const bank = new THREE.Group();
@@ -1236,19 +1351,19 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   yard.position.set(x, baseY, z);
   setServiceNode(yard, "construction", "House Construction Yard");
 
-  const lot = new THREE.Mesh(new THREE.CylinderGeometry(9.4, 9.8, 0.34, 36), toonMat("#cdb88f"));
-  lot.position.y = 0.17;
+  const lot = new THREE.Mesh(new THREE.CylinderGeometry(9.6, 10.0, 0.08, 40), toonMat("#cdb88f"));
+  lot.position.y = 0.02;
   lot.renderOrder = RENDER_SHORE;
   yard.add(lot);
 
-  const lotRing = new THREE.Mesh(new THREE.TorusGeometry(6.0, 0.18, 8, 48), toonMat("#ebdfc2"));
+  const lotRing = new THREE.Mesh(new THREE.TorusGeometry(6.0, 0.12, 8, 52), toonMat("#ebdfc2"));
   lotRing.rotation.x = Math.PI * 0.5;
-  lotRing.position.y = 0.36;
+  lotRing.position.y = 0.08;
   lotRing.renderOrder = RENDER_SHORE + 1;
   yard.add(lotRing);
 
-  const buildPad = new THREE.Mesh(new THREE.CylinderGeometry(5.2, 5.2, 0.12, 26), toonMat("#f2e8cf"));
-  buildPad.position.y = 0.31;
+  const buildPad = new THREE.Mesh(new THREE.CylinderGeometry(5.3, 5.3, 0.06, 30), toonMat("#f2e8cf"));
+  buildPad.position.y = 0.05;
   buildPad.renderOrder = RENDER_SHORE + 1;
   yard.add(buildPad);
 
@@ -1274,7 +1389,7 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   yard.add(hammerHandle);
 
   const houseGroup = new THREE.Group();
-  houseGroup.position.set(0.15, 0.31, -0.2);
+  houseGroup.position.set(0.15, 0.06, -0.2);
   yard.add(houseGroup);
 
   const foundation = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.35, 3.7), toonMat("#b7aea0"));
@@ -1341,8 +1456,8 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   orePile.renderOrder = RENDER_DECOR;
   yard.add(orePile);
 
-  const completionGlow = new THREE.Mesh(new THREE.CylinderGeometry(2.65, 2.65, 0.08, 26), toonMat("#8adfa6"));
-  completionGlow.position.y = 0.36;
+  const completionGlow = new THREE.Mesh(new THREE.CylinderGeometry(2.65, 2.65, 0.05, 26), toonMat("#8adfa6"));
+  completionGlow.position.y = 0.08;
   completionGlow.renderOrder = RENDER_DECOR;
   completionGlow.visible = false;
   yard.add(completionGlow);
@@ -1415,19 +1530,19 @@ function addTrainingGround(scene, blobTex, x, z) {
   const yard = new THREE.Group();
   yard.position.set(x, baseY, z);
 
-  const pad = new THREE.Mesh(new THREE.CylinderGeometry(6.2, 6.5, 0.24, 32), toonMat("#ccb48a"));
-  pad.position.y = 0.12;
+  const pad = new THREE.Mesh(new THREE.CylinderGeometry(6.3, 6.6, 0.08, 36), toonMat("#ccb48a"));
+  pad.position.y = 0.02;
   pad.renderOrder = RENDER_SHORE;
   yard.add(pad);
 
-  const innerRing = new THREE.Mesh(new THREE.TorusGeometry(4.5, 0.16, 8, 48), toonMat("#f0e3c8"));
+  const innerRing = new THREE.Mesh(new THREE.TorusGeometry(4.5, 0.1, 8, 56), toonMat("#f0e3c8"));
   innerRing.rotation.x = Math.PI * 0.5;
-  innerRing.position.y = 0.28;
+  innerRing.position.y = 0.08;
   innerRing.renderOrder = RENDER_SHORE + 1;
   yard.add(innerRing);
 
-  const center = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.1, 20), toonMat("#b79163"));
-  center.position.y = 0.24;
+  const center = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.06, 20), toonMat("#b79163"));
+  center.position.y = 0.05;
   center.renderOrder = RENDER_SHORE + 1;
   yard.add(center);
 
@@ -1467,25 +1582,47 @@ function addTrainingGround(scene, blobTex, x, z) {
 }
 
 function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = []) {
-  const cx = 0;
-  const cz = -34;
+  const cx = SERVICE_LAYOUT.plaza.x;
+  const cz = SERVICE_LAYOUT.plaza.z;
   const cy = getWorldSurfaceHeight(cx, cz);
+  const trainingX = SERVICE_LAYOUT.training.x;
+  const trainingZ = SERVICE_LAYOUT.training.z;
+  const houseX = SERVICE_LAYOUT.construction.x;
+  const houseZ = SERVICE_LAYOUT.construction.z;
+  const caveX = SERVICE_LAYOUT.cave.x;
+  const caveZ = SERVICE_LAYOUT.cave.z;
 
-  const plaza = new THREE.Mesh(new THREE.CylinderGeometry(9.4, 9.8, 0.34, 36), toonMat("#d5c9a9"));
-  plaza.position.set(cx, cy + 0.17, cz);
+  const plaza = new THREE.Mesh(new THREE.CylinderGeometry(9.6, 10.0, 0.08, 44), toonMat("#d5c9a9"));
+  plaza.position.set(cx, cy + 0.02, cz);
   plaza.renderOrder = RENDER_SHORE;
   scene.add(plaza);
 
-  const innerRing = new THREE.Mesh(new THREE.TorusGeometry(5.9, 0.17, 8, 48), toonMat("#efe5cc"));
+  const innerRing = new THREE.Mesh(new THREE.TorusGeometry(6.2, 0.1, 8, 56), toonMat("#efe5cc"));
   innerRing.rotation.x = Math.PI * 0.5;
-  innerRing.position.set(cx, cy + 0.36, cz);
+  innerRing.position.set(cx, cy + 0.08, cz);
   innerRing.renderOrder = RENDER_SHORE + 1;
   scene.add(innerRing);
 
-  const centerPad = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.12, 20), toonMat("#f4ecd9"));
-  centerPad.position.set(cx, cy + 0.31, cz);
+  const centerPad = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.35, 0.06, 24), toonMat("#f4ecd9"));
+  centerPad.position.set(cx, cy + 0.06, cz);
   centerPad.renderOrder = RENDER_SHORE + 1;
   scene.add(centerPad);
+
+  addDirtPath(scene, [[cx, cz], [cx + 6.0, cz - 1.2], [houseX - 4.4, houseZ - 0.6], [houseX, houseZ]], {
+    width: 1.85,
+    samples: 58,
+    seed: 1.2,
+  });
+  addDirtPath(scene, [[cx, cz], [cx - 7.0, cz - 0.4], [trainingX + 3.2, trainingZ + 0.2], [trainingX, trainingZ]], {
+    width: 1.62,
+    samples: 44,
+    seed: 2.1,
+  });
+  addDirtPath(scene, [[cx + 0.8, cz - 0.2], [9.0, -29.0], [20.0, -27.5], [31.0, -21.5], [39.5, -16.6], [caveX, caveZ]], {
+    width: 1.52,
+    samples: 76,
+    seed: 3.4,
+  });
 
   const markerMat = toonMat("#36607c");
   for (let i = 0; i < 3; i++) {
@@ -1494,27 +1631,29 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
     const mz = cz + Math.sin(a) * 4.2;
     const y = getWorldSurfaceHeight(mx, mz);
     const marker = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.1, 18), markerMat);
-    marker.position.set(mx, y + 0.24, mz);
+    marker.position.set(mx, y + 0.07, mz);
     marker.renderOrder = RENDER_SHORE + 1;
     scene.add(marker);
   }
 
-  addBank(scene, blobTex, cx - 6.2, cz + 1.5, resourceNodes);
-  addStore(scene, blobTex, cx + 6.2, cz + 1.5, resourceNodes);
-  addBlacksmith(scene, blobTex, cx, cz - 6.8, resourceNodes);
+  addBank(scene, blobTex, cx - 5.5, cz + 2.0, resourceNodes);
+  addStore(scene, blobTex, cx + 5.8, cz + 2.1, resourceNodes);
+  addBlacksmith(scene, blobTex, cx + 0.25, cz - 6.2, resourceNodes);
 
-  addTrainingGround(scene, blobTex, cx - 17, cz);
-  addTrainingDummy(scene, blobTex, cx - 14, cz, resourceNodes);
-  addTrainingDummy(scene, blobTex, cx - 17, cz, resourceNodes);
-  addTrainingDummy(scene, blobTex, cx - 20, cz, resourceNodes);
+  addTrainingGround(scene, blobTex, trainingX, trainingZ);
+  addTrainingDummy(scene, blobTex, trainingX + 3.1, trainingZ, resourceNodes);
+  addTrainingDummy(scene, blobTex, trainingX, trainingZ, resourceNodes);
+  addTrainingDummy(scene, blobTex, trainingX - 3.1, trainingZ, resourceNodes);
 
-  const constructionSite = addConstructionYard(scene, blobTex, cx + 22.5, cz, resourceNodes);
-  const houseCenterX = cx + 22.65;
-  const houseCenterZ = cz - 0.2;
+  addMountainCave(scene, blobTex, caveX, caveZ);
+
+  const constructionSite = addConstructionYard(scene, blobTex, houseX, houseZ, resourceNodes);
+  const houseCenterX = houseX + 0.15;
+  const houseCenterZ = houseZ - 0.2;
   collisionObstacles.push(
-    { x: cx - 6.2, z: cz + 1.5, radius: 1.35, id: "bank" },
-    { x: cx + 6.2, z: cz + 1.5, radius: 1.45, id: "store" },
-    { x: cx, z: cz - 6.8, radius: 1.6, id: "blacksmith" },
+    { x: cx - 5.5, z: cz + 2.0, radius: 1.35, id: "bank" },
+    { x: cx + 5.8, z: cz + 2.1, radius: 1.45, id: "store" },
+    { x: cx + 0.25, z: cz - 6.2, radius: 1.6, id: "blacksmith" },
     { x: houseCenterX, z: houseCenterZ, radius: 2.35, id: "house-core" },
     { x: houseCenterX - 1.2, z: houseCenterZ, radius: 1.45, id: "house-left" },
     { x: houseCenterX + 1.2, z: houseCenterZ, radius: 1.45, id: "house-right" }
