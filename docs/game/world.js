@@ -766,9 +766,9 @@ function radialTexture(inner = 0.05, outer = 1.0) {
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, c.width, c.height);
   for (let i = 0; i < 32; i++) {
-    const x = 70 + Math.random() * 116;
-    const y = 70 + Math.random() * 116;
-    const r = 12 + Math.random() * 28;
+    const x = 70 + (Math.sin(i * 1.73 + 0.41) * 0.5 + 0.5) * 116;
+    const y = 70 + (Math.cos(i * 1.37 + 1.22) * 0.5 + 0.5) * 116;
+    const r = 12 + (Math.sin(i * 2.41 + 0.78) * 0.5 + 0.5) * 28;
     const blotch = ctx.createRadialGradient(x, y, 0, x, y, r);
     blotch.addColorStop(0, "rgba(255,255,255,0.12)");
     blotch.addColorStop(1, "rgba(255,255,255,0)");
@@ -799,7 +799,8 @@ function addShadowBlob(scene, blobTex, x, z, radius = 1.8, opacity = 0.2) {
     })
   );
   blob.rotation.x = -Math.PI / 2;
-  blob.rotation.z = Math.random() * Math.PI;
+  const phase = Math.sin(x * 12.9898 + z * 78.233) * 43758.5453;
+  blob.rotation.z = (phase - Math.floor(phase)) * Math.PI;
   blob.position.set(x, baseY + 0.02, z);
   blob.renderOrder = RENDER_GROUND + 1;
   scene.add(blob);
@@ -879,55 +880,39 @@ async function loadModels() {
   };
 }
 
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-// ── Seeded random for consistent placement ──
-function seededRandom(seed) {
-  let s = seed;
-  return () => { s = (s * 16807 + 0) % 2147483647; return s / 2147483647; };
-}
-
 // ── Model placement: Trees ──
 function placeTrees(scene, blobTex, models, resourceNodes) {
   const templates = models.trees;
   if (!templates.length) return;
-  const rng = seededRandom(7331);
 
-  const positions = [];
-
-  // Shore trees (r=27-33) — loose ring around the lake, 8 trees
-  for (let i = 0; i < 8; i++) {
-    const angle = (i / 8) * Math.PI * 2 + (rng() - 0.5) * 0.15;
-    const r = 27 + rng() * 5;
-    positions.push([Math.cos(angle) * r, Math.sin(angle) * r]);
-  }
-
-  // Scattered individual trees (r=34-44) — no dense clusters, just singles
-  const soloPositions = [
-    [36, 14], [-33, 18], [18, 35], [-16, 34],
-    [35, -16], [-34, -14], [8, -36], [-10, 37],
-    [40, 4], [-38, -8], [14, 40], [-12, -38],
+  const placements = [
+    { x: 28.4, z: 8.2, scale: 1.74, rot: 0.25 }, { x: 22.2, z: 18.6, scale: 1.58, rot: 1.1 },
+    { x: 9.8, z: 28.8, scale: 1.68, rot: 2.0 }, { x: -8.4, z: 29.2, scale: 1.6, rot: 2.8 },
+    { x: -21.3, z: 19.7, scale: 1.72, rot: 3.4 }, { x: -28.1, z: 7.9, scale: 1.54, rot: 4.2 },
+    { x: -28.7, z: -7.2, scale: 1.68, rot: 4.8 }, { x: -21.5, z: -20.1, scale: 1.8, rot: 5.3 },
+    { x: -8.1, z: -29.1, scale: 1.56, rot: 0.4 }, { x: 9.2, z: -29.0, scale: 1.66, rot: 1.5 },
+    { x: 22.7, z: -19.4, scale: 1.82, rot: 2.1 }, { x: 29.0, z: -6.5, scale: 1.62, rot: 3.1 },
+    { x: 36.0, z: 15.2, scale: 1.94, rot: 1.8 }, { x: -34.7, z: 15.9, scale: 1.9, rot: 4.9 },
+    { x: 17.1, z: 35.8, scale: 1.86, rot: 0.9 }, { x: -17.5, z: 35.5, scale: 1.88, rot: 3.6 },
+    { x: 35.7, z: -16.2, scale: 1.92, rot: 2.7 }, { x: -35.3, z: -16.8, scale: 1.84, rot: 5.6 },
+    { x: 43.8, z: 4.1, scale: 1.64, rot: 0.2 }, { x: 40.5, z: 20.4, scale: 1.6, rot: 0.95 },
+    { x: 25.9, z: 39.7, scale: 1.62, rot: 1.7 }, { x: -0.8, z: 45.5, scale: 1.66, rot: 2.4 },
+    { x: -26.6, z: 39.2, scale: 1.62, rot: 3.0 }, { x: -40.8, z: 20.2, scale: 1.7, rot: 3.8 },
+    { x: -43.4, z: -4.2, scale: 1.66, rot: 4.5 }, { x: -39.6, z: -21.9, scale: 1.62, rot: 5.2 },
+    { x: -24.2, z: -40.0, scale: 1.68, rot: 5.8 }, { x: 0.9, z: -45.3, scale: 1.62, rot: 0.3 },
+    { x: 24.5, z: -40.1, scale: 1.68, rot: 1.0 }, { x: 40.2, z: -21.6, scale: 1.64, rot: 1.6 },
   ];
-  for (const [x, z] of soloPositions) {
-    positions.push([x + (rng() - 0.5) * 3, z + (rng() - 0.5) * 3]);
-  }
 
-  // Mountain fringe (r=44-48) — sparse, 6 trees
-  for (let i = 0; i < 6; i++) {
-    const angle = (i / 6) * Math.PI * 2 + (rng() - 0.5) * 0.4;
-    const r = 44 + rng() * 4;
-    positions.push([Math.cos(angle) * r, Math.sin(angle) * r]);
-  }
-
-  for (const [x, z] of positions) {
+  for (let i = 0; i < placements.length; i++) {
+    const p = placements[i];
+    const x = p.x;
+    const z = p.z;
     if (isInDecorKeepOutZone(x, z, 2.2)) continue;
-    const template = templates[Math.floor(rng() * templates.length)];
+    const template = templates[i % templates.length];
     const instance = template.clone();
-    const scale = 1.5 + rng() * 1.0;
+    const scale = p.scale;
     instance.scale.setScalar(scale);
-    instance.rotation.y = rng() * Math.PI * 2;
+    instance.rotation.y = p.rot;
     const baseY = getWorldSurfaceHeight(x, z);
     instance.position.set(x, baseY, z);
     setResourceNode(instance, "woodcutting", "Tree");
@@ -943,15 +928,16 @@ function placeRocks(scene, blobTex, models, resourceNodes) {
   if (!templates.length) return;
 
   const rockPositions = [
-    [12, 26, 1.8], [-13, 25, 1.6], [25, 12, 1.5], [-26, -5, 2.0],
-    [18, -22, 1.7], [-7, -28, 1.9],
+    [12, 26, 1.8, 0.3], [-13, 25, 1.6, 1.4], [25, 12, 1.5, 2.1], [-26, -5, 2.0, 3.2],
+    [18, -22, 1.7, 4.1], [-7, -28, 1.9, 5.0],
   ];
 
-  for (const [x, z, scale] of rockPositions) {
-    const template = pickRandom(templates);
+  for (let i = 0; i < rockPositions.length; i++) {
+    const [x, z, scale, rot] = rockPositions[i];
+    const template = templates[i % templates.length];
     const instance = template.clone();
     instance.scale.setScalar(scale);
-    instance.rotation.y = Math.random() * Math.PI * 2;
+    instance.rotation.y = rot;
     const baseY = getWorldSurfaceHeight(x, z);
     instance.position.set(x, baseY, z);
     setResourceNode(instance, "mining", "Rock");
@@ -967,15 +953,16 @@ function placeWaterRocks(scene, models) {
   if (!templates.length) return;
 
   const waterRockPositions = [
-    [-7.2, 4.3, 1.4], [5.6, 7.1, 1.2], [8.8, -4.5, 1.5],
-    [-6.5, -6.2, 1.1], [0.6, 9.2, 1.0],
+    [-7.2, 4.3, 1.4, 0.4], [5.6, 7.1, 1.2, 1.2], [8.8, -4.5, 1.5, 2.0],
+    [-6.5, -6.2, 1.1, 3.4], [0.6, 9.2, 1.0, 4.8],
   ];
 
-  for (const [x, z, scale] of waterRockPositions) {
-    const template = pickRandom(templates);
+  for (let i = 0; i < waterRockPositions.length; i++) {
+    const [x, z, scale, rot] = waterRockPositions[i];
+    const template = templates[i % templates.length];
     const instance = template.clone();
     instance.scale.setScalar(scale);
-    instance.rotation.y = Math.random() * Math.PI * 2;
+    instance.rotation.y = rot;
     const baseY = getWorldSurfaceHeight(x, z);
     instance.position.set(x, baseY, z);
     instance.renderOrder = RENDER_DECOR;
@@ -987,30 +974,23 @@ function placeWaterRocks(scene, models) {
 function placeBushes(scene, models) {
   const templates = models.bushes;
   if (!templates.length) return;
-  const rng = seededRandom(1234);
 
-  const positions = [];
+  const positions = [
+    [26.8, 7.9, 1.22, 0.2], [19.1, 19.6, 1.18, 1.2], [8.7, 26.9, 1.14, 2.1], [-7.5, 27.5, 1.1, 2.8],
+    [-18.5, 20.2, 1.16, 3.4], [-26.8, 7.3, 1.2, 4.2], [-26.4, -7.6, 1.15, 4.9], [-18.7, -19.9, 1.18, 5.6],
+    [-7.7, -27.2, 1.12, 0.5], [8.4, -27.0, 1.14, 1.1], [19.2, -19.3, 1.2, 1.9], [26.9, -7.4, 1.22, 2.7],
+    [34.4, 8.2, 1.0, 0.4], [30.8, 24.9, 0.96, 1.3], [15.9, 34.3, 1.02, 2.4], [-1.6, 37.0, 0.94, 3.0],
+    [-18.4, 33.5, 1.0, 3.7], [-32.5, 22.9, 0.98, 4.4], [-35.3, 6.4, 1.04, 5.2], [-31.2, -10.7, 1.0, 5.8],
+    [-17.8, -33.6, 0.96, 0.2], [0.7, -36.4, 1.0, 1.0], [18.1, -33.4, 1.02, 1.8], [32.6, -22.8, 1.0, 2.6],
+  ];
 
-  // Undergrowth near shore (r=26-34)
-  for (let i = 0; i < 10; i++) {
-    const angle = (i / 10) * Math.PI * 2 + (rng() - 0.5) * 0.35;
-    const r = 26 + rng() * 7;
-    positions.push([Math.cos(angle) * r, Math.sin(angle) * r, 1.0 + rng() * 0.6]);
-  }
-
-  // Scattered mid-field bushes (r=34-44)
-  for (let i = 0; i < 10; i++) {
-    const angle = (i / 10) * Math.PI * 2 + (rng() - 0.5) * 0.4;
-    const r = 34 + rng() * 10;
-    positions.push([Math.cos(angle) * r, Math.sin(angle) * r, 0.9 + rng() * 0.5]);
-  }
-
-  for (const [x, z, scale] of positions) {
+  for (let i = 0; i < positions.length; i++) {
+    const [x, z, scale, rot] = positions[i];
     if (isInDecorKeepOutZone(x, z, 1.6)) continue;
-    const template = templates[Math.floor(rng() * templates.length)];
+    const template = templates[i % templates.length];
     const instance = template.clone();
     instance.scale.setScalar(scale);
-    instance.rotation.y = rng() * Math.PI * 2;
+    instance.rotation.y = rot;
     const baseY = getWorldSurfaceHeight(x, z);
     instance.position.set(x, baseY, z);
     instance.renderOrder = RENDER_DECOR;
@@ -1022,20 +1002,24 @@ function placeBushes(scene, models) {
 function placeGrass(scene, models) {
   const templates = models.grass;
   if (!templates.length) return;
-  const rng = seededRandom(5678);
 
-  // Scatter grass across the playable area
-  for (let i = 0; i < 50; i++) {
-    const angle = rng() * Math.PI * 2;
-    const r = 25 + rng() * 24;
-    const x = Math.cos(angle) * r + (rng() - 0.5) * 3;
-    const z = Math.sin(angle) * r + (rng() - 0.5) * 3;
+  const placements = [
+    [14, 22], [20, 19], [25, 15], [28, 9], [29, 2], [28, -6], [24, -13], [19, -20], [12, -24], [3, -26],
+    [-6, -26], [-14, -23], [-21, -18], [-26, -11], [-29, -3], [-29, 6], [-25, 14], [-19, 20], [-11, 24], [-2, 26],
+    [34, 11], [37, 3], [36, -7], [31, -16], [23, -24], [14, -30], [4, -33], [-7, -33], [-17, -30], [-26, -24],
+    [-33, -15], [-37, -6], [-37, 4], [-33, 14], [-27, 23], [-18, 30], [-7, 34], [5, 34], [16, 30], [26, 24],
+    [40, 14], [42, 4], [41, -8], [36, -18], [29, -27], [18, -36], [5, -40], [-8, -40], [-20, -36], [-30, -28],
+    [-38, -18], [-42, -7], [-42, 6], [-38, 17], [-31, 27], [-20, 36], [-6, 42], [9, 42], [22, 35], [32, 27],
+  ];
+
+  for (let i = 0; i < placements.length; i++) {
+    const [x, z] = placements[i];
     if (isInDecorKeepOutZone(x, z, 1.0)) continue;
-    const template = templates[Math.floor(rng() * templates.length)];
+    const template = templates[i % templates.length];
     const instance = template.clone();
-    const scale = 0.8 + rng() * 0.8;
+    const scale = 0.86 + (i % 5) * 0.12;
     instance.scale.setScalar(scale);
-    instance.rotation.y = rng() * Math.PI * 2;
+    instance.rotation.y = (i % 16) * (Math.PI / 8);
     const baseY = getWorldSurfaceHeight(x, z);
     instance.position.set(x, baseY, z);
     instance.renderOrder = RENDER_DECOR;
@@ -1047,41 +1031,39 @@ function placeGrass(scene, models) {
 function placeMountainDecor(scene, models) {
   const rockTemplates = models.bigRocks.length ? models.bigRocks : models.rocks;
   const treeTemplates = models.trees;
-  const rng = seededRandom(9012);
+  const mountainRocks = [
+    [52, 10, 2.8, 0.4], [57, 23, 2.5, 1.2], [49, -16, 3.0, 2.0], [61, -8, 2.7, 2.9],
+    [46, 31, 2.4, 3.8], [69, 6, 3.1, 4.6], [66, -18, 2.9, 5.2], [54, -30, 2.6, 0.9],
+    [-52, 12, 2.8, 0.5], [-58, 25, 2.6, 1.4], [-49, -17, 3.0, 2.2], [-62, -9, 2.8, 3.1],
+    [-46, 30, 2.4, 4.1], [-69, 7, 3.1, 4.8], [-66, -19, 2.9, 5.4], [-55, -31, 2.7, 1.1],
+  ];
 
-  // Rocks scattered across mountain slopes
   if (rockTemplates.length) {
-    for (let i = 0; i < 15; i++) {
-      const angle = rng() * Math.PI * 2;
-      const r = 50 + rng() * 30;
-      const x = Math.cos(angle) * r;
-      const z = Math.sin(angle) * r;
-      const template = rockTemplates[Math.floor(rng() * rockTemplates.length)];
+    for (let i = 0; i < mountainRocks.length; i++) {
+      const [x, z, scale, rot] = mountainRocks[i];
+      const template = rockTemplates[i % rockTemplates.length];
       const instance = template.clone();
-      const scale = 2.0 + rng() * 3.5;
       instance.scale.setScalar(scale);
-      instance.rotation.y = rng() * Math.PI * 2;
-      instance.rotation.x = (rng() - 0.5) * 0.3;
-      const baseY = sampleTerrainHeight(x, z);
-      instance.position.set(x, baseY, z);
+      instance.rotation.y = rot;
+      instance.rotation.x = ((i % 5) - 2) * 0.05;
+      instance.position.set(x, sampleTerrainHeight(x, z), z);
       scene.add(instance);
     }
   }
 
-  // Leafy trees on lower mountain slopes
+  const mountainTrees = [
+    [48, 15, 1.8, 0.2], [51, 28, 1.7, 1.0], [60, 12, 1.9, 1.8], [57, -11, 1.8, 2.5], [49, -25, 1.7, 3.2],
+    [-48, 15, 1.8, 0.4], [-51, 28, 1.7, 1.2], [-60, 12, 1.9, 2.0], [-57, -11, 1.8, 2.7], [-49, -25, 1.7, 3.4],
+  ];
+
   if (treeTemplates.length) {
-    for (let i = 0; i < 10; i++) {
-      const angle = rng() * Math.PI * 2;
-      const r = 48 + rng() * 14;
-      const x = Math.cos(angle) * r;
-      const z = Math.sin(angle) * r;
-      const template = treeTemplates[Math.floor(rng() * treeTemplates.length)];
+    for (let i = 0; i < mountainTrees.length; i++) {
+      const [x, z, scale, rot] = mountainTrees[i];
+      const template = treeTemplates[i % treeTemplates.length];
       const instance = template.clone();
-      const scale = 1.4 + rng() * 1.2;
       instance.scale.setScalar(scale);
-      instance.rotation.y = rng() * Math.PI * 2;
-      const baseY = sampleTerrainHeight(x, z);
-      instance.position.set(x, baseY, z);
+      instance.rotation.y = rot;
+      instance.position.set(x, sampleTerrainHeight(x, z), z);
       scene.add(instance);
     }
   }
@@ -1116,42 +1098,60 @@ function addLounge(scene, blobTex, x, z, rot = 0) {
 function addDirtPath(scene, points, options = {}) {
   if (!Array.isArray(points) || points.length < 2) return;
   const width = THREE.MathUtils.clamp(options.width ?? 1.5, 0.8, 3.0);
-  const samples = Math.max(12, Math.floor(options.samples ?? 52));
   const pathHeight = options.height ?? 0.024;
-  const seed = options.seed ?? 0;
+  const edgeWidth = Math.max(0.09, width * 0.12);
   const coreMat = toonMat(options.color || "#b79669");
   const edgeMat = toonMat(options.edgeColor || "#d8c39a", { transparent: true, opacity: 0.62 });
-  const coreGeo = new THREE.CylinderGeometry(1, 1, 0.04, 14);
-  const edgeGeo = new THREE.CylinderGeometry(1, 1, 0.022, 14);
-  const curve = new THREE.CatmullRomCurve3(
-    points.map(([x, z]) => new THREE.Vector3(x, 0, z)),
-    false,
-    "catmullrom",
-    0.14
-  );
+  const stripGeo = new THREE.BoxGeometry(1, 0.05, 1);
+  const edgeGeo = new THREE.BoxGeometry(1, 0.03, 1);
+  const capGeo = new THREE.CylinderGeometry(1, 1, 0.04, 20);
+  const capPlaced = new Set();
 
-  for (let i = 0; i <= samples; i++) {
-    const t = i / samples;
-    const p = curve.getPoint(t);
-    const tangent = curve.getTangent(t);
-    const y = getWorldSurfaceHeight(p.x, p.z);
-    const wobble = Math.sin(t * 17.0 + seed * 1.7) * 0.08 + Math.sin(t * 39.0 - seed * 0.9) * 0.04;
-    const radius = width * (0.9 + wobble);
+  function addCap(x, z) {
+    const key = `${x.toFixed(2)}:${z.toFixed(2)}`;
+    if (capPlaced.has(key)) return;
+    capPlaced.add(key);
+    const y = getWorldSurfaceHeight(x, z);
+    const cap = new THREE.Mesh(capGeo, coreMat);
+    cap.scale.set(width * 0.52, 1, width * 0.52);
+    cap.position.set(x, y + pathHeight + 0.005, z);
+    cap.renderOrder = RENDER_SHORE;
+    scene.add(cap);
+  }
 
-    const core = new THREE.Mesh(coreGeo, coreMat);
-    core.scale.set(radius, 1, radius * (0.94 + Math.sin(t * 9.0 + seed) * 0.05));
-    core.rotation.y = Math.atan2(tangent.x, tangent.z);
-    core.position.set(p.x, y + pathHeight, p.z);
-    core.renderOrder = RENDER_SHORE;
-    scene.add(core);
+  for (let i = 0; i < points.length - 1; i++) {
+    const [x0, z0] = points[i];
+    const [x1, z1] = points[i + 1];
+    const dx = x1 - x0;
+    const dz = z1 - z0;
+    const len = Math.hypot(dx, dz);
+    if (len < 0.05) continue;
+    const midX = (x0 + x1) * 0.5;
+    const midZ = (z0 + z1) * 0.5;
+    const midY = (getWorldSurfaceHeight(x0, z0) + getWorldSurfaceHeight(x1, z1)) * 0.5 + pathHeight;
+    const yaw = Math.atan2(dx, dz);
 
-    if (i % 2 === 0) {
+    const strip = new THREE.Mesh(stripGeo, coreMat);
+    strip.scale.set(width, 1, len + width * 0.7);
+    strip.rotation.y = yaw;
+    strip.position.set(midX, midY, midZ);
+    strip.renderOrder = RENDER_SHORE;
+    scene.add(strip);
+
+    const sideX = -dz / len;
+    const sideZ = dx / len;
+    const edgeOffset = width * 0.5 + edgeWidth * 0.5;
+    for (const s of [-1, 1]) {
       const edge = new THREE.Mesh(edgeGeo, edgeMat);
-      edge.scale.set(radius * 1.08, 1, radius * 1.08);
-      edge.position.set(p.x, y + pathHeight + 0.014, p.z);
+      edge.scale.set(edgeWidth, 1, len + width * 0.52);
+      edge.rotation.y = yaw;
+      edge.position.set(midX + sideX * edgeOffset * s, midY + 0.014, midZ + sideZ * edgeOffset * s);
       edge.renderOrder = RENDER_SHORE + 1;
       scene.add(edge);
     }
+
+    addCap(x0, z0);
+    addCap(x1, z1);
   }
 }
 
@@ -1721,12 +1721,13 @@ function addLilyPads(scene) {
     { x: -9, z: -5, r: 0.65, flower: false },
     { x: 10, z: 5, r: 0.5, flower: false },
   ];
-  for (const pad of padPositions) {
+  for (let i = 0; i < padPositions.length; i++) {
+    const pad = padPositions[i];
     const geo = new THREE.CircleGeometry(pad.r, 16, 0.2, Math.PI * 2 - 0.4);
     const lilyMat = toonMat("#4a9e6b");
     const lily = new THREE.Mesh(geo, lilyMat);
     lily.rotation.x = -Math.PI / 2;
-    lily.rotation.z = Math.random() * Math.PI * 2;
+    lily.rotation.z = (i * 0.73) % (Math.PI * 2);
     lily.position.set(pad.x, WATER_SURFACE_Y + 0.01, pad.z);
     lily.renderOrder = RENDER_WATER + 1;
     scene.add(lily);
@@ -1735,7 +1736,9 @@ function addLilyPads(scene) {
         new THREE.SphereGeometry(0.08, 8, 6),
         toonMat(pad.flowerColor)
       );
-      flower.position.set(pad.x + (Math.random() - 0.5) * 0.15, WATER_SURFACE_Y + 0.07, pad.z + (Math.random() - 0.5) * 0.15);
+      const offX = Math.sin(i * 1.31) * 0.07;
+      const offZ = Math.cos(i * 1.53) * 0.07;
+      flower.position.set(pad.x + offX, WATER_SURFACE_Y + 0.07, pad.z + offZ);
       flower.renderOrder = RENDER_WATER + 2;
       scene.add(flower);
     }
@@ -1744,44 +1747,39 @@ function addLilyPads(scene) {
 
 // ── Wildflowers ──
 function addWildflowers(scene) {
-  const patches = [
-    { cx: 27, cz: 15, count: 10 },
-    { cx: -25, cz: 13, count: 9 },
-    { cx: 19, cz: -24, count: 8 },
-    { cx: -21, cz: -19, count: 10 },
-    { cx: 31, cz: 1, count: 8 },
-    { cx: -32, cz: -8, count: 7 },
-    { cx: 15, cz: 32, count: 8 },
-    { cx: -18, cz: 30, count: 7 },
-    { cx: 35, cz: 20, count: 6 },
-    { cx: -38, cz: 14, count: 6 },
-    { cx: 10, cz: -35, count: 7 },
-    { cx: -8, cz: -32, count: 6 },
-    { cx: 28, cz: -20, count: 7 },
-    { cx: -30, cz: -22, count: 5 },
-  ];
   const flowerColors = ["#f5a0c0", "#f7e663", "#c4a0f5", "#ff9e7a", "#a0d8f0", "#ffb6d9"];
-  for (const patch of patches) {
-    for (let i = 0; i < patch.count; i++) {
-      const fx = patch.cx + (Math.random() - 0.5) * 4.0;
-      const fz = patch.cz + (Math.random() - 0.5) * 4.0;
-      const baseY = getWorldSurfaceHeight(fx, fz);
-      const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
-      const stem = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.015, 0.018, 0.35, 4),
-        toonMat("#5a9e48")
-      );
-      stem.position.set(fx, baseY + 0.18, fz);
-      stem.renderOrder = RENDER_DECOR;
-      scene.add(stem);
-      const blossom = new THREE.Mesh(
-        new THREE.SphereGeometry(0.055, 6, 6),
-        toonMat(color)
-      );
-      blossom.position.set(fx, baseY + 0.37, fz);
-      blossom.renderOrder = RENDER_DECOR;
-      scene.add(blossom);
-    }
+  const flowerSpots = [
+    [27.1, 15.2], [29.2, 16.4], [25.4, 13.7], [24.6, 17.2], [30.0, 14.1],
+    [-25.4, 12.9], [-23.7, 15.0], [-27.8, 10.8], [-26.1, 16.8], [-22.5, 11.6],
+    [19.3, -24.4], [21.4, -22.8], [17.8, -26.0], [16.2, -22.7], [22.1, -25.6],
+    [-21.4, -18.9], [-19.0, -21.0], [-23.6, -17.3], [-22.8, -22.3], [-18.6, -17.8],
+    [31.0, 1.1], [33.2, 2.7], [29.4, -0.2], [30.6, 3.8], [32.9, -1.7],
+    [-31.6, -8.3], [-33.8, -6.4], [-29.5, -9.6], [-30.4, -5.8], [-34.2, -9.9],
+    [15.1, 31.8], [17.4, 33.4], [13.3, 30.6], [16.0, 35.2], [-18.1, 30.4],
+    [-16.3, 32.2], [-19.9, 28.9], [-20.7, 31.7], [10.1, -35.0], [8.3, -33.4],
+    [-8.2, -32.1], [-10.4, -30.5], [28.2, -20.2], [26.3, -18.7], [-30.2, -22.1],
+    [-28.1, -20.4], [35.4, 20.3], [-38.0, 13.8], [33.1, -24.3], [-33.6, 23.0],
+  ];
+
+  for (let i = 0; i < flowerSpots.length; i++) {
+    const [fx, fz] = flowerSpots[i];
+    if (isInDecorKeepOutZone(fx, fz, 0.6)) continue;
+    const baseY = getWorldSurfaceHeight(fx, fz);
+    const color = flowerColors[i % flowerColors.length];
+    const stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.015, 0.018, 0.35, 4),
+      toonMat("#5a9e48")
+    );
+    stem.position.set(fx, baseY + 0.18, fz);
+    stem.renderOrder = RENDER_DECOR;
+    scene.add(stem);
+    const blossom = new THREE.Mesh(
+      new THREE.SphereGeometry(0.055, 6, 6),
+      toonMat(color)
+    );
+    blossom.position.set(fx, baseY + 0.37, fz);
+    blossom.renderOrder = RENDER_DECOR;
+    scene.add(blossom);
   }
 }
 
