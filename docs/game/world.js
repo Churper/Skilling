@@ -209,18 +209,27 @@ function createWater(scene) {
 function addWaterfall(scene,uni) {
   const cx=0, poolEdge=21; // north side inlet
 
-  // Start high on the mountain wall, then cascade down toward the pool lip.
-  const sourceZ=66, sourceY=terrainH(cx,sourceZ)+2.8;
-  const chuteZ=54, chuteY=terrainH(cx,chuteZ)+3.0;
-  const lipZ=31, lipY=terrainH(cx,lipZ)+2.3;
-  const dropZ=poolEdge+2.0, dropBottomY=WATER_Y+.12;
+  // Continuous waypoints from upper mountain to pool entry.
+  const flowPts=[
+    [72.0, terrainH(cx,72.0)+2.0, 5.35],
+    [66.0, terrainH(cx,66.0)+1.6, 5.05],
+    [60.0, terrainH(cx,60.0)+1.35, 4.75],
+    [52.0, terrainH(cx,52.0)+1.15, 4.45],
+    [40.0, terrainH(cx,40.0)+1.05, 4.15],
+    [poolEdge+4.2, WATER_Y+1.18, 3.95],
+    [poolEdge+2.2, WATER_Y+0.12, 3.75],
+  ];
 
-  const ledgeMat=toonMat("#7a7e78");
-  [[cx,sourceY,sourceZ, 8.2,1.4,5.2],[cx,chuteY,chuteZ, 7.2,1.1,4.6],[cx,lipY,lipZ, 6.2,.9,3.9],[cx,WATER_Y+.2,dropZ, 5.3,.45,3.0]]
-    .forEach(([x,y,z,w,h,d])=>{
-      const ledge=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),ledgeMat);
-      ledge.position.set(x,y,z); ledge.renderOrder=R_DECOR; scene.add(ledge);
-    });
+  const ledgeMat=toonMat("#8f8e87");
+  [
+    [flowPts[0][1]-0.35, flowPts[0][0], 8.4,1.45,5.7],
+    [flowPts[2][1]-0.28, flowPts[2][0], 7.1,1.1,4.8],
+    [flowPts[4][1]-0.22, flowPts[4][0], 6.0,.8,3.9],
+    [WATER_Y+.2, flowPts[6][0], 5.2,.45,3.0],
+  ].forEach(([y,z,w,h,d])=>{
+    const ledge=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),ledgeMat);
+    ledge.position.set(cx,y,z); ledge.renderOrder=R_DECOR; scene.add(ledge);
+  });
 
   // Animated water fall shader
   const wfMat=new THREE.ShaderMaterial({
@@ -230,34 +239,36 @@ function addWaterfall(scene,uni) {
     fragmentShader:`
       varying vec2 vUv; uniform float uTime;
       void main(){
-        float flow=fract(vUv.y*2.0-uTime*1.0);
-        float wave=smoothstep(0.0,0.4,flow)*smoothstep(1.0,0.6,flow);
+        float flow=fract(vUv.y*1.35-uTime*0.42);
+        float wave=smoothstep(0.0,0.42,flow)*smoothstep(1.0,0.6,flow);
         vec3 c=mix(vec3(.3,.58,.75),vec3(.4,.68,.85),wave*.5);
         float edge=smoothstep(0.0,0.18,vUv.x)*smoothstep(1.0,0.82,vUv.x);
-        float foam=smoothstep(0.55,1.0,abs(sin((vUv.y-uTime*.9)*18.0)))*0.12;
-        gl_FragColor=vec4(c+foam,edge*0.88);
+        float foam=smoothstep(0.55,1.0,abs(sin((vUv.y-uTime*.45)*14.0)))*0.10;
+        gl_FragColor=vec4(c+foam,edge*0.9);
       }`,
   });
 
+  const segDir=new THREE.Vector3(), segUp=new THREE.Vector3(0,1,0);
   const addSeg=(x0,y0,z0,x1,y1,z1,w)=>{
-    const dir=new THREE.Vector3(x1-x0,y1-y0,z1-z0);
+    const dir=segDir.set(x1-x0,y1-y0,z1-z0);
     const len=dir.length();
     if(len<=.01) return;
     const m=new THREE.Mesh(new THREE.PlaneGeometry(w,len,1,10),wfMat);
     m.position.set((x0+x1)*.5,(y0+y1)*.5,(z0+z1)*.5);
-    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());
+    m.quaternion.setFromUnitVectors(segUp,dir.normalize());
     m.renderOrder=R_DECOR+1; scene.add(m);
   };
 
-  // Cliff-fed runout plus final short drop into pool.
-  addSeg(cx,sourceY-0.2,sourceZ-1.0, cx,chuteY+0.2,chuteZ+0.8, 4.9);
-  addSeg(cx,chuteY-0.1,chuteZ-0.6, cx,lipY+0.15,lipZ+0.4, 4.4);
-  addSeg(cx,lipY+0.12,dropZ, cx,dropBottomY,dropZ, 4.1);
+  // Fully connected cascade segments to avoid gaps at each step.
+  for(let i=0;i<flowPts.length-1;i++){
+    const a=flowPts[i], b=flowPts[i+1];
+    addSeg(cx,a[1],a[0], cx,b[1],b[0], (a[2]+b[2])*.5);
+  }
 
   // Splash foam at pool surface
   const foam=new THREE.Mesh(new THREE.CircleGeometry(3,16),
     new THREE.MeshBasicMaterial({color:"#c8e8f0",transparent:true,opacity:.4}));
-  foam.rotation.x=-Math.PI/2; foam.position.set(cx,WATER_Y+.03,dropZ-.8);
+  foam.rotation.x=-Math.PI/2; foam.position.set(cx,WATER_Y+.03,flowPts[6][0]-.6);
   foam.renderOrder=R_WATER+1; scene.add(foam);
 }
 
