@@ -223,7 +223,7 @@ function addBlob(scene,x,z,radius=1.8,opacity=.2) {
       opacity,toneMapped:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));
   m.rotation.x=-Math.PI/2;
   const p=Math.sin(x*12.99+z*78.23)*43758.55; m.rotation.z=(p-Math.floor(p))*Math.PI;
-  m.position.set(x,y+.02,z); m.renderOrder=R_GND+1; scene.add(m);
+  m.position.set(x,y+.02,z); m.renderOrder=R_GND+1; scene.add(m); return m;
 }
 
 /* ── Models ── */
