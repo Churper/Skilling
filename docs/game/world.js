@@ -99,7 +99,7 @@ function addSky(scene) {
 
 /* ── Terrain — clean green, NO sandy shore ring ── */
 function createTerrain(scene) {
-  const inner=12, outer=MAP_R, aS=128, rR=55;
+  const inner=0, outer=MAP_R, aS=128, rR=55;
   const pos=[],col=[],idx=[];
   const cGrass=new THREE.Color("#3ebe30");
   const cRock=new THREE.Color("#9a9a96"), cCliff=new THREE.Color("#8a8884");
@@ -312,6 +312,8 @@ function placeTrees(scene,M,nodes) {
     [-26,-40,1.9,2.4], [22,-41,2.3,4.2],
     // Far sides, away from pool
     [32,-14,1.9,1], [-30,-12,2,5.2],
+    // Scattered around the garden
+    [34,18,1.7,2.1], [-32,16,2.2,4.5], [26,30,1.6,0.7], [-24,28,2.4,3.3],
   ];
   spots.forEach(([x,z,s,r],i) => {
     if(inKO(x,z,3)) return;
@@ -549,18 +551,7 @@ function addLilies(scene) {
     });
 }
 
-/* ── Wildflowers — sparse, away from training ── */
-function addFlowers(scene) {
-  const colors=["#f5a0c0","#f7e663","#c4a0f5","#ff9e7a","#a0d8f0","#ffb6d9"];
-  const sGeo=new THREE.CylinderGeometry(.015,.018,.35,4), bGeo=new THREE.SphereGeometry(.06,6,6), sMat=toonMat("#3a8e38");
-  [[6,30],[-8,31],[28,6],[-28,8],[30,-4],[-30,-6],[0,-42],[14,-42]]
-    .forEach(([x,z],i)=>{
-      if(inKO(x,z,.6)) return;
-      const y=getWorldSurfaceHeight(x,z);
-      scene.add(m3(sGeo.clone(),sMat,x,y+.18,z,R_DECOR));
-      scene.add(m3(bGeo.clone(),toonMat(colors[i%colors.length]),x,y+.37,z,R_DECOR));
-    });
-}
+/* ── (wildflowers removed — looked like twigs) ── */
 
 /* ── Lounges ── */
 function addLounges(scene) {
@@ -594,7 +585,7 @@ export async function createWorld(scene) {
 
   addWaterfall(scene,{uTime:waterUniforms.uTime});
   addCave(scene);
-  addLounges(scene); addLilies(scene); addFlowers(scene);
+  addLounges(scene); addLilies(scene);
   const fishing=addFishing(scene,nodes);
   const {constructionSite}=addPlaza(scene,nodes,obstacles);
 
