@@ -12,7 +12,7 @@ export function createSceneContext(canvas) {
   renderer.setClearColor("#68b8d8", 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.06;
+  renderer.toneMappingExposure = 0.98;
 
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog("#95b57a", 620, 1650);

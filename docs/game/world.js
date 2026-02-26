@@ -450,9 +450,9 @@ function createCausticTexture() {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#b9f4f0") },
-    uMid: { value: new THREE.Color("#49c8df") },
-    uDeep: { value: new THREE.Color("#1889bb") },
+    uShallow: { value: new THREE.Color("#7fc9d6") },
+    uMid: { value: new THREE.Color("#2f9ab8") },
+    uDeep: { value: new THREE.Color("#145f86") },
     uBeach: { value: new THREE.Color("#e3cea1") },
   };
 
@@ -594,8 +594,8 @@ function createWater(scene) {
 
         vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.46, rw));
         col = mix(col, uShallow, smoothstep(0.32, 0.83, rw));
-        float clarity = smoothstep(0.12, 0.76, rw);
-        col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.25);
+        float clarity = smoothstep(0.14, 0.72, rw);
+        col = mix(col, vec3(0.74, 0.9, 0.94), clarity * 0.13);
         float shoreTint = smoothstep(0.82, 0.99, rw);
         col = mix(col, uBeach * 0.96 + vec3(0.08, 0.1, 0.09), shoreTint * 0.09);
 
@@ -604,7 +604,7 @@ function createWater(scene) {
         float c2 = voronoi(cuv * 1.7 + vec2(3.7, 1.2));
         float c3 = voronoi(cuv * 0.6 + vec2(-t * 0.03, t * 0.02));
         float caustic = c1 * 0.4 + c2 * 0.35 + c3 * 0.25;
-        float causticBright = (1.0 - smoothstep(0.0, 0.5, caustic)) * 0.42;
+        float causticBright = (1.0 - smoothstep(0.0, 0.5, caustic)) * 0.24;
         causticBright *= smoothstep(0.02, 0.3, rw) * (1.0 - rw * 0.35);
         col += causticBright * vec3(0.6, 0.92, 1.0);
 
@@ -628,10 +628,10 @@ function createWater(scene) {
         ));
 
         float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 16.0);
-        col += vec3(1.0, 0.97, 0.92) * spec * 0.3 * (1.0 - rw * 0.2);
+        col += vec3(1.0, 0.97, 0.92) * spec * 0.16 * (1.0 - rw * 0.2);
 
         float NdotV = max(dot(viewDir, waveN), 0.0);
-        float fresnel = pow(1.0 - NdotV, 4.0) * 0.2;
+        float fresnel = pow(1.0 - NdotV, 4.0) * 0.1;
         vec3 skyCol = vec3(0.48, 0.74, 0.88);
         col = mix(col, skyCol, fresnel);
 
@@ -642,11 +642,11 @@ function createWater(scene) {
         float foamEdge = rw + foamWobble;
         float foamBand = smoothstep(0.9, 0.965, foamEdge) * (1.0 - smoothstep(1.0, 1.045, foamEdge));
         float foam = clamp(foamBand * (0.62 + foamNoise * 0.38), 0.0, 1.0);
-        col = mix(col, vec3(0.98, 0.99, 1.0), foam * 0.42);
+        col = mix(col, vec3(0.96, 0.98, 1.0), foam * 0.26);
 
         float shoreFade = smoothstep(0.86, 1.02, rw);
-        float bodyAlpha = mix(0.7, 0.18, shoreFade);
-        float alpha = max(bodyAlpha, foam * 0.68);
+        float bodyAlpha = mix(0.63, 0.17, shoreFade);
+        float alpha = max(bodyAlpha, foam * 0.54);
         if (rw > 1.04) discard;
         if (alpha < 0.002) discard;
 
@@ -1134,17 +1134,21 @@ function addDirtPath(scene, points, options = {}) {
   if (!Array.isArray(points) || points.length < 2) return;
   const width = THREE.MathUtils.clamp(options.width ?? 1.5, 0.8, 3.4);
   const edgeWidth = Math.max(0.09, width * 0.12);
-  const pathHeight = options.height ?? 0.02;
+  const pathHeight = options.height ?? 0.034;
   const smooth = THREE.MathUtils.clamp(options.smooth ?? 0.22, 0, 0.6);
+  const useCaps = options.caps === true;
   const coreMat = toonMat(options.color || "#b79669");
-  const edgeMat = toonMat(options.edgeColor || "#d8c39a", { transparent: true, opacity: 0.72 });
+  const edgeMat = toonMat(options.edgeColor || "#d8c39a", {
+    transparent: true,
+    opacity: THREE.MathUtils.clamp(options.edgeOpacity ?? 0.66, 0.2, 0.92),
+  });
   const pointVec = points.map(([x, z]) => new THREE.Vector3(x, 0, z));
   const curve = new THREE.CatmullRomCurve3(pointVec, false, "catmullrom", smooth);
 
   const len = curve.getLength();
   const samples = Math.max(42, Math.floor(len * 6));
-  const edgeGeo = buildPathRibbonGeometry(curve, width + edgeWidth * 2.2, samples, pathHeight + 0.008, 2.2);
-  const coreGeo = buildPathRibbonGeometry(curve, width, samples, pathHeight + 0.018, 2.8);
+  const edgeGeo = buildPathRibbonGeometry(curve, width + edgeWidth * 2.2, samples, pathHeight + 0.006, 2.2);
+  const coreGeo = buildPathRibbonGeometry(curve, width, samples, pathHeight + 0.014, 2.8);
 
   const edge = new THREE.Mesh(edgeGeo, edgeMat);
   edge.renderOrder = RENDER_SHORE;
@@ -1154,13 +1158,15 @@ function addDirtPath(scene, points, options = {}) {
   core.renderOrder = RENDER_SHORE + 1;
   scene.add(core);
 
-  const capGeo = new THREE.CircleGeometry(width * 0.55, 20);
-  for (const [x, z] of [points[0], points[points.length - 1]]) {
-    const cap = new THREE.Mesh(capGeo, coreMat);
-    cap.rotation.x = -Math.PI * 0.5;
-    cap.position.set(x, getWorldSurfaceHeight(x, z) + pathHeight + 0.02, z);
-    cap.renderOrder = RENDER_SHORE + 1;
-    scene.add(cap);
+  if (useCaps) {
+    const capGeo = new THREE.CircleGeometry(width * 0.55, 20);
+    for (const [x, z] of [points[0], points[points.length - 1]]) {
+      const cap = new THREE.Mesh(capGeo, coreMat);
+      cap.rotation.x = -Math.PI * 0.5;
+      cap.position.set(x, getWorldSurfaceHeight(x, z) + pathHeight + 0.02, z);
+      cap.renderOrder = RENDER_SHORE + 1;
+      scene.add(cap);
+    }
   }
 }
 
@@ -1477,19 +1483,6 @@ function addBlacksmith(scene, blobTex, x, z, interactables = null) {
 }
 
 function addConstructionYard(scene, blobTex, x, z, interactables = null) {
-  addDirtPath(scene, [[x - 6.5, z], [x + 6.5, z]], {
-    width: 5.9,
-    color: "#c4aa7b",
-    edgeColor: "#ddcba6",
-    smooth: 0.03,
-  });
-  addDirtPath(scene, [[x, z - 4.8], [x, z + 4.8]], {
-    width: 4.6,
-    color: "#c1a776",
-    edgeColor: "#decba4",
-    smooth: 0.03,
-  });
-
   const baseY = getWorldSurfaceHeight(x, z);
   const yard = new THREE.Group();
   yard.position.set(x, baseY, z);
@@ -1659,19 +1652,6 @@ function addTrainingDummy(scene, blobTex, x, z, interactables) {
 }
 
 function addTrainingGround(scene, blobTex, x, z) {
-  addDirtPath(scene, [[x - 6.6, z], [x + 6.6, z]], {
-    width: 5.4,
-    color: "#c2a879",
-    edgeColor: "#decca7",
-    smooth: 0.03,
-  });
-  addDirtPath(scene, [[x, z - 4.9], [x, z + 4.9]], {
-    width: 3.8,
-    color: "#bc9f70",
-    edgeColor: "#dac59f",
-    smooth: 0.03,
-  });
-
   const baseY = getWorldSurfaceHeight(x, z);
   const yard = new THREE.Group();
   yard.position.set(x, baseY, z);
@@ -1732,15 +1712,9 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
     edgeColor: "#d8c39a",
     smooth: 0.02,
   });
-  addDirtPath(scene, [[cx - 2.3, cz - 5.1], [cx + 2.4, cz - 2.2]], {
-    width: 2.8,
-    color: "#b99164",
-    edgeColor: "#ddc79d",
-    smooth: 0.12,
-  });
   for (const pos of [bankPos, storePos, smithPos]) {
     addDirtPath(scene, [[pos.x, townSpineZ], [pos.x, pos.z + 1.55]], {
-      width: 1.4,
+      width: 1.2,
       color: "#b58d61",
       edgeColor: "#d6c19a",
       smooth: 0.04,
