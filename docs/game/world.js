@@ -53,7 +53,7 @@ function poolRAt(x,z) { return poolR(Math.atan2(z,x)); }
 function terrainH(x,z) {
   const r=Math.hypot(x,z);
   const n=Math.sin(x*.045)*.4+Math.cos(z*.037)*.38+Math.sin((x+z)*.021)*.3;
-  const bowl=Math.pow(1-THREE.MathUtils.smoothstep(r,0,28),1.6)*.12;
+  const bowl=Math.pow(1-THREE.MathUtils.smoothstep(r,0,28),1.6)*.9;
   const amp=THREE.MathUtils.lerp(.2,.45,THREE.MathUtils.smoothstep(r,15,50));
   const flat=n*amp-bowl;
   if(r<=MT_START) return flat;
@@ -145,10 +145,7 @@ function createTerrain(scene) {
     const nx=-(terrainH(x+ss,z)-terrainH(x-ss,z)),ny=2,nz=-(terrainH(x,z+ss)-terrainH(x,z-ss));
     const len=Math.hypot(nx,ny,nz);
     const lit=THREE.MathUtils.clamp((nx*.54+ny*.78+nz*.31)/len*.5+.5,0,1);
-    const litMul=.87+lit*.16;
-    const nearPool=1-THREE.MathUtils.smoothstep(dist,24,38);
-    tmp.multiplyScalar(THREE.MathUtils.lerp(litMul,1.02,nearPool*.9));
-    if(nearPool>0) tmp.lerp(cGrassLight,nearPool*.16);
+    tmp.multiplyScalar(.87+lit*.16);
     col.push(tmp.r,tmp.g,tmp.b);
   };
 
@@ -210,18 +207,18 @@ function createWater(scene) {
         p.y+=sin(p.x*.16+uTime*.5)*.01+cos(p.z*.14+uTime*.35)*.008;
         vW=p.xz; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
       }`,
-      fragmentShader:`
-        varying vec2 vW; uniform float uTime;
-        void main(){
-          vec3 c=vec3(.66,.91,.98);
-          float ripple=
-            sin(vW.x*.32+uTime*.62)*.005+
-            cos(vW.y*.28-uTime*.44)*.004+
-            sin((vW.x+vW.y)*.21-uTime*.33)*.003;
-          c+=ripple;
-          float alpha=0.10;
-          gl_FragColor=vec4(c,alpha);
-        }`,
+    fragmentShader:`
+      varying vec2 vW; uniform float uTime;
+      void main(){
+        vec3 c=vec3(.64,.90,.97);
+        float ripple=
+          sin(vW.x*.32+uTime*.62)*.005+
+          cos(vW.y*.28-uTime*.44)*.004+
+          sin((vW.x+vW.y)*.21-uTime*.33)*.003;
+        c+=ripple;
+        float alpha=0.085;
+        gl_FragColor=vec4(c,alpha);
+      }`,
   });
   const water=new THREE.Mesh(geo,mat);
   water.position.y=WATER_Y+.01; water.renderOrder=R_WATER; scene.add(water);
