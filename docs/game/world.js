@@ -337,14 +337,21 @@ function placeTrees(scene,M,nodes) {
 /* ── Mining rocks — at mountain base, same models as cliff wall ── */
 function placeRocks(scene,M,nodes) {
   const C=M.cliffRocks; if(!C.length) return;
-  // Rocks at base of mountains so they look integrated
-  [[44,12,1.6,.3],[42,-16,1.7,3.2],[-44,10,1.5,4.1],[-42,-14,1.6,1.4],[10,44,1.5,5],[-12,43,1.4,2.6]]
-    .forEach(([x,z,s,r],i) => {
-      const m=C[i%C.length].clone();
-      m.scale.setScalar(s); m.rotation.y=r;
-      m.position.set(x,terrainH(x,z),z); scene.add(m);
-      setRes(m,"mining","Rock"); nodes.push(m);
-    });
+  const spawnRock=(x,z,s,r,i)=>{
+    if(inKO(x,z,1.6)) return;
+    const m=C[i%C.length].clone();
+    m.scale.setScalar(s); m.rotation.y=r;
+    m.position.set(x,terrainH(x,z),z); scene.add(m);
+    setRes(m,"mining","Rock"); nodes.push(m);
+  };
+
+  // Main mining rocks at mountain base.
+  const major=[[44,12,1.6,.3],[42,-16,1.7,3.2],[-44,10,1.5,4.1],[-42,-14,1.6,1.4],[10,44,1.5,5],[-12,43,1.4,2.6]];
+  major.forEach(([x,z,s,r],i)=>spawnRock(x,z,s,r,i));
+
+  // Additional smaller boulders scattered around the playable ring.
+  const small=[[30,18,1.0,.7],[-30,17,1.05,2.1],[33,-6,.95,1.9],[-33,-8,1.0,3.8],[15,34,1.05,4.4],[-16,33,1.0,5.2],[20,-20,.98,2.7],[-20,-18,1.02,.9]];
+  small.forEach(([x,z,s,r],i)=>spawnRock(x,z,s,r,i+major.length));
 }
 
 /* ── Mountain cliff accents — just a few large rocks on peaks ── */
@@ -529,14 +536,17 @@ const RING_GEO=new THREE.TorusGeometry(.5,.045,8,24);
 const BOB_GEO=new THREE.SphereGeometry(.13,8,7);
 function addFishing(scene,nodes) {
   const spots=[];
-  for(const[x,z,i] of [[-5,8,0],[6,7,1],[8,-4,2],[-7,-5,3],[1,11,4]]){
+  const shoreAngles=[2.7,1.9,0.95,0.05,-1.05];
+  shoreAngles.forEach((a,i)=>{
+    const r=poolR(a)-2.2;
+    const x=Math.cos(a)*r, z=Math.sin(a)*r;
     const g=new THREE.Group(); setRes(g,"fishing","Fishing Spot");
     g.userData.bobPhase=i*1.23; g.position.set(x,WATER_Y+.02,z); g.renderOrder=R_WATER+2;
     const ring=new THREE.Mesh(RING_GEO,new THREE.MeshBasicMaterial({color:"#dcf8ff",transparent:true,opacity:.72}));
     ring.rotation.x=Math.PI/2; g.add(ring);
     const bob=new THREE.Mesh(BOB_GEO,toonMat("#ffcc58")); bob.position.y=.12; g.add(bob);
     g.userData.ring=ring; scene.add(g); nodes.push(g); spots.push(g);
-  }
+  });
   return spots;
 }
 function updateFishing(spots,t) {
