@@ -665,7 +665,7 @@ function addFishing(scene, nodes) {
     const g = new THREE.Group(); setRes(g,"fishing","Fishing Spot");
     g.userData.bobPhase = i*1.23; g.position.set(x,WATER_Y+.02,z); g.renderOrder=R_WATER+2;
     const ring = new THREE.Mesh(RING_GEO, RING_MAT.clone()); ring.rotation.x=Math.PI/2; g.add(ring);
-    g.add(Object.assign(new THREE.Mesh(BOB_GEO, BOB_MAT), {position:new THREE.Vector3(0,.12,0)}));
+    const bob = new THREE.Mesh(BOB_GEO, BOB_MAT); bob.position.y=.12; g.add(bob);
     g.userData.ring = ring; scene.add(g); nodes.push(g); spots.push(g);
   }
   return spots;
