@@ -35,14 +35,15 @@ const TREE_SPOTS = [
   [-14,-42,2.2,1.8], [0,-44,2.4,3.6], [12,-43,2.1,.9], [-26,-40,1.9,2.4], [22,-41,2.3,4.2],
   [32,-14,1.9,1], [-30,-12,2,5.2], [34,18,1.7,2.1], [-32,16,2.2,4.5], [26,30,1.6,0.7], [-24,28,2.4,3.3],
 ];
-const ROCK_MAJOR_SPOTS = [[44,12,1.55,.3],[-42,-14,1.6,1.4]];
+const ROCK_MAJOR_SPOTS = [[44,12,2.35,.3],[-42,-14,2.55,1.4]];
 const ROCK_SMALL_SPOTS = [
   [42,-16,1.04,3.2],[-44,10,1.0,4.1],[10,44,.98,5],[-12,43,.95,2.6],
   [30,18,1.0,.7],[-30,17,1.05,2.1],[33,-6,.95,1.9],[-33,-8,1.0,3.8],[15,34,1.05,4.4],[-16,33,1.0,5.2],[20,-20,.98,2.7],[-20,-18,1.02,.9],
   [26,26,.96,1.4],[-26,24,.98,4.6],[36,6,.92,5.1],[-36,4,.9,2.2],
 ];
-const CLIFF_ACCENTS = [[58,12,4.2,2.6],[-60,-10,4.4,5.2]];
+const CLIFF_ACCENTS = [[58,12,5.8,2.6],[-60,-10,6.2,5.2]];
 const BUSH_SPOTS = [[-12,-29,1.1,.4],[12,-29,1.12,2.8],[28,-10,1.1,1.9],[-28,-8,1.08,5],[20,-38,1,3.8]];
+const MINE_SECTION = Object.freeze({x:34,z:36});
 
 /* ── Pool shape ── */
 function poolR(a) { return 20 + Math.cos(a)*4 + Math.sin(a*2)*.8; }
@@ -114,22 +115,21 @@ function addSky(scene) {
 
 /* ── Terrain — clean green, NO sandy shore ring ── */
 function createTerrain(scene) {
-  const outer=MAP_R, aS=96, rR=44;
+  const outer=MAP_R, aS=88, rR=40;
   const pos=[],col=[],idx=[];
-  const cGrassDeep=new THREE.Color("#15580f");
-  const cGrassMid=new THREE.Color("#1d7014");
-  const cGrassLight=new THREE.Color("#2e8b22");
+  const cGrassDeep=new THREE.Color("#1b6f16");
+  const cGrassMid=new THREE.Color("#2a8620");
+  const cGrassLight=new THREE.Color("#3ea62d");
   const cRock=new THREE.Color("#9b9a93"), cCliff=new THREE.Color("#86847d");
   const cCliffHi=new THREE.Color("#b5b4ac");
   const tmp=new THREE.Color();
 
   const shadePoint=(x,z,y,dist)=>{
-    // Subtle tone shift: keeps hills readable without harsh section lines.
-    const hill=THREE.MathUtils.smoothstep(y,-0.35,1.6);
-    const macro=(Math.sin(x*.035+z*.02)+Math.cos(z*.03-x*.015))*.25+.5;
-    const tone=THREE.MathUtils.clamp(0.28+hill*.46+macro*.16,0,1);
-    const quant=Math.floor(tone*4)/3;
-    tmp.lerpColors(cGrassDeep,cGrassLight,quant).lerp(cGrassMid,.28);
+    // Smooth hill tinting: no hard section boundaries.
+    const hill=THREE.MathUtils.smoothstep(y,-0.28,1.9);
+    const macro=(Math.sin(x*.03+z*.018)+Math.cos(z*.028-x*.014))*.24+.5;
+    const tone=THREE.MathUtils.clamp(0.24+hill*.5+macro*.12,0,1);
+    tmp.lerpColors(cGrassDeep,cGrassLight,tone).lerp(cGrassMid,.2);
 
     const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.88,THREE.MathUtils.smoothstep(y,4,14)*.72);
     const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
@@ -144,8 +144,7 @@ function createTerrain(scene) {
     const nx=-(terrainH(x+ss,z)-terrainH(x-ss,z)),ny=2,nz=-(terrainH(x,z+ss)-terrainH(x,z-ss));
     const len=Math.hypot(nx,ny,nz);
     const lit=THREE.MathUtils.clamp((nx*.54+ny*.78+nz*.31)/len*.5+.5,0,1);
-    const banded=Math.floor(lit*4)/3;
-    tmp.multiplyScalar(.86+banded*.2);
+    tmp.multiplyScalar(.87+lit*.16);
     col.push(tmp.r,tmp.g,tmp.b);
   };
 
@@ -189,27 +188,14 @@ function createTerrain(scene) {
 /* ── Water — transparent, green terrain visible underneath ── */
 function createWater(scene) {
   const uni={uTime:{value:0}};
-  // Water surface with concentric rings (avoids visible radial section lines).
-  const S=56, RINGS=7, pos=[], idx=[];
-  pos.push(0,0,0);
-  for(let ri=1;ri<=RINGS;ri++){
-    const rf=ri/RINGS;
-    for(let s=0;s<S;s++){
-      const a=(s/S)*Math.PI*2, r=(poolR(a)+.5)*rf;
-      pos.push(Math.cos(a)*r,0,Math.sin(a)*r);
-    }
+  const S=84;
+  const shape=new THREE.Shape();
+  for(let s=0;s<=S;s++){
+    const a=(s/S)*Math.PI*2, r=poolR(a)+.5, x=Math.cos(a)*r, z=Math.sin(a)*r;
+    if(s===0) shape.moveTo(x,z); else shape.lineTo(x,z);
   }
-  for(let s=0;s<S;s++) idx.push(0,1+s,1+((s+1)%S));
-  for(let ri=2;ri<=RINGS;ri++){
-    const p0=1+(ri-2)*S, p1=1+(ri-1)*S;
-    for(let s=0;s<S;s++){
-      const n=(s+1)%S;
-      const a=p0+s,b=p0+n,c=p1+s,d=p1+n;
-      idx.push(a,b,c,b,d,c);
-    }
-  }
-  const geo=new THREE.BufferGeometry();
-  geo.setIndex(idx); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
+  const geo=new THREE.ShapeGeometry(shape);
+  geo.rotateX(-Math.PI/2);
   geo.computeVertexNormals();
   const mat=new THREE.ShaderMaterial({
     transparent:true, depthWrite:false, side:THREE.DoubleSide, uniforms:uni,
@@ -217,18 +203,22 @@ function createWater(scene) {
       varying vec2 vW; uniform float uTime;
       void main(){
         vec3 p=position;
-        p.y+=sin(p.x*.18+uTime*.6)*.015+cos(p.z*.15+uTime*.4)*.012;
+        p.y+=sin(p.x*.16+uTime*.5)*.01+cos(p.z*.14+uTime*.35)*.008;
         vW=p.xz; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
       }`,
     fragmentShader:`
       varying vec2 vW; uniform float uTime;
       void main(){
         float d=length(vW);
-        vec3 deep=vec3(.17,.49,.67), shallow=vec3(.58,.88,.95);
+        vec3 deep=vec3(.20,.55,.75), shallow=vec3(.67,.92,.98);
         float t=smoothstep(0.0,22.0,d);
         vec3 c=mix(deep,shallow,t);
-        c+=sin(vW.x*.58+vW.y*.39+uTime*.8)*.01+cos(vW.x*.26-vW.y*.41+uTime*.46)*.008;
-        float alpha=mix(0.08,0.12,t);
+        float ripple=
+          sin(vW.x*.32+uTime*.62)*.006+
+          cos(vW.y*.28-uTime*.44)*.005+
+          sin((vW.x+vW.y)*.21-uTime*.33)*.004;
+        c+=ripple;
+        float alpha=mix(0.06,0.10,t);
         gl_FragColor=vec4(c,alpha);
       }`,
   });
@@ -271,12 +261,14 @@ function addWaterfall(scene,uni) {
     fragmentShader:`
       varying vec2 vUv; uniform float uTime;
       void main(){
-        float flow=fract(vUv.y*1.35-uTime*0.42);
-        float wave=smoothstep(0.0,0.42,flow)*smoothstep(1.0,0.6,flow);
-        vec3 c=mix(vec3(.3,.58,.75),vec3(.4,.68,.85),wave*.5);
+        float s1=sin((vUv.y*6.5-uTime*1.1)+sin(vUv.x*6.0)*0.55)*0.5+0.5;
+        float s2=sin((vUv.y*10.0-uTime*1.6)+cos(vUv.x*5.2)*0.45)*0.5+0.5;
+        float stream=s1*.65+s2*.35;
+        vec3 c=mix(vec3(.42,.74,.88),vec3(.75,.93,.99),stream*.42);
         float edge=smoothstep(0.0,0.18,vUv.x)*smoothstep(1.0,0.82,vUv.x);
-        float foam=smoothstep(0.55,1.0,abs(sin((vUv.y-uTime*.45)*14.0)))*0.10;
-        gl_FragColor=vec4(c+foam,edge*0.9);
+        float foam=smoothstep(0.62,1.0,stream)*0.11;
+        float alpha=edge*(0.56+stream*.24);
+        gl_FragColor=vec4(c+foam,alpha);
       }`,
   });
 
@@ -408,6 +400,41 @@ function placeRocks(scene,M,nodes) {
   // Keep only 2 larger mineable rocks, then use mostly smaller boulders.
   ROCK_MAJOR_SPOTS.forEach(([x,z,s,r],i)=>spawnRock(x,z,s,r,i));
   ROCK_SMALL_SPOTS.forEach(([x,z,s,r],i)=>spawnRock(x,z,s,r,i+ROCK_MAJOR_SPOTS.length));
+}
+
+function addMineSection(scene,M,nodes) {
+  const mx=MINE_SECTION.x, mz=MINE_SECTION.z;
+  const my=getWorldSurfaceHeight(mx,mz);
+  const floorMatA=toonMat("#7b6650"), floorMatB=toonMat("#8f7b64"), floorMatC=toonMat("#6f5d49");
+  const floorA=new THREE.Mesh(new THREE.CylinderGeometry(7.4,7.8,.24,16),floorMatA);
+  floorA.position.set(mx,my+.09,mz); floorA.renderOrder=R_DECOR; scene.add(floorA);
+  const floorB=new THREE.Mesh(new THREE.CylinderGeometry(5.3,5.8,.18,14),floorMatB);
+  floorB.position.set(mx-1.1,my+.16,mz+.8); floorB.rotation.y=.34; floorB.renderOrder=R_DECOR+1; scene.add(floorB);
+  const floorC=new THREE.Mesh(new THREE.CylinderGeometry(3.2,3.6,.14,12),floorMatC);
+  floorC.position.set(mx+2.1,my+.2,mz-1.4); floorC.rotation.y=.18; floorC.renderOrder=R_DECOR+1; scene.add(floorC);
+  addBlob(scene,mx,mz,6.7,.1);
+
+  const rocks=M?.cliffRocks??[];
+  const mineSpots=[[-2.8,-1.4,1.55,.6],[-.6,2.2,1.4,1.8],[1.8,1.2,1.48,2.7],[3.2,-.8,1.35,4.1],[-3.4,1.7,1.3,3.4]];
+  mineSpots.forEach(([dx,dz,s,r],i)=>{
+    const x=mx+dx, z=mz+dz;
+    const y=getWorldSurfaceHeight(x,z);
+    let rock=null;
+    if(rocks.length){
+      rock=rocks[i%rocks.length].clone();
+      rock.scale.setScalar(s);
+      rock.rotation.y=r;
+      rock.position.set(x,y,z);
+    }else{
+      rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.85,0),toonMat("#8a8a86"));
+      rock.position.set(x,y+.45,z);
+      rock.scale.set(s*.75,s*.55,s*.75);
+      rock.renderOrder=R_DECOR;
+    }
+    scene.add(rock);
+    setRes(rock,"mining","Rock");
+    nodes.push(rock);
+  });
 }
 
 /* ── Mountain cliff accents — just a few large rocks on peaks ── */
@@ -552,7 +579,6 @@ function addPlaza(scene,nodes,obstacles) {
 }
 
 /* ── Fishing ── */
-const RING_GEO=new THREE.TorusGeometry(.5,.045,8,24);
 const BOB_GEO=new THREE.SphereGeometry(.13,8,7);
 function addFishing(scene,nodes) {
   const spots=[];
@@ -562,10 +588,8 @@ function addFishing(scene,nodes) {
     const x=Math.cos(a)*r, z=Math.sin(a)*r;
     const g=new THREE.Group(); setRes(g,"fishing","Fishing Spot");
     g.userData.bobPhase=i*1.23; g.position.set(x,WATER_Y+.02,z); g.renderOrder=R_WATER+2;
-    const ring=new THREE.Mesh(RING_GEO,new THREE.MeshBasicMaterial({color:"#dcf8ff",transparent:true,opacity:.72}));
-    ring.rotation.x=Math.PI/2; g.add(ring);
     const bob=new THREE.Mesh(BOB_GEO,toonMat("#ffcc58")); bob.position.y=.12; g.add(bob);
-    g.userData.ring=ring;
+    g.userData.bob=bob;
     scene.add(g);
     // Use one solid hidden hit volume so fishing isn't a torus-only click target.
     const hs=addHS(g,0,.25,0);
@@ -579,7 +603,7 @@ function updateFishing(spots,t) {
   for(const s of spots){
     const p=s.userData.bobPhase||0;
     s.position.y=WATER_Y+.02+Math.sin(t*2+p)*.03;
-    if(s.userData.ring){s.userData.ring.scale.setScalar(1+Math.sin(t*2.2+p)*.06); s.userData.ring.material.opacity=.62+Math.sin(t*2.4+p)*.08;}
+    if(s.userData.bob) s.userData.bob.position.y=.12+Math.sin(t*2.8+p)*.012;
   }
 }
 
@@ -626,6 +650,7 @@ export async function createWorld(scene) {
   if(models){
     placeTrees(scene,models,nodes);
     placeRocks(scene,models,nodes);
+    addMineSection(scene,models,nodes);
     placeBushes(scene,models);
     placeCliffs(scene,models);
   }
