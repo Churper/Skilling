@@ -593,8 +593,8 @@ function createWater(scene) {
         col = mix(col, uShallow, smoothstep(0.32, 0.83, rw));
         float clarity = smoothstep(0.12, 0.76, rw);
         col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.25);
-        float shoreTint = smoothstep(0.7, 0.99, rw);
-        col = mix(col, uBeach * 0.95 + vec3(0.11, 0.14, 0.12), shoreTint * 0.16);
+        float shoreTint = smoothstep(0.82, 0.99, rw);
+        col = mix(col, uBeach * 0.96 + vec3(0.08, 0.1, 0.09), shoreTint * 0.09);
 
         vec2 cuv = wp * 0.11 + vec2(t * 0.02, -t * 0.015);
         float c1 = voronoi(cuv);
@@ -639,19 +639,18 @@ function createWater(scene) {
         vec3 skyCol = vec3(0.48, 0.74, 0.88);
         col = mix(col, skyCol, fresnel);
 
-        float foamNoise = fbm(wp * 0.7 + vec2(t * 0.1, -t * 0.07));
-        float foamWobble = sin(shoreAng * 8.0 + t * 1.2) * 0.017
-                         + sin(shoreAng * 13.0 - t * 0.8) * 0.012
-                         + sin(shoreAng * 21.0 + t * 1.6) * 0.006;
+        float foamNoise = fbm(wp * 0.74 + vec2(t * 0.08, -t * 0.06));
+        float foamWobble = sin(shoreAng * 8.0 + t * 1.2) * 0.011
+                         + sin(shoreAng * 13.0 - t * 0.8) * 0.008
+                         + sin(shoreAng * 21.0 + t * 1.6) * 0.004;
         float foamEdge = rw + foamWobble;
-        float foam = smoothstep(0.72, 0.9, foamEdge) * (1.0 - smoothstep(0.985, 1.02, foamEdge));
-        foam *= 0.55 + foamNoise * 0.45;
-        foam = clamp(foam, 0.0, 1.0);
-        col = mix(col, mix(uShallow, vec3(1.0), 0.5), foam * 0.65);
+        float foamBand = smoothstep(0.9, 0.965, foamEdge) * (1.0 - smoothstep(1.0, 1.045, foamEdge));
+        float foam = clamp(foamBand * (0.62 + foamNoise * 0.38), 0.0, 1.0);
+        col = mix(col, vec3(0.98, 0.99, 1.0), foam * 0.42);
 
-        float bodyAlpha = mix(0.56, 0.32, smoothstep(0.04, 0.92, rw));
-        float edgeFade = 1.0 - smoothstep(0.982, 1.02, foamEdge);
-        float alpha = max(bodyAlpha * edgeFade, foam * 0.85);
+        float bodyAlpha = mix(0.62, 0.3, smoothstep(0.06, 0.9, rw));
+        float edgeFade = 1.0 - smoothstep(0.95, 1.02, foamEdge);
+        float alpha = max(bodyAlpha * edgeFade, foam * 0.62);
         if (alpha < 0.002) discard;
 
         gl_FragColor = vec4(col, alpha);
@@ -669,7 +668,38 @@ function createWater(scene) {
 }
 
 function addShoreFoamRing(scene, waterUniforms) {
-  const foamGeo = new THREE.RingGeometry(WATER_RADIUS - 0.52, WATER_RADIUS + 1.25, 220, 1);
+  const segs = 240;
+  const foamPos = [];
+  const foamUvs = [];
+  const foamIdx = [];
+  for (let i = 0; i <= segs; i++) {
+    const t = i / segs;
+    const a = t * Math.PI * 2;
+    const shorelineR = getWaterRadiusAtAngle(a);
+    const contourNoise =
+      Math.sin(a * 6.7 + 0.4) * 0.16 +
+      Math.sin(a * 14.3 - 1.1) * 0.08 +
+      Math.sin(a * 22.1 + 0.9) * 0.04;
+    const innerR = shorelineR - 0.08 + contourNoise * 0.06;
+    const outerR = shorelineR + 0.92 + contourNoise * 0.24;
+    const c = Math.cos(a);
+    const s = Math.sin(a);
+    foamPos.push(c * innerR, 0, s * innerR);
+    foamPos.push(c * outerR, 0, s * outerR);
+    foamUvs.push(t, 0);
+    foamUvs.push(t, 1);
+    if (i < segs) {
+      const j = i * 2;
+      foamIdx.push(j, j + 1, j + 2);
+      foamIdx.push(j + 1, j + 3, j + 2);
+    }
+  }
+
+  const foamGeo = new THREE.BufferGeometry();
+  foamGeo.setIndex(foamIdx);
+  foamGeo.setAttribute("position", new THREE.Float32BufferAttribute(foamPos, 3));
+  foamGeo.setAttribute("uv", new THREE.Float32BufferAttribute(foamUvs, 2));
+
   const foamMat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
@@ -678,34 +708,38 @@ function addShoreFoamRing(scene, waterUniforms) {
       uTime: waterUniforms.uTime,
     },
     vertexShader: `
-      varying vec2 vLocal;
+      varying vec2 vUv;
+      varying vec2 vXZ;
       void main() {
-        vLocal = position.xy;
+        vUv = uv;
+        vXZ = position.xz;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
     fragmentShader: `
-      varying vec2 vLocal;
+      varying vec2 vUv;
+      varying vec2 vXZ;
       uniform float uTime;
 
       void main() {
-        float r = length(vLocal);
-        float ang = atan(vLocal.y, vLocal.x);
-        float wobble = sin(ang * 15.0 + uTime * 1.25) * 0.18
-                     + sin(ang * 27.0 - uTime * 1.05) * 0.09
-                     + sin(r * 4.8 + ang * 3.2 - uTime * 1.5) * 0.05;
-        float inner = smoothstep(${(WATER_RADIUS - 0.45).toFixed(2)}, ${(WATER_RADIUS + 0.26).toFixed(2)}, r + wobble);
-        float outer = 1.0 - smoothstep(${(WATER_RADIUS + 1.12).toFixed(2)}, ${(WATER_RADIUS + 1.72).toFixed(2)}, r + wobble * 0.35);
-        float streak = 0.72 + sin((r * 6.2) - uTime * 2.15 + ang * 3.0) * 0.28;
-        float alpha = clamp(inner * outer * streak, 0.0, 1.0) * 0.56;
+        float edge = vUv.y;
+        float ang = vUv.x;
+        float wave = sin(ang * 78.0 + uTime * 1.8) * 0.5 + 0.5;
+        wave += sin(ang * 131.0 - uTime * 1.35) * 0.5 + 0.5;
+        wave *= 0.5;
+        float body = smoothstep(0.05, 0.24, edge) * (1.0 - smoothstep(0.62, 0.96, edge));
+        float feather = smoothstep(0.0, 0.12, edge) * (1.0 - smoothstep(0.86, 1.0, edge));
+        float edgeNoise = sin(length(vXZ) * 0.45 - uTime * 1.5) * 0.06 + 0.94;
+        float alpha = (body * (0.5 + wave * 0.22) + feather * 0.16) * edgeNoise;
         if (alpha < 0.01) discard;
-        gl_FragColor = vec4(0.96, 0.99, 1.0, alpha);
+        vec3 foamCol = mix(vec3(0.9, 0.96, 0.98), vec3(1.0), wave * 0.35);
+        gl_FragColor = vec4(foamCol, alpha * 0.7);
       }
     `,
   });
   const foam = new THREE.Mesh(foamGeo, foamMat);
   foam.rotation.x = -Math.PI / 2;
-  foam.position.y = WATER_SURFACE_Y + 0.02;
+  foam.position.y = WATER_SURFACE_Y + 0.015;
   foam.renderOrder = RENDER_WATER + 2;
   scene.add(foam);
 }
