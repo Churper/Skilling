@@ -1325,6 +1325,16 @@ function addMountainCave(scene, blobTex, x, z) {
   caveFloor.renderOrder = RENDER_SHORE + 1;
   cave.add(caveFloor);
 
+  const caveDoorFrame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.05, 0.16), toonMat("#6f6557"));
+  caveDoorFrame.position.set(0, 1.08, 2.22);
+  caveDoorFrame.renderOrder = RENDER_DECOR + 2;
+  cave.add(caveDoorFrame);
+
+  const caveDoor = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.72, 0.1), toonMat("#6d4f35"));
+  caveDoor.position.set(0, 0.95, 2.32);
+  caveDoor.renderOrder = RENDER_DECOR + 3;
+  cave.add(caveDoor);
+
   for (const side of [-1, 1]) {
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.15, 6), toonMat("#805837"));
     post.position.set(side * 2.15, 0.62, 2.15);
@@ -1467,26 +1477,23 @@ function addBlacksmith(scene, blobTex, x, z, interactables = null) {
 }
 
 function addConstructionYard(scene, blobTex, x, z, interactables = null) {
+  addDirtPath(scene, [[x - 6.5, z], [x + 6.5, z]], {
+    width: 5.9,
+    color: "#c4aa7b",
+    edgeColor: "#ddcba6",
+    smooth: 0.03,
+  });
+  addDirtPath(scene, [[x, z - 4.8], [x, z + 4.8]], {
+    width: 4.6,
+    color: "#c1a776",
+    edgeColor: "#decba4",
+    smooth: 0.03,
+  });
+
   const baseY = getWorldSurfaceHeight(x, z);
   const yard = new THREE.Group();
   yard.position.set(x, baseY, z);
   setServiceNode(yard, "construction", "House Construction Yard");
-
-  const lot = new THREE.Mesh(new THREE.CylinderGeometry(9.6, 10.0, 0.08, 40), toonMat("#cdb88f"));
-  lot.position.y = 0.02;
-  lot.renderOrder = RENDER_SHORE;
-  yard.add(lot);
-
-  const lotRing = new THREE.Mesh(new THREE.TorusGeometry(6.0, 0.12, 8, 52), toonMat("#ebdfc2"));
-  lotRing.rotation.x = Math.PI * 0.5;
-  lotRing.position.y = 0.08;
-  lotRing.renderOrder = RENDER_SHORE + 1;
-  yard.add(lotRing);
-
-  const buildPad = new THREE.Mesh(new THREE.CylinderGeometry(5.3, 5.3, 0.06, 30), toonMat("#f2e8cf"));
-  buildPad.position.y = 0.05;
-  buildPad.renderOrder = RENDER_SHORE + 1;
-  yard.add(buildPad);
 
   const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 1.45, 6), toonMat("#8f6742"));
   signPost.position.set(-3.8, 0.98, 3.7);
@@ -1545,11 +1552,13 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   const door = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.28, 0.09), toonMat("#7d5737"));
   door.position.set(0, 0.86, 1.66);
   door.renderOrder = RENDER_DECOR + 3;
+  door.visible = false;
   houseGroup.add(door);
 
   const windowLeft = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.5, 0.09), toonMat("#83c8df"));
   windowLeft.position.set(-1.15, 1.45, 1.66);
   windowLeft.renderOrder = RENDER_DECOR + 3;
+  windowLeft.visible = false;
   houseGroup.add(windowLeft);
   const windowRight = windowLeft.clone();
   windowRight.position.x = 1.15;
@@ -1591,6 +1600,9 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
     frame.scale.y = THREE.MathUtils.clamp((p - 0.12) / 0.22, 0.2, 1);
     walls.visible = p >= 0.33;
     walls.scale.set(1, THREE.MathUtils.clamp((p - 0.33) / 0.28, 0.12, 1), 1);
+    door.visible = p >= 0.44;
+    windowLeft.visible = p >= 0.5;
+    windowRight.visible = p >= 0.5;
     const roofBlend = THREE.MathUtils.clamp((p - 0.62) / 0.2, 0, 1);
     yardRoof.visible = p >= 0.62;
     yardRoof.scale.setScalar(0.45 + roofBlend * 0.55);
@@ -1647,25 +1659,22 @@ function addTrainingDummy(scene, blobTex, x, z, interactables) {
 }
 
 function addTrainingGround(scene, blobTex, x, z) {
+  addDirtPath(scene, [[x - 6.6, z], [x + 6.6, z]], {
+    width: 5.4,
+    color: "#c2a879",
+    edgeColor: "#decca7",
+    smooth: 0.03,
+  });
+  addDirtPath(scene, [[x, z - 4.9], [x, z + 4.9]], {
+    width: 3.8,
+    color: "#bc9f70",
+    edgeColor: "#dac59f",
+    smooth: 0.03,
+  });
+
   const baseY = getWorldSurfaceHeight(x, z);
   const yard = new THREE.Group();
   yard.position.set(x, baseY, z);
-
-  const pad = new THREE.Mesh(new THREE.CylinderGeometry(6.3, 6.6, 0.08, 36), toonMat("#ccb48a"));
-  pad.position.y = 0.02;
-  pad.renderOrder = RENDER_SHORE;
-  yard.add(pad);
-
-  const innerRing = new THREE.Mesh(new THREE.TorusGeometry(4.5, 0.1, 8, 56), toonMat("#f0e3c8"));
-  innerRing.rotation.x = Math.PI * 0.5;
-  innerRing.position.y = 0.08;
-  innerRing.renderOrder = RENDER_SHORE + 1;
-  yard.add(innerRing);
-
-  const center = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.06, 20), toonMat("#b79163"));
-  center.position.y = 0.05;
-  center.renderOrder = RENDER_SHORE + 1;
-  yard.add(center);
 
   for (let i = 0; i < 10; i++) {
     const a = (i / 10) * Math.PI * 2;
@@ -1705,7 +1714,6 @@ function addTrainingGround(scene, blobTex, x, z) {
 function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = []) {
   const cx = SERVICE_LAYOUT.plaza.x;
   const cz = SERVICE_LAYOUT.plaza.z;
-  const cy = getWorldSurfaceHeight(cx, cz);
   const trainingX = SERVICE_LAYOUT.training.x;
   const trainingZ = SERVICE_LAYOUT.training.z;
   const houseX = SERVICE_LAYOUT.construction.x;
@@ -1713,30 +1721,26 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   const caveX = SERVICE_LAYOUT.cave.x;
   const caveZ = SERVICE_LAYOUT.cave.z;
 
-  const plazaCore = new THREE.Mesh(new THREE.BoxGeometry(18.8, 0.08, 8.4), toonMat("#d5c9a9"));
-  plazaCore.position.set(cx + 0.4, cy + 0.035, cz - 0.55);
-  plazaCore.renderOrder = RENDER_SHORE;
-  scene.add(plazaCore);
+  const townSpineZ = cz - 1.0;
+  const bankPos = { x: cx - 8.0, z: cz - 3.2 };
+  const storePos = { x: cx + 0.2, z: cz - 3.4 };
+  const smithPos = { x: cx + 8.5, z: cz - 3.0 };
 
-  const plazaTrim = new THREE.Mesh(new THREE.BoxGeometry(16.4, 0.06, 6.2), toonMat("#efe5cc"));
-  plazaTrim.position.set(cx + 0.4, cy + 0.072, cz - 0.55);
-  plazaTrim.renderOrder = RENDER_SHORE + 1;
-  scene.add(plazaTrim);
-
-  const townSpineZ = cz + 2.35;
-  const bankPos = { x: cx - 7.6, z: cz - 2.3 };
-  const storePos = { x: cx + 0.5, z: cz - 2.7 };
-  const smithPos = { x: cx + 8.4, z: cz - 2.1 };
-
-  addDirtPath(scene, [[cx - 11.8, townSpineZ], [cx + 11.8, townSpineZ]], {
-    width: 2.45,
+  addDirtPath(scene, [[cx - 12.4, townSpineZ], [cx + 12.2, townSpineZ]], {
+    width: 3.05,
     color: "#b79063",
     edgeColor: "#d8c39a",
     smooth: 0.02,
   });
+  addDirtPath(scene, [[cx - 2.3, cz - 5.1], [cx + 2.4, cz - 2.2]], {
+    width: 2.8,
+    color: "#b99164",
+    edgeColor: "#ddc79d",
+    smooth: 0.12,
+  });
   for (const pos of [bankPos, storePos, smithPos]) {
     addDirtPath(scene, [[pos.x, townSpineZ], [pos.x, pos.z + 1.55]], {
-      width: 1.28,
+      width: 1.4,
       color: "#b58d61",
       edgeColor: "#d6c19a",
       smooth: 0.04,
