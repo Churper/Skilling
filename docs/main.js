@@ -1002,6 +1002,10 @@ const cameraDelta = new THREE.Vector3();
 const cameraInitBack = new THREE.Vector3();
 const fogAboveWater = new THREE.Color("#9bb890");
 const fogUnderwater = new THREE.Color("#4b88a4");
+const fogAboveNear = 700;
+const fogAboveFar = 1700;
+const fogUnderNear = 10;
+const fogUnderFar = 110;
 let underwaterFogActive = false;
 
 const clock = new THREE.Clock();
@@ -1195,6 +1199,8 @@ function animate() {
   if (scene.fog && isUnderwater !== underwaterFogActive) {
     underwaterFogActive = isUnderwater;
     scene.fog.color.copy(isUnderwater ? fogUnderwater : fogAboveWater);
+    scene.fog.near = isUnderwater ? fogUnderNear : fogAboveNear;
+    scene.fog.far = isUnderwater ? fogUnderFar : fogAboveFar;
   }
 
   cameraFocus.set(player.position.x, player.position.y + 0.4, player.position.z);

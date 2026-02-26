@@ -58,7 +58,8 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
     slimeGeo,
     slimeMaterial
   );
-  player.position.set(0, 1.2, 10);
+  // Spawn on shore instead of inside lake to avoid underwater visual state at load.
+  player.position.set(0, 1.2, 28);
 
   addSlimeFace(player);
 
@@ -252,7 +253,7 @@ export function createRemotePlayerAvatar(scene, addShadowBlob, options = {}) {
   });
 
   const player = new THREE.Mesh(slimeGeo, slimeMaterial);
-  player.position.set(0, 1.2, 10);
+  player.position.set(0, 1.2, 28);
   addSlimeFace(player);
   scene.add(player);
   const playerBlob = addShadowBlob(player.position.x, player.position.z, 0.95, 0.19);
