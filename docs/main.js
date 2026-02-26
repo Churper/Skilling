@@ -271,6 +271,7 @@ syncSkillsUI();
 const moveTarget = new THREE.Vector3();
 const resourceTargetPos = new THREE.Vector3();
 const markerTarget = new THREE.Vector3();
+const PLAYABLE_RADIUS = 48;
 let hasMoveTarget = false;
 let markerBaseY = 0;
 let markerOnWater = false;
@@ -553,6 +554,17 @@ const playerHeadOffset = player.geometry.boundingBox.max.y;
 const playerGroundSink = 0.0;
 const playerCollisionRadius = 0.48;
 
+function clampPointToPlayableRadius(point, margin = 0) {
+  if (!point) return point;
+  const maxRadius = Math.max(0.01, PLAYABLE_RADIUS - Math.max(0, margin));
+  const radius = Math.hypot(point.x, point.z);
+  if (radius <= maxRadius) return point;
+  const scale = maxRadius / radius;
+  point.x *= scale;
+  point.z *= scale;
+  return point;
+}
+
 function pushPointOutsideObstacles(point, extraRadius = 0) {
   if (!collisionObstacles.length || !point) return point;
   for (let i = 0; i < collisionObstacles.length; i++) {
@@ -599,8 +611,10 @@ function setMoveTarget(point, preservePending = false) {
   if (!preservePending) activeGather = null;
   if (!preservePending) activeAttack = null;
   markerTarget.copy(point);
+  clampPointToPlayableRadius(markerTarget, playerCollisionRadius + 0.14);
   pushPointOutsideObstacles(markerTarget, playerCollisionRadius + 0.14);
   moveTarget.copy(point);
+  clampPointToPlayableRadius(moveTarget, playerCollisionRadius + 0.14);
   pushPointOutsideObstacles(moveTarget, playerCollisionRadius + 0.14);
   moveTarget.y = getPlayerGroundY(moveTarget.x, moveTarget.z);
   hasMoveTarget = true;
@@ -1135,8 +1149,8 @@ function animate() {
 
   // Clamp player to playable area (before mountains)
   const playerR = Math.hypot(player.position.x, player.position.z);
-  if (playerR > 48) {
-    const scale = 48 / playerR;
+  if (playerR > PLAYABLE_RADIUS) {
+    const scale = PLAYABLE_RADIUS / playerR;
     player.position.x *= scale;
     player.position.z *= scale;
   }
