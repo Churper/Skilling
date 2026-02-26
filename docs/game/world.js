@@ -102,9 +102,11 @@ function addSky(scene) {
 
 /* ── Terrain — clean green, NO sandy shore ring ── */
 function createTerrain(scene) {
-  const inner=0, outer=MAP_R, aS=128, rR=55;
+  const inner=0, outer=MAP_R, aS=96, rR=44;
   const pos=[],col=[],idx=[];
-  const cGrass=new THREE.Color("#1a6e10");
+  const cGrassDeep=new THREE.Color("#14540d");
+  const cGrassMid=new THREE.Color("#1d7112");
+  const cGrassLight=new THREE.Color("#2d911e");
   const cRock=new THREE.Color("#787874"), cCliff=new THREE.Color("#5f5f5b");
   const tmp=new THREE.Color(), vpr=aS+1;
 
@@ -116,8 +118,11 @@ function createTerrain(scene) {
       const y=terrainH(x,z);
       pos.push(x,y,z);
 
-      // Flat bright green, only transition at mountains
-      tmp.copy(cGrass);
+      // Quantized grass tone variation keeps a low-poly, hilly look without heavy shader cost.
+      const macro=(Math.sin(x*.06)*.5+Math.cos(z*.07)*.5+Math.sin((x-z)*.035)*.35)*.5+.5;
+      const elev=THREE.MathUtils.clamp((y+.45)/1.25,0,1);
+      const terraced=Math.floor(THREE.MathUtils.clamp(elev*.62+macro*.38,0,1)*5)/4;
+      tmp.lerpColors(cGrassDeep,cGrassLight,terraced).lerp(cGrassMid,.18);
       const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.9,THREE.MathUtils.smoothstep(y,4,14)*.7);
       const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
 
@@ -128,8 +133,8 @@ function createTerrain(scene) {
       const nx=-(terrainH(x+ss,z)-terrainH(x-ss,z)),ny=2,nz=-(terrainH(x,z+ss)-terrainH(x,z-ss));
       const len=Math.hypot(nx,ny,nz);
       const lit=THREE.MathUtils.clamp((nx*.54+ny*.78+nz*.31)/len*.5+.5,0,1);
-      const banded=THREE.MathUtils.lerp(lit,Math.floor(lit*4.5)/4,.45);
-      tmp.multiplyScalar(.92+banded*.22);
+      const banded=Math.floor(lit*5)/4;
+      tmp.multiplyScalar(.78+banded*.34);
       col.push(tmp.r,tmp.g,tmp.b);
     }
   }
@@ -139,7 +144,7 @@ function createTerrain(scene) {
   const geo=new THREE.BufferGeometry();
   geo.setIndex(idx); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
   geo.setAttribute("color",new THREE.Float32BufferAttribute(col,3)); geo.computeVertexNormals();
-  const mesh=new THREE.Mesh(geo,toonMat("#fff",{vertexColors:true,fog:false}));
+  const mesh=new THREE.Mesh(geo,toonMat("#fff",{vertexColors:true,fog:false,flatShading:true}));
   mesh.renderOrder=R_GND; scene.add(mesh); return mesh;
 }
 
@@ -174,7 +179,8 @@ function createWater(scene) {
         float t=smoothstep(0.0,22.0,d);
         vec3 c=mix(deep,shallow,t);
         c+=sin(vW.x*.6+vW.y*.4+uTime*1.2)*.02+cos(vW.x*.3-vW.y*.5+uTime*.7)*.015;
-        gl_FragColor=vec4(c,0.35);
+        float alpha=mix(0.18,0.24,t);
+        gl_FragColor=vec4(c,alpha);
       }`,
   });
   const water=new THREE.Mesh(geo,mat);
