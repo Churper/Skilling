@@ -31,6 +31,18 @@ const R_GND=0, R_WATER=2, R_DECOR=3;
 const SVC = Object.freeze({ plaza:{x:0,z:-32,r:14}, build:{x:18,z:-35,r:10}, train:{x:-22,z:-34,r:8} });
 const KEEP_OUT = [SVC.plaza, SVC.build, SVC.train];
 function inKO(x,z,pad=0) { for(const k of KEEP_OUT) if(Math.hypot(x-k.x,z-k.z)<=k.r+pad) return true; return false; }
+const TREE_SPOTS = [
+  [-14,-42,2.2,1.8], [0,-44,2.4,3.6], [12,-43,2.1,.9], [-26,-40,1.9,2.4], [22,-41,2.3,4.2],
+  [32,-14,1.9,1], [-30,-12,2,5.2], [34,18,1.7,2.1], [-32,16,2.2,4.5], [26,30,1.6,0.7], [-24,28,2.4,3.3],
+];
+const ROCK_MAJOR_SPOTS = [[44,12,1.55,.3],[-42,-14,1.6,1.4]];
+const ROCK_SMALL_SPOTS = [
+  [42,-16,1.04,3.2],[-44,10,1.0,4.1],[10,44,.98,5],[-12,43,.95,2.6],
+  [30,18,1.0,.7],[-30,17,1.05,2.1],[33,-6,.95,1.9],[-33,-8,1.0,3.8],[15,34,1.05,4.4],[-16,33,1.0,5.2],[20,-20,.98,2.7],[-20,-18,1.02,.9],
+  [26,26,.96,1.4],[-26,24,.98,4.6],[36,6,.92,5.1],[-36,4,.9,2.2],
+];
+const CLIFF_ACCENTS = [[58,12,4.2,2.6],[-60,-10,4.4,5.2]];
+const BUSH_SPOTS = [[-12,-29,1.1,.4],[12,-29,1.12,2.8],[28,-10,1.1,1.9],[-28,-8,1.08,5],[20,-38,1,3.8]];
 
 /* ── Pool shape ── */
 function poolR(a) { return 20 + Math.cos(a)*4 + Math.sin(a*2)*.8; }
@@ -107,7 +119,8 @@ function createTerrain(scene) {
   const cGrassDeep=new THREE.Color("#14540d");
   const cGrassMid=new THREE.Color("#1d7112");
   const cGrassLight=new THREE.Color("#2d911e");
-  const cRock=new THREE.Color("#787874"), cCliff=new THREE.Color("#5f5f5b");
+  const cRock=new THREE.Color("#9b9a93"), cCliff=new THREE.Color("#86847d");
+  const cCliffHi=new THREE.Color("#b5b4ac");
   const tmp=new THREE.Color(), vpr=aS+1;
 
   for(let ri=0;ri<=rR;ri++){
@@ -127,7 +140,11 @@ function createTerrain(scene) {
       const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
 
       if(rockT>0) tmp.lerp(cRock,THREE.MathUtils.clamp(rockT,0,1));
-      if(cliffT>0) tmp.lerp(cCliff,cliffT*.84);
+      if(cliffT>0){
+        const vein=Math.abs(Math.sin(x*.16)+Math.cos(z*.18))*.5;
+        tmp.lerp(cCliff,cliffT*.88);
+        tmp.lerp(cCliffHi,cliffT*vein*.26);
+      }
 
       const ss=.8;
       const nx=-(terrainH(x+ss,z)-terrainH(x-ss,z)),ny=2,nz=-(terrainH(x,z+ss)-terrainH(x,z-ss));
@@ -175,11 +192,11 @@ function createWater(scene) {
       varying vec2 vW; uniform float uTime;
       void main(){
         float d=length(vW);
-        vec3 deep=vec3(.25,.55,.65), shallow=vec3(.45,.76,.80);
+        vec3 deep=vec3(.18,.48,.62), shallow=vec3(.56,.86,.94);
         float t=smoothstep(0.0,22.0,d);
         vec3 c=mix(deep,shallow,t);
-        c+=sin(vW.x*.6+vW.y*.4+uTime*1.2)*.02+cos(vW.x*.3-vW.y*.5+uTime*.7)*.015;
-        float alpha=mix(0.18,0.24,t);
+        c+=sin(vW.x*.6+vW.y*.4+uTime*1.2)*.016+cos(vW.x*.3-vW.y*.5+uTime*.7)*.012;
+        float alpha=mix(0.10,0.16,t);
         gl_FragColor=vec4(c,alpha);
       }`,
   });
@@ -327,16 +344,7 @@ function placeM(scene,tmpl,x,z,s,r) {
 /* ── Trees — few, only around village, NONE near pool/spawn ── */
 function placeTrees(scene,M,nodes) {
   const T=M.trees; if(!T.length) return;
-  const spots = [
-    // Behind village — forest backdrop
-    [-14,-42,2.2,1.8], [0,-44,2.4,3.6], [12,-43,2.1,.9],
-    [-26,-40,1.9,2.4], [22,-41,2.3,4.2],
-    // Far sides, away from pool
-    [32,-14,1.9,1], [-30,-12,2,5.2],
-    // Scattered around the garden
-    [34,18,1.7,2.1], [-32,16,2.2,4.5], [26,30,1.6,0.7], [-24,28,2.4,3.3],
-  ];
-  spots.forEach(([x,z,s,r],i) => {
+  TREE_SPOTS.forEach(([x,z,s,r],i) => {
     if(inKO(x,z,3)) return;
     const m=placeM(scene,T[i%T.length],x,z,s,r);
     setRes(m,"woodcutting","Tree"); nodes.push(m); addBlob(scene,x,z,s,.15);
@@ -354,34 +362,25 @@ function placeRocks(scene,M,nodes) {
     setRes(m,"mining","Rock"); nodes.push(m);
   };
 
-  // Main mining rocks at mountain base.
-  const major=[[44,12,1.6,.3],[42,-16,1.7,3.2],[-44,10,1.5,4.1],[-42,-14,1.6,1.4],[10,44,1.5,5],[-12,43,1.4,2.6]];
-  major.forEach(([x,z,s,r],i)=>spawnRock(x,z,s,r,i));
-
-  // Additional smaller boulders scattered around the playable ring.
-  const small=[[30,18,1.0,.7],[-30,17,1.05,2.1],[33,-6,.95,1.9],[-33,-8,1.0,3.8],[15,34,1.05,4.4],[-16,33,1.0,5.2],[20,-20,.98,2.7],[-20,-18,1.02,.9]];
-  small.forEach(([x,z,s,r],i)=>spawnRock(x,z,s,r,i+major.length));
+  // Keep only 2 larger mineable rocks, then use mostly smaller boulders.
+  ROCK_MAJOR_SPOTS.forEach(([x,z,s,r],i)=>spawnRock(x,z,s,r,i));
+  ROCK_SMALL_SPOTS.forEach(([x,z,s,r],i)=>spawnRock(x,z,s,r,i+ROCK_MAJOR_SPOTS.length));
 }
 
 /* ── Mountain cliff accents — just a few large rocks on peaks ── */
 function placeCliffs(scene,M) {
   const C=M.cliffRocks; if(!C.length) return;
-  for(let i=0;i<8;i++){
-    const a=(i/8)*Math.PI*2+Math.sin(i*3.7)*.2;
-    const r=60+Math.sin(i*5.3)*5;
-    const x=Math.cos(a)*r, z=Math.sin(a)*r;
-    const s=5+(Math.sin(i*2.9)*.5+.5)*4;
+  CLIFF_ACCENTS.forEach(([x,z,s,r],i)=>{
     const m=C[i%C.length].clone();
-    m.scale.setScalar(s); m.rotation.y=a+Math.PI+Math.sin(i*4.1)*.4;
+    m.scale.setScalar(s); m.rotation.y=r;
     m.position.set(x,terrainH(x,z)-2,z); scene.add(m);
-  }
+  });
 }
 
 /* ── Bushes — just a few near village ── */
 function placeBushes(scene,M) {
   const B=M.bushes; if(!B.length) return;
-  [[-12,-29,1.1,.4],[12,-29,1.12,2.8],[28,-10,1.1,1.9],[-28,-8,1.08,5],[20,-38,1,3.8]]
-    .forEach(([x,z,s,r],i)=>{if(!inKO(x,z,1.5)) placeM(scene,B[i%B.length],x,z,s,r);});
+  BUSH_SPOTS.forEach(([x,z,s,r],i)=>{if(!inKO(x,z,1.5)) placeM(scene,B[i%B.length],x,z,s,r);});
 }
 
 /* ── Buildings ── */
