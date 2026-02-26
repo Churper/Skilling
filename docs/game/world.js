@@ -101,7 +101,7 @@ function addSky(scene) {
 function createTerrain(scene) {
   const inner=0, outer=MAP_R, aS=128, rR=55;
   const pos=[],col=[],idx=[];
-  const cGrass=new THREE.Color("#3ebe30");
+  const cGrass=new THREE.Color("#4cc436");
   const cRock=new THREE.Color("#9a9a96"), cCliff=new THREE.Color("#8a8884");
   const tmp=new THREE.Color(), vpr=aS+1;
 
@@ -479,11 +479,10 @@ function addDummy(scene,x,z,nodes) {
 
 function addTrainYard(scene,x,z) {
   const y=getWorldSurfaceHeight(x,z), g=new THREE.Group(); g.position.set(x,y,z);
-  const fMat=toonMat("#8f6642"), fGeo=new THREE.CylinderGeometry(.07,.08,.72,6);
-  for(let i=0;i<10;i++){const a=(i/10)*Math.PI*2; const p=new THREE.Mesh(fGeo,fMat); p.position.set(Math.cos(a)*5.4,.42,Math.sin(a)*5.4); p.renderOrder=R_DECOR; g.add(p);}
+  // Sign only, no fence posts
+  g.add(m3(new THREE.BoxGeometry(1.55,.52,.08),toonMat("#3d6079"),0,1.15,-4.38,R_DECOR+1));
   const sp=new THREE.Mesh(new THREE.CylinderGeometry(.08,.1,1.3,6),toonMat("#8a6240"));
   sp.position.set(0,.74,-4.7); sp.renderOrder=R_DECOR; g.add(sp);
-  g.add(m3(new THREE.BoxGeometry(1.55,.52,.08),toonMat("#3d6079"),0,1.15,-4.38,R_DECOR+1));
   scene.add(g); addBlob(scene,x,z,3.5,.13);
 }
 
