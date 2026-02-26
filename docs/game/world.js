@@ -1713,67 +1713,48 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   const caveX = SERVICE_LAYOUT.cave.x;
   const caveZ = SERVICE_LAYOUT.cave.z;
 
-  const plaza = new THREE.Mesh(new THREE.CylinderGeometry(9.6, 10.0, 0.08, 44), toonMat("#d5c9a9"));
-  plaza.position.set(cx, cy + 0.02, cz);
-  plaza.renderOrder = RENDER_SHORE;
-  scene.add(plaza);
+  const plazaCore = new THREE.Mesh(new THREE.BoxGeometry(18.8, 0.08, 8.4), toonMat("#d5c9a9"));
+  plazaCore.position.set(cx + 0.4, cy + 0.035, cz - 0.55);
+  plazaCore.renderOrder = RENDER_SHORE;
+  scene.add(plazaCore);
 
-  const innerRing = new THREE.Mesh(new THREE.TorusGeometry(6.2, 0.1, 8, 56), toonMat("#efe5cc"));
-  innerRing.rotation.x = Math.PI * 0.5;
-  innerRing.position.set(cx, cy + 0.08, cz);
-  innerRing.renderOrder = RENDER_SHORE + 1;
-  scene.add(innerRing);
+  const plazaTrim = new THREE.Mesh(new THREE.BoxGeometry(16.4, 0.06, 6.2), toonMat("#efe5cc"));
+  plazaTrim.position.set(cx + 0.4, cy + 0.072, cz - 0.55);
+  plazaTrim.renderOrder = RENDER_SHORE + 1;
+  scene.add(plazaTrim);
 
-  const centerPad = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.35, 0.06, 24), toonMat("#f4ecd9"));
-  centerPad.position.set(cx, cy + 0.06, cz);
-  centerPad.renderOrder = RENDER_SHORE + 1;
-  scene.add(centerPad);
+  const townSpineZ = cz + 2.35;
+  const bankPos = { x: cx - 7.6, z: cz - 2.3 };
+  const storePos = { x: cx + 0.5, z: cz - 2.7 };
+  const smithPos = { x: cx + 8.4, z: cz - 2.1 };
 
-  const bankPos = { x: cx - 7.2, z: cz + 1.4 };
-  const storePos = { x: cx + 7.2, z: cz + 1.4 };
-  const smithPos = { x: cx + 0.2, z: cz - 7.4 };
-  for (const pad of [bankPos, storePos, smithPos]) {
-    const py = getWorldSurfaceHeight(pad.x, pad.z);
-    const padOuter = new THREE.Mesh(new THREE.CylinderGeometry(2.25, 2.35, 0.07, 28), toonMat("#cdb58b"));
-    padOuter.position.set(pad.x, py + 0.03, pad.z);
-    padOuter.renderOrder = RENDER_SHORE + 1;
-    scene.add(padOuter);
-    const padInner = new THREE.Mesh(new THREE.CylinderGeometry(1.68, 1.72, 0.05, 22), toonMat("#e8d9b8"));
-    padInner.position.set(pad.x, py + 0.06, pad.z);
-    padInner.renderOrder = RENDER_SHORE + 2;
-    scene.add(padInner);
-    addDirtPath(scene, [[cx, cz], [pad.x, pad.z]], {
-      width: 1.14,
-      color: "#b89a6f",
-      edgeColor: "#dcc9a0",
-      smooth: 0.05,
+  addDirtPath(scene, [[cx - 11.8, townSpineZ], [cx + 11.8, townSpineZ]], {
+    width: 2.45,
+    color: "#b79063",
+    edgeColor: "#d8c39a",
+    smooth: 0.02,
+  });
+  for (const pos of [bankPos, storePos, smithPos]) {
+    addDirtPath(scene, [[pos.x, townSpineZ], [pos.x, pos.z + 1.55]], {
+      width: 1.28,
+      color: "#b58d61",
+      edgeColor: "#d6c19a",
+      smooth: 0.04,
     });
   }
 
-  addDirtPath(scene, [[cx, cz], [cx + 9.0, cz - 1.9], [houseX - 5.6, houseZ - 1.7], [houseX, houseZ]], {
+  addDirtPath(scene, [[cx + 10.7, townSpineZ], [cx + 13.0, cz + 0.2], [cx + 9.2, cz - 2.8], [houseX - 5.6, houseZ - 1.7], [houseX, houseZ]], {
     width: 1.85,
     smooth: 0.2,
   });
-  addDirtPath(scene, [[cx, cz], [cx - 9.3, cz - 1.8], [trainingX + 4.0, trainingZ - 1.2], [trainingX, trainingZ]], {
+  addDirtPath(scene, [[cx - 9.8, townSpineZ], [cx - 12.3, cz + 0.6], [cx - 11.0, cz - 1.9], [trainingX + 4.0, trainingZ - 1.2], [trainingX, trainingZ]], {
     width: 1.62,
     smooth: 0.2,
   });
-  addDirtPath(scene, [[cx + 0.8, cz - 0.2], [8.0, -44.0], [20.8, -40.8], [33.6, -31.9], [41.8, -22.8], [caveX, caveZ]], {
+  addDirtPath(scene, [[cx + 2.4, townSpineZ], [8.0, -44.0], [20.8, -40.8], [33.6, -31.9], [41.8, -22.8], [caveX, caveZ]], {
     width: 1.52,
     smooth: 0.18,
   });
-
-  const markerMat = toonMat("#36607c");
-  for (let i = 0; i < 3; i++) {
-    const a = i * ((Math.PI * 2) / 3) - Math.PI * 0.5;
-    const mx = cx + Math.cos(a) * 4.2;
-    const mz = cz + Math.sin(a) * 4.2;
-    const y = getWorldSurfaceHeight(mx, mz);
-    const marker = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.1, 18), markerMat);
-    marker.position.set(mx, y + 0.07, mz);
-    marker.renderOrder = RENDER_SHORE + 1;
-    scene.add(marker);
-  }
 
   addBank(scene, blobTex, bankPos.x, bankPos.z, resourceNodes);
   addStore(scene, blobTex, storePos.x, storePos.z, resourceNodes);

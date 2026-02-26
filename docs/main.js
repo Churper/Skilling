@@ -1059,6 +1059,12 @@ const input = createInputController({
   onHoverChange,
 });
 
+if (scene.fog) {
+  scene.fog.color.set("#95b57a");
+  scene.fog.near = 620;
+  scene.fog.far = 1650;
+}
+
 const worldUp = new THREE.Vector3(0, 1, 0);
 const camForward = new THREE.Vector3();
 const camRight = new THREE.Vector3();
@@ -1067,15 +1073,6 @@ const gatherDir = new THREE.Vector3();
 const cameraFocus = new THREE.Vector3();
 const cameraDelta = new THREE.Vector3();
 const cameraInitBack = new THREE.Vector3();
-const fogAboveWater = new THREE.Color("#95b57a");
-const fogUnderwater = new THREE.Color("#4b88a4");
-const fogAboveNear = 620;
-const fogAboveFar = 1650;
-const fogUnderNear = 10;
-const fogUnderFar = 110;
-const underwaterEnterOffset = 0.09;
-const underwaterExitOffset = -0.03;
-let underwaterFogActive = false;
 
 const clock = new THREE.Clock();
 
@@ -1270,22 +1267,6 @@ function animate() {
     markerRing.rotation.z += dt * 1.8;
     marker.position.y = markerBaseY + Math.sin(t * 4.0) * 0.03;
     markerBeam.material.opacity = 0.32 + Math.sin(t * 6.0) * 0.1;
-  }
-
-  const waterY = getWaterSurfaceHeight(player.position.x, player.position.z, waterUniforms.uTime.value);
-  const playerHeadY = player.position.y + playerHeadOffset;
-  let nextUnderwater = false;
-  if (Number.isFinite(waterY)) {
-    const submersion = waterY - playerHeadY;
-    nextUnderwater = underwaterFogActive
-      ? submersion > underwaterExitOffset
-      : submersion > underwaterEnterOffset;
-  }
-  if (scene.fog && nextUnderwater !== underwaterFogActive) {
-    underwaterFogActive = nextUnderwater;
-    scene.fog.color.copy(nextUnderwater ? fogUnderwater : fogAboveWater);
-    scene.fog.near = nextUnderwater ? fogUnderNear : fogAboveNear;
-    scene.fog.far = nextUnderwater ? fogUnderFar : fogAboveFar;
   }
 
   cameraFocus.set(player.position.x, player.position.y + 0.4, player.position.z);
