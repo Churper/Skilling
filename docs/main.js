@@ -33,6 +33,12 @@ const { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor } = 
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
 const combatEffects = createCombatEffects(scene);
 let combatStyle = "melee";
+const COMBAT_TOOL_BY_STYLE = Object.freeze({
+  melee: "sword",
+  bow: "bow",
+  mage: "staff",
+});
+const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 
 let equippedTool = "fishing";
 const bagSystem = createBagSystem({ capacity: BAG_CAPACITY, itemKeys: BAG_ITEM_KEYS });
@@ -62,6 +68,10 @@ let netClient = null;
 const ui = initializeUI({
   onToolSelect: (tool) => {
     equipTool(tool, true);
+    if (!isCombatTool(tool)) {
+      activeAttack = null;
+      if (pendingService?.userData?.serviceType === "dummy") pendingService = null;
+    }
   },
   onEmote: (emoji) => triggerEmote(emoji),
   onBlacksmithUpgrade: (tool) => {
@@ -75,12 +85,17 @@ const ui = initializeUI({
   },
   onCombatStyle: (style) => {
     combatStyle = style;
-    // Auto-equip weapon for combat style
-    if (style === "bow") equipTool("bow", false);
-    else if (style === "mage") equipTool("staff", false);
-    else if (style === "melee") equipTool("sword", false);
+    equipTool(getCombatToolForStyle(style), false);
   },
 });
+
+function getCombatToolForStyle(style) {
+  return COMBAT_TOOL_BY_STYLE[style] || "sword";
+}
+
+function isCombatTool(tool) {
+  return COMBAT_TOOLS.has(tool);
+}
 
 function equipTool(tool, announce = false) {
   equippedTool = tool;
@@ -856,6 +871,8 @@ function performAttackHit(node) {
 }
 
 function startActiveAttack(node) {
+  const requiredTool = getCombatToolForStyle(combatStyle);
+  if (equippedTool !== requiredTool) equipTool(requiredTool, false);
   activeAttack = { node, elapsed: 0, interval: getAttackInterval() };
   activeGather = null;
   pendingResource = null;
@@ -896,6 +913,7 @@ function onInteractNode(node, hitPoint) {
     spawnClickEffect(pendingServicePos.x, pendingServicePos.z, "neutral");
     pendingResource = null;
     activeGather = null;
+    activeAttack = null;
     pendingService = node;
     const distance = pendingServicePos.distanceTo(player.position);
     if (distance > 2.7) {
@@ -936,6 +954,7 @@ function onInteractNode(node, hitPoint) {
   pendingService = null;
   pendingResource = node;
   activeGather = null;
+  activeAttack = null;
   resourceWorldPosition(node, resourceTargetPos);
   const distance = resourceTargetPos.distanceTo(player.position);
   if (distance > 2.7) {
@@ -1139,6 +1158,12 @@ function animate() {
         activeGather.elapsed = 0;
         tryGather(activeGather.node);
       }
+    }
+  }
+
+  if (activeAttack) {
+    if (equippedTool !== getCombatToolForStyle(combatStyle)) {
+      activeAttack = null;
     }
   }
 

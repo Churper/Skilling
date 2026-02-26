@@ -18,6 +18,8 @@ const ITEM_LABEL = {
   ore: "Ore",
   logs: "Logs",
 };
+const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
+const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
   const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack } = options;
@@ -129,6 +131,8 @@ export function initializeUI(options = {}) {
       button.classList.toggle("is-active", button.dataset.tool === tool);
     }
     if (equippedToolEl) equippedToolEl.textContent = `Equipped: ${TOOL_LABEL[tool] || "Unknown"}`;
+    if (SKILLING_TOOLS.has(tool)) setCombatPanelMode("skilling");
+    else if (COMBAT_TOOLS.has(tool)) setCombatPanelMode("combat");
   }
 
   function renderInventoryGrid(slots, capacity) {
