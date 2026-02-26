@@ -27,7 +27,7 @@ function m3(geo,mat,x,y,z,ro) { const m=new THREE.Mesh(geo,mat); m.position.set(
 /* ── Layout ── */
 const WATER_Y = 0.55;
 const MT_START=46, MT_END=100, MAP_R=115;
-const R_GND=0, R_SHORE=1, R_WATER=2, R_DECOR=3;
+const R_GND=0, R_WATER=2, R_DECOR=3;
 const SVC = Object.freeze({ plaza:{x:0,z:-32,r:14}, build:{x:18,z:-35,r:10}, train:{x:-22,z:-34,r:8} });
 const KEEP_OUT = [SVC.plaza, SVC.build, SVC.train];
 function inKO(x,z,pad=0) { for(const k of KEEP_OUT) if(Math.hypot(x-k.x,z-k.z)<=k.r+pad) return true; return false; }

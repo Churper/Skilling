@@ -271,6 +271,9 @@ syncSkillsUI();
 const moveTarget = new THREE.Vector3();
 const resourceTargetPos = new THREE.Vector3();
 const markerTarget = new THREE.Vector3();
+const interactPos = new THREE.Vector3();
+const combatPos = new THREE.Vector3();
+const hoverPos = new THREE.Vector3();
 const PLAYABLE_RADIUS = 48;
 let hasMoveTarget = false;
 let markerBaseY = 0;
@@ -281,6 +284,8 @@ const pendingServicePos = new THREE.Vector3();
 let activeGather = null;
 let activeAttack = null;
 let nextAttackAllowedAt = 0;
+const CLICK_TONE_BY_RESOURCE = Object.freeze({ woodcutting: "tree", mining: "rock", fishing: "fish" });
+const HOVER_COLOR_BY_RESOURCE = Object.freeze({ woodcutting: "#7dff7d", mining: "#ffcc66", fishing: "#66ccff" });
 
 function getAttackRange() {
   if (combatStyle === "bow") return 14.0;
@@ -883,13 +888,13 @@ function runServiceAction(node) {
 }
 
 function performAttackHit(node) {
-  const dummyPos = new THREE.Vector3();
+  const dummyPos = combatPos;
   node.getWorldPosition(dummyPos);
   const dx = dummyPos.x - player.position.x;
   const dz = dummyPos.z - player.position.z;
   const yaw = Math.atan2(dx, dz);
   player.rotation.y = yaw;
-  combatEffects.attack(combatStyle, player.position.clone(), yaw, 0.5, dummyPos.clone());
+  combatEffects.attack(combatStyle, player.position, yaw, 0.5, dummyPos);
   const minDmg = 1, maxDmg = 15;
   const damage = Math.floor(Math.random() * (maxDmg - minDmg + 1)) + minDmg;
   spawnFloatingDrop(dummyPos.x, dummyPos.z, `Hit ${damage}`, "combat");
@@ -933,7 +938,7 @@ function onInteractNode(node, hitPoint) {
   // Training dummy: walk to it and auto-attack continuously
   if (node.userData?.serviceType === "dummy") {
     if (activeAttack && activeAttack.node === node) return;
-    const dummyPos = new THREE.Vector3();
+    const dummyPos = interactPos;
     node.getWorldPosition(dummyPos);
     spawnClickEffect(dummyPos.x, dummyPos.z, "neutral");
     const distance = dummyPos.distanceTo(player.position);
@@ -988,8 +993,7 @@ function onInteractNode(node, hitPoint) {
     return;
   }
 
-  const toneLookup = { woodcutting: "tree", mining: "rock", fishing: "fish" };
-  const clickTone = toneLookup[resourceType] || "neutral";
+  const clickTone = CLICK_TONE_BY_RESOURCE[resourceType] || "neutral";
   if (hitPoint) spawnClickEffect(hitPoint.x, hitPoint.z, clickTone);
   else {
     const clickPos = resourceWorldPosition(node, resourceTargetPos);
@@ -1037,8 +1041,8 @@ function onHoverChange(node) {
     hoverIndicator.visible = false;
     return;
   }
-  const pos = new THREE.Vector3();
-  node.getWorldPosition(pos);
+  node.getWorldPosition(hoverPos);
+  const pos = hoverPos;
   const gy = getPlayerGroundY(pos.x, pos.z);
   const waterY = getWaterSurfaceHeight(pos.x, pos.z, waterUniforms.uTime.value);
   const baseY = Number.isFinite(waterY) ? waterY + 0.04 : gy + 0.06;
@@ -1051,13 +1055,8 @@ function onHoverChange(node) {
   hoverIndicator.scale.setScalar(scale);
 
   // Color by type
-  const colorMap = {
-    woodcutting: "#7dff7d",
-    mining: "#ffcc66",
-    fishing: "#66ccff",
-  };
   const serviceColor = "#ffffff";
-  const col = node.userData?.resourceType ? (colorMap[node.userData.resourceType] || "#ffffff") : serviceColor;
+  const col = node.userData?.resourceType ? (HOVER_COLOR_BY_RESOURCE[node.userData.resourceType] || "#ffffff") : serviceColor;
   hoverRingMat.color.set(col);
   hoverIndicator.visible = true;
 }
@@ -1212,7 +1211,7 @@ function animate() {
   }
 
   if (activeAttack) {
-    const atkDummyPos = new THREE.Vector3();
+    const atkDummyPos = combatPos;
     activeAttack.node.getWorldPosition(atkDummyPos);
     const atkDir = gatherDir.subVectors(atkDummyPos, player.position);
     atkDir.y = 0;
@@ -1260,8 +1259,8 @@ function animate() {
 
   // Animate hover indicator
   if (hoverIndicator.visible && hoveredNode) {
-    const pos = new THREE.Vector3();
-    hoveredNode.getWorldPosition(pos);
+    hoveredNode.getWorldPosition(hoverPos);
+    const pos = hoverPos;
     const gy = getPlayerGroundY(pos.x, pos.z);
     const waterY2 = getWaterSurfaceHeight(pos.x, pos.z, waterUniforms.uTime.value);
     const baseY2 = Number.isFinite(waterY2) ? waterY2 + 0.04 : gy + 0.06;

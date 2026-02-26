@@ -5,6 +5,7 @@ export function createInputController({ domElement, camera, ground, player, setM
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   const walkPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -player.position.y);
+  const groundFallbackPoint = new THREE.Vector3();
   let downInfo = null;
   let hoveredRoot = null;
 
@@ -22,8 +23,8 @@ export function createInputController({ domElement, camera, ground, player, setM
     const hit = raycaster.intersectObject(ground, false)[0];
     if (hit) return hit.point;
 
-    const out = new THREE.Vector3();
-    if (raycaster.ray.intersectPlane(walkPlane, out)) return out;
+    walkPlane.constant = -player.position.y;
+    if (raycaster.ray.intersectPlane(walkPlane, groundFallbackPoint)) return groundFallbackPoint;
     return null;
   }
 
