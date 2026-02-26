@@ -35,7 +35,6 @@ function stabilizeModelLook(root) {
     const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
     const tuned = mats.map((mat) => {
       if (!mat) return mat;
-      // Keep color stable regardless camera angle by removing shiny/spec highlights.
       if ("metalness" in mat) mat.metalness = 0;
       if ("roughness" in mat) mat.roughness = 1;
       if ("shininess" in mat) mat.shininess = 0;
@@ -61,17 +60,17 @@ const RENDER_GROUND = 0;
 const RENDER_SHORE = 1;
 const RENDER_WATER = 2;
 const RENDER_DECOR = 3;
+
 const SERVICE_LAYOUT = Object.freeze({
-  plaza: { x: -6.0, z: -38.0, radius: 14.2 },
-  construction: { x: 20.5, z: -38.5, radius: 12.0 },
-  training: { x: -27.0, z: -38.5, radius: 10.2 },
-  cave: { x: 46.5, z: -11.5 },
+  plaza: { x: 0, z: -34, radius: 14 },
+  construction: { x: 18, z: -37, radius: 10 },
+  training: { x: -24, z: -36, radius: 10 },
 });
+
 const DECOR_KEEP_OUT_ZONES = Object.freeze([
   { x: SERVICE_LAYOUT.plaza.x, z: SERVICE_LAYOUT.plaza.z, radius: SERVICE_LAYOUT.plaza.radius },
   { x: SERVICE_LAYOUT.construction.x, z: SERVICE_LAYOUT.construction.z, radius: SERVICE_LAYOUT.construction.radius },
   { x: SERVICE_LAYOUT.training.x, z: SERVICE_LAYOUT.training.z, radius: SERVICE_LAYOUT.training.radius },
-  { x: SERVICE_LAYOUT.cave.x, z: SERVICE_LAYOUT.cave.z, radius: 8.8 },
 ]);
 
 function isInDecorKeepOutZone(x, z, padding = 0) {
@@ -105,6 +104,15 @@ const SERVICE_HOTSPOT_MAT = new THREE.MeshBasicMaterial({
   transparent: true, opacity: 0, depthWrite: false, depthTest: false,
 });
 
+// ── Shared geometries ──
+const SHARED_GEO = {
+  hotspot: new THREE.CylinderGeometry(0.9, 0.9, 1.6, 12),
+  fencePost: new THREE.CylinderGeometry(0.07, 0.08, 0.72, 6),
+  signPost: new THREE.CylinderGeometry(0.07, 0.08, 1.2, 6),
+  fishRing: new THREE.TorusGeometry(0.5, 0.045, 8, 24),
+  fishBobber: new THREE.SphereGeometry(0.13, 8, 7),
+};
+
 // ── Terrain noise ──
 function sampleTerrainNoise(x, z) {
   const n0 = Math.sin(x * 0.045) * 0.56;
@@ -118,19 +126,14 @@ function sampleTerrainNoise(x, z) {
 function sampleTerrainHeight(x, z) {
   const r = Math.hypot(x, z);
   const noise = sampleTerrainNoise(x, z);
-
-  // Lake basin depression
   const bowlFalloff = 1.0 - THREE.MathUtils.smoothstep(r, 0, 31);
   const lakeBasin = Math.pow(bowlFalloff, 1.65) * 1.15;
-
-  // Playable terrain
   const roughnessBoost = THREE.MathUtils.smoothstep(r, 17.5, 50);
   const amplitude = THREE.MathUtils.lerp(0.31, 0.55, roughnessBoost);
   const hillNoise = Math.sin(x * 0.065 + z * 0.048) * Math.cos(x * 0.031 - z * 0.057);
   const hillBoost = THREE.MathUtils.smoothstep(r, 26.0, 50.0) * hillNoise * 0.8;
   const flatTerrain = noise * amplitude - lakeBasin + hillBoost;
 
-  // Mountains at map edges
   if (r > MOUNTAIN_START) {
     const mt = THREE.MathUtils.smoothstep(r, MOUNTAIN_START, MOUNTAIN_END);
     const mountainH = mt * mt * 70;
@@ -184,10 +187,7 @@ function setServiceNode(node, serviceType, label) {
   node.userData.resourceLabel = label;
 }
 function addServiceHotspot(parent, x, y, z, radius = 0.9, height = 1.6) {
-  const hotspot = new THREE.Mesh(
-    new THREE.CylinderGeometry(radius, radius, height, 12),
-    SERVICE_HOTSPOT_MAT
-  );
+  const hotspot = new THREE.Mesh(SHARED_GEO.hotspot, SERVICE_HOTSPOT_MAT);
   hotspot.position.set(x, y, z);
   hotspot.renderOrder = RENDER_DECOR + 10;
   parent.add(hotspot);
@@ -265,7 +265,7 @@ function addSky(scene) {
 
 // ── Unified radial terrain mesh ──
 function createRadialTerrain(scene) {
-  const innerR = WATER_RADIUS - 2;
+  const innerR = WATER_RADIUS - 3;
   const outerR = MAP_RADIUS;
   const angSegs = 128;
   const radRings = 55;
@@ -276,6 +276,7 @@ function createRadialTerrain(scene) {
   const colGrassLight = new THREE.Color("#6bcf4f");
   const colGrassMid = new THREE.Color("#4cad3a");
   const colGrassDark = new THREE.Color("#2c8228");
+  const colGrassEdge = new THREE.Color("#7ba55c");
   const colRock = new THREE.Color("#7a8771");
   const colCliff = new THREE.Color("#6d655b");
   const colTmp = new THREE.Color();
@@ -285,7 +286,7 @@ function createRadialTerrain(scene) {
 
   for (let ri = 0; ri <= radRings; ri++) {
     const t = ri / radRings;
-    const biased = Math.pow(t, 0.55);
+    const biased = Math.pow(t, 0.45);
     const radius = innerR + (outerR - innerR) * biased;
     for (let ai = 0; ai <= angSegs; ai++) {
       const angle = (ai / angSegs) * Math.PI * 2;
@@ -300,14 +301,12 @@ function createRadialTerrain(scene) {
         sampleTerrainNoise(x * 0.7, z * 0.7) * 0.85;
       const coastRadius = getWaterRadiusAt(x, z) + coastNoise * 0.55;
 
-      // Blend under water at inner edge
       if (r < coastRadius + 2.9) {
         const blend = THREE.MathUtils.smoothstep(r, coastRadius - 2.3, coastRadius + 2.9);
         y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.06, y, blend);
       }
       positions.push(x, y, z);
 
-      // Lighting for vertex color
       const hx = sampleTerrainHeight(x + sampleStep, z) - sampleTerrainHeight(x - sampleStep, z);
       const hz = sampleTerrainHeight(x, z + sampleStep) - sampleTerrainHeight(x, z - sampleStep);
       const nx = -hx, ny = 2.0, nz = -hz;
@@ -318,8 +317,11 @@ function createRadialTerrain(scene) {
       const noise = sampleTerrainNoise(x, z);
       const tonal = THREE.MathUtils.clamp(litStylized * 0.7 + noise * 0.15 + 0.15, 0, 1);
 
-      // Color zones with jittered shoreline + slope-based mountain tint to avoid hard circles.
-      const sandFade = THREE.MathUtils.smoothstep(r, coastRadius - 0.25, coastRadius + 3.1);
+      // Sharp sand→grass transition (1.2 unit band instead of 3.35)
+      const sandFade = THREE.MathUtils.smoothstep(r, coastRadius + 0.4, coastRadius + 1.6);
+      // Darker edge strip at transition boundary
+      const edgePulse = THREE.MathUtils.smoothstep(r, coastRadius + 0.8, coastRadius + 1.2)
+                      * (1 - THREE.MathUtils.smoothstep(r, coastRadius + 1.2, coastRadius + 1.6));
       const grassDeepen = THREE.MathUtils.smoothstep(r, coastRadius + 3.0, coastRadius + 11.6);
       const forestBlend = THREE.MathUtils.smoothstep(r, 41.5, 56.5);
       const edgeRock = THREE.MathUtils.smoothstep(r, 44.0, 52.2);
@@ -329,6 +331,7 @@ function createRadialTerrain(scene) {
 
       colTmp.copy(colSand);
       colTmp.lerp(colGrassLight, sandFade);
+      if (edgePulse > 0) colTmp.lerp(colGrassEdge, edgePulse * 0.6);
       if (grassDeepen > 0) colTmp.lerp(colGrassMid, grassDeepen * 0.68);
       if (forestBlend > 0) colTmp.lerp(colGrassDark, forestBlend * 0.76);
       if (rockBlend > 0) colTmp.lerp(colRock, THREE.MathUtils.clamp(rockBlend, 0, 1));
@@ -344,7 +347,6 @@ function createRadialTerrain(scene) {
     for (let ai = 0; ai < angSegs; ai++) {
       const a = ri * vpr + ai, b = a + 1;
       const c = (ri + 1) * vpr + ai, d = c + 1;
-      // Keep winding upward so terrain renders from playable camera angles.
       indices.push(a, b, c, b, d, c);
     }
   }
@@ -361,7 +363,7 @@ function createRadialTerrain(scene) {
   return terrain;
 }
 
-// ── Lake bowl mesh (simplified) ──
+// ── Lake bowl mesh ──
 function createLakeBowlMesh() {
   const segments = 120;
   const rings = 30;
@@ -708,9 +710,7 @@ function addShoreFoamRing(scene, waterUniforms) {
     transparent: true,
     depthWrite: false,
     side: THREE.DoubleSide,
-    uniforms: {
-      uTime: waterUniforms.uTime,
-    },
+    uniforms: { uTime: waterUniforms.uTime },
     vertexShader: `
       varying vec2 vUv;
       varying vec2 vXZ;
@@ -742,7 +742,6 @@ function addShoreFoamRing(scene, waterUniforms) {
     `,
   });
   const foam = new THREE.Mesh(foamGeo, foamMat);
-  // Geometry is already authored in XZ (flat) space, so no extra rotation.
   foam.rotation.x = 0;
   foam.position.y = WATER_SURFACE_Y;
   foam.renderOrder = RENDER_WATER + 2;
@@ -852,9 +851,7 @@ async function loadModels() {
     return null;
   })));
 
-  for (const model of results) {
-    stabilizeModelLook(model);
-  }
+  for (const model of results) stabilizeModelLook(model);
 
   const models = {};
   keys.forEach((k, i) => { models[k] = results[i]; });
@@ -877,70 +874,81 @@ async function loadModels() {
   };
 }
 
-// ── Model placement: Trees ──
+// ── Model placement: Trees (cluster-based) ──
 function placeTrees(scene, blobTex, models, resourceNodes) {
   const templates = models.trees;
   if (!templates.length) return;
 
-  const placements = [
-    { x: 28.4, z: 8.2, scale: 1.74, rot: 0.25 }, { x: 22.2, z: 18.6, scale: 1.58, rot: 1.1 },
-    { x: 9.8, z: 28.8, scale: 1.68, rot: 2.0 }, { x: -8.4, z: 29.2, scale: 1.6, rot: 2.8 },
-    { x: -21.3, z: 19.7, scale: 1.72, rot: 3.4 }, { x: -28.1, z: 7.9, scale: 1.54, rot: 4.2 },
-    { x: -28.7, z: -7.2, scale: 1.68, rot: 4.8 }, { x: -21.5, z: -20.1, scale: 1.8, rot: 5.3 },
-    { x: -8.1, z: -29.1, scale: 1.56, rot: 0.4 }, { x: 9.2, z: -29.0, scale: 1.66, rot: 1.5 },
-    { x: 22.7, z: -19.4, scale: 1.82, rot: 2.1 }, { x: 29.0, z: -6.5, scale: 1.62, rot: 3.1 },
-    { x: 36.0, z: 15.2, scale: 1.94, rot: 1.8 }, { x: -34.7, z: 15.9, scale: 1.9, rot: 4.9 },
-    { x: 17.1, z: 35.8, scale: 1.86, rot: 0.9 }, { x: -17.5, z: 35.5, scale: 1.88, rot: 3.6 },
-    { x: 35.7, z: -16.2, scale: 1.92, rot: 2.7 }, { x: -35.3, z: -16.8, scale: 1.84, rot: 5.6 },
-    { x: 43.8, z: 4.1, scale: 1.64, rot: 0.2 }, { x: 40.5, z: 20.4, scale: 1.6, rot: 0.95 },
-    { x: 25.9, z: 39.7, scale: 1.62, rot: 1.7 }, { x: -0.8, z: 45.5, scale: 1.66, rot: 2.4 },
-    { x: -26.6, z: 39.2, scale: 1.62, rot: 3.0 }, { x: -40.8, z: 20.2, scale: 1.7, rot: 3.8 },
-    { x: -43.4, z: -4.2, scale: 1.66, rot: 4.5 }, { x: -39.6, z: -21.9, scale: 1.62, rot: 5.2 },
-    { x: -24.2, z: -40.0, scale: 1.68, rot: 5.8 }, { x: 0.9, z: -45.3, scale: 1.62, rot: 0.3 },
-    { x: 24.5, z: -40.1, scale: 1.68, rot: 1.0 }, { x: 40.2, z: -21.6, scale: 1.64, rot: 1.6 },
+  // Clusters of 2-4 trees each, intentionally placed
+  const TREE_CLUSTERS = [
+    // Shore clusters — south-facing, framing the village view
+    { center: [26, -14], trees: [{dx:0,dz:0,s:1.8,r:0.25}, {dx:2.5,dz:1.2,s:1.5,r:1.1}, {dx:-1,dz:2,s:1.6,r:2.4}] },
+    { center: [-26, -14], trees: [{dx:0,dz:0,s:1.7,r:3.4}, {dx:2,dz:-1.5,s:1.5,r:4.2}] },
+    { center: [28, 8], trees: [{dx:0,dz:0,s:1.74,r:0.25}, {dx:-2.2,dz:1.8,s:1.58,r:1.1}, {dx:1.5,dz:2.5,s:1.5,r:2.0}] },
+    { center: [-28, 8], trees: [{dx:0,dz:0,s:1.72,r:4.8}, {dx:2.1,dz:1.4,s:1.54,r:5.3}] },
+    { center: [10, 28], trees: [{dx:0,dz:0,s:1.68,r:2.0}, {dx:-2,dz:-1,s:1.6,r:2.8}, {dx:1.8,dz:-1.8,s:1.5,r:0.4}] },
+    { center: [-10, 28], trees: [{dx:0,dz:0,s:1.6,r:2.8}, {dx:2.4,dz:0.5,s:1.56,r:3.6}, {dx:-1.5,dz:-1.2,s:1.52,r:0.9}] },
+
+    // Village feature trees
+    { center: [-10, -33], trees: [{dx:0,dz:0,s:2.0,r:1.8}] },  // shade tree near bank
+    { center: [-20, -34], trees: [{dx:0,dz:0,s:1.9,r:0.9}] },  // between training and main path
+    { center: [14, -35], trees: [{dx:0,dz:0,s:1.8,r:2.7}, {dx:2.5,dz:-1,s:1.6,r:3.1}] },  // flanking construction
+
+    // Forest backdrop (south of village, z ≈ -42 to -46)
+    { center: [-14, -43], trees: [{dx:0,dz:0,s:1.86,r:0.9}, {dx:2.2,dz:0.8,s:1.7,r:1.7}, {dx:-1.5,dz:1.5,s:1.78,r:2.4}, {dx:3.8,dz:-0.5,s:1.62,r:3.0}] },
+    { center: [10, -44], trees: [{dx:0,dz:0,s:1.88,r:3.6}, {dx:-2.0,dz:0.5,s:1.72,r:4.4}, {dx:2.5,dz:1.2,s:1.8,r:5.2}, {dx:0.5,dz:-1.8,s:1.66,r:0.3}] },
   ];
 
-  for (let i = 0; i < placements.length; i++) {
-    const p = placements[i];
-    const x = p.x;
-    const z = p.z;
-    if (isInDecorKeepOutZone(x, z, 2.2)) continue;
-    const template = templates[i % templates.length];
-    const instance = template.clone();
-    const scale = p.scale;
-    instance.scale.setScalar(scale);
-    instance.rotation.y = p.rot;
-    const baseY = getWorldSurfaceHeight(x, z);
-    instance.position.set(x, baseY, z);
-    setResourceNode(instance, "woodcutting", "Tree");
-    scene.add(instance);
-    resourceNodes.push(instance);
-    addShadowBlob(scene, blobTex, x, z, 2.0 * scale * 0.5, 0.15);
+  let treeIdx = 0;
+  for (const cluster of TREE_CLUSTERS) {
+    const [cx, cz] = cluster.center;
+    for (const t of cluster.trees) {
+      const x = cx + t.dx;
+      const z = cz + t.dz;
+      if (isInDecorKeepOutZone(x, z, 2.2)) continue;
+      const template = templates[treeIdx % templates.length];
+      const instance = template.clone();
+      instance.scale.setScalar(t.s);
+      instance.rotation.y = t.r;
+      instance.position.set(x, getWorldSurfaceHeight(x, z), z);
+      setResourceNode(instance, "woodcutting", "Tree");
+      scene.add(instance);
+      resourceNodes.push(instance);
+      addShadowBlob(scene, blobTex, x, z, t.s * 1.0, 0.15);
+      treeIdx++;
+    }
   }
 }
 
-// ── Model placement: Rocks (interactable) ──
+// ── Model placement: Rocks (interactable, grouped) ──
 function placeRocks(scene, blobTex, models, resourceNodes) {
   const templates = models.rocks;
   if (!templates.length) return;
 
-  const rockPositions = [
-    [12, 26, 1.8, 0.3], [-13, 25, 1.6, 1.4], [25, 12, 1.5, 2.1], [-26, -5, 2.0, 3.2],
-    [18, -22, 1.7, 4.1], [-7, -28, 1.9, 5.0],
+  // 3 clusters of 2 rocks each for mining
+  const ROCK_GROUPS = [
+    { center: [30, 8], rocks: [{dx:0,dz:0,s:1.8,r:0.3}, {dx:1.5,dz:0.8,s:1.4,r:2.1}] },
+    { center: [-28, -5], rocks: [{dx:0,dz:0,s:2.0,r:3.2}, {dx:-1.2,dz:1.5,s:1.6,r:5.0}] },
+    { center: [18, -22], rocks: [{dx:0,dz:0,s:1.7,r:4.1}, {dx:1.8,dz:-1.0,s:1.5,r:1.4}] },
   ];
 
-  for (let i = 0; i < rockPositions.length; i++) {
-    const [x, z, scale, rot] = rockPositions[i];
-    const template = templates[i % templates.length];
-    const instance = template.clone();
-    instance.scale.setScalar(scale);
-    instance.rotation.y = rot;
-    const baseY = getWorldSurfaceHeight(x, z);
-    instance.position.set(x, baseY, z);
-    setResourceNode(instance, "mining", "Rock");
-    scene.add(instance);
-    resourceNodes.push(instance);
-    addShadowBlob(scene, blobTex, x, z, 1.4 * scale * 0.5, 0.17);
+  let rockIdx = 0;
+  for (const group of ROCK_GROUPS) {
+    const [cx, cz] = group.center;
+    for (const rk of group.rocks) {
+      const x = cx + rk.dx;
+      const z = cz + rk.dz;
+      const template = templates[rockIdx % templates.length];
+      const instance = template.clone();
+      instance.scale.setScalar(rk.s);
+      instance.rotation.y = rk.r;
+      instance.position.set(x, getWorldSurfaceHeight(x, z), z);
+      setResourceNode(instance, "mining", "Rock");
+      scene.add(instance);
+      resourceNodes.push(instance);
+      addShadowBlob(scene, blobTex, x, z, rk.s * 0.7, 0.17);
+      rockIdx++;
+    }
   }
 }
 
@@ -949,36 +957,41 @@ function placeWaterRocks(scene, models) {
   const templates = models.rocks;
   if (!templates.length) return;
 
-  const waterRockPositions = [
+  const positions = [
     [-7.2, 4.3, 1.4, 0.4], [5.6, 7.1, 1.2, 1.2], [8.8, -4.5, 1.5, 2.0],
     [-6.5, -6.2, 1.1, 3.4], [0.6, 9.2, 1.0, 4.8],
   ];
 
-  for (let i = 0; i < waterRockPositions.length; i++) {
-    const [x, z, scale, rot] = waterRockPositions[i];
+  for (let i = 0; i < positions.length; i++) {
+    const [x, z, scale, rot] = positions[i];
     const template = templates[i % templates.length];
     const instance = template.clone();
     instance.scale.setScalar(scale);
     instance.rotation.y = rot;
-    const baseY = getWorldSurfaceHeight(x, z);
-    instance.position.set(x, baseY, z);
+    instance.position.set(x, getWorldSurfaceHeight(x, z), z);
     instance.renderOrder = RENDER_DECOR;
     scene.add(instance);
   }
 }
 
-// ── Model placement: Bushes ──
+// ── Model placement: Bushes (purposeful along paths & buildings) ──
 function placeBushes(scene, models) {
   const templates = models.bushes;
   if (!templates.length) return;
 
   const positions = [
-    [26.8, 7.9, 1.22, 0.2], [19.1, 19.6, 1.18, 1.2], [8.7, 26.9, 1.14, 2.1], [-7.5, 27.5, 1.1, 2.8],
-    [-18.5, 20.2, 1.16, 3.4], [-26.8, 7.3, 1.2, 4.2], [-26.4, -7.6, 1.15, 4.9], [-18.7, -19.9, 1.18, 5.6],
-    [-7.7, -27.2, 1.12, 0.5], [8.4, -27.0, 1.14, 1.1], [19.2, -19.3, 1.2, 1.9], [26.9, -7.4, 1.22, 2.7],
-    [34.4, 8.2, 1.0, 0.4], [30.8, 24.9, 0.96, 1.3], [15.9, 34.3, 1.02, 2.4], [-1.6, 37.0, 0.94, 3.0],
-    [-18.4, 33.5, 1.0, 3.7], [-32.5, 22.9, 0.98, 4.4], [-35.3, 6.4, 1.04, 5.2], [-31.2, -10.7, 1.0, 5.8],
-    [-17.8, -33.6, 0.96, 0.2], [0.7, -36.4, 1.0, 1.0], [18.1, -33.4, 1.02, 1.8], [32.6, -22.8, 1.0, 2.6],
+    // Along shore promenade path (z ≈ -30)
+    [-15, -30, 1.1, 0.4], [-8, -30.5, 1.05, 1.2], [5, -30.2, 1.08, 2.1], [12, -30.8, 1.12, 2.8],
+    // Around bank/store/blacksmith
+    [-9.5, -33, 1.0, 3.4], [-4.5, -33.5, 0.96, 4.2], [3.5, -33.2, 1.02, 4.9], [9.5, -33, 0.98, 5.6],
+    // Beach-grass edge (south side of lake)
+    [20, -26, 1.15, 0.5], [-18, -26.5, 1.1, 1.1], [0, -27, 1.08, 1.9], [10, -26.8, 1.06, 2.7],
+    // Lake perimeter (east/west/north)
+    [26.8, 7.9, 1.22, 0.2], [-26.8, 7.3, 1.2, 4.2], [8.7, 26.9, 1.14, 2.1], [-7.5, 27.5, 1.1, 2.8],
+    // Around training ground
+    [-28, -33, 0.96, 3.7], [-20, -38, 1.0, 5.2],
+    // Around construction yard
+    [22, -35, 1.04, 0.4], [15, -39, 1.0, 5.8],
   ];
 
   for (let i = 0; i < positions.length; i++) {
@@ -988,25 +1001,31 @@ function placeBushes(scene, models) {
     const instance = template.clone();
     instance.scale.setScalar(scale);
     instance.rotation.y = rot;
-    const baseY = getWorldSurfaceHeight(x, z);
-    instance.position.set(x, baseY, z);
+    instance.position.set(x, getWorldSurfaceHeight(x, z), z);
     instance.renderOrder = RENDER_DECOR;
     scene.add(instance);
   }
 }
 
-// ── Model placement: Grass patches ──
+// ── Model placement: Grass patches (meadow areas) ──
 function placeGrass(scene, models) {
   const templates = models.grass;
   if (!templates.length) return;
 
   const placements = [
-    [14, 22], [20, 19], [25, 15], [28, 9], [29, 2], [28, -6], [24, -13], [19, -20], [12, -24], [3, -26],
-    [-6, -26], [-14, -23], [-21, -18], [-26, -11], [-29, -3], [-29, 6], [-25, 14], [-19, 20], [-11, 24], [-2, 26],
-    [34, 11], [37, 3], [36, -7], [31, -16], [23, -24], [14, -30], [4, -33], [-7, -33], [-17, -30], [-26, -24],
-    [-33, -15], [-37, -6], [-37, 4], [-33, 14], [-27, 23], [-18, 30], [-7, 34], [5, 34], [16, 30], [26, 24],
-    [40, 14], [42, 4], [41, -8], [36, -18], [29, -27], [18, -36], [5, -40], [-8, -40], [-20, -36], [-30, -28],
-    [-38, -18], [-42, -7], [-42, 6], [-38, 17], [-31, 27], [-20, 36], [-6, 42], [9, 42], [22, 35], [32, 27],
+    // Meadow between village and forest backdrop
+    [-8, -40], [4, -41], [-4, -39], [8, -40], [-12, -41], [12, -42],
+    // East meadow
+    [32, -28], [35, -22], [33, -16], [36, -10], [34, -4], [37, 3],
+    // West meadow
+    [-32, -28], [-35, -22], [-33, -16], [-36, -10], [-34, -4], [-37, 3],
+    // Around lake perimeter
+    [34, 11], [37, 3], [36, -7], [31, -16], [23, -24], [14, -30],
+    [-33, 14], [-37, 4], [-33, -15], [-30, -24], [-17, -30],
+    // Outer rings
+    [40, 14], [42, 4], [41, -8], [36, -18], [29, -27],
+    [-38, 17], [-42, 6], [-38, -18], [-31, -27],
+    [18, 34], [-20, 33], [5, 38], [-8, 37], [28, 28], [-27, 27],
   ];
 
   for (let i = 0; i < placements.length; i++) {
@@ -1017,20 +1036,17 @@ function placeGrass(scene, models) {
     const scale = 0.86 + (i % 5) * 0.12;
     instance.scale.setScalar(scale);
     instance.rotation.y = (i % 16) * (Math.PI / 8);
-    const baseY = getWorldSurfaceHeight(x, z);
-    instance.position.set(x, baseY, z);
+    instance.position.set(x, getWorldSurfaceHeight(x, z), z);
     instance.renderOrder = RENDER_DECOR;
     scene.add(instance);
   }
 }
 
-// ── Model placement: Mountain decor (rocks + leafy trees for tropical feel) ──
+// ── Model placement: Mountain decor ──
 function placeMountainDecor(scene, models) {
   const rockTemplates = models.bigRocks.length ? models.bigRocks : models.rocks;
   const treeTemplates = models.trees;
-  const caveX = SERVICE_LAYOUT.cave.x;
-  const caveZ = SERVICE_LAYOUT.cave.z;
-  const caveClearance = 8.8;
+
   const mountainRocks = [
     [52, 10, 2.8, 0.4], [57, 23, 2.5, 1.2], [49, -16, 3.0, 2.0], [61, -8, 2.7, 2.9],
     [46, 31, 2.4, 3.8], [69, 6, 3.1, 4.6], [66, -18, 2.9, 5.2], [54, -30, 2.6, 0.9],
@@ -1041,7 +1057,6 @@ function placeMountainDecor(scene, models) {
   if (rockTemplates.length) {
     for (let i = 0; i < mountainRocks.length; i++) {
       const [x, z, scale, rot] = mountainRocks[i];
-      if (Math.hypot(x - caveX, z - caveZ) < caveClearance) continue;
       const template = rockTemplates[i % rockTemplates.length];
       const instance = template.clone();
       instance.scale.setScalar(scale);
@@ -1060,7 +1075,6 @@ function placeMountainDecor(scene, models) {
   if (treeTemplates.length) {
     for (let i = 0; i < mountainTrees.length; i++) {
       const [x, z, scale, rot] = mountainTrees[i];
-      if (Math.hypot(x - caveX, z - caveZ) < caveClearance) continue;
       const template = treeTemplates[i % treeTemplates.length];
       const instance = template.clone();
       instance.scale.setScalar(scale);
@@ -1071,22 +1085,16 @@ function placeMountainDecor(scene, models) {
   }
 }
 
-// ── Lounges (procedural, moved outside lake) ──
+// ── Lounges ──
 function addLounge(scene, blobTex, x, z, rot = 0) {
   const baseY = getWorldSurfaceHeight(x, z);
-  const base = new THREE.Mesh(
-    new THREE.BoxGeometry(2.3, 0.24, 1.05),
-    toonMat("#f4d93e")
-  );
+  const base = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.24, 1.05), toonMat("#f4d93e"));
   base.position.set(x, baseY + 0.72, z);
   base.rotation.y = rot;
   base.renderOrder = RENDER_DECOR;
   scene.add(base);
 
-  const back = new THREE.Mesh(
-    new THREE.BoxGeometry(2.0, 0.2, 0.7),
-    toonMat("#f8df67")
-  );
+  const back = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.2, 0.7), toonMat("#f8df67"));
   back.position.set(x - Math.sin(rot) * 0.42, baseY + 0.98, z - Math.cos(rot) * 0.42);
   back.rotation.y = rot;
   back.rotation.x = -0.28;
@@ -1096,7 +1104,7 @@ function addLounge(scene, blobTex, x, z, rot = 0) {
   addShadowBlob(scene, blobTex, x, z, 1.7, 0.12);
 }
 
-// ── Services (all unchanged) ──
+// ── Path network ──
 function buildPathRibbonGeometry(curve, width, samples, yOffset = 0.02, uvScale = 1.0) {
   const positions = [];
   const uvs = [];
@@ -1170,38 +1178,27 @@ function addDirtPath(scene, points, options = {}) {
   }
 }
 
+// ── Oasis inlet & waterfall ──
 function addOasisInlet(scene, waterUniforms) {
   const streamPoints = [
-    [58.5, -19.8],
-    [52.1, -17.1],
-    [45.0, -13.9],
-    [37.9, -10.9],
-    [31.4, -8.8],
-    [27.1, -7.3],
+    [58.5, -19.8], [52.1, -17.1], [45.0, -13.9],
+    [37.9, -10.9], [31.4, -8.8], [27.1, -7.3],
   ];
 
   addDirtPath(scene, streamPoints, {
-    width: 2.7,
-    color: "#bea47a",
-    edgeColor: "#d9c8a3",
-    height: 0.015,
-    smooth: 0.16,
+    width: 2.7, color: "#bea47a", edgeColor: "#d9c8a3", height: 0.015, smooth: 0.16,
   });
 
   const curve = new THREE.CatmullRomCurve3(
     streamPoints.map(([x, z]) => new THREE.Vector3(x, 0, z)),
-    false,
-    "catmullrom",
-    0.16
+    false, "catmullrom", 0.16
   );
   const flowGeo = buildPathRibbonGeometry(curve, 1.42, 110, 0.034, 5.5);
   const flowMat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
     side: THREE.DoubleSide,
-    uniforms: {
-      uTime: waterUniforms.uTime,
-    },
+    uniforms: { uTime: waterUniforms.uTime },
     vertexShader: `
       varying vec2 vUv;
       void main() {
@@ -1238,9 +1235,7 @@ function addOasisInlet(scene, waterUniforms) {
     transparent: true,
     depthWrite: false,
     side: THREE.DoubleSide,
-    uniforms: {
-      uTime: waterUniforms.uTime,
-    },
+    uniforms: { uTime: waterUniforms.uTime },
     vertexShader: `
       varying vec2 vUv;
       void main() {
@@ -1281,82 +1276,7 @@ function addOasisInlet(scene, waterUniforms) {
   scene.add(splash);
 }
 
-function addMountainCave(scene, blobTex, x, z) {
-  const baseY = getWorldSurfaceHeight(x, z);
-  const cave = new THREE.Group();
-  cave.position.set(x, baseY, z);
-
-  const apron = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 5.2, 0.08, 24), toonMat("#a88f65"));
-  apron.position.y = 0.03;
-  apron.renderOrder = RENDER_SHORE;
-  cave.add(apron);
-
-  const backMass = new THREE.Mesh(new THREE.DodecahedronGeometry(4.8, 0), toonMat("#6f706b"));
-  backMass.position.set(0, 2.7, -1.0);
-  backMass.scale.set(1.5, 1.1, 1.26);
-  backMass.renderOrder = RENDER_DECOR;
-  cave.add(backMass);
-
-  const leftMass = new THREE.Mesh(new THREE.DodecahedronGeometry(2.8, 0), toonMat("#7b7b74"));
-  leftMass.position.set(-3.0, 1.5, 0.7);
-  leftMass.scale.set(1.0, 1.1, 0.9);
-  leftMass.renderOrder = RENDER_DECOR;
-  cave.add(leftMass);
-
-  const rightMass = leftMass.clone();
-  rightMass.position.x = 3.0;
-  cave.add(rightMass);
-
-  const arch = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.95, 2.15, 0.95, 16, 1, false, 0, Math.PI),
-    toonMat("#8a806f")
-  );
-  arch.rotation.z = Math.PI * 0.5;
-  arch.position.set(0, 1.35, 2.05);
-  arch.renderOrder = RENDER_DECOR + 1;
-  cave.add(arch);
-
-  const tunnel = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.35, 1.55, 2.6, 16, 1, true),
-    toonMat("#1a1f24", { side: THREE.DoubleSide })
-  );
-  tunnel.rotation.x = Math.PI * 0.5;
-  tunnel.position.set(0, 0.98, 1.2);
-  tunnel.renderOrder = RENDER_DECOR + 1;
-  cave.add(tunnel);
-
-  const caveFloor = new THREE.Mesh(new THREE.CircleGeometry(1.44, 18), toonMat("#3b3227"));
-  caveFloor.rotation.x = -Math.PI * 0.5;
-  caveFloor.position.set(0, 0.06, 2.0);
-  caveFloor.renderOrder = RENDER_SHORE + 1;
-  cave.add(caveFloor);
-
-  const caveDoorFrame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.05, 0.16), toonMat("#6f6557"));
-  caveDoorFrame.position.set(0, 1.08, 2.22);
-  caveDoorFrame.renderOrder = RENDER_DECOR + 2;
-  cave.add(caveDoorFrame);
-
-  const caveDoor = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.72, 0.1), toonMat("#6d4f35"));
-  caveDoor.position.set(0, 0.95, 2.32);
-  caveDoor.renderOrder = RENDER_DECOR + 3;
-  cave.add(caveDoor);
-
-  for (const side of [-1, 1]) {
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.15, 6), toonMat("#805837"));
-    post.position.set(side * 2.15, 0.62, 2.15);
-    post.renderOrder = RENDER_DECOR + 2;
-    cave.add(post);
-
-    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), toonMat("#ffcc7a"));
-    lamp.position.set(side * 2.15, 1.18, 2.18);
-    lamp.renderOrder = RENDER_DECOR + 3;
-    cave.add(lamp);
-  }
-
-  scene.add(cave);
-  addShadowBlob(scene, blobTex, x, z, 3.8, 0.16);
-}
-
+// ── Buildings ──
 function addBank(scene, blobTex, x, z, interactables = null) {
   const baseY = getWorldSurfaceHeight(x, z);
   const bank = new THREE.Group();
@@ -1656,17 +1576,18 @@ function addTrainingGround(scene, blobTex, x, z) {
   const yard = new THREE.Group();
   yard.position.set(x, baseY, z);
 
+  const fencePostMat = toonMat("#8f6642");
   for (let i = 0; i < 10; i++) {
     const a = (i / 10) * Math.PI * 2;
     const px = Math.cos(a) * 5.4;
     const pz = Math.sin(a) * 5.4;
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.72, 6), toonMat("#8f6642"));
+    const post = new THREE.Mesh(SHARED_GEO.fencePost, fencePostMat);
     post.position.set(px, 0.42, pz);
     post.renderOrder = RENDER_DECOR;
     yard.add(post);
   }
 
-  const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 1.2, 6), toonMat("#8a6240"));
+  const signPost = new THREE.Mesh(SHARED_GEO.signPost, toonMat("#8a6240"));
   signPost.position.set(0, 0.74, -4.7);
   signPost.renderOrder = RENDER_DECOR;
   yard.add(signPost);
@@ -1691,49 +1612,45 @@ function addTrainingGround(scene, blobTex, x, z) {
   addShadowBlob(scene, blobTex, x, z, 3.5, 0.13);
 }
 
+// ── Service Plaza (Lakeside Village layout) ──
 function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = []) {
-  const cx = SERVICE_LAYOUT.plaza.x;
-  const cz = SERVICE_LAYOUT.plaza.z;
   const trainingX = SERVICE_LAYOUT.training.x;
   const trainingZ = SERVICE_LAYOUT.training.z;
   const houseX = SERVICE_LAYOUT.construction.x;
   const houseZ = SERVICE_LAYOUT.construction.z;
-  const caveX = SERVICE_LAYOUT.cave.x;
-  const caveZ = SERVICE_LAYOUT.cave.z;
 
-  const townSpineZ = cz - 1.0;
-  const bankPos = { x: cx - 8.0, z: cz - 3.2 };
-  const storePos = { x: cx + 0.2, z: cz - 3.4 };
-  const smithPos = { x: cx + 8.5, z: cz - 3.0 };
+  const bankPos = { x: -7, z: -34 };
+  const storePos = { x: 0, z: -34.5 };
+  const smithPos = { x: 7, z: -34 };
 
-  addDirtPath(scene, [[cx - 12.4, townSpineZ], [cx + 12.2, townSpineZ]], {
-    width: 3.05,
-    color: "#b79063",
-    edgeColor: "#d8c39a",
-    smooth: 0.02,
+  // Shore promenade (east-west at z=-31)
+  addDirtPath(scene, [[-32, -31], [32, -31]], {
+    width: 3.05, color: "#b79063", edgeColor: "#d8c39a", smooth: 0.02,
   });
+
+  // Main south path from promenade
+  addDirtPath(scene, [[0, -31], [0, -42]], {
+    width: 1.85, color: "#b58d61", edgeColor: "#d6c19a", smooth: 0.04,
+  });
+
+  // Branch paths to buildings
   for (const pos of [bankPos, storePos, smithPos]) {
-    addDirtPath(scene, [[pos.x, townSpineZ], [pos.x, pos.z + 1.55]], {
-      width: 1.2,
-      color: "#b58d61",
-      edgeColor: "#d6c19a",
-      smooth: 0.04,
+    addDirtPath(scene, [[pos.x, -31], [pos.x, pos.z + 1.55]], {
+      width: 1.2, color: "#b58d61", edgeColor: "#d6c19a", smooth: 0.04,
     });
   }
 
-  addDirtPath(scene, [[cx + 10.7, townSpineZ], [cx + 13.0, cz + 0.2], [cx + 9.2, cz - 2.8], [houseX - 5.6, houseZ - 1.7], [houseX, houseZ]], {
-    width: 1.85,
-    smooth: 0.2,
-  });
-  addDirtPath(scene, [[cx - 9.8, townSpineZ], [cx - 12.3, cz + 0.6], [cx - 11.0, cz - 1.9], [trainingX + 4.0, trainingZ - 1.2], [trainingX, trainingZ]], {
-    width: 1.62,
-    smooth: 0.2,
-  });
-  addDirtPath(scene, [[cx + 2.4, townSpineZ], [8.0, -44.0], [20.8, -40.8], [33.6, -31.9], [41.8, -22.8], [caveX, caveZ]], {
-    width: 1.52,
-    smooth: 0.18,
+  // Path to construction yard (east)
+  addDirtPath(scene, [[8, -31], [12, -33], [houseX, houseZ]], {
+    width: 1.62, smooth: 0.2,
   });
 
+  // Path to training ground (west)
+  addDirtPath(scene, [[-8, -31], [-14, -33], [trainingX, trainingZ]], {
+    width: 1.62, smooth: 0.2,
+  });
+
+  // Place buildings
   addBank(scene, blobTex, bankPos.x, bankPos.z, resourceNodes);
   addStore(scene, blobTex, storePos.x, storePos.z, resourceNodes);
   addBlacksmith(scene, blobTex, smithPos.x, smithPos.z, resourceNodes);
@@ -1742,8 +1659,6 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   addTrainingDummy(scene, blobTex, trainingX + 3.1, trainingZ, resourceNodes);
   addTrainingDummy(scene, blobTex, trainingX, trainingZ, resourceNodes);
   addTrainingDummy(scene, blobTex, trainingX - 3.1, trainingZ, resourceNodes);
-
-  addMountainCave(scene, blobTex, caveX, caveZ);
 
   const constructionSite = addConstructionYard(scene, blobTex, houseX, houseZ, resourceNodes);
   const houseCenterX = houseX + 0.15;
@@ -1762,8 +1677,6 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
 // ── Fishing spots ──
 function addFishingSpots(scene, resourceNodes) {
   const spots = [];
-  const ringGeo = new THREE.TorusGeometry(0.5, 0.045, 8, 24);
-  const bobberGeo = new THREE.SphereGeometry(0.13, 8, 7);
   const coordinates = [
     [-6.5, 10.4], [8.4, 9.2], [10.6, -5.3], [-9.2, -7.4], [2.3, 13.1],
   ];
@@ -1776,11 +1689,11 @@ function addFishingSpots(scene, resourceNodes) {
     spot.position.set(x, WATER_SURFACE_Y + 0.02, z);
     spot.renderOrder = RENDER_WATER + 2;
 
-    const ring = new THREE.Mesh(ringGeo, FISH_SPOT_RING_MAT.clone());
+    const ring = new THREE.Mesh(SHARED_GEO.fishRing, FISH_SPOT_RING_MAT.clone());
     ring.rotation.x = Math.PI / 2;
     spot.add(ring);
 
-    const bobber = new THREE.Mesh(bobberGeo, FISH_SPOT_BOBBER_MAT);
+    const bobber = new THREE.Mesh(SHARED_GEO.fishBobber, FISH_SPOT_BOBBER_MAT);
     bobber.position.y = 0.12;
     spot.add(bobber);
 
@@ -1821,18 +1734,14 @@ function addLilyPads(scene) {
   for (let i = 0; i < padPositions.length; i++) {
     const pad = padPositions[i];
     const geo = new THREE.CircleGeometry(pad.r, 16, 0.2, Math.PI * 2 - 0.4);
-    const lilyMat = toonMat("#4a9e6b");
-    const lily = new THREE.Mesh(geo, lilyMat);
+    const lily = new THREE.Mesh(geo, toonMat("#4a9e6b"));
     lily.rotation.x = -Math.PI / 2;
     lily.rotation.z = (i * 0.73) % (Math.PI * 2);
     lily.position.set(pad.x, WATER_SURFACE_Y + 0.01, pad.z);
     lily.renderOrder = RENDER_WATER + 1;
     scene.add(lily);
     if (pad.flower) {
-      const flower = new THREE.Mesh(
-        new THREE.SphereGeometry(0.08, 8, 6),
-        toonMat(pad.flowerColor)
-      );
+      const flower = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), toonMat(pad.flowerColor));
       const offX = Math.sin(i * 1.31) * 0.07;
       const offZ = Math.cos(i * 1.53) * 0.07;
       flower.position.set(pad.x + offX, WATER_SURFACE_Y + 0.07, pad.z + offZ);
@@ -1846,34 +1755,34 @@ function addLilyPads(scene) {
 function addWildflowers(scene) {
   const flowerColors = ["#f5a0c0", "#f7e663", "#c4a0f5", "#ff9e7a", "#a0d8f0", "#ffb6d9"];
   const flowerSpots = [
-    [27.1, 15.2], [29.2, 16.4], [25.4, 13.7], [24.6, 17.2], [30.0, 14.1],
-    [-25.4, 12.9], [-23.7, 15.0], [-27.8, 10.8], [-26.1, 16.8], [-22.5, 11.6],
-    [19.3, -24.4], [21.4, -22.8], [17.8, -26.0], [16.2, -22.7], [22.1, -25.6],
-    [-21.4, -18.9], [-19.0, -21.0], [-23.6, -17.3], [-22.8, -22.3], [-18.6, -17.8],
-    [31.0, 1.1], [33.2, 2.7], [29.4, -0.2], [30.6, 3.8], [32.9, -1.7],
-    [-31.6, -8.3], [-33.8, -6.4], [-29.5, -9.6], [-30.4, -5.8], [-34.2, -9.9],
-    [15.1, 31.8], [17.4, 33.4], [13.3, 30.6], [16.0, 35.2], [-18.1, 30.4],
-    [-16.3, 32.2], [-19.9, 28.9], [-20.7, 31.7], [10.1, -35.0], [8.3, -33.4],
-    [-8.2, -32.1], [-10.4, -30.5], [28.2, -20.2], [26.3, -18.7], [-30.2, -22.1],
-    [-28.1, -20.4], [35.4, 20.3], [-38.0, 13.8], [33.1, -24.3], [-33.6, 23.0],
+    // Meadow behind village
+    [-6, -40], [2, -41], [-10, -42], [8, -43], [14, -41], [-14, -43],
+    // East side of village
+    [25, -30], [28, -26], [30, -20], [32, -14],
+    // West side of village
+    [-25, -30], [-28, -26], [-30, -20], [-32, -14],
+    // Around lake perimeter — scattered in natural spaces
+    [27, 15], [29, 16], [25, 14], [-25, 13], [-24, 15], [-28, 11],
+    [19, -24], [21, -23], [-21, -19], [-19, -21],
+    [31, 1], [33, 3], [-32, -8], [-34, -6],
+    [15, 32], [17, 33], [-18, 30], [-16, 32],
+    [10, -35], [8, -33], [-8, -32], [-10, -31],
+    [28, -20], [-30, -22], [35, 20], [-38, 14], [33, -24], [-34, 23],
   ];
+
+  const stemGeo = new THREE.CylinderGeometry(0.015, 0.018, 0.35, 4);
+  const blossomGeo = new THREE.SphereGeometry(0.055, 6, 6);
+  const stemMat = toonMat("#5a9e48");
 
   for (let i = 0; i < flowerSpots.length; i++) {
     const [fx, fz] = flowerSpots[i];
     if (isInDecorKeepOutZone(fx, fz, 0.6)) continue;
     const baseY = getWorldSurfaceHeight(fx, fz);
-    const color = flowerColors[i % flowerColors.length];
-    const stem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.015, 0.018, 0.35, 4),
-      toonMat("#5a9e48")
-    );
+    const stem = new THREE.Mesh(stemGeo, stemMat);
     stem.position.set(fx, baseY + 0.18, fz);
     stem.renderOrder = RENDER_DECOR;
     scene.add(stem);
-    const blossom = new THREE.Mesh(
-      new THREE.SphereGeometry(0.055, 6, 6),
-      toonMat(color)
-    );
+    const blossom = new THREE.Mesh(blossomGeo, toonMat(flowerColors[i % flowerColors.length]));
     blossom.position.set(fx, baseY + 0.37, fz);
     blossom.renderOrder = RENDER_DECOR;
     scene.add(blossom);
@@ -1890,7 +1799,6 @@ export async function createWorld(scene) {
   addOasisInlet(scene, waterUniforms);
   const blobTex = radialTexture();
 
-  // Load asset pack models
   let models = null;
   try {
     models = await loadModels();
@@ -1898,7 +1806,6 @@ export async function createWorld(scene) {
     console.warn("Model loading failed, using minimal scene:", err);
   }
 
-  // Place asset models
   if (models) {
     placeTrees(scene, blobTex, models, resourceNodes);
     placeRocks(scene, blobTex, models, resourceNodes);
@@ -1908,8 +1815,8 @@ export async function createWorld(scene) {
     placeMountainDecor(scene, models);
   }
 
-  // Lounges on the beach (moved outward for circular lake)
-  [[19, 22, Math.PI * 0.1], [23, 16, Math.PI * 0.1], [-20, 21, -Math.PI * 0.15], [-23, 16, -Math.PI * 0.15]].forEach(
+  // 4 lounges along south beach at z≈-27, evenly spaced
+  [[-12, -27, 0], [-4, -27, 0], [4, -27, 0], [12, -27, 0]].forEach(
     ([x, z, r]) => addLounge(scene, blobTex, x, z, r)
   );
 

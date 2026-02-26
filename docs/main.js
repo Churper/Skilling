@@ -1136,8 +1136,8 @@ function animate() {
 
   // Clamp player to playable area (before mountains)
   const playerR = Math.hypot(player.position.x, player.position.z);
-  if (playerR > 50) {
-    const scale = 50 / playerR;
+  if (playerR > 48) {
+    const scale = 48 / playerR;
     player.position.x *= scale;
     player.position.z *= scale;
   }
