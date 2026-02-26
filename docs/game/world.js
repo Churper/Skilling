@@ -229,11 +229,11 @@ function createGround(scene) {
 
   for (let i = 0; i < tPos.count; i++) {
     const x = tPos.getX(i);
-    const z = tPos.getY(i);
+    // PlaneGeometry local Y = -worldZ after rotation; negate to get true world Z
+    // so terrain heights match shore ring & world objects (same coordinate space)
+    const z = -tPos.getY(i);
     const r = Math.hypot(x, z);
     let y = sampleTerrainHeight(x, z);
-    // Use FIXED radius for terrain push-down to avoid staircase artifacts
-    // from rectangular grid sampling an angle-varying function
     const fixedWR = WATER_RADIUS;
     if (r < fixedWR + 4.0) {
       y -= (1.0 - THREE.MathUtils.smoothstep(r, fixedWR - 3.0, fixedWR + 4.0)) * 0.8;
