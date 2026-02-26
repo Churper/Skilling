@@ -114,8 +114,8 @@ function createTerrain(scene) {
       if(dist<pr+4) { const t=THREE.MathUtils.smoothstep(dist,pr-2,pr+4); y=THREE.MathUtils.lerp(WATER_Y-.25,y,t); }
       pos.push(x,y,z);
 
-      // Green grass, stone rim at pool edge like SA2 Chao Garden
-      const stoneT=THREE.MathUtils.smoothstep(dist,pr-1,pr+1.5);
+      // Thin stone rim right at pool edge
+      const stoneT=THREE.MathUtils.smoothstep(dist,pr+.3,pr+1.2);
       tmp.lerpColors(new THREE.Color("#8a8a84"),cGrass,stoneT);
       const lushT=THREE.MathUtils.smoothstep(dist,30,42);
       const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.9,THREE.MathUtils.smoothstep(y,4,14)*.7);
@@ -144,64 +144,38 @@ function createTerrain(scene) {
   mesh.renderOrder=R_GND; scene.add(mesh); return mesh;
 }
 
-/* ── Pool floor — stone bowl like SA2 Chao Garden ── */
-function createPoolFloor(scene) {
-  const S=48, R=16, pos=[],col=[],idx=[];
-  const cDeep=new THREE.Color("#3a6a7a"), cShallow=new THREE.Color("#7a8a88");
-  for(let r=0;r<=R;r++){
-    const t=.05+.95*(r/R);
-    for(let s=0;s<S;s++){
-      const a=(s/S)*Math.PI*2, rad=(poolR(a)+6)*t;
-      const x=Math.cos(a)*rad, z=Math.sin(a)*rad;
-      const depth=Math.pow(1-t,1.7);
-      pos.push(x,-(0.12+depth*1.5),z);
-      const c=new THREE.Color().lerpColors(cDeep,cShallow,t);
-      col.push(c.r,c.g,c.b);
-    }
-  }
-  for(let r=0;r<R;r++){const a=r*S,b=(r+1)*S; for(let s=0;s<S;s++){const sn=(s+1)%S; idx.push(a+s,b+s,b+sn,a+s,b+sn,a+sn);}}
-  const geo=new THREE.BufferGeometry();
-  geo.setIndex(idx); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
-  geo.setAttribute("color",new THREE.Float32BufferAttribute(col,3)); geo.computeVertexNormals();
-  const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide}));
-  m.position.y=WATER_Y; m.renderOrder=R_SHORE; scene.add(m);
-}
-
-/* ── Water ── */
+/* ── Water — single opaque disc, no pool floor, no rings ── */
 function createWater(scene) {
   const uni={uTime:{value:0}};
-  createPoolFloor(scene);
-  const S=64, R=20, wP=[],wRad=[],wI=[];
-  for(let r=0;r<=R;r++){
-    const t=.05+.95*(r/R);
-    for(let s=0;s<S;s++){
-      const a=(s/S)*Math.PI*2, rad=(poolR(a)+.8)*t;
-      wP.push(Math.cos(a)*rad,0,Math.sin(a)*rad); wRad.push(t);
-    }
+  const S=48, pos=[], idx=[];
+  // Center vertex
+  pos.push(0,0,0);
+  for(let s=0;s<S;s++){
+    const a=(s/S)*Math.PI*2, r=poolR(a)+.5;
+    pos.push(Math.cos(a)*r,0,Math.sin(a)*r);
   }
-  for(let r=0;r<R;r++){const a=r*S,b=(r+1)*S; for(let s=0;s<S;s++){const sn=(s+1)%S; wI.push(a+s,b+s,b+sn,a+s,b+sn,a+sn);}}
+  for(let s=0;s<S;s++) idx.push(0,s+1,(s+1)%S+1);
   const geo=new THREE.BufferGeometry();
-  geo.setIndex(wI); geo.setAttribute("position",new THREE.Float32BufferAttribute(wP,3));
-  geo.setAttribute("aRad",new THREE.Float32BufferAttribute(wRad,1)); geo.computeVertexNormals();
+  geo.setIndex(idx); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
+  geo.computeVertexNormals();
   const mat=new THREE.ShaderMaterial({
-    transparent:true, depthWrite:false, side:THREE.DoubleSide, uniforms:uni,
+    side:THREE.DoubleSide, uniforms:uni,
     vertexShader:`
-      attribute float aRad; varying float vR; varying vec2 vW; uniform float uTime;
+      varying vec2 vW; uniform float uTime;
       void main(){
-        vR=aRad; vec3 p=position;
+        vec3 p=position;
         p.y+=sin(p.x*.18+uTime*.6)*.015+cos(p.z*.15+uTime*.4)*.012;
         vW=p.xz; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
       }`,
     fragmentShader:`
-      varying float vR; varying vec2 vW; uniform float uTime;
+      varying vec2 vW; uniform float uTime;
       void main(){
-        vec3 tint=vec3(.45,.82,.88);
-        float shimmer=sin(vW.x*.6+vW.y*.4+uTime*1.2)*.02+cos(vW.x*.3-vW.y*.5+uTime*.7)*.015;
-        vec3 c=tint+shimmer;
-        float edgeFade=smoothstep(1.0,.85,vR);
-        float a=edgeFade*.22;
-        if(a<.005) discard;
-        gl_FragColor=vec4(c,a);
+        float d=length(vW);
+        vec3 deep=vec3(.22,.52,.62), shallow=vec3(.42,.74,.78);
+        float t=smoothstep(0.0,22.0,d);
+        vec3 c=mix(deep,shallow,t);
+        c+=sin(vW.x*.6+vW.y*.4+uTime*1.2)*.02+cos(vW.x*.3-vW.y*.5+uTime*.7)*.015;
+        gl_FragColor=vec4(c,1.0);
       }`,
   });
   const water=new THREE.Mesh(geo,mat);
