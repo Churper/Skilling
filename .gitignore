@@ -11,5 +11,5 @@ Thumbs.db
 node_modules/
 server/node_modules/
 
-# Local engine cache (leftover from old Godot setup)
-.godot/
+# Asset packs
+*.zip
