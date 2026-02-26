@@ -545,7 +545,13 @@ function addFishing(scene,nodes) {
     const ring=new THREE.Mesh(RING_GEO,new THREE.MeshBasicMaterial({color:"#dcf8ff",transparent:true,opacity:.72}));
     ring.rotation.x=Math.PI/2; g.add(ring);
     const bob=new THREE.Mesh(BOB_GEO,toonMat("#ffcc58")); bob.position.y=.12; g.add(bob);
-    g.userData.ring=ring; scene.add(g); nodes.push(g); spots.push(g);
+    g.userData.ring=ring;
+    scene.add(g);
+    // Use one solid hidden hit volume so fishing isn't a torus-only click target.
+    const hs=addHS(g,0,.25,0);
+    hs.scale.set(1.25,.55,1.25);
+    nodes.push(hs);
+    spots.push(g);
   });
   return spots;
 }
