@@ -102,14 +102,14 @@ function createTerrain(scene) {
   const inner=0, outer=MAP_R, aS=128, rR=55;
   const pos=[],col=[],idx=[];
   const cGrass=new THREE.Color("#1a6e10");
-  const cRock=new THREE.Color("#9a9a96"), cCliff=new THREE.Color("#8a8884");
+  const cRock=new THREE.Color("#787874"), cCliff=new THREE.Color("#5f5f5b");
   const tmp=new THREE.Color(), vpr=aS+1;
 
   for(let ri=0;ri<=rR;ri++){
     const r=inner+(outer-inner)*Math.pow(ri/rR,.45);
     for(let ai=0;ai<=aS;ai++){
       const a=(ai/aS)*Math.PI*2, x=Math.cos(a)*r, z=Math.sin(a)*r;
-      const dist=Math.hypot(x,z), pr=poolRAt(x,z);
+      const dist=Math.hypot(x,z);
       const y=terrainH(x,z);
       pos.push(x,y,z);
 
@@ -375,32 +375,6 @@ function placeBushes(scene,M) {
     .forEach(([x,z,s,r],i)=>{if(!inKO(x,z,1.5)) placeM(scene,B[i%B.length],x,z,s,r);});
 }
 
-/* ── Paths ── */
-function pathGeo(curve,w,samples,yOff=.02) {
-  const pos=[],uvs=[],idx=[],h=w/2;
-  for(let i=0;i<=samples;i++){
-    const t=i/samples,p=curve.getPointAt(t),tan=curve.getTangentAt(t);
-    const sx=-tan.z,sz=tan.x,len=Math.hypot(sx,sz)||1;
-    const nx=sx/len*h,nz=sz/len*h;
-    const lx=p.x+nx,lz=p.z+nz,rx=p.x-nx,rz=p.z-nz;
-    pos.push(lx,getWorldSurfaceHeight(lx,lz)+yOff,lz,rx,getWorldSurfaceHeight(rx,rz)+yOff,rz);
-    uvs.push(t,0,t,1);
-    if(i<samples){const j=i*2; idx.push(j,j+1,j+2,j+1,j+3,j+2);}
-  }
-  const g=new THREE.BufferGeometry(); g.setIndex(idx);
-  g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
-  g.setAttribute("uv",new THREE.Float32BufferAttribute(uvs,2)); g.computeVertexNormals(); return g;
-}
-function addPath(scene,pts,opts={}) {
-  if(!pts||pts.length<2) return;
-  const w=opts.width??1.5,h=opts.height??.034,sm=opts.smooth??.22;
-  const curve=new THREE.CatmullRomCurve3(pts.map(([x,z])=>new THREE.Vector3(x,0,z)),false,"catmullrom",sm);
-  const n=Math.max(42,Math.floor(curve.getLength()*6));
-  scene.add(new THREE.Mesh(pathGeo(curve,w*1.26,n,h+.006),toonMat(opts.edgeColor||"#d8c39a",{transparent:true,opacity:.66})));
-  const core=new THREE.Mesh(pathGeo(curve,w,n,h+.014),toonMat(opts.color||"#b79669"));
-  core.renderOrder=R_SHORE+1; scene.add(core);
-}
-
 /* ── Buildings ── */
 function addBank(scene,x,z,nodes) {
   const y=getWorldSurfaceHeight(x,z), g=new THREE.Group(); g.position.set(x,y,z);
@@ -509,11 +483,6 @@ function addTrainYard(scene,x,z) {
 function addPlaza(scene,nodes,obstacles) {
   const tX=SVC.train.x,tZ=SVC.train.z,hX=SVC.build.x,hZ=SVC.build.z;
   const bk={x:-7,z:-32}, st={x:0,z:-32.5}, sm={x:7,z:-32};
-  addPath(scene,[[-30,-29],[30,-29]],{width:3,color:"#b79063",smooth:.02});
-  addPath(scene,[[0,-29],[0,-40]],{width:1.85,color:"#b58d61",smooth:.04});
-  for(const p of [bk,st,sm]) addPath(scene,[[p.x,-29],[p.x,p.z+1.5]],{width:1.2,color:"#b58d61",smooth:.04});
-  addPath(scene,[[8,-29],[12,-31],[hX,hZ]],{width:1.6,smooth:.2});
-  addPath(scene,[[-8,-29],[-14,-31],[tX,tZ]],{width:1.6,smooth:.2});
   addBank(scene,bk.x,bk.z,nodes);
   addStore(scene,st.x,st.z,nodes);
   addSmith(scene,sm.x,sm.z,nodes);
