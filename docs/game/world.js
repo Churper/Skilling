@@ -32,7 +32,7 @@ const SVC = Object.freeze({ plaza:{x:0,z:-32,r:14}, build:{x:18,z:-35,r:10}, tra
 const KEEP_OUT = [SVC.plaza, SVC.build, SVC.train];
 function inKO(x,z,pad=0) { for(const k of KEEP_OUT) if(Math.hypot(x-k.x,z-k.z)<=k.r+pad) return true; return false; }
 
-/* ── Pool shape — smooth ellipse, not a circle ── */
+/* ── Pool shape ── */
 function poolR(a) { return 20 + Math.cos(a)*4 + Math.sin(a*2)*.8; }
 function poolRAt(x,z) { return poolR(Math.atan2(z,x)); }
 
@@ -94,11 +94,11 @@ function addSky(scene) {
   return mat;
 }
 
-/* ── Terrain — lush green, clean shore ── */
+/* ── Terrain — clean green, NO sandy shore ring ── */
 function createTerrain(scene) {
   const inner=12, outer=MAP_R, aS=128, rR=55;
   const pos=[],col=[],idx=[];
-  const cSand=new THREE.Color("#d4be7a"), cGrass=new THREE.Color("#4cc436");
+  const cGrass=new THREE.Color("#4cc436");
   const cLush=new THREE.Color("#1e8a18"), cRock=new THREE.Color("#6e7e65"), cCliff=new THREE.Color("#5a5247");
   const tmp=new THREE.Color(), vpr=aS+1;
 
@@ -108,17 +108,15 @@ function createTerrain(scene) {
       const a=(ai/aS)*Math.PI*2, x=Math.cos(a)*r, z=Math.sin(a)*r;
       const dist=Math.hypot(x,z), pr=poolRAt(x,z);
       let y=terrainH(x,z);
-      // Smooth dip under water — terrain goes well below water surface
       if(dist<pr+4) { const t=THREE.MathUtils.smoothstep(dist,pr-2,pr+4); y=THREE.MathUtils.lerp(WATER_Y-.25,y,t); }
       pos.push(x,y,z);
 
-      const shoreEdge=pr+1.5;
-      const sandT=THREE.MathUtils.smoothstep(dist,shoreEdge,shoreEdge+.5);
+      // Grass everywhere — no sand ring
+      tmp.copy(cGrass);
       const lushT=THREE.MathUtils.smoothstep(dist,30,42);
       const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.9,THREE.MathUtils.smoothstep(y,4,14)*.7);
       const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
 
-      tmp.copy(cSand).lerp(cGrass,sandT);
       if(lushT>0) tmp.lerp(cLush,lushT*.8);
       if(rockT>0) tmp.lerp(cRock,THREE.MathUtils.clamp(rockT,0,1));
       if(cliffT>0) tmp.lerp(cCliff,cliffT*.84);
@@ -142,7 +140,7 @@ function createTerrain(scene) {
   mesh.renderOrder=R_GND; scene.add(mesh); return mesh;
 }
 
-/* ── Pool floor — beautiful turquoise gradient visible through clear water ── */
+/* ── Pool floor ── */
 function createPoolFloor(scene) {
   const S=64, R=20, pos=[],col=[],idx=[];
   const cCenter=new THREE.Color("#1a8aaa"), cEdge=new THREE.Color("#6aceb8");
@@ -165,7 +163,7 @@ function createPoolFloor(scene) {
   m.position.y=WATER_Y; m.renderOrder=R_SHORE; scene.add(m);
 }
 
-/* ── Water — crystal clear like Chao Garden, you see the beautiful floor ── */
+/* ── Water ── */
 function createWater(scene) {
   const uni={uTime:{value:0}};
   createPoolFloor(scene);
@@ -226,24 +224,19 @@ function addBlob(scene,x,z,radius=1.8,opacity=.2) {
   m.position.set(x,y+.02,z); m.renderOrder=R_GND+1; scene.add(m); return m;
 }
 
-/* ── Models ── */
+/* ── Models — load only what we need ── */
 async function loadModels() {
   THREE.Cache.enabled=true;
   const loader=new GLTFLoader();
   const load=url=>new Promise((res,rej)=>loader.load(url,g=>res(g.scene),undefined,rej));
   const E={
-    t1a:'models/Tree_1_A_Color1.gltf', t1b:'models/Tree_1_B_Color1.gltf', t1c:'models/Tree_1_C_Color1.gltf',
-    t2a:'models/Tree_2_A_Color1.gltf', t2b:'models/Tree_2_B_Color1.gltf', t2c:'models/Tree_2_C_Color1.gltf',
-    t2d:'models/Tree_2_D_Color1.gltf', t3a:'models/Tree_3_A_Color1.gltf', t3b:'models/Tree_3_B_Color1.gltf',
-    t4a:'models/Tree_4_A_Color1.gltf', t4b:'models/Tree_4_B_Color1.gltf',
-    tb1a:'models/Tree_Bare_1_A_Color1.gltf', tb2a:'models/Tree_Bare_2_A_Color1.gltf',
-    b1a:'models/Bush_1_A_Color1.gltf', b1c:'models/Bush_1_C_Color1.gltf', b1e:'models/Bush_1_E_Color1.gltf',
-    b2a:'models/Bush_2_A_Color1.gltf', b3a:'models/Bush_3_A_Color1.gltf', b4a:'models/Bush_4_A_Color1.gltf',
-    r1a:'models/Rock_1_A_Color1.gltf', r1b:'models/Rock_1_B_Color1.gltf', r2a:'models/Rock_2_A_Color1.gltf',
-    r1j:'models/Rock_1_J_Color1.gltf', r1k:'models/Rock_1_K_Color1.gltf', r3a:'models/Rock_3_A_Color1.gltf',
-    r3c:'models/Rock_3_C_Color1.gltf', r3e:'models/Rock_3_E_Color1.gltf', r3g:'models/Rock_3_G_Color1.gltf',
-    g1a:'models/Grass_1_A_Color1.gltf', g1b:'models/Grass_1_B_Color1.gltf',
-    g1c:'models/Grass_1_C_Color1.gltf', g2a:'models/Grass_2_A_Color1.gltf',
+    t1a:'models/Tree_1_A_Color1.gltf', t2a:'models/Tree_2_A_Color1.gltf',
+    t2c:'models/Tree_2_C_Color1.gltf', t3a:'models/Tree_3_A_Color1.gltf',
+    t4a:'models/Tree_4_A_Color1.gltf',
+    b1a:'models/Bush_1_A_Color1.gltf', b2a:'models/Bush_2_A_Color1.gltf',
+    r1j:'models/Rock_1_J_Color1.gltf', r1k:'models/Rock_1_K_Color1.gltf',
+    r3a:'models/Rock_3_A_Color1.gltf', r3c:'models/Rock_3_C_Color1.gltf',
+    r3e:'models/Rock_3_E_Color1.gltf', r3g:'models/Rock_3_G_Color1.gltf',
     sword:'models/sword_A.gltf', bow:'models/bow_A_withString.gltf', staff:'models/staff_A.gltf', arrow:'models/arrow_A.gltf',
   };
   const keys=Object.keys(E);
@@ -252,12 +245,9 @@ async function loadModels() {
   const M={}; keys.forEach((k,i)=>M[k]=res[i]);
   const f=arr=>arr.filter(Boolean);
   return {
-    trees: f([M.t1a,M.t1b,M.t1c,M.t2a,M.t2b,M.t2c,M.t2d,M.t3a,M.t3b,M.t4a,M.t4b]),
-    bare: f([M.tb1a,M.tb2a]),
-    bushes: f([M.b1a,M.b1c,M.b1e,M.b2a,M.b3a,M.b4a]),
-    rocks: f([M.r1a,M.r1b,M.r2a]),
+    trees: f([M.t1a,M.t2a,M.t2c,M.t3a,M.t4a]),
+    bushes: f([M.b1a,M.b2a]),
     cliffRocks: f([M.r1j,M.r1k,M.r3a,M.r3c,M.r3e,M.r3g]),
-    grass: f([M.g1a,M.g1b,M.g1c,M.g2a]),
     weapons: {sword:M.sword,bow:M.bow,staff:M.staff,arrow:M.arrow},
   };
 }
@@ -267,21 +257,15 @@ function placeM(scene,tmpl,x,z,s,r) {
   m.position.set(x,getWorldSurfaceHeight(x,z),z); scene.add(m); return m;
 }
 
-/* ── Trees — few, well-spaced, intentional ── */
+/* ── Trees — few, only around village, NONE near pool/spawn ── */
 function placeTrees(scene,M,nodes) {
   const T=M.trees; if(!T.length) return;
-  // Each tree placed individually — no collisions
   const spots = [
-    // North — framing the pool
-    [4,28,2.2,.6], [-6,29,2,3.2], [16,24,1.9,1.4], [-18,23,1.85,4.8],
-    // East
-    [30,8,2,1], [28,-6,1.85,2.8],
-    // West
-    [-28,10,1.9,.4], [-30,-4,2,5.2],
-    // Behind village — forest edge
-    [-14,-42,2.3,1.8], [0,-44,2.1,3.6], [12,-43,2.2,.9], [-26,-40,1.9,2.4], [22,-41,2,4.2],
-    // Feature trees near village
-    [-14,-34,2.5,1.2], [14,-37,2.3,2.7],
+    // Behind village — forest backdrop
+    [-14,-42,2.2,1.8], [0,-44,2.4,3.6], [12,-43,2.1,.9],
+    [-26,-40,1.9,2.4], [22,-41,2.3,4.2],
+    // Far sides, away from pool
+    [32,-14,1.9,1], [-30,-12,2,5.2],
   ];
   spots.forEach(([x,z,s,r],i) => {
     if(inKO(x,z,3)) return;
@@ -290,62 +274,49 @@ function placeTrees(scene,M,nodes) {
   });
 }
 
-/* ── Mineable rocks — just a few ── */
+/* ── Mining rocks — at mountain base, same models as cliff wall ── */
 function placeRocks(scene,M,nodes) {
-  const R=M.rocks; if(!R.length) return;
-  [[32,6,2,.3],[-30,8,2.1,3.2],[18,28,1.8,4.1],[-20,26,1.9,1.4],[34,-12,1.7,5],[-32,-10,1.8,2.6]]
+  const C=M.cliffRocks; if(!C.length) return;
+  // Rocks at base of mountains so they look integrated
+  [[44,12,1.6,.3],[42,-16,1.7,3.2],[-44,10,1.5,4.1],[-42,-14,1.6,1.4],[10,44,1.5,5],[-12,43,1.4,2.6]]
     .forEach(([x,z,s,r],i) => {
-      const m=placeM(scene,R[i%R.length],x,z,s,r);
-      setRes(m,"mining","Rock"); nodes.push(m); addBlob(scene,x,z,s*.7,.17);
+      const m=C[i%C.length].clone();
+      m.scale.setScalar(s); m.rotation.y=r;
+      m.position.set(x,terrainH(x,z),z); scene.add(m);
+      setRes(m,"mining","Rock"); nodes.push(m);
     });
 }
 
-/* ── Mountain cliff walls — rocks integrated into slopes ── */
+/* ── Mountain cliff walls — single clean ring ── */
 function placeCliffs(scene,M) {
   const C=M.cliffRocks; if(!C.length) return;
-  // Large rocks embedded in the mountain slopes at consistent radius
-  const ring = (baseR,count,sMin,sMax,yBias) => {
-    for(let i=0;i<count;i++){
-      const a=(i/count)*Math.PI*2+Math.sin(i*3.7)*.15;
-      const r=baseR+Math.sin(i*5.3)*3;
-      const x=Math.cos(a)*r, z=Math.sin(a)*r;
-      const s=sMin+(sMax-sMin)*(.5+Math.sin(i*2.9)*.5);
-      const m=C[i%C.length].clone();
-      m.scale.setScalar(s); m.rotation.y=a+Math.PI+Math.sin(i*4.1)*.4;
-      m.position.set(x,terrainH(x,z)+(yBias||0),z); scene.add(m);
-    }
-  };
-  ring(50,18,3,5,0);   // Inner cliff wall
-  ring(62,14,4,6.5,-1); // Mid cliff layer
-  ring(78,10,5,8,-2);   // Outer massive rocks
-
-  // Trees on lower slopes
-  const T=M.trees;
-  if(T.length) [[48,14,1.7,.2],[-48,16,1.7,.8],[14,48,1.6,2.4],[-12,49,1.65,3.6],[44,-20,1.7,5],[-44,-18,1.65,1.2]]
-    .forEach(([x,z,s,r],i)=>{ const m=T[i%T.length].clone(); m.scale.setScalar(s); m.rotation.y=r; m.position.set(x,terrainH(x,z),z); scene.add(m); });
-
-  // Bare trees higher up
-  const B=M.bare;
-  if(B.length) [[56,20,1.3,.4],[-56,22,1.35,2.8],[20,56,1.4,4.2],[-18,58,1.3,5.6],[50,-28,1.35,1.4],[-52,-26,1.3,3]]
-    .forEach(([x,z,s,r],i)=>{ const m=B[i%B.length].clone(); m.scale.setScalar(s); m.rotation.y=r; m.position.set(x,terrainH(x,z),z); scene.add(m); });
+  // One ring of large rocks forming the mountain wall
+  for(let i=0;i<16;i++){
+    const a=(i/16)*Math.PI*2+Math.sin(i*3.7)*.15;
+    const r=55+Math.sin(i*5.3)*4;
+    const x=Math.cos(a)*r, z=Math.sin(a)*r;
+    const s=4+(Math.sin(i*2.9)*.5+.5)*3;
+    const m=C[i%C.length].clone();
+    m.scale.setScalar(s); m.rotation.y=a+Math.PI+Math.sin(i*4.1)*.4;
+    m.position.set(x,terrainH(x,z)-1,z); scene.add(m);
+  }
+  // Outer layer — fewer, bigger
+  for(let i=0;i<10;i++){
+    const a=(i/10)*Math.PI*2+.3;
+    const r=72+Math.sin(i*4.1)*3;
+    const x=Math.cos(a)*r, z=Math.sin(a)*r;
+    const s=5.5+(Math.sin(i*3.3)*.5+.5)*3;
+    const m=C[i%C.length].clone();
+    m.scale.setScalar(s); m.rotation.y=a+Math.PI+Math.sin(i*2.7)*.5;
+    m.position.set(x,terrainH(x,z)-2,z); scene.add(m);
+  }
 }
 
-/* ── Bushes — accents, not clutter ── */
+/* ── Bushes — just a few near village ── */
 function placeBushes(scene,M) {
   const B=M.bushes; if(!B.length) return;
-  [[-12,-29,1.1,.4],[12,-29,1.12,2.8],[8,26,1.15,2.1],[-10,27,1.1,3.4],
-   [26,14,1.18,.2],[-26,12,1.15,4.2],[28,-10,1.1,1.9],[-28,-8,1.08,5],
-   [-8,-40,1,5.2],[8,-41,1.05,1.2],[20,-38,1,3.8],[-18,-39,1.02,2.6]]
+  [[-12,-29,1.1,.4],[12,-29,1.12,2.8],[28,-10,1.1,1.9],[-28,-8,1.08,5],[20,-38,1,3.8]]
     .forEach(([x,z,s,r],i)=>{if(!inKO(x,z,1.5)) placeM(scene,B[i%B.length],x,z,s,r);});
-}
-
-/* ── Grass tufts ── */
-function placeGrass(scene,M) {
-  const G=M.grass; if(!G.length) return;
-  [[-6,-38],[4,-39],[10,-37],[-10,-36],[0,-41],[6,30],[-8,32],[14,28],[-14,30],
-   [30,4],[-30,6],[32,-8],[-32,-6],[22,20],[-22,18],[18,26],[-16,28],
-   [-4,-43],[8,-44],[-12,-44],[16,-42]]
-    .forEach(([x,z],i)=>{if(!inKO(x,z,1)) placeM(scene,G[i%G.length],x,z,.9+(i%4)*.1,(i%12)*Math.PI/6);});
 }
 
 /* ── Paths ── */
@@ -420,11 +391,9 @@ function addSmith(scene,x,z,nodes) {
 function addYard(scene,x,z,nodes) {
   const y=getWorldSurfaceHeight(x,z), g=new THREE.Group(); g.position.set(x,y,z);
   setSvc(g,"construction","House Construction Yard");
-  // Sign
   const sp=new THREE.Mesh(new THREE.CylinderGeometry(.09,.11,1.45,6),toonMat("#8f6742"));
   sp.position.set(-3.8,.98,3.7); sp.renderOrder=R_DECOR; g.add(sp);
   g.add(m3(new THREE.BoxGeometry(1.85,.7,.1),toonMat("#2f536d"),-3.8,1.52,3.78,R_DECOR+1));
-  // House
   const H=new THREE.Group(); H.position.set(.15,.06,-.2); g.add(H);
   const foundation=new THREE.Mesh(new THREE.BoxGeometry(4.6,.35,3.7),toonMat("#b7aea0")); foundation.position.y=.18; foundation.renderOrder=R_DECOR; H.add(foundation);
   const frame=new THREE.Group(); H.add(frame);
@@ -485,17 +454,14 @@ function addTrainYard(scene,x,z) {
 function addPlaza(scene,nodes,obstacles) {
   const tX=SVC.train.x,tZ=SVC.train.z,hX=SVC.build.x,hZ=SVC.build.z;
   const bk={x:-7,z:-32}, st={x:0,z:-32.5}, sm={x:7,z:-32};
-  // Paths
   addPath(scene,[[-30,-29],[30,-29]],{width:3,color:"#b79063",smooth:.02});
   addPath(scene,[[0,-29],[0,-40]],{width:1.85,color:"#b58d61",smooth:.04});
   for(const p of [bk,st,sm]) addPath(scene,[[p.x,-29],[p.x,p.z+1.5]],{width:1.2,color:"#b58d61",smooth:.04});
   addPath(scene,[[8,-29],[12,-31],[hX,hZ]],{width:1.6,smooth:.2});
   addPath(scene,[[-8,-29],[-14,-31],[tX,tZ]],{width:1.6,smooth:.2});
-  // Buildings
   addBank(scene,bk.x,bk.z,nodes);
   addStore(scene,st.x,st.z,nodes);
   addSmith(scene,sm.x,sm.z,nodes);
-  // Training yard + dummies
   addTrainYard(scene,tX,tZ);
   addDummy(scene,tX+3,tZ,nodes);
   addDummy(scene,tX,tZ,nodes);
@@ -533,10 +499,9 @@ function updateFishing(spots,t) {
   }
 }
 
-/* ── Lily pads ── */
+/* ── Lily pads — just a few ── */
 function addLilies(scene) {
-  [{x:-6,z:5,r:.55},{x:-4,z:10,r:.5,f:"#f5a0c0"},{x:3,z:12,r:.6},{x:6,z:9,r:.5,f:"#f7e663"},
-   {x:-9,z:2,r:.45},{x:10,z:-2,r:.55},{x:-3,z:-8,r:.5,f:"#f5a0c0"},{x:5,z:-6,r:.45},{x:-7,z:-4,r:.6},{x:8,z:4,r:.5}]
+  [{x:-5,z:8,r:.55},{x:4,z:11,r:.5,f:"#f5a0c0"},{x:8,z:3,r:.6},{x:-8,z:-3,r:.5},{x:-3,z:-7,r:.45,f:"#f7e663"}]
     .forEach((p,i)=>{
       const m=new THREE.Mesh(new THREE.CircleGeometry(p.r,16,.2,Math.PI*2-.4),toonMat("#3a9058"));
       m.rotation.x=-Math.PI/2; m.rotation.z=(i*.73)%(Math.PI*2);
@@ -549,13 +514,11 @@ function addLilies(scene) {
     });
 }
 
-/* ── Wildflowers ── */
+/* ── Wildflowers — sparse, away from training ── */
 function addFlowers(scene) {
   const colors=["#f5a0c0","#f7e663","#c4a0f5","#ff9e7a","#a0d8f0","#ffb6d9"];
   const sGeo=new THREE.CylinderGeometry(.015,.018,.35,4), bGeo=new THREE.SphereGeometry(.06,6,6), sMat=toonMat("#3a8e38");
-  [[-6,-37],[4,-38],[-10,-39],[8,-40],[14,-38],[-14,-40],[0,-42],
-   [6,30],[-8,31],[14,26],[-14,28],[28,6],[-28,8],[30,-4],[-30,-6],
-   [10,-33],[-8,-30],[20,-36],[-18,-37]]
+  [[6,30],[-8,31],[28,6],[-28,8],[30,-4],[-30,-6],[0,-42],[14,-42]]
     .forEach(([x,z],i)=>{
       if(inKO(x,z,.6)) return;
       const y=getWorldSurfaceHeight(x,z);
@@ -588,8 +551,9 @@ export async function createWorld(scene) {
   try{models=await loadModels();}catch(e){console.warn("Model load failed:",e);}
 
   if(models){
-    placeTrees(scene,models,nodes); placeRocks(scene,models,nodes);
-    placeBushes(scene,models); placeGrass(scene,models);
+    placeTrees(scene,models,nodes);
+    placeRocks(scene,models,nodes);
+    placeBushes(scene,models);
     placeCliffs(scene,models);
   }
 
