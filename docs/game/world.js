@@ -101,8 +101,8 @@ function addSky(scene) {
 function createTerrain(scene) {
   const inner=12, outer=MAP_R, aS=128, rR=55;
   const pos=[],col=[],idx=[];
-  const cGrass=new THREE.Color("#4cc436");
-  const cLush=new THREE.Color("#1e8a18"), cRock=new THREE.Color("#9a9a96"), cCliff=new THREE.Color("#8a8884");
+  const cGrass=new THREE.Color("#3ebe30");
+  const cRock=new THREE.Color("#9a9a96"), cCliff=new THREE.Color("#8a8884");
   const tmp=new THREE.Color(), vpr=aS+1;
 
   for(let ri=0;ri<=rR;ri++){
@@ -114,14 +114,11 @@ function createTerrain(scene) {
       if(dist<pr+4) { const t=THREE.MathUtils.smoothstep(dist,pr-2,pr+4); y=THREE.MathUtils.lerp(WATER_Y-.25,y,t); }
       pos.push(x,y,z);
 
-      // Thin stone rim right at pool edge
-      const stoneT=THREE.MathUtils.smoothstep(dist,pr+.3,pr+1.2);
-      tmp.lerpColors(new THREE.Color("#8a8a84"),cGrass,stoneT);
-      const lushT=THREE.MathUtils.smoothstep(dist,30,42);
+      // Flat bright green, only transition at mountains
+      tmp.copy(cGrass);
       const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.9,THREE.MathUtils.smoothstep(y,4,14)*.7);
       const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
 
-      if(lushT>0) tmp.lerp(cLush,lushT*.8);
       if(rockT>0) tmp.lerp(cRock,THREE.MathUtils.clamp(rockT,0,1));
       if(cliffT>0) tmp.lerp(cCliff,cliffT*.84);
 
@@ -144,16 +141,9 @@ function createTerrain(scene) {
   mesh.renderOrder=R_GND; scene.add(mesh); return mesh;
 }
 
-/* ── Water — semi-transparent over solid stone bottom ── */
+/* ── Water — transparent, green terrain visible underneath ── */
 function createWater(scene) {
   const uni={uTime:{value:0}};
-
-  // Stone pool bottom — single flat color disc, zero rings
-  const bottom=new THREE.Mesh(new THREE.CircleGeometry(26,48),
-    new THREE.MeshBasicMaterial({color:"#5a6e6a"}));
-  bottom.rotation.x=-Math.PI/2; bottom.position.y=WATER_Y-.3;
-  bottom.renderOrder=R_SHORE; scene.add(bottom);
-
   // Water surface
   const S=48, pos=[], idx=[];
   pos.push(0,0,0);
@@ -182,7 +172,7 @@ function createWater(scene) {
         float t=smoothstep(0.0,22.0,d);
         vec3 c=mix(deep,shallow,t);
         c+=sin(vW.x*.6+vW.y*.4+uTime*1.2)*.02+cos(vW.x*.3-vW.y*.5+uTime*.7)*.015;
-        gl_FragColor=vec4(c,0.55);
+        gl_FragColor=vec4(c,0.35);
       }`,
   });
   const water=new THREE.Mesh(geo,mat);
@@ -190,20 +180,21 @@ function createWater(scene) {
   return {waterUniforms:uni, causticMap:null};
 }
 
-/* ── Waterfall — cascading from north cliff into pool ── */
+/* ── Waterfall — cascading from cliff down into pool ── */
 function addWaterfall(scene,uni) {
-  const cx=0, cz=38; // north side, between pool and mountains
-  const baseY=terrainH(cx,cz+10);
+  const cx=0, poolEdge=21; // pool edge on north side
+  const topZ=poolEdge+18, midZ=poolEdge+9;
+  const topY=terrainH(cx,topZ)+2, midY=terrainH(cx,midZ)+.5;
 
-  // Rock ledges the water flows over
+  // Rock ledges
   const ledgeMat=toonMat("#7a7e78");
-  [[0,baseY+4,cz+8, 8,1.2,4],[0,baseY+1.5,cz+4, 7,.8,3.5],[0,WATER_Y+.3,cz, 6,.6,3]]
+  [[cx,topY,topZ, 7,1.2,4],[cx,midY,midZ, 6,.8,3.5],[cx,WATER_Y+.2,poolEdge, 5.5,.5,3]]
     .forEach(([x,y,z,w,h,d])=>{
       const ledge=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),ledgeMat);
       ledge.position.set(x,y,z); ledge.renderOrder=R_DECOR; scene.add(ledge);
     });
 
-  // Vertical water planes between ledges
+  // Animated water fall shader
   const wfMat=new THREE.ShaderMaterial({
     transparent:true, side:THREE.DoubleSide,
     uniforms:{uTime:uni.uTime},
@@ -220,16 +211,16 @@ function addWaterfall(scene,uni) {
   });
 
   // Upper fall (cliff to mid ledge)
-  const f1=new THREE.Mesh(new THREE.PlaneGeometry(5,4,1,6),wfMat);
-  f1.position.set(cx,baseY+2.5,cz+6); f1.renderOrder=R_DECOR+1; scene.add(f1);
-  // Lower fall (mid ledge to pool)
-  const f2=new THREE.Mesh(new THREE.PlaneGeometry(4.5,3,1,6),wfMat);
-  f2.position.set(cx,baseY,cz+2); f2.renderOrder=R_DECOR+1; scene.add(f2);
+  const f1=new THREE.Mesh(new THREE.PlaneGeometry(5,(topY-midY)+1,1,6),wfMat);
+  f1.position.set(cx,(topY+midY)*.5,topZ-(topZ-midZ)*.5); f1.renderOrder=R_DECOR+1; scene.add(f1);
+  // Lower fall (mid ledge into pool)
+  const f2=new THREE.Mesh(new THREE.PlaneGeometry(4.5,(midY-WATER_Y)+.5,1,6),wfMat);
+  f2.position.set(cx,(midY+WATER_Y)*.5,midZ-(midZ-poolEdge)*.5); f2.renderOrder=R_DECOR+1; scene.add(f2);
 
-  // Splash foam at base
+  // Splash foam at pool surface
   const foam=new THREE.Mesh(new THREE.CircleGeometry(3,16),
     new THREE.MeshBasicMaterial({color:"#c8e8f0",transparent:true,opacity:.4}));
-  foam.rotation.x=-Math.PI/2; foam.position.set(cx,WATER_Y+.03,cz-1);
+  foam.rotation.x=-Math.PI/2; foam.position.set(cx,WATER_Y+.03,poolEdge-2);
   foam.renderOrder=R_WATER+1; scene.add(foam);
 }
 
