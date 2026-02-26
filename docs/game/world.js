@@ -62,16 +62,16 @@ const RENDER_SHORE = 1;
 const RENDER_WATER = 2;
 const RENDER_DECOR = 3;
 const SERVICE_LAYOUT = Object.freeze({
-  plaza: { x: -4.0, z: -29.0, radius: 14.2 },
-  construction: { x: 19.5, z: -27.2, radius: 12.0 },
-  training: { x: -21.0, z: -29.0, radius: 10.2 },
+  plaza: { x: -6.0, z: -38.0, radius: 14.2 },
+  construction: { x: 20.5, z: -38.5, radius: 12.0 },
+  training: { x: -27.0, z: -38.5, radius: 10.2 },
   cave: { x: 46.5, z: -11.5 },
 });
 const DECOR_KEEP_OUT_ZONES = Object.freeze([
   { x: SERVICE_LAYOUT.plaza.x, z: SERVICE_LAYOUT.plaza.z, radius: SERVICE_LAYOUT.plaza.radius },
   { x: SERVICE_LAYOUT.construction.x, z: SERVICE_LAYOUT.construction.z, radius: SERVICE_LAYOUT.construction.radius },
   { x: SERVICE_LAYOUT.training.x, z: SERVICE_LAYOUT.training.z, radius: SERVICE_LAYOUT.training.radius },
-  { x: SERVICE_LAYOUT.cave.x, z: SERVICE_LAYOUT.cave.z, radius: 4.4 },
+  { x: SERVICE_LAYOUT.cave.x, z: SERVICE_LAYOUT.cave.z, radius: 8.8 },
 ]);
 
 function isInDecorKeepOutZone(x, z, padding = 0) {
@@ -363,8 +363,8 @@ function createRadialTerrain(scene) {
 
 // ── Lake bowl mesh (simplified) ──
 function createLakeBowlMesh() {
-  const segments = 64;
-  const rings = 12;
+  const segments = 96;
+  const rings = 28;
   const positions = [];
   const colors = [];
   const indices = [];
@@ -617,18 +617,11 @@ function createWater(scene) {
         col = mix(col, col * 1.15, waveTex * 0.22 * (1.0 - rw * 0.3));
         col += vec3(0.1, 0.18, 0.2) * waveTex2 * 0.08 * (1.0 - rw * 0.5);
 
-        float dist1 = length(wp - vec2(2.5, 4.0));
-        float dist2 = length(wp - vec2(-5.0, -2.5));
-        float dist3 = length(wp - vec2(7.0, -4.0));
-        float dist4 = length(wp - vec2(-3.0, 8.0));
-        float dist5 = length(wp - vec2(4.0, -7.0));
-        float ripple = sin(dist1 * 3.0 - t * 2.5) * 0.5 + 0.5;
-        ripple += sin(dist2 * 2.8 - t * 2.0) * 0.5 + 0.5;
-        ripple += sin(dist3 * 3.2 - t * 2.8) * 0.5 + 0.5;
-        ripple += sin(dist4 * 2.5 - t * 1.6) * 0.5 + 0.5;
-        ripple += sin(dist5 * 2.9 - t * 2.3) * 0.5 + 0.5;
-        ripple /= 5.0;
-        col += ripple * 0.06 * vec3(0.7, 0.9, 1.0) * (1.0 - rw * 0.4);
+        float flowA = sin(dot(wp, normalize(vec2(0.92, 0.39))) * 0.95 - t * 2.1) * 0.5 + 0.5;
+        float flowB = sin(dot(wp, normalize(vec2(-0.44, 0.9))) * 1.38 - t * 1.55) * 0.5 + 0.5;
+        float flowC = fbm(wp * 0.42 + vec2(t * 0.08, -t * 0.05));
+        float ripple = (flowA * 0.36 + flowB * 0.31 + flowC * 0.33);
+        col += ripple * 0.055 * vec3(0.7, 0.9, 1.0) * (1.0 - rw * 0.4);
 
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
@@ -675,7 +668,7 @@ function createWater(scene) {
 }
 
 function addShoreFoamRing(scene, waterUniforms) {
-  const segs = 240;
+  const segs = 320;
   const foamPos = [];
   const foamUvs = [];
   const foamIdx = [];
@@ -687,12 +680,19 @@ function addShoreFoamRing(scene, waterUniforms) {
       Math.sin(a * 6.7 + 0.4) * 0.16 +
       Math.sin(a * 14.3 - 1.1) * 0.08 +
       Math.sin(a * 22.1 + 0.9) * 0.04;
-    const innerR = shorelineR - 0.08 + contourNoise * 0.06;
-    const outerR = shorelineR + 0.92 + contourNoise * 0.24;
+    const innerR = shorelineR - 0.06 + contourNoise * 0.035;
+    const outerR = shorelineR + 1.04 + contourNoise * 0.12;
     const c = Math.cos(a);
     const s = Math.sin(a);
-    foamPos.push(c * innerR, 0, s * innerR);
-    foamPos.push(c * outerR, 0, s * outerR);
+    const innerX = c * innerR;
+    const innerZ = s * innerR;
+    const outerX = c * outerR;
+    const outerZ = s * outerR;
+    const innerY = 0.012 + Math.sin(a * 10.0 + 0.5) * 0.003;
+    const groundOuterY = getWorldSurfaceHeight(outerX, outerZ) - WATER_SURFACE_Y;
+    const outerY = THREE.MathUtils.clamp(groundOuterY + 0.055, 0.03, 0.24);
+    foamPos.push(innerX, innerY, innerZ);
+    foamPos.push(outerX, outerY, outerZ);
     foamUvs.push(t, 0);
     foamUvs.push(t, 1);
     if (i < segs) {
@@ -747,7 +747,7 @@ function addShoreFoamRing(scene, waterUniforms) {
   const foam = new THREE.Mesh(foamGeo, foamMat);
   // Geometry is already authored in XZ (flat) space, so no extra rotation.
   foam.rotation.x = 0;
-  foam.position.y = WATER_SURFACE_Y + 0.015;
+  foam.position.y = WATER_SURFACE_Y;
   foam.renderOrder = RENDER_WATER + 2;
   scene.add(foam);
 }
@@ -1031,6 +1031,9 @@ function placeGrass(scene, models) {
 function placeMountainDecor(scene, models) {
   const rockTemplates = models.bigRocks.length ? models.bigRocks : models.rocks;
   const treeTemplates = models.trees;
+  const caveX = SERVICE_LAYOUT.cave.x;
+  const caveZ = SERVICE_LAYOUT.cave.z;
+  const caveClearance = 8.8;
   const mountainRocks = [
     [52, 10, 2.8, 0.4], [57, 23, 2.5, 1.2], [49, -16, 3.0, 2.0], [61, -8, 2.7, 2.9],
     [46, 31, 2.4, 3.8], [69, 6, 3.1, 4.6], [66, -18, 2.9, 5.2], [54, -30, 2.6, 0.9],
@@ -1041,6 +1044,7 @@ function placeMountainDecor(scene, models) {
   if (rockTemplates.length) {
     for (let i = 0; i < mountainRocks.length; i++) {
       const [x, z, scale, rot] = mountainRocks[i];
+      if (Math.hypot(x - caveX, z - caveZ) < caveClearance) continue;
       const template = rockTemplates[i % rockTemplates.length];
       const instance = template.clone();
       instance.scale.setScalar(scale);
@@ -1059,6 +1063,7 @@ function placeMountainDecor(scene, models) {
   if (treeTemplates.length) {
     for (let i = 0; i < mountainTrees.length; i++) {
       const [x, z, scale, rot] = mountainTrees[i];
+      if (Math.hypot(x - caveX, z - caveZ) < caveClearance) continue;
       const template = treeTemplates[i % treeTemplates.length];
       const instance = template.clone();
       instance.scale.setScalar(scale);
@@ -1609,17 +1614,17 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   centerPad.renderOrder = RENDER_SHORE + 1;
   scene.add(centerPad);
 
-  addDirtPath(scene, [[cx, cz], [cx + 6.0, cz - 1.2], [houseX - 4.4, houseZ - 0.6], [houseX, houseZ]], {
+  addDirtPath(scene, [[cx, cz], [cx + 7.8, cz - 0.8], [houseX - 5.0, houseZ - 0.6], [houseX, houseZ]], {
     width: 1.85,
     samples: 58,
     seed: 1.2,
   });
-  addDirtPath(scene, [[cx, cz], [cx - 7.0, cz - 0.4], [trainingX + 3.2, trainingZ + 0.2], [trainingX, trainingZ]], {
+  addDirtPath(scene, [[cx, cz], [cx - 8.2, cz - 0.5], [trainingX + 3.6, trainingZ + 0.3], [trainingX, trainingZ]], {
     width: 1.62,
     samples: 44,
     seed: 2.1,
   });
-  addDirtPath(scene, [[cx + 0.8, cz - 0.2], [9.0, -29.0], [20.0, -27.5], [31.0, -21.5], [39.5, -16.6], [caveX, caveZ]], {
+  addDirtPath(scene, [[cx + 0.8, cz - 0.2], [8.0, -41.5], [21.0, -38.7], [33.2, -31.2], [41.5, -22.4], [caveX, caveZ]], {
     width: 1.52,
     samples: 76,
     seed: 3.4,
