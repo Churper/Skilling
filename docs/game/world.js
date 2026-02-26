@@ -233,8 +233,8 @@ function createGround(scene) {
     const r = Math.hypot(x, z);
     let y = sampleTerrainHeight(x, z);
     const waterR = getWaterRadiusAt(x, z);
-    if (r < waterR + 1.0) {
-      y -= (1.0 - THREE.MathUtils.smoothstep(r, waterR - 2.0, waterR + 1.0)) * 1.2;
+    if (r < waterR + 4.0) {
+      y -= (1.0 - THREE.MathUtils.smoothstep(r, waterR - 3.0, waterR + 4.0)) * 0.8;
     }
     tPos.setZ(i, y);
 
@@ -484,72 +484,61 @@ function createWater(scene) {
         vec2 wp = vWorldPos.xz;
 
         // Vibrant tropical depth gradient
-        vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.48, radial));
-        col = mix(col, uShallow, smoothstep(0.38, 0.86, radial));
-        float clarity = smoothstep(0.18, 0.82, radial);
-        col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.3);
+        vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.45, radial));
+        col = mix(col, uShallow, smoothstep(0.35, 0.82, radial));
+        float clarity = smoothstep(0.15, 0.75, radial);
+        col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.25);
 
-        // Animated voronoi caustics — bright cell-like light patterns
-        vec2 cuv = wp * 0.14;
-        float c1 = voronoi(cuv + vec2(t * 0.05, t * 0.03));
-        float c2 = voronoi(cuv * 1.5 + vec2(-t * 0.04, t * 0.06));
-        float caustic = c1 * 0.55 + c2 * 0.45;
-        float causticBright = (1.0 - smoothstep(0.0, 0.42, caustic)) * 0.3;
-        causticBright *= smoothstep(0.04, 0.35, radial) * (1.0 - radial * 0.45);
-        col += causticBright * vec3(0.68, 0.95, 1.0);
+        // Animated voronoi caustics — view-independent, organic light patterns
+        vec2 cuv = wp * 0.11 + vec2(t * 0.02, -t * 0.015);
+        float c1 = voronoi(cuv);
+        float c2 = voronoi(cuv * 1.7 + vec2(3.7, 1.2));
+        float c3 = voronoi(cuv * 0.6 + vec2(-t * 0.03, t * 0.02));
+        float caustic = c1 * 0.4 + c2 * 0.35 + c3 * 0.25;
+        float causticBright = (1.0 - smoothstep(0.0, 0.5, caustic)) * 0.42;
+        causticBright *= smoothstep(0.02, 0.3, radial) * (1.0 - radial * 0.35);
+        col += causticBright * vec3(0.6, 0.92, 1.0);
 
-        // Secondary FBM caustic shimmer layer
-        float shimmer = fbm(wp * 0.25 + vec2(t * 0.06, -t * 0.04));
-        col = mix(col, col * 1.12, shimmer * 0.18 * (1.0 - radial * 0.4));
+        // FBM wave color variation (view-independent)
+        float waveTex = fbm(wp * 0.18 + vec2(t * 0.04, -t * 0.03));
+        float waveTex2 = fbm(wp * 0.32 + vec2(-t * 0.05, t * 0.035));
+        col = mix(col, col * 1.15, waveTex * 0.22 * (1.0 - radial * 0.3));
+        col += vec3(0.1, 0.18, 0.2) * waveTex2 * 0.08 * (1.0 - radial * 0.5);
 
-        // Animated concentric ripple rings
+        // Animated concentric ripple rings — stronger, view-independent
         float dist1 = length(wp - vec2(2.5, 4.0));
         float dist2 = length(wp - vec2(-5.0, -2.5));
         float dist3 = length(wp - vec2(7.0, -4.0));
-        float ripple = sin(dist1 * 2.6 - t * 2.2) * 0.5 + 0.5;
-        ripple += sin(dist2 * 2.4 - t * 1.8) * 0.5 + 0.5;
-        ripple += sin(dist3 * 2.8 - t * 2.6) * 0.5 + 0.5;
-        col += ripple * 0.018 * vec3(0.75, 0.92, 1.0) * (1.0 - radial * 0.5);
+        float dist4 = length(wp - vec2(-3.0, 8.0));
+        float dist5 = length(wp - vec2(4.0, -7.0));
+        float ripple = sin(dist1 * 3.0 - t * 2.5) * 0.5 + 0.5;
+        ripple += sin(dist2 * 2.8 - t * 2.0) * 0.5 + 0.5;
+        ripple += sin(dist3 * 3.2 - t * 2.8) * 0.5 + 0.5;
+        ripple += sin(dist4 * 2.5 - t * 1.6) * 0.5 + 0.5;
+        ripple += sin(dist5 * 2.9 - t * 2.3) * 0.5 + 0.5;
+        ripple /= 5.0;
+        col += ripple * 0.06 * vec3(0.7, 0.9, 1.0) * (1.0 - radial * 0.4);
 
-        // Wave-perturbed normal for reflections (multi-octave)
-        vec3 waveN = normalize(vec3(
-          sin(wp.x * 1.1 + t * 0.75) * 0.065 + sin(wp.x * 2.6 - t * 0.55) * 0.035
-            + sin(wp.x * 0.4 + wp.y * 0.3 + t * 0.45) * 0.04,
-          1.0,
-          sin(wp.y * 1.1 - t * 0.65) * 0.065 + cos(wp.y * 2.3 + t * 0.45) * 0.035
-            + sin(wp.y * 0.45 - wp.x * 0.35 + t * 0.55) * 0.04
-        ));
+        // Gentle view-dependent specular (much reduced)
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
-
-        // Sun specular — broad highlight
-        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 32.0);
-        col += vec3(1.0, 0.97, 0.9) * spec * 0.7 * (1.0 - radial * 0.15);
-
-        // Softer wide specular spread
-        float specSoft = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 4.0);
-        col += vec3(0.92, 0.96, 1.0) * specSoft * 0.14;
-
-        // Ultra-wide sun lane
-        float sunLane = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 1.8);
-        col += vec3(1.0, 0.98, 0.92) * sunLane * 0.04;
-
-        // Fine sparkle detail
-        vec3 sparkleN = normalize(vec3(
-          sin(wp.x * 6.5 + t * 2.6) * 0.16 + sin(wp.x * 10.0 - t * 1.9) * 0.08,
+        vec3 waveN = normalize(vec3(
+          sin(wp.x * 0.8 + t * 0.5) * 0.04 + sin(wp.x * 1.8 - t * 0.4) * 0.025,
           1.0,
-          cos(wp.y * 6.5 - t * 2.3) * 0.16 + cos(wp.y * 10.0 + t * 1.7) * 0.08
+          sin(wp.y * 0.8 - t * 0.45) * 0.04 + cos(wp.y * 1.8 + t * 0.35) * 0.025
         ));
-        float sparkle = pow(max(dot(reflect(-sunDir, sparkleN), viewDir), 0.0), 200.0);
-        col += vec3(1.0) * sparkle * 0.55;
 
-        // Fresnel — sky/environment reflection
+        // Single soft sun highlight
+        float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 16.0);
+        col += vec3(1.0, 0.97, 0.92) * spec * 0.3 * (1.0 - radial * 0.2);
+
+        // Subtle fresnel — sky tint at edges
         float NdotV = max(dot(viewDir, waveN), 0.0);
-        float fresnel = pow(1.0 - NdotV, 3.5) * 0.34;
-        vec3 skyCol = mix(vec3(0.52, 0.78, 0.92), vec3(0.32, 0.62, 0.85), waveN.y);
+        float fresnel = pow(1.0 - NdotV, 4.0) * 0.2;
+        vec3 skyCol = vec3(0.48, 0.74, 0.88);
         col = mix(col, skyCol, fresnel);
 
-        // Shore foam — noise-driven, animated, multi-frequency
+        // Shore foam — noise-driven, animated
         float foamNoise = fbm(wp * 0.7 + vec2(t * 0.1, -t * 0.07));
         float ang = atan(wp.y, wp.x);
         float foamWobble = sin(ang * 8.0 + t * 1.2) * 0.013
@@ -559,10 +548,10 @@ function createWater(scene) {
         float foam = smoothstep(0.87, 0.95, foamEdge) * (1.0 - smoothstep(0.955, 0.993, foamEdge));
         foam *= 0.65 + foamNoise * 0.55;
         foam = clamp(foam, 0.0, 1.0);
-        col = mix(col, vec3(1.0, 1.0, 0.96), foam * 0.94);
+        col = mix(col, vec3(1.0, 1.0, 0.97), foam * 0.9);
 
-        // Alpha — more transparent center, wider edge fade
-        float bodyAlpha = mix(0.55, 0.12, smoothstep(0.04, 0.8, radial));
+        // Alpha — slightly more opaque overall for better visibility
+        float bodyAlpha = mix(0.62, 0.18, smoothstep(0.04, 0.78, radial));
         float edgeFade = 1.0 - smoothstep(0.88, 0.995, foamEdge);
         float alpha = max(bodyAlpha * edgeFade, foam * 0.96);
         if (alpha < 0.002) discard;
@@ -1282,9 +1271,11 @@ function createConformingRing(innerRadius, outerRadius, radialSegments = 14, the
 }
 
 function addLakeRings(scene) {
-  const segs = 360, rings = 28, outerR = 40;
+  // Use a FIXED inner radius so adjacent angle segments don't jump at concavities.
+  // Minimum lake radius ≈ 18.25, so 10 is safely inside the lake at all angles.
+  const segs = 480, rings = 36, fixedInnerR = 10, outerR = 44;
   const positions = [], colors = [], indices = [];
-  const vpr = segs + 1; // vertices per ring row (close the loop)
+  const vpr = segs + 1;
   const cWaterEdge = new THREE.Color("#a8ddd8");
   const cSand = new THREE.Color("#e0c888");
   const cGrass = new THREE.Color("#7dba5e");
@@ -1292,27 +1283,27 @@ function addLakeRings(scene) {
     const rt = r / rings;
     for (let s = 0; s <= segs; s++) {
       const angle = (s / segs) * Math.PI * 2;
-      const innerR = getLakeRadiusAtAngle(angle) - 6.0;
-      const radius = innerR + (outerR - innerR) * rt;
+      const radius = fixedInnerR + (outerR - fixedInnerR) * rt;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const distR = Math.hypot(x, z);
       const waterR = getWaterRadiusAtAngle(angle);
       let y;
-      if (distR < waterR - 3.5) {
-        y = WATER_SURFACE_Y - 0.06;
-      } else if (distR < waterR + 3.5) {
-        const t = THREE.MathUtils.smoothstep(distR, waterR - 3.5, waterR + 3.5);
-        const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.01);
-        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.06, shoreH + SHORE_LIFT, t);
+      if (distR < waterR - 3.0) {
+        // Well inside the lake — sit just below water surface
+        y = WATER_SURFACE_Y - 0.04;
+      } else if (distR < waterR + 4.0) {
+        // Transition zone — smooth blend from water level to terrain
+        const t = THREE.MathUtils.smoothstep(distR, waterR - 3.0, waterR + 4.0);
+        const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.02);
+        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.04, shoreH + SHORE_LIFT, t);
       } else {
         y = sampleTerrainHeight(x, z) + SHORE_LIFT;
       }
       positions.push(x, y, z);
 
-      // Vertex color: blend water-edge teal -> sand -> grass based on distance from water
-      const shoreT = THREE.MathUtils.smoothstep(distR, waterR - 2.5, waterR + 4.0);
-      const grassT = THREE.MathUtils.smoothstep(distR, waterR + 2.5, waterR + 7.0);
+      const shoreT = THREE.MathUtils.smoothstep(distR, waterR - 2.0, waterR + 4.5);
+      const grassT = THREE.MathUtils.smoothstep(distR, waterR + 3.0, waterR + 8.0);
       const c = new THREE.Color().copy(cWaterEdge).lerp(cSand, shoreT);
       c.lerp(cGrass, grassT);
       colors.push(c.r, c.g, c.b);

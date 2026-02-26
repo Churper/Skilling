@@ -490,19 +490,33 @@ export function createCombatEffects(scene) {
     } else if (style === "bow") {
       const group = new THREE.Group();
       const arrowScale = THREE.MathUtils.lerp(0.8, 1.2, c);
+      // Build arrow pointing along local -Z (Three.js default forward)
+      // so rotation.y = yaw aligns with movement direction (sin(yaw), cos(yaw))
       const shaft = new THREE.Mesh(
         new THREE.CylinderGeometry(0.015 * arrowScale, 0.015 * arrowScale, 0.6 * arrowScale, 4),
         new THREE.MeshBasicMaterial({ color: "#8B4513" })
       );
-      shaft.rotation.z = Math.PI / 2;
+      shaft.rotation.x = Math.PI / 2;
       group.add(shaft);
+      // Tip points in -Z direction
       const tip = new THREE.Mesh(
         new THREE.ConeGeometry(0.04 * arrowScale, 0.12 * arrowScale, 4),
         new THREE.MeshBasicMaterial({ color: "#c0c0c0" })
       );
-      tip.rotation.z = -Math.PI / 2;
-      tip.position.x = 0.36 * arrowScale;
+      tip.rotation.x = -Math.PI / 2;
+      tip.position.z = -0.36 * arrowScale;
       group.add(tip);
+      // Fletching at the back (+Z end)
+      const fletchMat = new THREE.MeshBasicMaterial({ color: "#cc3333", side: THREE.DoubleSide });
+      for (let f = 0; f < 3; f++) {
+        const fletch = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.06 * arrowScale, 0.1 * arrowScale),
+          fletchMat
+        );
+        fletch.position.z = 0.26 * arrowScale;
+        fletch.rotation.y = (f / 3) * Math.PI * 2;
+        group.add(fletch);
+      }
       group.position.copy(position);
       group.position.y += 0.4;
       group.rotation.y = yaw;

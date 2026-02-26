@@ -10,10 +10,10 @@
   --ui-warn: #d48a30;
   --ui-frame: transparent;
   --ui-frame-strong: rgba(120, 210, 200, 0.2);
-  --ui-glass: rgba(220, 245, 240, 0.18);
-  --ui-glass-inner: rgba(255, 255, 255, 0.07);
-  --ui-shadow-lg: 0 12px 32px rgba(0, 40, 60, 0.06);
-  --ui-shadow-sm: 0 8px 18px rgba(0, 40, 60, 0.04);
+  --ui-glass: rgba(220, 245, 240, 0.08);
+  --ui-glass-inner: rgba(255, 255, 255, 0.04);
+  --ui-shadow-lg: 0 8px 24px rgba(0, 40, 60, 0.04);
+  --ui-shadow-sm: 0 4px 12px rgba(0, 40, 60, 0.03);
   --ui-radius-xl: 20px;
   --ui-radius-lg: 14px;
   --ui-radius-md: 10px;
@@ -59,7 +59,7 @@ body {
   padding: 8px 16px;
   border-radius: 999px;
   border: none;
-  background: rgba(255, 245, 210, 0.35);
+  background: rgba(255, 245, 210, 0.18);
   box-shadow: var(--ui-shadow-sm);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -95,8 +95,8 @@ body {
   text-transform: uppercase;
   font-weight: 700;
   box-shadow: var(--ui-shadow-sm);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   cursor: pointer;
 }
 
@@ -121,8 +121,8 @@ body {
   border-radius: var(--ui-radius-xl);
   background: var(--ui-glass);
   box-shadow: var(--ui-shadow-lg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   padding: 12px 12px 10px;
   pointer-events: auto;
   transform: translateY(0);
@@ -558,8 +558,8 @@ body {
   border-radius: 999px;
   background: var(--ui-glass);
   box-shadow: var(--ui-shadow-lg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   pointer-events: auto;
 }
 
