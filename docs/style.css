@@ -609,6 +609,30 @@ body {
   background: var(--ui-btn-bg-active);
 }
 
+/* Hero buttons — inventory (left) and combat (right) elevated out of dock */
+.ui-tab-btn[data-tab="inventory"],
+.ui-tab-btn[data-tab="combat"] {
+  width: 58px;
+  height: 58px;
+  transform: translateY(-12px);
+}
+.ui-tab-btn[data-tab="inventory"]:hover,
+.ui-tab-btn[data-tab="combat"]:hover {
+  transform: translateY(-14px);
+}
+.ui-tab-btn[data-tab="inventory"] .ui-tab-icon,
+.ui-tab-btn[data-tab="combat"] .ui-tab-icon {
+  font-size: 26px;
+}
+.ui-tab-btn[data-tab="inventory"] {
+  order: -1;
+  margin-right: 6px;
+}
+.ui-tab-btn[data-tab="combat"] {
+  order: 10;
+  margin-left: 6px;
+}
+
 /* ── Emotes ── */
 #ui-emote-list {
   display: grid;
