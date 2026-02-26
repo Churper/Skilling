@@ -530,9 +530,17 @@ body {
   background: none;
 }
 
-.ui-skill-icon {
-  font-size: 18px;
+.ui-skill-icon-wrap {
+  position: relative;
   flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+}
+
+.ui-skill-icon {
+  font-size: 20px;
   width: 24px;
   text-align: center;
 }
@@ -545,7 +553,7 @@ body {
 .ui-skill-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-bottom: 3px;
 }
 
@@ -557,9 +565,21 @@ body {
 }
 
 .ui-skill-level {
-  font-size: 15px;
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--ui-ink-1);
+  color: #f2fbff;
+  background: rgba(8, 36, 48, 0.8);
+  border: 1px solid rgba(120, 225, 255, 0.45);
   text-shadow: var(--ui-text-shadow);
 }
 
@@ -634,12 +654,13 @@ body {
   bottom: calc(16px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 8px;
-  padding: 0;
+  padding: 12px 0 2px;
   border: none;
   border-radius: 0;
   background: none;
+  overflow: visible;
   pointer-events: auto;
 }
 
@@ -688,10 +709,8 @@ body {
 /* Hero buttons — inventory (left) and combat (right) elevated out of dock */
 .ui-tab-btn[data-tab="inventory"],
 .ui-tab-btn[data-tab="combat"] {
-  width: 62px;
-  height: 62px;
-  position: relative;
-  top: -10px;
+  width: 64px;
+  height: 64px;
 }
 .ui-tab-btn[data-tab="inventory"] .ui-tab-icon,
 .ui-tab-btn[data-tab="combat"] .ui-tab-icon {
@@ -713,15 +732,16 @@ body {
 }
 
 .ui-combat-flip-btn {
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
   background: var(--ui-btn-bg);
   color: var(--ui-ink-1);
   font-family: var(--ui-font-heading);
-  font-size: 12px;
+  font-size: 15px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 7px 10px;
+  min-height: 44px;
+  padding: 10px 16px;
   cursor: pointer;
   text-shadow: var(--ui-text-shadow);
 }
@@ -877,6 +897,7 @@ body {
   #ui-dock {
     max-width: calc(100vw - 24px);
     overflow-x: auto;
+    padding-top: 10px;
     gap: 6px;
   }
 

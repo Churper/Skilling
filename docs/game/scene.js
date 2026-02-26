@@ -11,21 +11,22 @@ export function createSceneContext(canvas) {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor("#68b8d8", 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.NoToneMapping;
-  renderer.toneMappingExposure = 1.0;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.06;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog("#9bb890", 700, 1700);
+  scene.fog = new THREE.Fog("#95b57a", 620, 1650);
 
   const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.5, 800);
   camera.position.set(28, 30, 28);
 
-  scene.add(new THREE.HemisphereLight("#eef7ff", "#5f9f4f", 0.74));
-  const sun = new THREE.DirectionalLight("#fff2d6", 1.25);
-  sun.position.set(45, 52, 16);
+  scene.add(new THREE.HemisphereLight("#f0fbff", "#6aa057", 0.92));
+  scene.add(new THREE.AmbientLight("#ffffff", 0.18));
+  const sun = new THREE.DirectionalLight("#fff2d0", 1.46);
+  sun.position.set(42, 54, 18);
   scene.add(sun);
-  const fill = new THREE.DirectionalLight("#d5ebff", 0.16);
-  fill.position.set(-36, 24, -22);
+  const fill = new THREE.DirectionalLight("#d8efff", 0.32);
+  fill.position.set(-34, 26, -24);
   scene.add(fill);
 
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -53,7 +54,7 @@ export function createSceneContext(canvas) {
 
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.1, 0.48, 0.98));
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.18, 0.62, 0.9));
   composer.addPass(new OutputPass());
 
   window.addEventListener("resize", () => {

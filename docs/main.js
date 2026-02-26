@@ -279,6 +279,7 @@ let pendingService = null;
 const pendingServicePos = new THREE.Vector3();
 let activeGather = null;
 let activeAttack = null;
+let nextAttackAllowedAt = 0;
 
 function getAttackRange() {
   if (combatStyle === "bow") return 14.0;
@@ -899,20 +900,25 @@ function performAttackHit(node) {
 }
 
 function startActiveAttack(node) {
+  const now = clock.elapsedTime;
+  if (now < nextAttackAllowedAt) return;
   const requiredTool = getCombatToolForStyle(combatStyle);
   if (equippedTool !== requiredTool) equipTool(requiredTool, false);
-  activeAttack = { node, elapsed: 0, interval: getAttackInterval() };
+  const interval = getAttackInterval();
+  activeAttack = { node, elapsed: 0, interval };
   activeGather = null;
   pendingResource = null;
   pendingService = null;
   hasMoveTarget = false;
   marker.visible = false;
   performAttackHit(node);
+  nextAttackAllowedAt = now + Math.max(0.2, interval * 0.92);
 }
 
 function onInteractNode(node, hitPoint) {
   // Training dummy: walk to it and auto-attack continuously
   if (node.userData?.serviceType === "dummy") {
+    if (activeAttack && activeAttack.node === node) return;
     const dummyPos = new THREE.Vector3();
     node.getWorldPosition(dummyPos);
     spawnClickEffect(dummyPos.x, dummyPos.z, "neutral");
@@ -1061,10 +1067,10 @@ const gatherDir = new THREE.Vector3();
 const cameraFocus = new THREE.Vector3();
 const cameraDelta = new THREE.Vector3();
 const cameraInitBack = new THREE.Vector3();
-const fogAboveWater = new THREE.Color("#9bb890");
+const fogAboveWater = new THREE.Color("#95b57a");
 const fogUnderwater = new THREE.Color("#4b88a4");
-const fogAboveNear = 700;
-const fogAboveFar = 1700;
+const fogAboveNear = 620;
+const fogAboveFar = 1650;
 const fogUnderNear = 10;
 const fogUnderFar = 110;
 const underwaterEnterOffset = 0.09;
@@ -1213,8 +1219,12 @@ function animate() {
     } else {
       activeAttack.elapsed += dt;
       if (activeAttack.elapsed >= activeAttack.interval) {
-        activeAttack.elapsed = 0;
-        performAttackHit(activeAttack.node);
+        const now = clock.elapsedTime;
+        if (now >= nextAttackAllowedAt) {
+          activeAttack.elapsed = 0;
+          performAttackHit(activeAttack.node);
+          nextAttackAllowedAt = now + Math.max(0.2, activeAttack.interval * 0.92);
+        }
       }
     }
   }

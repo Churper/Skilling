@@ -102,7 +102,7 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
   const carryPose = {
     axe:     { x: -0.36, y: 0.19, z: 0.11, rx: 0.64, ry: -0.74, rz: -0.08 },
     pickaxe: { x: -0.36, y: 0.19, z: 0.11, rx: 0.58, ry: -0.82, rz: -0.06 },
-    sword:   { x: -0.34, y: 0.20, z: 0.12, rx: 0.6, ry: -0.7, rz: -0.1 },
+    sword:   { x: -0.33, y: 0.22, z: 0.13, rx: 0.98, ry: 0.36, rz: -0.42 },
     fishing: { x: -0.36, y: 0.2, z: 0.12, rx: 0.94, ry: -0.78, rz: -0.05 },
     bow:     { x: -0.34, y: 0.22, z: 0.18, rx: 0.16, ry: -0.05, rz: -0.28 },
     staff:   { x: -0.32, y: 0.2, z: 0.14, rx: 0.8, ry: -0.6, rz: -0.1 },
@@ -111,7 +111,7 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
   const gatherPose = {
     axe:     { x: -0.34, y: 0.25, z: 0.13, rx: -0.24, ry: -0.88, rz: 0.03 },
     pickaxe: { x: -0.34, y: 0.25, z: 0.13, rx: -0.36, ry: -0.9, rz: 0.02 },
-    sword:   { x: -0.32, y: 0.26, z: 0.14, rx: -0.2, ry: -0.8, rz: 0.05 },
+    sword:   { x: -0.31, y: 0.27, z: 0.15, rx: 0.62, ry: 0.2, rz: -0.5 },
     fishing: { x: -0.34, y: 0.25, z: 0.14, rx: 1.42, ry: -0.72, rz: -0.24 },
     bow:     { x: -0.3, y: 0.28, z: 0.2, rx: -0.12, ry: -0.06, rz: -0.16 },
     staff:   { x: -0.28, y: 0.3, z: 0.16, rx: 0.3, ry: -0.5, rz: 0.0 },
@@ -160,11 +160,11 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
         targetRoll = Math.sin(animTime * 4.0) * 0.01;
         targetScaleY = 1 - impact * 0.05;
         toolRotX += windup * 0.2 - swing * 0.5;
-        toolRotY += impact * -0.04;
+        toolRotY += impact * 0.14;
         toolRotZ += impact * -0.12;
         toolPosX += impact * -0.02;
         toolPosY += impact * 0.04 - windup * 0.01;
-        toolPosZ += impact * 0.015;
+        toolPosZ += impact * 0.03;
       } else if (combatStyle === "bow") {
         const draw = Math.sin(animTime * 5.5) * 0.5 + 0.5;
         targetPitch = -0.02 + draw * 0.01;
