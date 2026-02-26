@@ -324,8 +324,8 @@ function createAxeMesh() {
   pommel.position.set(0, -0.06, 0);
   mesh.add(pommel);
 
-  // Match fishing-pole side/orientation direction.
-  mesh.rotation.y = Math.PI * 0.5;
+  // Mirror orientation so swings angle into trees/rocks.
+  mesh.rotation.y = -Math.PI * 0.5;
   mesh.scale.setScalar(0.9);
   return mesh;
 }
@@ -343,7 +343,8 @@ function createSwordFallback() {
   const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.18, 6), handleMat);
   grip.position.y = 0.06;
   mesh.add(grip);
-  mesh.rotation.y = Math.PI * 0.5;
+  // Mirror orientation so swings angle into trees/rocks.
+  mesh.rotation.y = -Math.PI * 0.5;
   mesh.scale.setScalar(0.9);
   return mesh;
 }
