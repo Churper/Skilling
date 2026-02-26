@@ -745,7 +745,8 @@ function addShoreFoamRing(scene, waterUniforms) {
     `,
   });
   const foam = new THREE.Mesh(foamGeo, foamMat);
-  foam.rotation.x = -Math.PI / 2;
+  // Geometry is already authored in XZ (flat) space, so no extra rotation.
+  foam.rotation.x = 0;
   foam.position.y = WATER_SURFACE_Y + 0.015;
   foam.renderOrder = RENDER_WATER + 2;
   scene.add(foam);
