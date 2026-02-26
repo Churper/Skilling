@@ -28,6 +28,27 @@ function toonMat(color, options = {}) {
   return new THREE.MeshToonMaterial({ color, gradientMap: TOON_GRADIENT, ...options });
 }
 
+function stabilizeModelLook(root) {
+  if (!root) return;
+  root.traverse((obj) => {
+    if (!obj || !obj.isMesh || !obj.material) return;
+    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+    const tuned = mats.map((mat) => {
+      if (!mat) return mat;
+      // Keep color stable regardless camera angle by removing shiny/spec highlights.
+      if ("metalness" in mat) mat.metalness = 0;
+      if ("roughness" in mat) mat.roughness = 1;
+      if ("shininess" in mat) mat.shininess = 0;
+      if ("specular" in mat && mat.specular?.setScalar) mat.specular.setScalar(0);
+      if ("envMapIntensity" in mat) mat.envMapIntensity = 0;
+      if ("flatShading" in mat) mat.flatShading = true;
+      mat.needsUpdate = true;
+      return mat;
+    });
+    obj.material = Array.isArray(obj.material) ? tuned : tuned[0];
+  });
+}
+
 // ── Constants ──
 const LAKE_RADIUS = 24.0;
 const WATER_RADIUS = 24.8;
@@ -711,11 +732,21 @@ function addShadowBlob(scene, blobTex, x, z, radius = 1.8, opacity = 0.2) {
   const baseY = getWorldSurfaceHeight(x, z);
   const blob = new THREE.Mesh(
     new THREE.PlaneGeometry(radius * 2, radius * 2),
-    new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, color: "#344347", opacity })
+    new THREE.MeshBasicMaterial({
+      map: blobTex,
+      transparent: true,
+      depthWrite: false,
+      color: "#344347",
+      opacity,
+      toneMapped: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -4,
+    })
   );
   blob.rotation.x = -Math.PI / 2;
   blob.rotation.z = Math.random() * Math.PI;
-  blob.position.set(x, baseY + 0.03, z);
+  blob.position.set(x, baseY + 0.02, z);
   blob.renderOrder = RENDER_GROUND + 1;
   scene.add(blob);
   return blob;
@@ -768,6 +799,10 @@ async function loadModels() {
     console.warn(`Failed to load ${entries[k]}:`, err);
     return null;
   })));
+
+  for (const model of results) {
+    stabilizeModelLook(model);
+  }
 
   const models = {};
   keys.forEach((k, i) => { models[k] = results[i]; });

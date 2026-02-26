@@ -1006,6 +1006,8 @@ const fogAboveNear = 700;
 const fogAboveFar = 1700;
 const fogUnderNear = 10;
 const fogUnderFar = 110;
+const underwaterEnterOffset = 0.09;
+const underwaterExitOffset = -0.03;
 let underwaterFogActive = false;
 
 const clock = new THREE.Clock();
@@ -1195,12 +1197,18 @@ function animate() {
 
   const waterY = getWaterSurfaceHeight(player.position.x, player.position.z, waterUniforms.uTime.value);
   const playerHeadY = player.position.y + playerHeadOffset;
-  const isUnderwater = Number.isFinite(waterY) && waterY > playerHeadY;
-  if (scene.fog && isUnderwater !== underwaterFogActive) {
-    underwaterFogActive = isUnderwater;
-    scene.fog.color.copy(isUnderwater ? fogUnderwater : fogAboveWater);
-    scene.fog.near = isUnderwater ? fogUnderNear : fogAboveNear;
-    scene.fog.far = isUnderwater ? fogUnderFar : fogAboveFar;
+  let nextUnderwater = false;
+  if (Number.isFinite(waterY)) {
+    const submersion = waterY - playerHeadY;
+    nextUnderwater = underwaterFogActive
+      ? submersion > underwaterExitOffset
+      : submersion > underwaterEnterOffset;
+  }
+  if (scene.fog && nextUnderwater !== underwaterFogActive) {
+    underwaterFogActive = nextUnderwater;
+    scene.fog.color.copy(nextUnderwater ? fogUnderwater : fogAboveWater);
+    scene.fog.near = nextUnderwater ? fogUnderNear : fogAboveNear;
+    scene.fog.far = nextUnderwater ? fogUnderFar : fogAboveFar;
   }
 
   cameraFocus.set(player.position.x, player.position.y + 0.4, player.position.z);
