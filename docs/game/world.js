@@ -53,7 +53,7 @@ function poolRAt(x,z) { return poolR(Math.atan2(z,x)); }
 function terrainH(x,z) {
   const r=Math.hypot(x,z);
   const n=Math.sin(x*.045)*.4+Math.cos(z*.037)*.38+Math.sin((x+z)*.021)*.3;
-  const bowl=Math.pow(1-THREE.MathUtils.smoothstep(r,0,28),1.6)*.9;
+  const bowl=Math.pow(1-THREE.MathUtils.smoothstep(r,0,28),1.6)*.35;
   const amp=THREE.MathUtils.lerp(.2,.45,THREE.MathUtils.smoothstep(r,15,50));
   const flat=n*amp-bowl;
   if(r<=MT_START) return flat;
@@ -121,20 +121,29 @@ function createTerrain(scene) {
   const cGrassDeep=new THREE.Color("#23751c");
   const cGrassMid=new THREE.Color("#2f8b24");
   const cGrassLight=new THREE.Color("#41a933");
+  const cPoolBed=new THREE.Color("#7ea39d");
+  const cPoolBedHi=new THREE.Color("#92b8b1");
   const cRock=new THREE.Color("#9b9a93"), cCliff=new THREE.Color("#86847d");
   const cCliffHi=new THREE.Color("#b5b4ac");
   const tmp=new THREE.Color();
 
   const shadePoint=(x,z,y,dist)=>{
+    const pr=poolRAt(x,z);
+    const edgeDelta=Math.abs(dist-pr);
+    const inPool=dist<=pr-.25;
+    if(inPool){
+      // Neutral pool-bed tint avoids green rings showing through transparent water.
+      const bedNoise=(Math.sin(x*.052)+Math.cos(z*.048))*.5+.5;
+      tmp.lerpColors(cPoolBed,cPoolBedHi,bedNoise*.28);
+      col.push(tmp.r,tmp.g,tmp.b);
+      return;
+    }
+
     // Smooth hill tinting: no hard section boundaries.
     const hill=THREE.MathUtils.smoothstep(y,-0.45,2.2);
     const macro=(Math.sin(x*.03+z*.018)+Math.cos(z*.028-x*.014))*.24+.5;
     const tone=THREE.MathUtils.clamp(0.44+hill*.22+macro*.1,0,1);
     tmp.lerpColors(cGrassDeep,cGrassLight,tone).lerp(cGrassMid,.18);
-    // Lift grass tone around the pool perimeter so no dark annulus appears at the shoreline.
-    const edgeDelta=Math.abs(dist-poolRAt(x,z));
-    const shoreLift=1-THREE.MathUtils.smoothstep(edgeDelta,0,5.2);
-    if(shoreLift>0) tmp.lerp(cGrassLight,shoreLift*.42);
 
     const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.88,THREE.MathUtils.smoothstep(y,4,14)*.72);
     const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
@@ -150,6 +159,12 @@ function createTerrain(scene) {
     const len=Math.hypot(nx,ny,nz);
     const lit=THREE.MathUtils.clamp((nx*.54+ny*.78+nz*.31)/len*.5+.5,0,1);
     tmp.multiplyScalar(.87+lit*.16);
+    // Apply shoreline lift after lighting so it cannot darken back into a ring.
+    const shoreLift=1-THREE.MathUtils.smoothstep(edgeDelta,0,6.2);
+    if(shoreLift>0){
+      tmp.lerp(cGrassLight,shoreLift*.8);
+      tmp.multiplyScalar(1+shoreLift*.05);
+    }
     col.push(tmp.r,tmp.g,tmp.b);
   };
 
