@@ -879,24 +879,32 @@ function placeTrees(scene, blobTex, models, resourceNodes) {
   const templates = models.trees;
   if (!templates.length) return;
 
-  // Clusters of 2-4 trees each, intentionally placed
+  // South shore is OPEN — trees only on north, east, west sides + behind village
   const TREE_CLUSTERS = [
-    // Shore clusters — south-facing, framing the village view
-    { center: [26, -14], trees: [{dx:0,dz:0,s:1.8,r:0.25}, {dx:2.5,dz:1.2,s:1.5,r:1.1}, {dx:-1,dz:2,s:1.6,r:2.4}] },
-    { center: [-26, -14], trees: [{dx:0,dz:0,s:1.7,r:3.4}, {dx:2,dz:-1.5,s:1.5,r:4.2}] },
-    { center: [28, 8], trees: [{dx:0,dz:0,s:1.74,r:0.25}, {dx:-2.2,dz:1.8,s:1.58,r:1.1}, {dx:1.5,dz:2.5,s:1.5,r:2.0}] },
-    { center: [-28, 8], trees: [{dx:0,dz:0,s:1.72,r:4.8}, {dx:2.1,dz:1.4,s:1.54,r:5.3}] },
-    { center: [10, 28], trees: [{dx:0,dz:0,s:1.68,r:2.0}, {dx:-2,dz:-1,s:1.6,r:2.8}, {dx:1.8,dz:-1.8,s:1.5,r:0.4}] },
-    { center: [-10, 28], trees: [{dx:0,dz:0,s:1.6,r:2.8}, {dx:2.4,dz:0.5,s:1.56,r:3.6}, {dx:-1.5,dz:-1.2,s:1.52,r:0.9}] },
+    // ── North shore clusters (behind the lake, z > 0) ──
+    { center: [6, 30], trees: [{dx:0,dz:0,s:2.0,r:0.6}, {dx:2.8,dz:1.5,s:1.7,r:1.4}, {dx:-1.5,dz:2.2,s:1.8,r:2.8}] },
+    { center: [-8, 31], trees: [{dx:0,dz:0,s:1.9,r:3.2}, {dx:-2.5,dz:0.8,s:1.65,r:4.6}, {dx:1.2,dz:2.0,s:1.75,r:5.8}] },
+    { center: [20, 26], trees: [{dx:0,dz:0,s:1.85,r:1.0}, {dx:2.2,dz:-1.4,s:1.6,r:2.2}] },
+    { center: [-22, 25], trees: [{dx:0,dz:0,s:1.8,r:4.0}, {dx:-2.0,dz:-1.0,s:1.55,r:5.4}] },
+    { center: [0, 36], trees: [{dx:0,dz:0,s:2.1,r:0.2}, {dx:3.0,dz:0.5,s:1.7,r:1.8}, {dx:-2.5,dz:1.8,s:1.85,r:3.6}, {dx:1.0,dz:3.0,s:1.6,r:5.0}] },
 
-    // Village feature trees
-    { center: [-10, -33], trees: [{dx:0,dz:0,s:2.0,r:1.8}] },  // shade tree near bank
-    { center: [-20, -34], trees: [{dx:0,dz:0,s:1.9,r:0.9}] },  // between training and main path
-    { center: [14, -35], trees: [{dx:0,dz:0,s:1.8,r:2.7}, {dx:2.5,dz:-1,s:1.6,r:3.1}] },  // flanking construction
+    // ── East side clusters (x > 20) ──
+    { center: [32, 12], trees: [{dx:0,dz:0,s:1.9,r:0.8}, {dx:2.4,dz:1.8,s:1.6,r:2.0}, {dx:-1.0,dz:2.5,s:1.7,r:3.4}] },
+    { center: [34, -4], trees: [{dx:0,dz:0,s:1.75,r:4.4}, {dx:2.0,dz:-1.5,s:1.55,r:5.6}] },
 
-    // Forest backdrop (south of village, z ≈ -42 to -46)
-    { center: [-14, -43], trees: [{dx:0,dz:0,s:1.86,r:0.9}, {dx:2.2,dz:0.8,s:1.7,r:1.7}, {dx:-1.5,dz:1.5,s:1.78,r:2.4}, {dx:3.8,dz:-0.5,s:1.62,r:3.0}] },
-    { center: [10, -44], trees: [{dx:0,dz:0,s:1.88,r:3.6}, {dx:-2.0,dz:0.5,s:1.72,r:4.4}, {dx:2.5,dz:1.2,s:1.8,r:5.2}, {dx:0.5,dz:-1.8,s:1.66,r:0.3}] },
+    // ── West side clusters (x < -20) ──
+    { center: [-33, 10], trees: [{dx:0,dz:0,s:1.85,r:1.2}, {dx:-2.2,dz:1.6,s:1.65,r:2.6}, {dx:1.5,dz:2.8,s:1.7,r:4.2}] },
+    { center: [-35, -6], trees: [{dx:0,dz:0,s:1.8,r:5.0}, {dx:-1.8,dz:-1.2,s:1.6,r:0.4}] },
+
+    // ── Village accent trees (just a few, not blocking the view) ──
+    { center: [-16, -36], trees: [{dx:0,dz:0,s:2.2,r:1.8}] },  // shade tree between training & bank
+    { center: [13, -39], trees: [{dx:0,dz:0,s:1.9,r:2.7}] },  // near construction yard
+
+    // ── Forest backdrop (treeline south of village, z ≈ -44 to -47) ──
+    { center: [-18, -45], trees: [{dx:0,dz:0,s:2.0,r:0.9}, {dx:2.8,dz:0.5,s:1.8,r:1.7}, {dx:-2.0,dz:1.2,s:1.9,r:2.4}, {dx:5.0,dz:-0.8,s:1.7,r:3.0}] },
+    { center: [6, -46], trees: [{dx:0,dz:0,s:2.1,r:3.6}, {dx:-2.5,dz:0.8,s:1.85,r:4.4}, {dx:3.0,dz:1.0,s:1.95,r:5.2}, {dx:0.5,dz:-1.5,s:1.75,r:0.3}] },
+    { center: [24, -44], trees: [{dx:0,dz:0,s:1.9,r:1.4}, {dx:2.5,dz:1.5,s:1.7,r:2.8}] },
+    { center: [-6, -47], trees: [{dx:0,dz:0,s:1.85,r:4.8}, {dx:-3.0,dz:-0.5,s:1.75,r:0.6}] },
   ];
 
   let treeIdx = 0;
@@ -925,11 +933,11 @@ function placeRocks(scene, blobTex, models, resourceNodes) {
   const templates = models.rocks;
   if (!templates.length) return;
 
-  // 3 clusters of 2 rocks each for mining
+  // 3 clusters of 2 rocks each — east, west, and north of lake
   const ROCK_GROUPS = [
-    { center: [30, 8], rocks: [{dx:0,dz:0,s:1.8,r:0.3}, {dx:1.5,dz:0.8,s:1.4,r:2.1}] },
-    { center: [-28, -5], rocks: [{dx:0,dz:0,s:2.0,r:3.2}, {dx:-1.2,dz:1.5,s:1.6,r:5.0}] },
-    { center: [18, -22], rocks: [{dx:0,dz:0,s:1.7,r:4.1}, {dx:1.8,dz:-1.0,s:1.5,r:1.4}] },
+    { center: [34, 4], rocks: [{dx:0,dz:0,s:1.9,r:0.3}, {dx:1.8,dz:1.2,s:1.5,r:2.1}] },
+    { center: [-32, 6], rocks: [{dx:0,dz:0,s:2.0,r:3.2}, {dx:-1.5,dz:1.8,s:1.6,r:5.0}] },
+    { center: [14, 32], rocks: [{dx:0,dz:0,s:1.8,r:4.1}, {dx:2.0,dz:-1.2,s:1.5,r:1.4}] },
   ];
 
   let rockIdx = 0;
@@ -980,18 +988,20 @@ function placeBushes(scene, models) {
   if (!templates.length) return;
 
   const positions = [
-    // Along shore promenade path (z ≈ -30)
-    [-15, -30, 1.1, 0.4], [-8, -30.5, 1.05, 1.2], [5, -30.2, 1.08, 2.1], [12, -30.8, 1.12, 2.8],
-    // Around bank/store/blacksmith
-    [-9.5, -33, 1.0, 3.4], [-4.5, -33.5, 0.96, 4.2], [3.5, -33.2, 1.02, 4.9], [9.5, -33, 0.98, 5.6],
-    // Beach-grass edge (south side of lake)
-    [20, -26, 1.15, 0.5], [-18, -26.5, 1.1, 1.1], [0, -27, 1.08, 1.9], [10, -26.8, 1.06, 2.7],
-    // Lake perimeter (east/west/north)
-    [26.8, 7.9, 1.22, 0.2], [-26.8, 7.3, 1.2, 4.2], [8.7, 26.9, 1.14, 2.1], [-7.5, 27.5, 1.1, 2.8],
-    // Around training ground
-    [-28, -33, 0.96, 3.7], [-20, -38, 1.0, 5.2],
-    // Around construction yard
-    [22, -35, 1.04, 0.4], [15, -39, 1.0, 5.8],
+    // Along shore promenade path edges
+    [-14, -30.5, 1.1, 0.4], [14, -30.8, 1.12, 2.8],
+    // Flanking the village buildings
+    [-10, -33, 1.0, 3.4], [10, -33, 0.98, 5.6],
+    // North shore (behind the lake, decorative)
+    [8, 29, 1.14, 2.1], [-10, 30, 1.1, 2.8], [22, 24, 1.18, 0.2], [-24, 22, 1.2, 4.2],
+    // East/west side accents
+    [30, 8, 1.15, 0.5], [-30, 6, 1.1, 1.1], [32, -8, 1.08, 1.9], [-32, -10, 1.06, 2.7],
+    // Near training ground entrance
+    [-20, -34, 0.96, 3.7],
+    // Near construction yard entrance
+    [15, -35, 1.04, 0.4],
+    // Forest backdrop edge
+    [-10, -43, 1.0, 5.2], [16, -43, 1.0, 5.8], [0, -44, 0.96, 1.2], [-22, -44, 1.02, 3.0],
   ];
 
   for (let i = 0; i < positions.length; i++) {
@@ -1013,19 +1023,18 @@ function placeGrass(scene, models) {
   if (!templates.length) return;
 
   const placements = [
-    // Meadow between village and forest backdrop
+    // Wildflower meadow behind village
     [-8, -40], [4, -41], [-4, -39], [8, -40], [-12, -41], [12, -42],
-    // East meadow
-    [32, -28], [35, -22], [33, -16], [36, -10], [34, -4], [37, 3],
-    // West meadow
-    [-32, -28], [-35, -22], [-33, -16], [-36, -10], [-34, -4], [-37, 3],
-    // Around lake perimeter
-    [34, 11], [37, 3], [36, -7], [31, -16], [23, -24], [14, -30],
-    [-33, 14], [-37, 4], [-33, -15], [-30, -24], [-17, -30],
-    // Outer rings
-    [40, 14], [42, 4], [41, -8], [36, -18], [29, -27],
-    [-38, 17], [-42, 6], [-38, -18], [-31, -27],
-    [18, 34], [-20, 33], [5, 38], [-8, 37], [28, 28], [-27, 27],
+    // North shore meadow (behind the lake)
+    [4, 32], [-6, 34], [14, 30], [-14, 32], [0, 38], [8, 36], [-10, 37],
+    // East side meadows
+    [34, 11], [37, 3], [36, -7], [33, -16],
+    // West side meadows
+    [-33, 14], [-37, 4], [-33, -15], [-36, -8],
+    // Outer rings (beyond tree line)
+    [40, 14], [42, 4], [41, -8],
+    [-38, 17], [-42, 6], [-38, -18],
+    [28, 28], [-27, 27], [18, 34], [-20, 33],
   ];
 
   for (let i = 0; i < placements.length; i++) {
@@ -1048,10 +1057,14 @@ function placeMountainDecor(scene, models) {
   const treeTemplates = models.trees;
 
   const mountainRocks = [
-    [52, 10, 2.8, 0.4], [57, 23, 2.5, 1.2], [49, -16, 3.0, 2.0], [61, -8, 2.7, 2.9],
-    [46, 31, 2.4, 3.8], [69, 6, 3.1, 4.6], [66, -18, 2.9, 5.2], [54, -30, 2.6, 0.9],
-    [-52, 12, 2.8, 0.5], [-58, 25, 2.6, 1.4], [-49, -17, 3.0, 2.2], [-62, -9, 2.8, 3.1],
-    [-46, 30, 2.4, 4.1], [-69, 7, 3.1, 4.8], [-66, -19, 2.9, 5.4], [-55, -31, 2.7, 1.1],
+    // East mountains
+    [52, 10, 2.8, 0.4], [57, 23, 2.5, 1.2], [61, -8, 2.7, 2.9], [54, -22, 2.6, 0.9],
+    // West mountains
+    [-52, 12, 2.8, 0.5], [-58, 25, 2.6, 1.4], [-62, -9, 2.8, 3.1], [-55, -24, 2.7, 1.1],
+    // North mountains (dramatic backdrop behind lake)
+    [30, 52, 3.2, 3.8], [-25, 55, 3.0, 4.1], [8, 58, 3.4, 4.6], [-12, 54, 2.9, 4.8],
+    // South mountains (behind village, framing it)
+    [38, -48, 2.8, 5.2], [-35, -50, 3.0, 5.4], [10, -54, 3.1, 2.0], [-10, -52, 2.9, 2.2],
   ];
 
   if (rockTemplates.length) {
@@ -1068,8 +1081,14 @@ function placeMountainDecor(scene, models) {
   }
 
   const mountainTrees = [
-    [48, 15, 1.8, 0.2], [51, 28, 1.7, 1.0], [60, 12, 1.9, 1.8], [57, -11, 1.8, 2.5], [49, -25, 1.7, 3.2],
-    [-48, 15, 1.8, 0.4], [-51, 28, 1.7, 1.2], [-60, 12, 1.9, 2.0], [-57, -11, 1.8, 2.7], [-49, -25, 1.7, 3.4],
+    // East slopes
+    [48, 15, 1.8, 0.2], [51, 28, 1.7, 1.0], [56, 4, 1.9, 1.8],
+    // West slopes
+    [-48, 15, 1.8, 0.4], [-51, 28, 1.7, 1.2], [-56, 2, 1.9, 2.0],
+    // North slopes (behind lake)
+    [15, 48, 1.8, 2.5], [-12, 50, 1.7, 3.2], [0, 52, 1.9, 3.8],
+    // South slopes (behind village treeline)
+    [22, -48, 1.7, 2.7], [-20, -49, 1.8, 3.4],
   ];
 
   if (treeTemplates.length) {
@@ -1755,19 +1774,17 @@ function addLilyPads(scene) {
 function addWildflowers(scene) {
   const flowerColors = ["#f5a0c0", "#f7e663", "#c4a0f5", "#ff9e7a", "#a0d8f0", "#ffb6d9"];
   const flowerSpots = [
-    // Meadow behind village
+    // Wildflower meadow behind village (z < -39)
     [-6, -40], [2, -41], [-10, -42], [8, -43], [14, -41], [-14, -43],
-    // East side of village
-    [25, -30], [28, -26], [30, -20], [32, -14],
-    // West side of village
-    [-25, -30], [-28, -26], [-30, -20], [-32, -14],
-    // Around lake perimeter — scattered in natural spaces
-    [27, 15], [29, 16], [25, 14], [-25, 13], [-24, 15], [-28, 11],
-    [19, -24], [21, -23], [-21, -19], [-19, -21],
-    [31, 1], [33, 3], [-32, -8], [-34, -6],
-    [15, 32], [17, 33], [-18, 30], [-16, 32],
-    [10, -35], [8, -33], [-8, -32], [-10, -31],
-    [28, -20], [-30, -22], [35, 20], [-38, 14], [33, -24], [-34, 23],
+    [-2, -44], [10, -45], [-8, -46], [4, -44], [18, -43], [-18, -45],
+    // Along village path edges
+    [10, -35], [8, -33], [-8, -32], [-10, -31], [3, -36], [-5, -37],
+    // North shore meadow (behind the lake)
+    [6, 33], [8, 35], [-4, 34], [-8, 32], [14, 31], [-12, 33],
+    [2, 37], [-6, 38], [10, 36],
+    // East/west flanks
+    [30, 6], [32, -4], [-30, 8], [-32, -2],
+    [35, 20], [-34, 18], [28, 24], [-26, 22],
   ];
 
   const stemGeo = new THREE.CylinderGeometry(0.015, 0.018, 0.35, 4);
@@ -1815,8 +1832,8 @@ export async function createWorld(scene) {
     placeMountainDecor(scene, models);
   }
 
-  // 4 lounges along south beach at z≈-27, evenly spaced
-  [[-12, -27, 0], [-4, -27, 0], [4, -27, 0], [12, -27, 0]].forEach(
+  // 4 lounges on the south beach facing the lake
+  [[-10, -27, Math.PI], [-3.5, -27.5, Math.PI], [3.5, -27.5, Math.PI], [10, -27, Math.PI]].forEach(
     ([x, z, r]) => addLounge(scene, blobTex, x, z, r)
   );
 
