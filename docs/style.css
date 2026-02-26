@@ -48,53 +48,15 @@ body {
   z-index: 24;
 }
 
-#ui-brand {
-  position: fixed;
-  top: calc(16px + env(safe-area-inset-top));
-  left: calc(16px + env(safe-area-inset-left));
-  min-width: 170px;
-  padding: 12px 14px;
-  border: none;
-  border-radius: var(--ui-radius-lg);
-  background: var(--ui-glass);
-  box-shadow: var(--ui-shadow-lg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-}
-
-#ui-brand::after {
-  display: none;
-}
-
-#ui-brand h1 {
-  margin: 0;
-  line-height: 1;
-  font-family: var(--ui-font-heading);
-  font-size: clamp(24px, 2.2vw, 34px);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: var(--ui-ink-1);
-  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.2);
-}
-
-#ui-brand p {
-  margin: 8px 0 2px;
-  color: var(--ui-ink-3);
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: clamp(10px, 0.86vw, 12px);
-  font-weight: 700;
-}
-
 #ui-coins-chip {
   position: fixed;
   top: calc(16px + env(safe-area-inset-top));
-  right: calc(370px + env(safe-area-inset-right));
+  left: calc(16px + env(safe-area-inset-left));
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-height: 38px;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border-radius: 999px;
   border: none;
   background: rgba(255, 245, 210, 0.35);
@@ -756,7 +718,7 @@ body {
   }
 
   #ui-coins-chip {
-    right: calc(350px + env(safe-area-inset-right));
+    left: calc(14px + env(safe-area-inset-left));
   }
 
   #ui-dock {
@@ -773,22 +735,6 @@ body {
 }
 
 @media (max-width: 760px) {
-  #ui-brand {
-    top: calc(10px + env(safe-area-inset-top));
-    left: calc(10px + env(safe-area-inset-left));
-    min-width: 142px;
-    padding: 10px 11px;
-  }
-
-  #ui-brand h1 {
-    font-size: clamp(24px, 8vw, 30px);
-  }
-
-  #ui-brand p {
-    margin-top: 7px;
-    font-size: 10px;
-  }
-
   #ui-mobile-toggle {
     display: inline-flex;
     align-items: center;
@@ -801,7 +747,7 @@ body {
 
   #ui-coins-chip {
     top: calc(10px + env(safe-area-inset-top));
-    right: calc(90px + env(safe-area-inset-right));
+    left: calc(10px + env(safe-area-inset-left));
     min-height: 34px;
     padding: 6px 10px;
   }
@@ -874,15 +820,6 @@ body {
 }
 
 @media (max-width: 460px) {
-  #ui-brand {
-    min-width: 128px;
-    padding: 9px 10px;
-  }
-
-  #ui-brand h1 {
-    font-size: clamp(22px, 7vw, 27px);
-  }
-
   #ui-mobile-toggle {
     min-width: 66px;
     padding: 0 12px;
@@ -891,7 +828,7 @@ body {
   }
 
   #ui-coins-chip {
-    right: calc(78px + env(safe-area-inset-right));
+    left: calc(10px + env(safe-area-inset-left));
     min-height: 32px;
     padding: 5px 9px;
     gap: 6px;

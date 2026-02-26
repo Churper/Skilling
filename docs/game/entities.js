@@ -468,7 +468,7 @@ function createStaffMesh() {
 export function createCombatEffects(scene) {
   const effects = [];
 
-  function attack(style, position, yaw, charge = 0) {
+  function attack(style, position, yaw, charge = 0, targetPos = null) {
     const c = THREE.MathUtils.clamp(charge, 0, 1);
     if (style === "melee") {
       const radius = THREE.MathUtils.lerp(0.5, 1.2, c);
@@ -510,34 +510,150 @@ export function createCombatEffects(scene) {
       const speed = THREE.MathUtils.lerp(20, 35, c);
       effects.push({ mesh: group, age: 0, duration: 0.6, type: "bow", yaw, speed });
     } else if (style === "mage") {
-      const fireColors = ["#ff4400", "#ff6600", "#ff8800", "#ffaa00", "#ffcc00", "#ff3300", "#ff5500", "#ff7700"];
-      const count = Math.round(THREE.MathUtils.lerp(4, 12, c));
-      const velScale = THREE.MathUtils.lerp(0.6, 1.2, c);
-      for (let i = 0; i < count; i++) {
-        const particle = new THREE.Mesh(
-          new THREE.SphereGeometry(0.06 + Math.random() * 0.04, 6, 6),
+      const tx = targetPos ? targetPos.x : position.x + Math.sin(yaw) * 3;
+      const tz = targetPos ? targetPos.z : position.z + Math.cos(yaw) * 3;
+      const ty = targetPos ? targetPos.y : position.y;
+
+      // Phase 1: Ground shadow / targeting circle
+      const shadowGeo = new THREE.RingGeometry(0.2, 1.1, 32);
+      const shadowMat = new THREE.MeshBasicMaterial({
+        color: "#220000",
+        transparent: true,
+        opacity: 0.0,
+        depthWrite: false,
+        depthTest: false,
+        side: THREE.DoubleSide,
+      });
+      const shadow = new THREE.Mesh(shadowGeo, shadowMat);
+      shadow.rotation.x = -Math.PI / 2;
+      shadow.position.set(tx, ty + 0.08, tz);
+      shadow.renderOrder = 97;
+      scene.add(shadow);
+
+      // Inner rune circle
+      const runeGeo = new THREE.RingGeometry(0.45, 0.55, 24);
+      const runeMat = new THREE.MeshBasicMaterial({
+        color: "#ff4400",
+        transparent: true,
+        opacity: 0.0,
+        depthWrite: false,
+        depthTest: false,
+        side: THREE.DoubleSide,
+      });
+      const rune = new THREE.Mesh(runeGeo, runeMat);
+      rune.rotation.x = -Math.PI / 2;
+      rune.position.set(tx, ty + 0.09, tz);
+      rune.renderOrder = 98;
+      scene.add(rune);
+
+      effects.push({
+        mesh: shadow,
+        age: 0,
+        duration: 1.4,
+        type: "mage-shadow",
+        rune,
+        tx, tz, ty,
+        impactSpawned: false,
+      });
+
+      // Phase 2: Fire meteor falling from sky (starts after 0.35s delay)
+      const meteorGroup = new THREE.Group();
+      // Core fireball
+      const coreGeo = new THREE.SphereGeometry(0.28, 10, 10);
+      const coreMat = new THREE.MeshBasicMaterial({
+        color: "#ff6600",
+        transparent: true,
+        opacity: 0.95,
+        depthWrite: false,
+      });
+      meteorGroup.add(new THREE.Mesh(coreGeo, coreMat));
+      // Outer glow
+      const glowGeo = new THREE.SphereGeometry(0.45, 8, 8);
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: "#ff3300",
+        transparent: true,
+        opacity: 0.4,
+        depthWrite: false,
+      });
+      meteorGroup.add(new THREE.Mesh(glowGeo, glowMat));
+      // Trailing embers
+      const emberColors = ["#ff4400", "#ff8800", "#ffcc00", "#ff6600"];
+      for (let i = 0; i < 6; i++) {
+        const ember = new THREE.Mesh(
+          new THREE.SphereGeometry(0.06 + Math.random() * 0.06, 5, 5),
           new THREE.MeshBasicMaterial({
-            color: fireColors[i % fireColors.length],
+            color: emberColors[i % emberColors.length],
             transparent: true,
-            opacity: 0.9,
+            opacity: 0.8,
             depthWrite: false,
           })
         );
-        const angle = (i / count) * Math.PI * 2 + Math.random() * 0.3;
-        particle.position.copy(position);
-        particle.position.y += 0.4;
-        scene.add(particle);
-        effects.push({
-          mesh: particle,
-          age: 0,
-          duration: 0.7,
-          type: "mage",
-          vx: Math.sin(angle) * (3 + Math.random() * 2) * velScale,
-          vy: (2 + Math.random() * 1.5) * velScale,
-          vz: Math.cos(angle) * (3 + Math.random() * 2) * velScale,
-        });
+        ember.position.set(
+          (Math.random() - 0.5) * 0.3,
+          0.3 + Math.random() * 0.5,
+          (Math.random() - 0.5) * 0.3
+        );
+        meteorGroup.add(ember);
       }
+      meteorGroup.position.set(tx, ty + 12, tz);
+      meteorGroup.visible = false;
+      scene.add(meteorGroup);
+
+      effects.push({
+        mesh: meteorGroup,
+        age: 0,
+        duration: 1.0,
+        type: "mage-meteor",
+        tx, tz, ty,
+        startY: ty + 12,
+        delay: 0.35,
+        impactSpawned: false,
+      });
     }
+  }
+
+  function spawnImpact(tx, ty, tz) {
+    const fireColors = ["#ff4400", "#ff6600", "#ff8800", "#ffaa00", "#ffcc00", "#ff2200"];
+    for (let i = 0; i < 10; i++) {
+      const angle = (i / 10) * Math.PI * 2 + Math.random() * 0.4;
+      const speed = 2.5 + Math.random() * 3.5;
+      const particle = new THREE.Mesh(
+        new THREE.SphereGeometry(0.08 + Math.random() * 0.06, 5, 5),
+        new THREE.MeshBasicMaterial({
+          color: fireColors[i % fireColors.length],
+          transparent: true,
+          opacity: 0.95,
+          depthWrite: false,
+        })
+      );
+      particle.position.set(tx, ty + 0.3, tz);
+      scene.add(particle);
+      effects.push({
+        mesh: particle,
+        age: 0,
+        duration: 0.55,
+        type: "mage-burst",
+        vx: Math.sin(angle) * speed,
+        vy: 1.5 + Math.random() * 2.5,
+        vz: Math.cos(angle) * speed,
+      });
+    }
+    // Shockwave ring
+    const ringGeo = new THREE.RingGeometry(0.1, 0.3, 24);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: "#ff8844",
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+      depthTest: false,
+      side: THREE.DoubleSide,
+    });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.set(tx, ty + 0.12, tz);
+    ring.renderOrder = 98;
+    scene.add(ring);
+    effects.push({ mesh: ring, age: 0, duration: 0.45, type: "mage-ring" });
   }
 
   function update(dt) {
@@ -549,6 +665,19 @@ export function createCombatEffects(scene) {
         scene.remove(fx.mesh);
         if (fx.mesh.material) fx.mesh.material.dispose();
         if (fx.mesh.geometry) fx.mesh.geometry.dispose();
+        // Clean up rune sub-mesh for shadow
+        if (fx.rune) {
+          scene.remove(fx.rune);
+          fx.rune.material.dispose();
+          fx.rune.geometry.dispose();
+        }
+        // Clean up meteor group children
+        if (fx.mesh.isGroup || fx.mesh.children?.length) {
+          fx.mesh.traverse((child) => {
+            if (child.material) child.material.dispose();
+            if (child.geometry) child.geometry.dispose();
+          });
+        }
         effects.splice(i, 1);
         continue;
       }
@@ -560,14 +689,60 @@ export function createCombatEffects(scene) {
       } else if (fx.type === "bow") {
         fx.mesh.position.x += Math.sin(fx.yaw) * fx.speed * dt;
         fx.mesh.position.z += Math.cos(fx.yaw) * fx.speed * dt;
-      } else if (fx.type === "mage") {
+      } else if (fx.type === "mage-shadow") {
+        // Fade in shadow, then pulse, then fade out
+        const fadeIn = Math.min(1, fx.age / 0.3);
+        const fadeOut = Math.max(0, 1 - (fx.age - 0.9) / 0.5);
+        const pulse = 0.55 + Math.sin(fx.age * 10) * 0.15;
+        fx.mesh.material.opacity = fadeIn * fadeOut * pulse * 0.5;
+        fx.mesh.scale.setScalar(0.6 + fadeIn * 0.4);
+        // Rune ring
+        if (fx.rune) {
+          fx.rune.material.opacity = fadeIn * fadeOut * (0.6 + Math.sin(fx.age * 14) * 0.2);
+          fx.rune.rotation.z += dt * 3.5;
+          fx.rune.scale.setScalar(0.7 + fadeIn * 0.3);
+        }
+      } else if (fx.type === "mage-meteor") {
+        if (fx.age < fx.delay) {
+          fx.mesh.visible = false;
+          continue;
+        }
+        fx.mesh.visible = true;
+        const meteorT = (fx.age - fx.delay) / (fx.duration - fx.delay);
+        const eased = meteorT * meteorT; // accelerating fall
+        const currentY = THREE.MathUtils.lerp(fx.startY, fx.ty + 0.3, eased);
+        fx.mesh.position.y = currentY;
+
+        // Animate trailing embers
+        fx.mesh.children.forEach((child, idx) => {
+          if (idx >= 2) {
+            child.position.y = 0.3 + Math.random() * (1.0 - meteorT) * 0.8;
+            child.position.x = (Math.random() - 0.5) * (1.0 - meteorT) * 0.5;
+            child.position.z = (Math.random() - 0.5) * (1.0 - meteorT) * 0.5;
+            child.material.opacity = (1 - meteorT) * 0.8;
+          }
+        });
+
+        // Pulse core
+        const coreScale = 0.8 + Math.sin(fx.age * 18) * 0.15 + meteorT * 0.4;
+        fx.mesh.children[0].scale.setScalar(coreScale);
+
+        // Spawn impact explosion when hitting ground
+        if (meteorT >= 0.95 && !fx.impactSpawned) {
+          fx.impactSpawned = true;
+          spawnImpact(fx.tx, fx.ty, fx.tz);
+        }
+      } else if (fx.type === "mage-burst") {
         fx.mesh.position.x += fx.vx * dt;
         fx.mesh.position.y += fx.vy * dt;
         fx.mesh.position.z += fx.vz * dt;
-        fx.vy -= 9.8 * dt; // gravity
-        fx.mesh.material.opacity = (1 - t) * 0.9;
-        const s = 1 - t * 0.5;
-        fx.mesh.scale.setScalar(s);
+        fx.vy -= 12.0 * dt;
+        fx.mesh.material.opacity = (1 - t) * 0.95;
+        fx.mesh.scale.setScalar(1 - t * 0.6);
+      } else if (fx.type === "mage-ring") {
+        const scale = 1 + t * 4.5;
+        fx.mesh.scale.setScalar(scale);
+        fx.mesh.material.opacity = (1 - t) * 0.85;
       }
     }
   }

@@ -258,14 +258,14 @@ let activeGather = null;
 let activeAttack = null;
 
 function getAttackRange() {
-  if (combatStyle === "bow") return 8.0;
-  if (combatStyle === "mage") return 7.0;
+  if (combatStyle === "bow") return 14.0;
+  if (combatStyle === "mage") return 12.0;
   return 2.7;
 }
 
 function getAttackInterval() {
   if (combatStyle === "bow") return 1.0;
-  if (combatStyle === "mage") return 0.9;
+  if (combatStyle === "mage") return 1.2;
   return 0.7;
 }
 
@@ -817,7 +817,7 @@ function performAttackHit(node) {
   const dz = dummyPos.z - player.position.z;
   const yaw = Math.atan2(dx, dz);
   player.rotation.y = yaw;
-  combatEffects.attack(combatStyle, player.position.clone(), yaw, 0.5);
+  combatEffects.attack(combatStyle, player.position.clone(), yaw, 0.5, dummyPos.clone());
   const minDmg = 1, maxDmg = 15;
   const damage = Math.floor(Math.random() * (maxDmg - minDmg + 1)) + minDmg;
   spawnFloatingDrop(dummyPos.x, dummyPos.z, `Hit ${damage}`, "combat");
@@ -932,6 +932,55 @@ function onInteractNode(node, hitPoint) {
   startGather(node);
 }
 
+// ── Hover selection indicator ──
+let hoverIndicator = null;
+let hoveredNode = null;
+const hoverRingGeo = new THREE.RingGeometry(0.7, 0.88, 32);
+const hoverRingMat = new THREE.MeshBasicMaterial({
+  color: "#ffffff",
+  transparent: true,
+  opacity: 0.0,
+  depthWrite: false,
+  depthTest: false,
+  side: THREE.DoubleSide,
+});
+hoverIndicator = new THREE.Mesh(hoverRingGeo, hoverRingMat);
+hoverIndicator.rotation.x = -Math.PI / 2;
+hoverIndicator.renderOrder = 99;
+hoverIndicator.visible = false;
+scene.add(hoverIndicator);
+
+function onHoverChange(node) {
+  hoveredNode = node;
+  if (!node) {
+    hoverIndicator.visible = false;
+    return;
+  }
+  const pos = new THREE.Vector3();
+  node.getWorldPosition(pos);
+  const gy = getPlayerGroundY(pos.x, pos.z);
+  const waterY = getWaterSurfaceHeight(pos.x, pos.z, waterUniforms.uTime.value);
+  const baseY = Number.isFinite(waterY) ? waterY + 0.04 : gy + 0.06;
+  hoverIndicator.position.set(pos.x, baseY, pos.z);
+
+  // Scale ring based on object type
+  const isTree = node.userData?.resourceType === "woodcutting";
+  const isService = !!node.userData?.serviceType;
+  const scale = isTree ? 2.2 : isService ? 1.8 : 1.4;
+  hoverIndicator.scale.setScalar(scale);
+
+  // Color by type
+  const colorMap = {
+    woodcutting: "#7dff7d",
+    mining: "#ffcc66",
+    fishing: "#66ccff",
+  };
+  const serviceColor = "#ffffff";
+  const col = node.userData?.resourceType ? (colorMap[node.userData.resourceType] || "#ffffff") : serviceColor;
+  hoverRingMat.color.set(col);
+  hoverIndicator.visible = true;
+}
+
 const input = createInputController({
   domElement: renderer.domElement,
   camera,
@@ -940,6 +989,7 @@ const input = createInputController({
   setMoveTarget,
   interactables: resourceNodes,
   onInteract: onInteractNode,
+  onHoverChange,
 });
 
 const worldUp = new THREE.Vector3(0, 1, 0);
@@ -1106,6 +1156,18 @@ function animate() {
   combatEffects.update(dt);
   updateSlimeTrail(dt, t, isMovingNow);
   remotePlayers.update(dt);
+
+  // Animate hover indicator
+  if (hoverIndicator.visible && hoveredNode) {
+    const pos = new THREE.Vector3();
+    hoveredNode.getWorldPosition(pos);
+    const gy = getPlayerGroundY(pos.x, pos.z);
+    const waterY2 = getWaterSurfaceHeight(pos.x, pos.z, waterUniforms.uTime.value);
+    const baseY2 = Number.isFinite(waterY2) ? waterY2 + 0.04 : gy + 0.06;
+    hoverIndicator.position.set(pos.x, baseY2, pos.z);
+    hoverIndicator.rotation.z += dt * 1.2;
+    hoverRingMat.opacity = 0.45 + Math.sin(t * 4.5) * 0.2;
+  }
 
   if (marker.visible) {
     if (markerOnWater) {

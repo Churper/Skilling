@@ -1,11 +1,12 @@
 import * as THREE from "three";
 
-export function createInputController({ domElement, camera, ground, player, setMoveTarget, interactables = [], onInteract = null }) {
+export function createInputController({ domElement, camera, ground, player, setMoveTarget, interactables = [], onInteract = null, onHoverChange = null }) {
   const keys = new Set();
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   const walkPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -player.position.y);
   let downInfo = null;
+  let hoveredRoot = null;
 
   // Suppress context menu on canvas so right-click doesn't pop a menu
   domElement.addEventListener("contextmenu", (e) => e.preventDefault());
@@ -60,6 +61,16 @@ export function createInputController({ domElement, camera, ground, player, setM
   });
 
   domElement.addEventListener("pointermove", (event) => {
+    // Hover detection when not dragging
+    if (!downInfo || !(event.buttons & 1)) {
+      const interaction = getInteractable(event.clientX, event.clientY);
+      const newRoot = interaction ? interaction.root : null;
+      if (newRoot !== hoveredRoot) {
+        hoveredRoot = newRoot;
+        domElement.style.cursor = hoveredRoot ? "pointer" : "";
+        if (typeof onHoverChange === "function") onHoverChange(hoveredRoot);
+      }
+    }
     if (!downInfo || downInfo.id !== event.pointerId || !(event.buttons & 1)) return;
     if (Math.hypot(event.clientX - downInfo.x, event.clientY - downInfo.y) > 8) downInfo.moved = true;
     if (downInfo.pointerType === "mouse" && downInfo.moved) {
@@ -89,5 +100,5 @@ export function createInputController({ domElement, camera, ground, player, setM
   });
   window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
 
-  return { keys };
+  return { keys, getHovered: () => hoveredRoot };
 }

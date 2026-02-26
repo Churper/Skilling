@@ -233,8 +233,8 @@ function createGround(scene) {
     const r = Math.hypot(x, z);
     let y = sampleTerrainHeight(x, z);
     const waterR = getWaterRadiusAt(x, z);
-    if (r < waterR + 0.5) {
-      y -= (1.0 - THREE.MathUtils.smoothstep(r, waterR - 1.5, waterR + 0.5)) * 1.2;
+    if (r < waterR + 1.0) {
+      y -= (1.0 - THREE.MathUtils.smoothstep(r, waterR - 2.0, waterR + 1.0)) * 1.2;
     }
     tPos.setZ(i, y);
 
@@ -1282,7 +1282,7 @@ function createConformingRing(innerRadius, outerRadius, radialSegments = 14, the
 }
 
 function addLakeRings(scene) {
-  const segs = 360, rings = 20, outerR = 36;
+  const segs = 360, rings = 28, outerR = 40;
   const positions = [], colors = [], indices = [];
   const vpr = segs + 1; // vertices per ring row (close the loop)
   const cWaterEdge = new THREE.Color("#a8ddd8");
@@ -1292,27 +1292,27 @@ function addLakeRings(scene) {
     const rt = r / rings;
     for (let s = 0; s <= segs; s++) {
       const angle = (s / segs) * Math.PI * 2;
-      const innerR = getLakeRadiusAtAngle(angle) - 4.0;
+      const innerR = getLakeRadiusAtAngle(angle) - 6.0;
       const radius = innerR + (outerR - innerR) * rt;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const distR = Math.hypot(x, z);
       const waterR = getWaterRadiusAtAngle(angle);
       let y;
-      if (distR < waterR - 2.5) {
-        y = WATER_SURFACE_Y - 0.08;
-      } else if (distR < waterR + 2.5) {
-        const t = THREE.MathUtils.smoothstep(distR, waterR - 2.5, waterR + 2.5);
+      if (distR < waterR - 3.5) {
+        y = WATER_SURFACE_Y - 0.06;
+      } else if (distR < waterR + 3.5) {
+        const t = THREE.MathUtils.smoothstep(distR, waterR - 3.5, waterR + 3.5);
         const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.01);
-        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.08, shoreH + SHORE_LIFT, t);
+        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.06, shoreH + SHORE_LIFT, t);
       } else {
         y = sampleTerrainHeight(x, z) + SHORE_LIFT;
       }
       positions.push(x, y, z);
 
       // Vertex color: blend water-edge teal -> sand -> grass based on distance from water
-      const shoreT = THREE.MathUtils.smoothstep(distR, waterR - 2.0, waterR + 3.5);
-      const grassT = THREE.MathUtils.smoothstep(distR, waterR + 2.0, waterR + 6.0);
+      const shoreT = THREE.MathUtils.smoothstep(distR, waterR - 2.5, waterR + 4.0);
+      const grassT = THREE.MathUtils.smoothstep(distR, waterR + 2.5, waterR + 7.0);
       const c = new THREE.Color().copy(cWaterEdge).lerp(cSand, shoreT);
       c.lerp(cGrass, grassT);
       colors.push(c.r, c.g, c.b);
