@@ -33,8 +33,8 @@ const LAKE_RADIUS = 24.0;
 const WATER_RADIUS = 24.2;
 const LAKE_BOWL_Y = 0.58;
 const WATER_SURFACE_Y = 0.596;
-const MOUNTAIN_START = 48;
-const MOUNTAIN_END = 105;
+const MOUNTAIN_START = 46;
+const MOUNTAIN_END = 100;
 const MAP_RADIUS = 115;
 const RENDER_GROUND = 0;
 const RENDER_SHORE = 1;
@@ -82,11 +82,11 @@ function sampleTerrainHeight(x, z) {
   // Mountains at map edges
   if (r > MOUNTAIN_START) {
     const mt = THREE.MathUtils.smoothstep(r, MOUNTAIN_START, MOUNTAIN_END);
-    const mountainH = mt * mt * 40;
+    const mountainH = mt * mt * 70;
     const angle = Math.atan2(z, x);
-    const ridge = (Math.sin(angle * 13.7 + x * 0.15) * 0.5 + 0.5) * mt * 5;
-    const ridge2 = (Math.cos(angle * 7.3 - z * 0.12) * 0.5 + 0.5) * mt * 3;
-    const detail = Math.sin(x * 0.18) * Math.cos(z * 0.14) * mt * 1.5;
+    const ridge = (Math.sin(angle * 13.7 + x * 0.15) * 0.5 + 0.5) * mt * 8;
+    const ridge2 = (Math.cos(angle * 7.3 - z * 0.12) * 0.5 + 0.5) * mt * 5;
+    const detail = Math.sin(x * 0.18) * Math.cos(z * 0.14) * mt * 3;
     return flatTerrain + mountainH + ridge + ridge2 + detail;
   }
 
@@ -145,10 +145,11 @@ function addServiceHotspot(parent, x, y, z, radius = 0.9, height = 1.6) {
 function addSky(scene) {
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
+    fog: false,
     uniforms: {
       cTop: { value: new THREE.Color("#2888d4") },
       cMid: { value: new THREE.Color("#6ec8f4") },
-      cBot: { value: new THREE.Color("#c8e8d0") },
+      cBot: { value: new THREE.Color("#a8d8ee") },
       uTime: { value: 0 },
     },
     vertexShader: `
@@ -291,7 +292,7 @@ function createRadialTerrain(scene) {
   geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.computeVertexNormals();
 
-  const terrain = new THREE.Mesh(geo, toonMat("#ffffff", { vertexColors: true }));
+  const terrain = new THREE.Mesh(geo, toonMat("#ffffff", { vertexColors: true, fog: false }));
   terrain.renderOrder = RENDER_GROUND;
   scene.add(terrain);
   return terrain;
@@ -579,14 +580,14 @@ function createWater(scene) {
                          + sin(ang * 13.0 - t * 0.8) * 0.010
                          + sin(ang * 21.0 + t * 1.6) * 0.005;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.72, 0.90, foamEdge) * (1.0 - smoothstep(0.96, 0.998, foamEdge));
-        foam *= 0.65 + foamNoise * 0.55;
+        float foam = smoothstep(0.80, 0.92, foamEdge) * (1.0 - smoothstep(0.97, 1.0, foamEdge));
+        foam *= 0.55 + foamNoise * 0.45;
         foam = clamp(foam, 0.0, 1.0);
-        col = mix(col, vec3(1.0, 1.0, 0.97), foam * 0.9);
+        col = mix(col, mix(uShallow, vec3(1.0), 0.5), foam * 0.65);
 
-        float bodyAlpha = mix(0.62, 0.28, smoothstep(0.04, 0.82, radial));
-        float edgeFade = 1.0 - smoothstep(0.94, 0.999, foamEdge);
-        float alpha = max(bodyAlpha * edgeFade, foam * 0.96);
+        float bodyAlpha = mix(0.68, 0.45, smoothstep(0.04, 0.85, radial));
+        float edgeFade = 1.0 - smoothstep(0.96, 1.0, foamEdge);
+        float alpha = max(bodyAlpha * edgeFade, foam * 0.85);
         if (alpha < 0.002) discard;
 
         gl_FragColor = vec4(col, alpha);
@@ -733,29 +734,27 @@ function placeTrees(scene, blobTex, models, resourceNodes) {
 
   const positions = [];
 
-  // Shore trees (r=27-33) — spaced ring around the lake
-  for (let i = 0; i < 12; i++) {
-    const angle = (i / 12) * Math.PI * 2 + (rng() - 0.5) * 0.2;
+  // Shore trees (r=27-33) — loose ring around the lake, 8 trees
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2 + (rng() - 0.5) * 0.15;
     const r = 27 + rng() * 5;
     positions.push([Math.cos(angle) * r, Math.sin(angle) * r]);
   }
 
-  // Forest groves (r=34-45) — small clusters with breathing room
-  const groveCenters = [
-    [36, 12], [-34, 16], [16, 36], [-14, 35],
-    [36, -14], [-35, -12], [6, -37], [-8, 38],
+  // Scattered individual trees (r=34-44) — no dense clusters, just singles
+  const soloPositions = [
+    [36, 14], [-33, 18], [18, 35], [-16, 34],
+    [35, -16], [-34, -14], [8, -36], [-10, 37],
+    [40, 4], [-38, -8], [14, 40], [-12, -38],
   ];
-  for (const [cx, cz] of groveCenters) {
-    const count = 2 + Math.floor(rng() * 2);
-    for (let j = 0; j < count; j++) {
-      positions.push([cx + (rng() - 0.5) * 7, cz + (rng() - 0.5) * 7]);
-    }
+  for (const [x, z] of soloPositions) {
+    positions.push([x + (rng() - 0.5) * 3, z + (rng() - 0.5) * 3]);
   }
 
-  // Mountain fringe (r=44-50) — scattered treeline
-  for (let i = 0; i < 8; i++) {
-    const angle = (i / 8) * Math.PI * 2 + (rng() - 0.5) * 0.35;
-    const r = 44 + rng() * 6;
+  // Mountain fringe (r=44-48) — sparse, 6 trees
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2 + (rng() - 0.5) * 0.4;
+    const r = 44 + rng() * 4;
     positions.push([Math.cos(angle) * r, Math.sin(angle) * r]);
   }
 
@@ -828,17 +827,17 @@ function placeBushes(scene, models) {
 
   const positions = [];
 
-  // Undergrowth near shore (r=26-34) — clustered near tree bases
-  for (let i = 0; i < 16; i++) {
-    const angle = (i / 16) * Math.PI * 2 + (rng() - 0.5) * 0.35;
+  // Undergrowth near shore (r=26-34)
+  for (let i = 0; i < 10; i++) {
+    const angle = (i / 10) * Math.PI * 2 + (rng() - 0.5) * 0.35;
     const r = 26 + rng() * 7;
     positions.push([Math.cos(angle) * r, Math.sin(angle) * r, 1.0 + rng() * 0.6]);
   }
 
-  // Scattered mid-field bushes (r=34-46)
-  for (let i = 0; i < 18; i++) {
-    const angle = (i / 18) * Math.PI * 2 + (rng() - 0.5) * 0.4;
-    const r = 34 + rng() * 11;
+  // Scattered mid-field bushes (r=34-44)
+  for (let i = 0; i < 10; i++) {
+    const angle = (i / 10) * Math.PI * 2 + (rng() - 0.5) * 0.4;
+    const r = 34 + rng() * 10;
     positions.push([Math.cos(angle) * r, Math.sin(angle) * r, 0.9 + rng() * 0.5]);
   }
 
@@ -860,8 +859,8 @@ function placeGrass(scene, models) {
   if (!templates.length) return;
   const rng = seededRandom(5678);
 
-  // Scatter grass densely across the entire playable area
-  for (let i = 0; i < 120; i++) {
+  // Scatter grass across the playable area
+  for (let i = 0; i < 50; i++) {
     const angle = rng() * Math.PI * 2;
     const r = 25 + rng() * 24;
     const x = Math.cos(angle) * r + (rng() - 0.5) * 3;
@@ -886,9 +885,9 @@ function placeMountainDecor(scene, models) {
 
   // Rocks scattered across mountain slopes
   if (rockTemplates.length) {
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 15; i++) {
       const angle = rng() * Math.PI * 2;
-      const r = 55 + rng() * 35;
+      const r = 50 + rng() * 30;
       const x = Math.cos(angle) * r;
       const z = Math.sin(angle) * r;
       const template = rockTemplates[Math.floor(rng() * rockTemplates.length)];
@@ -903,11 +902,11 @@ function placeMountainDecor(scene, models) {
     }
   }
 
-  // Leafy trees on lower mountain slopes (tropical = green everywhere)
+  // Leafy trees on lower mountain slopes
   if (treeTemplates.length) {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const angle = rng() * Math.PI * 2;
-      const r = 53 + rng() * 16;
+      const r = 48 + rng() * 14;
       const x = Math.cos(angle) * r;
       const z = Math.sin(angle) * r;
       const template = treeTemplates[Math.floor(rng() * treeTemplates.length)];
