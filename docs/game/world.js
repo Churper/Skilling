@@ -131,6 +131,10 @@ function createTerrain(scene) {
     const macro=(Math.sin(x*.03+z*.018)+Math.cos(z*.028-x*.014))*.24+.5;
     const tone=THREE.MathUtils.clamp(0.44+hill*.22+macro*.1,0,1);
     tmp.lerpColors(cGrassDeep,cGrassLight,tone).lerp(cGrassMid,.18);
+    // Lift grass tone around the pool perimeter so no dark annulus appears at the shoreline.
+    const edgeDelta=Math.abs(dist-poolRAt(x,z));
+    const shoreLift=1-THREE.MathUtils.smoothstep(edgeDelta,0,5.2);
+    if(shoreLift>0) tmp.lerp(cGrassLight,shoreLift*.42);
 
     const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.88,THREE.MathUtils.smoothstep(y,4,14)*.72);
     const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
