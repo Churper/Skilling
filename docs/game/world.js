@@ -70,8 +70,9 @@ function poolFloorH(x,z) {
   const t=r/pr;
   // Keep shoreline transition continuous with terrain so entering water does not "bump" upward.
   const basin=WATER_Y-(0.52+Math.pow(1-t,1.75)*1.25);
-  const shore=terrainH(x,z)-0.02;
-  return THREE.MathUtils.lerp(basin,shore,THREE.MathUtils.smoothstep(t,.82,1));
+  const shore=terrainH(x,z)-0.01;
+  // Narrow blend band to avoid a broad dark annulus around the pool edge.
+  return THREE.MathUtils.lerp(basin,shore,THREE.MathUtils.smoothstep(t,.95,1));
 }
 
 export function getWorldSurfaceHeight(x,z) {
@@ -117,19 +118,19 @@ function addSky(scene) {
 function createTerrain(scene) {
   const outer=MAP_R, aS=88, rR=40;
   const pos=[],col=[],idx=[];
-  const cGrassDeep=new THREE.Color("#1b6f16");
-  const cGrassMid=new THREE.Color("#2a8620");
-  const cGrassLight=new THREE.Color("#3ea62d");
+  const cGrassDeep=new THREE.Color("#23751c");
+  const cGrassMid=new THREE.Color("#2f8b24");
+  const cGrassLight=new THREE.Color("#41a933");
   const cRock=new THREE.Color("#9b9a93"), cCliff=new THREE.Color("#86847d");
   const cCliffHi=new THREE.Color("#b5b4ac");
   const tmp=new THREE.Color();
 
   const shadePoint=(x,z,y,dist)=>{
     // Smooth hill tinting: no hard section boundaries.
-    const hill=THREE.MathUtils.smoothstep(y,-0.28,1.9);
+    const hill=THREE.MathUtils.smoothstep(y,-0.45,2.2);
     const macro=(Math.sin(x*.03+z*.018)+Math.cos(z*.028-x*.014))*.24+.5;
-    const tone=THREE.MathUtils.clamp(0.24+hill*.5+macro*.12,0,1);
-    tmp.lerpColors(cGrassDeep,cGrassLight,tone).lerp(cGrassMid,.2);
+    const tone=THREE.MathUtils.clamp(0.44+hill*.22+macro*.1,0,1);
+    tmp.lerpColors(cGrassDeep,cGrassLight,tone).lerp(cGrassMid,.18);
 
     const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.88,THREE.MathUtils.smoothstep(y,4,14)*.72);
     const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
@@ -191,7 +192,7 @@ function createWater(scene) {
   const S=84;
   const shape=new THREE.Shape();
   for(let s=0;s<=S;s++){
-    const a=(s/S)*Math.PI*2, r=poolR(a)+.5, x=Math.cos(a)*r, z=Math.sin(a)*r;
+    const a=(s/S)*Math.PI*2, r=poolR(a)+.02, x=Math.cos(a)*r, z=Math.sin(a)*r;
     if(s===0) shape.moveTo(x,z); else shape.lineTo(x,z);
   }
   const geo=new THREE.ShapeGeometry(shape);
@@ -209,16 +210,13 @@ function createWater(scene) {
     fragmentShader:`
       varying vec2 vW; uniform float uTime;
       void main(){
-        float d=length(vW);
-        vec3 deep=vec3(.20,.55,.75), shallow=vec3(.67,.92,.98);
-        float t=smoothstep(0.0,22.0,d);
-        vec3 c=mix(deep,shallow,t);
+        vec3 c=vec3(.64,.90,.97);
         float ripple=
-          sin(vW.x*.32+uTime*.62)*.006+
-          cos(vW.y*.28-uTime*.44)*.005+
-          sin((vW.x+vW.y)*.21-uTime*.33)*.004;
+          sin(vW.x*.32+uTime*.62)*.005+
+          cos(vW.y*.28-uTime*.44)*.004+
+          sin((vW.x+vW.y)*.21-uTime*.33)*.003;
         c+=ripple;
-        float alpha=mix(0.06,0.10,t);
+        float alpha=0.085;
         gl_FragColor=vec4(c,alpha);
       }`,
   });
