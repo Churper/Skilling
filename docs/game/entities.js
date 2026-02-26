@@ -41,7 +41,7 @@ function addSlimeFace(root, color = "#0d110f") {
   faceGroup.add(mouth);
 }
 
-export function createPlayer(scene, addShadowBlob) {
+export function createPlayer(scene, addShadowBlob, weaponModels = null) {
   const slimeGeo = createSlimeGeometry();
 
   const slimeMaterial = new THREE.MeshPhongMaterial({
@@ -66,12 +66,19 @@ export function createPlayer(scene, addShadowBlob) {
   toolAnchor.position.set(0.0, 0.18, 0.1);
   player.add(toolAnchor);
 
+  function makeWeaponFromModel(model, scale = 0.6) {
+    if (!model) return null;
+    const g = model.clone();
+    g.scale.setScalar(scale);
+    return g;
+  }
+
   const toolMeshes = {
     axe: createAxeMesh(),
     pickaxe: createPickaxeMesh(),
     fishing: createFishingPoleMesh(),
-    bow: createBowMesh(),
-    staff: createStaffMesh(),
+    bow: (weaponModels?.bow ? makeWeaponFromModel(weaponModels.bow, 0.55) : null) || createBowMesh(),
+    staff: (weaponModels?.staff ? makeWeaponFromModel(weaponModels.staff, 0.5) : null) || createStaffMesh(),
   };
   toolMeshes.axe.visible = false;
   toolMeshes.pickaxe.visible = false;

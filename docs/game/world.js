@@ -1,5 +1,7 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
+// ── Toon material helper ──
 function createToonGradient() {
   const c = document.createElement("canvas");
   c.width = 6;
@@ -26,52 +28,33 @@ function toonMat(color, options = {}) {
   return new THREE.MeshToonMaterial({ color, gradientMap: TOON_GRADIENT, ...options });
 }
 
-const TERRAIN_BASIN_RADIUS = 31.0;
-const LAKE_RADIUS = 24.15;
-const WATER_RADIUS = 24.34;
+// ── Constants ──
+const LAKE_RADIUS = 24.0;
+const WATER_RADIUS = 24.2;
 const LAKE_BOWL_Y = 0.58;
 const WATER_SURFACE_Y = 0.596;
-const SHORE_TRANSITION_INNER = 24.18;
-const SHORE_TRANSITION_OUTER = 26.1;
-const SHORE_LIFT = 0.05;
+const MOUNTAIN_START = 52;
+const MOUNTAIN_END = 105;
+const MAP_RADIUS = 115;
 const RENDER_GROUND = 0;
 const RENDER_SHORE = 1;
 const RENDER_WATER = 2;
 const RENDER_DECOR = 3;
 
-// Organic lake shape — sine harmonics vary radius by angle
-function getLakeRadiusAtAngle(a) {
-  return LAKE_RADIUS
-    + Math.sin(a * 1.0 + 0.5) * 2.8
-    + Math.sin(a * 2.3 + 1.8) * 1.6
-    + Math.cos(a * 3.1 + 0.3) * 1.0
-    + Math.sin(a * 5.2 + 2.5) * 0.5;
-}
-function getWaterRadiusAtAngle(a) {
-  return getLakeRadiusAtAngle(a) + (WATER_RADIUS - LAKE_RADIUS);
-}
-function getLakeRadiusAt(x, z) {
-  return getLakeRadiusAtAngle(Math.atan2(z, x));
-}
-function getWaterRadiusAt(x, z) {
-  return getWaterRadiusAtAngle(Math.atan2(z, x));
-}
+// ── Perfect circle lake shape ──
+function getLakeRadiusAtAngle(_a) { return LAKE_RADIUS; }
+function getWaterRadiusAtAngle(_a) { return WATER_RADIUS; }
+function getLakeRadiusAt(_x, _z) { return LAKE_RADIUS; }
+function getWaterRadiusAt(_x, _z) { return WATER_RADIUS; }
 
-const TREE_TRUNK_GEO = new THREE.CylinderGeometry(0.18, 0.38, 4.6, 6);
-const TREE_LEAF_GEO = new THREE.BoxGeometry(0.22, 0.06, 2.6);
-const TREE_CORE_GEO = new THREE.OctahedronGeometry(0.55, 0);
-const TREE_TRUNK_MAT = toonMat("#a0734e");
-const TREE_LEAF_MAT = toonMat("#4cc992");
-const TREE_CORE_MAT = toonMat("#3dba84");
+// ── Shared materials ──
 const FISH_SPOT_RING_MAT = new THREE.MeshBasicMaterial({ color: "#dcf8ff", transparent: true, opacity: 0.72 });
 const FISH_SPOT_BOBBER_MAT = toonMat("#ffcc58");
 const SERVICE_HOTSPOT_MAT = new THREE.MeshBasicMaterial({
-  transparent: true,
-  opacity: 0,
-  depthWrite: false,
-  depthTest: false,
+  transparent: true, opacity: 0, depthWrite: false, depthTest: false,
 });
 
+// ── Terrain noise ──
 function sampleTerrainNoise(x, z) {
   const n0 = Math.sin(x * 0.045) * 0.56;
   const n1 = Math.cos(z * 0.037) * 0.52;
@@ -84,22 +67,36 @@ function sampleTerrainNoise(x, z) {
 function sampleTerrainHeight(x, z) {
   const r = Math.hypot(x, z);
   const noise = sampleTerrainNoise(x, z);
-  const bowlFalloff = 1.0 - THREE.MathUtils.smoothstep(r, 0, TERRAIN_BASIN_RADIUS);
+
+  // Lake basin depression
+  const bowlFalloff = 1.0 - THREE.MathUtils.smoothstep(r, 0, 31);
   const lakeBasin = Math.pow(bowlFalloff, 1.65) * 1.15;
-  const roughnessBoost = THREE.MathUtils.smoothstep(r, 17.5, 96.0);
+
+  // Playable terrain
+  const roughnessBoost = THREE.MathUtils.smoothstep(r, 17.5, 50);
   const amplitude = THREE.MathUtils.lerp(0.31, 0.55, roughnessBoost);
-  // Rolling hills around the shore
   const hillNoise = Math.sin(x * 0.065 + z * 0.048) * Math.cos(x * 0.031 - z * 0.057);
-  const hillBoost = THREE.MathUtils.smoothstep(r, 26.0, 60.0) * hillNoise * 0.8;
-  return noise * amplitude - lakeBasin + hillBoost;
+  const hillBoost = THREE.MathUtils.smoothstep(r, 26.0, 50.0) * hillNoise * 0.8;
+  const flatTerrain = noise * amplitude - lakeBasin + hillBoost;
+
+  // Mountains at map edges
+  if (r > MOUNTAIN_START) {
+    const mt = THREE.MathUtils.smoothstep(r, MOUNTAIN_START, MOUNTAIN_END);
+    const mountainH = mt * mt * 25;
+    const angle = Math.atan2(z, x);
+    const ridge = (Math.sin(angle * 13.7 + x * 0.15) * 0.5 + 0.5) * mt * 5;
+    const ridge2 = (Math.cos(angle * 7.3 - z * 0.12) * 0.5 + 0.5) * mt * 3;
+    const detail = Math.sin(x * 0.18) * Math.cos(z * 0.14) * mt * 1.5;
+    return flatTerrain + mountainH + ridge + ridge2 + detail;
+  }
+
+  return flatTerrain;
 }
 
 function sampleLakeFloorHeight(x, z) {
   const r = Math.hypot(x, z);
-  const lakeR = getLakeRadiusAt(x, z);
-  if (r > lakeR) return -Infinity;
-
-  const radius01 = Math.min(1, r / lakeR);
+  if (r > LAKE_RADIUS) return -Infinity;
+  const radius01 = r / LAKE_RADIUS;
   const depth = Math.pow(1 - radius01, 1.82);
   const lip = THREE.MathUtils.smoothstep(radius01, 0.74, 1.0);
   const localY = -(0.1 + depth * 1.95 + lip * 0.08);
@@ -114,28 +111,25 @@ export function getWorldSurfaceHeight(x, z) {
 
 export function getWaterSurfaceHeight(x, z, time = 0) {
   const dist = Math.hypot(x, z);
-  const waterR = getWaterRadiusAt(x, z);
-  if (dist > waterR) return -Infinity;
-
+  if (dist > WATER_RADIUS) return -Infinity;
   const w0 = Math.sin(x * 0.16 + z * 0.12 + time * 0.82) * 0.032;
   const w1 = Math.sin(x * 0.28 - z * 0.22 + time * 0.65) * 0.022;
   const w2 = Math.cos(x * 0.11 + z * 0.34 - time * 0.74) * 0.026;
   const w3 = Math.sin(x * 0.48 + z * 0.38 + time * 1.3) * 0.012;
   const w4 = Math.sin(x * 0.65 - z * 0.52 - time * 1.05) * 0.008;
-  const damp = 1.0 - (dist / waterR) * 0.18;
+  const damp = 1.0 - (dist / WATER_RADIUS) * 0.18;
   return WATER_SURFACE_Y + (w0 + w1 + w2 + w3 + w4) * damp;
 }
 
+// ── Node helpers ──
 function setResourceNode(node, resourceType, label) {
   node.userData.resourceType = resourceType;
   node.userData.resourceLabel = label;
 }
-
 function setServiceNode(node, serviceType, label) {
   node.userData.serviceType = serviceType;
   node.userData.resourceLabel = label;
 }
-
 function addServiceHotspot(parent, x, y, z, radius = 0.9, height = 1.6) {
   const hotspot = new THREE.Mesh(
     new THREE.CylinderGeometry(radius, radius, height, 12),
@@ -147,6 +141,7 @@ function addServiceHotspot(parent, x, y, z, radius = 0.9, height = 1.6) {
   return hotspot;
 }
 
+// ── Sky ──
 function addSky(scene) {
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
@@ -214,73 +209,95 @@ function addSky(scene) {
   return skyMat;
 }
 
-function createGround(scene) {
-  const terrainGeo = new THREE.PlaneGeometry(230, 230, 140, 140);
-  const tPos = terrainGeo.attributes.position;
-  const tCol = [];
-  const colGrassDark = new THREE.Color("#4d8c42");
+// ── Unified radial terrain mesh ──
+function createRadialTerrain(scene) {
+  const innerR = WATER_RADIUS - 2;
+  const outerR = MAP_RADIUS;
+  const angSegs = 128;
+  const radRings = 55;
+  const positions = [];
+  const colors = [];
+  const indices = [];
+  const colSand = new THREE.Color("#e0c888");
   const colGrassLight = new THREE.Color("#7dba5e");
-  const colBeachBlend = new THREE.Color("#dcc28a");
+  const colGrassDark = new THREE.Color("#4d8c42");
+  const colRock = new THREE.Color("#8a8a7a");
+  const colSnow = new THREE.Color("#e8e8e0");
   const colTmp = new THREE.Color();
-  const lightX = 0.54;
-  const lightY = 0.78;
-  const lightZ = 0.31;
+  const lightX = 0.54, lightY = 0.78, lightZ = 0.31;
   const sampleStep = 0.8;
+  const vpr = angSegs + 1;
 
-  for (let i = 0; i < tPos.count; i++) {
-    const x = tPos.getX(i);
-    // PlaneGeometry local Y = -worldZ after rotation; negate to get true world Z
-    // so terrain heights match shore ring & world objects (same coordinate space)
-    const z = -tPos.getY(i);
-    const r = Math.hypot(x, z);
-    let y = sampleTerrainHeight(x, z);
-    const fixedWR = WATER_RADIUS;
-    if (r < fixedWR + 4.0) {
-      y -= (1.0 - THREE.MathUtils.smoothstep(r, fixedWR - 3.0, fixedWR + 4.0)) * 0.8;
+  for (let ri = 0; ri <= radRings; ri++) {
+    const t = ri / radRings;
+    const biased = Math.pow(t, 0.55);
+    const radius = innerR + (outerR - innerR) * biased;
+    for (let ai = 0; ai <= angSegs; ai++) {
+      const angle = (ai / angSegs) * Math.PI * 2;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+      const r = Math.hypot(x, z);
+      let y = sampleTerrainHeight(x, z);
+
+      // Blend under water at inner edge
+      if (r < WATER_RADIUS + 2) {
+        const blend = THREE.MathUtils.smoothstep(r, WATER_RADIUS - 2, WATER_RADIUS + 2);
+        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.06, y, blend);
+      }
+      positions.push(x, y, z);
+
+      // Lighting for vertex color
+      const hx = sampleTerrainHeight(x + sampleStep, z) - sampleTerrainHeight(x - sampleStep, z);
+      const hz = sampleTerrainHeight(x, z + sampleStep) - sampleTerrainHeight(x, z - sampleStep);
+      const nx = -hx, ny = 2.0, nz = -hz;
+      const invLen = 1 / Math.hypot(nx, ny, nz);
+      const litRaw = THREE.MathUtils.clamp((nx * lightX + ny * lightY + nz * lightZ) * invLen * 0.5 + 0.5, 0, 1);
+      const litBanded = Math.floor(litRaw * 4.5) / 4;
+      const litStylized = THREE.MathUtils.lerp(litRaw, litBanded, 0.45);
+      const noise = sampleTerrainNoise(x, z);
+      const tonal = THREE.MathUtils.clamp(litStylized * 0.7 + noise * 0.15 + 0.15, 0, 1);
+
+      // Color zones
+      const shoreBlend = THREE.MathUtils.smoothstep(r, WATER_RADIUS - 1, WATER_RADIUS + 5);
+      const grassBlend = THREE.MathUtils.smoothstep(r, WATER_RADIUS + 4, WATER_RADIUS + 12);
+      const mountainBlend = THREE.MathUtils.smoothstep(r, 48, 68);
+      const snowBlend = THREE.MathUtils.smoothstep(r, 78, 100);
+
+      colTmp.copy(colSand);
+      colTmp.lerp(colGrassLight, shoreBlend);
+      if (grassBlend > 0) colTmp.lerp(colGrassDark, grassBlend * tonal * 0.55);
+      if (mountainBlend > 0) colTmp.lerp(colRock, mountainBlend);
+      if (snowBlend > 0) colTmp.lerp(colSnow, snowBlend * 0.7);
+      colTmp.multiplyScalar(0.82 + tonal * 0.34);
+
+      colors.push(colTmp.r, colTmp.g, colTmp.b);
     }
-    tPos.setZ(i, y);
-
-    const noise = sampleTerrainNoise(x, z);
-    const hx = sampleTerrainHeight(x + sampleStep, z) - sampleTerrainHeight(x - sampleStep, z);
-    const hz = sampleTerrainHeight(x, z + sampleStep) - sampleTerrainHeight(x, z - sampleStep);
-    const nx = -hx;
-    const ny = 2.0;
-    const nz = -hz;
-    const invLen = 1 / Math.hypot(nx, ny, nz);
-    const litRaw = THREE.MathUtils.clamp((nx * lightX + ny * lightY + nz * lightZ) * invLen * 0.5 + 0.5, 0, 1);
-    const litBanded = Math.floor(litRaw * 4.5) / 4;
-    const litStylized = THREE.MathUtils.lerp(litRaw, litBanded, 0.52);
-
-    const hillShadeRaw = THREE.MathUtils.clamp((y + 0.8) / 1.75, 0, 1);
-    const hillShadeBanded = Math.floor(hillShadeRaw * 5.0) / 4.0;
-    const hillShade = THREE.MathUtils.lerp(hillShadeRaw, hillShadeBanded, 0.45);
-    const tonal = THREE.MathUtils.clamp(litStylized * 0.72 + hillShade * 0.48, 0, 1);
-    const shoreBlend = THREE.MathUtils.smoothstep(r, 21.4, 34.0);
-
-    colTmp.copy(colGrassDark).lerp(colGrassLight, tonal * 0.95 + noise * 0.03 + 0.02);
-    colTmp.lerp(colBeachBlend, shoreBlend * 0.42);
-    const contrastBand = Math.floor(tonal * 3.2) / 3.0;
-    colTmp.multiplyScalar(0.86 + contrastBand * 0.24);
-    const waterProx = 1.0 - THREE.MathUtils.smoothstep(r, fixedWR - 2, fixedWR + 4);
-    if (waterProx > 0) colTmp.lerp(colBeachBlend, waterProx * 0.85);
-    tCol.push(colTmp.r, colTmp.g, colTmp.b);
   }
-  terrainGeo.setAttribute("color", new THREE.Float32BufferAttribute(tCol, 3));
-  terrainGeo.computeVertexNormals();
 
-  const ground = new THREE.Mesh(
-    terrainGeo,
-    toonMat("#ffffff", { vertexColors: true })
-  );
-  ground.rotation.x = -Math.PI / 2;
-  ground.renderOrder = RENDER_GROUND;
-  scene.add(ground);
-  return ground;
+  for (let ri = 0; ri < radRings; ri++) {
+    for (let ai = 0; ai < angSegs; ai++) {
+      const a = ri * vpr + ai, b = a + 1;
+      const c = (ri + 1) * vpr + ai, d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setIndex(indices);
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  geo.computeVertexNormals();
+
+  const terrain = new THREE.Mesh(geo, toonMat("#ffffff", { vertexColors: true }));
+  terrain.renderOrder = RENDER_GROUND;
+  scene.add(terrain);
+  return terrain;
 }
 
+// ── Lake bowl mesh (simplified) ──
 function createLakeBowlMesh() {
-  const segments = 360;
-  const rings = 20;
+  const segments = 64;
+  const rings = 12;
   const positions = [];
   const colors = [];
   const indices = [];
@@ -288,7 +305,6 @@ function createLakeBowlMesh() {
   const mid = new THREE.Color("#52a8b8");
   const shelf = new THREE.Color("#c4b68a");
 
-  // Center vertex
   positions.push(0, -(0.1 + 1.95), 0);
   const cDeep = new THREE.Color().copy(deep);
   colors.push(cDeep.r, cDeep.g, cDeep.b);
@@ -297,8 +313,7 @@ function createLakeBowlMesh() {
     const ringT = r / rings;
     for (let s = 0; s < segments; s++) {
       const angle = (s / segments) * Math.PI * 2;
-      const lakeR = getLakeRadiusAtAngle(angle);
-      const radius = lakeR * ringT;
+      const radius = LAKE_RADIUS * ringT;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const depth = Math.pow(1 - ringT, 1.82);
@@ -346,6 +361,34 @@ function createLakeBowlMesh() {
   return bowl;
 }
 
+// ── Caustic texture ──
+function createCausticTexture() {
+  const c = document.createElement("canvas");
+  c.width = 256;
+  c.height = 256;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "rgba(0,0,0,0)";
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+  ctx.lineWidth = 1.1;
+  for (let i = 0; i < 18; i++) {
+    const y = ((i + 1) / 20) * c.height;
+    ctx.beginPath();
+    ctx.moveTo(0, y + Math.sin(i * 0.75) * 3.6);
+    ctx.bezierCurveTo(c.width * 0.27, y + 5.2, c.width * 0.72, y - 5.2, c.width, y + Math.sin(i * 0.5) * 3.6);
+    ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.repeat.set(1.1, 1.1);
+  return tex;
+}
+
+// ── Water mesh + shader ──
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
@@ -359,20 +402,18 @@ function createWater(scene) {
   lakeFloor.renderOrder = RENDER_SHORE;
   scene.add(lakeFloor);
 
-  // Keep caustic texture for main.js compat
   const causticMap = createCausticTexture();
 
-  // Build subdivided organic water mesh
-  const wSegs = 360, wRings = 20, maxR = 32;
+  const wSegs = 64, wRings = 16;
   const wPos = [0, 0, 0], wUvs = [0.5, 0.5], wRads = [0], wIdx = [];
   for (let r = 1; r <= wRings; r++) {
     const rt = r / wRings;
     for (let s = 0; s < wSegs; s++) {
       const a = (s / wSegs) * Math.PI * 2;
-      const rad = getWaterRadiusAtAngle(a) * rt;
+      const rad = WATER_RADIUS * rt;
       const x = Math.cos(a) * rad, z = Math.sin(a) * rad;
       wPos.push(x, 0, z);
-      wUvs.push(x / (maxR * 2) + 0.5, z / (maxR * 2) + 0.5);
+      wUvs.push(x / (WATER_RADIUS * 2) + 0.5, z / (WATER_RADIUS * 2) + 0.5);
       wRads.push(rt);
     }
   }
@@ -408,15 +449,12 @@ function createWater(scene) {
         vec3 p = position;
         vec2 pp = p.xz;
         float t = uTime;
-        // Large gentle swells
         float w0 = sin(pp.x * 0.16 + pp.y * 0.12 + t * 0.82) * 0.032;
         float w1 = sin(pp.x * 0.28 - pp.y * 0.22 + t * 0.65) * 0.022;
         float w2 = cos(pp.x * 0.11 + pp.y * 0.34 - t * 0.74) * 0.026;
-        // Medium waves
         float w3 = sin(pp.x * 0.48 + pp.y * 0.38 + t * 1.3) * 0.012;
         float w4 = sin(pp.x * 0.65 - pp.y * 0.52 - t * 1.05) * 0.008;
         float w5 = cos(pp.x * 0.42 - pp.y * 0.56 + t * 1.15) * 0.010;
-        // Small detail ripples
         float w6 = sin(pp.x * 1.2 + pp.y * 0.85 + t * 2.0) * 0.004;
         float w7 = sin(pp.x * 0.9 - pp.y * 1.3 + t * 1.7) * 0.004;
         float damp = 1.0 - aRadial * 0.18;
@@ -463,7 +501,6 @@ function createWater(scene) {
         }
         return v;
       }
-      // Voronoi for caustic cell patterns
       float voronoi(vec2 p) {
         vec2 ip = floor(p);
         vec2 fp = fract(p);
@@ -485,13 +522,11 @@ function createWater(scene) {
         float radial = vRadial;
         vec2 wp = vWorldPos.xz;
 
-        // Vibrant tropical depth gradient
         vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.45, radial));
         col = mix(col, uShallow, smoothstep(0.35, 0.82, radial));
         float clarity = smoothstep(0.15, 0.75, radial);
         col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.25);
 
-        // Animated voronoi caustics — view-independent, organic light patterns
         vec2 cuv = wp * 0.11 + vec2(t * 0.02, -t * 0.015);
         float c1 = voronoi(cuv);
         float c2 = voronoi(cuv * 1.7 + vec2(3.7, 1.2));
@@ -501,13 +536,11 @@ function createWater(scene) {
         causticBright *= smoothstep(0.02, 0.3, radial) * (1.0 - radial * 0.35);
         col += causticBright * vec3(0.6, 0.92, 1.0);
 
-        // FBM wave color variation (view-independent)
         float waveTex = fbm(wp * 0.18 + vec2(t * 0.04, -t * 0.03));
         float waveTex2 = fbm(wp * 0.32 + vec2(-t * 0.05, t * 0.035));
         col = mix(col, col * 1.15, waveTex * 0.22 * (1.0 - radial * 0.3));
         col += vec3(0.1, 0.18, 0.2) * waveTex2 * 0.08 * (1.0 - radial * 0.5);
 
-        // Animated concentric ripple rings — stronger, view-independent
         float dist1 = length(wp - vec2(2.5, 4.0));
         float dist2 = length(wp - vec2(-5.0, -2.5));
         float dist3 = length(wp - vec2(7.0, -4.0));
@@ -521,7 +554,6 @@ function createWater(scene) {
         ripple /= 5.0;
         col += ripple * 0.06 * vec3(0.7, 0.9, 1.0) * (1.0 - radial * 0.4);
 
-        // Gentle view-dependent specular (much reduced)
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
         vec3 waveN = normalize(vec3(
@@ -530,17 +562,14 @@ function createWater(scene) {
           sin(wp.y * 0.8 - t * 0.45) * 0.04 + cos(wp.y * 1.8 + t * 0.35) * 0.025
         ));
 
-        // Single soft sun highlight
         float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 16.0);
         col += vec3(1.0, 0.97, 0.92) * spec * 0.3 * (1.0 - radial * 0.2);
 
-        // Subtle fresnel — sky tint at edges
         float NdotV = max(dot(viewDir, waveN), 0.0);
         float fresnel = pow(1.0 - NdotV, 4.0) * 0.2;
         vec3 skyCol = vec3(0.48, 0.74, 0.88);
         col = mix(col, skyCol, fresnel);
 
-        // Shore foam — noise-driven, animated
         float foamNoise = fbm(wp * 0.7 + vec2(t * 0.1, -t * 0.07));
         float ang = atan(wp.y, wp.x);
         float foamWobble = sin(ang * 8.0 + t * 1.2) * 0.013
@@ -552,7 +581,6 @@ function createWater(scene) {
         foam = clamp(foam, 0.0, 1.0);
         col = mix(col, vec3(1.0, 1.0, 0.97), foam * 0.9);
 
-        // Alpha — slightly more opaque overall for better visibility
         float bodyAlpha = mix(0.62, 0.18, smoothstep(0.04, 0.78, radial));
         float edgeFade = 1.0 - smoothstep(0.88, 0.995, foamEdge);
         float alpha = max(bodyAlpha * edgeFade, foam * 0.96);
@@ -571,33 +599,7 @@ function createWater(scene) {
   return { waterUniforms, causticMap };
 }
 
-function createCausticTexture() {
-  const c = document.createElement("canvas");
-  c.width = 256;
-  c.height = 256;
-  const ctx = c.getContext("2d");
-  ctx.fillStyle = "rgba(0,0,0,0)";
-  ctx.fillRect(0, 0, c.width, c.height);
-  ctx.strokeStyle = "rgba(255,255,255,0.08)";
-  ctx.lineWidth = 1.1;
-  for (let i = 0; i < 18; i++) {
-    const y = ((i + 1) / 20) * c.height;
-    ctx.beginPath();
-    ctx.moveTo(0, y + Math.sin(i * 0.75) * 3.6);
-    ctx.bezierCurveTo(c.width * 0.27, y + 5.2, c.width * 0.72, y - 5.2, c.width, y + Math.sin(i * 0.5) * 3.6);
-    ctx.stroke();
-  }
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.wrapT = THREE.RepeatWrapping;
-  tex.minFilter = THREE.LinearFilter;
-  tex.magFilter = THREE.LinearFilter;
-  tex.repeat.set(1.1, 1.1);
-  return tex;
-}
-
-
+// ── Shadow blobs ──
 function radialTexture(inner = 0.05, outer = 1.0) {
   const c = document.createElement("canvas");
   c.width = 256;
@@ -610,7 +612,6 @@ function radialTexture(inner = 0.05, outer = 1.0) {
   g.addColorStop(1.0, "rgba(255,255,255,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, c.width, c.height);
-
   for (let i = 0; i < 32; i++) {
     const x = 70 + Math.random() * 116;
     const y = 70 + Math.random() * 116;
@@ -621,7 +622,6 @@ function radialTexture(inner = 0.05, outer = 1.0) {
     ctx.fillStyle = blotch;
     ctx.fillRect(x - r, y - r, r * 2, r * 2);
   }
-
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.minFilter = THREE.LinearFilter;
@@ -643,129 +643,260 @@ function addShadowBlob(scene, blobTex, x, z, radius = 1.8, opacity = 0.2) {
   return blob;
 }
 
-function addRock(scene, blobTex, x, z, scale = 1, resourceNodes = null) {
-  const geo = new THREE.DodecahedronGeometry(1.0 * scale, 0);
-  const p = geo.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    const nx = p.getX(i);
-    const ny = p.getY(i);
-    const nz = p.getZ(i);
-    const jitter = 1.0 + Math.sin(nx * 7.1 + ny * 5.3 + nz * 6.4) * 0.09;
-    p.setXYZ(i, nx * jitter, ny * jitter, nz * jitter);
-  }
-  geo.computeVertexNormals();
+// ── Model loading ──
+async function loadModels() {
+  THREE.Cache.enabled = true;
+  const loader = new GLTFLoader();
+  const load = (url) => new Promise((resolve, reject) => {
+    loader.load(url, (gltf) => resolve(gltf.scene), undefined, reject);
+  });
 
-  const baseY = getWorldSurfaceHeight(x, z);
-  const rock = new THREE.Mesh(
-    geo,
-    toonMat("#8e9d98")
-  );
-  rock.position.set(x, baseY + 0.78 * scale, z);
-  rock.rotation.y = Math.random() * Math.PI;
-  rock.renderOrder = RENDER_DECOR;
-  setResourceNode(rock, "mining", "Rock");
-  scene.add(rock);
-  if (resourceNodes) resourceNodes.push(rock);
-  addShadowBlob(scene, blobTex, x, z, 1.45 * scale, 0.17);
+  const entries = {
+    tree1a: 'models/Tree_1_A_Color1.gltf',
+    tree1b: 'models/Tree_1_B_Color1.gltf',
+    tree2a: 'models/Tree_2_A_Color1.gltf',
+    tree2b: 'models/Tree_2_B_Color1.gltf',
+    tree3a: 'models/Tree_3_A_Color1.gltf',
+    tree3b: 'models/Tree_3_B_Color1.gltf',
+    tree4a: 'models/Tree_4_A_Color1.gltf',
+    tree4b: 'models/Tree_4_B_Color1.gltf',
+    treeBare1a: 'models/Tree_Bare_1_A_Color1.gltf',
+    treeBare1b: 'models/Tree_Bare_1_B_Color1.gltf',
+    treeBare2a: 'models/Tree_Bare_2_A_Color1.gltf',
+    bush1a: 'models/Bush_1_A_Color1.gltf',
+    bush1b: 'models/Bush_1_B_Color1.gltf',
+    bush2a: 'models/Bush_2_A_Color1.gltf',
+    bush2b: 'models/Bush_2_B_Color1.gltf',
+    bush3a: 'models/Bush_3_A_Color1.gltf',
+    bush4a: 'models/Bush_4_A_Color1.gltf',
+    rock1a: 'models/Rock_1_A_Color1.gltf',
+    rock1b: 'models/Rock_1_B_Color1.gltf',
+    rock2a: 'models/Rock_2_A_Color1.gltf',
+    rock2b: 'models/Rock_2_B_Color1.gltf',
+    rock3a: 'models/Rock_3_A_Color1.gltf',
+    rock3b: 'models/Rock_3_B_Color1.gltf',
+    grass1a: 'models/Grass_1_A_Color1.gltf',
+    grass1b: 'models/Grass_1_B_Color1.gltf',
+    grass2a: 'models/Grass_2_A_Color1.gltf',
+    grass2b: 'models/Grass_2_B_Color1.gltf',
+    sword: 'models/sword_A.gltf',
+    bow: 'models/bow_A_withString.gltf',
+    staff: 'models/staff_A.gltf',
+    arrow: 'models/arrow_A.gltf',
+  };
+
+  const keys = Object.keys(entries);
+  const results = await Promise.all(keys.map(k => load(entries[k]).catch(err => {
+    console.warn(`Failed to load ${entries[k]}:`, err);
+    return null;
+  })));
+
+  const models = {};
+  keys.forEach((k, i) => { models[k] = results[i]; });
+
+  return {
+    trees: [models.tree1a, models.tree1b, models.tree2a, models.tree2b,
+            models.tree3a, models.tree3b, models.tree4a, models.tree4b].filter(Boolean),
+    bareTrees: [models.treeBare1a, models.treeBare1b, models.treeBare2a].filter(Boolean),
+    bushes: [models.bush1a, models.bush1b, models.bush2a, models.bush2b,
+             models.bush3a, models.bush4a].filter(Boolean),
+    rocks: [models.rock1a, models.rock1b, models.rock2a, models.rock2b].filter(Boolean),
+    bigRocks: [models.rock3a, models.rock3b].filter(Boolean),
+    grass: [models.grass1a, models.grass1b, models.grass2a, models.grass2b].filter(Boolean),
+    weapons: {
+      sword: models.sword,
+      bow: models.bow,
+      staff: models.staff,
+      arrow: models.arrow,
+    },
+  };
 }
 
-function addWaterRock(scene, x, z, scale = 1) {
-  const geo = new THREE.DodecahedronGeometry(0.75 * scale, 0);
-  const p = geo.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    const nx = p.getX(i);
-    const ny = p.getY(i);
-    const nz = p.getZ(i);
-    const jitter = 1.0 + Math.sin(nx * 8.2 + ny * 6.4 + nz * 7.6) * 0.08;
-    p.setXYZ(i, nx * jitter, ny * jitter, nz * jitter);
-  }
-  geo.computeVertexNormals();
-
-  const baseY = getWorldSurfaceHeight(x, z);
-  const rock = new THREE.Mesh(
-    geo,
-    toonMat("#738993")
-  );
-  rock.position.set(x, baseY + 0.42, z);
-  rock.rotation.y = Math.random() * Math.PI;
-  rock.renderOrder = RENDER_DECOR;
-  scene.add(rock);
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function addTree(scene, blobTex, x, z, scale = 1, resourceNodes = null) {
-  const baseY = getWorldSurfaceHeight(x, z);
-  const tree = new THREE.Group();
-  tree.position.set(x, baseY, z);
-  setResourceNode(tree, "woodcutting", "Tree");
+// ── Model placement: Trees ──
+function placeTrees(scene, blobTex, models, resourceNodes) {
+  const templates = models.trees;
+  if (!templates.length) return;
 
-  // Slightly curved trunk using two segments
-  const lean = (Math.random() - 0.5) * 0.2;
-  const trunk = new THREE.Mesh(TREE_TRUNK_GEO, TREE_TRUNK_MAT);
-  trunk.scale.setScalar(scale);
-  trunk.position.set(lean * 0.3, 2.3 * scale, 0);
-  trunk.rotation.z = lean;
-  trunk.renderOrder = RENDER_DECOR;
-  tree.add(trunk);
+  // Shore area trees — ring around the lake
+  const shoreTreePositions = [
+    [-28, 21], [28, 20], [-24, -27], [23, -28], [2, 31], [35, -4], [-34, 2],
+    [-30, 12], [31, 10], [18, 28], [-16, 30], [30, -18], [-28, -16],
+  ];
+  // Scattered forest trees further out
+  const forestPositions = [
+    [-36, 14], [37, -10], [-17, 33], [26, -30], [-39, -9], [33, 17],
+    [13, -35], [-12, -34], [41, 5], [-31, 23], [23, 33], [-37, -19],
+    [42, 14], [-40, -22], [15, 38], [-8, 40], [38, 25], [-35, 28],
+    [-22, 38], [35, -28], [-42, 8], [28, 38], [-18, -40], [40, -20],
+  ];
 
-  // Trunk ring details
-  const ringMat = toonMat("#8a6340");
-  for (let r = 0; r < 3; r++) {
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(0.32 * scale, 0.04 * scale, 5, 8),
-      ringMat
-    );
-    ring.position.set(lean * 0.15, (1.2 + r * 1.4) * scale, 0);
-    ring.rotation.x = Math.PI / 2 + lean * 0.2;
-    ring.renderOrder = RENDER_DECOR;
-    tree.add(ring);
-  }
-
-  const crownY = 4.6 * scale;
-  const core = new THREE.Mesh(TREE_CORE_GEO, TREE_CORE_MAT);
-  core.scale.setScalar(scale * 0.65);
-  core.position.set(lean * 0.5, crownY, 0);
-  core.renderOrder = RENDER_DECOR;
-  tree.add(core);
-
-  // 8 palm fronds — long, drooping, varied
-  const frondCount = 8;
-  const frondLeafGeo = new THREE.BoxGeometry(0.24, 0.05, 2.8);
-  const frondColors = [TREE_LEAF_MAT, toonMat("#58d49e"), toonMat("#42c088")];
-  for (let i = 0; i < frondCount; i++) {
-    const mat = frondColors[i % frondColors.length];
-    const frond = new THREE.Mesh(frondLeafGeo, mat);
-    frond.scale.set(scale * (0.9 + Math.random() * 0.2), scale, scale * (0.85 + Math.random() * 0.3));
-    const yaw = (i / frondCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
-    frond.rotation.y = yaw;
-    frond.rotation.x = -0.35 - Math.random() * 0.15;
-    frond.position.set(
-      Math.cos(yaw) * 0.3 * scale + lean * 0.5,
-      crownY + (Math.random() - 0.5) * 0.08 * scale,
-      Math.sin(yaw) * 0.3 * scale
-    );
-    frond.renderOrder = RENDER_DECOR;
-    tree.add(frond);
-  }
-
-  scene.add(tree);
-  if (resourceNodes) resourceNodes.push(tree);
-  addShadowBlob(scene, blobTex, x, z, 2.4 * scale, 0.16);
-}
-
-function addReedPatch(scene, x, z, count = 7) {
-  const baseY = getWorldSurfaceHeight(x, z);
-  for (let i = 0; i < count; i++) {
-    const reed = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.03, 0.04, 0.95 + Math.random() * 0.45, 5),
-      toonMat("#89b162")
-    );
-    reed.position.set(x + (Math.random() - 0.5) * 0.9, baseY + 0.48, z + (Math.random() - 0.5) * 0.9);
-    reed.rotation.z = (Math.random() - 0.5) * 0.28;
-    reed.renderOrder = RENDER_DECOR;
-    scene.add(reed);
+  const allPositions = [...shoreTreePositions, ...forestPositions];
+  for (let i = 0; i < allPositions.length; i++) {
+    const [x, z] = allPositions[i];
+    const template = pickRandom(templates);
+    const instance = template.clone();
+    const scale = 1.6 + Math.random() * 0.8;
+    instance.scale.setScalar(scale);
+    instance.rotation.y = Math.random() * Math.PI * 2;
+    const baseY = getWorldSurfaceHeight(x, z);
+    instance.position.set(x, baseY, z);
+    setResourceNode(instance, "woodcutting", "Tree");
+    scene.add(instance);
+    resourceNodes.push(instance);
+    addShadowBlob(scene, blobTex, x, z, 2.2 * scale * 0.5, 0.15);
   }
 }
 
+// ── Model placement: Rocks (interactable) ──
+function placeRocks(scene, blobTex, models, resourceNodes) {
+  const templates = models.rocks;
+  if (!templates.length) return;
+
+  const rockPositions = [
+    [12, 26, 1.8], [-13, 25, 1.6], [25, 12, 1.5], [-26, -5, 2.0],
+    [18, -22, 1.7], [-7, -28, 1.9],
+  ];
+
+  for (const [x, z, scale] of rockPositions) {
+    const template = pickRandom(templates);
+    const instance = template.clone();
+    instance.scale.setScalar(scale);
+    instance.rotation.y = Math.random() * Math.PI * 2;
+    const baseY = getWorldSurfaceHeight(x, z);
+    instance.position.set(x, baseY, z);
+    setResourceNode(instance, "mining", "Rock");
+    scene.add(instance);
+    resourceNodes.push(instance);
+    addShadowBlob(scene, blobTex, x, z, 1.4 * scale * 0.5, 0.17);
+  }
+}
+
+// ── Model placement: Water rocks (decorative) ──
+function placeWaterRocks(scene, models) {
+  const templates = models.rocks;
+  if (!templates.length) return;
+
+  const waterRockPositions = [
+    [-7.2, 4.3, 1.4], [5.6, 7.1, 1.2], [8.8, -4.5, 1.5],
+    [-6.5, -6.2, 1.1], [0.6, 9.2, 1.0],
+  ];
+
+  for (const [x, z, scale] of waterRockPositions) {
+    const template = pickRandom(templates);
+    const instance = template.clone();
+    instance.scale.setScalar(scale);
+    instance.rotation.y = Math.random() * Math.PI * 2;
+    const baseY = getWorldSurfaceHeight(x, z);
+    instance.position.set(x, baseY, z);
+    instance.renderOrder = RENDER_DECOR;
+    scene.add(instance);
+  }
+}
+
+// ── Model placement: Bushes ──
+function placeBushes(scene, models) {
+  const templates = models.bushes;
+  if (!templates.length) return;
+
+  const bushPositions = [
+    [27, 18, 1.4], [-24, 16, 1.2], [19, -23, 1.5], [-20, -18, 1.3],
+    [31, 5, 1.1], [-29, -5, 1.4], [15, 27, 1.2], [-13, 27, 1.3],
+    [33, -15, 1.0], [-35, 11, 1.1], [9, -29, 1.2], [-7, 31, 1.4],
+    [29, 23, 1.0], [-27, 21, 1.1], [36, -7, 1.2], [-33, -13, 1.0],
+    [20, 35, 1.3], [-25, 32, 1.1], [38, 10, 1.0], [-15, -35, 1.2],
+  ];
+
+  for (const [x, z, scale] of bushPositions) {
+    const template = pickRandom(templates);
+    const instance = template.clone();
+    instance.scale.setScalar(scale);
+    instance.rotation.y = Math.random() * Math.PI * 2;
+    const baseY = getWorldSurfaceHeight(x, z);
+    instance.position.set(x, baseY, z);
+    instance.renderOrder = RENDER_DECOR;
+    scene.add(instance);
+  }
+}
+
+// ── Model placement: Grass patches ──
+function placeGrass(scene, models) {
+  const templates = models.grass;
+  if (!templates.length) return;
+
+  // Scatter grass in clusters around the playable area
+  const grassClusters = [
+    [22, 13, 5], [-22, 11, 4], [16, 23, 5], [-15, 23, 4],
+    [26, -13, 4], [-26, -9, 5], [9, 27, 4], [-9, 27, 4],
+    [30, 8, 3], [-30, 6, 3], [20, -18, 4], [-18, -20, 3],
+    [8, 33, 3], [-8, -30, 3], [34, -2, 3], [-34, -4, 3],
+    [14, 36, 3], [-12, 36, 2], [36, 18, 3], [-36, 16, 2],
+  ];
+
+  for (const [cx, cz, count] of grassClusters) {
+    for (let i = 0; i < count; i++) {
+      const x = cx + (Math.random() - 0.5) * 3.0;
+      const z = cz + (Math.random() - 0.5) * 3.0;
+      const template = pickRandom(templates);
+      const instance = template.clone();
+      const scale = 1.0 + Math.random() * 0.6;
+      instance.scale.setScalar(scale);
+      instance.rotation.y = Math.random() * Math.PI * 2;
+      const baseY = getWorldSurfaceHeight(x, z);
+      instance.position.set(x, baseY, z);
+      instance.renderOrder = RENDER_DECOR;
+      scene.add(instance);
+    }
+  }
+}
+
+// ── Model placement: Mountain rocks + bare trees ──
+function placeMountainDecor(scene, models) {
+  const rockTemplates = models.bigRocks.length ? models.bigRocks : models.rocks;
+  const bareTemplates = models.bareTrees;
+
+  // Large rocks scattered across mountain slopes
+  if (rockTemplates.length) {
+    for (let i = 0; i < 30; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 55 + Math.random() * 35;
+      const x = Math.cos(angle) * r;
+      const z = Math.sin(angle) * r;
+      const template = pickRandom(rockTemplates);
+      const instance = template.clone();
+      const scale = 2.5 + Math.random() * 3.0;
+      instance.scale.setScalar(scale);
+      instance.rotation.y = Math.random() * Math.PI * 2;
+      instance.rotation.x = (Math.random() - 0.5) * 0.3;
+      const baseY = sampleTerrainHeight(x, z);
+      instance.position.set(x, baseY, z);
+      scene.add(instance);
+    }
+  }
+
+  // Bare trees on lower mountain slopes
+  if (bareTemplates.length) {
+    for (let i = 0; i < 14; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 53 + Math.random() * 18;
+      const x = Math.cos(angle) * r;
+      const z = Math.sin(angle) * r;
+      const template = pickRandom(bareTemplates);
+      const instance = template.clone();
+      const scale = 1.2 + Math.random() * 0.8;
+      instance.scale.setScalar(scale);
+      instance.rotation.y = Math.random() * Math.PI * 2;
+      const baseY = sampleTerrainHeight(x, z);
+      instance.position.set(x, baseY, z);
+      scene.add(instance);
+    }
+  }
+}
+
+// ── Lounges (procedural, moved outside lake) ──
 function addLounge(scene, blobTex, x, z, rot = 0) {
   const baseY = getWorldSurfaceHeight(x, z);
   const base = new THREE.Mesh(
@@ -790,6 +921,7 @@ function addLounge(scene, blobTex, x, z, rot = 0) {
   addShadowBlob(scene, blobTex, x, z, 1.7, 0.12);
 }
 
+// ── Services (all unchanged) ──
 function addBank(scene, blobTex, x, z, interactables = null) {
   const baseY = getWorldSurfaceHeight(x, z);
   const bank = new THREE.Group();
@@ -921,27 +1053,18 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   yard.position.set(x, baseY, z);
   setServiceNode(yard, "construction", "House Construction Yard");
 
-  const lot = new THREE.Mesh(
-    new THREE.CylinderGeometry(9.4, 9.8, 0.34, 36),
-    toonMat("#cdb88f")
-  );
+  const lot = new THREE.Mesh(new THREE.CylinderGeometry(9.4, 9.8, 0.34, 36), toonMat("#cdb88f"));
   lot.position.y = 0.17;
   lot.renderOrder = RENDER_SHORE;
   yard.add(lot);
 
-  const lotRing = new THREE.Mesh(
-    new THREE.TorusGeometry(6.0, 0.18, 8, 48),
-    toonMat("#ebdfc2")
-  );
+  const lotRing = new THREE.Mesh(new THREE.TorusGeometry(6.0, 0.18, 8, 48), toonMat("#ebdfc2"));
   lotRing.rotation.x = Math.PI * 0.5;
   lotRing.position.y = 0.36;
   lotRing.renderOrder = RENDER_SHORE + 1;
   yard.add(lotRing);
 
-  const buildPad = new THREE.Mesh(
-    new THREE.CylinderGeometry(5.2, 5.2, 0.12, 26),
-    toonMat("#f2e8cf")
-  );
+  const buildPad = new THREE.Mesh(new THREE.CylinderGeometry(5.2, 5.2, 0.12, 26), toonMat("#f2e8cf"));
   buildPad.position.y = 0.31;
   buildPad.renderOrder = RENDER_SHORE + 1;
   yard.add(buildPad);
@@ -1013,11 +1136,11 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   windowRight.position.x = 1.15;
   houseGroup.add(windowRight);
 
-  const roof = new THREE.Mesh(new THREE.ConeGeometry(3.08, 1.38, 4), toonMat("#91684e"));
-  roof.position.y = 2.78;
-  roof.rotation.y = Math.PI * 0.25;
-  roof.renderOrder = RENDER_DECOR + 3;
-  houseGroup.add(roof);
+  const yardRoof = new THREE.Mesh(new THREE.ConeGeometry(3.08, 1.38, 4), toonMat("#91684e"));
+  yardRoof.position.y = 2.78;
+  yardRoof.rotation.y = Math.PI * 0.25;
+  yardRoof.renderOrder = RENDER_DECOR + 3;
+  houseGroup.add(yardRoof);
 
   const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.86, 0.34), toonMat("#757980"));
   chimney.position.set(1.0, 3.0, -0.4);
@@ -1045,27 +1168,20 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   const setProgress = (progress, stock = { logs: 0, ore: 0 }) => {
     const p = THREE.MathUtils.clamp(progress, 0, 1);
     foundation.scale.set(1, 0.5 + p * 0.5, 1);
-
     frame.visible = p >= 0.12;
     frame.scale.y = THREE.MathUtils.clamp((p - 0.12) / 0.22, 0.2, 1);
-
     walls.visible = p >= 0.33;
     walls.scale.set(1, THREE.MathUtils.clamp((p - 0.33) / 0.28, 0.12, 1), 1);
-
     const roofBlend = THREE.MathUtils.clamp((p - 0.62) / 0.2, 0, 1);
-    roof.visible = p >= 0.62;
-    roof.scale.setScalar(0.45 + roofBlend * 0.55);
-
+    yardRoof.visible = p >= 0.62;
+    yardRoof.scale.setScalar(0.45 + roofBlend * 0.55);
     chimney.visible = p >= 0.82;
     chimney.scale.y = THREE.MathUtils.clamp((p - 0.82) / 0.18, 0.25, 1);
-
     const logsRatio = THREE.MathUtils.clamp((stock.logs || 0) / 120, 0, 1);
     const oreRatio = THREE.MathUtils.clamp((stock.ore || 0) / 80, 0, 1);
     logPile.scale.set(0.4 + logsRatio * 0.9, 0.45 + logsRatio * 1.0, 0.4 + logsRatio * 0.9);
     orePile.scale.set(0.45 + oreRatio * 0.8, 0.32 + oreRatio * 0.85, 0.45 + oreRatio * 0.8);
-
     completionGlow.visible = p >= 1;
-
     if (p >= 1) currentStage = 4;
     else if (p >= 0.82) currentStage = 3;
     else if (p >= 0.62) currentStage = 2;
@@ -1077,11 +1193,7 @@ function addConstructionYard(scene, blobTex, x, z, interactables = null) {
   scene.add(yard);
   addShadowBlob(scene, blobTex, x, z, 4.6, 0.16);
   if (interactables) interactables.push(addServiceHotspot(yard, -3.8, 1.05, 3.7, 1.45, 2.1));
-  return {
-    node: yard,
-    setProgress,
-    getStage: () => currentStage,
-  };
+  return { node: yard, setProgress, getStage: () => currentStage };
 }
 
 function addTrainingDummy(scene, blobTex, x, z, interactables) {
@@ -1089,24 +1201,20 @@ function addTrainingDummy(scene, blobTex, x, z, interactables) {
   const baseY = getWorldSurfaceHeight(x, z);
   dummy.position.set(x, baseY, z);
 
-  // Body — vertical cylinder (wood)
   const bodyMat = toonMat("#a07040");
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 1.4, 8), bodyMat);
   body.position.y = 0.7;
   dummy.add(body);
 
-  // Crossbar arms — horizontal cylinder
   const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.0, 6), bodyMat);
   arm.position.y = 1.1;
   arm.rotation.z = Math.PI / 2;
   dummy.add(arm);
 
-  // Head — sphere (burlap)
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), toonMat("#c4a868"));
   head.position.y = 1.6;
   dummy.add(head);
 
-  // Base stake
   const stake = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.1, 10), toonMat("#8a6038"));
   stake.position.y = 0.05;
   dummy.add(stake);
@@ -1114,11 +1222,8 @@ function addTrainingDummy(scene, blobTex, x, z, interactables) {
   setServiceNode(dummy, "dummy", "Training Dummy");
   scene.add(dummy);
 
-  // Invisible hotspot for raycasting
   const hotspot = addServiceHotspot(dummy, 0, 0.8, 0, 0.6, 1.8);
   interactables.push(hotspot);
-
-  // Shadow blob
   addShadowBlob(scene, blobTex, x, z, 0.5, 0.18);
 }
 
@@ -1127,27 +1232,18 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   const cz = -34;
   const cy = getWorldSurfaceHeight(cx, cz);
 
-  const plaza = new THREE.Mesh(
-    new THREE.CylinderGeometry(9.4, 9.8, 0.34, 36),
-    toonMat("#d5c9a9")
-  );
+  const plaza = new THREE.Mesh(new THREE.CylinderGeometry(9.4, 9.8, 0.34, 36), toonMat("#d5c9a9"));
   plaza.position.set(cx, cy + 0.17, cz);
   plaza.renderOrder = RENDER_SHORE;
   scene.add(plaza);
 
-  const innerRing = new THREE.Mesh(
-    new THREE.TorusGeometry(5.9, 0.17, 8, 48),
-    toonMat("#efe5cc")
-  );
+  const innerRing = new THREE.Mesh(new THREE.TorusGeometry(5.9, 0.17, 8, 48), toonMat("#efe5cc"));
   innerRing.rotation.x = Math.PI * 0.5;
   innerRing.position.set(cx, cy + 0.36, cz);
   innerRing.renderOrder = RENDER_SHORE + 1;
   scene.add(innerRing);
 
-  const centerPad = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.25, 1.25, 0.12, 20),
-    toonMat("#f4ecd9")
-  );
+  const centerPad = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.12, 20), toonMat("#f4ecd9"));
   centerPad.position.set(cx, cy + 0.31, cz);
   centerPad.renderOrder = RENDER_SHORE + 1;
   scene.add(centerPad);
@@ -1164,17 +1260,14 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
     scene.add(marker);
   }
 
-  // Clear, grouped service buildings around one plaza.
   addBank(scene, blobTex, cx - 6.2, cz + 1.5, resourceNodes);
   addStore(scene, blobTex, cx + 6.2, cz + 1.5, resourceNodes);
   addBlacksmith(scene, blobTex, cx, cz - 6.8, resourceNodes);
 
-  // Training dummies — row left of the plaza
   addTrainingDummy(scene, blobTex, cx - 14, cz, resourceNodes);
   addTrainingDummy(scene, blobTex, cx - 17, cz, resourceNodes);
   addTrainingDummy(scene, blobTex, cx - 20, cz, resourceNodes);
 
-  // Construction yard sits beside the service plaza with matching footprint.
   const constructionSite = addConstructionYard(scene, blobTex, cx + 22.5, cz, resourceNodes);
   const houseCenterX = cx + 22.65;
   const houseCenterZ = cz - 0.2;
@@ -1182,7 +1275,6 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
     { x: cx - 6.2, z: cz + 1.5, radius: 1.35, id: "bank" },
     { x: cx + 6.2, z: cz + 1.5, radius: 1.45, id: "store" },
     { x: cx, z: cz - 6.8, radius: 1.6, id: "blacksmith" },
-    // Wider, multi-circle collision hull so the player cannot enter and get trapped.
     { x: houseCenterX, z: houseCenterZ, radius: 2.35, id: "house-core" },
     { x: houseCenterX - 1.2, z: houseCenterZ, radius: 1.45, id: "house-left" },
     { x: houseCenterX + 1.2, z: houseCenterZ, radius: 1.45, id: "house-right" }
@@ -1190,37 +1282,13 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   return { constructionSite };
 }
 
-function addShoreDecor(scene, blobTex, resourceNodes) {
-  [[-28, 21], [28, 20], [-21, -24], [20, -26], [0, 30], [34, -2], [-33, 0]].forEach(([x, z], i) =>
-    addTree(scene, blobTex, x, z, 0.85 + (i % 4) * 0.08, resourceNodes)
-  );
-  [[10, 25, 1.15], [-11, 23, 1.08], [23, 10, 0.9], [-24, -3, 1.22], [16, -19, 1.0], [-5, -27, 1.12]].forEach(
-    ([x, z, s]) => addRock(scene, blobTex, x, z, s, resourceNodes)
-  );
-  [[19, 17], [24, -8], [-19, 14], [-21, -11], [4, 24], [-3, 24], [17, -18], [-13, -20], [26, 5], [-26, 4]].forEach(
-    ([x, z]) => addReedPatch(scene, x, z)
-  );
-  [[14, 18, Math.PI * 0.1], [17, 13, Math.PI * 0.1], [-15, 18, -Math.PI * 0.15], [-18, 13, -Math.PI * 0.15]].forEach(
-    ([x, z, r]) => addLounge(scene, blobTex, x, z, r)
-  );
-}
-
-function addWaterRocks(scene) {
-  [[-7.2, 4.3, 1.05], [5.6, 7.1, 0.95], [8.8, -4.5, 1.1], [-6.5, -6.2, 0.9], [0.6, 9.2, 0.8]].forEach(
-    ([x, z, s]) => addWaterRock(scene, x, z, s)
-  );
-}
-
+// ── Fishing spots ──
 function addFishingSpots(scene, resourceNodes) {
   const spots = [];
   const ringGeo = new THREE.TorusGeometry(0.5, 0.045, 8, 24);
   const bobberGeo = new THREE.SphereGeometry(0.13, 8, 7);
   const coordinates = [
-    [-6.5, 10.4],
-    [8.4, 9.2],
-    [10.6, -5.3],
-    [-9.2, -7.4],
-    [2.3, 13.1],
+    [-6.5, 10.4], [8.4, 9.2], [10.6, -5.3], [-9.2, -7.4], [2.3, 13.1],
   ];
 
   for (let i = 0; i < coordinates.length; i++) {
@@ -1259,73 +1327,7 @@ function updateFishingSpots(spots, time) {
   }
 }
 
-function createConformingRing(innerRadius, outerRadius, radialSegments = 14, thetaSegments = 320, yOffset = SHORE_LIFT) {
-  const ringGeo = new THREE.RingGeometry(innerRadius, outerRadius, thetaSegments, radialSegments);
-  const p = ringGeo.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i);
-    const z = p.getY(i);
-    const y = getWorldSurfaceHeight(x, z);
-    p.setZ(i, Number.isFinite(y) ? y + yOffset : yOffset);
-  }
-  ringGeo.computeVertexNormals();
-  return ringGeo;
-}
-
-function addLakeRings(scene) {
-  // Angle-varying inner radius follows organic lake shape.
-  // Terrain push-down now uses fixed radius, so shore ring and terrain align smoothly.
-  const segs = 480, rings = 28, outerR = 40;
-  const positions = [], colors = [], indices = [];
-  const vpr = segs + 1;
-  const cWaterEdge = new THREE.Color("#a8ddd8");
-  const cSand = new THREE.Color("#e0c888");
-  const cGrass = new THREE.Color("#7dba5e");
-  for (let r = 0; r <= rings; r++) {
-    const rt = r / rings;
-    for (let s = 0; s <= segs; s++) {
-      const angle = (s / segs) * Math.PI * 2;
-      const waterR = getWaterRadiusAtAngle(angle);
-      const innerR = waterR - 4.0;
-      const radius = innerR + (outerR - innerR) * rt;
-      const x = Math.cos(angle) * radius;
-      const z = Math.sin(angle) * radius;
-      const distR = Math.hypot(x, z);
-      let y;
-      if (distR < waterR - 3.0) {
-        y = WATER_SURFACE_Y - 0.04;
-      } else if (distR < waterR + 4.0) {
-        const t = THREE.MathUtils.smoothstep(distR, waterR - 3.0, waterR + 4.0);
-        const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.02);
-        y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.04, shoreH + SHORE_LIFT, t);
-      } else {
-        y = sampleTerrainHeight(x, z) + SHORE_LIFT;
-      }
-      positions.push(x, y, z);
-
-      const shoreT = THREE.MathUtils.smoothstep(distR, waterR - 2.0, waterR + 4.5);
-      const grassT = THREE.MathUtils.smoothstep(distR, waterR + 3.0, waterR + 8.0);
-      const c = new THREE.Color().copy(cWaterEdge).lerp(cSand, shoreT);
-      c.lerp(cGrass, grassT);
-      colors.push(c.r, c.g, c.b);
-    }
-  }
-  for (let r = 0; r < rings; r++) {
-    for (let s = 0; s < segs; s++) {
-      const a = r * vpr + s, b = a + 1, c = (r + 1) * vpr + s, d = c + 1;
-      indices.push(a, c, b, b, c, d);
-    }
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setIndex(indices);
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-  geo.computeVertexNormals();
-  const beachRing = new THREE.Mesh(geo, toonMat("#ffffff", { side: THREE.DoubleSide, vertexColors: true }));
-  beachRing.renderOrder = RENDER_SHORE;
-  scene.add(beachRing);
-}
-
+// ── Lily pads ──
 function addLilyPads(scene) {
   const padPositions = [
     { x: -8, z: 6, r: 0.55, flower: false },
@@ -1340,7 +1342,6 @@ function addLilyPads(scene) {
     { x: 10, z: 5, r: 0.5, flower: false },
   ];
   for (const pad of padPositions) {
-    // Circle with wedge notch
     const geo = new THREE.CircleGeometry(pad.r, 16, 0.2, Math.PI * 2 - 0.4);
     const lilyMat = toonMat("#4a9e6b");
     const lily = new THREE.Mesh(geo, lilyMat);
@@ -1361,22 +1362,25 @@ function addLilyPads(scene) {
   }
 }
 
+// ── Wildflowers ──
 function addWildflowers(scene) {
   const patches = [
-    { cx: 26, cz: 14, count: 7 },
-    { cx: -24, cz: 12, count: 6 },
-    { cx: 18, cz: -22, count: 5 },
-    { cx: -20, cz: -18, count: 8 },
-    { cx: 30, cz: 0, count: 6 },
+    { cx: 27, cz: 15, count: 8 },
+    { cx: -25, cz: 13, count: 7 },
+    { cx: 19, cz: -24, count: 6 },
+    { cx: -21, cz: -19, count: 9 },
+    { cx: 31, cz: 1, count: 7 },
+    { cx: -32, cz: -8, count: 5 },
+    { cx: 15, cz: 32, count: 6 },
+    { cx: -18, cz: 30, count: 5 },
   ];
-  const flowerColors = ["#f5a0c0", "#f7e663", "#c4a0f5", "#ff9e7a", "#a0d8f0"];
+  const flowerColors = ["#f5a0c0", "#f7e663", "#c4a0f5", "#ff9e7a", "#a0d8f0", "#ffb6d9"];
   for (const patch of patches) {
     for (let i = 0; i < patch.count; i++) {
-      const fx = patch.cx + (Math.random() - 0.5) * 3.5;
-      const fz = patch.cz + (Math.random() - 0.5) * 3.5;
+      const fx = patch.cx + (Math.random() - 0.5) * 4.0;
+      const fz = patch.cz + (Math.random() - 0.5) * 4.0;
       const baseY = getWorldSurfaceHeight(fx, fz);
       const color = flowerColors[Math.floor(Math.random() * flowerColors.length)];
-      // Stem
       const stem = new THREE.Mesh(
         new THREE.CylinderGeometry(0.015, 0.018, 0.35, 4),
         toonMat("#5a9e48")
@@ -1384,7 +1388,6 @@ function addWildflowers(scene) {
       stem.position.set(fx, baseY + 0.18, fz);
       stem.renderOrder = RENDER_DECOR;
       scene.add(stem);
-      // Blossom
       const blossom = new THREE.Mesh(
         new THREE.SphereGeometry(0.055, 6, 6),
         toonMat(color)
@@ -1396,82 +1399,58 @@ function addWildflowers(scene) {
   }
 }
 
-function addExtraTrees(scene, blobTex, resourceNodes) {
-  const extraTrees = [
-    [-35, 14, 0.92], [36, -10, 0.88], [-15, 32, 0.95], [25, -28, 0.82],
-    [-38, -8, 1.0], [32, 16, 0.9], [12, -34, 0.86], [-10, -33, 0.94],
-    [40, 4, 0.84], [-30, 22, 0.88], [22, 32, 0.92], [-36, -18, 0.86],
-  ];
-  for (const [x, z, scale] of extraTrees) {
-    addTree(scene, blobTex, x, z, scale, resourceNodes);
-  }
-}
-
-function addExtraReeds(scene) {
-  const patches = [
-    [22, 12, 8], [-22, 10, 6], [15, 22, 7], [-14, 22, 5],
-    [25, -12, 6], [-25, -8, 7], [8, 26, 5], [-8, 26, 6],
-  ];
-  const reedColors = ["#89b162", "#7da858", "#96bd6e", "#80a954"];
-  for (const [x, z, count] of patches) {
-    const baseY = getWorldSurfaceHeight(x, z);
-    for (let i = 0; i < count; i++) {
-      const color = reedColors[Math.floor(Math.random() * reedColors.length)];
-      const reed = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.03, 0.04, 0.95 + Math.random() * 0.45, 5),
-        toonMat(color)
-      );
-      reed.position.set(x + (Math.random() - 0.5) * 0.9, baseY + 0.48, z + (Math.random() - 0.5) * 0.9);
-      reed.rotation.z = (Math.random() - 0.5) * 0.28;
-      reed.renderOrder = RENDER_DECOR;
-      scene.add(reed);
-    }
-  }
-}
-
-function addBushes(scene) {
-  const bushPositions = [
-    [26, 17, 0.7], [-23, 15, 0.6], [18, -21, 0.8], [-19, -17, 0.65],
-    [30, 4, 0.55], [-28, -4, 0.7], [14, 26, 0.6], [-12, 26, 0.65],
-    [32, -14, 0.5], [-34, 10, 0.55], [8, -28, 0.6], [-6, 30, 0.7],
-    [28, 22, 0.5], [-26, 20, 0.55], [35, -6, 0.6], [-32, -12, 0.5],
-  ];
-  const bushColors = ["#4daf6a", "#3d9e5c", "#5cbc78", "#48a862"];
-  for (const [x, z, scale] of bushPositions) {
-    const baseY = getWorldSurfaceHeight(x, z);
-    const color = bushColors[Math.floor(Math.random() * bushColors.length)];
-    const bush = new THREE.Mesh(
-      new THREE.DodecahedronGeometry(0.6 * scale, 1),
-      toonMat(color)
-    );
-    bush.position.set(x, baseY + 0.35 * scale, z);
-    bush.scale.set(1, 0.65, 1);
-    bush.rotation.y = Math.random() * Math.PI;
-    bush.renderOrder = RENDER_DECOR;
-    scene.add(bush);
-  }
-}
-
-export function createWorld(scene) {
+// ── Main entry ──
+export async function createWorld(scene) {
   const resourceNodes = [];
   const collisionObstacles = [];
   const skyMat = addSky(scene);
-  const ground = createGround(scene);
-  addLakeRings(scene);
+  const ground = createRadialTerrain(scene);
   const { waterUniforms, causticMap } = createWater(scene);
-  addWaterRocks(scene);
   const blobTex = radialTexture();
-  addShoreDecor(scene, blobTex, resourceNodes);
-  addExtraTrees(scene, blobTex, resourceNodes);
-  addBushes(scene);
+
+  // Load asset pack models
+  let models = null;
+  try {
+    models = await loadModels();
+  } catch (err) {
+    console.warn("Model loading failed, using minimal scene:", err);
+  }
+
+  // Place asset models
+  if (models) {
+    placeTrees(scene, blobTex, models, resourceNodes);
+    placeRocks(scene, blobTex, models, resourceNodes);
+    placeWaterRocks(scene, models);
+    placeBushes(scene, models);
+    placeGrass(scene, models);
+    placeMountainDecor(scene, models);
+  }
+
+  // Lounges on the beach (moved outward for circular lake)
+  [[19, 22, Math.PI * 0.1], [23, 16, Math.PI * 0.1], [-20, 21, -Math.PI * 0.15], [-23, 16, -Math.PI * 0.15]].forEach(
+    ([x, z, r]) => addLounge(scene, blobTex, x, z, r)
+  );
+
   addLilyPads(scene);
   addWildflowers(scene);
-  addExtraReeds(scene);
   const fishingSpots = addFishingSpots(scene, resourceNodes);
   const { constructionSite } = addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles);
+
   const addBlob = (x, z, radius, opacity) => addShadowBlob(scene, blobTex, x, z, radius, opacity);
   const updateWorld = (time) => {
     updateFishingSpots(fishingSpots, time);
   };
-  return { ground, skyMat, waterUniforms, causticMap, addShadowBlob: addBlob, resourceNodes, updateWorld, constructionSite, collisionObstacles };
+
+  return {
+    ground,
+    skyMat,
+    waterUniforms,
+    causticMap,
+    addShadowBlob: addBlob,
+    resourceNodes,
+    updateWorld,
+    constructionSite,
+    collisionObstacles,
+    weaponModels: models ? models.weapons : null,
+  };
 }

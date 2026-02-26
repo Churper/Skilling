@@ -28,8 +28,8 @@ import { createRealtimeClient, resolveOnlineConfig } from "./game/net/realtimeCl
 
 const canvas = document.getElementById("game-canvas");
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
-const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld, constructionSite, collisionObstacles = [] } = createWorld(scene);
-const { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor } = createPlayer(scene, addShadowBlob);
+const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld, constructionSite, collisionObstacles = [], weaponModels } = await createWorld(scene);
+const { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor } = createPlayer(scene, addShadowBlob, weaponModels);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
 const combatEffects = createCombatEffects(scene);
 let combatStyle = "melee";
@@ -1063,6 +1063,14 @@ function animate() {
   }
 
   resolvePlayerCollisions();
+
+  // Clamp player to playable area (before mountains)
+  const playerR = Math.hypot(player.position.x, player.position.z);
+  if (playerR > 50) {
+    const scale = 50 / playerR;
+    player.position.x *= scale;
+    player.position.z *= scale;
+  }
 
   if (pendingResource && !activeGather) {
     resourceWorldPosition(pendingResource, resourceTargetPos);
