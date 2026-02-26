@@ -45,8 +45,11 @@ function terrainH(x,z) {
   const flat=n*amp-bowl;
   if(r<=MT_START) return flat;
   const mt=THREE.MathUtils.smoothstep(r,MT_START,MT_END), a=Math.atan2(z,x);
-  return flat+mt*mt*65+(Math.sin(a*11+x*.12)*.5+.5)*mt*10
+  // Jagged rigid peaks — step/quantize the noise for low-poly cliff feel
+  const raw=mt*mt*65+(Math.sin(a*11+x*.12)*.5+.5)*mt*10
     +(Math.cos(a*7-z*.1)*.5+.5)*mt*6+Math.sin(x*.15)*Math.cos(z*.12)*mt*4;
+  const step=Math.round(raw/4)*4;
+  return flat+THREE.MathUtils.lerp(raw,step,mt*.7);
 }
 function poolFloorH(x,z) {
   const r=Math.hypot(x,z), pr=poolRAt(x,z);
@@ -99,7 +102,7 @@ function createTerrain(scene) {
   const inner=12, outer=MAP_R, aS=128, rR=55;
   const pos=[],col=[],idx=[];
   const cGrass=new THREE.Color("#4cc436");
-  const cLush=new THREE.Color("#1e8a18"), cRock=new THREE.Color("#6e7e65"), cCliff=new THREE.Color("#5a5247");
+  const cLush=new THREE.Color("#1e8a18"), cRock=new THREE.Color("#9a9a96"), cCliff=new THREE.Color("#8a8884");
   const tmp=new THREE.Color(), vpr=aS+1;
 
   for(let ri=0;ri<=rR;ri++){
@@ -147,7 +150,7 @@ function createPoolFloor(scene) {
   for(let r=0;r<=R;r++){
     const t=.05+.95*(r/R);
     for(let s=0;s<S;s++){
-      const a=(s/S)*Math.PI*2, rad=poolR(a)*t;
+      const a=(s/S)*Math.PI*2, rad=(poolR(a)+5)*t;
       const x=Math.cos(a)*rad, z=Math.sin(a)*rad;
       const depth=Math.pow(1-t,1.7);
       pos.push(x,-(0.12+depth*1.5),z);
