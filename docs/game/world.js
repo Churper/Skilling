@@ -512,14 +512,17 @@ function addInlet(scene, uni) {
 }
 
 /* ── Buildings ── */
+function m3(geo, mat, x, y, z, ro) {
+  const m = new THREE.Mesh(geo, mat); m.position.set(x,y,z); if(ro!=null) m.renderOrder=ro; return m;
+}
 function addBank(scene, blob, x, z, nodes) {
   const y = getWorldSurfaceHeight(x,z), g = new THREE.Group(); g.position.set(x,y,z);
   setSvc(g, "bank", "Bank Chest");
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(2.2,.32,1.4), toonMat("#4e7f9b")), {position:new THREE.Vector3(0,.2,0), renderOrder:R_DECOR}));
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(1.25,.66,.82), toonMat("#c89d4d")), {position:new THREE.Vector3(0,.66,0), renderOrder:R_DECOR}));
+  g.add(m3(new THREE.BoxGeometry(2.2,.32,1.4), toonMat("#4e7f9b"), 0,.2,0, R_DECOR));
+  g.add(m3(new THREE.BoxGeometry(1.25,.66,.82), toonMat("#c89d4d"), 0,.66,0, R_DECOR));
   const lid = new THREE.Mesh(new THREE.CylinderGeometry(.41,.41,1.26,7,1,false,0,Math.PI), toonMat("#d7b16a"));
   lid.rotation.z=Math.PI*.5; lid.position.y=1; lid.renderOrder=R_DECOR; g.add(lid);
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.2,.24,.08), toonMat("#e7de8a")), {position:new THREE.Vector3(0,.64,.45), renderOrder:R_DECOR}));
+  g.add(m3(new THREE.BoxGeometry(.2,.24,.08), toonMat("#e7de8a"), 0,.64,.45, R_DECOR));
   scene.add(g); addBlob(scene,blob,x,z,1.65,.16);
   if (nodes) nodes.push(addHotspot(g, 0,.95,.55,.86,1.75));
 }
@@ -527,12 +530,12 @@ function addBank(scene, blob, x, z, nodes) {
 function addStore(scene, blob, x, z, nodes) {
   const y = getWorldSurfaceHeight(x,z), g = new THREE.Group(); g.position.set(x,y,z);
   setSvc(g, "store", "General Store");
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(2.4,.34,1.3), toonMat("#7f5c38")), {position:new THREE.Vector3(0,.22,0), renderOrder:R_DECOR}));
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(2.5,.22,1.36), toonMat("#e7a74a")), {position:new THREE.Vector3(0,1.46,0), renderOrder:R_DECOR}));
+  g.add(m3(new THREE.BoxGeometry(2.4,.34,1.3), toonMat("#7f5c38"), 0,.22,0, R_DECOR));
+  g.add(m3(new THREE.BoxGeometry(2.5,.22,1.36), toonMat("#e7a74a"), 0,1.46,0, R_DECOR));
   const pL = new THREE.Mesh(new THREE.CylinderGeometry(.08,.1,1.2,6), toonMat("#a97a4e"));
   pL.position.set(-.95,.78,.44); pL.renderOrder=R_DECOR; g.add(pL);
   const pR = pL.clone(); pR.position.x=.95; g.add(pR);
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.95,.42,.08), toonMat("#3f657d")), {position:new THREE.Vector3(0,1,.71), renderOrder:R_DECOR}));
+  g.add(m3(new THREE.BoxGeometry(.95,.42,.08), toonMat("#3f657d"), 0,1,.71, R_DECOR));
   const coin = new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,.04,12), toonMat("#f1d173"));
   coin.rotation.x=Math.PI*.5; coin.position.set(0,1,.76); coin.renderOrder=R_DECOR; g.add(coin);
   scene.add(g); addBlob(scene,blob,x,z,1.75,.16);
@@ -542,15 +545,15 @@ function addStore(scene, blob, x, z, nodes) {
 function addSmith(scene, blob, x, z, nodes) {
   const y = getWorldSurfaceHeight(x,z), g = new THREE.Group(); g.position.set(x,y,z);
   setSvc(g, "blacksmith", "Blacksmith Forge");
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(2.6,.36,1.7), toonMat("#545b64")), {position:new THREE.Vector3(0,.2,0), renderOrder:R_DECOR}));
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(2.1,1.15,1.4), toonMat("#7b8793")), {position:new THREE.Vector3(0,.95,0), renderOrder:R_DECOR}));
+  g.add(m3(new THREE.BoxGeometry(2.6,.36,1.7), toonMat("#545b64"), 0,.2,0, R_DECOR));
+  g.add(m3(new THREE.BoxGeometry(2.1,1.15,1.4), toonMat("#7b8793"), 0,.95,0, R_DECOR));
   const roof = new THREE.Mesh(new THREE.ConeGeometry(1.45,.65,4), toonMat("#4a4f59"));
   roof.position.y=1.88; roof.rotation.y=Math.PI*.25; roof.renderOrder=R_DECOR; g.add(roof);
   const forge = new THREE.Mesh(new THREE.CylinderGeometry(.3,.34,.5,7), toonMat("#3f454f"));
   forge.position.set(0,.53,.82); forge.renderOrder=R_DECOR; g.add(forge);
-  g.add(Object.assign(new THREE.Mesh(new THREE.SphereGeometry(.14,8,7), toonMat("#ff9b54")), {position:new THREE.Vector3(0,.67,.82), renderOrder:R_DECOR}));
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(1,.46,.09), toonMat("#273547")), {position:new THREE.Vector3(0,1.2,.9), renderOrder:R_DECOR}));
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.24,.09,.09), toonMat("#dce6ed")), {position:new THREE.Vector3(-.07,1.23,.96), renderOrder:R_DECOR+1}));
+  g.add(m3(new THREE.SphereGeometry(.14,8,7), toonMat("#ff9b54"), 0,.67,.82, R_DECOR));
+  g.add(m3(new THREE.BoxGeometry(1,.46,.09), toonMat("#273547"), 0,1.2,.9, R_DECOR));
+  g.add(m3(new THREE.BoxGeometry(.24,.09,.09), toonMat("#dce6ed"), -.07,1.23,.96, R_DECOR+1));
   const hh = new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.24,6), toonMat("#9d7549"));
   hh.position.set(.05,1.2,.96); hh.rotation.z=Math.PI*.35; hh.renderOrder=R_DECOR+1; g.add(hh);
   scene.add(g); addBlob(scene,blob,x,z,1.85,.18);
@@ -562,8 +565,8 @@ function addYard(scene, blob, x, z, nodes) {
   setSvc(g, "construction", "House Construction Yard");
   const sp = new THREE.Mesh(new THREE.CylinderGeometry(.09,.11,1.45,6), toonMat("#8f6742"));
   sp.position.set(-3.8,.98,3.7); sp.renderOrder=R_DECOR; g.add(sp);
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(1.85,.7,.1), toonMat("#2f536d")), {position:new THREE.Vector3(-3.8,1.52,3.78), renderOrder:R_DECOR+1}));
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(.32,.11,.12), toonMat("#dce6ed")), {position:new THREE.Vector3(-3.98,1.54,3.86), renderOrder:R_DECOR+2}));
+  g.add(m3(new THREE.BoxGeometry(1.85,.7,.1), toonMat("#2f536d"), -3.8,1.52,3.78, R_DECOR+1));
+  g.add(m3(new THREE.BoxGeometry(.32,.11,.12), toonMat("#dce6ed"), -3.98,1.54,3.86, R_DECOR+2));
   const hh = new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.28,6), toonMat("#9d7549"));
   hh.position.set(-3.72,1.5,3.86); hh.rotation.z=Math.PI*.35; hh.renderOrder=R_DECOR+2; g.add(hh);
   const H = new THREE.Group(); H.position.set(.15,.06,-.2); g.add(H);
@@ -606,10 +609,10 @@ function addYard(scene, blob, x, z, nodes) {
 function addDummy(scene, blob, x, z, nodes) {
   const g = new THREE.Group(), y = getWorldSurfaceHeight(x,z); g.position.set(x,y,z);
   const bMat = toonMat("#a07040");
-  g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(.18,.22,1.4,8), bMat), {position:new THREE.Vector3(0,.7,0)}));
+  g.add(m3(new THREE.CylinderGeometry(.18,.22,1.4,8), bMat, 0,.7,0));
   const arm = new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,1,6), bMat); arm.position.y=1.1; arm.rotation.z=Math.PI/2; g.add(arm);
-  g.add(Object.assign(new THREE.Mesh(new THREE.SphereGeometry(.2,8,8), toonMat("#c4a868")), {position:new THREE.Vector3(0,1.6,0)}));
-  g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.1,10), toonMat("#8a6038")), {position:new THREE.Vector3(0,.05,0)}));
+  g.add(m3(new THREE.SphereGeometry(.2,8,8), toonMat("#c4a868"), 0,1.6,0));
+  g.add(m3(new THREE.CylinderGeometry(.28,.28,.1,10), toonMat("#8a6038"), 0,.05,0));
   setSvc(g, "dummy", "Training Dummy"); scene.add(g);
   nodes.push(addHotspot(g, 0,.8,0,.6,1.8)); addBlob(scene,blob,x,z,.5,.18);
 }
@@ -620,7 +623,7 @@ function addTrainYard(scene, blob, x, z) {
   for (let i=0;i<10;i++) { const a=(i/10)*Math.PI*2; const p=new THREE.Mesh(fGeo,fMat); p.position.set(Math.cos(a)*5.4,.42,Math.sin(a)*5.4); p.renderOrder=R_DECOR; g.add(p); }
   const sp = new THREE.Mesh(new THREE.CylinderGeometry(.07,.08,1.2,6), toonMat("#8a6240"));
   sp.position.set(0,.74,-4.7); sp.renderOrder=R_DECOR; g.add(sp);
-  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(1.55,.52,.08), toonMat("#3d6079")), {position:new THREE.Vector3(0,1.15,-4.38), renderOrder:R_DECOR+1}));
+  g.add(m3(new THREE.BoxGeometry(1.55,.52,.08), toonMat("#3d6079"), 0,1.15,-4.38, R_DECOR+1));
   const cA = new THREE.Mesh(new THREE.BoxGeometry(.52,.06,.06), toonMat("#e5d08b"));
   cA.position.set(-.12,1.18,-4.32); cA.rotation.z=Math.PI*.2; cA.renderOrder=R_DECOR+2; g.add(cA);
   const cB = cA.clone(); cB.position.x=.12; cB.rotation.z=-Math.PI*.2; g.add(cB);
