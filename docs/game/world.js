@@ -114,8 +114,9 @@ function createTerrain(scene) {
       if(dist<pr+4) { const t=THREE.MathUtils.smoothstep(dist,pr-2,pr+4); y=THREE.MathUtils.lerp(WATER_Y-.25,y,t); }
       pos.push(x,y,z);
 
-      // Grass everywhere — no sand ring
-      tmp.copy(cGrass);
+      // Green grass, stone rim at pool edge like SA2 Chao Garden
+      const stoneT=THREE.MathUtils.smoothstep(dist,pr-1,pr+1.5);
+      tmp.lerpColors(new THREE.Color("#8a8a84"),cGrass,stoneT);
       const lushT=THREE.MathUtils.smoothstep(dist,30,42);
       const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.9,THREE.MathUtils.smoothstep(y,4,14)*.7);
       const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
@@ -143,18 +144,18 @@ function createTerrain(scene) {
   mesh.renderOrder=R_GND; scene.add(mesh); return mesh;
 }
 
-/* ── Pool floor ── */
+/* ── Pool floor — stone bowl like SA2 Chao Garden ── */
 function createPoolFloor(scene) {
-  const S=64, R=20, pos=[],col=[],idx=[];
-  const cCenter=new THREE.Color("#1a8aaa"), cEdge=new THREE.Color("#6aceb8");
+  const S=48, R=16, pos=[],col=[],idx=[];
+  const cDeep=new THREE.Color("#3a6a7a"), cShallow=new THREE.Color("#7a8a88");
   for(let r=0;r<=R;r++){
     const t=.05+.95*(r/R);
     for(let s=0;s<S;s++){
-      const a=(s/S)*Math.PI*2, rad=(poolR(a)+5)*t;
+      const a=(s/S)*Math.PI*2, rad=(poolR(a)+6)*t;
       const x=Math.cos(a)*rad, z=Math.sin(a)*rad;
       const depth=Math.pow(1-t,1.7);
       pos.push(x,-(0.12+depth*1.5),z);
-      const c=new THREE.Color().lerpColors(cCenter,cEdge,t);
+      const c=new THREE.Color().lerpColors(cDeep,cShallow,t);
       col.push(c.r,c.g,c.b);
     }
   }
@@ -162,7 +163,7 @@ function createPoolFloor(scene) {
   const geo=new THREE.BufferGeometry();
   geo.setIndex(idx); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
   geo.setAttribute("color",new THREE.Float32BufferAttribute(col,3)); geo.computeVertexNormals();
-  const m=new THREE.Mesh(geo,toonMat("#fff",{vertexColors:true,side:THREE.DoubleSide}));
+  const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide}));
   m.position.y=WATER_Y; m.renderOrder=R_SHORE; scene.add(m);
 }
 
@@ -290,27 +291,16 @@ function placeRocks(scene,M,nodes) {
     });
 }
 
-/* ── Mountain cliff walls — single clean ring ── */
+/* ── Mountain cliff accents — just a few large rocks on peaks ── */
 function placeCliffs(scene,M) {
   const C=M.cliffRocks; if(!C.length) return;
-  // One ring of large rocks forming the mountain wall
-  for(let i=0;i<16;i++){
-    const a=(i/16)*Math.PI*2+Math.sin(i*3.7)*.15;
-    const r=55+Math.sin(i*5.3)*4;
+  for(let i=0;i<8;i++){
+    const a=(i/8)*Math.PI*2+Math.sin(i*3.7)*.2;
+    const r=60+Math.sin(i*5.3)*5;
     const x=Math.cos(a)*r, z=Math.sin(a)*r;
-    const s=4+(Math.sin(i*2.9)*.5+.5)*3;
+    const s=5+(Math.sin(i*2.9)*.5+.5)*4;
     const m=C[i%C.length].clone();
     m.scale.setScalar(s); m.rotation.y=a+Math.PI+Math.sin(i*4.1)*.4;
-    m.position.set(x,terrainH(x,z)-1,z); scene.add(m);
-  }
-  // Outer layer — fewer, bigger
-  for(let i=0;i<10;i++){
-    const a=(i/10)*Math.PI*2+.3;
-    const r=72+Math.sin(i*4.1)*3;
-    const x=Math.cos(a)*r, z=Math.sin(a)*r;
-    const s=5.5+(Math.sin(i*3.3)*.5+.5)*3;
-    const m=C[i%C.length].clone();
-    m.scale.setScalar(s); m.rotation.y=a+Math.PI+Math.sin(i*2.7)*.5;
     m.position.set(x,terrainH(x,z)-2,z); scene.add(m);
   }
 }
