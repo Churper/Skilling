@@ -30,7 +30,7 @@ function toonMat(color, options = {}) {
 
 // ── Constants ──
 const LAKE_RADIUS = 24.0;
-const WATER_RADIUS = 24.2;
+const WATER_RADIUS = 24.8;
 const LAKE_BOWL_Y = 0.58;
 const WATER_SURFACE_Y = 0.596;
 const MOUNTAIN_START = 46;
@@ -220,11 +220,11 @@ function createRadialTerrain(scene) {
   const colors = [];
   const indices = [];
   const colSand = new THREE.Color("#dcc890");
-  const colGrassLight = new THREE.Color("#4cb830");
-  const colGrassMid = new THREE.Color("#389820");
-  const colGrassDark = new THREE.Color("#1a6e10");
-  const colRock = new THREE.Color("#5a5838");
-  const colCliff = new THREE.Color("#4a4030");
+  const colGrassLight = new THREE.Color("#6bcf4f");
+  const colGrassMid = new THREE.Color("#4cad3a");
+  const colGrassDark = new THREE.Color("#2c8228");
+  const colRock = new THREE.Color("#6f8364");
+  const colCliff = new THREE.Color("#786f63");
   const colTmp = new THREE.Color();
   const lightX = 0.54, lightY = 0.78, lightZ = 0.31;
   const sampleStep = 0.8;
@@ -242,8 +242,8 @@ function createRadialTerrain(scene) {
       let y = sampleTerrainHeight(x, z);
 
       // Blend under water at inner edge
-      if (r < WATER_RADIUS + 2) {
-        const blend = THREE.MathUtils.smoothstep(r, WATER_RADIUS - 2, WATER_RADIUS + 2);
+      if (r < WATER_RADIUS + 2.8) {
+        const blend = THREE.MathUtils.smoothstep(r, WATER_RADIUS - 2.2, WATER_RADIUS + 2.8);
         y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.06, y, blend);
       }
       positions.push(x, y, z);
@@ -260,11 +260,11 @@ function createRadialTerrain(scene) {
       const tonal = THREE.MathUtils.clamp(litStylized * 0.7 + noise * 0.15 + 0.15, 0, 1);
 
       // Color zones — tropical: sand → bright grass → deep forest → rock → cliff (NO snow)
-      const sandFade = THREE.MathUtils.smoothstep(r, WATER_RADIUS, WATER_RADIUS + 2.5);
-      const grassDeepen = THREE.MathUtils.smoothstep(r, WATER_RADIUS + 3, WATER_RADIUS + 10);
-      const forestBlend = THREE.MathUtils.smoothstep(r, 38, 55);
-      const rockBlend = THREE.MathUtils.smoothstep(r, 58, 78);
-      const cliffBlend = THREE.MathUtils.smoothstep(r, 80, 100);
+      const sandFade = THREE.MathUtils.smoothstep(r, WATER_RADIUS, WATER_RADIUS + 3.2);
+      const grassDeepen = THREE.MathUtils.smoothstep(r, WATER_RADIUS + 4.2, WATER_RADIUS + 13.2);
+      const forestBlend = THREE.MathUtils.smoothstep(r, 44, 64);
+      const rockBlend = THREE.MathUtils.smoothstep(r, 72, 92);
+      const cliffBlend = THREE.MathUtils.smoothstep(r, 92, 109);
 
       colTmp.copy(colSand);
       colTmp.lerp(colGrassLight, sandFade);
@@ -272,7 +272,7 @@ function createRadialTerrain(scene) {
       if (forestBlend > 0) colTmp.lerp(colGrassDark, forestBlend * 0.75);
       if (rockBlend > 0) colTmp.lerp(colRock, rockBlend * 0.8);
       if (cliffBlend > 0) colTmp.lerp(colCliff, cliffBlend * 0.7);
-      colTmp.multiplyScalar(0.88 + tonal * 0.28);
+      colTmp.multiplyScalar(0.96 + tonal * 0.22);
 
       colors.push(colTmp.r, colTmp.g, colTmp.b);
     }
@@ -396,9 +396,9 @@ function createCausticTexture() {
 function createWater(scene) {
   const waterUniforms = {
     uTime: { value: 0 },
-    uShallow: { value: new THREE.Color("#c4fef8") },
-    uMid: { value: new THREE.Color("#4dd8ee") },
-    uDeep: { value: new THREE.Color("#1a9ec8") },
+    uShallow: { value: new THREE.Color("#b9f4f0") },
+    uMid: { value: new THREE.Color("#49c8df") },
+    uDeep: { value: new THREE.Color("#1889bb") },
     uBeach: { value: new THREE.Color("#e3cea1") },
   };
 
@@ -530,6 +530,8 @@ function createWater(scene) {
         col = mix(col, uShallow, smoothstep(0.35, 0.82, radial));
         float clarity = smoothstep(0.15, 0.75, radial);
         col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.25);
+        float shoreTint = smoothstep(0.72, 0.98, radial);
+        col = mix(col, uBeach * 0.95 + vec3(0.11, 0.14, 0.12), shoreTint * 0.16);
 
         vec2 cuv = wp * 0.11 + vec2(t * 0.02, -t * 0.015);
         float c1 = voronoi(cuv);
@@ -580,13 +582,13 @@ function createWater(scene) {
                          + sin(ang * 13.0 - t * 0.8) * 0.010
                          + sin(ang * 21.0 + t * 1.6) * 0.005;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.80, 0.92, foamEdge) * (1.0 - smoothstep(0.97, 1.0, foamEdge));
+        float foam = smoothstep(0.74, 0.9, foamEdge) * (1.0 - smoothstep(0.992, 1.02, foamEdge));
         foam *= 0.55 + foamNoise * 0.45;
         foam = clamp(foam, 0.0, 1.0);
         col = mix(col, mix(uShallow, vec3(1.0), 0.5), foam * 0.65);
 
-        float bodyAlpha = mix(0.68, 0.45, smoothstep(0.04, 0.85, radial));
-        float edgeFade = 1.0 - smoothstep(0.96, 1.0, foamEdge);
+        float bodyAlpha = mix(0.56, 0.34, smoothstep(0.04, 0.9, radial));
+        float edgeFade = 1.0 - smoothstep(0.992, 1.02, foamEdge);
         float alpha = max(bodyAlpha * edgeFade, foam * 0.85);
         if (alpha < 0.002) discard;
 
@@ -599,8 +601,50 @@ function createWater(scene) {
   water.position.y = WATER_SURFACE_Y;
   water.renderOrder = RENDER_WATER;
   scene.add(water);
+  addShoreFoamRing(scene, waterUniforms);
 
   return { waterUniforms, causticMap };
+}
+
+function addShoreFoamRing(scene, waterUniforms) {
+  const foamGeo = new THREE.RingGeometry(WATER_RADIUS - 0.52, WATER_RADIUS + 1.25, 220, 1);
+  const foamMat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: {
+      uTime: waterUniforms.uTime,
+    },
+    vertexShader: `
+      varying vec2 vLocal;
+      void main() {
+        vLocal = position.xy;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying vec2 vLocal;
+      uniform float uTime;
+
+      void main() {
+        float r = length(vLocal);
+        float ang = atan(vLocal.y, vLocal.x);
+        float wobble = sin(ang * 16.0 + uTime * 1.3) * 0.10
+                     + sin(ang * 29.0 - uTime * 1.1) * 0.05;
+        float inner = smoothstep(${(WATER_RADIUS - 0.35).toFixed(2)}, ${(WATER_RADIUS + 0.15).toFixed(2)}, r + wobble);
+        float outer = 1.0 - smoothstep(${(WATER_RADIUS + 0.8).toFixed(2)}, ${(WATER_RADIUS + 1.28).toFixed(2)}, r);
+        float streak = 0.84 + sin((r * 7.8) - uTime * 2.6 + ang * 4.0) * 0.16;
+        float alpha = clamp(inner * outer * streak, 0.0, 1.0) * 0.62;
+        if (alpha < 0.01) discard;
+        gl_FragColor = vec4(0.96, 0.99, 1.0, alpha);
+      }
+    `,
+  });
+  const foam = new THREE.Mesh(foamGeo, foamMat);
+  foam.rotation.x = -Math.PI / 2;
+  foam.position.y = WATER_SURFACE_Y + 0.02;
+  foam.renderOrder = RENDER_WATER + 2;
+  scene.add(foam);
 }
 
 // ── Shadow blobs ──
