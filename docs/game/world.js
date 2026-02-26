@@ -144,11 +144,18 @@ function createTerrain(scene) {
   mesh.renderOrder=R_GND; scene.add(mesh); return mesh;
 }
 
-/* ── Water — single opaque disc, no pool floor, no rings ── */
+/* ── Water — semi-transparent over solid stone bottom ── */
 function createWater(scene) {
   const uni={uTime:{value:0}};
+
+  // Stone pool bottom — single flat color disc, zero rings
+  const bottom=new THREE.Mesh(new THREE.CircleGeometry(26,48),
+    new THREE.MeshBasicMaterial({color:"#5a6e6a"}));
+  bottom.rotation.x=-Math.PI/2; bottom.position.y=WATER_Y-.3;
+  bottom.renderOrder=R_SHORE; scene.add(bottom);
+
+  // Water surface
   const S=48, pos=[], idx=[];
-  // Center vertex
   pos.push(0,0,0);
   for(let s=0;s<S;s++){
     const a=(s/S)*Math.PI*2, r=poolR(a)+.5;
@@ -159,7 +166,7 @@ function createWater(scene) {
   geo.setIndex(idx); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
   geo.computeVertexNormals();
   const mat=new THREE.ShaderMaterial({
-    side:THREE.DoubleSide, uniforms:uni,
+    transparent:true, depthWrite:false, side:THREE.DoubleSide, uniforms:uni,
     vertexShader:`
       varying vec2 vW; uniform float uTime;
       void main(){
@@ -171,16 +178,87 @@ function createWater(scene) {
       varying vec2 vW; uniform float uTime;
       void main(){
         float d=length(vW);
-        vec3 deep=vec3(.22,.52,.62), shallow=vec3(.42,.74,.78);
+        vec3 deep=vec3(.25,.55,.65), shallow=vec3(.45,.76,.80);
         float t=smoothstep(0.0,22.0,d);
         vec3 c=mix(deep,shallow,t);
         c+=sin(vW.x*.6+vW.y*.4+uTime*1.2)*.02+cos(vW.x*.3-vW.y*.5+uTime*.7)*.015;
-        gl_FragColor=vec4(c,1.0);
+        gl_FragColor=vec4(c,0.55);
       }`,
   });
   const water=new THREE.Mesh(geo,mat);
   water.position.y=WATER_Y+.01; water.renderOrder=R_WATER; scene.add(water);
   return {waterUniforms:uni, causticMap:null};
+}
+
+/* ── Waterfall — cascading from north cliff into pool ── */
+function addWaterfall(scene,uni) {
+  const cx=0, cz=38; // north side, between pool and mountains
+  const baseY=terrainH(cx,cz+10);
+
+  // Rock ledges the water flows over
+  const ledgeMat=toonMat("#7a7e78");
+  [[0,baseY+4,cz+8, 8,1.2,4],[0,baseY+1.5,cz+4, 7,.8,3.5],[0,WATER_Y+.3,cz, 6,.6,3]]
+    .forEach(([x,y,z,w,h,d])=>{
+      const ledge=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),ledgeMat);
+      ledge.position.set(x,y,z); ledge.renderOrder=R_DECOR; scene.add(ledge);
+    });
+
+  // Vertical water planes between ledges
+  const wfMat=new THREE.ShaderMaterial({
+    transparent:true, side:THREE.DoubleSide,
+    uniforms:{uTime:uni.uTime},
+    vertexShader:`varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`
+      varying vec2 vUv; uniform float uTime;
+      void main(){
+        float flow=fract(vUv.y*3.0-uTime*1.2);
+        float foam=smoothstep(0.0,0.3,flow)*smoothstep(1.0,0.7,flow);
+        vec3 c=mix(vec3(.5,.78,.88),vec3(.88,.94,1.),foam*.7);
+        float edge=smoothstep(0.0,0.2,vUv.x)*smoothstep(1.0,0.8,vUv.x);
+        gl_FragColor=vec4(c,edge*0.8);
+      }`,
+  });
+
+  // Upper fall (cliff to mid ledge)
+  const f1=new THREE.Mesh(new THREE.PlaneGeometry(5,4,1,6),wfMat);
+  f1.position.set(cx,baseY+2.5,cz+6); f1.renderOrder=R_DECOR+1; scene.add(f1);
+  // Lower fall (mid ledge to pool)
+  const f2=new THREE.Mesh(new THREE.PlaneGeometry(4.5,3,1,6),wfMat);
+  f2.position.set(cx,baseY,cz+2); f2.renderOrder=R_DECOR+1; scene.add(f2);
+
+  // Splash foam at base
+  const foam=new THREE.Mesh(new THREE.CircleGeometry(3,16),
+    new THREE.MeshBasicMaterial({color:"#c8e8f0",transparent:true,opacity:.4}));
+  foam.rotation.x=-Math.PI/2; foam.position.set(cx,WATER_Y+.03,cz-1);
+  foam.renderOrder=R_WATER+1; scene.add(foam);
+}
+
+/* ── Cave entrance — dark arch in cliff face ── */
+function addCave(scene) {
+  const cx=28, cz=44; // northeast cliff face
+  const cy=terrainH(cx,cz);
+  const g=new THREE.Group(); g.position.set(cx,cy,cz);
+  g.rotation.y=Math.atan2(-cz,-cx)+Math.PI; // face inward toward garden
+
+  // Dark arch opening
+  const archShape=new THREE.Shape();
+  archShape.moveTo(-3,0); archShape.lineTo(-3,3.5);
+  archShape.absarc(0,3.5,3,Math.PI,0,false);
+  archShape.lineTo(3,0); archShape.lineTo(-3,0);
+  const arch=new THREE.Mesh(
+    new THREE.ShapeGeometry(archShape),
+    new THREE.MeshBasicMaterial({color:"#0a0a0e",side:THREE.DoubleSide}));
+  arch.renderOrder=R_DECOR+2; g.add(arch);
+
+  // Stone frame around the arch
+  const frameMat=toonMat("#6a6e68");
+  const top=new THREE.Mesh(new THREE.BoxGeometry(7.5,1,1.5),frameMat);
+  top.position.set(0,6.2,-.3); top.renderOrder=R_DECOR+1; g.add(top);
+  const pL=new THREE.Mesh(new THREE.BoxGeometry(1.2,6.5,1.5),frameMat);
+  pL.position.set(-3.5,3,-.3); pL.renderOrder=R_DECOR+1; g.add(pL);
+  const pR=pL.clone(); pR.position.x=3.5; g.add(pR);
+
+  scene.add(g);
 }
 
 /* ── Shadow blobs ── */
@@ -524,6 +602,8 @@ export async function createWorld(scene) {
     placeCliffs(scene,models);
   }
 
+  addWaterfall(scene,{uTime:waterUniforms.uTime});
+  addCave(scene);
   addLounges(scene); addLilies(scene); addFlowers(scene);
   const fishing=addFishing(scene,nodes);
   const {constructionSite}=addPlaza(scene,nodes,obstacles);
