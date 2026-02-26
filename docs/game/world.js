@@ -41,11 +41,22 @@ const RENDER_SHORE = 1;
 const RENDER_WATER = 2;
 const RENDER_DECOR = 3;
 
-// ── Perfect circle lake shape ──
-function getLakeRadiusAtAngle(_a) { return LAKE_RADIUS; }
-function getWaterRadiusAtAngle(_a) { return WATER_RADIUS; }
-function getLakeRadiusAt(_x, _z) { return LAKE_RADIUS; }
-function getWaterRadiusAt(_x, _z) { return WATER_RADIUS; }
+// ── Organic shoreline shape ──
+function getLakeRadiusAtAngle(a) {
+  return LAKE_RADIUS
+    + Math.sin(a * 1.7 + 0.5) * 1.05
+    + Math.sin(a * 3.4 - 1.2) * 0.65
+    + Math.cos(a * 5.1 + 0.2) * 0.45;
+}
+function getWaterRadiusAtAngle(a) {
+  return getLakeRadiusAtAngle(a) + (WATER_RADIUS - LAKE_RADIUS);
+}
+function getLakeRadiusAt(x, z) {
+  return getLakeRadiusAtAngle(Math.atan2(z, x));
+}
+function getWaterRadiusAt(x, z) {
+  return getWaterRadiusAtAngle(Math.atan2(z, x));
+}
 
 // ── Shared materials ──
 const FISH_SPOT_RING_MAT = new THREE.MeshBasicMaterial({ color: "#dcf8ff", transparent: true, opacity: 0.72 });
@@ -95,8 +106,9 @@ function sampleTerrainHeight(x, z) {
 
 function sampleLakeFloorHeight(x, z) {
   const r = Math.hypot(x, z);
-  if (r > LAKE_RADIUS) return -Infinity;
-  const radius01 = r / LAKE_RADIUS;
+  const lakeR = getLakeRadiusAt(x, z);
+  if (r > lakeR) return -Infinity;
+  const radius01 = r / lakeR;
   const depth = Math.pow(1 - radius01, 1.82);
   const lip = THREE.MathUtils.smoothstep(radius01, 0.74, 1.0);
   const localY = -(0.1 + depth * 1.95 + lip * 0.08);
@@ -111,13 +123,14 @@ export function getWorldSurfaceHeight(x, z) {
 
 export function getWaterSurfaceHeight(x, z, time = 0) {
   const dist = Math.hypot(x, z);
-  if (dist > WATER_RADIUS) return -Infinity;
+  const waterR = getWaterRadiusAt(x, z);
+  if (dist > waterR) return -Infinity;
   const w0 = Math.sin(x * 0.16 + z * 0.12 + time * 0.82) * 0.032;
   const w1 = Math.sin(x * 0.28 - z * 0.22 + time * 0.65) * 0.022;
   const w2 = Math.cos(x * 0.11 + z * 0.34 - time * 0.74) * 0.026;
   const w3 = Math.sin(x * 0.48 + z * 0.38 + time * 1.3) * 0.012;
   const w4 = Math.sin(x * 0.65 - z * 0.52 - time * 1.05) * 0.008;
-  const damp = 1.0 - (dist / WATER_RADIUS) * 0.18;
+  const damp = 1.0 - (dist / waterR) * 0.18;
   return WATER_SURFACE_Y + (w0 + w1 + w2 + w3 + w4) * damp;
 }
 
@@ -223,8 +236,8 @@ function createRadialTerrain(scene) {
   const colGrassLight = new THREE.Color("#6bcf4f");
   const colGrassMid = new THREE.Color("#4cad3a");
   const colGrassDark = new THREE.Color("#2c8228");
-  const colRock = new THREE.Color("#6f8364");
-  const colCliff = new THREE.Color("#786f63");
+  const colRock = new THREE.Color("#7a8771");
+  const colCliff = new THREE.Color("#6d655b");
   const colTmp = new THREE.Color();
   const lightX = 0.54, lightY = 0.78, lightZ = 0.31;
   const sampleStep = 0.8;
@@ -240,10 +253,16 @@ function createRadialTerrain(scene) {
       const z = Math.sin(angle) * radius;
       const r = Math.hypot(x, z);
       let y = sampleTerrainHeight(x, z);
+      const coastNoise =
+        Math.sin(angle * 4.2 + 0.4) * 0.95 +
+        Math.sin(angle * 8.6 - 1.1) * 0.48 +
+        Math.sin((x + z) * 0.055) * 0.42 +
+        sampleTerrainNoise(x * 0.7, z * 0.7) * 0.85;
+      const coastRadius = getWaterRadiusAt(x, z) + coastNoise * 0.55;
 
       // Blend under water at inner edge
-      if (r < WATER_RADIUS + 2.8) {
-        const blend = THREE.MathUtils.smoothstep(r, WATER_RADIUS - 2.2, WATER_RADIUS + 2.8);
+      if (r < coastRadius + 2.9) {
+        const blend = THREE.MathUtils.smoothstep(r, coastRadius - 2.3, coastRadius + 2.9);
         y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.06, y, blend);
       }
       positions.push(x, y, z);
@@ -259,20 +278,23 @@ function createRadialTerrain(scene) {
       const noise = sampleTerrainNoise(x, z);
       const tonal = THREE.MathUtils.clamp(litStylized * 0.7 + noise * 0.15 + 0.15, 0, 1);
 
-      // Color zones — tropical: sand → bright grass → deep forest → rock → cliff (NO snow)
-      const sandFade = THREE.MathUtils.smoothstep(r, WATER_RADIUS, WATER_RADIUS + 3.2);
-      const grassDeepen = THREE.MathUtils.smoothstep(r, WATER_RADIUS + 4.2, WATER_RADIUS + 13.2);
-      const forestBlend = THREE.MathUtils.smoothstep(r, 44, 64);
-      const rockBlend = THREE.MathUtils.smoothstep(r, 72, 92);
-      const cliffBlend = THREE.MathUtils.smoothstep(r, 92, 109);
+      // Color zones with jittered shoreline + slope-based mountain tint to avoid hard circles.
+      const sandFade = THREE.MathUtils.smoothstep(r, coastRadius - 0.25, coastRadius + 3.1);
+      const grassDeepen = THREE.MathUtils.smoothstep(r, coastRadius + 3.0, coastRadius + 11.6);
+      const forestBlend = THREE.MathUtils.smoothstep(r, 41.5, 56.5);
+      const edgeRock = THREE.MathUtils.smoothstep(r, 44.0, 52.2);
+      const mountainRock = THREE.MathUtils.smoothstep(y, 3.0, 11.8);
+      const rockBlend = Math.max(edgeRock * 0.88, mountainRock * 0.72);
+      const cliffBlend = THREE.MathUtils.smoothstep(r, 56, 73);
 
       colTmp.copy(colSand);
       colTmp.lerp(colGrassLight, sandFade);
-      if (grassDeepen > 0) colTmp.lerp(colGrassMid, grassDeepen * 0.65);
-      if (forestBlend > 0) colTmp.lerp(colGrassDark, forestBlend * 0.75);
-      if (rockBlend > 0) colTmp.lerp(colRock, rockBlend * 0.8);
-      if (cliffBlend > 0) colTmp.lerp(colCliff, cliffBlend * 0.7);
-      colTmp.multiplyScalar(0.96 + tonal * 0.22);
+      if (grassDeepen > 0) colTmp.lerp(colGrassMid, grassDeepen * 0.68);
+      if (forestBlend > 0) colTmp.lerp(colGrassDark, forestBlend * 0.76);
+      if (rockBlend > 0) colTmp.lerp(colRock, THREE.MathUtils.clamp(rockBlend, 0, 1));
+      if (cliffBlend > 0) colTmp.lerp(colCliff, cliffBlend * 0.84);
+      colTmp.multiplyScalar(0.95 + tonal * 0.23);
+      colTmp.offsetHSL(0, 0, (noise - 0.5) * 0.045);
 
       colors.push(colTmp.r, colTmp.g, colTmp.b);
     }
@@ -318,7 +340,7 @@ function createLakeBowlMesh() {
     const ringT = r / rings;
     for (let s = 0; s < segments; s++) {
       const angle = (s / segments) * Math.PI * 2;
-      const radius = LAKE_RADIUS * ringT;
+      const radius = getLakeRadiusAtAngle(angle) * ringT;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const depth = Math.pow(1 - ringT, 1.82);
@@ -415,10 +437,11 @@ function createWater(scene) {
     const rt = r / wRings;
     for (let s = 0; s < wSegs; s++) {
       const a = (s / wSegs) * Math.PI * 2;
-      const rad = WATER_RADIUS * rt;
+      const shorelineR = getWaterRadiusAtAngle(a);
+      const rad = shorelineR * rt;
       const x = Math.cos(a) * rad, z = Math.sin(a) * rad;
       wPos.push(x, 0, z);
-      wUvs.push(x / (WATER_RADIUS * 2) + 0.5, z / (WATER_RADIUS * 2) + 0.5);
+      wUvs.push(x / ((WATER_RADIUS + 2.0) * 2) + 0.5, z / ((WATER_RADIUS + 2.0) * 2) + 0.5);
       wRads.push(rt);
     }
   }
@@ -526,12 +549,18 @@ function createWater(scene) {
         float t = uTime;
         float radial = vRadial;
         vec2 wp = vWorldPos.xz;
+        float shoreAng = atan(wp.y, wp.x);
+        float radialWarp = radial
+          + sin(shoreAng * 5.2 + t * 0.32) * 0.028
+          + sin(shoreAng * 11.3 - t * 0.22) * 0.012
+          + (fbm(wp * 0.09 + vec2(t * 0.01, -t * 0.008)) - 0.5) * 0.045;
+        float rw = clamp(radialWarp, 0.0, 1.15);
 
-        vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.45, radial));
-        col = mix(col, uShallow, smoothstep(0.35, 0.82, radial));
-        float clarity = smoothstep(0.15, 0.75, radial);
+        vec3 col = mix(uDeep, uMid, smoothstep(0.0, 0.46, rw));
+        col = mix(col, uShallow, smoothstep(0.32, 0.83, rw));
+        float clarity = smoothstep(0.12, 0.76, rw);
         col = mix(col, vec3(0.82, 0.97, 0.96), clarity * 0.25);
-        float shoreTint = smoothstep(0.72, 0.98, radial);
+        float shoreTint = smoothstep(0.7, 0.99, rw);
         col = mix(col, uBeach * 0.95 + vec3(0.11, 0.14, 0.12), shoreTint * 0.16);
 
         vec2 cuv = wp * 0.11 + vec2(t * 0.02, -t * 0.015);
@@ -540,13 +569,13 @@ function createWater(scene) {
         float c3 = voronoi(cuv * 0.6 + vec2(-t * 0.03, t * 0.02));
         float caustic = c1 * 0.4 + c2 * 0.35 + c3 * 0.25;
         float causticBright = (1.0 - smoothstep(0.0, 0.5, caustic)) * 0.42;
-        causticBright *= smoothstep(0.02, 0.3, radial) * (1.0 - radial * 0.35);
+        causticBright *= smoothstep(0.02, 0.3, rw) * (1.0 - rw * 0.35);
         col += causticBright * vec3(0.6, 0.92, 1.0);
 
         float waveTex = fbm(wp * 0.18 + vec2(t * 0.04, -t * 0.03));
         float waveTex2 = fbm(wp * 0.32 + vec2(-t * 0.05, t * 0.035));
-        col = mix(col, col * 1.15, waveTex * 0.22 * (1.0 - radial * 0.3));
-        col += vec3(0.1, 0.18, 0.2) * waveTex2 * 0.08 * (1.0 - radial * 0.5);
+        col = mix(col, col * 1.15, waveTex * 0.22 * (1.0 - rw * 0.3));
+        col += vec3(0.1, 0.18, 0.2) * waveTex2 * 0.08 * (1.0 - rw * 0.5);
 
         float dist1 = length(wp - vec2(2.5, 4.0));
         float dist2 = length(wp - vec2(-5.0, -2.5));
@@ -559,7 +588,7 @@ function createWater(scene) {
         ripple += sin(dist4 * 2.5 - t * 1.6) * 0.5 + 0.5;
         ripple += sin(dist5 * 2.9 - t * 2.3) * 0.5 + 0.5;
         ripple /= 5.0;
-        col += ripple * 0.06 * vec3(0.7, 0.9, 1.0) * (1.0 - radial * 0.4);
+        col += ripple * 0.06 * vec3(0.7, 0.9, 1.0) * (1.0 - rw * 0.4);
 
         vec3 viewDir = normalize(cameraPosition - vWorldPos);
         vec3 sunDir = normalize(vec3(0.6, 0.8, 0.3));
@@ -570,7 +599,7 @@ function createWater(scene) {
         ));
 
         float spec = pow(max(dot(reflect(-sunDir, waveN), viewDir), 0.0), 16.0);
-        col += vec3(1.0, 0.97, 0.92) * spec * 0.3 * (1.0 - radial * 0.2);
+        col += vec3(1.0, 0.97, 0.92) * spec * 0.3 * (1.0 - rw * 0.2);
 
         float NdotV = max(dot(viewDir, waveN), 0.0);
         float fresnel = pow(1.0 - NdotV, 4.0) * 0.2;
@@ -578,18 +607,17 @@ function createWater(scene) {
         col = mix(col, skyCol, fresnel);
 
         float foamNoise = fbm(wp * 0.7 + vec2(t * 0.1, -t * 0.07));
-        float ang = atan(wp.y, wp.x);
-        float foamWobble = sin(ang * 8.0 + t * 1.2) * 0.013
-                         + sin(ang * 13.0 - t * 0.8) * 0.010
-                         + sin(ang * 21.0 + t * 1.6) * 0.005;
-        float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.74, 0.9, foamEdge) * (1.0 - smoothstep(0.992, 1.02, foamEdge));
+        float foamWobble = sin(shoreAng * 8.0 + t * 1.2) * 0.017
+                         + sin(shoreAng * 13.0 - t * 0.8) * 0.012
+                         + sin(shoreAng * 21.0 + t * 1.6) * 0.006;
+        float foamEdge = rw + foamWobble;
+        float foam = smoothstep(0.72, 0.9, foamEdge) * (1.0 - smoothstep(0.985, 1.02, foamEdge));
         foam *= 0.55 + foamNoise * 0.45;
         foam = clamp(foam, 0.0, 1.0);
         col = mix(col, mix(uShallow, vec3(1.0), 0.5), foam * 0.65);
 
-        float bodyAlpha = mix(0.56, 0.34, smoothstep(0.04, 0.9, radial));
-        float edgeFade = 1.0 - smoothstep(0.992, 1.02, foamEdge);
+        float bodyAlpha = mix(0.56, 0.32, smoothstep(0.04, 0.92, rw));
+        float edgeFade = 1.0 - smoothstep(0.982, 1.02, foamEdge);
         float alpha = max(bodyAlpha * edgeFade, foam * 0.85);
         if (alpha < 0.002) discard;
 
@@ -630,12 +658,13 @@ function addShoreFoamRing(scene, waterUniforms) {
       void main() {
         float r = length(vLocal);
         float ang = atan(vLocal.y, vLocal.x);
-        float wobble = sin(ang * 16.0 + uTime * 1.3) * 0.10
-                     + sin(ang * 29.0 - uTime * 1.1) * 0.05;
-        float inner = smoothstep(${(WATER_RADIUS - 0.35).toFixed(2)}, ${(WATER_RADIUS + 0.15).toFixed(2)}, r + wobble);
-        float outer = 1.0 - smoothstep(${(WATER_RADIUS + 0.8).toFixed(2)}, ${(WATER_RADIUS + 1.28).toFixed(2)}, r);
-        float streak = 0.84 + sin((r * 7.8) - uTime * 2.6 + ang * 4.0) * 0.16;
-        float alpha = clamp(inner * outer * streak, 0.0, 1.0) * 0.62;
+        float wobble = sin(ang * 15.0 + uTime * 1.25) * 0.18
+                     + sin(ang * 27.0 - uTime * 1.05) * 0.09
+                     + sin(r * 4.8 + ang * 3.2 - uTime * 1.5) * 0.05;
+        float inner = smoothstep(${(WATER_RADIUS - 0.45).toFixed(2)}, ${(WATER_RADIUS + 0.26).toFixed(2)}, r + wobble);
+        float outer = 1.0 - smoothstep(${(WATER_RADIUS + 1.12).toFixed(2)}, ${(WATER_RADIUS + 1.72).toFixed(2)}, r + wobble * 0.35);
+        float streak = 0.72 + sin((r * 6.2) - uTime * 2.15 + ang * 3.0) * 0.28;
+        float alpha = clamp(inner * outer * streak, 0.0, 1.0) * 0.56;
         if (alpha < 0.01) discard;
         gl_FragColor = vec4(0.96, 0.99, 1.0, alpha);
       }
