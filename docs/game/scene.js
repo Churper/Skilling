@@ -9,18 +9,18 @@ export function createSceneContext(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor("#88b2c4", 1);
+  renderer.setClearColor("#68b8d8", 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog("#b8ccb8", 180, 560);
+  scene.fog = new THREE.Fog("#88ccb0", 80, 260);
 
   const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.1, 500);
   camera.position.set(28, 30, 28);
 
-  scene.add(new THREE.HemisphereLight("#eaf8ff", "#6e9058", 0.82));
+  scene.add(new THREE.HemisphereLight("#eaf8ff", "#4a9838", 1.0));
   const sun = new THREE.DirectionalLight("#fff2d6", 1.35);
   sun.position.set(45, 52, 16);
   scene.add(sun);

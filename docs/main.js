@@ -1000,7 +1000,7 @@ const gatherDir = new THREE.Vector3();
 const cameraFocus = new THREE.Vector3();
 const cameraDelta = new THREE.Vector3();
 const cameraInitBack = new THREE.Vector3();
-const fogAboveWater = new THREE.Color("#b8ccb8");
+const fogAboveWater = new THREE.Color("#88ccb0");
 const fogUnderwater = new THREE.Color("#4b88a4");
 let underwaterFogActive = false;
 

@@ -146,9 +146,9 @@ function addSky(scene) {
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide,
     uniforms: {
-      cTop: { value: new THREE.Color("#2e8ed8") },
-      cMid: { value: new THREE.Color("#7dcdf8") },
-      cBot: { value: new THREE.Color("#fffae8") },
+      cTop: { value: new THREE.Color("#2888d4") },
+      cMid: { value: new THREE.Color("#6ec8f4") },
+      cBot: { value: new THREE.Color("#c8e8d0") },
       uTime: { value: 0 },
     },
     vertexShader: `
@@ -218,11 +218,11 @@ function createRadialTerrain(scene) {
   const positions = [];
   const colors = [];
   const indices = [];
-  const colSand = new THREE.Color("#e0c888");
-  const colGrassLight = new THREE.Color("#7dba5e");
-  const colGrassDark = new THREE.Color("#4d8c42");
-  const colRock = new THREE.Color("#8a8a7a");
-  const colSnow = new THREE.Color("#e8e8e0");
+  const colSand = new THREE.Color("#d4b878");
+  const colGrassLight = new THREE.Color("#4cb830");
+  const colGrassMid = new THREE.Color("#389820");
+  const colGrassDark = new THREE.Color("#1a6e10");
+  const colRock = new THREE.Color("#6a6848");
   const colTmp = new THREE.Color();
   const lightX = 0.54, lightY = 0.78, lightZ = 0.31;
   const sampleStep = 0.8;
@@ -257,18 +257,18 @@ function createRadialTerrain(scene) {
       const noise = sampleTerrainNoise(x, z);
       const tonal = THREE.MathUtils.clamp(litStylized * 0.7 + noise * 0.15 + 0.15, 0, 1);
 
-      // Color zones
-      const shoreBlend = THREE.MathUtils.smoothstep(r, WATER_RADIUS - 1, WATER_RADIUS + 5);
-      const grassBlend = THREE.MathUtils.smoothstep(r, WATER_RADIUS + 4, WATER_RADIUS + 12);
-      const mountainBlend = THREE.MathUtils.smoothstep(r, 48, 68);
-      const snowBlend = THREE.MathUtils.smoothstep(r, 78, 100);
+      // Color zones — tropical: sand → bright grass → deep forest → mossy rock (NO snow)
+      const sandFade = THREE.MathUtils.smoothstep(r, WATER_RADIUS, WATER_RADIUS + 2.5);
+      const grassDeepen = THREE.MathUtils.smoothstep(r, WATER_RADIUS + 3, WATER_RADIUS + 10);
+      const forestBlend = THREE.MathUtils.smoothstep(r, 38, 55);
+      const rockBlend = THREE.MathUtils.smoothstep(r, 65, 90);
 
       colTmp.copy(colSand);
-      colTmp.lerp(colGrassLight, shoreBlend);
-      if (grassBlend > 0) colTmp.lerp(colGrassDark, grassBlend * tonal * 0.55);
-      if (mountainBlend > 0) colTmp.lerp(colRock, mountainBlend);
-      if (snowBlend > 0) colTmp.lerp(colSnow, snowBlend * 0.7);
-      colTmp.multiplyScalar(0.82 + tonal * 0.34);
+      colTmp.lerp(colGrassLight, sandFade);
+      if (grassDeepen > 0) colTmp.lerp(colGrassMid, grassDeepen * 0.65);
+      if (forestBlend > 0) colTmp.lerp(colGrassDark, forestBlend * 0.75);
+      if (rockBlend > 0) colTmp.lerp(colRock, rockBlend * 0.55);
+      colTmp.multiplyScalar(0.88 + tonal * 0.28);
 
       colors.push(colTmp.r, colTmp.g, colTmp.b);
     }
@@ -716,38 +716,59 @@ function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// ── Seeded random for consistent placement ──
+function seededRandom(seed) {
+  let s = seed;
+  return () => { s = (s * 16807 + 0) % 2147483647; return s / 2147483647; };
+}
+
 // ── Model placement: Trees ──
 function placeTrees(scene, blobTex, models, resourceNodes) {
   const templates = models.trees;
   if (!templates.length) return;
+  const rng = seededRandom(7331);
 
-  // Shore area trees — ring around the lake
-  const shoreTreePositions = [
-    [-28, 21], [28, 20], [-24, -27], [23, -28], [2, 31], [35, -4], [-34, 2],
-    [-30, 12], [31, 10], [18, 28], [-16, 30], [30, -18], [-28, -16],
-  ];
-  // Scattered forest trees further out
-  const forestPositions = [
-    [-36, 14], [37, -10], [-17, 33], [26, -30], [-39, -9], [33, 17],
-    [13, -35], [-12, -34], [41, 5], [-31, 23], [23, 33], [-37, -19],
-    [42, 14], [-40, -22], [15, 38], [-8, 40], [38, 25], [-35, 28],
-    [-22, 38], [35, -28], [-42, 8], [28, 38], [-18, -40], [40, -20],
-  ];
+  const positions = [];
 
-  const allPositions = [...shoreTreePositions, ...forestPositions];
-  for (let i = 0; i < allPositions.length; i++) {
-    const [x, z] = allPositions[i];
-    const template = pickRandom(templates);
+  // Dense shore ring (r=26-33) — lush frame around the lake
+  for (let i = 0; i < 22; i++) {
+    const angle = (i / 22) * Math.PI * 2 + (rng() - 0.5) * 0.22;
+    const r = 26 + rng() * 6;
+    positions.push([Math.cos(angle) * r, Math.sin(angle) * r]);
+  }
+
+  // Forest groves (r=33-45) — natural clusters, 3-5 trees each
+  const groveCenters = [
+    [36, 12], [-34, 16], [16, 36], [-14, 35], [36, -14], [-35, -12],
+    [6, -37], [-8, 38], [38, 24], [-36, 24], [24, -34], [-22, -36],
+    [40, 6], [-40, -6], [12, 40], [-10, -40],
+  ];
+  for (const [cx, cz] of groveCenters) {
+    const count = 3 + Math.floor(rng() * 3);
+    for (let j = 0; j < count; j++) {
+      positions.push([cx + (rng() - 0.5) * 5, cz + (rng() - 0.5) * 5]);
+    }
+  }
+
+  // Mountain fringe (r=44-53) — dense treeline at mountain base
+  for (let i = 0; i < 18; i++) {
+    const angle = (i / 18) * Math.PI * 2 + (rng() - 0.5) * 0.28;
+    const r = 44 + rng() * 8;
+    positions.push([Math.cos(angle) * r, Math.sin(angle) * r]);
+  }
+
+  for (const [x, z] of positions) {
+    const template = templates[Math.floor(rng() * templates.length)];
     const instance = template.clone();
-    const scale = 1.6 + Math.random() * 0.8;
+    const scale = 1.5 + rng() * 1.0;
     instance.scale.setScalar(scale);
-    instance.rotation.y = Math.random() * Math.PI * 2;
+    instance.rotation.y = rng() * Math.PI * 2;
     const baseY = getWorldSurfaceHeight(x, z);
     instance.position.set(x, baseY, z);
     setResourceNode(instance, "woodcutting", "Tree");
     scene.add(instance);
     resourceNodes.push(instance);
-    addShadowBlob(scene, blobTex, x, z, 2.2 * scale * 0.5, 0.15);
+    addShadowBlob(scene, blobTex, x, z, 2.0 * scale * 0.5, 0.15);
   }
 }
 
@@ -801,20 +822,29 @@ function placeWaterRocks(scene, models) {
 function placeBushes(scene, models) {
   const templates = models.bushes;
   if (!templates.length) return;
+  const rng = seededRandom(1234);
 
-  const bushPositions = [
-    [27, 18, 1.4], [-24, 16, 1.2], [19, -23, 1.5], [-20, -18, 1.3],
-    [31, 5, 1.1], [-29, -5, 1.4], [15, 27, 1.2], [-13, 27, 1.3],
-    [33, -15, 1.0], [-35, 11, 1.1], [9, -29, 1.2], [-7, 31, 1.4],
-    [29, 23, 1.0], [-27, 21, 1.1], [36, -7, 1.2], [-33, -13, 1.0],
-    [20, 35, 1.3], [-25, 32, 1.1], [38, 10, 1.0], [-15, -35, 1.2],
-  ];
+  const positions = [];
 
-  for (const [x, z, scale] of bushPositions) {
-    const template = pickRandom(templates);
+  // Undergrowth near shore (r=26-34) — clustered near tree bases
+  for (let i = 0; i < 16; i++) {
+    const angle = (i / 16) * Math.PI * 2 + (rng() - 0.5) * 0.35;
+    const r = 26 + rng() * 7;
+    positions.push([Math.cos(angle) * r, Math.sin(angle) * r, 1.0 + rng() * 0.6]);
+  }
+
+  // Scattered mid-field bushes (r=34-46)
+  for (let i = 0; i < 18; i++) {
+    const angle = (i / 18) * Math.PI * 2 + (rng() - 0.5) * 0.4;
+    const r = 34 + rng() * 11;
+    positions.push([Math.cos(angle) * r, Math.sin(angle) * r, 0.9 + rng() * 0.5]);
+  }
+
+  for (const [x, z, scale] of positions) {
+    const template = templates[Math.floor(rng() * templates.length)];
     const instance = template.clone();
     instance.scale.setScalar(scale);
-    instance.rotation.y = Math.random() * Math.PI * 2;
+    instance.rotation.y = rng() * Math.PI * 2;
     const baseY = getWorldSurfaceHeight(x, z);
     instance.position.set(x, baseY, z);
     instance.renderOrder = RENDER_DECOR;
@@ -826,69 +856,63 @@ function placeBushes(scene, models) {
 function placeGrass(scene, models) {
   const templates = models.grass;
   if (!templates.length) return;
+  const rng = seededRandom(5678);
 
-  // Scatter grass in clusters around the playable area
-  const grassClusters = [
-    [22, 13, 5], [-22, 11, 4], [16, 23, 5], [-15, 23, 4],
-    [26, -13, 4], [-26, -9, 5], [9, 27, 4], [-9, 27, 4],
-    [30, 8, 3], [-30, 6, 3], [20, -18, 4], [-18, -20, 3],
-    [8, 33, 3], [-8, -30, 3], [34, -2, 3], [-34, -4, 3],
-    [14, 36, 3], [-12, 36, 2], [36, 18, 3], [-36, 16, 2],
-  ];
-
-  for (const [cx, cz, count] of grassClusters) {
-    for (let i = 0; i < count; i++) {
-      const x = cx + (Math.random() - 0.5) * 3.0;
-      const z = cz + (Math.random() - 0.5) * 3.0;
-      const template = pickRandom(templates);
-      const instance = template.clone();
-      const scale = 1.0 + Math.random() * 0.6;
-      instance.scale.setScalar(scale);
-      instance.rotation.y = Math.random() * Math.PI * 2;
-      const baseY = getWorldSurfaceHeight(x, z);
-      instance.position.set(x, baseY, z);
-      instance.renderOrder = RENDER_DECOR;
-      scene.add(instance);
-    }
+  // Scatter grass densely across the entire playable area
+  for (let i = 0; i < 120; i++) {
+    const angle = rng() * Math.PI * 2;
+    const r = 25 + rng() * 24;
+    const x = Math.cos(angle) * r + (rng() - 0.5) * 3;
+    const z = Math.sin(angle) * r + (rng() - 0.5) * 3;
+    const template = templates[Math.floor(rng() * templates.length)];
+    const instance = template.clone();
+    const scale = 0.8 + rng() * 0.8;
+    instance.scale.setScalar(scale);
+    instance.rotation.y = rng() * Math.PI * 2;
+    const baseY = getWorldSurfaceHeight(x, z);
+    instance.position.set(x, baseY, z);
+    instance.renderOrder = RENDER_DECOR;
+    scene.add(instance);
   }
 }
 
-// ── Model placement: Mountain rocks + bare trees ──
+// ── Model placement: Mountain decor (rocks + leafy trees for tropical feel) ──
 function placeMountainDecor(scene, models) {
   const rockTemplates = models.bigRocks.length ? models.bigRocks : models.rocks;
-  const bareTemplates = models.bareTrees;
+  const treeTemplates = models.trees;
+  const rng = seededRandom(9012);
 
-  // Large rocks scattered across mountain slopes
+  // Rocks scattered across mountain slopes
   if (rockTemplates.length) {
-    for (let i = 0; i < 30; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = 55 + Math.random() * 35;
+    for (let i = 0; i < 25; i++) {
+      const angle = rng() * Math.PI * 2;
+      const r = 55 + rng() * 35;
       const x = Math.cos(angle) * r;
       const z = Math.sin(angle) * r;
-      const template = pickRandom(rockTemplates);
+      const template = rockTemplates[Math.floor(rng() * rockTemplates.length)];
       const instance = template.clone();
-      const scale = 2.5 + Math.random() * 3.0;
+      const scale = 2.0 + rng() * 3.5;
       instance.scale.setScalar(scale);
-      instance.rotation.y = Math.random() * Math.PI * 2;
-      instance.rotation.x = (Math.random() - 0.5) * 0.3;
+      instance.rotation.y = rng() * Math.PI * 2;
+      instance.rotation.x = (rng() - 0.5) * 0.3;
       const baseY = sampleTerrainHeight(x, z);
       instance.position.set(x, baseY, z);
       scene.add(instance);
     }
   }
 
-  // Bare trees on lower mountain slopes
-  if (bareTemplates.length) {
-    for (let i = 0; i < 14; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = 53 + Math.random() * 18;
+  // Leafy trees on lower mountain slopes (tropical = green everywhere)
+  if (treeTemplates.length) {
+    for (let i = 0; i < 20; i++) {
+      const angle = rng() * Math.PI * 2;
+      const r = 53 + rng() * 16;
       const x = Math.cos(angle) * r;
       const z = Math.sin(angle) * r;
-      const template = pickRandom(bareTemplates);
+      const template = treeTemplates[Math.floor(rng() * treeTemplates.length)];
       const instance = template.clone();
-      const scale = 1.2 + Math.random() * 0.8;
+      const scale = 1.4 + rng() * 1.2;
       instance.scale.setScalar(scale);
-      instance.rotation.y = Math.random() * Math.PI * 2;
+      instance.rotation.y = rng() * Math.PI * 2;
       const baseY = sampleTerrainHeight(x, z);
       instance.position.set(x, baseY, z);
       scene.add(instance);
@@ -1365,14 +1389,20 @@ function addLilyPads(scene) {
 // ── Wildflowers ──
 function addWildflowers(scene) {
   const patches = [
-    { cx: 27, cz: 15, count: 8 },
-    { cx: -25, cz: 13, count: 7 },
-    { cx: 19, cz: -24, count: 6 },
-    { cx: -21, cz: -19, count: 9 },
-    { cx: 31, cz: 1, count: 7 },
-    { cx: -32, cz: -8, count: 5 },
-    { cx: 15, cz: 32, count: 6 },
-    { cx: -18, cz: 30, count: 5 },
+    { cx: 27, cz: 15, count: 10 },
+    { cx: -25, cz: 13, count: 9 },
+    { cx: 19, cz: -24, count: 8 },
+    { cx: -21, cz: -19, count: 10 },
+    { cx: 31, cz: 1, count: 8 },
+    { cx: -32, cz: -8, count: 7 },
+    { cx: 15, cz: 32, count: 8 },
+    { cx: -18, cz: 30, count: 7 },
+    { cx: 35, cz: 20, count: 6 },
+    { cx: -38, cz: 14, count: 6 },
+    { cx: 10, cz: -35, count: 7 },
+    { cx: -8, cz: -32, count: 6 },
+    { cx: 28, cz: -20, count: 7 },
+    { cx: -30, cz: -22, count: 5 },
   ];
   const flowerColors = ["#f5a0c0", "#f7e663", "#c4a0f5", "#ff9e7a", "#a0d8f0", "#ffb6d9"];
   for (const patch of patches) {
