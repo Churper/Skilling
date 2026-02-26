@@ -55,7 +55,10 @@ function poolFloorH(x,z) {
   const r=Math.hypot(x,z), pr=poolRAt(x,z);
   if(r>pr) return -Infinity;
   const t=r/pr;
-  return WATER_Y-(0.15+Math.pow(1-t,1.8)*1.6+THREE.MathUtils.smoothstep(t,.8,1)*.06);
+  // Keep shoreline transition continuous with terrain so entering water does not "bump" upward.
+  const basin=WATER_Y-(0.52+Math.pow(1-t,1.75)*1.25);
+  const shore=terrainH(x,z)-0.02;
+  return THREE.MathUtils.lerp(basin,shore,THREE.MathUtils.smoothstep(t,.82,1));
 }
 
 export function getWorldSurfaceHeight(x,z) {
