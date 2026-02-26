@@ -61,6 +61,18 @@ const RENDER_GROUND = 0;
 const RENDER_SHORE = 1;
 const RENDER_WATER = 2;
 const RENDER_DECOR = 3;
+const DECOR_KEEP_OUT_ZONES = Object.freeze([
+  { x: 0, z: -34, radius: 14.4 },      // service plaza
+  { x: 22.5, z: -34, radius: 12.2 },   // house construction yard
+  { x: -17, z: -34, radius: 9.6 },     // training-dummy yard
+]);
+
+function isInDecorKeepOutZone(x, z, padding = 0) {
+  for (const zone of DECOR_KEEP_OUT_ZONES) {
+    if (Math.hypot(x - zone.x, z - zone.z) <= zone.radius + padding) return true;
+  }
+  return false;
+}
 
 // ── Organic shoreline shape ──
 function getLakeRadiusAtAngle(a) {
@@ -868,6 +880,7 @@ function placeTrees(scene, blobTex, models, resourceNodes) {
   }
 
   for (const [x, z] of positions) {
+    if (isInDecorKeepOutZone(x, z, 2.2)) continue;
     const template = templates[Math.floor(rng() * templates.length)];
     const instance = template.clone();
     const scale = 1.5 + rng() * 1.0;
@@ -951,6 +964,7 @@ function placeBushes(scene, models) {
   }
 
   for (const [x, z, scale] of positions) {
+    if (isInDecorKeepOutZone(x, z, 1.6)) continue;
     const template = templates[Math.floor(rng() * templates.length)];
     const instance = template.clone();
     instance.scale.setScalar(scale);
@@ -974,6 +988,7 @@ function placeGrass(scene, models) {
     const r = 25 + rng() * 24;
     const x = Math.cos(angle) * r + (rng() - 0.5) * 3;
     const z = Math.sin(angle) * r + (rng() - 0.5) * 3;
+    if (isInDecorKeepOutZone(x, z, 1.0)) continue;
     const template = templates[Math.floor(rng() * templates.length)];
     const instance = template.clone();
     const scale = 0.8 + rng() * 0.8;
@@ -1361,6 +1376,62 @@ function addTrainingDummy(scene, blobTex, x, z, interactables) {
   addShadowBlob(scene, blobTex, x, z, 0.5, 0.18);
 }
 
+function addTrainingGround(scene, blobTex, x, z) {
+  const baseY = getWorldSurfaceHeight(x, z);
+  const yard = new THREE.Group();
+  yard.position.set(x, baseY, z);
+
+  const pad = new THREE.Mesh(new THREE.CylinderGeometry(6.2, 6.5, 0.24, 32), toonMat("#ccb48a"));
+  pad.position.y = 0.12;
+  pad.renderOrder = RENDER_SHORE;
+  yard.add(pad);
+
+  const innerRing = new THREE.Mesh(new THREE.TorusGeometry(4.5, 0.16, 8, 48), toonMat("#f0e3c8"));
+  innerRing.rotation.x = Math.PI * 0.5;
+  innerRing.position.y = 0.28;
+  innerRing.renderOrder = RENDER_SHORE + 1;
+  yard.add(innerRing);
+
+  const center = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.1, 20), toonMat("#b79163"));
+  center.position.y = 0.24;
+  center.renderOrder = RENDER_SHORE + 1;
+  yard.add(center);
+
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2;
+    const px = Math.cos(a) * 5.4;
+    const pz = Math.sin(a) * 5.4;
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.72, 6), toonMat("#8f6642"));
+    post.position.set(px, 0.42, pz);
+    post.renderOrder = RENDER_DECOR;
+    yard.add(post);
+  }
+
+  const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 1.2, 6), toonMat("#8a6240"));
+  signPost.position.set(0, 0.74, -4.7);
+  signPost.renderOrder = RENDER_DECOR;
+  yard.add(signPost);
+
+  const sign = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.52, 0.08), toonMat("#3d6079"));
+  sign.position.set(0, 1.15, -4.38);
+  sign.renderOrder = RENDER_DECOR + 1;
+  yard.add(sign);
+
+  const crossedA = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.06, 0.06), toonMat("#e5d08b"));
+  crossedA.position.set(-0.12, 1.18, -4.32);
+  crossedA.rotation.z = Math.PI * 0.2;
+  crossedA.renderOrder = RENDER_DECOR + 2;
+  yard.add(crossedA);
+
+  const crossedB = crossedA.clone();
+  crossedB.position.x = 0.12;
+  crossedB.rotation.z = -Math.PI * 0.2;
+  yard.add(crossedB);
+
+  scene.add(yard);
+  addShadowBlob(scene, blobTex, x, z, 3.5, 0.13);
+}
+
 function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = []) {
   const cx = 0;
   const cz = -34;
@@ -1398,6 +1469,7 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   addStore(scene, blobTex, cx + 6.2, cz + 1.5, resourceNodes);
   addBlacksmith(scene, blobTex, cx, cz - 6.8, resourceNodes);
 
+  addTrainingGround(scene, blobTex, cx - 17, cz);
   addTrainingDummy(scene, blobTex, cx - 14, cz, resourceNodes);
   addTrainingDummy(scene, blobTex, cx - 17, cz, resourceNodes);
   addTrainingDummy(scene, blobTex, cx - 20, cz, resourceNodes);

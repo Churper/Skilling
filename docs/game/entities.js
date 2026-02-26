@@ -82,6 +82,14 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
     bow: (weaponModels?.bow ? makeWeaponFromModel(weaponModels.bow, 0.55) : null) || createBowMesh(),
     staff: (weaponModels?.staff ? makeWeaponFromModel(weaponModels.staff, 0.5) : null) || createStaffMesh(),
   };
+  if (weaponModels?.sword && toolMeshes.sword) {
+    // Mirror to match the same attack direction convention as axe/pickaxe.
+    toolMeshes.sword.rotation.set(0, -Math.PI * 0.5, Math.PI);
+  }
+  if (weaponModels?.bow && toolMeshes.bow) {
+    // Keep model upright so combat pose is vertical instead of flat.
+    toolMeshes.bow.rotation.set(0, -Math.PI * 0.5, Math.PI * 0.5);
+  }
   toolMeshes.axe.visible = false;
   toolMeshes.pickaxe.visible = false;
   toolMeshes.sword.visible = false;
@@ -96,7 +104,7 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
     pickaxe: { x: -0.36, y: 0.19, z: 0.11, rx: 0.58, ry: -0.82, rz: -0.06 },
     sword:   { x: -0.34, y: 0.20, z: 0.12, rx: 0.6, ry: -0.7, rz: -0.1 },
     fishing: { x: -0.36, y: 0.2, z: 0.12, rx: 0.94, ry: -0.78, rz: -0.05 },
-    bow:     { x: -0.34, y: 0.22, z: 0.18, rx: 0.1, ry: 0.0, rz: -0.3 },
+    bow:     { x: -0.33, y: 0.23, z: 0.16, rx: 1.18, ry: -0.72, rz: -0.08 },
     staff:   { x: -0.32, y: 0.2, z: 0.14, rx: 0.8, ry: -0.6, rz: -0.1 },
   };
 
@@ -105,7 +113,7 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
     pickaxe: { x: -0.34, y: 0.25, z: 0.13, rx: -0.36, ry: -0.9, rz: 0.02 },
     sword:   { x: -0.32, y: 0.26, z: 0.14, rx: -0.2, ry: -0.8, rz: 0.05 },
     fishing: { x: -0.34, y: 0.25, z: 0.14, rx: 1.42, ry: -0.72, rz: -0.24 },
-    bow:     { x: -0.3, y: 0.28, z: 0.2, rx: -0.3, ry: 0.0, rz: -0.1 },
+    bow:     { x: -0.3, y: 0.29, z: 0.18, rx: 1.3, ry: -0.75, rz: -0.2 },
     staff:   { x: -0.28, y: 0.3, z: 0.16, rx: 0.3, ry: -0.5, rz: 0.0 },
   };
 

@@ -49,6 +49,29 @@ export function createBagSystem({ capacity, itemKeys }) {
     return moved;
   }
 
+  function withdrawFromBank(maxItems = capacity) {
+    const cap = Math.max(0, Math.floor(maxItems));
+    if (cap <= 0) return 0;
+    let moved = 0;
+
+    for (const itemKey of itemKeys) {
+      while (bankStorage[itemKey] > 0 && moved < cap) {
+        const slotIndex = slots.indexOf(null);
+        if (slotIndex < 0) {
+          recount();
+          return moved;
+        }
+        slots[slotIndex] = itemKey;
+        bankStorage[itemKey] -= 1;
+        moved += 1;
+      }
+      if (moved >= cap) break;
+    }
+
+    recount();
+    return moved;
+  }
+
   function sellAll(priceByItem) {
     let sold = 0;
     let coinsGained = 0;
@@ -87,6 +110,7 @@ export function createBagSystem({ capacity, itemKeys }) {
     isFull,
     addItem,
     clearToBank,
+    withdrawFromBank,
     sellAll,
     consumeMatching,
   };

@@ -151,6 +151,10 @@ function clearBagToBank() {
   return bagSystem.clearToBank();
 }
 
+function withdrawBagFromBank(limit = BAG_CAPACITY) {
+  return bagSystem.withdrawFromBank(limit);
+}
+
 function sellBagToStore() {
   const { sold, coinsGained } = bagSystem.sellAll(SELL_PRICE_BY_ITEM);
   coins += coinsGained;
@@ -759,12 +763,22 @@ function runServiceAction(node) {
   if (!serviceType) return;
 
   if (serviceType === "bank") {
-    const moved = clearBagToBank();
-    syncInventoryUI();
-    if (moved <= 0) {
-      ui?.setStatus("Bank: your bag is already empty.", "warn");
+    if (bagUsedCount() > 0) {
+      const moved = clearBagToBank();
+      syncInventoryUI();
+      if (moved <= 0) {
+        ui?.setStatus("Bank: nothing to deposit.", "warn");
+      } else {
+        ui?.setStatus(`Banked ${moved} item${moved === 1 ? "" : "s"}.`, "success");
+      }
     } else {
-      ui?.setStatus(`Banked ${moved} item${moved === 1 ? "" : "s"}.`, "success");
+      const moved = withdrawBagFromBank(BAG_CAPACITY);
+      syncInventoryUI();
+      if (moved <= 0) {
+        ui?.setStatus("Bank is empty.", "warn");
+      } else {
+        ui?.setStatus(`Withdrew ${moved} item${moved === 1 ? "" : "s"} from bank.`, "success");
+      }
     }
     return;
   }
