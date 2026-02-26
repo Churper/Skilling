@@ -8,6 +8,9 @@ export const TOOL_LABEL = {
   axe: "Axe",
   pickaxe: "Pickaxe",
   fishing: "Fishing Pole",
+  sword: "Sword",
+  bow: "Bow",
+  staff: "Staff",
 };
 
 export const SKILL_BY_RESOURCE = {

@@ -12,10 +12,10 @@ export function createSceneContext(canvas) {
   renderer.setClearColor("#68b8d8", 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.0;
+  renderer.toneMappingExposure = 1.1;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog("#88ccb0", 80, 260);
+  scene.fog = new THREE.Fog("#88ccb0", 200, 550);
 
   const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.1, 500);
   camera.position.set(28, 30, 28);

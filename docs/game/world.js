@@ -33,7 +33,7 @@ const LAKE_RADIUS = 24.0;
 const WATER_RADIUS = 24.2;
 const LAKE_BOWL_Y = 0.58;
 const WATER_SURFACE_Y = 0.596;
-const MOUNTAIN_START = 52;
+const MOUNTAIN_START = 48;
 const MOUNTAIN_END = 105;
 const MAP_RADIUS = 115;
 const RENDER_GROUND = 0;
@@ -82,7 +82,7 @@ function sampleTerrainHeight(x, z) {
   // Mountains at map edges
   if (r > MOUNTAIN_START) {
     const mt = THREE.MathUtils.smoothstep(r, MOUNTAIN_START, MOUNTAIN_END);
-    const mountainH = mt * mt * 25;
+    const mountainH = mt * mt * 40;
     const angle = Math.atan2(z, x);
     const ridge = (Math.sin(angle * 13.7 + x * 0.15) * 0.5 + 0.5) * mt * 5;
     const ridge2 = (Math.cos(angle * 7.3 - z * 0.12) * 0.5 + 0.5) * mt * 3;
@@ -218,11 +218,12 @@ function createRadialTerrain(scene) {
   const positions = [];
   const colors = [];
   const indices = [];
-  const colSand = new THREE.Color("#d4b878");
+  const colSand = new THREE.Color("#dcc890");
   const colGrassLight = new THREE.Color("#4cb830");
   const colGrassMid = new THREE.Color("#389820");
   const colGrassDark = new THREE.Color("#1a6e10");
-  const colRock = new THREE.Color("#6a6848");
+  const colRock = new THREE.Color("#5a5838");
+  const colCliff = new THREE.Color("#4a4030");
   const colTmp = new THREE.Color();
   const lightX = 0.54, lightY = 0.78, lightZ = 0.31;
   const sampleStep = 0.8;
@@ -257,17 +258,19 @@ function createRadialTerrain(scene) {
       const noise = sampleTerrainNoise(x, z);
       const tonal = THREE.MathUtils.clamp(litStylized * 0.7 + noise * 0.15 + 0.15, 0, 1);
 
-      // Color zones — tropical: sand → bright grass → deep forest → mossy rock (NO snow)
+      // Color zones — tropical: sand → bright grass → deep forest → rock → cliff (NO snow)
       const sandFade = THREE.MathUtils.smoothstep(r, WATER_RADIUS, WATER_RADIUS + 2.5);
       const grassDeepen = THREE.MathUtils.smoothstep(r, WATER_RADIUS + 3, WATER_RADIUS + 10);
       const forestBlend = THREE.MathUtils.smoothstep(r, 38, 55);
-      const rockBlend = THREE.MathUtils.smoothstep(r, 65, 90);
+      const rockBlend = THREE.MathUtils.smoothstep(r, 58, 78);
+      const cliffBlend = THREE.MathUtils.smoothstep(r, 80, 100);
 
       colTmp.copy(colSand);
       colTmp.lerp(colGrassLight, sandFade);
       if (grassDeepen > 0) colTmp.lerp(colGrassMid, grassDeepen * 0.65);
       if (forestBlend > 0) colTmp.lerp(colGrassDark, forestBlend * 0.75);
-      if (rockBlend > 0) colTmp.lerp(colRock, rockBlend * 0.55);
+      if (rockBlend > 0) colTmp.lerp(colRock, rockBlend * 0.8);
+      if (cliffBlend > 0) colTmp.lerp(colCliff, cliffBlend * 0.7);
       colTmp.multiplyScalar(0.88 + tonal * 0.28);
 
       colors.push(colTmp.r, colTmp.g, colTmp.b);
@@ -303,7 +306,7 @@ function createLakeBowlMesh() {
   const indices = [];
   const deep = new THREE.Color("#2a7a9c");
   const mid = new THREE.Color("#52a8b8");
-  const shelf = new THREE.Color("#c4b68a");
+  const shelf = new THREE.Color("#7aa898");
 
   positions.push(0, -(0.1 + 1.95), 0);
   const cDeep = new THREE.Color().copy(deep);
@@ -576,13 +579,13 @@ function createWater(scene) {
                          + sin(ang * 13.0 - t * 0.8) * 0.010
                          + sin(ang * 21.0 + t * 1.6) * 0.005;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.87, 0.95, foamEdge) * (1.0 - smoothstep(0.955, 0.993, foamEdge));
+        float foam = smoothstep(0.72, 0.90, foamEdge) * (1.0 - smoothstep(0.96, 0.998, foamEdge));
         foam *= 0.65 + foamNoise * 0.55;
         foam = clamp(foam, 0.0, 1.0);
         col = mix(col, vec3(1.0, 1.0, 0.97), foam * 0.9);
 
-        float bodyAlpha = mix(0.62, 0.18, smoothstep(0.04, 0.78, radial));
-        float edgeFade = 1.0 - smoothstep(0.88, 0.995, foamEdge);
+        float bodyAlpha = mix(0.62, 0.28, smoothstep(0.04, 0.82, radial));
+        float edgeFade = 1.0 - smoothstep(0.94, 0.999, foamEdge);
         float alpha = max(bodyAlpha * edgeFade, foam * 0.96);
         if (alpha < 0.002) discard;
 
@@ -730,30 +733,29 @@ function placeTrees(scene, blobTex, models, resourceNodes) {
 
   const positions = [];
 
-  // Dense shore ring (r=26-33) — lush frame around the lake
-  for (let i = 0; i < 22; i++) {
-    const angle = (i / 22) * Math.PI * 2 + (rng() - 0.5) * 0.22;
-    const r = 26 + rng() * 6;
+  // Shore trees (r=27-33) — spaced ring around the lake
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2 + (rng() - 0.5) * 0.2;
+    const r = 27 + rng() * 5;
     positions.push([Math.cos(angle) * r, Math.sin(angle) * r]);
   }
 
-  // Forest groves (r=33-45) — natural clusters, 3-5 trees each
+  // Forest groves (r=34-45) — small clusters with breathing room
   const groveCenters = [
-    [36, 12], [-34, 16], [16, 36], [-14, 35], [36, -14], [-35, -12],
-    [6, -37], [-8, 38], [38, 24], [-36, 24], [24, -34], [-22, -36],
-    [40, 6], [-40, -6], [12, 40], [-10, -40],
+    [36, 12], [-34, 16], [16, 36], [-14, 35],
+    [36, -14], [-35, -12], [6, -37], [-8, 38],
   ];
   for (const [cx, cz] of groveCenters) {
-    const count = 3 + Math.floor(rng() * 3);
+    const count = 2 + Math.floor(rng() * 2);
     for (let j = 0; j < count; j++) {
-      positions.push([cx + (rng() - 0.5) * 5, cz + (rng() - 0.5) * 5]);
+      positions.push([cx + (rng() - 0.5) * 7, cz + (rng() - 0.5) * 7]);
     }
   }
 
-  // Mountain fringe (r=44-53) — dense treeline at mountain base
-  for (let i = 0; i < 18; i++) {
-    const angle = (i / 18) * Math.PI * 2 + (rng() - 0.5) * 0.28;
-    const r = 44 + rng() * 8;
+  // Mountain fringe (r=44-50) — scattered treeline
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2 + (rng() - 0.5) * 0.35;
+    const r = 44 + rng() * 6;
     positions.push([Math.cos(angle) * r, Math.sin(angle) * r]);
   }
 

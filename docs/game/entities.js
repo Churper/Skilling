@@ -77,20 +77,23 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
     axe: createAxeMesh(),
     pickaxe: createPickaxeMesh(),
     fishing: createFishingPoleMesh(),
+    sword: (weaponModels?.sword ? makeWeaponFromModel(weaponModels.sword, 0.5) : null) || createSwordFallback(),
     bow: (weaponModels?.bow ? makeWeaponFromModel(weaponModels.bow, 0.55) : null) || createBowMesh(),
     staff: (weaponModels?.staff ? makeWeaponFromModel(weaponModels.staff, 0.5) : null) || createStaffMesh(),
   };
   toolMeshes.axe.visible = false;
   toolMeshes.pickaxe.visible = false;
+  toolMeshes.sword.visible = false;
   toolMeshes.fishing.visible = true;
   toolMeshes.bow.visible = false;
   toolMeshes.staff.visible = false;
-  toolAnchor.add(toolMeshes.axe, toolMeshes.pickaxe, toolMeshes.fishing, toolMeshes.bow, toolMeshes.staff);
+  toolAnchor.add(toolMeshes.axe, toolMeshes.pickaxe, toolMeshes.sword, toolMeshes.fishing, toolMeshes.bow, toolMeshes.staff);
   let currentTool = "fishing";
 
   const carryPose = {
     axe:     { x: -0.36, y: 0.19, z: 0.11, rx: 0.64, ry: -0.74, rz: -0.08 },
     pickaxe: { x: -0.36, y: 0.19, z: 0.11, rx: 0.58, ry: -0.82, rz: -0.06 },
+    sword:   { x: -0.34, y: 0.20, z: 0.12, rx: 0.6, ry: -0.7, rz: -0.1 },
     fishing: { x: -0.36, y: 0.2, z: 0.12, rx: 0.94, ry: -0.78, rz: -0.05 },
     bow:     { x: -0.34, y: 0.22, z: 0.18, rx: 0.1, ry: 0.0, rz: -0.3 },
     staff:   { x: -0.32, y: 0.2, z: 0.14, rx: 0.8, ry: -0.6, rz: -0.1 },
@@ -99,6 +102,7 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
   const gatherPose = {
     axe:     { x: -0.34, y: 0.25, z: 0.13, rx: -0.24, ry: -0.88, rz: 0.03 },
     pickaxe: { x: -0.34, y: 0.25, z: 0.13, rx: -0.36, ry: -0.9, rz: 0.02 },
+    sword:   { x: -0.32, y: 0.26, z: 0.14, rx: -0.2, ry: -0.8, rz: 0.05 },
     fishing: { x: -0.34, y: 0.25, z: 0.14, rx: 1.42, ry: -0.72, rz: -0.24 },
     bow:     { x: -0.3, y: 0.28, z: 0.2, rx: -0.3, ry: 0.0, rz: -0.1 },
     staff:   { x: -0.28, y: 0.3, z: 0.16, rx: 0.3, ry: -0.5, rz: 0.0 },
@@ -320,6 +324,24 @@ function createAxeMesh() {
   mesh.add(pommel);
 
   // Match fishing-pole side/orientation direction.
+  mesh.rotation.y = Math.PI * 0.5;
+  mesh.scale.setScalar(0.9);
+  return mesh;
+}
+
+function createSwordFallback() {
+  const mesh = new THREE.Group();
+  const bladeMat = new THREE.MeshToonMaterial({ color: "#c8d4e0" });
+  const handleMat = new THREE.MeshToonMaterial({ color: "#7f5a36" });
+  const blade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.65, 0.1), bladeMat);
+  blade.position.y = 0.52;
+  mesh.add(blade);
+  const guard = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 0.22), handleMat);
+  guard.position.y = 0.18;
+  mesh.add(guard);
+  const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.18, 6), handleMat);
+  grip.position.y = 0.06;
+  mesh.add(grip);
   mesh.rotation.y = Math.PI * 0.5;
   mesh.scale.setScalar(0.9);
   return mesh;

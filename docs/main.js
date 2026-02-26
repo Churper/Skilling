@@ -78,7 +78,7 @@ const ui = initializeUI({
     // Auto-equip weapon for combat style
     if (style === "bow") equipTool("bow", false);
     else if (style === "mage") equipTool("staff", false);
-    else if (style === "melee") equipTool("axe", false);
+    else if (style === "melee") equipTool("sword", false);
   },
 });
 
