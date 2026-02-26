@@ -83,6 +83,9 @@ const ui = initializeUI({
   onStoreColor: (colorId) => {
     buyOrEquipSlimeColor(colorId);
   },
+  onBankTransfer: (direction, itemKey, qtyRaw) => {
+    transferBankItem(direction, itemKey, qtyRaw);
+  },
   onCombatStyle: (style) => {
     combatStyle = style;
     equipTool(getCombatToolForStyle(style), false);
@@ -127,6 +130,7 @@ function syncInventoryUI() {
   ui?.setCoins(coins);
   ui?.setBlacksmith(getBlacksmithState());
   ui?.setStore(getStoreState());
+  ui?.setBank(getBankState());
 }
 
 function getSkillProgress(skillKey) {
@@ -162,12 +166,12 @@ function addItemToBag(itemKey) {
   return bagSystem.addItem(itemKey);
 }
 
-function clearBagToBank() {
-  return bagSystem.clearToBank();
+function depositItemToBank(itemKey, limit = 1) {
+  return bagSystem.depositItemToBank(itemKey, limit);
 }
 
-function withdrawBagFromBank(limit = BAG_CAPACITY) {
-  return bagSystem.withdrawFromBank(limit);
+function withdrawItemFromBank(itemKey, limit = 1) {
+  return bagSystem.withdrawItemFromBank(itemKey, limit);
 }
 
 function sellBagToStore() {
@@ -716,6 +720,45 @@ function getStoreState() {
   };
 }
 
+function getBankState() {
+  return {
+    bag: { ...inventory },
+    bank: { ...bagSystem.bankStorage },
+    used: bagUsedCount(),
+    capacity: BAG_CAPACITY,
+  };
+}
+
+function transferBankItem(direction, itemKey, qtyRaw) {
+  if (!itemKey || !Object.prototype.hasOwnProperty.call(bagSystem.bankStorage, itemKey)) return;
+  const sourceCount = direction === "deposit"
+    ? Math.max(0, Math.floor(Number(inventory[itemKey]) || 0))
+    : Math.max(0, Math.floor(Number(bagSystem.bankStorage[itemKey]) || 0));
+  if (sourceCount <= 0) {
+    ui?.setStatus(`Bank: no ${itemKey} available to ${direction}.`, "warn");
+    ui?.setBank(getBankState());
+    return;
+  }
+
+  const parsedQty = qtyRaw === "all" ? sourceCount : Math.max(0, Math.floor(Number(qtyRaw) || 0));
+  const limit = Math.max(1, parsedQty);
+  let moved = 0;
+  if (direction === "deposit") moved = depositItemToBank(itemKey, Math.min(limit, sourceCount));
+  else moved = withdrawItemFromBank(itemKey, Math.min(limit, sourceCount));
+
+  syncInventoryUI();
+  if (moved <= 0) {
+    if (direction === "withdraw" && bagIsFull()) {
+      ui?.setStatus(`Bank: bag is full (${bagUsedCount()}/${BAG_CAPACITY}).`, "warn");
+    } else {
+      ui?.setStatus(`Bank: unable to ${direction} ${itemKey}.`, "warn");
+    }
+    return;
+  }
+  const verb = direction === "deposit" ? "Deposited" : "Withdrew";
+  ui?.setStatus(`${verb} ${moved} ${itemKey}.`, "success");
+}
+
 function sellBagViaStoreUI() {
   const { sold, coinsGained } = sellBagToStore();
   syncInventoryUI();
@@ -778,23 +821,8 @@ function runServiceAction(node) {
   if (!serviceType) return;
 
   if (serviceType === "bank") {
-    if (bagUsedCount() > 0) {
-      const moved = clearBagToBank();
-      syncInventoryUI();
-      if (moved <= 0) {
-        ui?.setStatus("Bank: nothing to deposit.", "warn");
-      } else {
-        ui?.setStatus(`Banked ${moved} item${moved === 1 ? "" : "s"}.`, "success");
-      }
-    } else {
-      const moved = withdrawBagFromBank(BAG_CAPACITY);
-      syncInventoryUI();
-      if (moved <= 0) {
-        ui?.setStatus("Bank is empty.", "warn");
-      } else {
-        ui?.setStatus(`Withdrew ${moved} item${moved === 1 ? "" : "s"} from bank.`, "success");
-      }
-    }
+    ui?.openBank(getBankState());
+    ui?.setStatus("Bank open. Choose item + amount to deposit or withdraw.", "info");
     return;
   }
 

@@ -22,7 +22,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -59,6 +59,9 @@ export function initializeUI(options = {}) {
   const storeSellButton = document.getElementById("ui-store-sell-btn");
   const dyeButtons = Array.from(document.querySelectorAll("[data-store-color]"));
   const dyeCostEls = Array.from(document.querySelectorAll("[data-store-cost]"));
+  const bankBagEls = Array.from(document.querySelectorAll("[data-bank-bag]"));
+  const bankVaultEls = Array.from(document.querySelectorAll("[data-bank-vault]"));
+  const bankActionButtons = Array.from(document.querySelectorAll("[data-bank-action]"));
 
   const combatStyleButtons = Array.from(document.querySelectorAll("[data-combat-style]"));
   const combatFlipButton = document.getElementById("ui-combat-flip-btn");
@@ -68,6 +71,7 @@ export function initializeUI(options = {}) {
 
   const labelByTab = {
     inventory: "Inventory",
+    bank: "Bank",
     blacksmith: "Blacksmith",
     store: "Store",
     skills: "Skills",
@@ -266,6 +270,41 @@ export function initializeUI(options = {}) {
     }
   }
 
+  function setBank(payload = {}) {
+    const bag = payload.bag || {};
+    const bank = payload.bank || {};
+    const capacity = Math.max(0, Math.floor(Number(payload.capacity) || 0));
+    const used = Math.max(0, Math.floor(Number(payload.used) || 0));
+    const freeSlots = Math.max(0, capacity - used);
+
+    for (const el of bankBagEls) {
+      const key = el.dataset.bankBag;
+      el.textContent = String(Math.max(0, Math.floor(Number(bag[key]) || 0)));
+    }
+    for (const el of bankVaultEls) {
+      const key = el.dataset.bankVault;
+      el.textContent = String(Math.max(0, Math.floor(Number(bank[key]) || 0)));
+    }
+
+    for (const button of bankActionButtons) {
+      const dir = button.dataset.bankAction;
+      const key = button.dataset.bankItem;
+      const qtyRaw = button.dataset.bankQty;
+      const source = dir === "deposit" ? (bag[key] || 0) : (bank[key] || 0);
+      let qty = qtyRaw === "all" ? source : Math.max(0, Math.floor(Number(qtyRaw) || 0));
+      if (dir === "withdraw") qty = Math.min(qty, freeSlots);
+      button.disabled = qty <= 0;
+      button.title = qty <= 0 ? "Unavailable" : `${dir === "deposit" ? "Deposit" : "Withdraw"} ${qty} ${key}`;
+    }
+  }
+
+  function openBank(payload = {}) {
+    setBank(payload);
+    setPanelCollapsed(false);
+    setActive("bank");
+    if (mobileQuery.matches) setMobileMenuOpen(true);
+  }
+
   function openStore(payload = {}) {
     setStore(payload);
     setPanelCollapsed(false);
@@ -310,6 +349,15 @@ export function initializeUI(options = {}) {
   if (storeSellButton) {
     storeSellButton.addEventListener("click", () => {
       if (typeof onStoreSell === "function") onStoreSell();
+    });
+  }
+  for (const button of bankActionButtons) {
+    button.addEventListener("click", () => {
+      if (button.disabled) return;
+      const dir = button.dataset.bankAction;
+      const item = button.dataset.bankItem;
+      const qty = button.dataset.bankQty;
+      if (typeof onBankTransfer === "function") onBankTransfer(dir, item, qty);
     });
   }
 
@@ -372,5 +420,7 @@ export function initializeUI(options = {}) {
     openBlacksmith,
     setStore,
     openStore,
+    setBank,
+    openBank,
   };
 }

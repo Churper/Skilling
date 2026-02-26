@@ -49,6 +49,21 @@ export function createBagSystem({ capacity, itemKeys }) {
     return moved;
   }
 
+  function depositItemToBank(itemKey, maxItems = 1) {
+    if (!Object.prototype.hasOwnProperty.call(bankStorage, itemKey)) return 0;
+    const cap = Math.max(0, Math.floor(maxItems));
+    if (cap <= 0) return 0;
+    let moved = 0;
+    for (let i = 0; i < slots.length && moved < cap; i++) {
+      if (slots[i] !== itemKey) continue;
+      slots[i] = null;
+      bankStorage[itemKey] += 1;
+      moved += 1;
+    }
+    recount();
+    return moved;
+  }
+
   function withdrawFromBank(maxItems = capacity) {
     const cap = Math.max(0, Math.floor(maxItems));
     if (cap <= 0) return 0;
@@ -68,6 +83,22 @@ export function createBagSystem({ capacity, itemKeys }) {
       if (moved >= cap) break;
     }
 
+    recount();
+    return moved;
+  }
+
+  function withdrawItemFromBank(itemKey, maxItems = 1) {
+    if (!Object.prototype.hasOwnProperty.call(bankStorage, itemKey)) return 0;
+    const cap = Math.max(0, Math.floor(maxItems));
+    if (cap <= 0) return 0;
+    let moved = 0;
+    while (bankStorage[itemKey] > 0 && moved < cap) {
+      const slotIndex = slots.indexOf(null);
+      if (slotIndex < 0) break;
+      slots[slotIndex] = itemKey;
+      bankStorage[itemKey] -= 1;
+      moved += 1;
+    }
     recount();
     return moved;
   }
@@ -110,7 +141,9 @@ export function createBagSystem({ capacity, itemKeys }) {
     isFull,
     addItem,
     clearToBank,
+    depositItemToBank,
     withdrawFromBank,
+    withdrawItemFromBank,
     sellAll,
     consumeMatching,
   };

@@ -210,6 +210,92 @@ body {
   margin-bottom: 6px;
 }
 
+/* â”€â”€ Bank â”€â”€ */
+.ui-bank-head {
+  margin-bottom: 6px;
+  color: var(--ui-ink-2);
+  font-size: 13px;
+  text-shadow: var(--ui-text-shadow);
+}
+
+.ui-bank-list {
+  display: grid;
+  gap: 6px;
+}
+
+.ui-bank-row {
+  display: grid;
+  grid-template-columns: 64px 52px 1fr;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--ui-btn-bg);
+}
+
+.ui-bank-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ui-ink-1);
+  font-size: 14px;
+  text-shadow: var(--ui-text-shadow);
+}
+
+.ui-bank-item strong {
+  font-weight: 700;
+}
+
+.ui-bank-counts {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--ui-ink-1);
+  font-size: 14px;
+  text-shadow: var(--ui-text-shadow);
+}
+
+.ui-bank-counts small {
+  color: var(--ui-ink-3);
+}
+
+.ui-bank-actions {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.ui-bank-btn {
+  border: none;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ui-ink-1);
+  font-family: var(--ui-font-body);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 0;
+  cursor: pointer;
+  text-shadow: var(--ui-text-shadow);
+}
+
+.ui-bank-btn:hover {
+  background: var(--ui-btn-bg-hover);
+}
+
+.ui-bank-btn[data-bank-action="deposit"] {
+  color: #a6f5cf;
+}
+
+.ui-bank-btn[data-bank-action="withdraw"] {
+  color: #b2e8ff;
+}
+
+.ui-bank-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .ui-bag-slot {
   aspect-ratio: 1;
   border-radius: 8px;
@@ -865,6 +951,20 @@ body {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
+  .ui-bank-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .ui-bank-actions {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .ui-bank-btn {
+    font-size: 11px;
+    padding: 5px 0;
+  }
+
   .ui-panel-section p {
     font-size: 14px;
   }
@@ -929,6 +1029,10 @@ body {
   }
 
   #ui-emote-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ui-bank-actions {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 

@@ -363,51 +363,44 @@ function createRadialTerrain(scene) {
 
 // ── Lake bowl mesh (simplified) ──
 function createLakeBowlMesh() {
-  const segments = 96;
-  const rings = 28;
+  const segments = 120;
+  const rings = 30;
+  const innerRing = 0.035;
   const positions = [];
   const colors = [];
   const indices = [];
-  const deep = new THREE.Color("#2a7a9c");
-  const mid = new THREE.Color("#52a8b8");
-  const shelf = new THREE.Color("#7aa898");
+  const deep = new THREE.Color("#2e8faf");
+  const mid = new THREE.Color("#55bdd0");
+  const shelf = new THREE.Color("#95c9b4");
 
-  positions.push(0, -(0.1 + 1.95), 0);
-  const cDeep = new THREE.Color().copy(deep);
-  colors.push(cDeep.r, cDeep.g, cDeep.b);
-
-  for (let r = 1; r <= rings; r++) {
-    const ringT = r / rings;
+  for (let r = 0; r <= rings; r++) {
+    const ringT = innerRing + (1 - innerRing) * (r / rings);
     for (let s = 0; s < segments; s++) {
       const angle = (s / segments) * Math.PI * 2;
       const radius = getLakeRadiusAtAngle(angle) * ringT;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
-      const depth = Math.pow(1 - ringT, 1.82);
-      const lip = THREE.MathUtils.smoothstep(ringT, 0.74, 1.0);
-      const y = -(0.1 + depth * 1.95 + lip * 0.08);
+      const depth = Math.pow(1 - ringT, 1.72);
+      const lip = THREE.MathUtils.smoothstep(ringT, 0.72, 1.0);
+      const y = -(0.16 + depth * 1.78 + lip * 0.05);
       positions.push(x, y, z);
 
       const c = new THREE.Color();
-      const tMid = THREE.MathUtils.smoothstep(ringT, 0.0, 0.68);
-      const tShelf = THREE.MathUtils.smoothstep(ringT, 0.5, 1.0);
-      c.copy(deep).lerp(mid, tMid);
-      c.lerp(shelf, tShelf * 0.82);
-      const n0 = Math.sin(x * 0.27 + z * 0.18) * 0.5 + 0.5;
-      const n1 = Math.sin(x * 0.5 - z * 0.31 + 1.7) * 0.5 + 0.5;
-      const sediment = n0 * 0.55 + n1 * 0.45;
-      c.offsetHSL(0.0, -0.03 + sediment * 0.03, -0.08 + sediment * 0.14);
-      c.multiplyScalar(0.9 + sediment * 0.1 - ringT * 0.05);
+      const depth01 = THREE.MathUtils.clamp((-y - 0.16) / 1.92, 0, 1);
+      const tMid = THREE.MathUtils.smoothstep(depth01, 0.18, 0.7);
+      const tDeep = THREE.MathUtils.smoothstep(depth01, 0.58, 1.0);
+      c.copy(shelf).lerp(mid, tMid);
+      c.lerp(deep, tDeep);
+      const sediment = (Math.sin(x * 0.18 + z * 0.13) * 0.5 + 0.5) * 0.55
+        + (Math.sin(x * 0.33 - z * 0.29 + 1.6) * 0.5 + 0.5) * 0.45;
+      c.offsetHSL(0.0, -0.04 + sediment * 0.05, -0.06 + sediment * 0.12);
       colors.push(c.r, c.g, c.b);
     }
   }
 
-  for (let s = 0; s < segments; s++) {
-    indices.push(0, s + 1, ((s + 1) % segments) + 1);
-  }
-  for (let r = 1; r < rings; r++) {
-    const inner = 1 + (r - 1) * segments;
-    const outer = 1 + r * segments;
+  for (let r = 0; r < rings; r++) {
+    const inner = r * segments;
+    const outer = (r + 1) * segments;
     for (let s = 0; s < segments; s++) {
       const sn = (s + 1) % segments;
       indices.push(inner + s, outer + s, outer + sn);
@@ -421,9 +414,7 @@ function createLakeBowlMesh() {
   geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.computeVertexNormals();
 
-  const bowl = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-    vertexColors: true, roughness: 1, metalness: 0, side: THREE.DoubleSide,
-  }));
+  const bowl = new THREE.Mesh(geo, toonMat("#ffffff", { vertexColors: true, side: THREE.DoubleSide }));
   bowl.position.y = LAKE_BOWL_Y;
   return bowl;
 }
@@ -471,10 +462,15 @@ function createWater(scene) {
 
   const causticMap = createCausticTexture();
 
-  const wSegs = 64, wRings = 16;
-  const wPos = [0, 0, 0], wUvs = [0.5, 0.5], wRads = [0], wIdx = [];
-  for (let r = 1; r <= wRings; r++) {
-    const rt = r / wRings;
+  const wSegs = 120;
+  const wRings = 30;
+  const wInner = 0.03;
+  const wPos = [];
+  const wUvs = [];
+  const wRads = [];
+  const wIdx = [];
+  for (let r = 0; r <= wRings; r++) {
+    const rt = wInner + (1 - wInner) * (r / wRings);
     for (let s = 0; s < wSegs; s++) {
       const a = (s / wSegs) * Math.PI * 2;
       const shorelineR = getWaterRadiusAtAngle(a);
@@ -485,9 +481,9 @@ function createWater(scene) {
       wRads.push(rt);
     }
   }
-  for (let s = 0; s < wSegs; s++) wIdx.push(0, s + 1, ((s + 1) % wSegs) + 1);
-  for (let r = 1; r < wRings; r++) {
-    const inner = 1 + (r - 1) * wSegs, outer = 1 + r * wSegs;
+  for (let r = 0; r < wRings; r++) {
+    const inner = r * wSegs;
+    const outer = (r + 1) * wSegs;
     for (let s = 0; s < wSegs; s++) {
       const sn = (s + 1) % wSegs;
       wIdx.push(inner + s, outer + s, outer + sn, inner + s, outer + sn, inner + sn);
@@ -648,9 +644,10 @@ function createWater(scene) {
         float foam = clamp(foamBand * (0.62 + foamNoise * 0.38), 0.0, 1.0);
         col = mix(col, vec3(0.98, 0.99, 1.0), foam * 0.42);
 
-        float bodyAlpha = mix(0.62, 0.3, smoothstep(0.06, 0.9, rw));
-        float edgeFade = 1.0 - smoothstep(0.95, 1.02, foamEdge);
-        float alpha = max(bodyAlpha * edgeFade, foam * 0.62);
+        float shoreFade = smoothstep(0.86, 1.02, rw);
+        float bodyAlpha = mix(0.7, 0.18, shoreFade);
+        float alpha = max(bodyAlpha, foam * 0.68);
+        if (rw > 1.04) discard;
         if (alpha < 0.002) discard;
 
         gl_FragColor = vec4(col, alpha);
@@ -1100,64 +1097,182 @@ function addLounge(scene, blobTex, x, z, rot = 0) {
 }
 
 // ── Services (all unchanged) ──
+function buildPathRibbonGeometry(curve, width, samples, yOffset = 0.02, uvScale = 1.0) {
+  const positions = [];
+  const uvs = [];
+  const indices = [];
+  const half = width * 0.5;
+  for (let i = 0; i <= samples; i++) {
+    const t = i / samples;
+    const p = curve.getPointAt(t);
+    const tangent = curve.getTangentAt(t);
+    const side = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize();
+
+    const lx = p.x + side.x * half;
+    const lz = p.z + side.z * half;
+    const rx = p.x - side.x * half;
+    const rz = p.z - side.z * half;
+    const ly = getWorldSurfaceHeight(lx, lz) + yOffset;
+    const ry = getWorldSurfaceHeight(rx, rz) + yOffset;
+
+    positions.push(lx, ly, lz, rx, ry, rz);
+    uvs.push(t * uvScale, 0, t * uvScale, 1);
+    if (i < samples) {
+      const j = i * 2;
+      indices.push(j, j + 1, j + 2, j + 1, j + 3, j + 2);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setIndex(indices);
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geo.computeVertexNormals();
+  return geo;
+}
+
 function addDirtPath(scene, points, options = {}) {
   if (!Array.isArray(points) || points.length < 2) return;
-  const width = THREE.MathUtils.clamp(options.width ?? 1.5, 0.8, 3.0);
-  const pathHeight = options.height ?? 0.024;
+  const width = THREE.MathUtils.clamp(options.width ?? 1.5, 0.8, 3.4);
   const edgeWidth = Math.max(0.09, width * 0.12);
+  const pathHeight = options.height ?? 0.02;
+  const smooth = THREE.MathUtils.clamp(options.smooth ?? 0.22, 0, 0.6);
   const coreMat = toonMat(options.color || "#b79669");
-  const edgeMat = toonMat(options.edgeColor || "#d8c39a", { transparent: true, opacity: 0.62 });
-  const stripGeo = new THREE.BoxGeometry(1, 0.05, 1);
-  const edgeGeo = new THREE.BoxGeometry(1, 0.03, 1);
-  const capGeo = new THREE.CylinderGeometry(1, 1, 0.04, 20);
-  const capPlaced = new Set();
+  const edgeMat = toonMat(options.edgeColor || "#d8c39a", { transparent: true, opacity: 0.72 });
+  const pointVec = points.map(([x, z]) => new THREE.Vector3(x, 0, z));
+  const curve = new THREE.CatmullRomCurve3(pointVec, false, "catmullrom", smooth);
 
-  function addCap(x, z) {
-    const key = `${x.toFixed(2)}:${z.toFixed(2)}`;
-    if (capPlaced.has(key)) return;
-    capPlaced.add(key);
-    const y = getWorldSurfaceHeight(x, z);
+  const len = curve.getLength();
+  const samples = Math.max(42, Math.floor(len * 6));
+  const edgeGeo = buildPathRibbonGeometry(curve, width + edgeWidth * 2.2, samples, pathHeight + 0.008, 2.2);
+  const coreGeo = buildPathRibbonGeometry(curve, width, samples, pathHeight + 0.018, 2.8);
+
+  const edge = new THREE.Mesh(edgeGeo, edgeMat);
+  edge.renderOrder = RENDER_SHORE;
+  scene.add(edge);
+
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  core.renderOrder = RENDER_SHORE + 1;
+  scene.add(core);
+
+  const capGeo = new THREE.CircleGeometry(width * 0.55, 20);
+  for (const [x, z] of [points[0], points[points.length - 1]]) {
     const cap = new THREE.Mesh(capGeo, coreMat);
-    cap.scale.set(width * 0.52, 1, width * 0.52);
-    cap.position.set(x, y + pathHeight + 0.005, z);
-    cap.renderOrder = RENDER_SHORE;
+    cap.rotation.x = -Math.PI * 0.5;
+    cap.position.set(x, getWorldSurfaceHeight(x, z) + pathHeight + 0.02, z);
+    cap.renderOrder = RENDER_SHORE + 1;
     scene.add(cap);
   }
+}
 
-  for (let i = 0; i < points.length - 1; i++) {
-    const [x0, z0] = points[i];
-    const [x1, z1] = points[i + 1];
-    const dx = x1 - x0;
-    const dz = z1 - z0;
-    const len = Math.hypot(dx, dz);
-    if (len < 0.05) continue;
-    const midX = (x0 + x1) * 0.5;
-    const midZ = (z0 + z1) * 0.5;
-    const midY = (getWorldSurfaceHeight(x0, z0) + getWorldSurfaceHeight(x1, z1)) * 0.5 + pathHeight;
-    const yaw = Math.atan2(dx, dz);
+function addOasisInlet(scene, waterUniforms) {
+  const streamPoints = [
+    [58.5, -19.8],
+    [52.1, -17.1],
+    [45.0, -13.9],
+    [37.9, -10.9],
+    [31.4, -8.8],
+    [27.1, -7.3],
+  ];
 
-    const strip = new THREE.Mesh(stripGeo, coreMat);
-    strip.scale.set(width, 1, len + width * 0.7);
-    strip.rotation.y = yaw;
-    strip.position.set(midX, midY, midZ);
-    strip.renderOrder = RENDER_SHORE;
-    scene.add(strip);
+  addDirtPath(scene, streamPoints, {
+    width: 2.7,
+    color: "#bea47a",
+    edgeColor: "#d9c8a3",
+    height: 0.015,
+    smooth: 0.16,
+  });
 
-    const sideX = -dz / len;
-    const sideZ = dx / len;
-    const edgeOffset = width * 0.5 + edgeWidth * 0.5;
-    for (const s of [-1, 1]) {
-      const edge = new THREE.Mesh(edgeGeo, edgeMat);
-      edge.scale.set(edgeWidth, 1, len + width * 0.52);
-      edge.rotation.y = yaw;
-      edge.position.set(midX + sideX * edgeOffset * s, midY + 0.014, midZ + sideZ * edgeOffset * s);
-      edge.renderOrder = RENDER_SHORE + 1;
-      scene.add(edge);
-    }
+  const curve = new THREE.CatmullRomCurve3(
+    streamPoints.map(([x, z]) => new THREE.Vector3(x, 0, z)),
+    false,
+    "catmullrom",
+    0.16
+  );
+  const flowGeo = buildPathRibbonGeometry(curve, 1.42, 110, 0.034, 5.5);
+  const flowMat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: {
+      uTime: waterUniforms.uTime,
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform float uTime;
+      void main() {
+        float t = uTime;
+        float flow = sin(vUv.x * 40.0 - t * 4.2) * 0.5 + 0.5;
+        flow += sin(vUv.x * 73.0 - t * 3.1 + vUv.y * 4.0) * 0.5 + 0.5;
+        flow *= 0.5;
+        float edge = smoothstep(0.02, 0.2, vUv.y) * (1.0 - smoothstep(0.8, 0.98, vUv.y));
+        vec3 c = mix(vec3(0.28, 0.74, 0.9), vec3(0.62, 0.9, 0.98), flow * 0.45);
+        float alpha = edge * 0.78;
+        if (alpha < 0.005) discard;
+        gl_FragColor = vec4(c, alpha);
+      }
+    `,
+  });
+  const flow = new THREE.Mesh(flowGeo, flowMat);
+  flow.renderOrder = RENDER_WATER + 1;
+  scene.add(flow);
 
-    addCap(x0, z0);
-    addCap(x1, z1);
-  }
+  const fallWidth = 1.65;
+  const fallHeight = 2.45;
+  const fallX = 26.2;
+  const fallZ = -7.7;
+  const fallBaseY = getWorldSurfaceHeight(fallX, fallZ) + 0.05;
+  const waterfallMat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: {
+      uTime: waterUniforms.uTime,
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform float uTime;
+      void main() {
+        float t = uTime;
+        float bands = sin((vUv.y * 18.0 + vUv.x * 4.0) - t * 5.8) * 0.5 + 0.5;
+        bands += sin((vUv.y * 29.0 - vUv.x * 3.0) - t * 4.4) * 0.5 + 0.5;
+        bands *= 0.5;
+        float sideFade = smoothstep(0.0, 0.18, vUv.x) * (1.0 - smoothstep(0.82, 1.0, vUv.x));
+        float topFade = smoothstep(0.02, 0.12, vUv.y);
+        float alpha = sideFade * topFade * (0.45 + bands * 0.38);
+        vec3 c = mix(vec3(0.72, 0.9, 0.98), vec3(0.9, 0.97, 1.0), bands * 0.45);
+        if (alpha < 0.01) discard;
+        gl_FragColor = vec4(c, alpha);
+      }
+    `,
+  });
+  const waterfall = new THREE.Mesh(new THREE.PlaneGeometry(fallWidth, fallHeight), waterfallMat);
+  waterfall.position.set(fallX, fallBaseY + fallHeight * 0.5, fallZ);
+  waterfall.rotation.y = -Math.PI * 0.42;
+  waterfall.renderOrder = RENDER_WATER + 2;
+  scene.add(waterfall);
+
+  const splash = new THREE.Mesh(
+    new THREE.CircleGeometry(1.2, 22),
+    new THREE.MeshBasicMaterial({ color: "#dff8ff", transparent: true, opacity: 0.38, depthWrite: false })
+  );
+  splash.rotation.x = -Math.PI * 0.5;
+  splash.position.set(fallX - 0.7, WATER_SURFACE_Y + 0.018, fallZ + 0.55);
+  splash.renderOrder = RENDER_WATER + 3;
+  scene.add(splash);
 }
 
 function addMountainCave(scene, blobTex, x, z) {
@@ -1614,20 +1729,38 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   centerPad.renderOrder = RENDER_SHORE + 1;
   scene.add(centerPad);
 
-  addDirtPath(scene, [[cx, cz], [cx + 7.8, cz - 0.8], [houseX - 5.0, houseZ - 0.6], [houseX, houseZ]], {
+  const bankPos = { x: cx - 7.2, z: cz + 1.4 };
+  const storePos = { x: cx + 7.2, z: cz + 1.4 };
+  const smithPos = { x: cx + 0.2, z: cz - 7.4 };
+  for (const pad of [bankPos, storePos, smithPos]) {
+    const py = getWorldSurfaceHeight(pad.x, pad.z);
+    const padOuter = new THREE.Mesh(new THREE.CylinderGeometry(2.25, 2.35, 0.07, 28), toonMat("#cdb58b"));
+    padOuter.position.set(pad.x, py + 0.03, pad.z);
+    padOuter.renderOrder = RENDER_SHORE + 1;
+    scene.add(padOuter);
+    const padInner = new THREE.Mesh(new THREE.CylinderGeometry(1.68, 1.72, 0.05, 22), toonMat("#e8d9b8"));
+    padInner.position.set(pad.x, py + 0.06, pad.z);
+    padInner.renderOrder = RENDER_SHORE + 2;
+    scene.add(padInner);
+    addDirtPath(scene, [[cx, cz], [pad.x, pad.z]], {
+      width: 1.14,
+      color: "#b89a6f",
+      edgeColor: "#dcc9a0",
+      smooth: 0.05,
+    });
+  }
+
+  addDirtPath(scene, [[cx, cz], [cx + 9.0, cz - 1.9], [houseX - 5.6, houseZ - 1.7], [houseX, houseZ]], {
     width: 1.85,
-    samples: 58,
-    seed: 1.2,
+    smooth: 0.2,
   });
-  addDirtPath(scene, [[cx, cz], [cx - 8.2, cz - 0.5], [trainingX + 3.6, trainingZ + 0.3], [trainingX, trainingZ]], {
+  addDirtPath(scene, [[cx, cz], [cx - 9.3, cz - 1.8], [trainingX + 4.0, trainingZ - 1.2], [trainingX, trainingZ]], {
     width: 1.62,
-    samples: 44,
-    seed: 2.1,
+    smooth: 0.2,
   });
-  addDirtPath(scene, [[cx + 0.8, cz - 0.2], [8.0, -41.5], [21.0, -38.7], [33.2, -31.2], [41.5, -22.4], [caveX, caveZ]], {
+  addDirtPath(scene, [[cx + 0.8, cz - 0.2], [8.0, -44.0], [20.8, -40.8], [33.6, -31.9], [41.8, -22.8], [caveX, caveZ]], {
     width: 1.52,
-    samples: 76,
-    seed: 3.4,
+    smooth: 0.18,
   });
 
   const markerMat = toonMat("#36607c");
@@ -1642,9 +1775,9 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
     scene.add(marker);
   }
 
-  addBank(scene, blobTex, cx - 5.5, cz + 2.0, resourceNodes);
-  addStore(scene, blobTex, cx + 5.8, cz + 2.1, resourceNodes);
-  addBlacksmith(scene, blobTex, cx + 0.25, cz - 6.2, resourceNodes);
+  addBank(scene, blobTex, bankPos.x, bankPos.z, resourceNodes);
+  addStore(scene, blobTex, storePos.x, storePos.z, resourceNodes);
+  addBlacksmith(scene, blobTex, smithPos.x, smithPos.z, resourceNodes);
 
   addTrainingGround(scene, blobTex, trainingX, trainingZ);
   addTrainingDummy(scene, blobTex, trainingX + 3.1, trainingZ, resourceNodes);
@@ -1657,9 +1790,9 @@ function addServicePlaza(scene, blobTex, resourceNodes, collisionObstacles = [])
   const houseCenterX = houseX + 0.15;
   const houseCenterZ = houseZ - 0.2;
   collisionObstacles.push(
-    { x: cx - 5.5, z: cz + 2.0, radius: 1.35, id: "bank" },
-    { x: cx + 5.8, z: cz + 2.1, radius: 1.45, id: "store" },
-    { x: cx + 0.25, z: cz - 6.2, radius: 1.6, id: "blacksmith" },
+    { x: bankPos.x, z: bankPos.z, radius: 1.35, id: "bank" },
+    { x: storePos.x, z: storePos.z, radius: 1.45, id: "store" },
+    { x: smithPos.x, z: smithPos.z, radius: 1.6, id: "blacksmith" },
     { x: houseCenterX, z: houseCenterZ, radius: 2.35, id: "house-core" },
     { x: houseCenterX - 1.2, z: houseCenterZ, radius: 1.45, id: "house-left" },
     { x: houseCenterX + 1.2, z: houseCenterZ, radius: 1.45, id: "house-right" }
@@ -1795,6 +1928,7 @@ export async function createWorld(scene) {
   const skyMat = addSky(scene);
   const ground = createRadialTerrain(scene);
   const { waterUniforms, causticMap } = createWater(scene);
+  addOasisInlet(scene, waterUniforms);
   const blobTex = radialTexture();
 
   // Load asset pack models
