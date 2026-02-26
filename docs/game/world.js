@@ -101,7 +101,7 @@ function addSky(scene) {
 function createTerrain(scene) {
   const inner=0, outer=MAP_R, aS=128, rR=55;
   const pos=[],col=[],idx=[];
-  const cGrass=new THREE.Color("#4cc436");
+  const cGrass=new THREE.Color("#389820");
   const cRock=new THREE.Color("#9a9a96"), cCliff=new THREE.Color("#8a8884");
   const tmp=new THREE.Color(), vpr=aS+1;
 
