@@ -110,8 +110,7 @@ function createTerrain(scene) {
     for(let ai=0;ai<=aS;ai++){
       const a=(ai/aS)*Math.PI*2, x=Math.cos(a)*r, z=Math.sin(a)*r;
       const dist=Math.hypot(x,z), pr=poolRAt(x,z);
-      let y=terrainH(x,z);
-      if(dist<pr+4) { const t=THREE.MathUtils.smoothstep(dist,pr-2,pr+4); y=THREE.MathUtils.lerp(WATER_Y-.25,y,t); }
+      const y=terrainH(x,z);
       pos.push(x,y,z);
 
       // Flat bright green, only transition at mountains
@@ -202,11 +201,11 @@ function addWaterfall(scene,uni) {
     fragmentShader:`
       varying vec2 vUv; uniform float uTime;
       void main(){
-        float flow=fract(vUv.y*3.0-uTime*1.2);
-        float foam=smoothstep(0.0,0.3,flow)*smoothstep(1.0,0.7,flow);
-        vec3 c=mix(vec3(.5,.78,.88),vec3(.88,.94,1.),foam*.7);
-        float edge=smoothstep(0.0,0.2,vUv.x)*smoothstep(1.0,0.8,vUv.x);
-        gl_FragColor=vec4(c,edge*0.8);
+        float flow=fract(vUv.y*2.0-uTime*1.0);
+        float wave=smoothstep(0.0,0.4,flow)*smoothstep(1.0,0.6,flow);
+        vec3 c=mix(vec3(.3,.58,.75),vec3(.4,.68,.85),wave*.5);
+        float edge=smoothstep(0.0,0.15,vUv.x)*smoothstep(1.0,0.85,vUv.x);
+        gl_FragColor=vec4(c,edge*0.85);
       }`,
   });
 
