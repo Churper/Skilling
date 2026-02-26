@@ -114,50 +114,71 @@ function addSky(scene) {
 
 /* ── Terrain — clean green, NO sandy shore ring ── */
 function createTerrain(scene) {
-  const inner=0, outer=MAP_R, aS=96, rR=44;
+  const outer=MAP_R, aS=96, rR=44;
   const pos=[],col=[],idx=[];
-  const cGrassDeep=new THREE.Color("#14540d");
-  const cGrassMid=new THREE.Color("#1d7112");
-  const cGrassLight=new THREE.Color("#2d911e");
+  const cGrassDeep=new THREE.Color("#15580f");
+  const cGrassMid=new THREE.Color("#1d7014");
+  const cGrassLight=new THREE.Color("#2e8b22");
   const cRock=new THREE.Color("#9b9a93"), cCliff=new THREE.Color("#86847d");
   const cCliffHi=new THREE.Color("#b5b4ac");
-  const tmp=new THREE.Color(), vpr=aS+1;
+  const tmp=new THREE.Color();
 
-  for(let ri=0;ri<=rR;ri++){
-    const r=inner+(outer-inner)*Math.pow(ri/rR,.45);
-    for(let ai=0;ai<=aS;ai++){
+  const shadePoint=(x,z,y,dist)=>{
+    // Subtle tone shift: keeps hills readable without harsh section lines.
+    const hill=THREE.MathUtils.smoothstep(y,-0.35,1.6);
+    const macro=(Math.sin(x*.035+z*.02)+Math.cos(z*.03-x*.015))*.25+.5;
+    const tone=THREE.MathUtils.clamp(0.28+hill*.46+macro*.16,0,1);
+    const quant=Math.floor(tone*4)/3;
+    tmp.lerpColors(cGrassDeep,cGrassLight,quant).lerp(cGrassMid,.28);
+
+    const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.88,THREE.MathUtils.smoothstep(y,4,14)*.72);
+    const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
+    if(rockT>0) tmp.lerp(cRock,THREE.MathUtils.clamp(rockT,0,1));
+    if(cliffT>0){
+      const vein=Math.abs(Math.sin(x*.16)+Math.cos(z*.18))*.5;
+      tmp.lerp(cCliff,cliffT*.84);
+      tmp.lerp(cCliffHi,cliffT*vein*.22);
+    }
+
+    const ss=.8;
+    const nx=-(terrainH(x+ss,z)-terrainH(x-ss,z)),ny=2,nz=-(terrainH(x,z+ss)-terrainH(x,z-ss));
+    const len=Math.hypot(nx,ny,nz);
+    const lit=THREE.MathUtils.clamp((nx*.54+ny*.78+nz*.31)/len*.5+.5,0,1);
+    const banded=Math.floor(lit*4)/3;
+    tmp.multiplyScalar(.86+banded*.2);
+    col.push(tmp.r,tmp.g,tmp.b);
+  };
+
+  // Single center vertex avoids the radial seam artifact from duplicated r=0 ring vertices.
+  const y0=terrainH(0,0);
+  pos.push(0,y0,0);
+  shadePoint(0,0,y0,0);
+
+  for(let ri=1;ri<=rR;ri++){
+    const r=outer*Math.pow(ri/rR,.45);
+    for(let ai=0;ai<aS;ai++){
       const a=(ai/aS)*Math.PI*2, x=Math.cos(a)*r, z=Math.sin(a)*r;
-      const dist=Math.hypot(x,z);
-      const y=terrainH(x,z);
+      const y=terrainH(x,z), dist=Math.hypot(x,z);
       pos.push(x,y,z);
-
-      // Quantized grass tone variation keeps a low-poly, hilly look without heavy shader cost.
-      const macro=(Math.sin(x*.06)*.5+Math.cos(z*.07)*.5+Math.sin((x-z)*.035)*.35)*.5+.5;
-      const elev=THREE.MathUtils.clamp((y+.45)/1.25,0,1);
-      const terraced=Math.floor(THREE.MathUtils.clamp(elev*.62+macro*.38,0,1)*5)/4;
-      tmp.lerpColors(cGrassDeep,cGrassLight,terraced).lerp(cGrassMid,.18);
-      const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.9,THREE.MathUtils.smoothstep(y,4,14)*.7);
-      const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
-
-      if(rockT>0) tmp.lerp(cRock,THREE.MathUtils.clamp(rockT,0,1));
-      if(cliffT>0){
-        const vein=Math.abs(Math.sin(x*.16)+Math.cos(z*.18))*.5;
-        tmp.lerp(cCliff,cliffT*.88);
-        tmp.lerp(cCliffHi,cliffT*vein*.26);
-      }
-
-      const ss=.8;
-      const nx=-(terrainH(x+ss,z)-terrainH(x-ss,z)),ny=2,nz=-(terrainH(x,z+ss)-terrainH(x,z-ss));
-      const len=Math.hypot(nx,ny,nz);
-      const lit=THREE.MathUtils.clamp((nx*.54+ny*.78+nz*.31)/len*.5+.5,0,1);
-      const banded=Math.floor(lit*5)/4;
-      tmp.multiplyScalar(.78+banded*.34);
-      col.push(tmp.r,tmp.g,tmp.b);
+      shadePoint(x,z,y,dist);
     }
   }
-  for(let ri=0;ri<rR;ri++) for(let ai=0;ai<aS;ai++){
-    const a=ri*vpr+ai,b=a+1,c=(ri+1)*vpr+ai,d=c+1; idx.push(a,b,c,b,d,c);
+
+  // Center fan
+  for(let ai=0;ai<aS;ai++){
+    const n=(ai+1)%aS;
+    idx.push(0,1+ai,1+n);
   }
+  // Ring strips
+  for(let ri=2;ri<=rR;ri++){
+    const p0=1+(ri-2)*aS, p1=1+(ri-1)*aS;
+    for(let ai=0;ai<aS;ai++){
+      const n=(ai+1)%aS;
+      const a=p0+ai,b=p0+n,c=p1+ai,d=p1+n;
+      idx.push(a,b,c,b,d,c);
+    }
+  }
+
   const geo=new THREE.BufferGeometry();
   geo.setIndex(idx); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
   geo.setAttribute("color",new THREE.Float32BufferAttribute(col,3)); geo.computeVertexNormals();
@@ -168,14 +189,25 @@ function createTerrain(scene) {
 /* ── Water — transparent, green terrain visible underneath ── */
 function createWater(scene) {
   const uni={uTime:{value:0}};
-  // Water surface
-  const S=48, pos=[], idx=[];
+  // Water surface with concentric rings (avoids visible radial section lines).
+  const S=56, RINGS=7, pos=[], idx=[];
   pos.push(0,0,0);
-  for(let s=0;s<S;s++){
-    const a=(s/S)*Math.PI*2, r=poolR(a)+.5;
-    pos.push(Math.cos(a)*r,0,Math.sin(a)*r);
+  for(let ri=1;ri<=RINGS;ri++){
+    const rf=ri/RINGS;
+    for(let s=0;s<S;s++){
+      const a=(s/S)*Math.PI*2, r=(poolR(a)+.5)*rf;
+      pos.push(Math.cos(a)*r,0,Math.sin(a)*r);
+    }
   }
-  for(let s=0;s<S;s++) idx.push(0,s+1,(s+1)%S+1);
+  for(let s=0;s<S;s++) idx.push(0,1+s,1+((s+1)%S));
+  for(let ri=2;ri<=RINGS;ri++){
+    const p0=1+(ri-2)*S, p1=1+(ri-1)*S;
+    for(let s=0;s<S;s++){
+      const n=(s+1)%S;
+      const a=p0+s,b=p0+n,c=p1+s,d=p1+n;
+      idx.push(a,b,c,b,d,c);
+    }
+  }
   const geo=new THREE.BufferGeometry();
   geo.setIndex(idx); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
   geo.computeVertexNormals();
@@ -192,11 +224,11 @@ function createWater(scene) {
       varying vec2 vW; uniform float uTime;
       void main(){
         float d=length(vW);
-        vec3 deep=vec3(.18,.48,.62), shallow=vec3(.56,.86,.94);
+        vec3 deep=vec3(.17,.49,.67), shallow=vec3(.58,.88,.95);
         float t=smoothstep(0.0,22.0,d);
         vec3 c=mix(deep,shallow,t);
-        c+=sin(vW.x*.6+vW.y*.4+uTime*1.2)*.016+cos(vW.x*.3-vW.y*.5+uTime*.7)*.012;
-        float alpha=mix(0.10,0.16,t);
+        c+=sin(vW.x*.58+vW.y*.39+uTime*.8)*.01+cos(vW.x*.26-vW.y*.41+uTime*.46)*.008;
+        float alpha=mix(0.08,0.12,t);
         gl_FragColor=vec4(c,alpha);
       }`,
   });
