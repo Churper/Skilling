@@ -53,7 +53,7 @@ function poolRAt(x,z) { return poolR(Math.atan2(z,x)); }
 function terrainH(x,z) {
   const r=Math.hypot(x,z);
   const n=Math.sin(x*.045)*.4+Math.cos(z*.037)*.38+Math.sin((x+z)*.021)*.3;
-  const bowl=Math.pow(1-THREE.MathUtils.smoothstep(r,0,28),1.6)*.35;
+  const bowl=Math.pow(1-THREE.MathUtils.smoothstep(r,0,28),1.6)*.12;
   const amp=THREE.MathUtils.lerp(.2,.45,THREE.MathUtils.smoothstep(r,15,50));
   const flat=n*amp-bowl;
   if(r<=MT_START) return flat;
@@ -130,11 +130,23 @@ function createTerrain(scene) {
   const shadePoint=(x,z,y,dist)=>{
     const pr=poolRAt(x,z);
     const edgeDelta=Math.abs(dist-pr);
+    const edgeOuter=dist-pr;
     const inPool=dist<=pr-.25;
     if(inPool){
       // Neutral pool-bed tint avoids green rings showing through transparent water.
       const bedNoise=(Math.sin(x*.052)+Math.cos(z*.048))*.5+.5;
       tmp.lerpColors(cPoolBed,cPoolBedHi,bedNoise*.28);
+      col.push(tmp.r,tmp.g,tmp.b);
+      return;
+    }
+    // Force a stable shoreline grass band outside water, independent of slope lighting.
+    // This removes the dark annulus artifact around the lake edge.
+    if(edgeOuter>0 && edgeOuter<9.5){
+      const k=1-THREE.MathUtils.smoothstep(edgeOuter,0,9.5);
+      const n=(Math.sin(x*.03+z*.018)+Math.cos(z*.028-x*.014))*.24+.5;
+      const t=THREE.MathUtils.clamp(.56+n*.1+k*.17,0,1);
+      tmp.lerpColors(cGrassDeep,cGrassLight,t).lerp(cGrassMid,.2);
+      tmp.multiplyScalar(.99+k*.05);
       col.push(tmp.r,tmp.g,tmp.b);
       return;
     }
