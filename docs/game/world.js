@@ -232,9 +232,11 @@ function createGround(scene) {
     const z = tPos.getY(i);
     const r = Math.hypot(x, z);
     let y = sampleTerrainHeight(x, z);
-    const waterR = getWaterRadiusAt(x, z);
-    if (r < waterR + 4.0) {
-      y -= (1.0 - THREE.MathUtils.smoothstep(r, waterR - 3.0, waterR + 4.0)) * 0.8;
+    // Use FIXED radius for terrain push-down to avoid staircase artifacts
+    // from rectangular grid sampling an angle-varying function
+    const fixedWR = WATER_RADIUS;
+    if (r < fixedWR + 4.0) {
+      y -= (1.0 - THREE.MathUtils.smoothstep(r, fixedWR - 3.0, fixedWR + 4.0)) * 0.8;
     }
     tPos.setZ(i, y);
 
@@ -259,7 +261,7 @@ function createGround(scene) {
     colTmp.lerp(colBeachBlend, shoreBlend * 0.42);
     const contrastBand = Math.floor(tonal * 3.2) / 3.0;
     colTmp.multiplyScalar(0.86 + contrastBand * 0.24);
-    const waterProx = 1.0 - THREE.MathUtils.smoothstep(r, waterR - 2, waterR + 4);
+    const waterProx = 1.0 - THREE.MathUtils.smoothstep(r, fixedWR - 2, fixedWR + 4);
     if (waterProx > 0) colTmp.lerp(colBeachBlend, waterProx * 0.85);
     tCol.push(colTmp.r, colTmp.g, colTmp.b);
   }
@@ -1271,9 +1273,9 @@ function createConformingRing(innerRadius, outerRadius, radialSegments = 14, the
 }
 
 function addLakeRings(scene) {
-  // Use a FIXED inner radius so adjacent angle segments don't jump at concavities.
-  // Minimum lake radius ≈ 18.25, so 10 is safely inside the lake at all angles.
-  const segs = 480, rings = 36, fixedInnerR = 10, outerR = 44;
+  // Angle-varying inner radius follows organic lake shape.
+  // Terrain push-down now uses fixed radius, so shore ring and terrain align smoothly.
+  const segs = 480, rings = 28, outerR = 40;
   const positions = [], colors = [], indices = [];
   const vpr = segs + 1;
   const cWaterEdge = new THREE.Color("#a8ddd8");
@@ -1283,17 +1285,16 @@ function addLakeRings(scene) {
     const rt = r / rings;
     for (let s = 0; s <= segs; s++) {
       const angle = (s / segs) * Math.PI * 2;
-      const radius = fixedInnerR + (outerR - fixedInnerR) * rt;
+      const waterR = getWaterRadiusAtAngle(angle);
+      const innerR = waterR - 4.0;
+      const radius = innerR + (outerR - innerR) * rt;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const distR = Math.hypot(x, z);
-      const waterR = getWaterRadiusAtAngle(angle);
       let y;
       if (distR < waterR - 3.0) {
-        // Well inside the lake — sit just below water surface
         y = WATER_SURFACE_Y - 0.04;
       } else if (distR < waterR + 4.0) {
-        // Transition zone — smooth blend from water level to terrain
         const t = THREE.MathUtils.smoothstep(distR, waterR - 3.0, waterR + 4.0);
         const shoreH = Math.max(sampleTerrainHeight(x, z), WATER_SURFACE_Y + 0.02);
         y = THREE.MathUtils.lerp(WATER_SURFACE_Y - 0.04, shoreH + SHORE_LIFT, t);
