@@ -109,9 +109,7 @@ body {
   right: calc(16px + env(safe-area-inset-right));
   width: min(300px, calc(100vw - 32px));
   max-height: min(44vh, 420px);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  overflow: hidden;
   border: none;
   border-radius: 0;
   background: none;
@@ -119,15 +117,6 @@ body {
   pointer-events: auto;
   transform: translateY(0);
   transition: opacity 180ms ease, transform 180ms ease;
-}
-
-#ui-panel::-webkit-scrollbar {
-  width: 6px;
-}
-
-#ui-panel::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
 }
 
 #ui-panel-title {
@@ -559,7 +548,7 @@ body {
   bottom: calc(16px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 8px;
   padding: 0;
   border: none;
@@ -593,6 +582,7 @@ body {
   justify-content: center;
   width: auto;
   font-size: 20px;
+  line-height: 1;
 }
 
 .ui-tab-label {
@@ -612,25 +602,60 @@ body {
 /* Hero buttons — inventory (left) and combat (right) elevated out of dock */
 .ui-tab-btn[data-tab="inventory"],
 .ui-tab-btn[data-tab="combat"] {
-  width: 64px;
-  height: 64px;
-  transform: translateY(-18px);
-}
-.ui-tab-btn[data-tab="inventory"]:hover,
-.ui-tab-btn[data-tab="combat"]:hover {
-  transform: translateY(-20px);
+  width: 58px;
+  height: 58px;
 }
 .ui-tab-btn[data-tab="inventory"] .ui-tab-icon,
 .ui-tab-btn[data-tab="combat"] .ui-tab-icon {
-  font-size: 30px;
+  font-size: 28px;
 }
 .ui-tab-btn[data-tab="inventory"] {
   order: -1;
-  margin-right: 16px;
+  margin-right: 8px;
 }
 .ui-tab-btn[data-tab="combat"] {
   order: 10;
-  margin-left: 16px;
+  margin-left: 8px;
+}
+
+.ui-combat-mode-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.ui-combat-flip-btn {
+  border-radius: 10px;
+  border: none;
+  background: var(--ui-btn-bg);
+  color: var(--ui-ink-1);
+  font-family: var(--ui-font-heading);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 7px 10px;
+  cursor: pointer;
+  text-shadow: var(--ui-text-shadow);
+}
+
+.ui-combat-flip-btn:hover {
+  background: var(--ui-btn-bg-hover);
+}
+
+#ui-combat-tools {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#ui-combat-tools .ui-tool-btn {
+  width: auto;
+  aspect-ratio: 1;
+  padding: 0;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
 }
 
 /* ── Emotes ── */

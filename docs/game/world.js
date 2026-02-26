@@ -282,7 +282,8 @@ function createRadialTerrain(scene) {
     for (let ai = 0; ai < angSegs; ai++) {
       const a = ri * vpr + ai, b = a + 1;
       const c = (ri + 1) * vpr + ai, d = c + 1;
-      indices.push(a, c, b, b, c, d);
+      // Keep winding upward so terrain renders from playable camera angles.
+      indices.push(a, b, c, b, d, c);
     }
   }
 
@@ -582,13 +583,13 @@ function createWater(scene) {
                          + sin(ang * 13.0 - t * 0.8) * 0.010
                          + sin(ang * 21.0 + t * 1.6) * 0.005;
         float foamEdge = radial + foamWobble;
-        float foam = smoothstep(0.72, 0.9, foamEdge) * (1.0 - smoothstep(0.985, 1.015, foamEdge));
+        float foam = smoothstep(0.74, 0.9, foamEdge) * (1.0 - smoothstep(0.992, 1.02, foamEdge));
         foam *= 0.55 + foamNoise * 0.45;
         foam = clamp(foam, 0.0, 1.0);
         col = mix(col, mix(uShallow, vec3(1.0), 0.5), foam * 0.65);
 
         float bodyAlpha = mix(0.56, 0.34, smoothstep(0.04, 0.9, radial));
-        float edgeFade = 1.0 - smoothstep(0.94, 0.985, radial);
+        float edgeFade = 1.0 - smoothstep(0.992, 1.02, foamEdge);
         float alpha = max(bodyAlpha * edgeFade, foam * 0.85);
         if (alpha < 0.002) discard;
 
@@ -607,7 +608,7 @@ function createWater(scene) {
 }
 
 function addShoreFoamRing(scene, waterUniforms) {
-  const foamGeo = new THREE.RingGeometry(WATER_RADIUS - 0.72, WATER_RADIUS + 1.7, 220, 1);
+  const foamGeo = new THREE.RingGeometry(WATER_RADIUS - 0.52, WATER_RADIUS + 1.25, 220, 1);
   const foamMat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
@@ -631,10 +632,10 @@ function addShoreFoamRing(scene, waterUniforms) {
         float ang = atan(vLocal.y, vLocal.x);
         float wobble = sin(ang * 16.0 + uTime * 1.3) * 0.10
                      + sin(ang * 29.0 - uTime * 1.1) * 0.05;
-        float inner = smoothstep(${(WATER_RADIUS - 0.52).toFixed(2)}, ${(WATER_RADIUS + 0.25).toFixed(2)}, r + wobble);
-        float outer = 1.0 - smoothstep(${(WATER_RADIUS + 1.2).toFixed(2)}, ${(WATER_RADIUS + 1.72).toFixed(2)}, r);
+        float inner = smoothstep(${(WATER_RADIUS - 0.35).toFixed(2)}, ${(WATER_RADIUS + 0.15).toFixed(2)}, r + wobble);
+        float outer = 1.0 - smoothstep(${(WATER_RADIUS + 0.8).toFixed(2)}, ${(WATER_RADIUS + 1.28).toFixed(2)}, r);
         float streak = 0.84 + sin((r * 7.8) - uTime * 2.6 + ang * 4.0) * 0.16;
-        float alpha = clamp(inner * outer * streak, 0.0, 1.0) * 0.72;
+        float alpha = clamp(inner * outer * streak, 0.0, 1.0) * 0.62;
         if (alpha < 0.01) discard;
         gl_FragColor = vec4(0.96, 0.99, 1.0, alpha);
       }

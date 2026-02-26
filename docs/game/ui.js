@@ -58,12 +58,14 @@ export function initializeUI(options = {}) {
   const dyeButtons = Array.from(document.querySelectorAll("[data-store-color]"));
   const dyeCostEls = Array.from(document.querySelectorAll("[data-store-cost]"));
 
-  const combatStyleButtons = Array.from(document.querySelectorAll(".ui-combat-btn"));
+  const combatStyleButtons = Array.from(document.querySelectorAll("[data-combat-style]"));
+  const combatFlipButton = document.getElementById("ui-combat-flip-btn");
+  const combatStylesPanel = document.getElementById("ui-combat-styles");
+  const combatToolsPanel = document.getElementById("ui-combat-tools");
   const attackButton = document.getElementById("ui-attack-btn");
 
   const labelByTab = {
     inventory: "Inventory",
-    tools: "Tools",
     blacksmith: "Blacksmith",
     store: "Store",
     skills: "Skills",
@@ -75,6 +77,7 @@ export function initializeUI(options = {}) {
   const mobileQuery = window.matchMedia("(max-width: 760px)");
   let activeTab = "inventory";
   let panelCollapsed = false;
+  let combatPanelMode = "combat";
 
   function setPanelCollapsed(collapsed) {
     panelCollapsed = !!collapsed;
@@ -109,6 +112,16 @@ export function initializeUI(options = {}) {
       panel.hidden = panel.dataset.tabPanel !== tab;
     }
     title.textContent = labelByTab[tab] || "Panel";
+  }
+
+  function setCombatPanelMode(mode) {
+    combatPanelMode = mode === "skilling" ? "skilling" : "combat";
+    if (combatStylesPanel) combatStylesPanel.hidden = combatPanelMode !== "combat";
+    if (combatToolsPanel) combatToolsPanel.hidden = combatPanelMode !== "skilling";
+    if (combatFlipButton) {
+      combatFlipButton.dataset.mode = combatPanelMode;
+      combatFlipButton.textContent = combatPanelMode === "combat" ? "Skilling" : "Combat";
+    }
   }
 
   function setActiveTool(tool) {
@@ -298,9 +311,15 @@ export function initializeUI(options = {}) {
 
   for (const button of combatStyleButtons) {
     button.addEventListener("click", () => {
+      if (!button.dataset.combatStyle) return;
       const style = button.dataset.combatStyle;
       for (const b of combatStyleButtons) b.classList.toggle("is-active", b === button);
       if (typeof onCombatStyle === "function") onCombatStyle(style);
+    });
+  }
+  if (combatFlipButton) {
+    combatFlipButton.addEventListener("click", () => {
+      setCombatPanelMode(combatPanelMode === "combat" ? "skilling" : "combat");
     });
   }
   if (attackButton) {
@@ -334,6 +353,7 @@ export function initializeUI(options = {}) {
   refreshMobileLayout();
   setPanelCollapsed(false);
   setActive("inventory");
+  setCombatPanelMode("combat");
   setActiveTool("fishing");
   setFriendsState({ connected: false, peers: 0 });
 

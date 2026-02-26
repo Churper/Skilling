@@ -22,12 +22,8 @@
     </button>
     <nav id="ui-dock" aria-label="Main tabs">
       <button type="button" class="ui-tab-btn is-active" data-tab="inventory">
-        <span class="ui-tab-icon" aria-hidden="true">&#x1F4E6;</span>
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F392;</span>
         <span class="ui-tab-label">Inventory</span>
-      </button>
-      <button type="button" class="ui-tab-btn" data-tab="tools">
-        <span class="ui-tab-icon" aria-hidden="true">&#x1F6E0;</span>
-        <span class="ui-tab-label">Tools</span>
       </button>
       <button type="button" class="ui-tab-btn" data-tab="skills">
         <span class="ui-tab-icon" aria-hidden="true">&#x1F3AF;</span>
@@ -49,21 +45,8 @@
     <aside id="ui-panel" aria-live="polite">
       <h2 id="ui-panel-title">Inventory</h2>
       <section class="ui-panel-section" data-tab-panel="inventory">
-        <div class="ui-bag-head">
-          <strong id="ui-bag-capacity">0/28</strong>
-        </div>
         <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
-        <div class="ui-stat-row ui-stat-row-mini"><span>Fish</span><strong id="ui-inv-fish">0</strong></div>
-        <div class="ui-stat-row ui-stat-row-mini"><span>Ore</span><strong id="ui-inv-ore">0</strong></div>
-        <div class="ui-stat-row ui-stat-row-mini"><span>Logs</span><strong id="ui-inv-logs">0</strong></div>
         <p id="ui-status-line" class="ui-status" data-tone="info"></p>
-      </section>
-      <section class="ui-panel-section" data-tab-panel="tools" hidden>
-        <div id="ui-tool-list">
-          <button type="button" class="ui-tool-btn" data-tool="axe"><span class="ui-icon" aria-hidden="true">&#x1FA93;</span><span>Axe</span></button>
-          <button type="button" class="ui-tool-btn" data-tool="pickaxe"><span class="ui-icon" aria-hidden="true">&#x26CF;</span><span>Pickaxe</span></button>
-          <button type="button" class="ui-tool-btn is-active" data-tool="fishing"><span class="ui-icon" aria-hidden="true">&#x1F3A3;</span><span>Fishing Pole</span></button>
-        </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="blacksmith" hidden>
         <div class="ui-smith-list">
@@ -175,10 +158,18 @@
         </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="combat" hidden>
+        <div class="ui-combat-mode-row">
+          <button type="button" id="ui-combat-flip-btn" class="ui-combat-flip-btn" data-mode="combat">Skilling</button>
+        </div>
         <div id="ui-combat-styles">
           <button type="button" class="ui-combat-btn is-active" data-combat-style="melee" title="Melee">&#x1F5E1;</button>
           <button type="button" class="ui-combat-btn" data-combat-style="bow" title="Bow">&#x1F3F9;</button>
           <button type="button" class="ui-combat-btn" data-combat-style="mage" title="Mage">&#x1F525;</button>
+        </div>
+        <div id="ui-combat-tools" hidden>
+          <button type="button" class="ui-combat-btn ui-tool-btn" data-tool="axe" title="Axe">&#x1FA93;</button>
+          <button type="button" class="ui-combat-btn ui-tool-btn" data-tool="pickaxe" title="Pickaxe">&#x26CF;</button>
+          <button type="button" class="ui-combat-btn ui-tool-btn is-active" data-tool="fishing" title="Fishing Pole">&#x1F3A3;</button>
         </div>
         <p class="ui-combat-hint">Left-click a Training Dummy to attack</p>
       </section>
