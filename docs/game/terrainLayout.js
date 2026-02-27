@@ -174,7 +174,7 @@ function mulberry32(seed) {
 }
 
 /* ── Procedural hills (module-level so placement code can query) ── */
-const beachCX = 40, beachCZ = -8, beachR = 20;
+const beachCX = 38, beachCZ = -6, beachR = 26;
 const BUMPS = [];
 { const rng = mulberry32(77);
   for (let i = 0; i < 120; i++) {
