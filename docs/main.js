@@ -558,6 +558,9 @@ const playerFootOffset = -player.geometry.boundingBox.min.y;
 const playerHeadOffset = player.geometry.boundingBox.max.y;
 const playerGroundSink = 0.0;
 const playerCollisionRadius = 0.48;
+const groundRaycaster = new THREE.Raycaster();
+const groundRayOrigin = new THREE.Vector3();
+const groundRayDir = new THREE.Vector3(0, -1, 0);
 
 function clampPointToPlayableRadius(point, margin = 0) {
   if (!point) return point;
@@ -600,7 +603,17 @@ function resolvePlayerCollisions() {
 }
 
 function getPlayerGroundY(x, z) {
-  return getWorldSurfaceHeight(x, z);
+  const analyticY = getWorldSurfaceHeight(x, z);
+  groundRayOrigin.set(x, analyticY + 30, z);
+  groundRaycaster.set(groundRayOrigin, groundRayDir);
+  groundRaycaster.far = 80;
+  const hits = groundRaycaster.intersectObject(ground, true);
+  for (let i = 0; i < hits.length; i++) {
+    const h = hits[i];
+    if (h.object?.userData?.isWaterSurface) continue;
+    if (Number.isFinite(h.point?.y)) return h.point.y;
+  }
+  return analyticY;
 }
 
 function getPlayerStandY(x, z) {

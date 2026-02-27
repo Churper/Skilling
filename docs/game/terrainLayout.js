@@ -32,6 +32,25 @@ function tMat(color, opts = {}) {
   return new THREE.MeshToonMaterial({ color, gradientMap: TOON_GRAD, ...opts });
 }
 
+function setupWaterMaterial(mesh, waterUniforms) {
+  if (!mesh?.material) return;
+  mesh.material.transparent = true;
+  mesh.material.opacity = 0.62;
+  mesh.material.depthWrite = false;
+  mesh.userData.isWaterSurface = true;
+  mesh.material.onBeforeCompile = shader => {
+    shader.uniforms.uTime = waterUniforms.uTime;
+    shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace(
+      "#include <begin_vertex>",
+      `#include <begin_vertex>
+       transformed.y += sin(transformed.x*0.18+uTime*0.6)*0.02
+                      + cos(transformed.z*0.15+uTime*0.4)*0.015;`
+    );
+  };
+  mesh.renderOrder = R_WATER;
+}
+
 /* ── tile catalogue ── */
 const TILE_DIR = "models/terrain/";
 const TILES = {
@@ -329,17 +348,7 @@ export function buildTerrain(lib, waterUniforms, tilemapData = null) {
 
     const waterMeshes = mergeByMaterial(waterH);
     for (const m of waterMeshes) {
-      m.material.onBeforeCompile = shader => {
-        shader.uniforms.uTime = waterUniforms.uTime;
-        shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
-        shader.vertexShader = shader.vertexShader.replace(
-          "#include <begin_vertex>",
-          `#include <begin_vertex>
-           transformed.y += sin(transformed.x*0.18+uTime*0.6)*0.02
-                          + cos(transformed.z*0.15+uTime*0.4)*0.015;`
-        );
-      };
-      m.renderOrder = R_WATER;
+      setupWaterMaterial(m, waterUniforms);
       group.add(m);
     }
 
@@ -636,17 +645,7 @@ export function buildTerrain(lib, waterUniforms, tilemapData = null) {
   /* ── 6. Merge water geometry with wave animation ── */
   const waterMeshes = mergeByMaterial(waterH);
   for (const m of waterMeshes) {
-    m.material.onBeforeCompile = shader => {
-      shader.uniforms.uTime = waterUniforms.uTime;
-      shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
-      shader.vertexShader = shader.vertexShader.replace(
-        "#include <begin_vertex>",
-        `#include <begin_vertex>
-         transformed.y += sin(transformed.x*0.18+uTime*0.6)*0.02
-                        + cos(transformed.z*0.15+uTime*0.4)*0.015;`
-      );
-    };
-    m.renderOrder = R_WATER;
+    setupWaterMaterial(m, waterUniforms);
     group.add(m);
   }
 
