@@ -1,8 +1,19 @@
+const http = require("http");
 const { WebSocketServer } = require("ws");
 const crypto = require("node:crypto");
 
 const port = Number(process.env.PORT || 8081);
-const wss = new WebSocketServer({ port });
+
+// HTTP server for Render health checks + WebSocket upgrade
+const server = http.createServer((req, res) => {
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "Access-Control-Allow-Origin": "*",
+  });
+  res.end("skilling-relay ok");
+});
+
+const wss = new WebSocketServer({ server });
 
 const clients = new Map(); // ws -> { id, room, name, color, state }
 const rooms = new Map(); // room -> Set<ws>
@@ -210,4 +221,6 @@ wss.on("connection", (ws) => {
   });
 });
 
-console.log(`[skilling-relay] listening on ws://localhost:${port}`);
+server.listen(port, () => {
+  console.log(`[skilling-relay] HTTP + WS listening on port ${port}`);
+});
