@@ -265,6 +265,9 @@ function inVillage(x, z, pad = 0) {
    ═══════════════════════════════════════════ */
 
 export function buildTerrain(lib, waterUniforms) {
+  /* Water tile base Y — positions Water_Flat so its top surface = WATER_Y */
+  const WTY = WATER_Y - 0.35 * TILE_S;   // = 0.00 − 0.70 = −0.70
+
   /* ── 1. Zone + height maps ── */
   const zoneMap = new Map(), hMap = new Map();
   for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
@@ -304,6 +307,9 @@ export function buildTerrain(lib, waterUniforms) {
   };
   const claimAll = cells => { for (const [x, z] of cells) claimed.add(ck(x, z)); };
 
+  /* Tile Y for flat land — y=0 in flatlands, real height in hills */
+  const flatY = (h) => h > GRASS_Y + 0.3 ? h - GRASS_Y : 0;
+
   /* ── 2a. 3×3 pass: sand corners ── */
   for (let gx = GX_MIN + 1; gx <= GX_MAX - 1; gx++) {
     for (let gz = GZ_MIN + 1; gz <= GZ_MAX - 1; gz++) {
@@ -314,14 +320,13 @@ export function buildTerrain(lib, waterUniforms) {
         for (let ddz = -1; ddz <= 1; ddz++)
           cells.push([gx + dx, gz + ddz]);
       if (!canClaim(cells)) continue;
-      const h = hMap.get(k);
 
       /* Outer: 2 adjacent non-sand cardinal */
       const nonSand = DIRS.filter(d => { const n = nz(gx, gz, d); return n != null && n !== ZONE.SAND; });
       if (nonSand.length === 2) {
         for (const [a, b] of ADJ_PAIRS) {
           if (nonSand.includes(a) && nonSand.includes(b)) {
-            putL("sandCornerOuter", gx, gz, h - GRASS_Y, CORNER_ROT[a + "," + b] ?? 0);
+            putL("sandCornerOuter", gx, gz, 0, CORNER_ROT[a + "," + b] ?? 0);
             claimAll(cells); break;
           }
         }
@@ -333,7 +338,7 @@ export function buildTerrain(lib, waterUniforms) {
         for (const diag of ["ne", "se", "sw", "nw"]) {
           const d2 = dz(gx, gz, diag);
           if (d2 != null && d2 !== ZONE.SAND) {
-            putL("sandCornerInner", gx, gz, h - GRASS_Y, DIAG_ROT[diag]);
+            putL("sandCornerInner", gx, gz, 0, DIAG_ROT[diag]);
             claimAll(cells); break;
           }
         }
@@ -341,7 +346,7 @@ export function buildTerrain(lib, waterUniforms) {
     }
   }
 
-  /* ── 2b. 2×2 pass: hill corners ── */
+  /* ── 2b. 2×2 pass: hill & riverbank corners ── */
   for (let gx = GX_MIN; gx <= GX_MAX - 1; gx += 2) {
     for (let gz = GZ_MIN; gz <= GZ_MAX - 1; gz += 2) {
       const cells = [[gx, gz], [gx + 1, gz], [gx, gz + 1], [gx + 1, gz + 1]];
@@ -349,15 +354,27 @@ export function buildTerrain(lib, waterUniforms) {
       const k = ck(gx, gz);
       if (zoneMap.get(k) === ZONE.WATER) continue;
       const h = hMap.get(k);
+
+      /* Riverbank corner: 2 adjacent water neighbors → Hill_Corner_Outer */
+      const waterAdj = DIRS.filter(d => nz(gx, gz, d) === ZONE.WATER);
+      if (waterAdj.length >= 2) {
+        for (const [a, b] of ADJ_PAIRS) {
+          if (waterAdj.includes(a) && waterAdj.includes(b)) {
+            putL("hillCornerOuter", gx, gz, 0, CORNER_ROT[a + "," + b] ?? 0);
+            claimAll(cells); break;
+          }
+        }
+        if (claimed.has(k)) continue;
+      }
+
+      /* Hill corner: 2 adjacent height drops (non-water) */
       const drops = {};
       for (const d of DIRS) {
-        /* Ignore drops toward water — river bank carve is not a real hill */
         if (nz(gx, gz, d) === ZONE.WATER) { drops[d] = 0; continue; }
         const n = nh(gx, gz, d); drops[d] = n != null ? h - n : 0;
       }
       const topY = Math.max(0, h - GRASS_Y);
 
-      /* Outer corner: 2 adjacent drops */
       let placed = false;
       for (const [a, b] of ADJ_PAIRS) {
         if (drops[a] > DROP_MIN && drops[b] > DROP_MIN) {
@@ -367,7 +384,6 @@ export function buildTerrain(lib, waterUniforms) {
       }
       if (placed) continue;
 
-      /* Inner corner: 2 adjacent raises */
       for (const [a, b] of ADJ_PAIRS) {
         if (drops[a] < -DROP_MIN && drops[b] < -DROP_MIN) {
           putL("hillCornerInner", gx, gz, topY, INNER_ROT[a + "," + b] ?? 0);
@@ -384,23 +400,33 @@ export function buildTerrain(lib, waterUniforms) {
       if (claimed.has(k) || !zoneMap.has(k)) continue;
       const z = zoneMap.get(k), h = hMap.get(k);
 
-      /* Water → slope toward land */
-      if (z === ZONE.WATER) {
-        for (const d of DIRS) {
-          const n = nz(gx, gz, d);
-          if (n != null && n !== ZONE.WATER) {
-            putW("waterSlope", gx, gz, 0, DIR_ROT[d]);
+      /* Water cells → all filled with Water_Flat (no slope tiles) */
+      if (z === ZONE.WATER) continue;
+
+      /* ── Riverbank: land cell adjacent to water → Hill_Side ── */
+      const waterAdj = DIRS.filter(d => nz(gx, gz, d) === ZONE.WATER);
+      if (waterAdj.length >= 2) {
+        for (const [a, b] of OPP_PAIRS) {
+          if (waterAdj.includes(a) && waterAdj.includes(b)) {
+            putL("hillSideOnSide", gx, gz, 0, a === "n" ? 0 : -Math.PI / 2);
             claimed.add(k); break;
           }
         }
-        continue; // remaining water filled in pass 4
+        if (!claimed.has(k)) {
+          putL("hillSide", gx, gz, 0, DIR_ROT[waterAdj[0]]);
+          claimed.add(k);
+        }
+        continue;
+      }
+      if (waterAdj.length === 1) {
+        putL("hillSide", gx, gz, 0, DIR_ROT[waterAdj[0]]);
+        claimed.add(k); continue;
       }
 
-      /* Height-based hill tiles — ignore drops toward water (bank carve) */
+      /* ── Height-based hill tiles (actual hills, not river) ── */
       const drops = {};
       const dropDirs = [];
       for (const d of DIRS) {
-        if (nz(gx, gz, d) === ZONE.WATER) { drops[d] = 0; continue; }
         const n = nh(gx, gz, d);
         drops[d] = n != null ? h - n : 0;
         if (drops[d] > DROP_MIN) dropDirs.push(d);
@@ -408,7 +434,6 @@ export function buildTerrain(lib, waterUniforms) {
       const topY = Math.max(0, h - GRASS_Y);
 
       if (dropDirs.length >= 2) {
-        /* Opposite drops → ridge */
         for (const [a, b] of OPP_PAIRS) {
           if (drops[a] > DROP_MIN && drops[b] > DROP_MIN) {
             putL("hillSideOnSide", gx, gz, topY, a === "n" ? 0 : -Math.PI / 2);
@@ -425,27 +450,27 @@ export function buildTerrain(lib, waterUniforms) {
         claimed.add(k); continue;
       }
 
-      /* Zone-specific edge tiles (flat boundaries) */
+      /* ── Zone-specific edge tiles (flat boundaries) ── */
       if (z === ZONE.SAND) {
         const ns = DIRS.filter(d => { const n = nz(gx, gz, d); return n != null && n !== ZONE.SAND; });
         if (ns.length >= 2) {
           for (const [a, b] of OPP_PAIRS) {
             if (ns.includes(a) && ns.includes(b)) {
-              putL("sandSideOverlap", gx, gz, h - GRASS_Y, DIR_ROT[a]);
+              putL("sandSideOverlap", gx, gz, 0, DIR_ROT[a]);
               claimed.add(k); break;
             }
           }
           if (claimed.has(k)) continue;
           for (const [a, b] of ADJ_PAIRS) {
             if (ns.includes(a) && ns.includes(b)) {
-              putL("sandSide", gx, gz, h - GRASS_Y, DIR_ROT[a]);
+              putL("sandSide", gx, gz, 0, DIR_ROT[a]);
               claimed.add(k); break;
             }
           }
           if (claimed.has(k)) continue;
         }
         if (ns.length === 1) {
-          putL("sandSide", gx, gz, h - GRASS_Y, DIR_ROT[ns[0]]);
+          putL("sandSide", gx, gz, 0, DIR_ROT[ns[0]]);
           claimed.add(k); continue;
         }
       }
@@ -455,21 +480,21 @@ export function buildTerrain(lib, waterUniforms) {
         if (np.length >= 2) {
           for (const [a, b] of ADJ_PAIRS) {
             if (np.includes(a) && np.includes(b)) {
-              putL("pathCornerOuter1x1", gx, gz, h, CORNER_ROT[a + "," + b] ?? 0);
+              putL("pathCornerOuter1x1", gx, gz, GRASS_Y, CORNER_ROT[a + "," + b] ?? 0);
               claimed.add(k); break;
             }
           }
           if (claimed.has(k)) continue;
         }
         if (np.length === 1) {
-          putL("pathSide", gx, gz, h, DIR_ROT[np[0]]);
+          putL("pathSide", gx, gz, GRASS_Y, DIR_ROT[np[0]]);
           claimed.add(k); continue;
         }
         if (np.length === 0) {
           for (const diag of ["ne", "se", "sw", "nw"]) {
             const d2 = dz(gx, gz, diag);
             if (d2 != null && d2 !== ZONE.PATH) {
-              putL("pathCornerInner1x1", gx, gz, h, DIAG_ROT[diag]);
+              putL("pathCornerInner1x1", gx, gz, GRASS_Y, DIAG_ROT[diag]);
               claimed.add(k); break;
             }
           }
@@ -486,10 +511,10 @@ export function buildTerrain(lib, waterUniforms) {
       if (claimed.has(k) || !zoneMap.has(k)) continue;
       const z = zoneMap.get(k), h = hMap.get(k);
       switch (z) {
-        case ZONE.WATER: putW("waterFlat", gx, gz, 0, 0);          break;
-        case ZONE.SAND:  putL("sandFlat",  gx, gz, h - GRASS_Y, 0); break;
-        case ZONE.PATH:  putL("pathCenter", gx, gz, h, 0);          break;
-        default:         putL("grass",      gx, gz, h - GRASS_Y, 0); break;
+        case ZONE.WATER: putW("waterFlat", gx, gz, WTY, 0);             break;
+        case ZONE.SAND:  putL("sandFlat",  gx, gz, 0, 0);              break;
+        case ZONE.PATH:  putL("pathCenter", gx, gz, GRASS_Y, 0);       break;
+        default:         putL("grass",      gx, gz, flatY(h), 0);      break;
       }
     }
   }

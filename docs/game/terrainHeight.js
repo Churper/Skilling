@@ -10,7 +10,7 @@ import * as THREE from "three";
 
 /* ── Constants ── */
 export const TILE_S     = 2;          // world-units per tile
-export const WATER_Y    = 0.70;       // water surface (Water_Flat top 0.35 × TILE_S)
+export const WATER_Y    = 0.00;       // water surface (tile placed at -0.70 so top lands here)
 export const GRASS_Y    = 0.40;       // grass surface (Grass_Flat top 0.20 × TILE_S)
 export const HILL_Y     = 2.40;       // hilltop surface (1.20 × TILE_S)
 export const PATH_Y     = 0.00;       // path surface (Path_Center top 0.00 × TILE_S)
@@ -145,20 +145,20 @@ export function terrainH(x, z) {
   flat = Math.max(flat, 1 - s(pd, 0, 2.8));
   if (flat > 0) h = THREE.MathUtils.lerp(h, GRASS_Y, flat);
 
-  /* ─ river channel + bank carve (smooth, no hard step at edge) ─ */
+  /* ─ river channel + bank carve (narrow — visual bank is Hill_Side tiles) ─ */
   const bankLo = rq.width;
-  const bankHi = rq.width + 6;
+  const bankHi = rq.width + TILE_S;          // only 1 tile beyond river edge
   if (rq.dist < bankHi) {
     const center = 1 - s(rq.dist, 0, rq.width);
     const bank = 1 - s(rq.dist, bankLo, bankHi);
     const bed = WATER_Y - 0.72 - 0.48 * center;
-    h = THREE.MathUtils.lerp(h, bed, Math.max(center, bank * 0.55));
-    h -= bank * 0.28;
-    if (rq.dist < rq.width + 1.2) h = Math.min(h, WATER_Y - 0.18);
+    h = THREE.MathUtils.lerp(h, bed, Math.max(center, bank * 0.45));
+    h -= bank * 0.18;
+    if (rq.dist < rq.width + 0.5) h = Math.min(h, WATER_Y - 0.10);
   }
 
   /* ─ gentle rolling noise ─ */
-  const riverQuiet = 1 - s(rq.dist, rq.width + 1.5, rq.width + 5.5);
+  const riverQuiet = 1 - s(rq.dist, rq.width + 1, rq.width + 4);
   const noiseA = (1 - flat) * (1 - 0.75 * riverQuiet);
   h += (Math.sin(x * 0.042) * 0.12 + Math.cos(z * 0.038) * 0.10) * noiseA;
 
@@ -167,7 +167,11 @@ export function terrainH(x, z) {
 
 /* ── Public API ── */
 export function getWorldSurfaceHeight(x, z) {
-  return terrainH(x, z);
+  const h = terrainH(x, z);
+  /* In flat areas keep entities above grass-tile surface; hills use real height */
+  if (h < GRASS_Y && !isInRiver(x, z) && !isHillNE(x, z) && !isHillNW(x, z))
+    return GRASS_Y;
+  return h;
 }
 
 export function getWaterSurfaceHeight(x, z, time = 0) {
