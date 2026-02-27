@@ -814,8 +814,10 @@ export function buildDock(lib) {
 export function buildFences(lib) {
   const group = new THREE.Group();
   group.name = "fences";
-  const board = lib.fenceBoard2 || lib.fenceBoard1 || lib.fenceBoard3 || lib.fenceBoard4;
-  if (!board) return group;
+  const postGeo = new THREE.BoxGeometry(0.28, 1.02, 0.28);
+  const railGeo = new THREE.BoxGeometry(0.12, 0.11, 1.0);
+  const postMat = tMat("#646d72");
+  const railMat = tMat("#c7bda8");
 
   const runs = [
     [[4, 8], [8, 4], [12, 0], [16, -4], [20, -8], [24, -12], [28, -15]],
@@ -824,31 +826,50 @@ export function buildFences(lib) {
     [[-2, 10], [2, 10], [6, 8]],
   ];
 
-  const spacing = 2.0;
-  const yawOffset = Math.PI * 0.5;
-  const placeBoard = (x, z, rot) => {
-    const f = board.clone();
-    f.scale.setScalar(TILE_S);
-    f.position.set(x, getWorldSurfaceHeight(x, z) + 0.02, z);
-    f.rotation.y = rot + yawOffset;
-    f.renderOrder = R_DECOR;
-    group.add(f);
+  const spacing = 1.9;
+  const addPost = (x, z) => {
+    const y = getWorldSurfaceHeight(x, z);
+    const p = new THREE.Mesh(postGeo, postMat);
+    p.position.set(x, y + 0.50, z);
+    p.renderOrder = R_DECOR;
+    group.add(p);
+    return y;
+  };
+  const addRails = (ax, az, ay, bx, bz, by) => {
+    const dx = bx - ax, dz = bz - az;
+    const len = Math.hypot(dx, dz);
+    if (len < 0.01) return;
+    const rot = Math.atan2(dx, dz);
+    const mx = (ax + bx) * 0.5, mz = (az + bz) * 0.5;
+    const make = y => {
+      const r = new THREE.Mesh(railGeo, railMat);
+      r.scale.z = len;
+      r.position.set(mx, y, mz);
+      r.rotation.y = rot;
+      r.renderOrder = R_DECOR;
+      group.add(r);
+    };
+    make((ay + by) * 0.5 + 0.36);
+    make((ay + by) * 0.5 + 0.62);
   };
 
   for (const run of runs) {
+    const pts = [];
     for (let i = 0; i < run.length - 1; i++) {
       const [ax, az] = run[i], [bx, bz] = run[i + 1];
       const dx = bx - ax, dz = bz - az;
       const segLen = Math.hypot(dx, dz);
       const steps = Math.max(1, Math.round(segLen / spacing));
       for (let s = 0; s <= steps; s++) {
-        if (i > 0 && s === 0) continue; // avoid duplicates at segment joins
+        if (i > 0 && s === 0) continue;
         const t = s / steps;
-        const x = ax + dx * t;
-        const z = az + dz * t;
-        const rot = Math.atan2(dx, dz);
-        placeBoard(x, z, rot);
+        pts.push([ax + dx * t, az + dz * t]);
       }
+    }
+
+    const ys = pts.map(([x, z]) => addPost(x, z));
+    for (let i = 0; i < pts.length - 1; i++) {
+      addRails(pts[i][0], pts[i][1], ys[i], pts[i + 1][0], pts[i + 1][1], ys[i + 1]);
     }
   }
 
