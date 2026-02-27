@@ -222,7 +222,7 @@ function tileMat4(wx, wy, wz, rotY = 0, scale = 1) {
    ═══════════════════════════════════════════ */
 
 const ZONE = { WATER: 0, SAND: 1, PATH: 2, GRASS: 3 };
-const DROP_MIN = 0.15;
+const DROP_MIN = 0.35;
 
 const DIRS = ["n", "e", "s", "w"];
 const DIR_DELTA = { n: [0, 1], e: [1, 0], s: [0, -1], w: [-1, 0] };
@@ -350,7 +350,11 @@ export function buildTerrain(lib, waterUniforms) {
       if (zoneMap.get(k) === ZONE.WATER) continue;
       const h = hMap.get(k);
       const drops = {};
-      for (const d of DIRS) { const n = nh(gx, gz, d); drops[d] = n != null ? h - n : 0; }
+      for (const d of DIRS) {
+        /* Ignore drops toward water — river bank carve is not a real hill */
+        if (nz(gx, gz, d) === ZONE.WATER) { drops[d] = 0; continue; }
+        const n = nh(gx, gz, d); drops[d] = n != null ? h - n : 0;
+      }
       const topY = Math.max(0, h - GRASS_Y);
 
       /* Outer corner: 2 adjacent drops */
@@ -392,10 +396,11 @@ export function buildTerrain(lib, waterUniforms) {
         continue; // remaining water filled in pass 4
       }
 
-      /* Height-based hill tiles for non-water cells */
+      /* Height-based hill tiles — ignore drops toward water (bank carve) */
       const drops = {};
       const dropDirs = [];
       for (const d of DIRS) {
+        if (nz(gx, gz, d) === ZONE.WATER) { drops[d] = 0; continue; }
         const n = nh(gx, gz, d);
         drops[d] = n != null ? h - n : 0;
         if (drops[d] > DROP_MIN) dropDirs.push(d);
