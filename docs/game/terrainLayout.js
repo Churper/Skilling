@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import {
-  TILE_S, WATER_Y, GRASS_Y,
+  TILE_S, WATER_Y, GRASS_Y, HILL_Y,
   GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
   isInRiver, isBeach, isOnPath,
   riverQuery, distToPath,
@@ -37,9 +37,16 @@ const TILE_DIR = "models/terrain/";
 const TILES = {
   /* ground tiles */
   grass:       "Grass_Flat.glb",
+  hillSide:    "Hill_Side.glb",
+  hillSideOnSide: "Hill_Side_On_Side.glb",
+  hillCornerOuter: "Hill_Corner_Outer_2x2.glb",
+  hillCornerInner: "Hill_Corner_Inner_2x2.glb",
   pathCenter:  "Path_Center.glb",
   waterFlat:   "Water_Flat.glb",
   sandFlat:    "Sand_Flat.glb",
+  sandSide:    "Sand_Side.glb",
+  sandCornerOuter: "Sand_Corner_Outer_3x3.glb",
+  sandCornerInner: "Sand_Corner_Inner_3x3.glb",
 
   /* structure tiles */
   bridgeEnd:   "Prop_Bridge_Log_End.glb",
@@ -621,19 +628,46 @@ export function buildProps(lib, scene) {
 }
 
 /* Return ground-tile placements for a grid cell (cliffs handled separately). */
+const DIR_ROT = Object.freeze({
+  n: 0,
+  e: -Math.PI / 2,
+  s: Math.PI,
+  w: Math.PI / 2,
+});
+const HILL_STEP_MIN = 1.05;
+const HILL_ZONE_MIN_H = GRASS_Y + (HILL_Y - GRASS_Y) * 0.36;
+
+function isPlayableTerrainCell(gx, gz) {
+  return !(gz > 19 || gx < -19 || gz < -18);
+}
+
+function isOceanCell(wx, wz) {
+  return wx > 34 && terrainH(wx, wz) < WATER_Y + 0.08;
+}
+
+function isWaterCellWorld(wx, wz) {
+  return isInRiver(wx, wz) || isOceanCell(wx, wz);
+}
+
+function pickPrimaryDropDir(drops) {
+  let bestDir = null;
+  let bestVal = -1e9;
+  for (const d of ["n", "e", "s", "w"]) {
+    if (drops[d] > bestVal) {
+      bestVal = drops[d];
+      bestDir = d;
+    }
+  }
+  return { dir: bestDir, val: bestVal };
+}
+
 function getCellPlacements(gx, gz) {
   const wx = gx * TILE_S, wz = gz * TILE_S;
 
-  // Outside playable ring.
-  if (gz > 19 || gx < -19 || gz < -18) return null;
+  if (!isPlayableTerrainCell(gx, gz)) return null;
 
-  // River cells.
-  if (isInRiver(wx, wz)) return [{ tile: "waterFlat", y: 0, rot: 0 }];
-
-  // East ocean cells.
-  if (wx > 34 && terrainH(wx, wz) < WATER_Y + 0.08) {
-    return [{ tile: "waterFlat", y: 0, rot: 0 }];
-  }
+  // Water body is rendered by buildWater() ribbon/ocean mesh.
+  if (isWaterCellWorld(wx, wz)) return null;
 
   // Beach / paths / grass.
   if (isBeach(wx, wz)) {
@@ -645,22 +679,46 @@ function getCellPlacements(gx, gz) {
     return [{ tile: "pathCenter", y: h, rot: 0 }];
   }
 
-  // River-bank connector tile: place sloped edge tile where land directly borders river.
-  const n = isInRiver(wx, wz + TILE_S);
-  const s = isInRiver(wx, wz - TILE_S);
-  const e = isInRiver(wx + TILE_S, wz);
-  const w = isInRiver(wx - TILE_S, wz);
-  const cnt = (n ? 1 : 0) + (s ? 1 : 0) + (e ? 1 : 0) + (w ? 1 : 0);
-  if (cnt === 1) {
-    const h = terrainH(wx, wz);
-    let rot = 0;
-    if (e) rot = -Math.PI / 2;
-    else if (s) rot = Math.PI;
-    else if (w) rot = Math.PI / 2;
-    return [{ tile: "waterSlope", y: h - GRASS_Y, rot }];
+  const h = terrainH(wx, wz);
+  const hn = terrainH(wx, wz + TILE_S);
+  const hs = terrainH(wx, wz - TILE_S);
+  const he = terrainH(wx + TILE_S, wz);
+  const hw = terrainH(wx - TILE_S, wz);
+
+  // Use hill transition tiles only where we have real large elevation changes.
+  // This avoids the "all flat tiles at different Y" staircase look in highland zones.
+  const inHillZone = h >= HILL_ZONE_MIN_H || hn >= HILL_ZONE_MIN_H || hs >= HILL_ZONE_MIN_H || he >= HILL_ZONE_MIN_H || hw >= HILL_ZONE_MIN_H;
+  if (inHillZone) {
+    const drops = { n: h - hn, e: h - he, s: h - hs, w: h - hw };
+    const cut = HILL_STEP_MIN;
+    const down = {
+      n: drops.n > cut,
+      e: drops.e > cut,
+      s: drops.s > cut,
+      w: drops.w > cut,
+    };
+    const downCount = (down.n ? 1 : 0) + (down.e ? 1 : 0) + (down.s ? 1 : 0) + (down.w ? 1 : 0);
+    const topY = Math.max(0, h - GRASS_Y);
+
+    if (downCount >= 2 && (gx % 2 === 0) && (gz % 2 === 0)) {
+      if (down.n && down.e) return [{ tile: "hillCornerOuter", y: topY, rot: 0 }];
+      if (down.e && down.s) return [{ tile: "hillCornerOuter", y: topY, rot: -Math.PI / 2 }];
+      if (down.s && down.w) return [{ tile: "hillCornerOuter", y: topY, rot: Math.PI }];
+      if (down.w && down.n) return [{ tile: "hillCornerOuter", y: topY, rot: Math.PI / 2 }];
+      if ((down.n && down.s) || (down.e && down.w)) {
+        return [{ tile: "hillSideOnSide", y: topY, rot: down.n ? 0 : -Math.PI / 2 }];
+      }
+    }
+
+    if (downCount >= 1) {
+      const { dir } = pickPrimaryDropDir(drops);
+      const useEveryOther = (dir === "n" || dir === "s") ? (gz % 2 === 0) : (gx % 2 === 0);
+      if (dir && useEveryOther) {
+        return [{ tile: "hillSide", y: topY, rot: DIR_ROT[dir] }];
+      }
+    }
   }
 
-  const h = terrainH(wx, wz);
   return [{ tile: "grass", y: h - GRASS_Y, rot: 0 }];
 }
 
@@ -699,10 +757,68 @@ export function buildTerrain(lib) {
    ═══════════════════════════════════════════ */
 
 export function buildWater(waterUniforms) {
-  // Water is tile-driven (Water_Flat) from buildTerrain placements.
-  const g = new THREE.Group();
-  g.name = "water_tiles_only";
-  return g;
+  /* River ribbon: sample centre-line, build strip */
+  const RP = [
+    [0, 40, 2.5], [0, 34, 2.5], [0, 26, 2.8], [0, 18, 3.0],
+    [0, 12, 3.2], [0, 6, 3.5], [2, 2, 3.5], [6, -2, 4.0],
+    [12, -6, 4.5], [20, -10, 5.0], [28, -14, 5.5], [36, -14, 6.5], [48, -14, 8.0],
+  ];
+  const pos = [], idx = [];
+  for (let i = 0; i < RP.length; i++) {
+    const [cx, cz, hw] = RP[i];
+    let dx = 0, dz = 1;
+    if (i < RP.length - 1) { dx = RP[i + 1][0] - cx; dz = RP[i + 1][1] - cz; }
+    else if (i > 0) { dx = cx - RP[i - 1][0]; dz = cz - RP[i - 1][1]; }
+    const len = Math.hypot(dx, dz) || 1;
+    const px = -dz / len, pz = dx / len;
+    pos.push(cx + px * hw, 0, cz + pz * hw);
+    pos.push(cx - px * hw, 0, cz - pz * hw);
+    if (i > 0) {
+      const a = (i - 1) * 2, b = a + 1, c = i * 2, d = c + 1;
+      idx.push(a, c, b, b, c, d);
+    }
+  }
+  /* ocean rectangle on east side */
+  const oi = pos.length / 3;
+  pos.push(34, 0, 6, 58, 0, 6, 58, 0, -30, 34, 0, -30);
+  idx.push(oi, oi + 1, oi + 2, oi, oi + 2, oi + 3);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setIndex(idx);
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  geo.computeVertexNormals();
+
+  const mat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: waterUniforms,
+    vertexShader: `
+      varying vec2 vW; uniform float uTime;
+      void main(){
+        vec3 p = position;
+        p.y += sin(p.x*.18+uTime*.6)*.02 + cos(p.z*.15+uTime*.4)*.015;
+        vW = p.xz;
+        gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
+      }`,
+    fragmentShader: `
+      varying vec2 vW; uniform float uTime;
+      void main(){
+        float d = length(vW - vec2(24.0,-10.0));
+        vec3 deep = vec3(.18,.48,.62), shallow = vec3(.56,.86,.94);
+        float t = smoothstep(0.0,35.0,d);
+        vec3 c = mix(deep,shallow,t);
+        c += sin(vW.x*.6+vW.y*.4+uTime*1.2)*.016;
+        c += cos(vW.x*.3-vW.y*.5+uTime*.7)*.012;
+        float alpha = mix(0.42,0.28,t);
+        gl_FragColor = vec4(c,alpha);
+      }`,
+  });
+
+  const water = new THREE.Mesh(geo, mat);
+  water.position.y = WATER_Y + 0.01;
+  water.renderOrder = R_WATER;
+  return water;
 }
 
 /* ═══════════════════════════════════════════
