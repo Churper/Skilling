@@ -136,6 +136,11 @@ export function terrainH(x, z) {
     const bt = s(x, 20, 32);
     h = THREE.MathUtils.lerp(h, WATER_Y + 0.05, bt);
   }
+  /* ─ entire south/east coastline slopes to water ─ */
+  const coastS = s(z, -10, -20);   // southern edge
+  const coastE = s(x, 30, 44);     // eastern edge
+  const coastT = Math.max(coastS, coastE);
+  if (coastT > 0) h = THREE.MathUtils.lerp(h, WATER_Y + 0.02, coastT);
 
   /* ─ flatten for village / paths ─ */
   let flat = 0;

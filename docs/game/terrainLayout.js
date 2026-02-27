@@ -220,7 +220,14 @@ export function getMeshSurfaceY(x, z) {
     const bxT = 1 - sm(Math.max(BRIDGE_X0 - x, x - BRIDGE_X1, 0), 0, 2);
     const bzT = 1 - sm(Math.abs(z - BRIDGE_Z), BRIDGE_HW, BRIDGE_HW + 2);
     const bridgeT = bxT * bzT;
-    if (bridgeT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.1, bridgeT);
+    if (bridgeT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.15, bridgeT);
+  }
+  /* flatten terrain under dock */
+  if (x > 36 && x < 52 && Math.abs(z - (-16)) < 4) {
+    const dxT = 1 - sm(Math.max(36 - x, x - 52, 0), 0, 2);
+    const dzT = 1 - sm(Math.abs(z - (-16)), 2, 4);
+    const dockT = dxT * dzT;
+    if (dockT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.15, dockT);
   }
   return y;
 }
@@ -274,8 +281,16 @@ export function buildTerrainMesh(waterUniforms) {
       const beachT = 1 - sm(beachDist, beachR - 6, beachR);
       /* any ground near or below water level = sand */
       const lowSandT = 1 - sm(y, WATER_Y - 0.1, WATER_Y + 0.25);
+      /* near ocean/coastline — sand overrides everything */
+      const nearCoast = sm(x, 14, 24) * (1 - sm(z, -6, 8));
+      const sandiness = Math.max(lowSandT, beachT, nearCoast);
       let c;
-      if (isInRiver(x, z)) {
+      if (sandiness > 0.8) {
+        c = cSand;
+      } else if (sandiness > 0.01) {
+        tmp.copy(cGrass).lerp(cSand, sandiness);
+        c = tmp;
+      } else if (isInRiver(x, z)) {
         c = cRiver;
       } else if (rq.dist < rq.width + 2.5) {
         const t = Math.max(0, (rq.dist - rq.width) / 2.5);
