@@ -58,6 +58,19 @@ function m3(geo, mat, x, y, z, ro) {
   return m;
 }
 
+async function loadTerrainTilemap() {
+  try {
+    const resp = await fetch(`tilemap.json?v=${Date.now()}`, { cache: "no-store" });
+    if (!resp.ok) throw new Error(String(resp.status));
+    const data = await resp.json();
+    if (!data) return null;
+    return data.tiles ? data : { tiles: data };
+  } catch (e) {
+    console.warn("Tilemap load failed; falling back to runtime autotiling:", e);
+    return null;
+  }
+}
+
 /* ── Layout constants ── */
 const R_GND = 0, R_WATER = 2, R_DECOR = 3;
 const SVC = Object.freeze({
@@ -413,8 +426,9 @@ export async function createWorld(scene) {
   ground.name = "ground";
 
   if (tileLib) {
+    const terrainTilemap = await loadTerrainTilemap();
     /* merged terrain tiles (includes water tile geometry) */
-    const terrain = buildTerrain(tileLib, waterUniforms);
+    const terrain = buildTerrain(tileLib, waterUniforms, terrainTilemap);
     ground.add(terrain);
     buildProps(tileLib, scene);
 

@@ -146,6 +146,43 @@ const TILES = {
   hollowTrunk:     "Prop_Hollow_Trunk.glb",
 };
 
+/* Editor tile names -> runtime library keys */
+const EDITOR_TILE_TO_LIB = Object.freeze({
+  Grass_Flat: "grass",
+  Hill_Side: "hillSide",
+  Hill_Side_On_Side: "hillSideOnSide",
+  Hill_Corner_Outer_2x2: "hillCornerOuter",
+  Hill_Corner_Inner_2x2: "hillCornerInner",
+  Hill_Side_Transition_From_Gentle: "hillTransFromGentle",
+  Hill_Side_Transition_To_Gentle: "hillTransToGentle",
+  Path_Center: "pathCenter",
+  Path_Side: "pathSide",
+  Path_Corner_Inner_1x1: "pathCornerInner1x1",
+  Path_Corner_Inner_2x2: "pathCornerInner2x2",
+  Path_Corner_Outer_1x1: "pathCornerOuter1x1",
+  Path_Corner_Outer_2x2: "pathCornerOuter2x2",
+  Path_Corner_Outer_3x3: "pathCornerOuter3x3",
+  Path_Corner_Y_2x2: "pathCornerY2x2",
+  Path_Corner_Y_3x3: "pathCornerY3x3",
+  Path_Hill_Gentle_Center: "pathHillGentleCenter",
+  Path_Hill_Gentle_Side: "pathHillGentleSide",
+  Path_Hill_Sharp_Center: "pathHillSharpCenter",
+  Path_Hill_Sharp_Side: "pathHillSharpSide",
+  Path_Steps_Center: "pathStepsCenter",
+  Path_Steps_Edge: "pathStepsEdge",
+  Path_Steps_Grass_Edge: "pathStepsGrassEdge",
+  Path_Steps_Grass_Edge_Top: "pathStepsGrassEdgeTop",
+  Water_Flat: "waterFlat",
+  Water_Slope: "waterSlope",
+  Sand_Flat: "sandFlat",
+  Sand_Side: "sandSide",
+  Sand_Corner_Outer_3x3: "sandCornerOuter",
+  Sand_Corner_Inner_3x3: "sandCornerInner",
+  Sand_Side_Overlap_Side: "sandSideOverlap",
+  Sand_Side_Transition_From_Gentle: "sandTransFromGentle",
+  Sand_Side_Transition_To_Gentle: "sandTransToGentle",
+});
+
 /* ── Load all tiles ── */
 export async function loadTiles() {
   THREE.Cache.enabled = true;
@@ -264,7 +301,52 @@ function inVillage(x, z, pad = 0) {
    buildTerrain() — tile-driven terrain with autotiling
    ═══════════════════════════════════════════ */
 
-export function buildTerrain(lib, waterUniforms) {
+export function buildTerrain(lib, waterUniforms, tilemapData = null) {
+  /* Optional direct terrain placement from editor tilemap */
+  if (tilemapData && tilemapData.tiles && typeof tilemapData.tiles === "object") {
+    const landH = [], waterH = [];
+    const addPlaced = (entryObj, key, preferUnderlay = false) => {
+      if (!entryObj || !entryObj.tile) return;
+      const [gx, gz] = key.split(",").map(Number);
+      if (!Number.isFinite(gx) || !Number.isFinite(gz)) return;
+      const libKey = EDITOR_TILE_TO_LIB[entryObj.tile];
+      const tmpl = lib[libKey];
+      if (!tmpl) return;
+      const y = Number.isFinite(entryObj.y) ? entryObj.y : 0;
+      const rot = Number.isFinite(entryObj.rot) ? entryObj.rot : 0;
+      const arr = entryObj.tile.startsWith("Water_") || preferUnderlay ? waterH : landH;
+      arr.push(...harvestTile(tmpl, tileMat4(gx * TILE_S, y, gz * TILE_S, rot)));
+    };
+
+    const underlays = tilemapData.underlays || {};
+    for (const [key, val] of Object.entries(underlays)) addPlaced(val, key, true);
+    for (const [key, val] of Object.entries(tilemapData.tiles)) addPlaced(val, key, false);
+
+    const group = new THREE.Group();
+    group.name = "terrain";
+
+    mergeByMaterial(landH).forEach(m => group.add(m));
+
+    const waterMeshes = mergeByMaterial(waterH);
+    for (const m of waterMeshes) {
+      m.material.onBeforeCompile = shader => {
+        shader.uniforms.uTime = waterUniforms.uTime;
+        shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
+        shader.vertexShader = shader.vertexShader.replace(
+          "#include <begin_vertex>",
+          `#include <begin_vertex>
+           transformed.y += sin(transformed.x*0.18+uTime*0.6)*0.02
+                          + cos(transformed.z*0.15+uTime*0.4)*0.015;`
+        );
+      };
+      m.renderOrder = R_WATER;
+      group.add(m);
+    }
+
+    buildCliffs(lib).forEach(m => group.add(m));
+    return group;
+  }
+
   /* ── 1. Zone + height maps ── */
   const zoneMap = new Map(), hMap = new Map();
   for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
