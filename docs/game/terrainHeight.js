@@ -133,8 +133,8 @@ export function terrainH(x, z) {
 
   /* ─ beach slopes down ─ */
   if (isBeach(x, z)) {
-    const bt = s(x, 30, 48);
-    h -= bt * 1.0;
+    const bt = s(x, 34, 48);
+    h -= bt * 0.42;
   }
 
   /* ─ flatten for village / paths ─ */
