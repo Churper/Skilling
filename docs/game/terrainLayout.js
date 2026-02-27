@@ -176,62 +176,81 @@ export function buildTerrainMesh(waterUniforms) {
   const col = new Float32Array(nx * nz * 3);
   const idx = [];
 
-  /* palette */
-  const cGrassA = new THREE.Color("#4ca338");
-  const cGrassB = new THREE.Color("#5ab844");
-  const cPathA  = new THREE.Color("#c9a66b");
-  const cPathB  = new THREE.Color("#b89058");
-  const cSandA  = new THREE.Color("#e8d5a0");
-  const cSandB  = new THREE.Color("#d4be82");
-  const cHillA  = new THREE.Color("#3d8a2e");
-  const cHillB  = new THREE.Color("#4a9636");
-  const cBank   = new THREE.Color("#6d8854");
-  const cRiver  = new THREE.Color("#5a7454");
-  const cCliff  = new THREE.Color("#8a8a7a");
+  /* palette — clean solid colors */
+  const cGrass = new THREE.Color("#4dad38");
+  const cPath  = new THREE.Color("#c4a060");
+  const cSand  = new THREE.Color("#e2d098");
+  const cHill  = new THREE.Color("#3d8a2e");
+  const cBank  = new THREE.Color("#6d8854");
+  const cRiver = new THREE.Color("#5a7454");
+  const cCliff = new THREE.Color("#8a8a7a");
   const tmp = new THREE.Color();
+
+  /* beach center + radius for rounded shape */
+  const beachCX = 42, beachCZ = -10, beachR = 18;
+
+  /* small random bumps scattered across grass for variety */
+  const BUMPS = [];
+  { const rng = mulberry32(77);
+    for (let i = 0; i < 35; i++) {
+      const bx = -36 + rng() * 68, bz = -34 + rng() * 64;
+      const rq = riverQuery(bx, bz);
+      if (rq.dist < rq.width + 4 || isOnPath(bx, bz)) continue;
+      if (inVillage(bx, bz, 6)) continue;
+      BUMPS.push({ x: bx, z: bz, r: 2 + rng() * 4, h: 0.3 + rng() * 0.8 });
+    }
+  }
 
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
-      const y = terrainH(x, z);
+      let y = terrainH(x, z);
       const i3 = (iz * nx + ix) * 3;
+
+      /* add small random bumps/hills */
+      for (const b of BUMPS) {
+        const d = Math.hypot(x - b.x, z - b.z);
+        if (d < b.r) {
+          const t = 1 - d / b.r;
+          y += b.h * t * t * (3 - 2 * t);
+        }
+      }
 
       /* low-poly jitter (don't jitter edges or river) */
       const rq = riverQuery(x, z);
       const jit = (rq.dist < rq.width + 2 || ix === 0 || ix === nx - 1 || iz === 0 || iz === nz - 1)
-        ? 0 : (hash21(x, z) - 0.5) * 0.15;
+        ? 0 : (hash21(x, z) - 0.5) * 0.12;
 
       pos[i3] = x + jit;
       pos[i3 + 1] = y;
       pos[i3 + 2] = z + jit * 0.7;
 
-      /* color selection with noise-based variation */
-      const n = hash21(x * 0.7, z * 0.7);
+      /* color — clean zones with smooth transitions */
+      const beachDist = Math.hypot(x - beachCX, z - beachCZ);
+      const beachT = 1 - THREE.MathUtils.smoothstep(beachDist, beachR - 6, beachR);
       let c;
       if (isInRiver(x, z)) {
         c = cRiver;
       } else if (rq.dist < rq.width + 2.5) {
-        /* river bank transition */
-        const t = (rq.dist - rq.width) / 2.5;
-        tmp.copy(cBank).lerp(cGrassA, Math.max(0, t));
+        const t = Math.max(0, (rq.dist - rq.width) / 2.5);
+        tmp.copy(cBank).lerp(cGrass, t);
         c = tmp;
-      } else if (isBeach(x, z)) {
-        const bt = THREE.MathUtils.smoothstep(x, 30, 44);
-        tmp.copy(cGrassB).lerp(n > 0.5 ? cSandA : cSandB, bt);
+      } else if (beachT > 0.01) {
+        tmp.copy(cGrass).lerp(cSand, beachT);
         c = tmp;
       } else if (isOnPath(x, z)) {
         const pd = distToPath(x, z);
         const edge = THREE.MathUtils.smoothstep(pd, 0, 2.5);
-        tmp.copy(n > 0.5 ? cPathA : cPathB).lerp(cGrassA, edge);
+        tmp.copy(cPath).lerp(cGrass, edge);
         c = tmp;
       } else if (y > GRASS_Y + 3) {
         c = cCliff;
       } else if (y > GRASS_Y + 0.5) {
         const ht = THREE.MathUtils.smoothstep(y, GRASS_Y + 0.5, HILL_Y);
-        tmp.copy(n > 0.5 ? cHillA : cHillB).lerp(cGrassA, 1 - ht);
+        tmp.copy(cHill).lerp(cGrass, 1 - ht);
         c = tmp;
       } else {
-        c = n > 0.5 ? cGrassA : cGrassB;
+        c = cGrass;
       }
       col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
 
