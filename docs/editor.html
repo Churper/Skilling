@@ -251,6 +251,11 @@ const tileObjs = new Map();
 // Optional underlay tiles (e.g. Water_Flat under Hill_Corner_Inner_2x2 pool)
 const underlays = new Map();
 const underlayObjs = new Map();
+const FLAT_TILES = new Set(["Grass_Flat", "Sand_Flat", "Path_Center", "Water_Flat"]);
+
+function canPlaceWaterAsUnderlay(tileName) {
+  return !!tileName && !FLAT_TILES.has(tileName);
+}
 
 /* ═══ Preview ghost ═══ */
 let previewObj = null;
@@ -309,8 +314,8 @@ function placeTile(gx, gz) {
   const existing = tilemap.get(key);
   const placingWater = selectedTile === "Water_Flat";
 
-  // Special case: placing water into a Hill_Corner_Inner_2x2 pool should not delete the hill tile.
-  if (placingWater && existing && existing.tile === "Hill_Corner_Inner_2x2") {
+  // Preserve non-flat bank/slope/corner tiles; paint water as an underlay on the same cell.
+  if (placingWater && existing && canPlaceWaterAsUnderlay(existing.tile)) {
     setUnderlay(gx, gz, { tile: selectedTile, rot: rotation, y: tileY });
     updateCount();
     return;
