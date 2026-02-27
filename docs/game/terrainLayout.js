@@ -48,10 +48,29 @@ const TILES = {
   /* cliff tiles */
   cliffBaseStr: "Cliff_Base_Straight.glb",
   cliffBaseWF:  "Cliff_Base_Waterfall.glb",
+  cliffBaseCornerOuterLg: "Cliff_Base_Corner_Outer_Lg.glb",
+  cliffBaseCornerOuterSm: "Cliff_Base_Corner_Outer_Sm.glb",
+  cliffBaseCornerInnerLg: "Cliff_Base_Corner_Inner_Lg.glb",
+  cliffBaseCornerInnerSm: "Cliff_Base_Corner_Inner_Sm.glb",
+  cliffBaseHillGentle: "Cliff_Base_Hill_Gentle.glb",
+  cliffBaseHillSharp: "Cliff_Base_Hill_Sharp.glb",
   cliffMidStr:  "Cliff_Mid_Straight.glb",
   cliffMidWF:   "Cliff_Mid_Waterfall.glb",
+  cliffMidCornerOuterLg: "Cliff_Mid_Corner_Outer_Lg.glb",
+  cliffMidCornerOuterSm: "Cliff_Mid_Corner_Outer_Sm.glb",
+  cliffMidCornerInnerLg: "Cliff_Mid_Corner_Inner_Lg.glb",
+  cliffMidCornerInnerSm: "Cliff_Mid_Corner_Inner_Sm.glb",
   cliffTopStr:  "Cliff_Top_Straight.glb",
   cliffTopWF:   "Cliff_Top_Waterfall.glb",
+  cliffTopCornerOuterLg: "Cliff_Top_Corner_Outer_Lg.glb",
+  cliffTopCornerOuterSm: "Cliff_Top_Corner_Outer_Sm.glb",
+  cliffTopCornerInnerLg: "Cliff_Top_Corner_Inner_Lg.glb",
+  cliffTopCornerInnerSm: "Cliff_Top_Corner_Inner_Sm.glb",
+  cliffTopHillGentle: "Cliff_Top_Hill_Gentle.glb",
+  cliffTopHillSharp: "Cliff_Top_Hill_Sharp.glb",
+  waterSlope: "Water_Slope.glb",
+  waterfallTile: "Waterfall.glb",
+  waterfallTop: "Waterfall_Top.glb",
 
   /* prop tiles for scatter */
   bush1:         "Prop_Bush_1.glb",
@@ -305,40 +324,91 @@ function buildGroundMesh() {
 
 function buildCliffs(lib) {
   const harvested = [];
+  const push = (tile, x, y, z, rot = 0) => {
+    const tmpl = lib[tile];
+    if (!tmpl) return;
+    harvested.push(...harvestTile(tmpl, tileMat4(x, y, z, rot)));
+  };
+  const pushPair = (x, z, rot, base, mid) => {
+    push(base, x, 0, z, rot);
+    push(mid, x, TILE_S, z, rot);
+  };
+  const pushStack = (x, z, rot, base, mid, top) => {
+    push(base, x, 0, z, rot);
+    push(mid, x, TILE_S, z, rot);
+    push(top, x, 2 * TILE_S, z, rot);
+  };
 
-  /* North cliff wall (gz=20): 3-tier stack */
+  /* North cliff wall (gz=20): 3-tier stack with curved throat around waterfall */
   for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
     const wx = gx * TILE_S, wz = 20 * TILE_S;
-    const base = (gx === 0) ? "cliffBaseWF" : "cliffBaseStr";
-    const mid  = (gx === 0) ? "cliffMidWF"  : "cliffMidStr";
-    const top  = (gx === 0) ? "cliffTopWF"  : "cliffTopStr";
-    for (const [tile, y] of [[base, 0], [mid, TILE_S], [top, 2 * TILE_S]]) {
-      const tmpl = lib[tile];
-      if (!tmpl) continue;
-      harvested.push(...harvestTile(tmpl, tileMat4(wx, y, wz, 0)));
+    let rot = 0;
+    let base = "cliffBaseStr", mid = "cliffMidStr", top = "cliffTopStr";
+
+    if (gx === 0) {
+      base = "cliffBaseWF"; mid = "cliffMidWF"; top = "cliffTopWF";
+    } else if (gx === -1) {
+      base = "cliffBaseCornerInnerSm"; mid = "cliffMidCornerInnerSm"; top = "cliffTopCornerInnerSm"; rot = Math.PI / 2;
+    } else if (gx === 1) {
+      base = "cliffBaseCornerInnerSm"; mid = "cliffMidCornerInnerSm"; top = "cliffTopCornerInnerSm"; rot = -Math.PI / 2;
+    } else if (gx === -20) {
+      base = "cliffBaseCornerOuterLg"; mid = "cliffMidCornerOuterLg"; top = "cliffTopCornerOuterLg"; rot = -Math.PI / 2;
+    } else if (gx === GX_MIN) {
+      base = "cliffBaseCornerOuterSm"; mid = "cliffMidCornerOuterSm"; top = "cliffTopCornerOuterSm"; rot = Math.PI;
+    } else if (gx === GX_MAX) {
+      base = "cliffBaseCornerOuterSm"; mid = "cliffMidCornerOuterSm"; top = "cliffTopCornerOuterSm";
     }
+    pushStack(wx, wz, rot, base, mid, top);
+
+    // Break long straight skyline with gentle curved cliff-top segments.
+    if (gx !== 0 && gx % 6 === 0) push("cliffTopHillGentle", wx, 2 * TILE_S, wz, 0);
   }
 
   /* West cliff wall (gx=-20): 2-tier stack */
   for (let gz = GZ_MIN; gz < 20; gz++) {
+    if (gz === -19) continue; // south corner handled by south wall
     const wx = -20 * TILE_S, wz = gz * TILE_S;
-    for (const [tile, y] of [["cliffBaseStr", 0], ["cliffMidStr", TILE_S]]) {
-      const tmpl = lib[tile];
-      if (!tmpl) continue;
-      harvested.push(...harvestTile(tmpl, tileMat4(wx, y, wz, -Math.PI / 2)));
-    }
+    pushPair(wx, wz, -Math.PI / 2, "cliffBaseStr", "cliffMidStr");
+    if (gz % 7 === 0) push("cliffBaseHillGentle", wx, 0, wz, -Math.PI / 2);
   }
 
-  /* South cliff wall (gz=-19): 2-tier stack */
+  /* South cliff wall (gz=-19): 2-tier stack with curved west corner */
   for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
     const wx = gx * TILE_S, wz = -19 * TILE_S;
-    for (const [tile, y] of [["cliffBaseStr", 0], ["cliffMidStr", TILE_S]]) {
-      const tmpl = lib[tile];
-      if (!tmpl) continue;
-      harvested.push(...harvestTile(tmpl, tileMat4(wx, y, wz, Math.PI)));
+    if (gx === -20) {
+      pushPair(wx, wz, Math.PI, "cliffBaseCornerOuterLg", "cliffMidCornerOuterLg");
+      continue;
     }
+    pushPair(wx, wz, Math.PI, "cliffBaseStr", "cliffMidStr");
+    if (gx % 7 === 0) push("cliffBaseHillSharp", wx, 0, wz, Math.PI);
   }
 
+  return mergeByMaterial(harvested);
+}
+
+function buildRiverBankCurves(lib) {
+  const slope = lib.waterSlope;
+  if (!slope) return [];
+  const harvested = [];
+  const RP = [
+    [0, 40, 2.5], [0, 34, 2.5], [0, 26, 2.8], [0, 18, 3.0],
+    [0, 12, 3.2], [0, 6, 3.5], [2, 2, 3.5], [6, -2, 4.0],
+    [12, -6, 4.5], [20, -10, 5.0], [28, -14, 5.5], [36, -14, 6.5], [48, -14, 8.0],
+  ];
+  for (let i = 1; i < RP.length - 1; i++) {
+    const [cx, cz, hw] = RP[i];
+    const dx = RP[i + 1][0] - RP[i - 1][0];
+    const dz = RP[i + 1][1] - RP[i - 1][1];
+    const len = Math.hypot(dx, dz) || 1;
+    const px = -dz / len, pz = dx / len;
+    for (const s of [-1, 1]) {
+      const x = cx + px * s * (hw + 0.8);
+      const z = cz + pz * s * (hw + 0.8);
+      const y = getWorldSurfaceHeight(x, z) - 0.22;
+      const rot = Math.atan2(dx, dz) + (s > 0 ? Math.PI / 2 : -Math.PI / 2);
+      harvested.push(...harvestTile(slope, tileMat4(x, y, z, rot)));
+    }
+  }
   return mergeByMaterial(harvested);
 }
 
@@ -459,6 +529,8 @@ export function buildTerrain(lib) {
   /* stacked cliff tiles */
   const cliffMeshes = buildCliffs(lib);
   cliffMeshes.forEach(m => group.add(m));
+  const bankCurves = buildRiverBankCurves(lib);
+  bankCurves.forEach(m => group.add(m));
 
   return group;
 }
@@ -705,7 +777,7 @@ export function buildSteppingStones() {
    addWaterfall() — cascading from north cliff
    ═══════════════════════════════════════════ */
 
-export function addWaterfall(scene, waterUniforms) {
+export function addWaterfall(scene, waterUniforms, tileLib = null) {
   const cx = 0, baseZ = 40;
   const topY = terrainH(cx, 48) + 1.5;
   const botY = WATER_Y + 0.2;
@@ -722,6 +794,29 @@ export function addWaterfall(scene, waterUniforms) {
     m.position.set(cx, l.y, l.z);
     m.renderOrder = R_DECOR;
     scene.add(m);
+  }
+
+  // Use pack waterfall tiles so the feature matches the curved low-poly reference style.
+  if (tileLib?.waterfallTop) {
+    const t = tileLib.waterfallTop.clone();
+    t.scale.setScalar(TILE_S);
+    t.position.set(cx, topY + 0.35, 47.2);
+    t.renderOrder = R_DECOR + 1;
+    scene.add(t);
+  }
+  if (tileLib?.waterfallTile) {
+    const steps = [
+      [topY + 0.18, 45.8],
+      [topY * 0.65 + botY * 0.35 + 0.35, 43.7],
+      [botY + 0.85, 41.9],
+    ];
+    for (const [y, z] of steps) {
+      const w = tileLib.waterfallTile.clone();
+      w.scale.setScalar(TILE_S);
+      w.position.set(cx, y, z);
+      w.renderOrder = R_DECOR + 1;
+      scene.add(w);
+    }
   }
 
   /* animated water cascade */
