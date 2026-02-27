@@ -6,7 +6,7 @@ import {
   GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
   isInRiver, isBeach, isOnPath,
   riverQuery, distToPath,
-  terrainH, getWorldSurfaceHeight,
+  terrainH,
 } from "./terrainHeight.js";
 
 /* ══════════════════════════════════════════════════════════
@@ -162,6 +162,59 @@ function hash21(x, z) {
   return n - Math.floor(n);
 }
 
+/* ── seeded RNG ── */
+function mulberry32(seed) {
+  let s = seed | 0;
+  return () => {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* ── Procedural hills (module-level so placement code can query) ── */
+const beachCX = 40, beachCZ = -8, beachR = 20;
+const BUMPS = [];
+{ const rng = mulberry32(77);
+  for (let i = 0; i < 120; i++) {
+    const bx = -40 + rng() * 80, bz = -38 + rng() * 72;
+    const rq = riverQuery(bx, bz);
+    if (rq.dist < rq.width + 3) continue;
+    if (distToPath(bx, bz) < 2) continue;
+    if (inVillage(bx, bz, 4)) continue;
+    if (Math.hypot(bx - beachCX, bz - beachCZ) < beachR - 4) continue;
+    const big = rng() < 0.25;
+    BUMPS.push({
+      x: bx, z: bz,
+      r: big ? 7 + rng() * 9 : 3 + rng() * 5,
+      h: big ? 2.0 + rng() * 3.0 : 0.6 + rng() * 1.2,
+    });
+  }
+}
+
+/** Surface Y that matches the actual mesh vertices (terrainH + hills + bumps) */
+export function getMeshSurfaceY(x, z) {
+  let y = terrainH(x, z);
+  const rq = riverQuery(x, z);
+  const sm = THREE.MathUtils.smoothstep;
+  const riverFar  = sm(rq.dist, rq.width, rq.width + 6);
+  const pathFar   = sm(distToPath(x, z), 1, 5);
+  let villageFar  = 1;
+  for (const sv of SVC)
+    villageFar = Math.min(villageFar, sm(Math.hypot(x - sv.x, z - sv.z), sv.r, sv.r + 6));
+  const beachFar  = sm(Math.hypot(x - beachCX, z - beachCZ), beachR - 8, beachR);
+  const hillAmp   = riverFar * pathFar * villageFar * beachFar;
+  y += (Math.sin(x * 0.07 + z * 0.05) * 1.0
+      + Math.cos(x * 0.11 - z * 0.06) * 0.7
+      + Math.sin(x * 0.04 + z * 0.13) * 0.5) * hillAmp;
+  for (const b of BUMPS) {
+    const d = Math.hypot(x - b.x, z - b.z);
+    if (d < b.r) { const t = 1 - d / b.r; y += b.h * t * t * (3 - 2 * t) * hillAmp; }
+  }
+  return y;
+}
+
 /* ═══════════════════════════════════════════
    buildTerrainMesh — vertex-colored ground + water plane
    ═══════════════════════════════════════════ */
@@ -180,7 +233,7 @@ export function buildTerrainMesh(waterUniforms) {
   const col = new Float32Array(nx * nz * 3);
   const idx = [];
 
-  /* palette — clean solid colors */
+  /* palette */
   const cGrass = new THREE.Color("#4dad38");
   const cPath  = new THREE.Color("#c4a060");
   const cSand  = new THREE.Color("#e2d098");
@@ -189,60 +242,14 @@ export function buildTerrainMesh(waterUniforms) {
   const cRiver = new THREE.Color("#5a7454");
   const cCliff = new THREE.Color("#8a8a7a");
   const tmp = new THREE.Color();
-
-  /* beach center + radius for rounded sand coloring */
-  const beachCX = 40, beachCZ = -8, beachR = 20;
-
-  /* discrete bumps scattered across grass */
-  const BUMPS = [];
-  { const rng = mulberry32(77);
-    for (let i = 0; i < 120; i++) {
-      const bx = -40 + rng() * 80, bz = -38 + rng() * 72;
-      const rq = riverQuery(bx, bz);
-      if (rq.dist < rq.width + 3) continue;
-      if (distToPath(bx, bz) < 2) continue;
-      if (inVillage(bx, bz, 4)) continue;
-      if (Math.hypot(bx - beachCX, bz - beachCZ) < beachR - 4) continue;
-      const big = rng() < 0.25;
-      BUMPS.push({
-        x: bx, z: bz,
-        r: big ? 7 + rng() * 9 : 3 + rng() * 5,
-        h: big ? 2.0 + rng() * 3.0 : 0.6 + rng() * 1.2,
-      });
-    }
-  }
-
   const sm = THREE.MathUtils.smoothstep;
 
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
-      let y = terrainH(x, z);
+      let y = getMeshSurfaceY(x, z);
       const i3 = (iz * nx + ix) * 3;
       const rq = riverQuery(x, z);
-
-      /* rolling hills — smooth global undulation, damped near flat zones */
-      const riverFar  = sm(rq.dist, rq.width, rq.width + 6);
-      const pathFar   = sm(distToPath(x, z), 1, 5);
-      let villageFar  = 1;
-      for (const sv of SVC)
-        villageFar = Math.min(villageFar, sm(Math.hypot(x - sv.x, z - sv.z), sv.r, sv.r + 6));
-      const beachDist = Math.hypot(x - beachCX, z - beachCZ);
-      const beachFar  = sm(beachDist, beachR - 8, beachR);
-      const hillAmp   = riverFar * pathFar * villageFar * beachFar;
-
-      y += (Math.sin(x * 0.07 + z * 0.05) * 1.0
-          + Math.cos(x * 0.11 - z * 0.06) * 0.7
-          + Math.sin(x * 0.04 + z * 0.13) * 0.5) * hillAmp;
-
-      /* discrete bumps/hills */
-      for (const b of BUMPS) {
-        const d = Math.hypot(x - b.x, z - b.z);
-        if (d < b.r) {
-          const t = 1 - d / b.r;
-          y += b.h * t * t * (3 - 2 * t) * hillAmp;
-        }
-      }
 
       /* low-poly jitter (don't jitter edges or river) */
       const jit = (rq.dist < rq.width + 2 || ix === 0 || ix === nx - 1 || iz === 0 || iz === nz - 1)
@@ -252,7 +259,8 @@ export function buildTerrainMesh(waterUniforms) {
       pos[i3 + 1] = y;
       pos[i3 + 2] = z + jit * 0.7;
 
-      /* color — clean zones with smooth transitions */
+      /* color */
+      const beachDist = Math.hypot(x - beachCX, z - beachCZ);
       const beachT = 1 - sm(beachDist, beachR - 6, beachR);
       let c;
       if (isInRiver(x, z)) {
@@ -329,16 +337,6 @@ export function buildTerrainMesh(waterUniforms) {
    buildProps — scatter decorations
    ═══════════════════════════════════════════ */
 
-function mulberry32(seed) {
-  let s = seed | 0;
-  return () => {
-    s = (s + 0x6D2B79F5) | 0;
-    let t = Math.imul(s ^ (s >>> 15), 1 | s);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 export function buildProps(lib, scene) {
   const group = new THREE.Group();
   group.name = "props";
@@ -350,7 +348,7 @@ export function buildProps(lib, scene) {
     if (!tmpl) return;
     const m = tmpl.clone();
     m.scale.setScalar(TILE_S * scale);
-    m.position.set(x, getWorldSurfaceHeight(x, z), z);
+    m.position.set(x, getMeshSurfaceY(x, z), z);
     m.rotation.y = rotY;
     group.add(m);
   }
@@ -427,31 +425,38 @@ export function buildProps(lib, scene) {
 export function buildBridge(lib) {
   const group = new THREE.Group();
   group.name = "bridge";
-  const bz = 8, bw = 3;
+  const bz = 8;
   const deckY = WATER_Y + 0.35;
 
-  for (let i = -bw; i <= bw; i++) {
-    const tmpl = (i === -bw || i === bw) ? lib.bridgeEnd : lib.bridgeMid;
+  /* 5 tiles at TILE_S spacing across the river */
+  const xs = [-4, -2, 0, 2, 4];
+  for (let i = 0; i < xs.length; i++) {
+    const isEnd = i === 0 || i === xs.length - 1;
+    const tmpl = isEnd ? lib.bridgeEnd : lib.bridgeMid;
     if (!tmpl) continue;
     const m = tmpl.clone();
     m.scale.setScalar(TILE_S);
-    m.position.set(i * TILE_S * 0.5, deckY, bz);
+    m.position.set(xs[i], deckY, bz);
     m.rotation.y = Math.PI / 2;
     group.add(m);
   }
 
+  /* support posts at each end */
   if (lib.bridgePost) {
-    for (const ox of [-bw * 0.5 * TILE_S, bw * 0.5 * TILE_S]) {
+    for (const px of [xs[0], xs[xs.length - 1]]) {
       const p = lib.bridgePost.clone();
       p.scale.setScalar(TILE_S);
-      p.position.set(ox, WATER_Y - 0.5, bz);
+      p.position.set(px, WATER_Y - 0.5, bz);
       group.add(p);
     }
   }
 
-  const deckGeo = new THREE.BoxGeometry(bw * TILE_S + 2, 0.15, TILE_S * 1.5);
+  /* invisible walkable deck */
+  const span = (xs[xs.length - 1] - xs[0]) + TILE_S;
+  const cx = (xs[0] + xs[xs.length - 1]) / 2;
+  const deckGeo = new THREE.BoxGeometry(span + 1, 0.15, TILE_S * 1.5);
   const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
-  deck.position.set(0, deckY + 0.2, bz);
+  deck.position.set(cx, deckY + 0.2, bz);
   deck.name = "bridge_deck";
   group.add(deck);
 
@@ -466,40 +471,43 @@ export function buildBridge(lib) {
 export function buildDock(lib) {
   const group = new THREE.Group();
   group.name = "dock";
-  const dx = 40, ddz = -16;
+  const dx = 40, dz = -16, count = 4;
   const deckY = WATER_Y + 0.3;
 
-  /* entry steps */
+  /* entry steps at shore end */
   if (lib.dockSteps) {
     const st = lib.dockSteps.clone();
     st.scale.setScalar(TILE_S);
-    st.position.set(dx - TILE_S, deckY, ddz);
+    st.position.set(dx - TILE_S, deckY, dz);
     st.rotation.y = Math.PI / 2;
     group.add(st);
   }
 
-  for (let i = 0; i < 6; i++) {
-    const tmpl = lib.dockStr;
-    if (!tmpl) continue;
-    const m = tmpl.clone();
-    m.scale.setScalar(TILE_S);
-    m.position.set(dx + i * TILE_S, deckY, ddz);
-    m.rotation.y = Math.PI / 2;
-    group.add(m);
+  /* straight sections at TILE_S spacing */
+  for (let i = 0; i < count; i++) {
+    if (lib.dockStr) {
+      const m = lib.dockStr.clone();
+      m.scale.setScalar(TILE_S);
+      m.position.set(dx + i * TILE_S, deckY, dz);
+      m.rotation.y = Math.PI / 2;
+      group.add(m);
+    }
+    /* supports on both sides */
     if (lib.dockStrSup) {
       for (const rot of [Math.PI / 2, -Math.PI / 2]) {
         const s = lib.dockStrSup.clone();
         s.scale.setScalar(TILE_S);
-        s.position.set(dx + i * TILE_S, deckY - 0.6, ddz);
+        s.position.set(dx + i * TILE_S, deckY - 0.6, dz);
         s.rotation.y = rot;
         group.add(s);
       }
     }
   }
 
-  const deckGeo = new THREE.BoxGeometry(6 * TILE_S, 0.15, TILE_S * 1.5);
+  /* invisible walkable deck */
+  const deckGeo = new THREE.BoxGeometry(count * TILE_S, 0.15, TILE_S * 1.5);
   const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
-  deck.position.set(dx + 2.5 * TILE_S, deckY + 0.15, ddz);
+  deck.position.set(dx + (count - 1) * TILE_S * 0.5, deckY + 0.15, dz);
   deck.name = "dock_deck";
   group.add(deck);
 
@@ -514,72 +522,61 @@ export function buildDock(lib) {
 export function buildFences(lib) {
   const group = new THREE.Group();
   group.name = "fences";
-  const board = lib.fenceBoard1 || lib.fenceBoard2 || lib.fenceBoard3 || lib.fenceBoard4;
-  const post = lib.fencePost1 || lib.fencePost2 || lib.fencePost3 || lib.fencePost4;
-  if (!board && !post) return group;
+  const boardTmpl = lib.fenceBoard1 || lib.fenceBoard2;
+  const postTmpl  = lib.fencePost1 || lib.fencePost2;
+  if (!boardTmpl) return group;
 
   /* fence runs — along paths and village borders */
   const runs = [
     /* north path west side */
-    [[-3, -16], [-3, -8], [-3, 0]],
+    [[-4, -16], [-4, -8], [-4, 0]],
     /* north path east side */
-    [[3, -16], [3, -8], [3, 0]],
+    [[4, -16], [4, -8], [4, 0]],
     /* village south border */
-    [[-12, -24], [-4, -24], [4, -24], [12, -24]],
+    [[-12, -24], [0, -24], [12, -24]],
     /* east path from village */
-    [[12, -26], [18, -28], [26, -28]],
+    [[12, -26], [20, -28], [28, -28]],
   ];
-
-  const spacing = TILE_S;
 
   for (const run of runs) {
     for (let i = 0; i < run.length - 1; i++) {
       const [ax, az] = run[i], [bx, bz] = run[i + 1];
-      const ddx = bx - ax, ddz = bz - az;
-      const segLen = Math.hypot(ddx, ddz);
-      const steps = Math.max(1, Math.round(segLen / spacing));
-      const rot = Math.atan2(ddx, ddz);
+      const dx = bx - ax, dz = bz - az;
+      const segLen = Math.hypot(dx, dz);
+      const steps = Math.max(1, Math.round(segLen / TILE_S));
+      const rot = Math.atan2(dx, dz);
 
-      for (let s = 0; s <= steps; s++) {
-        if (i > 0 && s === 0) continue;
+      for (let s = 0; s < steps; s++) {
         const t = s / steps;
-        const x = ax + ddx * t, z = az + ddz * t;
-        const y = terrainH(x, z) + 0.12;
+        const x = ax + dx * t, z = az + dz * t;
+        const y = getMeshSurfaceY(x, z);
 
-        /* board between this post and next (scale up to close gaps) */
-        if (board && s < steps) {
-          const mt = (s + 0.5) / steps;
-          const mx = ax + ddx * mt, mz = az + ddz * mt;
-          const my = terrainH(mx, mz) + 0.12;
-          const b = board.clone();
-          b.scale.setScalar(TILE_S * 1.35);
-          b.position.set(mx, my, mz);
-          b.rotation.y = rot + Math.PI * 0.5;
-          group.add(b);
-        }
+        /* board at this position, extending forward one tile */
+        const b = boardTmpl.clone();
+        b.scale.setScalar(TILE_S);
+        b.position.set(x, y, z);
+        b.rotation.y = rot;
+        group.add(b);
 
-        /* post at each step */
-        if (post) {
-          const p = post.clone();
+        /* post at same position */
+        if (postTmpl) {
+          const p = postTmpl.clone();
           p.scale.setScalar(TILE_S);
           p.position.set(x, y, z);
           p.rotation.y = rot;
           group.add(p);
         }
       }
+      /* final post at end of segment */
+      if (postTmpl && i === run.length - 2) {
+        const p = postTmpl.clone();
+        p.scale.setScalar(TILE_S);
+        p.position.set(bx, getMeshSurfaceY(bx, bz), bz);
+        p.rotation.y = rot;
+        group.add(p);
+      }
     }
   }
-
-  /* apply flat toon shading to all fence meshes */
-  group.traverse(o => {
-    if (!o.isMesh || !o.material) return;
-    (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => {
-      if (!m) return;
-      if ('metalness' in m) m.metalness = 0;
-      if ('roughness' in m) m.roughness = 1;
-      if ('flatShading' in m) { m.flatShading = true; m.needsUpdate = true; }
-    });
-  });
 
   group.renderOrder = R_DECOR;
   return group;
