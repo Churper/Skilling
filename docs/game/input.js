@@ -20,7 +20,7 @@ export function createInputController({ domElement, camera, ground, player, setM
   function getGroundPoint(clientX, clientY) {
     pointerToNdc(clientX, clientY);
     raycaster.setFromCamera(pointer, camera);
-    const hit = raycaster.intersectObject(ground, false)[0];
+    const hit = raycaster.intersectObject(ground, true)[0];
     if (hit) return hit.point;
 
     walkPlane.constant = -player.position.y;
