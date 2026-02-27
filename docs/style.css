@@ -772,6 +772,11 @@ body {
 }
 
 /* ── Emotes ── */
+[data-tab-panel="emotes"] {
+  max-height: min(38vh, 360px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
 #ui-emote-list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -886,11 +891,11 @@ body {
 /* ── Name tags ── */
 .nametag {
   position: absolute;
-  transform: translate(-50%, -100%);
+  transform: translate(-50%, 0);
   pointer-events: none;
   text-align: center;
   white-space: nowrap;
-  z-index: 9;
+  z-index: 8;
 }
 .nametag-name {
   display: block;

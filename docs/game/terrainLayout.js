@@ -203,7 +203,7 @@ export function getMeshSurfaceY(x, z) {
   let villageFar  = 1;
   for (const sv of SVC)
     villageFar = Math.min(villageFar, sm(Math.hypot(x - sv.x, z - sv.z), sv.r, sv.r + 6));
-  const beachFar  = sm(Math.hypot(x - beachCX, z - beachCZ), beachR - 8, beachR);
+  const beachFar  = sm(Math.hypot(x - beachCX, z - beachCZ), beachR - 14, beachR);
   const hillAmp   = riverFar * pathFar * villageFar * beachFar;
   y += (Math.sin(x * 0.07 + z * 0.05) * 0.5
       + Math.cos(x * 0.11 - z * 0.06) * 0.35
@@ -539,16 +539,9 @@ export function buildFences(lib) {
   const postTmpl  = lib.fencePost1 || lib.fencePost2;
   if (!boardTmpl) return group;
 
-  /* fence runs — along paths and village borders */
+  /* fence runs — behind village buildings */
   const runs = [
-    /* north path west side */
-    [[-4, -16], [-4, -8], [-4, 0]],
-    /* north path east side */
-    [[4, -16], [4, -8], [4, 0]],
-    /* village south border */
-    [[-12, -24], [0, -24], [12, -24]],
-    /* east path from village */
-    [[12, -26], [20, -28], [28, -28]],
+    [[-14, -38], [-7, -38], [0, -38], [7, -38], [14, -38]],
   ];
 
   for (const run of runs) {

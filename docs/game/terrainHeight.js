@@ -133,8 +133,8 @@ export function terrainH(x, z) {
 
   /* ─ beach slopes down to water ─ */
   if (isBeach(x, z)) {
-    const bt = s(x, 32, 46);
-    h = THREE.MathUtils.lerp(h, WATER_Y - 0.15, bt * 0.85);
+    const bt = s(x, 28, 44);
+    h = THREE.MathUtils.lerp(h, WATER_Y - 0.05, bt * 0.95);
   }
 
   /* ─ flatten for village / paths ─ */

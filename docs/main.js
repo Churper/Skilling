@@ -520,7 +520,7 @@ function updateNameTags() {
   if (localTag.name !== localName) { localTag.nameSpan.textContent = localName; localTag.name = localName; }
   const lvlStr = `Lv ${totalLevel}`;
   if (localTag.level !== lvlStr) { localTag.levelSpan.textContent = lvlStr; localTag.level = lvlStr; }
-  _tagProj.set(player.position.x, player.position.y + playerHeadOffset + 0.85, player.position.z);
+  _tagProj.set(player.position.x, player.position.y + playerHeadOffset + 0.15, player.position.z);
   _tagProj.project(camera);
   localTag.el.style.left = (_tagProj.x * hw + hw) + "px";
   localTag.el.style.top = (-_tagProj.y * hh + hh) + "px";
@@ -531,7 +531,7 @@ function updateNameTags() {
     // Check if peer still exists
     const anchor = remotePlayers.getEmoteAnchor(key, _tagProj);
     if (!anchor) { removeNameTag(key); continue; }
-    anchor.y += 0.35;
+    anchor.y -= 0.15;
     anchor.project(camera);
     tag.el.style.left = (anchor.x * hw + hw) + "px";
     tag.el.style.top = (-anchor.y * hh + hh) + "px";
@@ -937,20 +937,26 @@ function buildVolcanoCave() {
   caveGroup.name = "volcano_cave";
 
   /* Floor — TzHaar-style reddish-brown volcanic rock with vertex color variation */
-  const floorRes = 48;
+  const floorRes = 80;
   const floorGeo = new THREE.PlaneGeometry(60, 60, floorRes, floorRes);
   const floorColors = new Float32Array(floorGeo.attributes.position.count * 3);
-  const cFloorBase = new THREE.Color("#5a3020");
-  const cFloorDark = new THREE.Color("#3a1a0e");
-  const cFloorLava = new THREE.Color("#cc4400");
+  const cFloorBase = new THREE.Color("#7a4530");
+  const cFloorDark = new THREE.Color("#5a3018");
+  const cFloorLava = new THREE.Color("#ff5500");
+  const cFloorGlow = new THREE.Color("#ff8833");
   for (let i = 0; i < floorGeo.attributes.position.count; i++) {
     const fx = floorGeo.attributes.position.getX(i);
     const fz = floorGeo.attributes.position.getY(i);
     const noise = Math.sin(fx * 0.4 + fz * 0.3) * 0.5 + Math.cos(fx * 0.7 - fz * 0.5) * 0.3;
-    const lavaVein = Math.max(0, Math.sin(fx * 0.8 + fz * 1.2) * Math.cos(fx * 0.5 - fz * 0.7));
-    const t = noise * 0.5 + 0.5;
+    /* lava veins — multiple overlapping crack patterns */
+    const v1 = Math.abs(Math.sin(fx * 0.6 + fz * 1.1));
+    const v2 = Math.abs(Math.sin(fx * 1.3 - fz * 0.4 + 2.0));
+    const v3 = Math.abs(Math.sin((fx + fz) * 0.9 + 1.5));
+    const vein = Math.max(0, Math.min(v1, v2) + v3 * 0.3 - 0.65) * 3.0;
+    const t = noise * 0.4 + 0.3;
     const c = cFloorBase.clone().lerp(cFloorDark, t);
-    if (lavaVein > 0.7) c.lerp(cFloorLava, (lavaVein - 0.7) * 2.5);
+    if (vein > 0) c.lerp(cFloorLava, Math.min(vein, 1.0));
+    if (vein > 0.5) c.lerp(cFloorGlow, (vein - 0.5) * 0.8);
     floorColors[i * 3] = c.r;
     floorColors[i * 3 + 1] = c.g;
     floorColors[i * 3 + 2] = c.b;
@@ -990,8 +996,8 @@ function buildVolcanoCave() {
     caveGroup.add(ring);
   }
 
-  /* Stalagmites — reddish volcanic rock */
-  const stalMat = new THREE.MeshToonMaterial({ color: "#5a3020" });
+  /* Stalagmites — warm volcanic rock */
+  const stalMat = new THREE.MeshToonMaterial({ color: "#7a4530" });
   for (let i = 0; i < 25; i++) {
     const angle = Math.random() * Math.PI * 2;
     const dist = 8 + Math.random() * 18;
@@ -1005,7 +1011,7 @@ function buildVolcanoCave() {
   }
 
   /* Stalactites (hanging from ceiling) */
-  const ceilMat = new THREE.MeshToonMaterial({ color: "#4a2a18" });
+  const ceilMat = new THREE.MeshToonMaterial({ color: "#6a3a22" });
   for (let i = 0; i < 20; i++) {
     const cx = (Math.random() - 0.5) * 40;
     const cz = (Math.random() - 0.5) * 40;
@@ -1017,16 +1023,16 @@ function buildVolcanoCave() {
     caveGroup.add(stl);
   }
 
-  /* Ceiling — higher up, warm dark tone */
+  /* Ceiling — higher up, warm tone */
   const ceilGeo = new THREE.PlaneGeometry(60, 60);
-  const ceilFloor = new THREE.Mesh(ceilGeo, new THREE.MeshToonMaterial({ color: "#2a1508", side: THREE.BackSide }));
+  const ceilFloor = new THREE.Mesh(ceilGeo, new THREE.MeshToonMaterial({ color: "#5a3018", side: THREE.BackSide }));
   ceilFloor.rotation.x = -Math.PI / 2;
   ceilFloor.position.y = 12;
   caveGroup.add(ceilFloor);
 
   /* Walls — ring of warm volcanic rock */
   const wallGeo = new THREE.CylinderGeometry(28, 30, 12, 24, 1, true);
-  const wallMat = new THREE.MeshToonMaterial({ color: "#4a2816", side: THREE.BackSide });
+  const wallMat = new THREE.MeshToonMaterial({ color: "#6a3820", side: THREE.BackSide });
   const walls = new THREE.Mesh(wallGeo, wallMat);
   walls.position.y = 6;
   caveGroup.add(walls);
@@ -1059,19 +1065,25 @@ function buildVolcanoCave() {
   caveGroup.add(portal);
 
   /* Bright warm lighting — TzHaar style */
-  const lavaLight = new THREE.PointLight("#ff6622", 4, 50);
-  lavaLight.position.set(0, 5, 0);
+  const lavaLight = new THREE.PointLight("#ff7733", 6, 60);
+  lavaLight.position.set(0, 6, 0);
   caveGroup.add(lavaLight);
 
   /* Secondary lava lights for even illumination */
-  const light2 = new THREE.PointLight("#ff4400", 2.5, 35);
-  light2.position.set(15, 4, 10);
+  const light2 = new THREE.PointLight("#ff5500", 4, 45);
+  light2.position.set(15, 5, 10);
   caveGroup.add(light2);
-  const light3 = new THREE.PointLight("#ff5500", 2.5, 35);
-  light3.position.set(-12, 4, -8);
+  const light3 = new THREE.PointLight("#ff6600", 4, 45);
+  light3.position.set(-12, 5, -8);
   caveGroup.add(light3);
+  const light4 = new THREE.PointLight("#ff5500", 3, 40);
+  light4.position.set(-5, 5, 15);
+  caveGroup.add(light4);
+  const light5 = new THREE.PointLight("#ff4400", 3, 40);
+  light5.position.set(10, 5, -12);
+  caveGroup.add(light5);
 
-  const ambientLight = new THREE.AmbientLight("#884422", 1.2);
+  const ambientLight = new THREE.AmbientLight("#aa6633", 2.0);
   caveGroup.add(ambientLight);
 
   return { group: caveGroup, floor, portal, lavaPositions, lavaLight };
@@ -1125,11 +1137,11 @@ function enterCave() {
   controls.target.copy(cameraFocus);
   camera.position.set(player.position.x, player.position.y + 8, player.position.z + 14);
 
-  /* Adjust fog for warm volcanic atmosphere */
+  /* Adjust fog for warm volcanic atmosphere — keep it light */
   if (scene.fog) {
-    scene.fog.color.set("#3a1a0a");
-    scene.fog.near = 15;
-    scene.fog.far = 50;
+    scene.fog.color.set("#5a2a10");
+    scene.fog.near = 25;
+    scene.fog.far = 65;
   }
 
   ui?.setStatus("You enter the Volcano Cave... heat rises from the lava below.", "info");
