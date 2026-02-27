@@ -130,7 +130,7 @@ const wrap = document.getElementById("canvas-wrap");
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-renderer.setClearColor("#68b8d8", 1);
+renderer.setClearColor(0x1a1a2e);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.NoToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -616,11 +616,27 @@ function animate() {
   renderer.render(scene, camera);
 }
 
+/* ═══ Load tilemap.json on startup ═══ */
+async function loadTilemapJSON() {
+  try {
+    const resp = await fetch("tilemap.json");
+    if (!resp.ok) throw new Error(resp.status);
+    const json = await resp.text();
+    importJSON(json);
+    console.log("Auto-loaded tilemap.json");
+    return true;
+  } catch (e) {
+    console.log("No tilemap.json found, will fill base layout:", e.message);
+    return false;
+  }
+}
+
 /* ═══ Init ═══ */
 buildPalette();
 await loadAllTiles();
-/* Auto-fill on load so user sees the base terrain immediately */
-if (Object.keys(tileLib).length > 0) fillBaseLayout();
+/* Try loading tilemap.json first, fall back to zone auto-fill */
+const loaded = await loadTilemapJSON();
+if (!loaded && Object.keys(tileLib).length > 0) fillBaseLayout();
 animate();
 console.log("Tile Editor ready. Place tiles and export JSON when done.");
 </script>

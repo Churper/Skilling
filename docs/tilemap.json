@@ -1,0 +1,8366 @@
+{
+  "version": 1,
+  "tileSize": 2,
+  "tiles": {
+    "-19,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "-19,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "-19,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "-19,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "-19,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "-19,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.22
+    },
+    "-19,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "-19,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "-19,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "-19,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "-19,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "-19,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-19,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "-18,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-18,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "-18,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "-18,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "-18,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "-18,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-18,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "-18,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "-18,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "-18,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "-18,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-18,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "-18,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-18,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "-17,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "-17,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.28
+    },
+    "-17,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-17,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "-17,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "-17,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.66
+    },
+    "-17,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "-17,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "-17,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-17,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.28
+    },
+    "-17,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "-17,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "-17,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-17,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-16,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "-16,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "-16,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "-16,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-16,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.6
+    },
+    "-16,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "-16,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "-16,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.94
+    },
+    "-16,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "-16,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "-16,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.6
+    },
+    "-16,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-16,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "-16,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "-16,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "-16,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-15,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "-15,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "-15,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "-15,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "-15,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "-15,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1
+    },
+    "-15,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "-15,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.26
+    },
+    "-15,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "-15,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1
+    },
+    "-15,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "-15,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "-15,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "-15,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "-15,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "-15,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-14,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-14,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "-14,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "-14,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "-14,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "-14,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "-14,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.47
+    },
+    "-14,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.62
+    },
+    "-14,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.47
+    },
+    "-14,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "-14,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "-14,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "-14,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "-14,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "-14,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-14,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-13,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.07
+    },
+    "-13,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.22
+    },
+    "-13,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-13,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.66
+    },
+    "-13,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.94
+    },
+    "-13,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.26
+    },
+    "-13,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.62
+    },
+    "-13,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 2
+    },
+    "-13,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.62
+    },
+    "-13,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.26
+    },
+    "-13,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.94
+    },
+    "-13,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.66
+    },
+    "-13,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-13,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.22
+    },
+    "-13,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.07
+    },
+    "-13,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-12,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-12,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "-12,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "-12,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "-12,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "-12,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "-12,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.47
+    },
+    "-12,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.62
+    },
+    "-12,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.47
+    },
+    "-12,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "-12,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "-12,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "-12,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "-12,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "-12,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-12,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-11,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "-11,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "-11,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "-11,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "-11,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "-11,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1
+    },
+    "-11,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "-11,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.26
+    },
+    "-11,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "-11,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1
+    },
+    "-11,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "-11,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "-11,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "-11,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "-11,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "-11,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-10,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "-10,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "-10,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "-10,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-10,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.6
+    },
+    "-10,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "-10,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "-10,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.94
+    },
+    "-10,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "-10,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "-10,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.6
+    },
+    "-10,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-10,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "-10,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "-10,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "-10,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "-9,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "-9,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.28
+    },
+    "-9,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-9,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "-9,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "-9,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.66
+    },
+    "-9,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "-9,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "-9,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-9,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.28
+    },
+    "-9,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "-9,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "-9,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-9,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "-8,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-8,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "-8,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "-8,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "-8,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "-8,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "-8,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "-8,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "-8,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "-8,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "-8,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-8,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "-8,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-8,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "-7,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "-7,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "-7,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "-7,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "-7,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.22
+    },
+    "-7,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "-7,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "-7,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "-7,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "-7,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "-7,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-7,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "-6,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "-6,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-6,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.07
+    },
+    "-6,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "-6,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "-6,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "-6,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-6,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-5,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-4,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-3,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-2,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-15": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-11": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-10": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-9": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-8": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-7": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-6": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-5": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-4": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-3": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-2": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,-1": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,0": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,1": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "-1,2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,11": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,12": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,13": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,14": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,15": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,16": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,17": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,18": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "-1,19": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-15": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-11": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-10": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-9": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-8": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-7": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-6": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-5": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-4": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-3": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-2": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,-1": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "0,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,11": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,12": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,13": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,14": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,15": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,16": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,17": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,18": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "0,19": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-15": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-11": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-10": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-9": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-8": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-7": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-6": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-5": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-4": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-3": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-2": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "1,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,11": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,12": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,13": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,14": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,15": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,16": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,17": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,18": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "1,19": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "2,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "2,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "2,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "2,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "2,2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "2,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "2,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "3,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "3,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "3,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "3,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "3,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "3,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-16": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-15": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "4,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "4,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "4,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "4,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "4,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "4,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-16": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-15": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "5,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "5,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "5,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "5,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "5,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "5,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "5,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "5,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "5,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.07
+    },
+    "5,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "5,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "5,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "5,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "5,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-16": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-15": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "6,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "6,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "6,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "6,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "6,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "6,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "6,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "6,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "6,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "6,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.22
+    },
+    "6,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "6,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "6,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "6,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "6,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "6,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "6,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-15": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "7,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "7,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "7,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "7,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "7,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "7,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "7,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "7,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "7,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "7,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "7,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "7,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "7,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "7,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "7,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "7,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "7,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "7,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "7,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "7,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-15": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "8,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "8,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "8,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "8,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "8,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "8,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "8,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "8,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.28
+    },
+    "8,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "8,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "8,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "8,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.66
+    },
+    "8,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "8,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "8,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "8,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.28
+    },
+    "8,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "8,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "8,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-15": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "9,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "9,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "9,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "9,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "9,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "9,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "9,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "9,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "9,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "9,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "9,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.6
+    },
+    "9,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "9,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "9,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.94
+    },
+    "9,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "9,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "9,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.6
+    },
+    "9,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "9,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "9,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "9,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "10,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "10,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "10,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "10,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "10,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "10,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "10,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "10,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "10,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "10,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "10,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "10,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1
+    },
+    "10,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "10,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.26
+    },
+    "10,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "10,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1
+    },
+    "10,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "10,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "10,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "10,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "10,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "11,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-14": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-11": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "11,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "11,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "11,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "11,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "11,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "11,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "11,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "11,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "11,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "11,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "11,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "11,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "11,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.47
+    },
+    "11,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.62
+    },
+    "11,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.47
+    },
+    "11,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "11,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "11,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "11,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "11,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "11,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "12,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-11": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "12,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "12,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "12,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "12,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "12,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "12,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "12,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.07
+    },
+    "12,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.22
+    },
+    "12,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "12,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.66
+    },
+    "12,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.94
+    },
+    "12,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.26
+    },
+    "12,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.62
+    },
+    "12,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 2
+    },
+    "12,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.62
+    },
+    "12,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.26
+    },
+    "12,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.94
+    },
+    "12,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.66
+    },
+    "12,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "12,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.22
+    },
+    "12,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.07
+    },
+    "13,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-11": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "13,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "13,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "13,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "13,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "13,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "13,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "13,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "13,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "13,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "13,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "13,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "13,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "13,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.47
+    },
+    "13,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.62
+    },
+    "13,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.47
+    },
+    "13,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "13,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "13,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "13,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "13,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "13,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "14,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-13": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-11": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-10": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "14,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "14,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "14,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "14,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "14,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "14,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "14,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "14,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "14,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "14,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "14,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1
+    },
+    "14,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "14,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.26
+    },
+    "14,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1.18
+    },
+    "14,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 1
+    },
+    "14,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "14,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "14,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "14,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "14,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "15,-18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-12": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-11": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-10": {
+      "tile": "Path_Center",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "15,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "15,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "15,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "15,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "15,-4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,-1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,0": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,1": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "15,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "15,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "15,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "15,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "15,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.6
+    },
+    "15,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "15,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "15,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.94
+    },
+    "15,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.89
+    },
+    "15,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.77
+    },
+    "15,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.6
+    },
+    "15,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "15,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "15,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "15,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "16,-18": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-17": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-16": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-15": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-14": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-13": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-12": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-11": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-10": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "16,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "16,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "16,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "16,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "16,-4": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-3": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-2": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,-1": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,0": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,1": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.61
+    },
+    "16,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "16,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "16,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "16,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "16,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "16,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "16,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.28
+    },
+    "16,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "16,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "16,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "16,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.66
+    },
+    "16,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.63
+    },
+    "16,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.54
+    },
+    "16,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "16,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.28
+    },
+    "16,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "16,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "16,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "17,-18": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-17": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-16": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-15": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-14": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-13": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-12": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-11": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "17,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "17,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "17,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "17,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "17,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "17,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "17,-3": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-2": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,-1": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,0": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,1": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.65
+    },
+    "17,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "17,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "17,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "17,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "17,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "17,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "17,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "17,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "17,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "17,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "17,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.42
+    },
+    "17,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.39
+    },
+    "17,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.33
+    },
+    "17,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.25
+    },
+    "17,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.15
+    },
+    "17,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "17,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "17,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "18,-18": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-17": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-16": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-15": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-14": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-13": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-12": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-11": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "18,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "18,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "18,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "18,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "18,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "18,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "18,-3": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-2": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,-1": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,0": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,1": {
+      "tile": "Sand_Flat",
+      "rot": 0,
+      "y": -0.7
+    },
+    "18,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "18,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "18,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "18,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "18,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "18,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "18,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "18,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "18,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "18,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "18,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.22
+    },
+    "18,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.2
+    },
+    "18,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.16
+    },
+    "18,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.11
+    },
+    "18,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.05
+    },
+    "18,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.01
+    },
+    "18,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "18,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,-18": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-17": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-16": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-15": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-14": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-13": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-12": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-11": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "19,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "19,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "19,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "19,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.07
+    },
+    "19,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.06
+    },
+    "19,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.04
+    },
+    "19,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0.02
+    },
+    "19,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "19,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,-18": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-17": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-16": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-15": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-14": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-13": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-12": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-11": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "20,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "20,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,-18": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-17": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-16": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-15": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-14": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-13": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-12": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-11": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "21,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "21,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,-18": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-17": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-16": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-15": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-14": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-13": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-12": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-11": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "22,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "22,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,-18": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-17": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-16": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-15": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-14": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-13": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-12": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-11": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "23,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "23,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,-18": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-17": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-16": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-15": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-14": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-13": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-12": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-11": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-10": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-9": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-8": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-7": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-6": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-5": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-4": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-3": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-2": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,-1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,0": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,1": {
+      "tile": "Water_Flat",
+      "rot": 0,
+      "y": -0.4
+    },
+    "24,2": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,3": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,4": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,5": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,6": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,7": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,8": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,9": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,10": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,11": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,12": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,13": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,14": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,15": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,16": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,17": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,18": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    },
+    "24,19": {
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 0
+    }
+  }
+}
