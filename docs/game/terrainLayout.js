@@ -33,12 +33,18 @@ function tMat(color, opts = {}) {
 }
 
 function setupWaterMaterial(mesh, waterUniforms) {
-  if (!mesh?.material) return;
-  mesh.material.transparent = true;
-  mesh.material.opacity = 0.62;
-  mesh.material.depthWrite = false;
+  if (!mesh) return;
+  const srcColor = mesh.material?.color ? mesh.material.color.clone() : new THREE.Color("#8ecdea");
+  const mat = new THREE.MeshBasicMaterial({
+    color: srcColor,
+    transparent: true,
+    opacity: 0.62,
+    depthWrite: false,
+    depthTest: true,
+  });
+  mesh.material = mat;
   mesh.userData.isWaterSurface = true;
-  mesh.material.onBeforeCompile = shader => {
+  mat.onBeforeCompile = shader => {
     shader.uniforms.uTime = waterUniforms.uTime;
     shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace(
@@ -302,6 +308,41 @@ function isOceanCell(wx, wz) {
 
 function isWaterCellWorld(wx, wz) {
   return isInRiver(wx, wz) || isOceanCell(wx, wz);
+}
+
+function rotQuarterTurn(rot) {
+  return ((Math.round((rot || 0) / (Math.PI / 2)) % 4) + 4) % 4;
+}
+
+function getEditorTileExtensions(gx, gz, tile, rot) {
+  const r = rotQuarterTurn(rot);
+  if (tile === "Hill_Side" || tile.includes("Transition")) {
+    if (r === 0) return [[gx, gz - 1]];
+    if (r === 1) return [[gx - 1, gz]];
+    if (r === 2) return [[gx, gz + 1]];
+    return [[gx + 1, gz]];
+  }
+  if (tile === "Hill_Corner_Outer_2x2") {
+    if (r === 0) return [[gx + 1, gz], [gx, gz - 1], [gx + 1, gz - 1]];
+    if (r === 1) return [[gx - 1, gz], [gx, gz - 1], [gx - 1, gz - 1]];
+    if (r === 2) return [[gx - 1, gz], [gx, gz + 1], [gx - 1, gz + 1]];
+    return [[gx + 1, gz], [gx, gz + 1], [gx + 1, gz + 1]];
+  }
+  if (tile === "Hill_Corner_Inner_2x2") {
+    if (r === 0) return [[gx - 1, gz], [gx, gz + 1], [gx - 1, gz + 1]];
+    if (r === 1) return [[gx, gz - 1], [gx - 1, gz], [gx - 1, gz - 1]];
+    if (r === 2) return [[gx + 1, gz], [gx, gz - 1], [gx + 1, gz - 1]];
+    return [[gx, gz + 1], [gx + 1, gz], [gx + 1, gz + 1]];
+  }
+  return [];
+}
+
+function classifyEditorTileZone(tileName) {
+  if (!tileName) return "grass";
+  if (tileName.startsWith("Water_")) return "water";
+  if (tileName.startsWith("Sand_")) return "sand";
+  if (tileName.startsWith("Path_")) return "path";
+  return "grass";
 }
 
 /* village keep-out zones (for buildProps scatter) */

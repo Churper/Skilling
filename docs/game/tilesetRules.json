@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "notes": "Rules for editor/runtime tile validation. Rotations are quarter-turns of 90 deg.",
+  "tiles": {
+    "Grass_Flat": { "zone": "grass", "footprint": "single", "isFlat": true },
+
+    "Hill_Side": { "zone": "hill", "footprint": "hill_side", "isFlat": false },
+    "Hill_Side_On_Side": { "zone": "hill", "footprint": "single", "isFlat": false },
+    "Hill_Corner_Outer_2x2": { "zone": "hill", "footprint": "hill_corner_outer_2x2", "isFlat": false },
+    "Hill_Corner_Inner_2x2": { "zone": "hill", "footprint": "hill_corner_inner_2x2", "isFlat": false },
+    "Hill_Side_Transition_From_Gentle": { "zone": "hill", "footprint": "hill_side", "isFlat": false },
+    "Hill_Side_Transition_To_Gentle": { "zone": "hill", "footprint": "hill_side", "isFlat": false },
+
+    "Water_Flat": { "zone": "water", "footprint": "single", "isFlat": true },
+    "Water_Slope": { "zone": "water", "footprint": "hill_side", "isFlat": false },
+
+    "Sand_Flat": { "zone": "sand", "footprint": "single", "isFlat": true },
+    "Sand_Side": { "zone": "sand", "footprint": "hill_side", "isFlat": false },
+    "Sand_Corner_Outer_3x3": { "zone": "sand", "footprint": "single", "isFlat": false },
+    "Sand_Corner_Inner_3x3": { "zone": "sand", "footprint": "single", "isFlat": false },
+    "Sand_Side_Overlap_Side": { "zone": "sand", "footprint": "single", "isFlat": false },
+    "Sand_Side_Transition_From_Gentle": { "zone": "sand", "footprint": "hill_side", "isFlat": false },
+    "Sand_Side_Transition_To_Gentle": { "zone": "sand", "footprint": "hill_side", "isFlat": false },
+
+    "Path_Center": { "zone": "path", "footprint": "single", "isFlat": true },
+    "Path_Side": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Corner_Inner_1x1": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Corner_Inner_2x2": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Corner_Outer_1x1": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Corner_Outer_2x2": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Corner_Outer_3x3": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Corner_Y_2x2": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Corner_Y_3x3": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Hill_Gentle_Center": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Hill_Gentle_Side": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Hill_Sharp_Center": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Hill_Sharp_Side": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Steps_Center": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Steps_Edge": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Steps_Grass_Edge": { "zone": "path", "footprint": "single", "isFlat": false },
+    "Path_Steps_Grass_Edge_Top": { "zone": "path", "footprint": "single", "isFlat": false }
+  }
+}

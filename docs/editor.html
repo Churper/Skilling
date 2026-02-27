@@ -46,6 +46,7 @@ canvas{display:block}
   <div id="palette"></div>
   <div id="btns">
     <button id="btn-fill" style="background:#264;flex-basis:100%">Fill Base Layout</button>
+    <button id="btn-validate" style="background:#356;flex-basis:100%">Validate Map</button>
     <button id="btn-export">Export JSON</button>
     <button id="btn-import">Import JSON</button>
     <button id="btn-clear">Clear All</button>
@@ -252,9 +253,63 @@ const tileObjs = new Map();
 const underlays = new Map();
 const underlayObjs = new Map();
 const FLAT_TILES = new Set(["Grass_Flat", "Sand_Flat", "Path_Center", "Water_Flat"]);
+let tileRules = { tiles: {} };
 
 function canPlaceWaterAsUnderlay(tileName) {
   return !!tileName && !FLAT_TILES.has(tileName);
+}
+
+async function loadTileRules() {
+  try {
+    const resp = await fetch(`game/tilesetRules.json?v=${Date.now()}`, { cache: "no-store" });
+    if (!resp.ok) throw new Error(resp.status);
+    tileRules = await resp.json();
+    console.log("Loaded tileset rules");
+  } catch (e) {
+    console.warn("Could not load tileset rules:", e);
+    tileRules = { tiles: {} };
+  }
+}
+
+function rotQuarterTurn(rot) {
+  return ((Math.round((rot || 0) / (Math.PI / 2)) % 4) + 4) % 4;
+}
+
+function getTileExtensions(gx, gz, tile, rot, footprint) {
+  const r = rotQuarterTurn(rot);
+  if (footprint === "hill_side") {
+    if (r === 0) return [[gx, gz - 1]];
+    if (r === 1) return [[gx - 1, gz]];
+    if (r === 2) return [[gx, gz + 1]];
+    return [[gx + 1, gz]];
+  }
+  if (footprint === "hill_corner_outer_2x2") {
+    if (r === 0) return [[gx + 1, gz], [gx, gz - 1], [gx + 1, gz - 1]];
+    if (r === 1) return [[gx - 1, gz], [gx, gz - 1], [gx - 1, gz - 1]];
+    if (r === 2) return [[gx - 1, gz], [gx, gz + 1], [gx - 1, gz + 1]];
+    return [[gx + 1, gz], [gx, gz + 1], [gx + 1, gz + 1]];
+  }
+  if (footprint === "hill_corner_inner_2x2") {
+    if (r === 0) return [[gx - 1, gz], [gx, gz + 1], [gx - 1, gz + 1]];
+    if (r === 1) return [[gx, gz - 1], [gx - 1, gz], [gx - 1, gz - 1]];
+    if (r === 2) return [[gx + 1, gz], [gx, gz - 1], [gx + 1, gz - 1]];
+    return [[gx, gz + 1], [gx + 1, gz], [gx + 1, gz + 1]];
+  }
+  return [];
+}
+
+function validatePlacement(gx, gz, tile, rot) {
+  const rule = tileRules.tiles?.[tile];
+  if (!rule) return { ok: true };
+  const ext = getTileExtensions(gx, gz, tile, rot, rule.footprint);
+  for (const [cx, cz] of ext) {
+    const key = `${cx},${cz}`;
+    const cur = tilemap.get(key);
+    if (cur && !FLAT_TILES.has(cur.tile)) {
+      return { ok: false, message: `Blocked by ${cur.tile} at ${key}` };
+    }
+  }
+  return { ok: true };
 }
 
 /* ═══ Preview ghost ═══ */
@@ -318,6 +373,12 @@ function placeTile(gx, gz) {
   if (placingWater && existing && canPlaceWaterAsUnderlay(existing.tile)) {
     setUnderlay(gx, gz, { tile: selectedTile, rot: rotation, y: tileY });
     updateCount();
+    return;
+  }
+
+  const placement = validatePlacement(gx, gz, selectedTile, rotation);
+  if (!placement.ok) {
+    document.getElementById("cell-display").textContent = `Cell: ${gx}, ${gz} [invalid: ${placement.message}]`;
     return;
   }
 
@@ -477,7 +538,9 @@ function updatePalette() {
 }
 
 function updateCount() {
-  document.getElementById("count").textContent = `${tilemap.size} tiles placed` + (underlays.size ? ` (+${underlays.size} underlays)` : "");
+  const el = document.getElementById("count");
+  el.textContent = `${tilemap.size} tiles placed` + (underlays.size ? ` (+${underlays.size} underlays)` : "");
+  el.style.color = "#666";
 }
 
 /* Y controls */
@@ -543,7 +606,65 @@ function importJSON(json) {
   }
 }
 
+function runValidation() {
+  const rules = tileRules.tiles || {};
+  const warnings = [];
+  const errors = [];
+  const coverage = new Set();
+  const card = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+  const key = (x, z) => `${x},${z}`;
+
+  function addCoverage(gx, gz) { coverage.add(key(gx, gz)); }
+
+  for (const [k, v] of tilemap) {
+    const [gx, gz] = k.split(",").map(Number);
+    const rule = rules[v.tile];
+    if (!rule) {
+      errors.push(`Unknown tile "${v.tile}" at ${k}`);
+      continue;
+    }
+    addCoverage(gx, gz);
+    const exts = getTileExtensions(gx, gz, v.tile, v.rot || 0, rule.footprint);
+    for (const [ex, ez] of exts) addCoverage(ex, ez);
+  }
+
+  // Flat shoreline check.
+  for (const [k, v] of tilemap) {
+    if (!FLAT_TILES.has(v.tile) || v.tile === "Water_Flat") continue;
+    const [gx, gz] = k.split(",").map(Number);
+    let adjWater = 0;
+    for (const [dx, dz] of card) if (tilemap.get(key(gx + dx, gz + dz))?.tile === "Water_Flat") adjWater++;
+    if (adjWater > 0) warnings.push(`Flat shoreline: ${k} (${v.tile})`);
+  }
+
+  // Uncovered holes near water.
+  const keys = [...tilemap.keys()].map(k => k.split(",").map(Number));
+  if (keys.length) {
+    const xs = keys.map(([x]) => x), zs = keys.map(([, z]) => z);
+    const minX = Math.min(...xs) - 1, maxX = Math.max(...xs) + 1;
+    const minZ = Math.min(...zs) - 1, maxZ = Math.max(...zs) + 1;
+    for (let x = minX; x <= maxX; x++) {
+      for (let z = minZ; z <= maxZ; z++) {
+        const k = key(x, z);
+        if (coverage.has(k)) continue;
+        let adjWater = false;
+        for (const [dx, dz] of card) if (tilemap.get(key(x + dx, z + dz))?.tile === "Water_Flat") adjWater = true;
+        if (adjWater) warnings.push(`Hole near water: ${k}`);
+      }
+    }
+  }
+
+  const summary = `Validation: ${errors.length} error(s), ${warnings.length} warning(s)`;
+  document.getElementById("count").textContent = summary;
+  document.getElementById("count").style.color = errors.length ? "#ff6666" : (warnings.length ? "#ffcc66" : "#66dd88");
+  console.log(summary);
+  if (errors.length) console.log("Errors:", errors);
+  if (warnings.length) console.log("Warnings:", warnings.slice(0, 120));
+  if (!errors.length && !warnings.length) alert("Validation passed: no issues found.");
+}
+
 document.getElementById("btn-export").addEventListener("click", exportJSON);
+document.getElementById("btn-validate").addEventListener("click", runValidation);
 document.getElementById("btn-import").addEventListener("click", () => {
   document.getElementById("file-input").click();
 });
@@ -708,6 +829,7 @@ async function loadTilemapJSON() {
 
 /* ═══ Init ═══ */
 buildPalette();
+await loadTileRules();
 await loadAllTiles();
 /* Try loading tilemap.json first, fall back to zone auto-fill */
 const loaded = await loadTilemapJSON();
