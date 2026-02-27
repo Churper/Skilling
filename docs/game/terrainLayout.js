@@ -37,8 +37,11 @@ const TILE_DIR = "models/terrain/";
 const TILES = {
   /* structure */
   bridgeEnd:   "Prop_Bridge_Log_End.glb",
+  bridgeEndE:  "Prop_Bridge_Log_End_Edge.glb",
   bridgeMid:   "Prop_Bridge_Log_Middle.glb",
+  bridgeMidE:  "Prop_Bridge_Log_Middle_Edge.glb",
   bridgePost:  "Prop_Bridge_Log_Post_Support.glb",
+  bridgePostT: "Prop_Bridge_Log_Post_Top.glb",
   fenceBoard1: "Prop_Fence_Boards_1.glb",
   fenceBoard2: "Prop_Fence_Boards_2.glb",
   fenceBoard3: "Prop_Fence_Boards_3.glb",
@@ -49,6 +52,7 @@ const TILES = {
   fencePost4:  "Prop_Fence_Post_4.glb",
   dockStr:     "Prop_Docks_Straight.glb",
   dockStrSup:  "Prop_Docks_Straight_Supports.glb",
+  dockSteps:   "Prop_Docks_Steps.glb",
   /* props */
   grassClump1:     "Prop_Grass_Clump_1.glb",
   grassClump2:     "Prop_Grass_Clump_2.glb",
@@ -187,17 +191,23 @@ export function buildTerrainMesh(waterUniforms) {
   const tmp = new THREE.Color();
 
   /* beach center + radius for rounded shape */
-  const beachCX = 42, beachCZ = -10, beachR = 18;
+  const beachCX = 44, beachCZ = -12, beachR = 14;
 
-  /* small random bumps scattered across grass for variety */
+  /* random hills/bumps scattered across grass */
   const BUMPS = [];
   { const rng = mulberry32(77);
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < 60; i++) {
       const bx = -36 + rng() * 68, bz = -34 + rng() * 64;
       const rq = riverQuery(bx, bz);
-      if (rq.dist < rq.width + 4 || isOnPath(bx, bz)) continue;
-      if (inVillage(bx, bz, 6)) continue;
-      BUMPS.push({ x: bx, z: bz, r: 2 + rng() * 4, h: 0.3 + rng() * 0.8 });
+      if (rq.dist < rq.width + 5 || isOnPath(bx, bz)) continue;
+      if (inVillage(bx, bz, 8)) continue;
+      if (Math.hypot(bx - beachCX, bz - beachCZ) < beachR + 2) continue;
+      const big = rng() < 0.3;
+      BUMPS.push({
+        x: bx, z: bz,
+        r: big ? 5 + rng() * 6 : 2.5 + rng() * 3.5,
+        h: big ? 1.2 + rng() * 1.8 : 0.4 + rng() * 0.8,
+      });
     }
   }
 
@@ -227,7 +237,7 @@ export function buildTerrainMesh(waterUniforms) {
 
       /* color — clean zones with smooth transitions */
       const beachDist = Math.hypot(x - beachCX, z - beachCZ);
-      const beachT = 1 - THREE.MathUtils.smoothstep(beachDist, beachR - 6, beachR);
+      const beachT = 1 - THREE.MathUtils.smoothstep(beachDist, beachR - 4, beachR);
       let c;
       if (isInRiver(x, z)) {
         c = cRiver;
@@ -405,21 +415,45 @@ export function buildBridge(lib) {
   const deckY = WATER_Y + 0.35;
 
   for (let i = -bw; i <= bw; i++) {
-    const tmpl = (i === -bw || i === bw) ? lib.bridgeEnd : lib.bridgeMid;
-    if (!tmpl) continue;
-    const m = tmpl.clone();
-    m.scale.setScalar(TILE_S);
-    m.position.set(i * TILE_S * 0.5, deckY, bz);
-    m.rotation.y = Math.PI / 2;
-    group.add(m);
+    const isEnd = (i === -bw || i === bw);
+    /* deck plank */
+    const tmpl = isEnd ? lib.bridgeEnd : lib.bridgeMid;
+    if (tmpl) {
+      const m = tmpl.clone();
+      m.scale.setScalar(TILE_S);
+      m.position.set(i * TILE_S * 0.5, deckY, bz);
+      m.rotation.y = Math.PI / 2;
+      group.add(m);
+    }
+    /* edge railing (front + back) */
+    const edgeTmpl = isEnd ? lib.bridgeEndE : lib.bridgeMidE;
+    if (edgeTmpl) {
+      for (const side of [1, -1]) {
+        const e = edgeTmpl.clone();
+        e.scale.setScalar(TILE_S);
+        e.position.set(i * TILE_S * 0.5, deckY, bz + side * TILE_S * 0.5);
+        e.rotation.y = Math.PI / 2;
+        if (side < 0) e.rotation.y += Math.PI;
+        group.add(e);
+      }
+    }
   }
 
-  if (lib.bridgePost) {
-    for (const ox of [-bw * 0.5 * TILE_S, bw * 0.5 * TILE_S]) {
-      const p = lib.bridgePost.clone();
+  /* support posts */
+  const postTmpl = lib.bridgePost;
+  const topTmpl = lib.bridgePostT;
+  for (const ox of [-bw * 0.5 * TILE_S, bw * 0.5 * TILE_S]) {
+    if (postTmpl) {
+      const p = postTmpl.clone();
       p.scale.setScalar(TILE_S);
       p.position.set(ox, WATER_Y - 0.5, bz);
       group.add(p);
+    }
+    if (topTmpl) {
+      const t = topTmpl.clone();
+      t.scale.setScalar(TILE_S);
+      t.position.set(ox, deckY, bz);
+      group.add(t);
     }
   }
 
@@ -442,6 +476,15 @@ export function buildDock(lib) {
   group.name = "dock";
   const dx = 40, ddz = -16;
   const deckY = WATER_Y + 0.3;
+
+  /* entry steps */
+  if (lib.dockSteps) {
+    const st = lib.dockSteps.clone();
+    st.scale.setScalar(TILE_S);
+    st.position.set(dx - TILE_S, deckY, ddz);
+    st.rotation.y = Math.PI / 2;
+    group.add(st);
+  }
 
   for (let i = 0; i < 6; i++) {
     const tmpl = lib.dockStr;
@@ -492,12 +535,12 @@ export function buildFences(lib) {
   const spacing = TILE_S;
   const yawOffset = Math.PI * 0.5;
   const addBoard = (x, z, rot) => {
-    const y = getWorldSurfaceHeight(x, z);
-    harvested.push(...harvestTile(board, tileMat4(x, y, z, rot + yawOffset, 0.9)));
+    const y = terrainH(x, z) + 0.15;
+    harvested.push(...harvestTile(board, tileMat4(x, y, z, rot + yawOffset, 1.0)));
   };
   const addPost = (x, z, rot) => {
-    const y = getWorldSurfaceHeight(x, z);
-    harvested.push(...harvestTile(post, tileMat4(x, y, z, rot + yawOffset, 0.9)));
+    const y = terrainH(x, z) + 0.15;
+    harvested.push(...harvestTile(post, tileMat4(x, y, z, rot + yawOffset, 1.0)));
   };
 
   for (const run of runs) {
@@ -520,7 +563,7 @@ export function buildFences(lib) {
     }
   }
 
-  mergeByMaterial(harvested).forEach(m => group.add(m));
+  mergeByMaterial(harvested).forEach(m => { m.renderOrder = R_DECOR; group.add(m); });
   group.renderOrder = R_DECOR;
   return group;
 }
