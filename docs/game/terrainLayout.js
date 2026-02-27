@@ -199,7 +199,7 @@ function lerpColor(a, b, t) {
 }
 
 /* zone colors */
-const C_GRASS = [0.22, 0.69, 0.26];
+const C_GRASS = [0.24, 0.72, 0.28];
 const C_DIRT  = [0.769, 0.686, 0.561];
 const C_SAND  = [0.94, 0.90, 0.79];
 const C_ROCK  = [0.631, 0.624, 0.612];
@@ -220,12 +220,6 @@ function inVillage(x, z, pad = 0) {
   for (const s of SVC)
     if (Math.hypot(x - s.x, z - s.z) <= s.r + pad) return true;
   return false;
-}
-
-function hashGrid(x, z) {
-  const xi = Math.floor(x), zi = Math.floor(z);
-  const h = Math.sin(xi * 127.1 + zi * 311.7) * 43758.5453123;
-  return h - Math.floor(h);
 }
 
 function getVertexColor(x, z, slope = 0) {
@@ -276,14 +270,9 @@ function getVertexColor(x, z, slope = 0) {
 
   /* slope tinting for stronger low-poly terrain read */
   if (slope > 0.05) {
-    const shade = smoothstep(slope, 0.05, 0.34) * 0.13;
-    col = lerpColor(col, [0.16, 0.53, 0.22], shade);
+    const shade = smoothstep(slope, 0.05, 0.34) * 0.10;
+    col = lerpColor(col, [0.14, 0.50, 0.20], shade);
   }
-
-  /* subtle macro color breaks so ground is not a single flat swatch */
-  const patch = (hashGrid(x * 0.35, z * 0.35) - 0.5) * 0.12;
-  if (patch > 0) col = lerpColor(col, [0.30, 0.78, 0.36], patch);
-  else col = lerpColor(col, [0.16, 0.55, 0.21], -patch);
 
   return col;
 }
@@ -825,10 +814,8 @@ export function buildDock(lib) {
 export function buildFences(lib) {
   const group = new THREE.Group();
   group.name = "fences";
-  const postGeo = new THREE.BoxGeometry(0.28, 1.02, 0.28);
-  const railGeo = new THREE.BoxGeometry(0.12, 0.11, 1.0);
-  const postMat = tMat("#646d72");
-  const railMat = tMat("#c7bda8");
+  const board = lib.fenceBoard2 || lib.fenceBoard1 || lib.fenceBoard3 || lib.fenceBoard4;
+  if (!board) return group;
 
   const runs = [
     [[4, 8], [8, 4], [12, 0], [16, -4], [20, -8], [24, -12], [28, -15]],
@@ -837,50 +824,31 @@ export function buildFences(lib) {
     [[-2, 10], [2, 10], [6, 8]],
   ];
 
-  const spacing = 1.9;
-  const addPost = (x, z) => {
-    const y = getWorldSurfaceHeight(x, z);
-    const p = new THREE.Mesh(postGeo, postMat);
-    p.position.set(x, y + 0.50, z);
-    p.renderOrder = R_DECOR;
-    group.add(p);
-    return y;
-  };
-  const addRails = (ax, az, ay, bx, bz, by) => {
-    const dx = bx - ax, dz = bz - az;
-    const len = Math.hypot(dx, dz);
-    if (len < 0.01) return;
-    const rot = Math.atan2(dx, dz);
-    const mx = (ax + bx) * 0.5, mz = (az + bz) * 0.5;
-    const make = y => {
-      const r = new THREE.Mesh(railGeo, railMat);
-      r.scale.z = len;
-      r.position.set(mx, y, mz);
-      r.rotation.y = rot;
-      r.renderOrder = R_DECOR;
-      group.add(r);
-    };
-    make((ay + by) * 0.5 + 0.36);
-    make((ay + by) * 0.5 + 0.62);
+  const spacing = 2.0;
+  const yawOffset = Math.PI * 0.5;
+  const placeBoard = (x, z, rot) => {
+    const f = board.clone();
+    f.scale.setScalar(TILE_S);
+    f.position.set(x, getWorldSurfaceHeight(x, z) + 0.02, z);
+    f.rotation.y = rot + yawOffset;
+    f.renderOrder = R_DECOR;
+    group.add(f);
   };
 
   for (const run of runs) {
-    const pts = [];
     for (let i = 0; i < run.length - 1; i++) {
       const [ax, az] = run[i], [bx, bz] = run[i + 1];
       const dx = bx - ax, dz = bz - az;
       const segLen = Math.hypot(dx, dz);
       const steps = Math.max(1, Math.round(segLen / spacing));
       for (let s = 0; s <= steps; s++) {
-        if (i > 0 && s === 0) continue;
+        if (i > 0 && s === 0) continue; // avoid duplicates at segment joins
         const t = s / steps;
-        pts.push([ax + dx * t, az + dz * t]);
+        const x = ax + dx * t;
+        const z = az + dz * t;
+        const rot = Math.atan2(dx, dz);
+        placeBoard(x, z, rot);
       }
-    }
-
-    const ys = pts.map(([x, z]) => addPost(x, z));
-    for (let i = 0; i < pts.length - 1; i++) {
-      addRails(pts[i][0], pts[i][1], ys[i], pts[i + 1][0], pts[i + 1][1], ys[i + 1]);
     }
   }
 
