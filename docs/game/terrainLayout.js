@@ -199,7 +199,7 @@ function lerpColor(a, b, t) {
 }
 
 /* zone colors */
-const C_GRASS = [0.11, 0.52, 0.13];
+const C_GRASS = [0.20, 0.70, 0.27];
 const C_DIRT  = [0.769, 0.686, 0.561];
 const C_SAND  = [0.969, 0.918, 0.792];
 const C_ROCK  = [0.631, 0.624, 0.612];
@@ -222,17 +222,18 @@ function inVillage(x, z, pad = 0) {
   return false;
 }
 
-function getVertexColor(x, z) {
+function getVertexColor(x, z, slope = 0) {
   let col = C_GRASS;
 
   /* river */
   const rq = riverQuery(x, z);
-  if (rq.dist < rq.width) return C_WATER;
-
-  /* river bank blend */
-  if (rq.dist < rq.width + 3) {
-    const t = smoothstep(rq.dist, rq.width, rq.width + 3);
-    col = lerpColor(C_WATER, col, t);
+  if (rq.dist < rq.width) {
+    const t = smoothstep(rq.dist, 0, rq.width);
+    return lerpColor([0.50, 0.80, 0.90], [0.27, 0.58, 0.33], t * 0.35);
+  }
+  if (rq.dist < rq.width + 2.2) {
+    const t = 1 - smoothstep(rq.dist, rq.width, rq.width + 2.2);
+    col = lerpColor(col, [0.17, 0.57, 0.22], t * 0.34);
   }
 
   /* cliff rock coloring */
@@ -271,6 +272,12 @@ function getVertexColor(x, z) {
     }
   }
 
+  /* slope tinting for stronger low-poly terrain read */
+  if (slope > 0.04) {
+    const shade = smoothstep(slope, 0.04, 0.28) * 0.16;
+    col = lerpColor(col, [0.11, 0.46, 0.17], shade);
+  }
+
   return col;
 }
 
@@ -294,7 +301,10 @@ function buildGroundMesh() {
       positions[vi * 3 + 1] = y;
       positions[vi * 3 + 2] = z;
 
-      const c = getVertexColor(x, z);
+      const dx = terrainH(x + 0.45, z) - terrainH(x - 0.45, z);
+      const dz = terrainH(x, z + 0.45) - terrainH(x, z - 0.45);
+      const slope = Math.min(1, Math.hypot(dx, dz));
+      const c = getVertexColor(x, z, slope);
       colors[vi * 3]     = c[0];
       colors[vi * 3 + 1] = c[1];
       colors[vi * 3 + 2] = c[2];
@@ -330,54 +340,59 @@ function buildGroundMesh() {
 }
 
 function buildPathOverlayMesh() {
-  const pos = [];
-  const idx = [];
-  let vBase = 0;
+  const mkStrip = (width, yOff = 0.04) => {
+    const pos = [];
+    const idx = [];
+    let vBase = 0;
 
-  const pushPath = (points, width) => {
-    const curve = new THREE.CatmullRomCurve3(
-      points.map(([x, z]) => new THREE.Vector3(x, 0, z)),
-      false,
-      "centripetal",
-      0.3
-    );
-    const steps = Math.max(6, Math.round(curve.getLength() * 1.2));
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const p = curve.getPointAt(t);
-      const tg = curve.getTangentAt(t).normalize();
-      const px = -tg.z, pz = tg.x;
+    const pushPath = points => {
+      const curve = new THREE.CatmullRomCurve3(
+        points.map(([x, z]) => new THREE.Vector3(x, 0, z)),
+        false,
+        "centripetal",
+        0.3
+      );
+      const steps = Math.max(6, Math.round(curve.getLength() * 1.2));
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const p = curve.getPointAt(t);
+        const tg = curve.getTangentAt(t).normalize();
+        const px = -tg.z, pz = tg.x;
 
-      const lx = p.x + px * width, lz = p.z + pz * width;
-      const rx = p.x - px * width, rz = p.z - pz * width;
-      const ly = terrainH(lx, lz) + 0.045;
-      const ry = terrainH(rx, rz) + 0.045;
-      pos.push(lx, ly, lz, rx, ry, rz);
+        const lx = p.x + px * width, lz = p.z + pz * width;
+        const rx = p.x - px * width, rz = p.z - pz * width;
+        const ly = terrainH(lx, lz) + yOff;
+        const ry = terrainH(rx, rz) + yOff;
+        pos.push(lx, ly, lz, rx, ry, rz);
 
-      if (i > 0) {
-        const a = vBase + (i - 1) * 2;
-        const b = a + 1;
-        const c = vBase + i * 2;
-        const d = c + 1;
-        idx.push(a, c, b, b, c, d);
+        if (i > 0) {
+          const a = vBase + (i - 1) * 2;
+          const b = a + 1;
+          const c = vBase + i * 2;
+          const d = c + 1;
+          idx.push(a, c, b, b, c, d);
+        }
       }
-    }
-    vBase += (steps + 1) * 2;
+      vBase += (steps + 1) * 2;
+    };
+    PATH_LINES.forEach(pushPath);
+
+    const geo = new THREE.BufferGeometry();
+    geo.setIndex(idx);
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geo.computeVertexNormals();
+    return geo;
   };
 
-  pushPath(PATH_LINES[0], 1.34);
-  pushPath(PATH_LINES[1], 1.52);
-  pushPath(PATH_LINES[2], 1.26);
+  const g = new THREE.Group();
+  const outer = new THREE.Mesh(mkStrip(1.6, 0.038), tMat("#ddd3bf", { flatShading: true, transparent: true, opacity: 0.9 }));
+  outer.renderOrder = R_GND + 1;
+  const inner = new THREE.Mesh(mkStrip(1.16, 0.05), tMat("#cfbea0", { flatShading: true }));
+  inner.renderOrder = R_GND + 2;
+  g.add(outer, inner);
 
-  const geo = new THREE.BufferGeometry();
-  geo.setIndex(idx);
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  geo.computeVertexNormals();
-
-  const mesh = new THREE.Mesh(geo, tMat("#d5c8af", { flatShading: true }));
-  mesh.name = "path_overlay";
-  mesh.renderOrder = R_GND + 1;
-  return mesh;
+  g.name = "path_overlay";
+  return g;
 }
 
 /* ═══════════════════════════════════════════
@@ -566,7 +581,7 @@ export function buildTerrain(lib) {
 
   /* procedural heightmap ground */
   group.add(buildGroundMesh());
-  group.add(buildPathOverlayMesh());
+  // Path tint is already baked into the ground vertex colors.
 
   /* stacked cliff tiles */
   const cliffMeshes = buildCliffs(lib);
@@ -668,14 +683,12 @@ export function buildWater(waterUniforms) {
       varying vec2 vW;
       uniform float uTime;
       void main(){
-        float center = 1.0 - abs(vUv2.y * 2.0 - 1.0);
-        float edgeFade = smoothstep(0.05, 0.72, center);
-        float flow = sin(vUv2.x * 22.0 - uTime * 0.9) * 0.5 + 0.5;
-        vec3 cA = vec3(0.46, 0.78, 0.91);
-        vec3 cB = vec3(0.67, 0.91, 0.98);
-        vec3 c = mix(cA, cB, 0.34 + flow * 0.18);
-        c += sin(vW.x * 0.34 + vW.y * 0.27 + uTime * 1.1) * 0.02;
-        float alpha = mix(0.08, 0.43, edgeFade);
+        float flow = sin(vUv2.x * 18.0 - uTime * 0.8) * 0.5 + 0.5;
+        vec3 cA = vec3(0.44, 0.76, 0.89);
+        vec3 cB = vec3(0.60, 0.87, 0.95);
+        vec3 c = mix(cA, cB, 0.28 + flow * 0.16);
+        c += sin(vW.x * 0.30 + vW.y * 0.22 + uTime * 0.9) * 0.012;
+        float alpha = 0.66;
         gl_FragColor = vec4(c, alpha);
       }`,
   });
@@ -776,63 +789,71 @@ export function buildDock(lib) {
 export function buildFences(lib) {
   const group = new THREE.Group();
   group.name = "fences";
-
-  const boards = [lib.fenceBoard1, lib.fenceBoard2, lib.fenceBoard3, lib.fenceBoard4].filter(Boolean);
-  const posts = [lib.fencePost1, lib.fencePost2, lib.fencePost3, lib.fencePost4].filter(Boolean);
-  if (!boards.length) return group;
+  const postGeo = new THREE.BoxGeometry(0.32, 1.02, 0.32);
+  const railGeo = new THREE.BoxGeometry(0.14, 0.13, 1.0);
+  const postMat = tMat("#61686b");
+  const railMat = tMat("#b9ad96");
 
   const runs = [
-    /* village border */
-    [[-18, -24], [8, -24], [14, -26], [14, -40]],
-    /* training yard perimeter */
+    /* right-side river run from bridge to village */
+    [[4, 8], [8, 4], [12, 0], [16, -4], [20, -8], [24, -12], [30, -16]],
+    /* lower village perimeter */
+    [[10, -24], [16, -26], [22, -28], [28, -30], [34, -30]],
+    /* training area */
     [[-26, -40], [-26, -28], [-18, -28], [-18, -40], [-26, -40]],
-    /* river path guard fence */
-    [[-4, -24], [-4, -8], [-4, 2], [-3, 10]],
-    /* beach path fence with bend */
-    [[14, -20], [26, -20], [34, -18], [40, -16]],
+    /* bridge approach accent */
+    [[-2, 10], [2, 10], [6, 8]],
   ];
 
-  const segLen = TILE_S * 0.8;
-  const placePost = (tmpl, x, z, rot) => {
-    const p = tmpl.clone();
-    p.scale.setScalar(TILE_S * 0.95);
-    p.position.set(x, getWorldSurfaceHeight(x, z) + 0.01, z);
-    p.rotation.y = rot;
-    group.add(p);
+  const segmentLen = 1.2;
+  const addPost = (x, z) => {
+    const y = getWorldSurfaceHeight(x, z);
+    const m = new THREE.Mesh(postGeo, postMat);
+    m.position.set(x, y + 0.50, z);
+    m.renderOrder = R_DECOR;
+    group.add(m);
+    return y;
   };
 
-  runs.forEach((run, runI) => {
+  const addRails = (a, b, yA, yB) => {
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const len = Math.hypot(dx, dz);
+    if (len < 0.001) return;
+    const rot = Math.atan2(dx, dz);
+    const mx = (a.x + b.x) * 0.5, mz = (a.z + b.z) * 0.5;
+
+    const mkRail = y => {
+      const r = new THREE.Mesh(railGeo, railMat);
+      r.scale.z = len;
+      r.position.set(mx, y, mz);
+      r.rotation.y = rot;
+      r.renderOrder = R_DECOR;
+      group.add(r);
+    };
+    mkRail((yA + yB) * 0.5 + 0.37);
+    mkRail((yA + yB) * 0.5 + 0.62);
+  };
+
+  for (const run of runs) {
     const curve = new THREE.CatmullRomCurve3(
       run.map(([x, z]) => new THREE.Vector3(x, 0, z)),
       false,
       "centripetal",
-      0.28
+      0.2
     );
-    const segs = Math.max(2, Math.round(curve.getLength() / segLen));
-
-    for (let i = 0; i < segs; i++) {
-      const t0 = i / segs;
-      const t1 = (i + 1) / segs;
-      const tm = (t0 + t1) * 0.5;
-      const p0 = curve.getPointAt(t0);
-      const p1 = curve.getPointAt(t1);
-      const pm = curve.getPointAt(tm);
-      const rot = Math.atan2(p1.x - p0.x, p1.z - p0.z);
-
-      const b = boards[(i + runI) % boards.length].clone();
-      b.scale.setScalar(TILE_S * 0.95);
-      b.position.set(pm.x, getWorldSurfaceHeight(pm.x, pm.z) + 0.02, pm.z);
-      b.rotation.y = rot;
-      group.add(b);
-
-      if (posts.length && i % 2 === 0) {
-        placePost(posts[(i + runI) % posts.length], p0.x, p0.z, rot);
-      }
-      if (posts.length && i === segs - 1) {
-        placePost(posts[(i + runI + 1) % posts.length], p1.x, p1.z, rot);
-      }
+    const count = Math.max(2, Math.round(curve.getLength() / segmentLen));
+    const pts = [];
+    const ys = [];
+    for (let i = 0; i <= count; i++) {
+      const t = i / count;
+      const p = curve.getPointAt(t);
+      pts.push({ x: p.x, z: p.z });
+      ys.push(addPost(p.x, p.z));
     }
-  });
+    for (let i = 0; i < pts.length - 1; i++) {
+      addRails(pts[i], pts[i + 1], ys[i], ys[i + 1]);
+    }
+  }
 
   group.renderOrder = R_DECOR;
   return group;
