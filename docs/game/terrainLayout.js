@@ -1,13 +1,16 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import {
-  TILE_S, WATER_Y, GRASS_Y,
+  TILE_S, WATER_Y, GRASS_Y, HILL_Y,
   GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
   isInRiver, isBeach, isOnPath,
-  terrainH,
+  riverQuery, distToPath,
+  terrainH, getWorldSurfaceHeight,
 } from "./terrainHeight.js";
 
 /* ══════════════════════════════════════════════════════════
-   terrainLayout.js — procedural mesh terrain + structures
+   terrainLayout.js — procedural mesh terrain + tile structures
    ══════════════════════════════════════════════════════════ */
 
 const R_GND = 0, R_WATER = 2, R_DECOR = 3;
@@ -29,6 +32,132 @@ function tMat(color, opts = {}) {
   return new THREE.MeshToonMaterial({ color, gradientMap: TOON_GRAD, ...opts });
 }
 
+/* ── tile catalogue ── */
+const TILE_DIR = "models/terrain/";
+const TILES = {
+  /* structure */
+  bridgeEnd:   "Prop_Bridge_Log_End.glb",
+  bridgeMid:   "Prop_Bridge_Log_Middle.glb",
+  bridgePost:  "Prop_Bridge_Log_Post_Support.glb",
+  fenceBoard1: "Prop_Fence_Boards_1.glb",
+  fenceBoard2: "Prop_Fence_Boards_2.glb",
+  fenceBoard3: "Prop_Fence_Boards_3.glb",
+  fenceBoard4: "Prop_Fence_Boards_4.glb",
+  fencePost1:  "Prop_Fence_Post_1.glb",
+  fencePost2:  "Prop_Fence_Post_2.glb",
+  fencePost3:  "Prop_Fence_Post_3.glb",
+  fencePost4:  "Prop_Fence_Post_4.glb",
+  dockStr:     "Prop_Docks_Straight.glb",
+  dockStrSup:  "Prop_Docks_Straight_Supports.glb",
+  /* props */
+  grassClump1:     "Prop_Grass_Clump_1.glb",
+  grassClump2:     "Prop_Grass_Clump_2.glb",
+  grassClump3:     "Prop_Grass_Clump_3.glb",
+  grassClump4:     "Prop_Grass_Clump_4.glb",
+  flowerDaisy:     "Prop_Flower_Daisy.glb",
+  flowerRose:      "Prop_Flower_Rose.glb",
+  flowerSunflower: "Prop_Flower_Sunflower.glb",
+  flowerTulip:     "Prop_Flower_Tulip.glb",
+  cattail1:        "Prop_Cattail_1.glb",
+  cattail2:        "Prop_Cattail_2.glb",
+  mushroom1:       "Prop_Mushroom_1.glb",
+  mushroom2:       "Prop_Mushroom_2.glb",
+  palmTree1:       "Prop_Tree_Palm_1.glb",
+  palmTree2:       "Prop_Tree_Palm_2.glb",
+  shell1:          "Prop_Shell_1.glb",
+  shell2:          "Prop_Shell_2.glb",
+  starfish1:       "Prop_Starfish_1.glb",
+  starfish2:       "Prop_Starfish_2.glb",
+  stump:           "Prop_Stump.glb",
+  hollowTrunk:     "Prop_Hollow_Trunk.glb",
+};
+
+/* ── Load all tiles ── */
+export async function loadTiles() {
+  THREE.Cache.enabled = true;
+  const loader = new GLTFLoader();
+  const load = url =>
+    new Promise((res, rej) => loader.load(url, g => res(g.scene), undefined, rej));
+  const keys = Object.keys(TILES);
+  const results = await Promise.all(
+    keys.map(k => load(TILE_DIR + TILES[k]).catch(e => {
+      console.warn(`tile load fail: ${TILES[k]}`, e);
+      return null;
+    }))
+  );
+  const lib = {};
+  keys.forEach((k, i) => { lib[k] = results[i]; });
+  return lib;
+}
+
+/* ── Geometry helpers ── */
+function harvestTile(tileScene, worldMatrix) {
+  const out = [];
+  if (!tileScene) return out;
+  tileScene.updateMatrixWorld(true);
+  tileScene.traverse(o => {
+    if (!o.isMesh) return;
+    const geo = o.geometry.clone();
+    const m = new THREE.Matrix4().multiplyMatrices(worldMatrix, o.matrixWorld);
+    geo.applyMatrix4(m);
+    const mat = Array.isArray(o.material) ? o.material[0] : o.material;
+    const name = mat?.name || "default";
+    const color = mat?.color ? "#" + mat.color.getHexString() : "#888888";
+    out.push({ geometry: geo, materialName: name, color });
+  });
+  return out;
+}
+
+function mergeByMaterial(harvested) {
+  const groups = {};
+  for (const { geometry, materialName, color } of harvested) {
+    const key = materialName + "_" + color;
+    if (!groups[key]) groups[key] = { geos: [], color };
+    groups[key].geos.push(geometry);
+  }
+  const meshes = [];
+  for (const [name, { geos, color }] of Object.entries(groups)) {
+    if (!geos.length) continue;
+    const merged = mergeGeometries(geos, false);
+    if (!merged) continue;
+    merged.computeVertexNormals();
+    const mat = tMat(color, { flatShading: true });
+    const mesh = new THREE.Mesh(merged, mat);
+    mesh.name = "terrain_" + name;
+    mesh.renderOrder = R_GND;
+    meshes.push(mesh);
+  }
+  return meshes;
+}
+
+function tileMat4(wx, wy, wz, rotY = 0, scale = 1) {
+  const m = new THREE.Matrix4();
+  m.compose(
+    new THREE.Vector3(wx, wy, wz),
+    new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotY),
+    new THREE.Vector3(TILE_S * scale, TILE_S * scale, TILE_S * scale)
+  );
+  return m;
+}
+
+/* ── village keep-out ── */
+const SVC = [
+  { x: 0, z: -32, r: 14 },
+  { x: 18, z: -35, r: 10 },
+  { x: -22, z: -34, r: 8 },
+];
+function inVillage(x, z, pad = 0) {
+  for (const s of SVC)
+    if (Math.hypot(x - s.x, z - s.z) <= s.r + pad) return true;
+  return false;
+}
+
+/* ── simple hash for vertex jitter ── */
+function hash21(x, z) {
+  let n = Math.sin(x * 127.1 + z * 311.7) * 43758.5453;
+  return n - Math.floor(n);
+}
+
 /* ═══════════════════════════════════════════
    buildTerrainMesh — vertex-colored ground + water plane
    ═══════════════════════════════════════════ */
@@ -37,37 +166,75 @@ export function buildTerrainMesh(waterUniforms) {
   const group = new THREE.Group();
   group.name = "terrain";
 
-  /* ── ground ── */
-  const step = 1.5;
-  const xMin = (GX_MIN - 2) * TILE_S, xMax = (GX_MAX + 2) * TILE_S;
-  const zMin = (GZ_MIN - 2) * TILE_S, zMax = (GZ_MAX + 2) * TILE_S;
+  /* ── ground mesh ── */
+  const step = 1.0;
+  const xMin = (GX_MIN - 1) * TILE_S, xMax = (GX_MAX + 1) * TILE_S;
+  const zMin = (GZ_MIN - 1) * TILE_S, zMax = (GZ_MAX + 1) * TILE_S;
   const nx = Math.ceil((xMax - xMin) / step) + 1;
   const nz = Math.ceil((zMax - zMin) / step) + 1;
   const pos = new Float32Array(nx * nz * 3);
   const col = new Float32Array(nx * nz * 3);
   const idx = [];
 
-  const cGrass = new THREE.Color("#5a9f3f");
-  const cPath  = new THREE.Color("#b09070");
-  const cSand  = new THREE.Color("#d4b87a");
-  const cHill  = new THREE.Color("#4a8a35");
-  const cRiver = new THREE.Color("#6a7a5a");
-  const cCliff = new THREE.Color("#8a8a7a");
+  /* palette */
+  const cGrassA = new THREE.Color("#4ca338");
+  const cGrassB = new THREE.Color("#5ab844");
+  const cPathA  = new THREE.Color("#c9a66b");
+  const cPathB  = new THREE.Color("#b89058");
+  const cSandA  = new THREE.Color("#e8d5a0");
+  const cSandB  = new THREE.Color("#d4be82");
+  const cHillA  = new THREE.Color("#3d8a2e");
+  const cHillB  = new THREE.Color("#4a9636");
+  const cBank   = new THREE.Color("#6d8854");
+  const cRiver  = new THREE.Color("#5a7454");
+  const cCliff  = new THREE.Color("#8a8a7a");
+  const tmp = new THREE.Color();
 
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
       const y = terrainH(x, z);
       const i3 = (iz * nx + ix) * 3;
-      pos[i3] = x; pos[i3 + 1] = y; pos[i3 + 2] = z;
+
+      /* low-poly jitter (don't jitter edges or river) */
+      const rq = riverQuery(x, z);
+      const jit = (rq.dist < rq.width + 2 || ix === 0 || ix === nx - 1 || iz === 0 || iz === nz - 1)
+        ? 0 : (hash21(x, z) - 0.5) * 0.15;
+
+      pos[i3] = x + jit;
+      pos[i3 + 1] = y;
+      pos[i3 + 2] = z + jit * 0.7;
+
+      /* color selection with noise-based variation */
+      const n = hash21(x * 0.7, z * 0.7);
       let c;
-      if (isInRiver(x, z))        c = cRiver;
-      else if (isBeach(x, z))     c = cSand;
-      else if (isOnPath(x, z))    c = cPath;
-      else if (y > GRASS_Y + 2)   c = cCliff;
-      else if (y > GRASS_Y + 0.5) c = cHill;
-      else                        c = cGrass;
+      if (isInRiver(x, z)) {
+        c = cRiver;
+      } else if (rq.dist < rq.width + 2.5) {
+        /* river bank transition */
+        const t = (rq.dist - rq.width) / 2.5;
+        tmp.copy(cBank).lerp(cGrassA, Math.max(0, t));
+        c = tmp;
+      } else if (isBeach(x, z)) {
+        const bt = THREE.MathUtils.smoothstep(x, 30, 44);
+        tmp.copy(cGrassB).lerp(n > 0.5 ? cSandA : cSandB, bt);
+        c = tmp;
+      } else if (isOnPath(x, z)) {
+        const pd = distToPath(x, z);
+        const edge = THREE.MathUtils.smoothstep(pd, 0, 2.5);
+        tmp.copy(n > 0.5 ? cPathA : cPathB).lerp(cGrassA, edge);
+        c = tmp;
+      } else if (y > GRASS_Y + 3) {
+        c = cCliff;
+      } else if (y > GRASS_Y + 0.5) {
+        const ht = THREE.MathUtils.smoothstep(y, GRASS_Y + 0.5, HILL_Y);
+        tmp.copy(n > 0.5 ? cHillA : cHillB).lerp(cGrassA, 1 - ht);
+        c = tmp;
+      } else {
+        c = n > 0.5 ? cGrassA : cGrassB;
+      }
       col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
+
       if (ix < nx - 1 && iz < nz - 1) {
         const a = iz * nx + ix, b = a + 1, d = a + nx, e = d + 1;
         idx.push(a, d, b, b, d, e);
@@ -86,7 +253,7 @@ export function buildTerrainMesh(waterUniforms) {
   groundMesh.renderOrder = R_GND;
   group.add(groundMesh);
 
-  /* ── water ── */
+  /* ── water plane ── */
   const ww = xMax - xMin + 20, wh = zMax - zMin + 20;
   const waterGeo = new THREE.PlaneGeometry(ww, wh, 48, 48);
   waterGeo.rotateX(-Math.PI / 2);
@@ -114,109 +281,227 @@ export function buildTerrainMesh(waterUniforms) {
 }
 
 /* ═══════════════════════════════════════════
-   buildBridge — procedural log bridge
+   buildProps — scatter decorations
    ═══════════════════════════════════════════ */
 
-export function buildBridge() {
+function mulberry32(seed) {
+  let s = seed | 0;
+  return () => {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function buildProps(lib, scene) {
+  const group = new THREE.Group();
+  group.name = "props";
+  const rng = mulberry32(42);
+  const rand = (lo, hi) => lo + rng() * (hi - lo);
+
+  function place(key, x, z, scale, rotY) {
+    const tmpl = lib[key];
+    if (!tmpl) return;
+    const m = tmpl.clone();
+    m.scale.setScalar(TILE_S * scale);
+    m.position.set(x, getWorldSurfaceHeight(x, z), z);
+    m.rotation.y = rotY;
+    group.add(m);
+  }
+
+  const grassKeys = ["grassClump1", "grassClump2", "grassClump3", "grassClump4"];
+  const flowerKeys = ["flowerDaisy", "flowerRose", "flowerSunflower", "flowerTulip"];
+  const cattailKeys = ["cattail1", "cattail2"];
+  const mushKeys = ["mushroom1", "mushroom2"];
+  const shellKeys = ["shell1", "shell2", "starfish1", "starfish2"];
+  const palmKeys = ["palmTree1", "palmTree2"];
+
+  for (let i = 0; i < 80; i++) {
+    const x = rand(-36, 28), z = rand(-34, 36);
+    const rq = riverQuery(x, z);
+    if (rq.dist < rq.width + 1.5) continue;
+    if (isBeach(x, z)) continue;
+    if (inVillage(x, z, 3)) continue;
+    if (isOnPath(x, z)) continue;
+    place(grassKeys[i % grassKeys.length], x, z, rand(0.7, 1.1), rng() * Math.PI * 2);
+  }
+
+  for (let i = 0; i < 40; i++) {
+    const x = rand(-34, 26), z = rand(-30, 34);
+    const rq = riverQuery(x, z);
+    if (rq.dist < rq.width + 2) continue;
+    if (isBeach(x, z)) continue;
+    if (inVillage(x, z, 4)) continue;
+    if (isOnPath(x, z)) continue;
+    place(flowerKeys[i % flowerKeys.length], x, z, rand(0.6, 1.0), rng() * Math.PI * 2);
+  }
+
+  for (let i = 0; i < 15; i++) {
+    const x = rand(-10, 30), z = rand(-16, 38);
+    const rq = riverQuery(x, z);
+    if (rq.dist < rq.width || rq.dist > rq.width + 3) continue;
+    place(cattailKeys[i % cattailKeys.length], x, z, rand(0.8, 1.2), rng() * Math.PI * 2);
+  }
+
+  for (let i = 0; i < 10; i++) {
+    const x = rand(-32, 34), z = rand(10, 34);
+    const rq = riverQuery(x, z);
+    if (rq.dist < rq.width + 1) continue;
+    if (isOnPath(x, z)) continue;
+    place(mushKeys[i % mushKeys.length], x, z, rand(0.6, 1.0), rng() * Math.PI * 2);
+  }
+
+  for (let i = 0; i < 8; i++) {
+    const x = rand(32, 46), z = rand(-22, 2);
+    if (isInRiver(x, z)) continue;
+    place(shellKeys[i % shellKeys.length], x, z, rand(0.5, 0.9), rng() * Math.PI * 2);
+  }
+  for (let i = 0; i < 4; i++) {
+    const x = rand(34, 44), z = rand(-20, 0);
+    if (isInRiver(x, z)) continue;
+    place(palmKeys[i % palmKeys.length], x, z, rand(0.8, 1.2), rng() * Math.PI * 2);
+  }
+
+  const stumpSpots = [[22, 20], [26, 26], [-24, 20], [-18, 24], [30, 24]];
+  for (const [sx, sz] of stumpSpots) {
+    const ox = sx + rand(-2, 2), oz = sz + rand(-2, 2);
+    place("stump", ox, oz, rand(0.7, 1.0), rng() * Math.PI * 2);
+  }
+
+  place("hollowTrunk", -28, 18, 0.9, rand(0, Math.PI * 2));
+
+  scene.add(group);
+  return group;
+}
+
+/* ═══════════════════════════════════════════
+   buildBridge — log bridge crossing the river
+   ═══════════════════════════════════════════ */
+
+export function buildBridge(lib) {
   const group = new THREE.Group();
   group.name = "bridge";
-  const bz = 8, deckY = WATER_Y + 0.35;
-  const hw = 4 * TILE_S * 0.5;
+  const bz = 8, bw = 4;
+  const deckY = WATER_Y + 0.35;
 
-  const deck = new THREE.Mesh(
-    new THREE.BoxGeometry(hw * 2 + 2, 0.18, TILE_S * 1.5), tMat("#8B6A40"));
-  deck.position.set(0, deckY, bz);
+  for (let i = -bw; i <= bw; i++) {
+    const tmpl = (i === -bw || i === bw) ? lib.bridgeEnd : lib.bridgeMid;
+    if (!tmpl) continue;
+    const m = tmpl.clone();
+    m.scale.setScalar(TILE_S);
+    m.position.set(i * TILE_S * 0.5, deckY, bz);
+    m.rotation.y = Math.PI / 2;
+    group.add(m);
+  }
+
+  if (lib.bridgePost) {
+    for (const ox of [-bw * 0.5 * TILE_S, bw * 0.5 * TILE_S]) {
+      const p = lib.bridgePost.clone();
+      p.scale.setScalar(TILE_S);
+      p.position.set(ox, WATER_Y - 0.5, bz);
+      group.add(p);
+    }
+  }
+
+  const deckGeo = new THREE.BoxGeometry(bw * TILE_S + 2, 0.15, TILE_S * 1.5);
+  const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
+  deck.position.set(0, deckY + 0.2, bz);
   deck.name = "bridge_deck";
   group.add(deck);
 
-  for (let i = -4; i <= 4; i++) {
-    const p = new THREE.Mesh(
-      new THREE.BoxGeometry(TILE_S * 0.42, 0.07, TILE_S * 1.4), tMat("#7a5a30"));
-    p.position.set(i * TILE_S * 0.5, deckY + 0.1, bz);
-    group.add(p);
-  }
-
-  const postGeo = new THREE.CylinderGeometry(0.14, 0.18, 1.5, 6);
-  for (const ox of [-hw, hw]) {
-    const p = new THREE.Mesh(postGeo, tMat("#6a4a20"));
-    p.position.set(ox, WATER_Y - 0.05, bz);
-    group.add(p);
-  }
-  const railGeo = new THREE.BoxGeometry(hw * 2 + 1.5, 0.07, 0.07);
-  for (const zo of [-TILE_S * 0.7, TILE_S * 0.7]) {
-    const r = new THREE.Mesh(railGeo, tMat("#9a7a50"));
-    r.position.set(0, deckY + 0.48, bz + zo);
-    group.add(r);
-  }
   group.renderOrder = R_DECOR;
   return group;
 }
 
 /* ═══════════════════════════════════════════
-   buildDock — procedural wooden dock
+   buildDock — wooden dock on the beach
    ═══════════════════════════════════════════ */
 
-export function buildDock() {
+export function buildDock(lib) {
   const group = new THREE.Group();
   group.name = "dock";
-  const dx = 40, dz = -16, deckY = WATER_Y + 0.3;
+  const dx = 40, ddz = -16;
+  const deckY = WATER_Y + 0.3;
 
-  const deck = new THREE.Mesh(
-    new THREE.BoxGeometry(6 * TILE_S, 0.15, TILE_S * 1.5), tMat("#8B6A40"));
-  deck.position.set(dx + 2.5 * TILE_S, deckY, dz);
+  for (let i = 0; i < 6; i++) {
+    const tmpl = lib.dockStr;
+    if (!tmpl) continue;
+    const m = tmpl.clone();
+    m.scale.setScalar(TILE_S);
+    m.position.set(dx + i * TILE_S, deckY, ddz);
+    m.rotation.y = Math.PI / 2;
+    group.add(m);
+    if (lib.dockStrSup) {
+      const s = lib.dockStrSup.clone();
+      s.scale.setScalar(TILE_S);
+      s.position.set(dx + i * TILE_S, deckY - 0.6, ddz);
+      s.rotation.y = Math.PI / 2;
+      group.add(s);
+    }
+  }
+
+  const deckGeo = new THREE.BoxGeometry(6 * TILE_S, 0.15, TILE_S * 1.5);
+  const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
+  deck.position.set(dx + 2.5 * TILE_S, deckY + 0.15, ddz);
   deck.name = "dock_deck";
   group.add(deck);
 
-  const pGeo = new THREE.CylinderGeometry(0.12, 0.15, 1.5, 6);
-  const pMat = tMat("#6a4a20");
-  for (let i = 0; i < 6; i += 2)
-    for (const zo of [-0.5, 0.5]) {
-      const p = new THREE.Mesh(pGeo, pMat);
-      p.position.set(dx + i * TILE_S, deckY - 0.9, dz + zo * TILE_S);
-      group.add(p);
-    }
   group.renderOrder = R_DECOR;
   return group;
 }
 
 /* ═══════════════════════════════════════════
-   buildFences — procedural fence runs
+   buildFences — wooden fences along paths
    ═══════════════════════════════════════════ */
 
-export function buildFences() {
+export function buildFences(lib) {
   const group = new THREE.Group();
   group.name = "fences";
-  const postGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.9, 6);
-  const boardGeo = new THREE.BoxGeometry(TILE_S * 0.9, 0.5, 0.06);
-  const pM = tMat("#8a6240"), bM = tMat("#a07848");
+  const board = lib.fenceBoard2 || lib.fenceBoard1 || lib.fenceBoard3 || lib.fenceBoard4;
+  const post = lib.fencePost1 || lib.fencePost2 || lib.fencePost3 || lib.fencePost4;
+  if (!board || !post) return group;
+  const harvested = [];
+
   const runs = [
-    [[4,8],[8,4],[12,0],[16,-4],[20,-8],[24,-12],[28,-15]],
-    [[9,-24],[15,-26],[21,-28],[27,-30],[34,-30]],
-    [[-26,-40],[-26,-30],[-18,-30],[-18,-40],[-26,-40]],
-    [[-2,10],[2,10],[6,8]],
+    [[4, 8], [8, 4], [12, 0], [16, -4], [20, -8], [24, -12], [28, -15]],
+    [[9, -24], [15, -26], [21, -28], [27, -30], [34, -30]],
+    [[-26, -40], [-26, -30], [-18, -30], [-18, -40], [-26, -40]],
+    [[-2, 10], [2, 10], [6, 8]],
   ];
-  for (const run of runs)
+
+  const spacing = TILE_S;
+  const yawOffset = Math.PI * 0.5;
+  const addBoard = (x, z, rot) => {
+    const y = getWorldSurfaceHeight(x, z);
+    harvested.push(...harvestTile(board, tileMat4(x, y, z, rot + yawOffset, 0.9)));
+  };
+  const addPost = (x, z, rot) => {
+    const y = getWorldSurfaceHeight(x, z);
+    harvested.push(...harvestTile(post, tileMat4(x, y, z, rot + yawOffset, 0.9)));
+  };
+
+  for (const run of runs) {
     for (let i = 0; i < run.length - 1; i++) {
       const [ax, az] = run[i], [bx, bz] = run[i + 1];
-      const dx = bx - ax, dz = bz - az;
-      const steps = Math.max(1, Math.round(Math.hypot(dx, dz) / TILE_S));
-      const rot = Math.atan2(dx, dz);
+      const ddx = bx - ax, ddz = bz - az;
+      const segLen = Math.hypot(ddx, ddz);
+      const steps = Math.max(1, Math.round(segLen / spacing));
+      const rot = Math.atan2(ddx, ddz);
       for (let s = 0; s <= steps; s++) {
         if (i > 0 && s === 0) continue;
-        const t = s / steps, x = ax + dx * t, z = az + dz * t;
-        const y = terrainH(x, z);
-        const post = new THREE.Mesh(postGeo, pM);
-        post.position.set(x, y + 0.45, z);
-        group.add(post);
+        const t = s / steps;
+        const x = ax + ddx * t, z = az + ddz * t;
         if (s < steps) {
           const mt = (s + 0.5) / steps;
-          const board = new THREE.Mesh(boardGeo, bM);
-          board.position.set(ax + dx * mt, terrainH(ax + dx * mt, az + dz * mt) + 0.4, az + dz * mt);
-          board.rotation.y = rot;
-          group.add(board);
+          addBoard(ax + ddx * mt, az + ddz * mt, rot);
         }
+        addPost(x, z, rot);
       }
     }
+  }
+
+  mergeByMaterial(harvested).forEach(m => group.add(m));
   group.renderOrder = R_DECOR;
   return group;
 }

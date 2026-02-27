@@ -6,8 +6,8 @@ import {
   getWaterSurfaceHeight as _getWaSH,
 } from "./terrainHeight.js";
 import {
-  buildTerrainMesh, buildBridge,
-  buildDock, buildFences, buildSteppingStones, addWaterfall,
+  loadTiles, buildTerrainMesh, buildBridge,
+  buildDock, buildFences, buildSteppingStones, addWaterfall, buildProps,
   TREE_SPOTS, ROCK_MAJOR_SPOTS, ROCK_SMALL_SPOTS,
   BUSH_SPOTS, CLIFF_ROCK_SPOTS, FISHING_SPOT_POSITIONS,
 } from "./terrainLayout.js";
@@ -404,23 +404,32 @@ export async function createWorld(scene) {
   /* water uniforms (shared by water plane + waterfall) */
   const waterUniforms = { uTime: { value: 0 } };
 
+  /* ── load tile models (bridge, dock, fences, props) ── */
+  let tileLib = null;
+  try { tileLib = await loadTiles(); } catch (e) { console.warn("Tile load failed:", e); }
+
   /* ── terrain mesh (ground + water) ── */
   const ground = new THREE.Group();
   ground.name = "ground";
   ground.add(buildTerrainMesh(waterUniforms));
 
-  /* bridge */
-  const bridge = buildBridge();
-  scene.add(bridge);
-  bridge.traverse(o => { if (o.name === "bridge_deck") ground.add(o.clone()); });
+  if (tileLib) {
+    /* bridge */
+    const bridge = buildBridge(tileLib);
+    scene.add(bridge);
+    bridge.traverse(o => { if (o.name === "bridge_deck") ground.add(o.clone()); });
 
-  /* dock */
-  const dock = buildDock();
-  scene.add(dock);
-  dock.traverse(o => { if (o.name === "dock_deck") ground.add(o.clone()); });
+    /* dock */
+    const dock = buildDock(tileLib);
+    scene.add(dock);
+    dock.traverse(o => { if (o.name === "dock_deck") ground.add(o.clone()); });
 
-  /* fences */
-  scene.add(buildFences());
+    /* fences */
+    scene.add(buildFences(tileLib));
+
+    /* props (grass clumps, flowers, cattails, etc.) */
+    buildProps(tileLib, scene);
+  }
 
   scene.add(ground);
 
