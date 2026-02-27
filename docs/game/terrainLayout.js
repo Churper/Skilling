@@ -10,12 +10,12 @@ import {
 } from "./terrainHeight.js";
 
 /* ══════════════════════════════════════════════════════════
-   terrainLayout.js — procedural ground mesh + tile cliffs/props
+   terrainLayout.js — full tile-based terrain with autotiling
    ══════════════════════════════════════════════════════════ */
 
 const R_GND = 0, R_WATER = 2, R_DECOR = 3;
 
-/* ── toon gradient (local) ── */
+/* ── toon gradient ── */
 const TOON_GRAD = (() => {
   const c = document.createElement("canvas"); c.width = 6; c.height = 1;
   const ctx = c.getContext("2d");
@@ -32,23 +32,51 @@ function tMat(color, opts = {}) {
   return new THREE.MeshToonMaterial({ color, gradientMap: TOON_GRAD, ...opts });
 }
 
-/* ── tile catalogue — GLB files to load ── */
+/* ── tile catalogue ── */
 const TILE_DIR = "models/terrain/";
 const TILES = {
-  /* ground tiles */
-  grass:       "Grass_Flat.glb",
-  hillSide:    "Hill_Side.glb",
-  hillSideOnSide: "Hill_Side_On_Side.glb",
-  hillCornerOuter: "Hill_Corner_Outer_2x2.glb",
-  hillCornerInner: "Hill_Corner_Inner_2x2.glb",
-  pathCenter:  "Path_Center.glb",
-  waterFlat:   "Water_Flat.glb",
-  sandFlat:    "Sand_Flat.glb",
-  sandSide:    "Sand_Side.glb",
-  sandCornerOuter: "Sand_Corner_Outer_3x3.glb",
-  sandCornerInner: "Sand_Corner_Inner_3x3.glb",
+  /* ground */
+  grass:              "Grass_Flat.glb",
+  hillSide:           "Hill_Side.glb",
+  hillSideOnSide:     "Hill_Side_On_Side.glb",
+  hillCornerOuter:    "Hill_Corner_Outer_2x2.glb",
+  hillCornerInner:    "Hill_Corner_Inner_2x2.glb",
+  hillTransFromGentle:"Hill_Side_Transition_From_Gentle.glb",
+  hillTransToGentle:  "Hill_Side_Transition_To_Gentle.glb",
 
-  /* structure tiles */
+  /* path */
+  pathCenter:           "Path_Center.glb",
+  pathSide:             "Path_Side.glb",
+  pathCornerInner1x1:   "Path_Corner_Inner_1x1.glb",
+  pathCornerInner2x2:   "Path_Corner_Inner_2x2.glb",
+  pathCornerOuter1x1:   "Path_Corner_Outer_1x1.glb",
+  pathCornerOuter2x2:   "Path_Corner_Outer_2x2.glb",
+  pathCornerOuter3x3:   "Path_Corner_Outer_3x3.glb",
+  pathCornerY2x2:       "Path_Corner_Y_2x2.glb",
+  pathCornerY3x3:       "Path_Corner_Y_3x3.glb",
+  pathHillGentleCenter: "Path_Hill_Gentle_Center.glb",
+  pathHillGentleSide:   "Path_Hill_Gentle_Side.glb",
+  pathHillSharpCenter:  "Path_Hill_Sharp_Center.glb",
+  pathHillSharpSide:    "Path_Hill_Sharp_Side.glb",
+  pathStepsCenter:      "Path_Steps_Center.glb",
+  pathStepsEdge:        "Path_Steps_Edge.glb",
+  pathStepsGrassEdge:   "Path_Steps_Grass_Edge.glb",
+  pathStepsGrassEdgeTop:"Path_Steps_Grass_Edge_Top.glb",
+
+  /* water */
+  waterFlat:   "Water_Flat.glb",
+  waterSlope:  "Water_Slope.glb",
+
+  /* sand */
+  sandFlat:            "Sand_Flat.glb",
+  sandSide:            "Sand_Side.glb",
+  sandCornerOuter:     "Sand_Corner_Outer_3x3.glb",
+  sandCornerInner:     "Sand_Corner_Inner_3x3.glb",
+  sandSideOverlap:     "Sand_Side_Overlap_Side.glb",
+  sandTransFromGentle: "Sand_Side_Transition_From_Gentle.glb",
+  sandTransToGentle:   "Sand_Side_Transition_To_Gentle.glb",
+
+  /* structure */
   bridgeEnd:   "Prop_Bridge_Log_End.glb",
   bridgeMid:   "Prop_Bridge_Log_Middle.glb",
   bridgePost:  "Prop_Bridge_Log_Post_Support.glb",
@@ -63,60 +91,59 @@ const TILES = {
   dockStr:     "Prop_Docks_Straight.glb",
   dockStrSup:  "Prop_Docks_Straight_Supports.glb",
 
-  /* cliff tiles */
-  cliffBaseStr: "Cliff_Base_Straight.glb",
-  cliffBaseWF:  "Cliff_Base_Waterfall.glb",
-  cliffBaseCornerOuterLg: "Cliff_Base_Corner_Outer_Lg.glb",
-  cliffBaseCornerOuterSm: "Cliff_Base_Corner_Outer_Sm.glb",
-  cliffBaseCornerInnerLg: "Cliff_Base_Corner_Inner_Lg.glb",
-  cliffBaseCornerInnerSm: "Cliff_Base_Corner_Inner_Sm.glb",
-  cliffBaseHillGentle: "Cliff_Base_Hill_Gentle.glb",
-  cliffBaseHillSharp: "Cliff_Base_Hill_Sharp.glb",
-  cliffMidStr:  "Cliff_Mid_Straight.glb",
-  cliffMidWF:   "Cliff_Mid_Waterfall.glb",
-  cliffMidCornerOuterLg: "Cliff_Mid_Corner_Outer_Lg.glb",
-  cliffMidCornerOuterSm: "Cliff_Mid_Corner_Outer_Sm.glb",
-  cliffMidCornerInnerLg: "Cliff_Mid_Corner_Inner_Lg.glb",
-  cliffMidCornerInnerSm: "Cliff_Mid_Corner_Inner_Sm.glb",
-  cliffTopStr:  "Cliff_Top_Straight.glb",
-  cliffTopWF:   "Cliff_Top_Waterfall.glb",
-  cliffTopCornerOuterLg: "Cliff_Top_Corner_Outer_Lg.glb",
-  cliffTopCornerOuterSm: "Cliff_Top_Corner_Outer_Sm.glb",
-  cliffTopCornerInnerLg: "Cliff_Top_Corner_Inner_Lg.glb",
-  cliffTopCornerInnerSm: "Cliff_Top_Corner_Inner_Sm.glb",
-  cliffTopHillGentle: "Cliff_Top_Hill_Gentle.glb",
-  cliffTopHillSharp: "Cliff_Top_Hill_Sharp.glb",
-  waterSlope: "Water_Slope.glb",
-  waterfallTile: "Waterfall.glb",
-  waterfallTop: "Waterfall_Top.glb",
+  /* cliff */
+  cliffBaseStr:            "Cliff_Base_Straight.glb",
+  cliffBaseWF:             "Cliff_Base_Waterfall.glb",
+  cliffBaseCornerOuterLg:  "Cliff_Base_Corner_Outer_Lg.glb",
+  cliffBaseCornerOuterSm:  "Cliff_Base_Corner_Outer_Sm.glb",
+  cliffBaseCornerInnerLg:  "Cliff_Base_Corner_Inner_Lg.glb",
+  cliffBaseCornerInnerSm:  "Cliff_Base_Corner_Inner_Sm.glb",
+  cliffBaseHillGentle:     "Cliff_Base_Hill_Gentle.glb",
+  cliffBaseHillSharp:      "Cliff_Base_Hill_Sharp.glb",
+  cliffMidStr:             "Cliff_Mid_Straight.glb",
+  cliffMidWF:              "Cliff_Mid_Waterfall.glb",
+  cliffMidCornerOuterLg:   "Cliff_Mid_Corner_Outer_Lg.glb",
+  cliffMidCornerOuterSm:   "Cliff_Mid_Corner_Outer_Sm.glb",
+  cliffMidCornerInnerLg:   "Cliff_Mid_Corner_Inner_Lg.glb",
+  cliffMidCornerInnerSm:   "Cliff_Mid_Corner_Inner_Sm.glb",
+  cliffTopStr:             "Cliff_Top_Straight.glb",
+  cliffTopWF:              "Cliff_Top_Waterfall.glb",
+  cliffTopCornerOuterLg:   "Cliff_Top_Corner_Outer_Lg.glb",
+  cliffTopCornerOuterSm:   "Cliff_Top_Corner_Outer_Sm.glb",
+  cliffTopCornerInnerLg:   "Cliff_Top_Corner_Inner_Lg.glb",
+  cliffTopCornerInnerSm:   "Cliff_Top_Corner_Inner_Sm.glb",
+  cliffTopHillGentle:      "Cliff_Top_Hill_Gentle.glb",
+  cliffTopHillSharp:       "Cliff_Top_Hill_Sharp.glb",
+  waterfallTile:           "Waterfall.glb",
+  waterfallTop:            "Waterfall_Top.glb",
 
-  /* prop tiles for scatter */
-  bush1:         "Prop_Bush_1.glb",
-  bush2:         "Prop_Bush_2.glb",
-  bush3:         "Prop_Bush_3.glb",
-  rock1:         "Prop_Rock_1.glb",
-  rock2:         "Prop_Rock_2.glb",
-  rock3:         "Prop_Rock_3.glb",
-  grassClump1:   "Prop_Grass_Clump_1.glb",
-  grassClump2:   "Prop_Grass_Clump_2.glb",
-  grassClump3:   "Prop_Grass_Clump_3.glb",
-  grassClump4:   "Prop_Grass_Clump_4.glb",
-  flowerDaisy:   "Prop_Flower_Daisy.glb",
-  flowerRose:    "Prop_Flower_Rose.glb",
+  /* props */
+  bush1:           "Prop_Bush_1.glb",
+  bush2:           "Prop_Bush_2.glb",
+  bush3:           "Prop_Bush_3.glb",
+  rock1:           "Prop_Rock_1.glb",
+  rock2:           "Prop_Rock_2.glb",
+  rock3:           "Prop_Rock_3.glb",
+  grassClump1:     "Prop_Grass_Clump_1.glb",
+  grassClump2:     "Prop_Grass_Clump_2.glb",
+  grassClump3:     "Prop_Grass_Clump_3.glb",
+  grassClump4:     "Prop_Grass_Clump_4.glb",
+  flowerDaisy:     "Prop_Flower_Daisy.glb",
+  flowerRose:      "Prop_Flower_Rose.glb",
   flowerSunflower: "Prop_Flower_Sunflower.glb",
-  flowerTulip:   "Prop_Flower_Tulip.glb",
-  cattail1:      "Prop_Cattail_1.glb",
-  cattail2:      "Prop_Cattail_2.glb",
-  mushroom1:     "Prop_Mushroom_1.glb",
-  mushroom2:     "Prop_Mushroom_2.glb",
-  palmTree1:     "Prop_Tree_Palm_1.glb",
-  palmTree2:     "Prop_Tree_Palm_2.glb",
-  shell1:        "Prop_Shell_1.glb",
-  shell2:        "Prop_Shell_2.glb",
-  starfish1:     "Prop_Starfish_1.glb",
-  starfish2:     "Prop_Starfish_2.glb",
-  stump:         "Prop_Stump.glb",
-  hollowTrunk:   "Prop_Hollow_Trunk.glb",
+  flowerTulip:     "Prop_Flower_Tulip.glb",
+  cattail1:        "Prop_Cattail_1.glb",
+  cattail2:        "Prop_Cattail_2.glb",
+  mushroom1:       "Prop_Mushroom_1.glb",
+  mushroom2:       "Prop_Mushroom_2.glb",
+  palmTree1:       "Prop_Tree_Palm_1.glb",
+  palmTree2:       "Prop_Tree_Palm_2.glb",
+  shell1:          "Prop_Shell_1.glb",
+  shell2:          "Prop_Shell_2.glb",
+  starfish1:       "Prop_Starfish_1.glb",
+  starfish2:       "Prop_Starfish_2.glb",
+  stump:           "Prop_Stump.glb",
+  hollowTrunk:     "Prop_Hollow_Trunk.glb",
 };
 
 /* ── Load all tiles ── */
@@ -125,7 +152,6 @@ export async function loadTiles() {
   const loader = new GLTFLoader();
   const load = url =>
     new Promise((res, rej) => loader.load(url, g => res(g.scene), undefined, rej));
-
   const keys = Object.keys(TILES);
   const results = await Promise.all(
     keys.map(k => load(TILE_DIR + TILES[k]).catch(e => {
@@ -133,14 +159,13 @@ export async function loadTiles() {
       return null;
     }))
   );
-
   const lib = {};
   keys.forEach((k, i) => { lib[k] = results[i]; });
   return lib;
 }
 
 /* ═══════════════════════════════════════════
-   Geometry helpers — collect & merge by material name
+   Geometry helpers
    ═══════════════════════════════════════════ */
 
 function harvestTile(tileScene, worldMatrix) {
@@ -164,8 +189,7 @@ function mergeByMaterial(harvested) {
   const groups = {};
   for (const { geometry, materialName, color } of harvested) {
     const key = materialName + "_" + color;
-    if (!groups[key])
-      groups[key] = { geos: [], color };
+    if (!groups[key]) groups[key] = { geos: [], color };
     groups[key].geos.push(geometry);
   }
   const meshes = [];
@@ -183,7 +207,6 @@ function mergeByMaterial(harvested) {
   return meshes;
 }
 
-/* helper: build a 4×4 placement matrix */
 function tileMat4(wx, wy, wz, rotY = 0, scale = 1) {
   const m = new THREE.Matrix4();
   m.compose(
@@ -195,35 +218,37 @@ function tileMat4(wx, wy, wz, rotY = 0, scale = 1) {
 }
 
 /* ═══════════════════════════════════════════
-   buildGroundMesh() — procedural heightmap with vertex colors
+   Zone classification & autotiling constants
    ═══════════════════════════════════════════ */
 
-function smoothstep(x, lo, hi) {
-  const t = Math.max(0, Math.min(1, (x - lo) / (hi - lo)));
-  return t * t * (3 - 2 * t);
+const ZONE = { WATER: 0, SAND: 1, PATH: 2, GRASS: 3 };
+const DROP_MIN = 0.15;
+
+const DIRS = ["n", "e", "s", "w"];
+const DIR_DELTA = { n: [0, 1], e: [1, 0], s: [0, -1], w: [-1, 0] };
+const DIR_ROT = { n: 0, e: -Math.PI / 2, s: Math.PI, w: Math.PI / 2 };
+const DIAGS = { ne: [1, 1], se: [1, -1], sw: [-1, -1], nw: [-1, 1] };
+const ADJ_PAIRS = [["n", "e"], ["e", "s"], ["s", "w"], ["w", "n"]];
+const OPP_PAIRS = [["n", "s"], ["e", "w"]];
+const CORNER_ROT = { "n,e": 0, "e,s": -Math.PI / 2, "s,w": Math.PI, "w,n": Math.PI / 2 };
+const INNER_ROT  = { "n,e": Math.PI, "e,s": Math.PI / 2, "s,w": 0, "w,n": -Math.PI / 2 };
+const DIAG_ROT   = { ne: 0, se: -Math.PI / 2, sw: Math.PI, nw: Math.PI / 2 };
+
+function ck(gx, gz) { return gx + "," + gz; }
+
+function isPlayableTerrainCell(gx, gz) {
+  return !(gz > 19 || gx < -19 || gz < -18);
 }
 
-function lerpColor(a, b, t) {
-  return [
-    a[0] + (b[0] - a[0]) * t,
-    a[1] + (b[1] - a[1]) * t,
-    a[2] + (b[2] - a[2]) * t,
-  ];
+function isOceanCell(wx, wz) {
+  return wx > 34 && terrainH(wx, wz) < WATER_Y + 0.08;
 }
 
-/* zone colors */
-const C_GRASS = [0.24, 0.72, 0.28];
-const C_DIRT  = [0.769, 0.686, 0.561];
-const C_SAND  = [0.94, 0.90, 0.79];
-const C_ROCK  = [0.631, 0.624, 0.612];
-const C_WATER = [0.200, 0.588, 0.820];
-const PATH_LINES = [
-  [[0, -28], [0, -16], [0, -4], [0, 8], [0, 12]],
-  [[10, -30], [20, -26], [30, -22], [40, -18], [46, -16]],
-  [[0, 14], [0, 22], [0, 34], [0, 40]],
-];
+function isWaterCellWorld(wx, wz) {
+  return isInRiver(wx, wz) || isOceanCell(wx, wz);
+}
 
-/* village keep-out zones (don't scatter props here) */
+/* village keep-out zones (for buildProps scatter) */
 const SVC = [
   { x: 0, z: -32, r: 14 },
   { x: 18, z: -35, r: 10 },
@@ -235,224 +260,266 @@ function inVillage(x, z, pad = 0) {
   return false;
 }
 
-function getVertexColor(x, z, slope = 0) {
-  let col = C_GRASS;
+/* ═══════════════════════════════════════════
+   buildTerrain() — tile-driven terrain with autotiling
+   ═══════════════════════════════════════════ */
 
-  /* river bank shaping only; water surface is a separate opaque mesh */
-  const rq = riverQuery(x, z);
-  if (rq.dist < rq.width + 2.1) {
-    const t = 1 - smoothstep(rq.dist, rq.width, rq.width + 2.1);
-    col = lerpColor(col, [0.21, 0.62, 0.27], t * 0.28);
-  }
-
-  /* cliff rock coloring */
-  if (z >= 38 || x <= -38 || z <= -36) {
-    if (z >= 38) {
-      const t = smoothstep(z, 38, 42);
-      col = lerpColor(col, C_ROCK, t);
-    } else if (x <= -38) {
-      const t = smoothstep(-x, 38, 42);
-      col = lerpColor(col, C_ROCK, t);
-    } else if (z <= -36) {
-      const t = smoothstep(-z, 36, 40);
-      col = lerpColor(col, C_ROCK, t);
+export function buildTerrain(lib, waterUniforms) {
+  /* ── 1. Zone + height maps ── */
+  const zoneMap = new Map(), hMap = new Map();
+  for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
+    for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
+      if (!isPlayableTerrainCell(gx, gz)) continue;
+      const wx = gx * TILE_S, wz = gz * TILE_S;
+      const h = terrainH(wx, wz);
+      const k = ck(gx, gz);
+      hMap.set(k, h);
+      if (isWaterCellWorld(wx, wz))   zoneMap.set(k, ZONE.WATER);
+      else if (isBeach(wx, wz))       zoneMap.set(k, ZONE.SAND);
+      else if (isOnPath(wx, wz))      zoneMap.set(k, ZONE.PATH);
+      else                            zoneMap.set(k, ZONE.GRASS);
     }
   }
 
-  /* beach */
-  if (x > 34 && z < -6) {
-    const t = smoothstep(x, 34, 40);
-    col = lerpColor(col, C_SAND, t);
-  }
+  const claimed = new Set();
+  const landH = [], waterH = [];
 
-  /* dirt paths */
-  const pd = distToPath(x, z);
-  if (pd < 2.6) {
-    const t = 1 - smoothstep(pd, 0.55, 2.6);
-    col = lerpColor(col, C_DIRT, t);
-  }
+  /* shorthand helpers */
+  const nz = (gx, gz, d) => { const [dx, dz] = DIR_DELTA[d]; return zoneMap.get(ck(gx + dx, gz + dz)); };
+  const nh = (gx, gz, d) => { const [dx, dz] = DIR_DELTA[d]; return hMap.get(ck(gx + dx, gz + dz)); };
+  const dz = (gx, gz, diag) => { const [dx, ddz] = DIAGS[diag]; return zoneMap.get(ck(gx + dx, gz + ddz)); };
 
-  /* village center area — slight dirt tint */
-  for (const s of SVC) {
-    const d = Math.hypot(x - s.x, z - s.z);
-    if (d < s.r) {
-      const t = (1 - smoothstep(d, s.r * 0.3, s.r)) * 0.6;
-      col = lerpColor(col, C_DIRT, t);
-    }
-  }
-
-  /* slope tinting for stronger low-poly terrain read */
-  if (slope > 0.05) {
-    const shade = smoothstep(slope, 0.05, 0.34) * 0.10;
-    col = lerpColor(col, [0.14, 0.50, 0.20], shade);
-  }
-
-  return col;
-}
-
-function buildGroundMesh() {
-  const xMin = -42, xMax = 50, zMin = -40, zMax = 42;
-  const STEP = 2;
-  const cols = Math.floor((xMax - xMin) / STEP);
-  const rows = Math.floor((zMax - zMin) / STEP);
-  const vCount = (cols + 1) * (rows + 1);
-
-  const positions = new Float32Array(vCount * 3);
-  const colors = new Float32Array(vCount * 3);
-  const indices = [];
-
-  for (let iz = 0; iz <= rows; iz++) {
-    for (let ix = 0; ix <= cols; ix++) {
-      const vi = iz * (cols + 1) + ix;
-      const x = xMin + ix * STEP;
-      const z = zMin + iz * STEP;
-      const y = terrainH(x, z);
-
-      positions[vi * 3]     = x;
-      positions[vi * 3 + 1] = y;
-      positions[vi * 3 + 2] = z;
-
-      const dx = terrainH(x + STEP * 0.45, z) - terrainH(x - STEP * 0.45, z);
-      const dz = terrainH(x, z + STEP * 0.45) - terrainH(x, z - STEP * 0.45);
-      const slope = Math.min(1, Math.hypot(dx, dz));
-      const c = getVertexColor(x, z, slope);
-      colors[vi * 3]     = c[0];
-      colors[vi * 3 + 1] = c[1];
-      colors[vi * 3 + 2] = c[2];
-    }
-  }
-
-  for (let iz = 0; iz < rows; iz++) {
-    for (let ix = 0; ix < cols; ix++) {
-      const a = iz * (cols + 1) + ix;
-      const b = a + 1;
-      const c = (iz + 1) * (cols + 1) + ix;
-      const d = c + 1;
-      if ((ix + iz) & 1) indices.push(a, c, d, a, d, b);
-      else indices.push(a, c, b, b, c, d);
-    }
-  }
-
-  const geo = new THREE.BufferGeometry();
-  geo.setIndex(indices);
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-  geo.computeVertexNormals();
-
-  const mat = new THREE.MeshToonMaterial({
-    vertexColors: true,
-    gradientMap: TOON_GRAD,
-    flatShading: true,
-  });
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.name = "ground_mesh";
-  mesh.renderOrder = R_GND;
-  return mesh;
-}
-
-function buildPathOverlayMesh() {
-  const pos = [];
-  const idx = [];
-
-  const pushPath = (points, width) => {
-    const curve = new THREE.CatmullRomCurve3(
-      points.map(([x, z]) => new THREE.Vector3(x, 0, z)),
-      false,
-      "centripetal",
-      0.3
-    );
-    const steps = Math.max(10, Math.round(curve.getLength() * 1.25));
-    let lastPair = -1;
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const p = curve.getPointAt(t);
-      if (isInRiver(p.x, p.z)) {
-        lastPair = -1; // break strip at river crossing
-        continue;
-      }
-
-      const tg = curve.getTangentAt(t).normalize();
-      const px = -tg.z, pz = tg.x;
-
-      const lx = p.x + px * width, lz = p.z + pz * width;
-      const rx = p.x - px * width, rz = p.z - pz * width;
-
-      // Use center height for both edges to prevent "pitched" path strips.
-      const y = terrainH(p.x, p.z) + 0.024;
-      const cur = pos.length / 3;
-      pos.push(lx, y, lz, rx, y, rz);
-
-      if (lastPair >= 0) {
-        const a = lastPair;
-        const b = a + 1;
-        const c = cur;
-        const d = c + 1;
-        idx.push(a, c, b, b, c, d);
-      }
-      lastPair = cur;
-    }
+  const putL = (tile, gx, gz, y, rot) => {
+    const t = lib[tile]; if (!t) return;
+    landH.push(...harvestTile(t, tileMat4(gx * TILE_S, y, gz * TILE_S, rot)));
+  };
+  const putW = (tile, gx, gz, y, rot) => {
+    const t = lib[tile]; if (!t) return;
+    waterH.push(...harvestTile(t, tileMat4(gx * TILE_S, y, gz * TILE_S, rot)));
   };
 
-  pushPath(PATH_LINES[0], 1.36);
-  pushPath(PATH_LINES[1], 1.52);
-  pushPath(PATH_LINES[2], 1.28);
-
-  const geo = new THREE.BufferGeometry();
-  geo.setIndex(idx);
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  geo.computeVertexNormals();
-
-  const path = new THREE.Mesh(geo, tMat("#d7c9af", { flatShading: true }));
-  path.name = "path_overlay";
-  path.renderOrder = R_GND + 2;
-  return path;
-}
-
-function buildBeachOverlayMesh() {
-  const mkLayer = (pts, color, yOff, ro) => {
-    const shape = new THREE.Shape();
-    shape.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i][0], pts[i][1]);
-    shape.closePath();
-
-    const geo = new THREE.ShapeGeometry(shape, 10);
-    const p = geo.attributes.position;
-    for (let i = 0; i < p.count; i++) {
-      const x = p.getX(i), z = p.getY(i);
-      p.setXYZ(i, x, terrainH(x, z) + yOff, z);
-    }
-    geo.computeVertexNormals();
-
-    const m = new THREE.Mesh(geo, tMat(color, { flatShading: true, side: THREE.DoubleSide }));
-    m.renderOrder = ro;
-    return m;
+  const canClaim = cells => {
+    for (const [x, z] of cells) if (claimed.has(ck(x, z)) || !zoneMap.has(ck(x, z))) return false;
+    return true;
   };
+  const claimAll = cells => { for (const [x, z] of cells) claimed.add(ck(x, z)); };
 
-  const g = new THREE.Group();
-  g.name = "beach_overlay";
+  /* ── 2a. 3×3 pass: sand corners ── */
+  for (let gx = GX_MIN + 1; gx <= GX_MAX - 1; gx++) {
+    for (let gz = GZ_MIN + 1; gz <= GZ_MAX - 1; gz++) {
+      const k = ck(gx, gz);
+      if (zoneMap.get(k) !== ZONE.SAND) continue;
+      const cells = [];
+      for (let dx = -1; dx <= 1; dx++)
+        for (let ddz = -1; ddz <= 1; ddz++)
+          cells.push([gx + dx, gz + ddz]);
+      if (!canClaim(cells)) continue;
+      const h = hMap.get(k);
 
-  const basePts = [
-    [30.2, -23.2], [36.8, -23.2], [43.8, -22.0], [48.4, -19.3], [49.6, -15.4],
-    [47.8, -11.4], [44.0, -8.6], [38.0, -7.9], [33.6, -9.1], [31.0, -12.0],
-    [29.6, -16.6], [29.4, -21.2],
-  ];
-  const patch1 = [
-    [33.3, -21.3], [39.8, -20.8], [44.3, -18.7], [45.5, -15.5], [43.9, -12.5],
-    [40.5, -11.2], [35.8, -11.8], [33.5, -14.5], [32.9, -18.2],
-  ];
-  const patch2 = [
-    [36.2, -18.2], [40.8, -17.6], [43.1, -15.2], [41.9, -12.9], [38.0, -13.0],
-    [35.9, -15.0],
-  ];
+      /* Outer: 2 adjacent non-sand cardinal */
+      const nonSand = DIRS.filter(d => { const n = nz(gx, gz, d); return n != null && n !== ZONE.SAND; });
+      if (nonSand.length === 2) {
+        for (const [a, b] of ADJ_PAIRS) {
+          if (nonSand.includes(a) && nonSand.includes(b)) {
+            putL("sandCornerOuter", gx, gz, h - GRASS_Y, CORNER_ROT[a + "," + b] ?? 0);
+            claimAll(cells); break;
+          }
+        }
+        if (claimed.has(k)) continue;
+      }
 
-  g.add(mkLayer(basePts, "#efe3c6", 0.03, R_GND + 1));
-  g.add(mkLayer(patch1, "#e4d6b1", 0.04, R_GND + 2));
-  g.add(mkLayer(patch2, "#f6edd5", 0.05, R_GND + 3));
-  return g;
+      /* Inner: all cardinal sand, 1 diagonal non-sand */
+      if (nonSand.length === 0) {
+        for (const diag of ["ne", "se", "sw", "nw"]) {
+          const d2 = dz(gx, gz, diag);
+          if (d2 != null && d2 !== ZONE.SAND) {
+            putL("sandCornerInner", gx, gz, h - GRASS_Y, DIAG_ROT[diag]);
+            claimAll(cells); break;
+          }
+        }
+      }
+    }
+  }
+
+  /* ── 2b. 2×2 pass: hill corners ── */
+  for (let gx = GX_MIN; gx <= GX_MAX - 1; gx += 2) {
+    for (let gz = GZ_MIN; gz <= GZ_MAX - 1; gz += 2) {
+      const cells = [[gx, gz], [gx + 1, gz], [gx, gz + 1], [gx + 1, gz + 1]];
+      if (!canClaim(cells)) continue;
+      const k = ck(gx, gz);
+      if (zoneMap.get(k) === ZONE.WATER) continue;
+      const h = hMap.get(k);
+      const drops = {};
+      for (const d of DIRS) { const n = nh(gx, gz, d); drops[d] = n != null ? h - n : 0; }
+      const topY = Math.max(0, h - GRASS_Y);
+
+      /* Outer corner: 2 adjacent drops */
+      let placed = false;
+      for (const [a, b] of ADJ_PAIRS) {
+        if (drops[a] > DROP_MIN && drops[b] > DROP_MIN) {
+          putL("hillCornerOuter", gx, gz, topY, CORNER_ROT[a + "," + b] ?? 0);
+          claimAll(cells); placed = true; break;
+        }
+      }
+      if (placed) continue;
+
+      /* Inner corner: 2 adjacent raises */
+      for (const [a, b] of ADJ_PAIRS) {
+        if (drops[a] < -DROP_MIN && drops[b] < -DROP_MIN) {
+          putL("hillCornerInner", gx, gz, topY, INNER_ROT[a + "," + b] ?? 0);
+          claimAll(cells); break;
+        }
+      }
+    }
+  }
+
+  /* ── 3. Single-cell edge pass ── */
+  for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
+    for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
+      const k = ck(gx, gz);
+      if (claimed.has(k) || !zoneMap.has(k)) continue;
+      const z = zoneMap.get(k), h = hMap.get(k);
+
+      /* Water → slope toward land */
+      if (z === ZONE.WATER) {
+        for (const d of DIRS) {
+          const n = nz(gx, gz, d);
+          if (n != null && n !== ZONE.WATER) {
+            putW("waterSlope", gx, gz, 0, DIR_ROT[d]);
+            claimed.add(k); break;
+          }
+        }
+        continue; // remaining water filled in pass 4
+      }
+
+      /* Height-based hill tiles for non-water cells */
+      const drops = {};
+      const dropDirs = [];
+      for (const d of DIRS) {
+        const n = nh(gx, gz, d);
+        drops[d] = n != null ? h - n : 0;
+        if (drops[d] > DROP_MIN) dropDirs.push(d);
+      }
+      const topY = Math.max(0, h - GRASS_Y);
+
+      if (dropDirs.length >= 2) {
+        /* Opposite drops → ridge */
+        for (const [a, b] of OPP_PAIRS) {
+          if (drops[a] > DROP_MIN && drops[b] > DROP_MIN) {
+            putL("hillSideOnSide", gx, gz, topY, a === "n" ? 0 : -Math.PI / 2);
+            claimed.add(k); break;
+          }
+        }
+        if (claimed.has(k)) continue;
+      }
+
+      if (dropDirs.length >= 1) {
+        let bestDir = dropDirs[0], bestVal = drops[dropDirs[0]];
+        for (const d of dropDirs) if (drops[d] > bestVal) { bestVal = drops[d]; bestDir = d; }
+        putL("hillSide", gx, gz, topY, DIR_ROT[bestDir]);
+        claimed.add(k); continue;
+      }
+
+      /* Zone-specific edge tiles (flat boundaries) */
+      if (z === ZONE.SAND) {
+        const ns = DIRS.filter(d => { const n = nz(gx, gz, d); return n != null && n !== ZONE.SAND; });
+        if (ns.length >= 2) {
+          for (const [a, b] of OPP_PAIRS) {
+            if (ns.includes(a) && ns.includes(b)) {
+              putL("sandSideOverlap", gx, gz, h - GRASS_Y, DIR_ROT[a]);
+              claimed.add(k); break;
+            }
+          }
+          if (claimed.has(k)) continue;
+          for (const [a, b] of ADJ_PAIRS) {
+            if (ns.includes(a) && ns.includes(b)) {
+              putL("sandSide", gx, gz, h - GRASS_Y, DIR_ROT[a]);
+              claimed.add(k); break;
+            }
+          }
+          if (claimed.has(k)) continue;
+        }
+        if (ns.length === 1) {
+          putL("sandSide", gx, gz, h - GRASS_Y, DIR_ROT[ns[0]]);
+          claimed.add(k); continue;
+        }
+      }
+
+      if (z === ZONE.PATH) {
+        const np = DIRS.filter(d => { const n = nz(gx, gz, d); return n != null && n !== ZONE.PATH; });
+        if (np.length >= 2) {
+          for (const [a, b] of ADJ_PAIRS) {
+            if (np.includes(a) && np.includes(b)) {
+              putL("pathCornerOuter1x1", gx, gz, h, CORNER_ROT[a + "," + b] ?? 0);
+              claimed.add(k); break;
+            }
+          }
+          if (claimed.has(k)) continue;
+        }
+        if (np.length === 1) {
+          putL("pathSide", gx, gz, h, DIR_ROT[np[0]]);
+          claimed.add(k); continue;
+        }
+        if (np.length === 0) {
+          for (const diag of ["ne", "se", "sw", "nw"]) {
+            const d2 = dz(gx, gz, diag);
+            if (d2 != null && d2 !== ZONE.PATH) {
+              putL("pathCornerInner1x1", gx, gz, h, DIAG_ROT[diag]);
+              claimed.add(k); break;
+            }
+          }
+          if (claimed.has(k)) continue;
+        }
+      }
+    }
+  }
+
+  /* ── 4. Fill pass: flat tiles for remaining cells ── */
+  for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
+    for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
+      const k = ck(gx, gz);
+      if (claimed.has(k) || !zoneMap.has(k)) continue;
+      const z = zoneMap.get(k), h = hMap.get(k);
+      switch (z) {
+        case ZONE.WATER: putW("waterFlat", gx, gz, 0, 0);          break;
+        case ZONE.SAND:  putL("sandFlat",  gx, gz, h - GRASS_Y, 0); break;
+        case ZONE.PATH:  putL("pathCenter", gx, gz, h, 0);          break;
+        default:         putL("grass",      gx, gz, h - GRASS_Y, 0); break;
+      }
+    }
+  }
+
+  /* ── 5. Merge terrain geometry ── */
+  const terrainMeshes = mergeByMaterial(landH);
+  const group = new THREE.Group();
+  group.name = "terrain";
+  terrainMeshes.forEach(m => group.add(m));
+
+  /* ── 6. Merge water geometry with wave animation ── */
+  const waterMeshes = mergeByMaterial(waterH);
+  for (const m of waterMeshes) {
+    m.material.onBeforeCompile = shader => {
+      shader.uniforms.uTime = waterUniforms.uTime;
+      shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <begin_vertex>",
+        `#include <begin_vertex>
+         transformed.y += sin(transformed.x*0.18+uTime*0.6)*0.02
+                        + cos(transformed.z*0.15+uTime*0.4)*0.015;`
+      );
+    };
+    m.renderOrder = R_WATER;
+    group.add(m);
+  }
+
+  /* ── 7. Cliffs ── */
+  buildCliffs(lib).forEach(m => group.add(m));
+
+  return group;
 }
 
 /* ═══════════════════════════════════════════
-   buildCliffs() — stacked cliff tiles from asset pack
+   buildCliffs() — stacked cliff tiles
    ═══════════════════════════════════════════ */
 
 function buildCliffs(lib) {
@@ -472,12 +539,11 @@ function buildCliffs(lib) {
     push(top, x, 2 * TILE_S, z, rot);
   };
 
-  /* North cliff wall (gz=20): 3-tier stack with curved throat around waterfall */
+  /* North cliff wall (gz=20) */
   for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
     const wx = gx * TILE_S, wz = 20 * TILE_S;
     let rot = 0;
     let base = "cliffBaseStr", mid = "cliffMidStr", top = "cliffTopStr";
-
     if (gx === 0) {
       base = "cliffBaseWF"; mid = "cliffMidWF"; top = "cliffTopWF";
     } else if (gx === -1) {
@@ -492,20 +558,18 @@ function buildCliffs(lib) {
       base = "cliffBaseCornerOuterSm"; mid = "cliffMidCornerOuterSm"; top = "cliffTopCornerOuterSm";
     }
     pushStack(wx, wz, rot, base, mid, top);
-
-    // Break long straight skyline with gentle curved cliff-top segments.
     if (gx !== 0 && gx % 6 === 0) push("cliffTopHillGentle", wx, 2 * TILE_S, wz, 0);
   }
 
-  /* West cliff wall (gx=-20): 2-tier stack */
+  /* West cliff wall (gx=-20) */
   for (let gz = GZ_MIN; gz < 20; gz++) {
-    if (gz === -19) continue; // south corner handled by south wall
+    if (gz === -19) continue;
     const wx = -20 * TILE_S, wz = gz * TILE_S;
     pushPair(wx, wz, -Math.PI / 2, "cliffBaseStr", "cliffMidStr");
     if (gz % 7 === 0) push("cliffBaseHillGentle", wx, 0, wz, -Math.PI / 2);
   }
 
-  /* South cliff wall (gz=-19): 2-tier stack with curved west corner */
+  /* South cliff wall (gz=-19) */
   for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
     const wx = gx * TILE_S, wz = -19 * TILE_S;
     if (gx === -20) {
@@ -519,16 +583,10 @@ function buildCliffs(lib) {
   return mergeByMaterial(harvested);
 }
 
-function buildRiverBankCurves(lib) {
-  // Disabled: water-slope tile overlays produced visible spikes/tears.
-  return [];
-}
-
 /* ═══════════════════════════════════════════
-   buildProps() — scatter decorations from tile pack
+   buildProps() — scatter decorations
    ═══════════════════════════════════════════ */
 
-/* seeded PRNG */
 function mulberry32(seed) {
   let s = seed | 0;
   return () => {
@@ -562,7 +620,6 @@ export function buildProps(lib, scene) {
   const shellKeys = ["shell1", "shell2", "starfish1", "starfish2"];
   const palmKeys = ["palmTree1", "palmTree2"];
 
-  /* Grass clumps (~80) on meadows */
   for (let i = 0; i < 80; i++) {
     const x = rand(-36, 28), z = rand(-34, 36);
     const rq = riverQuery(x, z);
@@ -573,7 +630,6 @@ export function buildProps(lib, scene) {
     place(grassKeys[i % grassKeys.length], x, z, rand(0.7, 1.1), rng() * Math.PI * 2);
   }
 
-  /* Flowers (~40) on meadows */
   for (let i = 0; i < 40; i++) {
     const x = rand(-34, 26), z = rand(-30, 34);
     const rq = riverQuery(x, z);
@@ -584,7 +640,6 @@ export function buildProps(lib, scene) {
     place(flowerKeys[i % flowerKeys.length], x, z, rand(0.6, 1.0), rng() * Math.PI * 2);
   }
 
-  /* Cattails (~15) along riverbanks */
   for (let i = 0; i < 15; i++) {
     const x = rand(-10, 30), z = rand(-16, 38);
     const rq = riverQuery(x, z);
@@ -592,7 +647,6 @@ export function buildProps(lib, scene) {
     place(cattailKeys[i % cattailKeys.length], x, z, rand(0.8, 1.2), rng() * Math.PI * 2);
   }
 
-  /* Mushrooms (~10) near hills */
   for (let i = 0; i < 10; i++) {
     const x = rand(-32, 34), z = rand(10, 34);
     const rq = riverQuery(x, z);
@@ -601,7 +655,6 @@ export function buildProps(lib, scene) {
     place(mushKeys[i % mushKeys.length], x, z, rand(0.6, 1.0), rng() * Math.PI * 2);
   }
 
-  /* Beach props (~12): shells, starfish, palms */
   for (let i = 0; i < 8; i++) {
     const x = rand(32, 46), z = rand(-22, 2);
     if (isInRiver(x, z)) continue;
@@ -613,212 +666,16 @@ export function buildProps(lib, scene) {
     place(palmKeys[i % palmKeys.length], x, z, rand(0.8, 1.2), rng() * Math.PI * 2);
   }
 
-  /* Stumps (~5) near tree spots */
   const stumpSpots = [[22, 20], [26, 26], [-24, 20], [-18, 24], [30, 24]];
   for (const [sx, sz] of stumpSpots) {
     const ox = sx + rand(-2, 2), oz = sz + rand(-2, 2);
     place("stump", ox, oz, rand(0.7, 1.0), rng() * Math.PI * 2);
   }
 
-  /* Hollow trunk */
   place("hollowTrunk", -28, 18, 0.9, rand(0, Math.PI * 2));
 
   scene.add(group);
   return group;
-}
-
-/* Return ground-tile placements for a grid cell (cliffs handled separately). */
-const DIR_ROT = Object.freeze({
-  n: 0,
-  e: -Math.PI / 2,
-  s: Math.PI,
-  w: Math.PI / 2,
-});
-const HILL_STEP_MIN = 1.05;
-const HILL_ZONE_MIN_H = GRASS_Y + (HILL_Y - GRASS_Y) * 0.36;
-
-function isPlayableTerrainCell(gx, gz) {
-  return !(gz > 19 || gx < -19 || gz < -18);
-}
-
-function isOceanCell(wx, wz) {
-  return wx > 34 && terrainH(wx, wz) < WATER_Y + 0.08;
-}
-
-function isWaterCellWorld(wx, wz) {
-  return isInRiver(wx, wz) || isOceanCell(wx, wz);
-}
-
-function pickPrimaryDropDir(drops) {
-  let bestDir = null;
-  let bestVal = -1e9;
-  for (const d of ["n", "e", "s", "w"]) {
-    if (drops[d] > bestVal) {
-      bestVal = drops[d];
-      bestDir = d;
-    }
-  }
-  return { dir: bestDir, val: bestVal };
-}
-
-function getCellPlacements(gx, gz) {
-  const wx = gx * TILE_S, wz = gz * TILE_S;
-
-  if (!isPlayableTerrainCell(gx, gz)) return null;
-
-  // Water body is rendered by buildWater() ribbon/ocean mesh.
-  if (isWaterCellWorld(wx, wz)) return null;
-
-  // Beach / paths / grass.
-  if (isBeach(wx, wz)) {
-    const h = terrainH(wx, wz);
-    return [{ tile: "sandFlat", y: h - GRASS_Y, rot: 0 }];
-  }
-  if (isOnPath(wx, wz)) {
-    const h = terrainH(wx, wz);
-    return [{ tile: "pathCenter", y: h, rot: 0 }];
-  }
-
-  const h = terrainH(wx, wz);
-  const hn = terrainH(wx, wz + TILE_S);
-  const hs = terrainH(wx, wz - TILE_S);
-  const he = terrainH(wx + TILE_S, wz);
-  const hw = terrainH(wx - TILE_S, wz);
-
-  // Use hill transition tiles only where we have real large elevation changes.
-  // This avoids the "all flat tiles at different Y" staircase look in highland zones.
-  const inHillZone = h >= HILL_ZONE_MIN_H || hn >= HILL_ZONE_MIN_H || hs >= HILL_ZONE_MIN_H || he >= HILL_ZONE_MIN_H || hw >= HILL_ZONE_MIN_H;
-  if (inHillZone) {
-    const drops = { n: h - hn, e: h - he, s: h - hs, w: h - hw };
-    const cut = HILL_STEP_MIN;
-    const down = {
-      n: drops.n > cut,
-      e: drops.e > cut,
-      s: drops.s > cut,
-      w: drops.w > cut,
-    };
-    const downCount = (down.n ? 1 : 0) + (down.e ? 1 : 0) + (down.s ? 1 : 0) + (down.w ? 1 : 0);
-    const topY = Math.max(0, h - GRASS_Y);
-
-    if (downCount >= 2 && (gx % 2 === 0) && (gz % 2 === 0)) {
-      if (down.n && down.e) return [{ tile: "hillCornerOuter", y: topY, rot: 0 }];
-      if (down.e && down.s) return [{ tile: "hillCornerOuter", y: topY, rot: -Math.PI / 2 }];
-      if (down.s && down.w) return [{ tile: "hillCornerOuter", y: topY, rot: Math.PI }];
-      if (down.w && down.n) return [{ tile: "hillCornerOuter", y: topY, rot: Math.PI / 2 }];
-      if ((down.n && down.s) || (down.e && down.w)) {
-        return [{ tile: "hillSideOnSide", y: topY, rot: down.n ? 0 : -Math.PI / 2 }];
-      }
-    }
-
-    if (downCount >= 1) {
-      const { dir } = pickPrimaryDropDir(drops);
-      const useEveryOther = (dir === "n" || dir === "s") ? (gz % 2 === 0) : (gx % 2 === 0);
-      if (dir && useEveryOther) {
-        return [{ tile: "hillSide", y: topY, rot: DIR_ROT[dir] }];
-      }
-    }
-  }
-
-  return [{ tile: "grass", y: h - GRASS_Y, rot: 0 }];
-}
-
-/* ═══════════════════════════════════════════
-   buildTerrain() — tile-driven terrain (no gradient ground mesh)
-   ═══════════════════════════════════════════ */
-
-export function buildTerrain(lib) {
-  const harvested = [];
-  for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
-    for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
-      const placements = getCellPlacements(gx, gz);
-      if (!placements) continue;
-      const wx = gx * TILE_S, wz = gz * TILE_S;
-      for (const { tile, y, rot } of placements) {
-        const tmpl = lib[tile];
-        if (!tmpl) continue;
-        harvested.push(...harvestTile(tmpl, tileMat4(wx, y, wz, rot)));
-      }
-    }
-  }
-
-  // Curved cliff walls/corners from the tile set.
-  const cliffMeshes = buildCliffs(lib);
-
-  const meshes = mergeByMaterial(harvested);
-  const group = new THREE.Group();
-  group.name = "terrain";
-  meshes.forEach(m => group.add(m));
-  cliffMeshes.forEach(m => group.add(m));
-  return group;
-}
-
-/* ═══════════════════════════════════════════
-   buildWater() — river + ocean water surface
-   ═══════════════════════════════════════════ */
-
-export function buildWater(waterUniforms) {
-  /* River ribbon: sample centre-line, build strip */
-  const RP = [
-    [0, 40, 2.5], [0, 34, 2.5], [0, 26, 2.8], [0, 18, 3.0],
-    [0, 12, 3.2], [0, 6, 3.5], [2, 2, 3.5], [6, -2, 4.0],
-    [12, -6, 4.5], [20, -10, 5.0], [28, -14, 5.5], [36, -14, 6.5], [48, -14, 8.0],
-  ];
-  const pos = [], idx = [];
-  for (let i = 0; i < RP.length; i++) {
-    const [cx, cz, hw] = RP[i];
-    let dx = 0, dz = 1;
-    if (i < RP.length - 1) { dx = RP[i + 1][0] - cx; dz = RP[i + 1][1] - cz; }
-    else if (i > 0) { dx = cx - RP[i - 1][0]; dz = cz - RP[i - 1][1]; }
-    const len = Math.hypot(dx, dz) || 1;
-    const px = -dz / len, pz = dx / len;
-    pos.push(cx + px * hw, 0, cz + pz * hw);
-    pos.push(cx - px * hw, 0, cz - pz * hw);
-    if (i > 0) {
-      const a = (i - 1) * 2, b = a + 1, c = i * 2, d = c + 1;
-      idx.push(a, c, b, b, c, d);
-    }
-  }
-  /* ocean rectangle on east side */
-  const oi = pos.length / 3;
-  pos.push(34, 0, 6, 58, 0, 6, 58, 0, -30, 34, 0, -30);
-  idx.push(oi, oi + 1, oi + 2, oi, oi + 2, oi + 3);
-
-  const geo = new THREE.BufferGeometry();
-  geo.setIndex(idx);
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  geo.computeVertexNormals();
-
-  const mat = new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
-    side: THREE.DoubleSide,
-    uniforms: waterUniforms,
-    vertexShader: `
-      varying vec2 vW; uniform float uTime;
-      void main(){
-        vec3 p = position;
-        p.y += sin(p.x*.18+uTime*.6)*.02 + cos(p.z*.15+uTime*.4)*.015;
-        vW = p.xz;
-        gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
-      }`,
-    fragmentShader: `
-      varying vec2 vW; uniform float uTime;
-      void main(){
-        float d = length(vW - vec2(24.0,-10.0));
-        vec3 deep = vec3(.18,.48,.62), shallow = vec3(.56,.86,.94);
-        float t = smoothstep(0.0,35.0,d);
-        vec3 c = mix(deep,shallow,t);
-        c += sin(vW.x*.6+vW.y*.4+uTime*1.2)*.016;
-        c += cos(vW.x*.3-vW.y*.5+uTime*.7)*.012;
-        float alpha = mix(0.42,0.28,t);
-        gl_FragColor = vec4(c,alpha);
-      }`,
-  });
-
-  const water = new THREE.Mesh(geo, mat);
-  water.position.y = WATER_Y + 0.01;
-  water.renderOrder = R_WATER;
-  return water;
 }
 
 /* ═══════════════════════════════════════════
@@ -828,9 +685,7 @@ export function buildWater(waterUniforms) {
 export function buildBridge(lib) {
   const group = new THREE.Group();
   group.name = "bridge";
-
-  /* Bridge spans the river at z ≈ 8, east-west across x = 0 */
-  const bz = 8, bw = 4; // 4 planks wide
+  const bz = 8, bw = 4;
   const deckY = WATER_Y + 0.35;
 
   for (let i = -bw; i <= bw; i++) {
@@ -843,7 +698,6 @@ export function buildBridge(lib) {
     group.add(m);
   }
 
-  /* support posts */
   if (lib.bridgePost) {
     for (const ox of [-bw * 0.5 * TILE_S, bw * 0.5 * TILE_S]) {
       const p = lib.bridgePost.clone();
@@ -853,7 +707,6 @@ export function buildBridge(lib) {
     }
   }
 
-  /* flat walkable deck for raycasting */
   const deckGeo = new THREE.BoxGeometry(bw * TILE_S + 2, 0.15, TILE_S * 1.5);
   const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
   deck.position.set(0, deckY + 0.2, bz);
@@ -871,32 +724,29 @@ export function buildBridge(lib) {
 export function buildDock(lib) {
   const group = new THREE.Group();
   group.name = "dock";
-  const dx = 40, dz = -16;
+  const dx = 40, ddz = -16;
   const deckY = WATER_Y + 0.3;
 
-  /* dock planks extending east into water */
   for (let i = 0; i < 6; i++) {
     const tmpl = lib.dockStr;
     if (!tmpl) continue;
     const m = tmpl.clone();
     m.scale.setScalar(TILE_S);
-    m.position.set(dx + i * TILE_S, deckY, dz);
+    m.position.set(dx + i * TILE_S, deckY, ddz);
     m.rotation.y = Math.PI / 2;
     group.add(m);
-    /* supports under */
     if (lib.dockStrSup) {
       const s = lib.dockStrSup.clone();
       s.scale.setScalar(TILE_S);
-      s.position.set(dx + i * TILE_S, deckY - 0.6, dz);
+      s.position.set(dx + i * TILE_S, deckY - 0.6, ddz);
       s.rotation.y = Math.PI / 2;
       group.add(s);
     }
   }
 
-  /* flat walkable deck for raycasting */
   const deckGeo = new THREE.BoxGeometry(6 * TILE_S, 0.15, TILE_S * 1.5);
   const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
-  deck.position.set(dx + 2.5 * TILE_S, deckY + 0.15, dz);
+  deck.position.set(dx + 2.5 * TILE_S, deckY + 0.15, ddz);
   deck.name = "dock_deck";
   group.add(deck);
 
@@ -937,17 +787,17 @@ export function buildFences(lib) {
   for (const run of runs) {
     for (let i = 0; i < run.length - 1; i++) {
       const [ax, az] = run[i], [bx, bz] = run[i + 1];
-      const dx = bx - ax, dz = bz - az;
-      const segLen = Math.hypot(dx, dz);
+      const ddx = bx - ax, ddz = bz - az;
+      const segLen = Math.hypot(ddx, ddz);
       const steps = Math.max(1, Math.round(segLen / spacing));
-      const rot = Math.atan2(dx, dz);
+      const rot = Math.atan2(ddx, ddz);
       for (let s = 0; s <= steps; s++) {
         if (i > 0 && s === 0) continue;
         const t = s / steps;
-        const x = ax + dx * t, z = az + dz * t;
+        const x = ax + ddx * t, z = az + ddz * t;
         if (s < steps) {
           const mt = (s + 0.5) / steps;
-          addBoard(ax + dx * mt, az + dz * mt, rot);
+          addBoard(ax + ddx * mt, az + ddz * mt, rot);
         }
         addPost(x, z, rot);
       }
@@ -966,10 +816,8 @@ export function buildFences(lib) {
 export function buildSteppingStones() {
   const group = new THREE.Group();
   group.name = "stepping_stones";
-
   const stoneGeo = new THREE.CylinderGeometry(0.55, 0.65, 0.25, 8);
   const stoneMat = tMat("#8a8a82");
-
   const spots = [
     [0, 20], [-1, 18], [1, 16],
     [4, -1], [8, -4], [12, -7],
@@ -981,7 +829,6 @@ export function buildSteppingStones() {
     stone.renderOrder = R_WATER + 1;
     group.add(stone);
   }
-
   return group;
 }
 
@@ -994,7 +841,6 @@ export function addWaterfall(scene, waterUniforms) {
   const topY = terrainH(cx, 48) + 1.5;
   const botY = WATER_Y + 0.2;
 
-  /* stone ledges */
   const ledgeMat = tMat("#8f8e87");
   const ledges = [
     { y: topY, z: 46, w: 7, h: 1.2, d: 3 },
@@ -1008,7 +854,6 @@ export function addWaterfall(scene, waterUniforms) {
     scene.add(m);
   }
 
-  /* animated water cascade */
   const wfMat = new THREE.ShaderMaterial({
     transparent: true, side: THREE.DoubleSide,
     uniforms: { uTime: waterUniforms.uTime },
@@ -1026,7 +871,6 @@ export function addWaterfall(scene, waterUniforms) {
       }`,
   });
 
-  /* cascade planes from ledge to ledge */
   const pts = [
     [cx, topY, 47], [cx, topY * 0.65 + botY * 0.35 + 0.5, 44],
     [cx, botY + 0.8, 42], [cx, botY, 40.5],
@@ -1042,7 +886,6 @@ export function addWaterfall(scene, waterUniforms) {
     scene.add(plane);
   }
 
-  /* foam at base */
   const foam = new THREE.Mesh(
     new THREE.CircleGeometry(3.5, 16),
     new THREE.MeshBasicMaterial({ color: "#c8e8f0", transparent: true, opacity: 0.4 })
@@ -1058,18 +901,15 @@ export function addWaterfall(scene, waterUniforms) {
    ═══════════════════════════════════════════ */
 
 export const TREE_SPOTS = [
-  /* NE hills – woodcutting */
   [20, 18, 2.2, 1.8], [28, 28, 2.4, 3.6], [18, 28, 2.1, 0.9],
   [32, 20, 1.9, 2.4], [24, 32, 2.3, 4.2],
-  /* NW hills */
   [-22, 18, 2.0, 1.0], [-30, 24, 1.9, 5.2], [-20, 26, 2.2, 4.5],
-  /* meadow edges */
   [-16, -18, 1.7, 2.1], [14, -18, 1.6, 0.7], [-8, -42, 2.4, 3.3],
 ];
 
 export const ROCK_MAJOR_SPOTS = [
-  [30, 30, 1.55, 0.3],   /* NE hill */
-  [-28, 26, 1.6, 1.4],   /* NW hill */
+  [30, 30, 1.55, 0.3],
+  [-28, 26, 1.6, 1.4],
 ];
 
 export const ROCK_SMALL_SPOTS = [

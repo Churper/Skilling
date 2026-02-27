@@ -6,7 +6,7 @@ import {
   getWaterSurfaceHeight as _getWaSH,
 } from "./terrainHeight.js";
 import {
-  loadTiles, buildTerrain, buildWater, buildBridge,
+  loadTiles, buildTerrain, buildBridge,
   buildDock, buildFences, buildSteppingStones, addWaterfall, buildProps,
   TREE_SPOTS, ROCK_MAJOR_SPOTS, ROCK_SMALL_SPOTS,
   BUSH_SPOTS, CLIFF_ROCK_SPOTS, FISHING_SPOT_POSITIONS,
@@ -413,8 +413,8 @@ export async function createWorld(scene) {
   ground.name = "ground";
 
   if (tileLib) {
-    /* merged terrain tiles */
-    const terrain = buildTerrain(tileLib);
+    /* merged terrain tiles (includes water tile geometry) */
+    const terrain = buildTerrain(tileLib, waterUniforms);
     ground.add(terrain);
     buildProps(tileLib, scene);
 
@@ -435,10 +435,6 @@ export async function createWorld(scene) {
   }
 
   scene.add(ground);
-
-  /* river + ocean water surface */
-  const water = buildWater(waterUniforms);
-  scene.add(water);
 
   /* stepping stones in river */
   const stones = buildSteppingStones();
