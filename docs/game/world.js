@@ -6,14 +6,14 @@ import {
   getWaterSurfaceHeight as _getWaSH,
 } from "./terrainHeight.js";
 import {
-  loadTiles, buildTerrain, buildBridge,
-  buildDock, buildFences, buildSteppingStones, addWaterfall, buildProps,
+  buildTerrainMesh, buildBridge,
+  buildDock, buildFences, buildSteppingStones, addWaterfall,
   TREE_SPOTS, ROCK_MAJOR_SPOTS, ROCK_SMALL_SPOTS,
   BUSH_SPOTS, CLIFF_ROCK_SPOTS, FISHING_SPOT_POSITIONS,
 } from "./terrainLayout.js";
 
 /* ══════════════════════════════════════════════════════════
-   world.js — modular-tile terrain with river, cliffs, beach
+   world.js — procedural-mesh terrain with river, hills, beach
    ══════════════════════════════════════════════════════════ */
 
 /* ── re-export height API (keeps import contract for main.js) ── */
@@ -56,39 +56,6 @@ function m3(geo, mat, x, y, z, ro) {
   m.position.set(x, y, z);
   if (ro != null) m.renderOrder = ro;
   return m;
-}
-
-async function loadTerrainTilemap() {
-  try {
-    const resp = await fetch(`tilemap.json?v=${Date.now()}`, { cache: "no-store" });
-    if (!resp.ok) throw new Error(String(resp.status));
-    const data = await resp.json();
-    if (!data) return null;
-    return data.tiles ? data : { tiles: data };
-  } catch (e) {
-    console.warn("Tilemap load failed; falling back to runtime autotiling:", e);
-    return null;
-  }
-}
-
-let ACTIVE_GROUND = null;
-const GROUND_RAY = new THREE.Raycaster();
-const GROUND_RAY_ORIGIN = new THREE.Vector3();
-const GROUND_RAY_DIR = new THREE.Vector3(0, -1, 0);
-
-function getPlacedSurfaceY(x, z, allowWater = false) {
-  if (ACTIVE_GROUND) {
-    const baseY = _getWSH(x, z);
-    GROUND_RAY_ORIGIN.set(x, baseY + 40, z);
-    GROUND_RAY.set(GROUND_RAY_ORIGIN, GROUND_RAY_DIR);
-    GROUND_RAY.far = 120;
-    const hits = GROUND_RAY.intersectObject(ACTIVE_GROUND, true);
-    for (const h of hits) {
-      if (!allowWater && h.object?.userData?.isWaterSurface) continue;
-      if (Number.isFinite(h.point?.y)) return h.point.y;
-    }
-  }
-  return _getWSH(x, z);
 }
 
 /* ── Layout constants ── */
@@ -156,7 +123,7 @@ const blobTex = (() => {
   return t;
 })();
 function addBlob(scene, x, z, radius = 1.8, opacity = .2) {
-  const y = getPlacedSurfaceY(x, z, false);
+  const y = terrainH(x, z);
   const m = new THREE.Mesh(
     new THREE.PlaneGeometry(radius * 2, radius * 2),
     new THREE.MeshBasicMaterial({
@@ -205,7 +172,7 @@ async function loadModels() {
 
 function placeM(scene, tmpl, x, z, s, r) {
   const m = tmpl.clone(); m.scale.setScalar(s); m.rotation.y = r;
-  m.position.set(x, getPlacedSurfaceY(x, z, false), z); scene.add(m); return m;
+  m.position.set(x, terrainH(x, z), z); scene.add(m); return m;
 }
 
 /* ── Trees ── */
@@ -225,7 +192,7 @@ function placeRocks(scene, M, nodes) {
     if (inKO(x, z, 1.6)) return;
     const m = C[i % C.length].clone();
     m.scale.setScalar(s); m.rotation.y = r;
-    m.position.set(x, getPlacedSurfaceY(x, z, false), z); scene.add(m);
+    m.position.set(x, terrainH(x, z), z); scene.add(m);
     setRes(m, "mining", "Rock"); nodes.push(m);
   };
   ROCK_MAJOR_SPOTS.forEach(([x, z, s, r], i) => spawnRock(x, z, s, r, i));
@@ -252,7 +219,7 @@ function placeBushes(scene, M) {
 
 /* ── Buildings ── */
 function addBank(scene, x, z, nodes) {
-  const y = getPlacedSurfaceY(x, z, false), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = terrainH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   setSvc(g, "bank", "Bank Chest");
   g.add(m3(new THREE.CylinderGeometry(1.2, 1.3, .3, 8), toonMat("#7a9eb5"), 0, .15, 0, R_DECOR));
   g.add(m3(new THREE.BoxGeometry(1.3, .7, .85), toonMat("#d4a63c"), 0, .65, 0, R_DECOR));
@@ -265,7 +232,7 @@ function addBank(scene, x, z, nodes) {
   if (nodes) nodes.push(addHS(g, 0, .95, .55));
 }
 function addStore(scene, x, z, nodes) {
-  const y = getPlacedSurfaceY(x, z, false), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = terrainH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   setSvc(g, "store", "General Store");
   g.add(m3(new THREE.BoxGeometry(2.6, .25, 1.5), toonMat("#9a7044"), 0, .12, 0, R_DECOR));
   g.add(m3(new THREE.BoxGeometry(2.4, 1.4, .15), toonMat("#7e5a30"), 0, .95, -.65, R_DECOR));
@@ -275,12 +242,12 @@ function addStore(scene, x, z, nodes) {
   const pL = new THREE.Mesh(new THREE.CylinderGeometry(.07, .09, 1.25, 6), toonMat("#9a7a4e"));
   pL.position.set(-1.1, .8, .55); pL.renderOrder = R_DECOR; g.add(pL);
   g.add(pL.clone().translateX(2.2));
-  g.add(m3(new THREE.BoxGeometry(1, .35, .06), toonMat("#3f657d"), 0, 1.2, .72, R_DECOR));
+  g.add(m3(new THREE.BoxGeometry(1, .35, .06), toonMat("#3f657d"), 0, 1.2, .72, R_DECOR + 1));
   scene.add(g); addBlob(scene, x, z, 1.9, .16);
   if (nodes) nodes.push(addHS(g, 0, .9, .66));
 }
 function addSmith(scene, x, z, nodes) {
-  const y = getPlacedSurfaceY(x, z, false), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = terrainH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   setSvc(g, "blacksmith", "Blacksmith Forge");
   g.add(m3(new THREE.CylinderGeometry(1.4, 1.5, .25, 8), toonMat("#5a6068"), 0, .12, 0, R_DECOR));
   g.add(m3(new THREE.BoxGeometry(2, 1.2, 1.5), toonMat("#6e7880"), 0, .85, 0, R_DECOR));
@@ -294,7 +261,7 @@ function addSmith(scene, x, z, nodes) {
 }
 
 function addYard(scene, x, z, nodes) {
-  const y = getPlacedSurfaceY(x, z, false), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = terrainH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   setSvc(g, "construction", "House Construction Yard");
   const sp = new THREE.Mesh(new THREE.CylinderGeometry(.09, .11, 1.45, 6), toonMat("#8f6742"));
   sp.position.set(-3.8, .98, 3.7); sp.renderOrder = R_DECOR; g.add(sp);
@@ -348,7 +315,7 @@ function addYard(scene, x, z, nodes) {
 }
 
 function addDummy(scene, x, z, nodes) {
-  const g = new THREE.Group(), y = getPlacedSurfaceY(x, z, false); g.position.set(x, y, z);
+  const g = new THREE.Group(), y = terrainH(x, z); g.position.set(x, y, z);
   const bMat = toonMat("#a07040");
   g.add(m3(new THREE.CylinderGeometry(.18, .22, 1.4, 8), bMat, 0, .7, 0));
   const arm = new THREE.Mesh(new THREE.CylinderGeometry(.1, .1, 1, 6), bMat);
@@ -360,7 +327,7 @@ function addDummy(scene, x, z, nodes) {
 }
 
 function addTrainYard(scene, x, z) {
-  const y = getPlacedSurfaceY(x, z, false), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = terrainH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   g.add(m3(new THREE.BoxGeometry(1.55, .52, .08), toonMat("#3d6079"), 0, 1.15, -4.38, R_DECOR + 1));
   const sp = new THREE.Mesh(new THREE.CylinderGeometry(.08, .1, 1.3, 6), toonMat("#8a6240"));
   sp.position.set(0, .74, -4.7); sp.renderOrder = R_DECOR; g.add(sp);
@@ -434,46 +401,31 @@ export async function createWorld(scene) {
   /* sky */
   const skyMat = addSky(scene);
 
-  /* water uniforms (shared by river mesh + waterfall) */
+  /* water uniforms (shared by water plane + waterfall) */
   const waterUniforms = { uTime: { value: 0 } };
 
-  /* ── load tile models + build terrain ── */
-  let tileLib = null;
-  try { tileLib = await loadTiles(); } catch (e) { console.warn("Tile load failed:", e); }
-
-  /* ground group — contains all walkable surfaces for raycasting */
+  /* ── terrain mesh (ground + water) ── */
   const ground = new THREE.Group();
   ground.name = "ground";
+  ground.add(buildTerrainMesh(waterUniforms));
 
-  if (tileLib) {
-    const terrainTilemap = await loadTerrainTilemap();
-    /* merged terrain tiles (includes water tile geometry) */
-    const terrain = buildTerrain(tileLib, waterUniforms, terrainTilemap);
-    ground.add(terrain);
-    buildProps(tileLib, scene);
+  /* bridge */
+  const bridge = buildBridge();
+  scene.add(bridge);
+  bridge.traverse(o => { if (o.name === "bridge_deck") ground.add(o.clone()); });
 
-    /* bridge */
-    const bridge = buildBridge(tileLib);
-    scene.add(bridge);
-    /* add invisible bridge deck to ground for raycasting */
-    bridge.traverse(o => { if (o.name === "bridge_deck") ground.add(o.clone()); });
+  /* dock */
+  const dock = buildDock();
+  scene.add(dock);
+  dock.traverse(o => { if (o.name === "dock_deck") ground.add(o.clone()); });
 
-    /* dock */
-    const dock = buildDock(tileLib);
-    scene.add(dock);
-    dock.traverse(o => { if (o.name === "dock_deck") ground.add(o.clone()); });
-
-    /* fences */
-    const fences = buildFences(tileLib);
-    scene.add(fences);
-  }
+  /* fences */
+  scene.add(buildFences());
 
   scene.add(ground);
-  ACTIVE_GROUND = ground;
 
   /* stepping stones in river */
-  const stones = buildSteppingStones();
-  scene.add(stones);
+  scene.add(buildSteppingStones());
 
   /* waterfall from north cliff */
   addWaterfall(scene, waterUniforms);
