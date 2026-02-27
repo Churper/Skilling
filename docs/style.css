@@ -883,6 +883,35 @@ body {
   }
 }
 
+/* ── Name tags ── */
+.nametag {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 9;
+}
+.nametag-name {
+  display: block;
+  font-family: var(--ui-font-heading);
+  font-size: 13px;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.4);
+  letter-spacing: 0.03em;
+}
+.nametag-level {
+  display: inline-block;
+  margin-top: 1px;
+  padding: 1px 7px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.45);
+  font-family: var(--ui-font-heading);
+  font-size: 10px;
+  color: #ffe999;
+  letter-spacing: 0.04em;
+}
+
 /* ── Responsive ── */
 @media (max-width: 1120px) {
   #ui-panel {

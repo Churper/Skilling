@@ -121,20 +121,20 @@ export function terrainH(x, z) {
   let h = GRASS_Y;
 
   if (neD < HILL_R) {
-    const ht = Math.pow(1 - s(neD, 0, HILL_R), 1.6);
-    const ridge = Math.sin((x + z) * 0.35) * 0.07 * ht;
-    h = Math.max(h, THREE.MathUtils.lerp(GRASS_Y, HILL_Y, ht) + ridge);
+    const ht = Math.pow(1 - s(neD, 0, HILL_R), 1.0);
+    const ridge = Math.sin((x + z) * 0.35) * 0.05 * ht;
+    h = Math.max(h, THREE.MathUtils.lerp(GRASS_Y, HILL_Y * 0.7, ht) + ridge);
   }
   if (nwD < HILL_R) {
-    const ht = Math.pow(1 - s(nwD, 0, HILL_R), 1.6);
-    const ridge = Math.sin((x - z) * 0.33 + 0.9) * 0.08 * ht;
-    h = Math.max(h, THREE.MathUtils.lerp(GRASS_Y, HILL_Y, ht) + ridge);
+    const ht = Math.pow(1 - s(nwD, 0, HILL_R), 1.0);
+    const ridge = Math.sin((x - z) * 0.33 + 0.9) * 0.05 * ht;
+    h = Math.max(h, THREE.MathUtils.lerp(GRASS_Y, HILL_Y * 0.7, ht) + ridge);
   }
 
-  /* ─ beach slopes down ─ */
+  /* ─ beach slopes down to water ─ */
   if (isBeach(x, z)) {
-    const bt = s(x, 34, 48);
-    h -= bt * 0.42;
+    const bt = s(x, 32, 46);
+    h = THREE.MathUtils.lerp(h, WATER_Y - 0.15, bt * 0.85);
   }
 
   /* ─ flatten for village / paths ─ */

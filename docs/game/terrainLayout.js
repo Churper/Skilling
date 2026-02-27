@@ -187,8 +187,8 @@ const BUMPS = [];
     const big = rng() < 0.25;
     BUMPS.push({
       x: bx, z: bz,
-      r: big ? 7 + rng() * 9 : 3 + rng() * 5,
-      h: big ? 2.0 + rng() * 3.0 : 0.6 + rng() * 1.2,
+      r: big ? 10 + rng() * 12 : 5 + rng() * 7,
+      h: big ? 1.2 + rng() * 1.5 : 0.3 + rng() * 0.6,
     });
   }
 }
@@ -205,9 +205,9 @@ export function getMeshSurfaceY(x, z) {
     villageFar = Math.min(villageFar, sm(Math.hypot(x - sv.x, z - sv.z), sv.r, sv.r + 6));
   const beachFar  = sm(Math.hypot(x - beachCX, z - beachCZ), beachR - 8, beachR);
   const hillAmp   = riverFar * pathFar * villageFar * beachFar;
-  y += (Math.sin(x * 0.07 + z * 0.05) * 1.0
-      + Math.cos(x * 0.11 - z * 0.06) * 0.7
-      + Math.sin(x * 0.04 + z * 0.13) * 0.5) * hillAmp;
+  y += (Math.sin(x * 0.07 + z * 0.05) * 0.5
+      + Math.cos(x * 0.11 - z * 0.06) * 0.35
+      + Math.sin(x * 0.04 + z * 0.13) * 0.25) * hillAmp;
   for (const b of BUMPS) {
     const d = Math.hypot(x - b.x, z - b.z);
     if (d < b.r) { const t = 1 - d / b.r; y += b.h * t * t * (3 - 2 * t) * hillAmp; }
@@ -262,6 +262,8 @@ export function buildTerrainMesh(waterUniforms) {
       /* color */
       const beachDist = Math.hypot(x - beachCX, z - beachCZ);
       const beachT = 1 - sm(beachDist, beachR - 6, beachR);
+      /* any ground near or below water level = sand */
+      const lowSandT = 1 - sm(y, WATER_Y - 0.1, WATER_Y + 0.25);
       let c;
       if (isInRiver(x, z)) {
         c = cRiver;
@@ -269,8 +271,9 @@ export function buildTerrainMesh(waterUniforms) {
         const t = Math.max(0, (rq.dist - rq.width) / 2.5);
         tmp.copy(cBank).lerp(cGrass, t);
         c = tmp;
-      } else if (beachT > 0.01) {
-        tmp.copy(cGrass).lerp(cSand, beachT);
+      } else if (lowSandT > 0.01 || beachT > 0.01) {
+        const sandBlend = Math.max(lowSandT, beachT);
+        tmp.copy(cGrass).lerp(cSand, sandBlend);
         c = tmp;
       } else if (isOnPath(x, z)) {
         const pd = distToPath(x, z);
@@ -451,12 +454,12 @@ export function buildBridge(lib) {
     }
   }
 
-  /* invisible walkable deck */
+  /* invisible walkable deck — extends past bridge ends for smooth transition */
   const span = (xs[xs.length - 1] - xs[0]) + TILE_S;
   const cx = (xs[0] + xs[xs.length - 1]) / 2;
-  const deckGeo = new THREE.BoxGeometry(span + 1, 0.15, TILE_S * 1.5);
+  const deckGeo = new THREE.BoxGeometry(span + 3, 0.3, TILE_S * 2);
   const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
-  deck.position.set(cx, deckY + 0.2, bz);
+  deck.position.set(cx, deckY + 0.15, bz);
   deck.name = "bridge_deck";
   group.add(deck);
 
@@ -504,12 +507,22 @@ export function buildDock(lib) {
     }
   }
 
-  /* invisible walkable deck */
+  /* invisible walkable deck — main dock */
   const deckGeo = new THREE.BoxGeometry(count * TILE_S, 0.15, TILE_S * 1.5);
   const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
   deck.position.set(dx + (count - 1) * TILE_S * 0.5, deckY + 0.15, dz);
   deck.name = "dock_deck";
   group.add(deck);
+
+  /* invisible walkable ramp for stairs — slopes from shore up to dock height */
+  const stairLen = TILE_S * 2;
+  const stairGeo = new THREE.BoxGeometry(stairLen, 0.15, TILE_S * 1.5);
+  const stairDeck = new THREE.Mesh(stairGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
+  const shoreY = getMeshSurfaceY(dx - TILE_S * 1.5, dz);
+  stairDeck.position.set(dx - TILE_S, (shoreY + deckY + 0.15) / 2, dz);
+  stairDeck.rotation.z = Math.atan2(deckY + 0.15 - shoreY, stairLen);
+  stairDeck.name = "dock_deck";
+  group.add(stairDeck);
 
   group.renderOrder = R_DECOR;
   return group;
@@ -555,8 +568,7 @@ export function buildFences(lib) {
         const b = boardTmpl.clone();
         b.scale.setScalar(TILE_S);
         b.position.set(x, y, z);
-        b.rotation.set(0, rot, 0);
-        b.rotateX(Math.PI / 2);
+        b.rotation.y = rot + Math.PI / 2;
         group.add(b);
 
         /* post at same position */
@@ -564,8 +576,7 @@ export function buildFences(lib) {
           const p = postTmpl.clone();
           p.scale.setScalar(TILE_S);
           p.position.set(x, y, z);
-          p.rotation.set(0, rot, 0);
-          p.rotateX(Math.PI / 2);
+          p.rotation.y = rot + Math.PI / 2;
           group.add(p);
         }
       }
@@ -574,8 +585,7 @@ export function buildFences(lib) {
         const p = postTmpl.clone();
         p.scale.setScalar(TILE_S);
         p.position.set(bx, getMeshSurfaceY(bx, bz), bz);
-        p.rotation.set(0, rot, 0);
-        p.rotateX(Math.PI / 2);
+        p.rotation.y = rot + Math.PI / 2;
         group.add(p);
       }
     }
