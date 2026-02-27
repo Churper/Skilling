@@ -201,7 +201,7 @@ function lerpColor(a, b, t) {
 /* zone colors */
 const C_GRASS = [0.22, 0.69, 0.26];
 const C_DIRT  = [0.769, 0.686, 0.561];
-const C_SAND  = [0.969, 0.918, 0.792];
+const C_SAND  = [0.94, 0.90, 0.79];
 const C_ROCK  = [0.631, 0.624, 0.612];
 const C_WATER = [0.200, 0.588, 0.820];
 const PATH_LINES = [
@@ -253,8 +253,8 @@ function getVertexColor(x, z, slope = 0) {
   }
 
   /* beach */
-  if (x > 30 && z < 4.5) {
-    const t = smoothstep(x, 30, 35);
+  if (x > 34 && z < -6) {
+    const t = smoothstep(x, 34, 40);
     col = lerpColor(col, C_SAND, t);
   }
 
@@ -407,27 +407,46 @@ function buildPathOverlayMesh() {
 }
 
 function buildBeachOverlayMesh() {
-  const shape = new THREE.Shape();
-  const pts = [
-    [30, -24], [38, -24], [46, -22], [50, -19], [51, -15],
-    [49, -11], [44, -8], [37, -8], [32, -10], [30, -14], [29, -20],
+  const mkLayer = (pts, color, yOff, ro) => {
+    const shape = new THREE.Shape();
+    shape.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i][0], pts[i][1]);
+    shape.closePath();
+
+    const geo = new THREE.ShapeGeometry(shape, 10);
+    const p = geo.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), z = p.getY(i);
+      p.setXYZ(i, x, terrainH(x, z) + yOff, z);
+    }
+    geo.computeVertexNormals();
+
+    const m = new THREE.Mesh(geo, tMat(color, { flatShading: true, side: THREE.DoubleSide }));
+    m.renderOrder = ro;
+    return m;
+  };
+
+  const g = new THREE.Group();
+  g.name = "beach_overlay";
+
+  const basePts = [
+    [30.2, -23.2], [36.8, -23.2], [43.8, -22.0], [48.4, -19.3], [49.6, -15.4],
+    [47.8, -11.4], [44.0, -8.6], [38.0, -7.9], [33.6, -9.1], [31.0, -12.0],
+    [29.6, -16.6], [29.4, -21.2],
   ];
-  shape.moveTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i][0], pts[i][1]);
-  shape.closePath();
+  const patch1 = [
+    [33.3, -21.3], [39.8, -20.8], [44.3, -18.7], [45.5, -15.5], [43.9, -12.5],
+    [40.5, -11.2], [35.8, -11.8], [33.5, -14.5], [32.9, -18.2],
+  ];
+  const patch2 = [
+    [36.2, -18.2], [40.8, -17.6], [43.1, -15.2], [41.9, -12.9], [38.0, -13.0],
+    [35.9, -15.0],
+  ];
 
-  const geo = new THREE.ShapeGeometry(shape, 10);
-  const p = geo.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i), z = p.getY(i);
-    p.setXYZ(i, x, terrainH(x, z) + 0.03, z);
-  }
-  geo.computeVertexNormals();
-
-  const beach = new THREE.Mesh(geo, tMat("#ede1c8", { flatShading: true, side: THREE.DoubleSide }));
-  beach.renderOrder = R_GND + 1;
-  beach.name = "beach_overlay";
-  return beach;
+  g.add(mkLayer(basePts, "#efe3c6", 0.03, R_GND + 1));
+  g.add(mkLayer(patch1, "#e4d6b1", 0.04, R_GND + 2));
+  g.add(mkLayer(patch2, "#f6edd5", 0.05, R_GND + 3));
+  return g;
 }
 
 /* ═══════════════════════════════════════════
