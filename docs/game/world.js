@@ -7,7 +7,7 @@ import {
 } from "./terrainHeight.js";
 import {
   loadTiles, buildTerrain, buildWater, buildBridge,
-  buildDock, buildFences, buildSteppingStones, addWaterfall,
+  buildDock, buildFences, buildSteppingStones, addWaterfall, buildProps,
   TREE_SPOTS, ROCK_MAJOR_SPOTS, ROCK_SMALL_SPOTS,
   BUSH_SPOTS, CLIFF_ROCK_SPOTS, FISHING_SPOT_POSITIONS,
 } from "./terrainLayout.js";
@@ -416,6 +416,7 @@ export async function createWorld(scene) {
     /* merged terrain tiles */
     const terrain = buildTerrain(tileLib);
     ground.add(terrain);
+    buildProps(tileLib, scene);
 
     /* bridge */
     const bridge = buildBridge(tileLib);

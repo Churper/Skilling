@@ -82,7 +82,7 @@ const PATH_CLS = [
   [[0, 14], [0, 22], [0, 34], [0, 40]],
 ];
 
-function distToPath(x, z) {
+export function distToPath(x, z) {
   let md = 1e9;
   for (const pts of PATH_CLS)
     for (let i = 0; i < pts.length - 1; i++) {

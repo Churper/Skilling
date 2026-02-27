@@ -2,14 +2,15 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import {
-  TILE_S, WATER_Y, GRASS_Y,
+  TILE_S, WATER_Y,
   GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
   isInRiver, isBeach, isOnPath,
+  riverQuery, distToPath,
   terrainH, getWorldSurfaceHeight,
 } from "./terrainHeight.js";
 
 /* ══════════════════════════════════════════════════════════
-   terrainLayout.js — load tile GLBs, generate layout, merge
+   terrainLayout.js — procedural ground mesh + tile cliffs/props
    ══════════════════════════════════════════════════════════ */
 
 const R_GND = 0, R_WATER = 2, R_DECOR = 3;
@@ -31,21 +32,20 @@ function tMat(color, opts = {}) {
   return new THREE.MeshToonMaterial({ color, gradientMap: TOON_GRAD, ...opts });
 }
 
-/* ── tile catalogue — which GLB files to load ── */
+/* ── tile catalogue — GLB files to load ── */
 const TILE_DIR = "models/terrain/";
 const TILES = {
-  /* hilly pack — terrain + props used by builders */
-  grass:       "Grass_Flat.glb",
-  pathCenter:  "Path_Center.glb",
-  waterFlat:   "Water_Flat.glb",
+  /* structure tiles */
   bridgeEnd:   "Prop_Bridge_Log_End.glb",
   bridgeMid:   "Prop_Bridge_Log_Middle.glb",
   bridgePost:  "Prop_Bridge_Log_Post_Support.glb",
   fenceBoard1: "Prop_Fence_Boards_1.glb",
   fenceBoard2: "Prop_Fence_Boards_2.glb",
   fencePost1:  "Prop_Fence_Post_1.glb",
+  dockStr:     "Prop_Docks_Straight.glb",
+  dockStrSup:  "Prop_Docks_Straight_Supports.glb",
 
-  /* cliff pack */
+  /* cliff tiles */
   cliffBaseStr: "Cliff_Base_Straight.glb",
   cliffBaseWF:  "Cliff_Base_Waterfall.glb",
   cliffMidStr:  "Cliff_Mid_Straight.glb",
@@ -53,10 +53,33 @@ const TILES = {
   cliffTopStr:  "Cliff_Top_Straight.glb",
   cliffTopWF:   "Cliff_Top_Waterfall.glb",
 
-  /* beach pack */
-  sandFlat:   "Sand_Flat.glb",
-  dockStr:    "Prop_Docks_Straight.glb",
-  dockStrSup: "Prop_Docks_Straight_Supports.glb",
+  /* prop tiles for scatter */
+  bush1:         "Prop_Bush_1.glb",
+  bush2:         "Prop_Bush_2.glb",
+  bush3:         "Prop_Bush_3.glb",
+  rock1:         "Prop_Rock_1.glb",
+  rock2:         "Prop_Rock_2.glb",
+  rock3:         "Prop_Rock_3.glb",
+  grassClump1:   "Prop_Grass_Clump_1.glb",
+  grassClump2:   "Prop_Grass_Clump_2.glb",
+  grassClump3:   "Prop_Grass_Clump_3.glb",
+  grassClump4:   "Prop_Grass_Clump_4.glb",
+  flowerDaisy:   "Prop_Flower_Daisy.glb",
+  flowerRose:    "Prop_Flower_Rose.glb",
+  flowerSunflower: "Prop_Flower_Sunflower.glb",
+  flowerTulip:   "Prop_Flower_Tulip.glb",
+  cattail1:      "Prop_Cattail_1.glb",
+  cattail2:      "Prop_Cattail_2.glb",
+  mushroom1:     "Prop_Mushroom_1.glb",
+  mushroom2:     "Prop_Mushroom_2.glb",
+  palmTree1:     "Prop_Tree_Palm_1.glb",
+  palmTree2:     "Prop_Tree_Palm_2.glb",
+  shell1:        "Prop_Shell_1.glb",
+  shell2:        "Prop_Shell_2.glb",
+  starfish1:     "Prop_Starfish_1.glb",
+  starfish2:     "Prop_Starfish_2.glb",
+  stump:         "Prop_Stump.glb",
+  hollowTrunk:   "Prop_Hollow_Trunk.glb",
 };
 
 /* ── Load all tiles ── */
@@ -83,8 +106,6 @@ export async function loadTiles() {
    Geometry helpers — collect & merge by material name
    ═══════════════════════════════════════════ */
 
-/* Collect all meshes from a tile scene, applying a world-space matrix.
-   Returns an array of { geometry, materialName, color }. */
 function harvestTile(tileScene, worldMatrix) {
   const out = [];
   if (!tileScene) return out;
@@ -92,7 +113,6 @@ function harvestTile(tileScene, worldMatrix) {
   tileScene.traverse(o => {
     if (!o.isMesh) return;
     const geo = o.geometry.clone();
-    /* compose tile-local transform with world placement */
     const m = new THREE.Matrix4().multiplyMatrices(worldMatrix, o.matrixWorld);
     geo.applyMatrix4(m);
     const mat = Array.isArray(o.material) ? o.material[0] : o.material;
@@ -103,7 +123,6 @@ function harvestTile(tileScene, worldMatrix) {
   return out;
 }
 
-/* Merge harvested geometries by material name → one Mesh each. */
 function mergeByMaterial(harvested) {
   const groups = {};
   for (const { geometry, materialName, color } of harvested) {
@@ -127,10 +146,6 @@ function mergeByMaterial(harvested) {
   return meshes;
 }
 
-/* ═══════════════════════════════════════════
-   Layout generation — place tiles on the grid
-   ═══════════════════════════════════════════ */
-
 /* helper: build a 4×4 placement matrix */
 function tileMat4(wx, wy, wz, rotY = 0) {
   const m = new THREE.Matrix4();
@@ -142,67 +157,292 @@ function tileMat4(wx, wy, wz, rotY = 0) {
   return m;
 }
 
-/* Return an array of { tile, y, rot } placements for this grid cell,
-   or null to skip the cell entirely. Cliff tiers stack vertically
-   at the same (gx,gz) instead of spreading across rows. */
-function getCellPlacements(gx, gz) {
-  const wx = gx * TILE_S, wz = gz * TILE_S;
+/* ═══════════════════════════════════════════
+   buildGroundMesh() — procedural heightmap with vertex colors
+   ═══════════════════════════════════════════ */
 
-  /* ── Skip cells beyond cliff walls (player never goes there) ── */
-  if (gz > 21 || gx < -21 || gz < -20) return null;
+function smoothstep(x, lo, hi) {
+  const t = Math.max(0, Math.min(1, (x - lo) / (hi - lo)));
+  return t * t * (3 - 2 * t);
+}
 
-  /* ── River → water tile ── */
-  if (isInRiver(wx, wz))
-    return [{ tile: "waterFlat", y: 0, rot: 0 }];
+function lerpColor(a, b, t) {
+  return [
+    a[0] + (b[0] - a[0]) * t,
+    a[1] + (b[1] - a[1]) * t,
+    a[2] + (b[2] - a[2]) * t,
+  ];
+}
 
-  /* ── North cliff wall — 3-tier stack at gz=20 ── */
-  if (gz === 20) {
+/* zone colors */
+const C_GRASS = [0.133, 0.545, 0.133];
+const C_DIRT  = [0.769, 0.686, 0.561];
+const C_SAND  = [0.969, 0.918, 0.792];
+const C_ROCK  = [0.631, 0.624, 0.612];
+const C_WATER = [0.200, 0.588, 0.820];
+
+/* village keep-out zones (don't scatter props here) */
+const SVC = [
+  { x: 0, z: -32, r: 14 },
+  { x: 18, z: -35, r: 10 },
+  { x: -22, z: -34, r: 8 },
+];
+function inVillage(x, z, pad = 0) {
+  for (const s of SVC)
+    if (Math.hypot(x - s.x, z - s.z) <= s.r + pad) return true;
+  return false;
+}
+
+function getVertexColor(x, z) {
+  let col = C_GRASS;
+
+  /* river */
+  const rq = riverQuery(x, z);
+  if (rq.dist < rq.width) return C_WATER;
+
+  /* river bank blend */
+  if (rq.dist < rq.width + 2) {
+    const t = smoothstep(rq.dist, rq.width, rq.width + 2);
+    col = lerpColor(C_WATER, col, t);
+  }
+
+  /* cliff rock coloring */
+  if (z >= 38 || x <= -38 || z <= -36) {
+    if (z >= 38) {
+      const t = smoothstep(z, 38, 42);
+      col = lerpColor(col, C_ROCK, t);
+    } else if (x <= -38) {
+      const t = smoothstep(-x, 38, 42);
+      col = lerpColor(col, C_ROCK, t);
+    } else if (z <= -36) {
+      const t = smoothstep(-z, 36, 40);
+      col = lerpColor(col, C_ROCK, t);
+    }
+  }
+
+  /* beach */
+  if (x > 30 && z < 6) {
+    const t = smoothstep(x, 30, 34);
+    col = lerpColor(col, C_SAND, t);
+  }
+
+  /* dirt paths */
+  const pd = distToPath(x, z);
+  if (pd < 3) {
+    const t = 1 - smoothstep(pd, 0, 3);
+    col = lerpColor(col, C_DIRT, t);
+  }
+
+  /* village center area — slight dirt tint */
+  for (const s of SVC) {
+    const d = Math.hypot(x - s.x, z - s.z);
+    if (d < s.r) {
+      const t = (1 - smoothstep(d, s.r * 0.3, s.r)) * 0.6;
+      col = lerpColor(col, C_DIRT, t);
+    }
+  }
+
+  return col;
+}
+
+function buildGroundMesh() {
+  const xMin = -42, xMax = 50, zMin = -40, zMax = 42;
+  const cols = xMax - xMin, rows = zMax - zMin;
+  const vCount = (cols + 1) * (rows + 1);
+
+  const positions = new Float32Array(vCount * 3);
+  const colors = new Float32Array(vCount * 3);
+  const indices = [];
+
+  for (let iz = 0; iz <= rows; iz++) {
+    for (let ix = 0; ix <= cols; ix++) {
+      const vi = iz * (cols + 1) + ix;
+      const x = xMin + ix;
+      const z = zMin + iz;
+      const y = terrainH(x, z);
+
+      positions[vi * 3]     = x;
+      positions[vi * 3 + 1] = y;
+      positions[vi * 3 + 2] = z;
+
+      const c = getVertexColor(x, z);
+      colors[vi * 3]     = c[0];
+      colors[vi * 3 + 1] = c[1];
+      colors[vi * 3 + 2] = c[2];
+    }
+  }
+
+  for (let iz = 0; iz < rows; iz++) {
+    for (let ix = 0; ix < cols; ix++) {
+      const a = iz * (cols + 1) + ix;
+      const b = a + 1;
+      const c = (iz + 1) * (cols + 1) + ix;
+      const d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setIndex(indices);
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  geo.computeVertexNormals();
+
+  const mat = new THREE.MeshToonMaterial({
+    vertexColors: true,
+    gradientMap: TOON_GRAD,
+    flatShading: true,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = "ground_mesh";
+  mesh.renderOrder = R_GND;
+  return mesh;
+}
+
+/* ═══════════════════════════════════════════
+   buildCliffs() — stacked cliff tiles from asset pack
+   ═══════════════════════════════════════════ */
+
+function buildCliffs(lib) {
+  const harvested = [];
+
+  /* North cliff wall (gz=20): 3-tier stack */
+  for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
+    const wx = gx * TILE_S, wz = 20 * TILE_S;
     const base = (gx === 0) ? "cliffBaseWF" : "cliffBaseStr";
     const mid  = (gx === 0) ? "cliffMidWF"  : "cliffMidStr";
     const top  = (gx === 0) ? "cliffTopWF"  : "cliffTopStr";
-    return [
-      { tile: base, y: 0,              rot: 0 },
-      { tile: mid,  y: 1.0 * TILE_S,   rot: 0 },
-      { tile: top,  y: 2.0 * TILE_S,   rot: 0 },
-    ];
-  }
-  /* Cap above north cliff */
-  if (gz === 21)
-    return [{ tile: "grass", y: 3.0 * TILE_S - GRASS_Y, rot: 0 }];
-
-  /* ── West cliff wall — 2-tier stack at gx=-20 ── */
-  if (gx === -20)
-    return [
-      { tile: "cliffBaseStr", y: 0,            rot: -Math.PI / 2 },
-      { tile: "cliffMidStr",  y: 1.0 * TILE_S, rot: -Math.PI / 2 },
-    ];
-  if (gx === -21)
-    return [{ tile: "grass", y: 2.0 * TILE_S - GRASS_Y, rot: 0 }];
-
-  /* ── South cliff wall — 2-tier stack at gz=-19 ── */
-  if (gz === -19)
-    return [
-      { tile: "cliffBaseStr", y: 0,            rot: Math.PI },
-      { tile: "cliffMidStr",  y: 1.0 * TILE_S, rot: Math.PI },
-    ];
-  if (gz === -20)
-    return [{ tile: "grass", y: 2.0 * TILE_S - GRASS_Y, rot: 0 }];
-
-  /* ── Beach → sand tiles at analytical height ── */
-  if (isBeach(wx, wz)) {
-    const h = terrainH(wx, wz);
-    return [{ tile: "sandFlat", y: h - GRASS_Y, rot: 0 }];
+    for (const [tile, y] of [[base, 0], [mid, TILE_S], [top, 2 * TILE_S]]) {
+      const tmpl = lib[tile];
+      if (!tmpl) continue;
+      harvested.push(...harvestTile(tmpl, tileMat4(wx, y, wz, 0)));
+    }
   }
 
-  /* ── Dirt paths → path tile flush with grass surface ── */
-  if (isOnPath(wx, wz)) {
-    const h = terrainH(wx, wz);
-    return [{ tile: "pathCenter", y: h, rot: 0 }];
+  /* West cliff wall (gx=-20): 2-tier stack */
+  for (let gz = GZ_MIN; gz < 20; gz++) {
+    const wx = -20 * TILE_S, wz = gz * TILE_S;
+    for (const [tile, y] of [["cliffBaseStr", 0], ["cliffMidStr", TILE_S]]) {
+      const tmpl = lib[tile];
+      if (!tmpl) continue;
+      harvested.push(...harvestTile(tmpl, tileMat4(wx, y, wz, -Math.PI / 2)));
+    }
   }
 
-  /* ── Default: grass tile at analytical height ── */
-  const h = terrainH(wx, wz);
-  return [{ tile: "grass", y: h - GRASS_Y, rot: 0 }];
+  /* South cliff wall (gz=-19): 2-tier stack */
+  for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
+    const wx = gx * TILE_S, wz = -19 * TILE_S;
+    for (const [tile, y] of [["cliffBaseStr", 0], ["cliffMidStr", TILE_S]]) {
+      const tmpl = lib[tile];
+      if (!tmpl) continue;
+      harvested.push(...harvestTile(tmpl, tileMat4(wx, y, wz, Math.PI)));
+    }
+  }
+
+  return mergeByMaterial(harvested);
+}
+
+/* ═══════════════════════════════════════════
+   buildProps() — scatter decorations from tile pack
+   ═══════════════════════════════════════════ */
+
+/* seeded PRNG */
+function mulberry32(seed) {
+  let s = seed | 0;
+  return () => {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function buildProps(lib, scene) {
+  const group = new THREE.Group();
+  group.name = "props";
+  const rng = mulberry32(42);
+  const rand = (lo, hi) => lo + rng() * (hi - lo);
+
+  function place(key, x, z, scale, rotY) {
+    const tmpl = lib[key];
+    if (!tmpl) return;
+    const m = tmpl.clone();
+    m.scale.setScalar(TILE_S * scale);
+    m.position.set(x, getWorldSurfaceHeight(x, z), z);
+    m.rotation.y = rotY;
+    group.add(m);
+  }
+
+  const grassKeys = ["grassClump1", "grassClump2", "grassClump3", "grassClump4"];
+  const flowerKeys = ["flowerDaisy", "flowerRose", "flowerSunflower", "flowerTulip"];
+  const cattailKeys = ["cattail1", "cattail2"];
+  const mushKeys = ["mushroom1", "mushroom2"];
+  const shellKeys = ["shell1", "shell2", "starfish1", "starfish2"];
+  const palmKeys = ["palmTree1", "palmTree2"];
+
+  /* Grass clumps (~80) on meadows */
+  for (let i = 0; i < 80; i++) {
+    const x = rand(-36, 28), z = rand(-34, 36);
+    const rq = riverQuery(x, z);
+    if (rq.dist < rq.width + 1.5) continue;
+    if (isBeach(x, z)) continue;
+    if (inVillage(x, z, 3)) continue;
+    if (isOnPath(x, z)) continue;
+    place(grassKeys[i % grassKeys.length], x, z, rand(0.7, 1.1), rng() * Math.PI * 2);
+  }
+
+  /* Flowers (~40) on meadows */
+  for (let i = 0; i < 40; i++) {
+    const x = rand(-34, 26), z = rand(-30, 34);
+    const rq = riverQuery(x, z);
+    if (rq.dist < rq.width + 2) continue;
+    if (isBeach(x, z)) continue;
+    if (inVillage(x, z, 4)) continue;
+    if (isOnPath(x, z)) continue;
+    place(flowerKeys[i % flowerKeys.length], x, z, rand(0.6, 1.0), rng() * Math.PI * 2);
+  }
+
+  /* Cattails (~15) along riverbanks */
+  for (let i = 0; i < 15; i++) {
+    const x = rand(-10, 30), z = rand(-16, 38);
+    const rq = riverQuery(x, z);
+    if (rq.dist < rq.width || rq.dist > rq.width + 3) continue;
+    place(cattailKeys[i % cattailKeys.length], x, z, rand(0.8, 1.2), rng() * Math.PI * 2);
+  }
+
+  /* Mushrooms (~10) near hills */
+  for (let i = 0; i < 10; i++) {
+    const x = rand(-32, 34), z = rand(10, 34);
+    const rq = riverQuery(x, z);
+    if (rq.dist < rq.width + 1) continue;
+    if (isOnPath(x, z)) continue;
+    place(mushKeys[i % mushKeys.length], x, z, rand(0.6, 1.0), rng() * Math.PI * 2);
+  }
+
+  /* Beach props (~12): shells, starfish, palms */
+  for (let i = 0; i < 8; i++) {
+    const x = rand(32, 46), z = rand(-22, 2);
+    if (isInRiver(x, z)) continue;
+    place(shellKeys[i % shellKeys.length], x, z, rand(0.5, 0.9), rng() * Math.PI * 2);
+  }
+  for (let i = 0; i < 4; i++) {
+    const x = rand(34, 44), z = rand(-20, 0);
+    if (isInRiver(x, z)) continue;
+    place(palmKeys[i % palmKeys.length], x, z, rand(0.8, 1.2), rng() * Math.PI * 2);
+  }
+
+  /* Stumps (~5) near tree spots */
+  const stumpSpots = [[22, 20], [26, 26], [-24, 20], [-18, 24], [30, 24]];
+  for (const [sx, sz] of stumpSpots) {
+    const ox = sx + rand(-2, 2), oz = sz + rand(-2, 2);
+    place("stump", ox, oz, rand(0.7, 1.0), rng() * Math.PI * 2);
+  }
+
+  /* Hollow trunk */
+  place("hollowTrunk", -28, 18, 0.9, rand(0, Math.PI * 2));
+
+  scene.add(group);
+  return group;
 }
 
 /* ═══════════════════════════════════════════
@@ -210,27 +450,16 @@ function getCellPlacements(gx, gz) {
    ═══════════════════════════════════════════ */
 
 export function buildTerrain(lib) {
-  const harvested = [];
-
-  for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
-    for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
-      const placements = getCellPlacements(gx, gz);
-      if (!placements) continue;
-      const wx = gx * TILE_S;
-      const wz = gz * TILE_S;
-      for (const { tile, y, rot } of placements) {
-        const tmpl = lib[tile];
-        if (!tmpl) continue;
-        const mat4 = tileMat4(wx, y, wz, rot);
-        harvested.push(...harvestTile(tmpl, mat4));
-      }
-    }
-  }
-
-  const meshes = mergeByMaterial(harvested);
   const group = new THREE.Group();
   group.name = "terrain";
-  meshes.forEach(m => group.add(m));
+
+  /* procedural heightmap ground */
+  group.add(buildGroundMesh());
+
+  /* stacked cliff tiles */
+  const cliffMeshes = buildCliffs(lib);
+  cliffMeshes.forEach(m => group.add(m));
+
   return group;
 }
 
