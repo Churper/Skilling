@@ -26,7 +26,7 @@ function m3(geo,mat,x,y,z,ro) { const m=new THREE.Mesh(geo,mat); m.position.set(
 
 /* ── Layout ── */
 const WATER_Y = 0.55;
-const MT_START=46, MT_END=100, MAP_R=115;
+const MT_START=46, MAP_R=115;
 const R_GND=0, R_WATER=2, R_DECOR=3;
 const SVC = Object.freeze({ plaza:{x:0,z:-32,r:14}, build:{x:18,z:-35,r:10}, train:{x:-22,z:-34,r:8} });
 const KEEP_OUT = [SVC.plaza, SVC.build, SVC.train];
@@ -38,10 +38,13 @@ const TREE_SPOTS = [
 const ROCK_MAJOR_SPOTS = [[44,12,1.55,.3],[-42,-14,1.6,1.4]];
 const ROCK_SMALL_SPOTS = [
   [42,-16,1.04,3.2],[-44,10,1.0,4.1],[10,44,.98,5],[-12,43,.95,2.6],
-  [30,18,1.0,.7],[-30,17,1.05,2.1],[33,-6,.95,1.9],[-33,-8,1.0,3.8],[15,34,1.05,4.4],[-16,33,1.0,5.2],[20,-20,.98,2.7],[-20,-18,1.02,.9],
-  [26,26,.96,1.4],[-26,24,.98,4.6],[36,6,.92,5.1],[-36,4,.9,2.2],
 ];
-const CLIFF_ACCENTS = [[58,12,4.2,2.6],[-60,-10,4.4,5.2]];
+const CLIFF_RING = [
+  [54,0,4.2,0],[0,55,3.8,1.6],[-53,0,4.5,3.1],[0,-54,4.0,4.7],
+  [38,38,3.6,0.8],[-37,39,4.1,2.3],[39,-37,3.9,5.5],[-38,-38,4.4,3.9],
+  [52,18,3.5,1.2],[-50,20,4.3,4.1],[20,-52,3.7,2.8],[-22,-51,4.0,5.8],
+  [48,-28,4.6,0.4],[-48,30,3.8,3.5],
+];
 const BUSH_SPOTS = [[-12,-29,1.1,.4],[12,-29,1.12,2.8],[28,-10,1.1,1.9],[-28,-8,1.08,5],[20,-38,1,3.8]];
 
 /* ── Pool shape ── */
@@ -56,10 +59,10 @@ function terrainH(x,z) {
   const amp=THREE.MathUtils.lerp(.2,.45,THREE.MathUtils.smoothstep(r,15,50));
   const flat=n*amp-bowl;
   if(r<=MT_START) return flat;
-  const mt=THREE.MathUtils.smoothstep(r,MT_START,MT_END), a=Math.atan2(z,x);
-  // Jagged rigid peaks — step/quantize the noise for low-poly cliff feel
-  const raw=mt*mt*65+(Math.sin(a*11+x*.12)*.5+.5)*mt*10
-    +(Math.cos(a*7-z*.1)*.5+.5)*mt*6+Math.sin(x*.15)*Math.cos(z*.12)*mt*4;
+  const mt=THREE.MathUtils.smoothstep(r,MT_START,56), a=Math.atan2(z,x);
+  // Steep cliff wall with jagged peaks
+  const raw=mt*mt*75+(Math.sin(a*11+x*.12)*.5+.5)*mt*12
+    +(Math.cos(a*7-z*.1)*.5+.5)*mt*8+Math.sin(x*.15)*Math.cos(z*.12)*mt*5;
   const step=Math.round(raw/4)*4;
   return flat+THREE.MathUtils.lerp(raw,step,mt*.7);
 }
@@ -112,30 +115,36 @@ function addSky(scene) {
   return mat;
 }
 
-/* ── Terrain — clean green, NO sandy shore ring ── */
+/* ── Terrain — rectangular grid, vivid green ── */
 function createTerrain(scene) {
-  const inner=0, outer=MAP_R, aS=96, rR=44;
+  const step=2.1, half=MAP_R;
   const pos=[],col=[],idx=[];
-  const cGrassDeep=new THREE.Color("#14540d");
-  const cGrassMid=new THREE.Color("#1d7112");
-  const cGrassLight=new THREE.Color("#2d911e");
+  const cGrass=new THREE.Color("#2cc018");
+  const cGrassDk=new THREE.Color("#24a014"), cGrassLt=new THREE.Color("#34d020");
   const cRock=new THREE.Color("#9b9a93"), cCliff=new THREE.Color("#86847d");
   const cCliffHi=new THREE.Color("#b5b4ac");
-  const tmp=new THREE.Color(), vpr=aS+1;
+  const tmp=new THREE.Color();
 
-  for(let ri=0;ri<=rR;ri++){
-    const r=inner+(outer-inner)*Math.pow(ri/rR,.45);
-    for(let ai=0;ai<=aS;ai++){
-      const a=(ai/aS)*Math.PI*2, x=Math.cos(a)*r, z=Math.sin(a)*r;
+  // Build rectangular grid, skip vertices outside MAP_R
+  const gridMap=new Map(); // "gx,gz" -> vertex index
+  let vi=0;
+  const gxCount=Math.ceil(half*2/step)+1;
+  for(let gi=0;gi<gxCount;gi++){
+    const x=-half+gi*step;
+    for(let gj=0;gj<gxCount;gj++){
+      const z=-half+gj*step;
+      if(Math.hypot(x,z)>MAP_R+step) continue;
+      gridMap.set(gi+","+gj,vi); vi++;
       const dist=Math.hypot(x,z);
       const y=terrainH(x,z);
       pos.push(x,y,z);
 
-      // Quantized grass tone variation keeps a low-poly, hilly look without heavy shader cost.
-      const macro=(Math.sin(x*.06)*.5+Math.cos(z*.07)*.5+Math.sin((x-z)*.035)*.35)*.5+.5;
-      const elev=THREE.MathUtils.clamp((y+.45)/1.25,0,1);
-      const terraced=Math.floor(THREE.MathUtils.clamp(elev*.62+macro*.38,0,1)*5)/4;
-      tmp.lerpColors(cGrassDeep,cGrassLight,terraced).lerp(cGrassMid,.18);
+      // Vivid green with subtle per-vertex noise variation (no quantization)
+      const noise=(Math.sin(x*.06+z*.08)*.5+Math.cos(z*.07-x*.05)*.5
+        +Math.sin((x-z)*.035)*.35)*.5+.5;
+      const t=THREE.MathUtils.clamp(noise,0,1);
+      tmp.copy(cGrass).lerp(t>0.5?cGrassLt:cGrassDk,Math.abs(t-0.5)*0.16);
+
       const rockT=Math.max(THREE.MathUtils.smoothstep(dist,44,54)*.9,THREE.MathUtils.smoothstep(y,4,14)*.7);
       const cliffT=THREE.MathUtils.smoothstep(dist,56,73);
 
@@ -145,18 +154,17 @@ function createTerrain(scene) {
         tmp.lerp(cCliff,cliffT*.88);
         tmp.lerp(cCliffHi,cliffT*vein*.26);
       }
-
-      const ss=.8;
-      const nx=-(terrainH(x+ss,z)-terrainH(x-ss,z)),ny=2,nz=-(terrainH(x,z+ss)-terrainH(x,z-ss));
-      const len=Math.hypot(nx,ny,nz);
-      const lit=THREE.MathUtils.clamp((nx*.54+ny*.78+nz*.31)/len*.5+.5,0,1);
-      const banded=Math.floor(lit*5)/4;
-      tmp.multiplyScalar(.78+banded*.34);
       col.push(tmp.r,tmp.g,tmp.b);
     }
   }
-  for(let ri=0;ri<rR;ri++) for(let ai=0;ai<aS;ai++){
-    const a=ri*vpr+ai,b=a+1,c=(ri+1)*vpr+ai,d=c+1; idx.push(a,b,c,b,d,c);
+  // Build index buffer from grid quads
+  for(let gi=0;gi<gxCount-1;gi++){
+    for(let gj=0;gj<gxCount-1;gj++){
+      const a=gridMap.get(gi+","+gj), b=gridMap.get((gi+1)+","+gj);
+      const c=gridMap.get(gi+","+(gj+1)), d=gridMap.get((gi+1)+","+(gj+1));
+      if(a==null||b==null||c==null||d==null) continue;
+      idx.push(a,b,c, b,d,c);
+    }
   }
   const geo=new THREE.BufferGeometry();
   geo.setIndex(idx); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
@@ -196,7 +204,7 @@ function createWater(scene) {
         float t=smoothstep(0.0,22.0,d);
         vec3 c=mix(deep,shallow,t);
         c+=sin(vW.x*.6+vW.y*.4+uTime*1.2)*.016+cos(vW.x*.3-vW.y*.5+uTime*.7)*.012;
-        float alpha=mix(0.10,0.16,t);
+        float alpha=mix(0.38,0.28,t);
         gl_FragColor=vec4(c,alpha);
       }`,
   });
@@ -378,10 +386,10 @@ function placeRocks(scene,M,nodes) {
   ROCK_SMALL_SPOTS.forEach(([x,z,s,r],i)=>spawnRock(x,z,s,r,i+ROCK_MAJOR_SPOTS.length));
 }
 
-/* ── Mountain cliff accents — just a few large rocks on peaks ── */
+/* ── Cliff ring — large rocks around garden perimeter ── */
 function placeCliffs(scene,M) {
   const C=M.cliffRocks; if(!C.length) return;
-  CLIFF_ACCENTS.forEach(([x,z,s,r],i)=>{
+  CLIFF_RING.forEach(([x,z,s,r],i)=>{
     const m=C[i%C.length].clone();
     m.scale.setScalar(s); m.rotation.y=r;
     m.position.set(x,terrainH(x,z)-2,z); scene.add(m);
