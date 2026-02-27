@@ -694,7 +694,7 @@ function animate() {
 /* ═══ Load tilemap.json on startup ═══ */
 async function loadTilemapJSON() {
   try {
-    const resp = await fetch("tilemap.json");
+    const resp = await fetch(`tilemap.json?v=${Date.now()}`, { cache: "no-store" });
     if (!resp.ok) throw new Error(resp.status);
     const json = await resp.text();
     importJSON(json);
