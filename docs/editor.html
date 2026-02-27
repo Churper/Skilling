@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tile Editor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:monospace}
+canvas{display:block}
+#ui{position:fixed;left:0;top:0;bottom:0;width:200px;background:rgba(0,0,0,0.92);color:#ccc;
+  display:flex;flex-direction:column;border-right:1px solid #333;z-index:10}
+#ui h2{padding:8px;text-align:center;color:#ff0;font-size:14px;border-bottom:1px solid #333}
+#info{padding:6px 8px;font-size:10px;color:#888;border-bottom:1px solid #222;line-height:1.6}
+#info kbd{background:#333;padding:1px 4px;border-radius:2px;color:#ddd}
+#rot-display{padding:4px 8px;font-size:11px;color:#ff0;border-bottom:1px solid #222}
+#cell-display{padding:4px 8px;font-size:10px;color:#aaa;border-bottom:1px solid #222}
+#palette{flex:1;overflow-y:auto;padding:4px}
+.cat{color:#666;font-size:9px;text-transform:uppercase;padding:6px 4px 2px;letter-spacing:1px}
+.tile-btn{padding:3px 6px;margin:1px 0;cursor:pointer;border-radius:3px;font-size:10px;
+  color:#ccc;transition:background 0.1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile-btn:hover{background:#333}
+.tile-btn.active{background:#335;color:#ff0}
+#btns{padding:6px;border-top:1px solid #333;display:flex;gap:4px;flex-wrap:wrap}
+#btns button{flex:1;min-width:55px;padding:5px;font-size:10px;cursor:pointer;
+  background:#333;color:#fff;border:1px solid #555;border-radius:3px;font-family:monospace}
+#btns button:hover{background:#555}
+#count{padding:4px 8px;font-size:10px;color:#666;text-align:center;border-top:1px solid #222}
+#canvas-wrap{position:fixed;left:200px;top:0;right:0;bottom:0}
+#y-controls{position:fixed;right:10px;bottom:10px;background:rgba(0,0,0,0.85);
+  padding:8px;border-radius:6px;color:#ccc;font-size:11px;z-index:10;display:flex;gap:6px;align-items:center}
+#y-controls button{padding:3px 8px;cursor:pointer;background:#333;color:#fff;border:1px solid #555;border-radius:3px}
+#y-controls button:hover{background:#555}
+</style>
+</head>
+<body>
+<div id="ui">
+  <h2>TILE EDITOR</h2>
+  <div id="info">
+    <kbd>Click</kbd> place &nbsp; <kbd>RClick</kbd> remove<br>
+    <kbd>R</kbd> rotate 90° &nbsp; <kbd>G</kbd> toggle grid<br>
+    <kbd>1-5</kbd> quick select category<br>
+    <kbd>Ctrl+S</kbd> export JSON
+  </div>
+  <div id="rot-display">Rotation: 0°</div>
+  <div id="cell-display">Cell: —</div>
+  <div id="palette"></div>
+  <div id="btns">
+    <button id="btn-export">Export JSON</button>
+    <button id="btn-import">Import JSON</button>
+    <button id="btn-clear">Clear All</button>
+  </div>
+  <div id="count">0 tiles placed</div>
+</div>
+<div id="canvas-wrap"></div>
+<div id="y-controls">
+  Y: <button id="y-down">-</button>
+  <span id="y-val">0.00</span>
+  <button id="y-up">+</button>
+  <span style="color:#666;font-size:9px">(tile height)</span>
+</div>
+<input type="file" id="file-input" accept=".json" style="display:none">
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+/* ═══ Constants ═══ */
+const TILE_S = 2;
+const TILE_DIR = "models/terrain/";
+
+/* Terrain tiles grouped by category (for the palette) */
+const CATEGORIES = [
+  { name: "Ground", tiles: [
+    "Grass_Flat",
+  ]},
+  { name: "Hills", tiles: [
+    "Hill_Side",
+    "Hill_Side_On_Side",
+    "Hill_Corner_Outer_2x2",
+    "Hill_Corner_Inner_2x2",
+    "Hill_Side_Transition_From_Gentle",
+    "Hill_Side_Transition_To_Gentle",
+  ]},
+  { name: "Water", tiles: [
+    "Water_Flat",
+    "Water_Slope",
+  ]},
+  { name: "Sand", tiles: [
+    "Sand_Flat",
+    "Sand_Side",
+    "Sand_Corner_Outer_3x3",
+    "Sand_Corner_Inner_3x3",
+    "Sand_Side_Overlap_Side",
+    "Sand_Side_Transition_From_Gentle",
+    "Sand_Side_Transition_To_Gentle",
+  ]},
+  { name: "Path", tiles: [
+    "Path_Center",
+    "Path_Side",
+    "Path_Corner_Inner_1x1",
+    "Path_Corner_Inner_2x2",
+    "Path_Corner_Outer_1x1",
+    "Path_Corner_Outer_2x2",
+    "Path_Corner_Outer_3x3",
+    "Path_Corner_Y_2x2",
+    "Path_Corner_Y_3x3",
+    "Path_Hill_Gentle_Center",
+    "Path_Hill_Gentle_Side",
+    "Path_Hill_Sharp_Center",
+    "Path_Hill_Sharp_Side",
+    "Path_Steps_Center",
+    "Path_Steps_Edge",
+    "Path_Steps_Grass_Edge",
+    "Path_Steps_Grass_Edge_Top",
+  ]},
+];
+
+/* ═══ Three.js Setup ═══ */
+const wrap = document.getElementById("canvas-wrap");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+renderer.setClearColor(0x1a1a2e);
+wrap.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, wrap.clientWidth / wrap.clientHeight, 0.5, 500);
+camera.position.set(20, 30, 40);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
+controls.update();
+
+/* Lighting */
+const amb = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(amb);
+const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+dir.position.set(30, 50, 20);
+scene.add(dir);
+
+/* ═══ Grid ═══ */
+const GRID_MIN = -25, GRID_MAX = 25;
+const gridGroup = new THREE.Group();
+gridGroup.name = "grid";
+
+function buildGrid() {
+  const mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 });
+  const pts = [];
+  for (let i = GRID_MIN; i <= GRID_MAX + 1; i++) {
+    const x = i * TILE_S;
+    pts.push(new THREE.Vector3(x, 0.01, GRID_MIN * TILE_S));
+    pts.push(new THREE.Vector3(x, 0.01, (GRID_MAX + 1) * TILE_S));
+  }
+  for (let j = GRID_MIN; j <= GRID_MAX + 1; j++) {
+    const z = j * TILE_S;
+    pts.push(new THREE.Vector3(GRID_MIN * TILE_S, 0.01, z));
+    pts.push(new THREE.Vector3((GRID_MAX + 1) * TILE_S, 0.01, z));
+  }
+  gridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), mat));
+
+  /* Axis markers */
+  const axMat = new THREE.LineBasicMaterial({ color: 0xff4444, transparent: true, opacity: 0.4 });
+  const axPts = [
+    new THREE.Vector3(GRID_MIN * TILE_S, 0.02, 0),
+    new THREE.Vector3((GRID_MAX + 1) * TILE_S, 0.02, 0),
+    new THREE.Vector3(0, 0.02, GRID_MIN * TILE_S),
+    new THREE.Vector3(0, 0.02, (GRID_MAX + 1) * TILE_S),
+  ];
+  gridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(axPts), axMat));
+  scene.add(gridGroup);
+}
+buildGrid();
+
+/* Hover highlight */
+const hoverGeo = new THREE.PlaneGeometry(TILE_S, TILE_S);
+const hoverMat = new THREE.MeshBasicMaterial({
+  color: 0xffff00, transparent: true, opacity: 0.2, side: THREE.DoubleSide, depthTest: false
+});
+const hoverMesh = new THREE.Mesh(hoverGeo, hoverMat);
+hoverMesh.rotation.x = -Math.PI / 2;
+hoverMesh.position.y = 0.03;
+hoverMesh.visible = false;
+hoverMesh.renderOrder = 999;
+scene.add(hoverMesh);
+
+/* ═══ Load Tile Models ═══ */
+THREE.Cache.enabled = true;
+const loader = new GLTFLoader();
+const tileLib = {};
+const allTileNames = CATEGORIES.flatMap(c => c.tiles);
+
+async function loadAllTiles() {
+  const promises = allTileNames.map(name =>
+    new Promise((res) => {
+      loader.load(TILE_DIR + name + ".glb", gltf => {
+        tileLib[name] = gltf.scene;
+        res();
+      }, undefined, () => {
+        console.warn("Failed to load:", name);
+        res();
+      });
+    })
+  );
+  await Promise.all(promises);
+  console.log(`Loaded ${Object.keys(tileLib).length}/${allTileNames.length} tiles`);
+}
+
+/* ═══ State ═══ */
+let selectedTile = "Grass_Flat";
+let rotation = 0;         // radians: 0, PI/2, PI, 3PI/2
+let tileY = 0;            // Y offset for placement
+let hoverCell = null;     // { gx, gz }
+
+// Tilemap: "gx,gz" -> { tile, rot, y }
+const tilemap = new Map();
+// Scene objects: "gx,gz" -> THREE.Object3D
+const tileObjs = new Map();
+
+/* ═══ Preview ghost ═══ */
+let previewObj = null;
+
+function updatePreview() {
+  if (previewObj) { scene.remove(previewObj); previewObj = null; }
+  if (!hoverCell) return;
+  const tmpl = tileLib[selectedTile];
+  if (!tmpl) return;
+
+  const obj = tmpl.clone();
+  obj.scale.setScalar(TILE_S);
+  obj.position.set(hoverCell.gx * TILE_S, tileY + 0.02, hoverCell.gz * TILE_S);
+  obj.rotation.y = rotation;
+  obj.traverse(c => {
+    if (c.isMesh) {
+      c.material = c.material.clone();
+      c.material.transparent = true;
+      c.material.opacity = 0.35;
+      c.material.depthWrite = false;
+    }
+  });
+  obj.renderOrder = 998;
+  previewObj = obj;
+  scene.add(obj);
+}
+
+/* ═══ Place / Remove ═══ */
+function placeTile(gx, gz) {
+  const key = `${gx},${gz}`;
+  removeTile(gx, gz);
+
+  tilemap.set(key, { tile: selectedTile, rot: rotation, y: tileY });
+
+  const tmpl = tileLib[selectedTile];
+  if (tmpl) {
+    const obj = tmpl.clone();
+    obj.scale.setScalar(TILE_S);
+    obj.position.set(gx * TILE_S, tileY, gz * TILE_S);
+    obj.rotation.y = rotation;
+    scene.add(obj);
+    tileObjs.set(key, obj);
+  }
+  updateCount();
+}
+
+function removeTile(gx, gz) {
+  const key = `${gx},${gz}`;
+  if (tileObjs.has(key)) {
+    scene.remove(tileObjs.get(key));
+    tileObjs.delete(key);
+  }
+  tilemap.delete(key);
+  updateCount();
+}
+
+/* ═══ Raycasting ═══ */
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+function screenToGrid(e) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const target = new THREE.Vector3();
+  if (!raycaster.ray.intersectPlane(groundPlane, target)) return null;
+  return {
+    gx: Math.floor(target.x / TILE_S),
+    gz: Math.floor(target.z / TILE_S),
+  };
+}
+
+/* ═══ Input ═══ */
+let mouseDownPos = null;
+
+renderer.domElement.addEventListener("mousedown", e => {
+  mouseDownPos = { x: e.clientX, y: e.clientY };
+});
+
+renderer.domElement.addEventListener("mouseup", e => {
+  if (!mouseDownPos) return;
+  const dx = Math.abs(e.clientX - mouseDownPos.x);
+  const dy = Math.abs(e.clientY - mouseDownPos.y);
+  if (dx > 4 || dy > 4) return; // was a drag (orbit), ignore
+
+  const cell = screenToGrid(e);
+  if (!cell) return;
+
+  if (e.button === 0) placeTile(cell.gx, cell.gz);
+  if (e.button === 2) removeTile(cell.gx, cell.gz);
+});
+
+renderer.domElement.addEventListener("contextmenu", e => e.preventDefault());
+
+renderer.domElement.addEventListener("mousemove", e => {
+  const cell = screenToGrid(e);
+  hoverCell = cell;
+  if (cell) {
+    hoverMesh.position.x = cell.gx * TILE_S + TILE_S / 2;
+    hoverMesh.position.z = cell.gz * TILE_S + TILE_S / 2;
+    hoverMesh.visible = true;
+    document.getElementById("cell-display").textContent =
+      `Cell: ${cell.gx}, ${cell.gz}` +
+      (tilemap.has(`${cell.gx},${cell.gz}`) ? ` [${tilemap.get(`${cell.gx},${cell.gz}`).tile}]` : "");
+  } else {
+    hoverMesh.visible = false;
+  }
+  updatePreview();
+});
+
+window.addEventListener("keydown", e => {
+  if (e.key === "r" || e.key === "R") {
+    rotation = (rotation + Math.PI / 2) % (Math.PI * 2);
+    document.getElementById("rot-display").textContent =
+      `Rotation: ${Math.round(rotation * 180 / Math.PI)}°`;
+    updatePreview();
+  }
+  if (e.key === "g" || e.key === "G") {
+    gridGroup.visible = !gridGroup.visible;
+  }
+  if (e.key === "s" && e.ctrlKey) {
+    e.preventDefault();
+    exportJSON();
+  }
+  /* Quick category: 1-5 selects first tile of that category */
+  const num = parseInt(e.key);
+  if (num >= 1 && num <= CATEGORIES.length) {
+    selectedTile = CATEGORIES[num - 1].tiles[0];
+    updatePalette();
+    updatePreview();
+  }
+});
+
+/* ═══ UI ═══ */
+function buildPalette() {
+  const pal = document.getElementById("palette");
+  pal.innerHTML = "";
+  for (const cat of CATEGORIES) {
+    const h = document.createElement("div");
+    h.className = "cat";
+    h.textContent = cat.name;
+    pal.appendChild(h);
+    for (const tile of cat.tiles) {
+      const d = document.createElement("div");
+      d.className = "tile-btn" + (tile === selectedTile ? " active" : "");
+      d.textContent = tile.replace(/_/g, " ");
+      d.dataset.tile = tile;
+      d.addEventListener("click", () => {
+        selectedTile = tile;
+        updatePalette();
+        updatePreview();
+      });
+      pal.appendChild(d);
+    }
+  }
+}
+
+function updatePalette() {
+  for (const d of document.querySelectorAll(".tile-btn")) {
+    d.classList.toggle("active", d.dataset.tile === selectedTile);
+  }
+}
+
+function updateCount() {
+  document.getElementById("count").textContent = `${tilemap.size} tiles placed`;
+}
+
+/* Y controls */
+document.getElementById("y-up").addEventListener("click", () => {
+  tileY = Math.round((tileY + 0.2) * 100) / 100;
+  document.getElementById("y-val").textContent = tileY.toFixed(2);
+  updatePreview();
+});
+document.getElementById("y-down").addEventListener("click", () => {
+  tileY = Math.round((tileY - 0.2) * 100) / 100;
+  document.getElementById("y-val").textContent = tileY.toFixed(2);
+  updatePreview();
+});
+
+/* ═══ Export / Import ═══ */
+function exportJSON() {
+  const data = {};
+  for (const [key, val] of tilemap) data[key] = val;
+  const json = JSON.stringify({ version: 1, tileSize: TILE_S, tiles: data }, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "tilemap.json";
+  a.click();
+  URL.revokeObjectURL(url);
+  console.log(`Exported ${tilemap.size} tiles`);
+}
+
+function importJSON(json) {
+  try {
+    const { tiles } = JSON.parse(json);
+    // Clear existing
+    for (const obj of tileObjs.values()) scene.remove(obj);
+    tileObjs.clear();
+    tilemap.clear();
+
+    for (const [key, val] of Object.entries(tiles)) {
+      tilemap.set(key, val);
+      const [gx, gz] = key.split(",").map(Number);
+      const tmpl = tileLib[val.tile];
+      if (tmpl) {
+        const obj = tmpl.clone();
+        obj.scale.setScalar(TILE_S);
+        obj.position.set(gx * TILE_S, val.y || 0, gz * TILE_S);
+        obj.rotation.y = val.rot || 0;
+        scene.add(obj);
+        tileObjs.set(key, obj);
+      }
+    }
+    updateCount();
+    console.log(`Imported ${tilemap.size} tiles`);
+  } catch (e) {
+    alert("Invalid JSON: " + e.message);
+  }
+}
+
+document.getElementById("btn-export").addEventListener("click", exportJSON);
+document.getElementById("btn-import").addEventListener("click", () => {
+  document.getElementById("file-input").click();
+});
+document.getElementById("file-input").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => importJSON(reader.result);
+  reader.readAsText(file);
+  e.target.value = "";
+});
+document.getElementById("btn-clear").addEventListener("click", () => {
+  if (!confirm("Clear all placed tiles?")) return;
+  for (const obj of tileObjs.values()) scene.remove(obj);
+  tileObjs.clear();
+  tilemap.clear();
+  updateCount();
+});
+
+/* ═══ Resize ═══ */
+window.addEventListener("resize", () => {
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+});
+
+/* ═══ Animate ═══ */
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+/* ═══ Init ═══ */
+buildPalette();
+await loadAllTiles();
+animate();
+console.log("Tile Editor ready. Place tiles and export JSON when done.");
+</script>
+</body>
+</html>
