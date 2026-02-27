@@ -216,18 +216,18 @@ export function getMeshSurfaceY(x, z) {
     if (d < b.r) { const t = 1 - d / b.r; y += b.h * t * t * (3 - 2 * t) * hillAmp; }
   }
   /* flatten terrain under/near bridge so ground doesn't poke through */
-  if (x > BRIDGE_X0 - 2 && x < BRIDGE_X1 + 2 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 2) {
-    const bxT = 1 - sm(Math.max(BRIDGE_X0 - x, x - BRIDGE_X1, 0), 0, 2);
-    const bzT = 1 - sm(Math.abs(z - BRIDGE_Z), BRIDGE_HW, BRIDGE_HW + 2);
+  if (x > BRIDGE_X0 - 3 && x < BRIDGE_X1 + 3 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 3) {
+    const bxT = 1 - sm(Math.max(BRIDGE_X0 - x, x - BRIDGE_X1, 0), 0, 3);
+    const bzT = 1 - sm(Math.abs(z - BRIDGE_Z), BRIDGE_HW, BRIDGE_HW + 3);
     const bridgeT = bxT * bzT;
-    if (bridgeT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.15, bridgeT);
+    if (bridgeT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.5, bridgeT);
   }
   /* flatten terrain under dock */
-  if (x > 36 && x < 52 && Math.abs(z - (-16)) < 4) {
-    const dxT = 1 - sm(Math.max(36 - x, x - 52, 0), 0, 2);
-    const dzT = 1 - sm(Math.abs(z - (-16)), 2, 4);
+  if (x > 34 && x < 54 && Math.abs(z - (-16)) < 6) {
+    const dxT = 1 - sm(Math.max(34 - x, x - 54, 0), 0, 3);
+    const dzT = 1 - sm(Math.abs(z - (-16)), 3, 6);
     const dockT = dxT * dzT;
-    if (dockT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.15, dockT);
+    if (dockT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.5, dockT);
   }
   return y;
 }
