@@ -99,11 +99,7 @@ export function isOnPath(x, z) { return distToPath(x, z) < 3.0; }
 /* ── Surface elevation (world Y) for a given world (x,z) ── */
 export function terrainH(x, z) {
   const s = THREE.MathUtils.smoothstep;
-
-  /* ─ river bed ─ */
   const rq = riverQuery(x, z);
-  if (rq.dist < rq.width)
-    return WATER_Y - 0.6 - (1 - rq.dist / rq.width) * 0.8;
 
   /* ─ cliffs ─ */
   if (isCliffNorth(x, z)) {
@@ -126,11 +122,13 @@ export function terrainH(x, z) {
 
   if (neD < HILL_R) {
     const ht = Math.pow(1 - s(neD, 0, HILL_R), 1.6);
-    h = Math.max(h, THREE.MathUtils.lerp(GRASS_Y, HILL_Y, ht));
+    const ridge = Math.sin((x + z) * 0.35) * 0.07 * ht;
+    h = Math.max(h, THREE.MathUtils.lerp(GRASS_Y, HILL_Y, ht) + ridge);
   }
   if (nwD < HILL_R) {
     const ht = Math.pow(1 - s(nwD, 0, HILL_R), 1.6);
-    h = Math.max(h, THREE.MathUtils.lerp(GRASS_Y, HILL_Y, ht));
+    const ridge = Math.sin((x - z) * 0.33 + 0.9) * 0.08 * ht;
+    h = Math.max(h, THREE.MathUtils.lerp(GRASS_Y, HILL_Y, ht) + ridge);
   }
 
   /* ─ beach slopes down ─ */
@@ -144,15 +142,25 @@ export function terrainH(x, z) {
   for (const sv of SVC)
     flat = Math.max(flat, 1 - s(Math.hypot(x - sv.x, z - sv.z), sv.r - 2, sv.r + 5));
   const pd = distToPath(x, z);
-  flat = Math.max(flat, 1 - s(pd, 0, 5));
+  flat = Math.max(flat, 1 - s(pd, 0, 4));
   if (flat > 0) h = THREE.MathUtils.lerp(h, GRASS_Y, flat);
 
-  /* ─ river-bank dip ─ */
-  if (rq.dist < rq.width + 4)
-    h -= (1 - s(rq.dist, rq.width, rq.width + 4)) * 0.4;
+  /* ─ river channel + bank carve (smooth, no hard step at edge) ─ */
+  const bankLo = rq.width;
+  const bankHi = rq.width + 6;
+  if (rq.dist < bankHi) {
+    const center = 1 - s(rq.dist, 0, rq.width);
+    const bank = 1 - s(rq.dist, bankLo, bankHi);
+    const bed = WATER_Y - 0.72 - 0.48 * center;
+    h = THREE.MathUtils.lerp(h, bed, Math.max(center, bank * 0.55));
+    h -= bank * 0.28;
+    if (rq.dist < rq.width + 1.2) h = Math.min(h, WATER_Y - 0.18);
+  }
 
   /* ─ gentle rolling noise ─ */
-  h += (Math.sin(x * 0.042) * 0.12 + Math.cos(z * 0.038) * 0.10) * (1 - flat);
+  const riverQuiet = 1 - s(rq.dist, rq.width + 1.5, rq.width + 5.5);
+  const noiseA = (1 - flat) * (1 - 0.75 * riverQuiet);
+  h += (Math.sin(x * 0.042) * 0.12 + Math.cos(z * 0.038) * 0.10) * noiseA;
 
   return h;
 }

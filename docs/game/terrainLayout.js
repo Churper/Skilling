@@ -41,7 +41,12 @@ const TILES = {
   bridgePost:  "Prop_Bridge_Log_Post_Support.glb",
   fenceBoard1: "Prop_Fence_Boards_1.glb",
   fenceBoard2: "Prop_Fence_Boards_2.glb",
+  fenceBoard3: "Prop_Fence_Boards_3.glb",
+  fenceBoard4: "Prop_Fence_Boards_4.glb",
   fencePost1:  "Prop_Fence_Post_1.glb",
+  fencePost2:  "Prop_Fence_Post_2.glb",
+  fencePost3:  "Prop_Fence_Post_3.glb",
+  fencePost4:  "Prop_Fence_Post_4.glb",
   dockStr:     "Prop_Docks_Straight.glb",
   dockStrSup:  "Prop_Docks_Straight_Supports.glb",
 
@@ -194,11 +199,16 @@ function lerpColor(a, b, t) {
 }
 
 /* zone colors */
-const C_GRASS = [0.133, 0.545, 0.133];
+const C_GRASS = [0.11, 0.52, 0.13];
 const C_DIRT  = [0.769, 0.686, 0.561];
 const C_SAND  = [0.969, 0.918, 0.792];
 const C_ROCK  = [0.631, 0.624, 0.612];
 const C_WATER = [0.200, 0.588, 0.820];
+const PATH_LINES = [
+  [[0, -28], [0, -16], [0, -4], [0, 8], [0, 12]],
+  [[10, -30], [20, -26], [30, -22], [40, -18], [46, -16]],
+  [[0, 14], [0, 22], [0, 34], [0, 40]],
+];
 
 /* village keep-out zones (don't scatter props here) */
 const SVC = [
@@ -220,8 +230,8 @@ function getVertexColor(x, z) {
   if (rq.dist < rq.width) return C_WATER;
 
   /* river bank blend */
-  if (rq.dist < rq.width + 2) {
-    const t = smoothstep(rq.dist, rq.width, rq.width + 2);
+  if (rq.dist < rq.width + 3) {
+    const t = smoothstep(rq.dist, rq.width, rq.width + 3);
     col = lerpColor(C_WATER, col, t);
   }
 
@@ -247,8 +257,8 @@ function getVertexColor(x, z) {
 
   /* dirt paths */
   const pd = distToPath(x, z);
-  if (pd < 3) {
-    const t = 1 - smoothstep(pd, 0, 3);
+  if (pd < 2.6) {
+    const t = 1 - smoothstep(pd, 0.55, 2.6);
     col = lerpColor(col, C_DIRT, t);
   }
 
@@ -297,7 +307,8 @@ function buildGroundMesh() {
       const b = a + 1;
       const c = (iz + 1) * (cols + 1) + ix;
       const d = c + 1;
-      indices.push(a, c, b, b, c, d);
+      if ((ix + iz) & 1) indices.push(a, c, d, a, d, b);
+      else indices.push(a, c, b, b, c, d);
     }
   }
 
@@ -315,6 +326,57 @@ function buildGroundMesh() {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = "ground_mesh";
   mesh.renderOrder = R_GND;
+  return mesh;
+}
+
+function buildPathOverlayMesh() {
+  const pos = [];
+  const idx = [];
+  let vBase = 0;
+
+  const pushPath = (points, width) => {
+    const curve = new THREE.CatmullRomCurve3(
+      points.map(([x, z]) => new THREE.Vector3(x, 0, z)),
+      false,
+      "centripetal",
+      0.3
+    );
+    const steps = Math.max(6, Math.round(curve.getLength() * 1.2));
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const p = curve.getPointAt(t);
+      const tg = curve.getTangentAt(t).normalize();
+      const px = -tg.z, pz = tg.x;
+
+      const lx = p.x + px * width, lz = p.z + pz * width;
+      const rx = p.x - px * width, rz = p.z - pz * width;
+      const ly = terrainH(lx, lz) + 0.045;
+      const ry = terrainH(rx, rz) + 0.045;
+      pos.push(lx, ly, lz, rx, ry, rz);
+
+      if (i > 0) {
+        const a = vBase + (i - 1) * 2;
+        const b = a + 1;
+        const c = vBase + i * 2;
+        const d = c + 1;
+        idx.push(a, c, b, b, c, d);
+      }
+    }
+    vBase += (steps + 1) * 2;
+  };
+
+  pushPath(PATH_LINES[0], 1.34);
+  pushPath(PATH_LINES[1], 1.52);
+  pushPath(PATH_LINES[2], 1.26);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setIndex(idx);
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  geo.computeVertexNormals();
+
+  const mesh = new THREE.Mesh(geo, tMat("#d5c8af", { flatShading: true }));
+  mesh.name = "path_overlay";
+  mesh.renderOrder = R_GND + 1;
   return mesh;
 }
 
@@ -504,6 +566,7 @@ export function buildTerrain(lib) {
 
   /* procedural heightmap ground */
   group.add(buildGroundMesh());
+  group.add(buildPathOverlayMesh());
 
   /* stacked cliff tiles */
   const cliffMeshes = buildCliffs(lib);
@@ -517,52 +580,59 @@ export function buildTerrain(lib) {
    ═══════════════════════════════════════════ */
 
 export function buildWater(waterUniforms) {
-  /* River ribbon: sample centre-line, build strip */
   const RP = [
     [0, 40, 2.5], [0, 34, 2.5], [0, 26, 2.8], [0, 18, 3.0],
     [0, 12, 3.2], [0, 6, 3.5], [2, 2, 3.5], [6, -2, 4.0],
     [12, -6, 4.5], [20, -10, 5.0], [28, -14, 5.5], [36, -14, 6.5], [48, -14, 8.0],
   ];
-  const S = 5; // subdivisions per segment for smoother river curvature
-  const samples = [];
-  for (let i = 0; i < RP.length - 1; i++) {
-    const [ax, az, aw] = RP[i];
-    const [bx, bz, bw] = RP[i + 1];
-    for (let s = 0; s < S; s++) {
-      const t = s / S;
-      samples.push([
-        ax + (bx - ax) * t,
-        az + (bz - az) * t,
-        aw + (bw - aw) * t,
-      ]);
-    }
-  }
-  samples.push(RP[RP.length - 1]);
+  const ctrl = RP.map(([x, z]) => new THREE.Vector3(x, 0, z));
+  const curve = new THREE.CatmullRomCurve3(ctrl, false, "centripetal", 0.3);
+  const widthAt = t => {
+    const seg = t * (RP.length - 1);
+    const i = Math.min(RP.length - 2, Math.max(0, Math.floor(seg)));
+    const f = seg - i;
+    return RP[i][2] + (RP[i + 1][2] - RP[i][2]) * f;
+  };
 
-  const pos = [], idx = [];
-  for (let i = 0; i < samples.length; i++) {
-    const [cx, cz, hw] = samples[i];
-    const prev = samples[Math.max(0, i - 1)];
-    const next = samples[Math.min(samples.length - 1, i + 1)];
-    const dx = next[0] - prev[0], dz = next[1] - prev[1];
-    const len = Math.hypot(dx, dz) || 1;
-    const px = -dz / len, pz = dx / len;
-    pos.push(cx + px * hw, 0, cz + pz * hw);
-    pos.push(cx - px * hw, 0, cz - pz * hw);
+  const pos = [], uv = [], idx = [];
+  const STEPS = 180;
+  for (let i = 0; i <= STEPS; i++) {
+    const t = i / STEPS;
+    const p = curve.getPointAt(t);
+    const tg = curve.getTangentAt(t).normalize();
+    const hw = widthAt(t) * 1.02;
+    const px = -tg.z, pz = tg.x;
+
+    pos.push(
+      p.x + px * hw, 0, p.z + pz * hw,
+      p.x - px * hw, 0, p.z - pz * hw
+    );
+    uv.push(t, 0, t, 1);
+
     if (i > 0) {
       const a = (i - 1) * 2, b = a + 1, c = i * 2, d = c + 1;
       idx.push(a, c, b, b, c, d);
     }
   }
-  /* ocean side fan on east edge (less blocky than a large rectangle) */
-  const [mx, mz, mw] = samples[samples.length - 1];
+
+  const m = curve.getPointAt(1);
+  const mt = curve.getTangentAt(1).normalize();
+  const mw = widthAt(1);
+  const mpx = -mt.z, mpz = mt.x;
   const oi = pos.length / 3;
   pos.push(
-    mx + mw * 1.05, 0, mz + 1.2,
-    58, 0, mz + 4.0,
+    m.x + mpx * mw * 1.03, 0, m.z + mpz * mw * 1.03,
+    58, 0, m.z + 5.5,
     58, 0, -30,
-    mx - mw * 1.05, 0, mz - 1.2,
-    58, 0, mz - 8.0
+    m.x - mpx * mw * 1.03, 0, m.z - mpz * mw * 1.03,
+    58, 0, m.z - 8.5
+  );
+  uv.push(
+    1, 0,
+    1.08, 0.12,
+    1.18, 0.5,
+    1, 1,
+    1.08, 0.88
   );
   idx.push(
     oi, oi + 1, oi + 4,
@@ -573,35 +643,45 @@ export function buildWater(waterUniforms) {
   const geo = new THREE.BufferGeometry();
   geo.setIndex(idx);
   geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
   geo.computeVertexNormals();
 
   const mat = new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
     uniforms: waterUniforms,
     vertexShader: `
-      varying vec2 vW; uniform float uTime;
+      varying vec2 vUv2;
+      varying vec2 vW;
+      uniform float uTime;
       void main(){
         vec3 p = position;
-        p.y += sin(p.x*.18+uTime*.6)*.02 + cos(p.z*.15+uTime*.4)*.015;
+        p.y += sin((p.x+p.z)*0.11 + uTime*0.55)*0.015;
+        p.y += cos((p.x*0.27-p.z*0.21) + uTime*0.35)*0.01;
+        vUv2 = uv;
         vW = p.xz;
         gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
       }`,
     fragmentShader: `
-      varying vec2 vW; uniform float uTime;
+      varying vec2 vUv2;
+      varying vec2 vW;
+      uniform float uTime;
       void main(){
-        float d = length(vW - vec2(24.0,-10.0));
-        vec3 deep = vec3(.18,.48,.62), shallow = vec3(.56,.86,.94);
-        float t = smoothstep(0.0,35.0,d);
-        vec3 c = mix(deep,shallow,t);
-        c += sin(vW.x*.6+vW.y*.4+uTime*1.2)*.016;
-        c += cos(vW.x*.3-vW.y*.5+uTime*.7)*.012;
-        float alpha = mix(0.42,0.28,t);
-        gl_FragColor = vec4(c,alpha);
+        float center = 1.0 - abs(vUv2.y * 2.0 - 1.0);
+        float edgeFade = smoothstep(0.05, 0.72, center);
+        float flow = sin(vUv2.x * 22.0 - uTime * 0.9) * 0.5 + 0.5;
+        vec3 cA = vec3(0.46, 0.78, 0.91);
+        vec3 cB = vec3(0.67, 0.91, 0.98);
+        vec3 c = mix(cA, cB, 0.34 + flow * 0.18);
+        c += sin(vW.x * 0.34 + vW.y * 0.27 + uTime * 1.1) * 0.02;
+        float alpha = mix(0.08, 0.43, edgeFade);
+        gl_FragColor = vec4(c, alpha);
       }`,
   });
 
   const water = new THREE.Mesh(geo, mat);
-  water.position.y = WATER_Y + 0.01;
+  water.position.y = WATER_Y + 0.015;
   water.renderOrder = R_WATER;
   return water;
 }
@@ -697,55 +777,62 @@ export function buildFences(lib) {
   const group = new THREE.Group();
   group.name = "fences";
 
-  const fence = lib.fenceBoard1 || lib.fenceBoard2;
-  const post = lib.fencePost1;
-  if (!fence) return group;
+  const boards = [lib.fenceBoard1, lib.fenceBoard2, lib.fenceBoard3, lib.fenceBoard4].filter(Boolean);
+  const posts = [lib.fencePost1, lib.fencePost2, lib.fencePost3, lib.fencePost4].filter(Boolean);
+  if (!boards.length) return group;
 
-  /* fence line definitions: [startX, startZ, endX, endZ] world coords */
-  const lines = [
-    /* village north border */
-    [-18, -24, 14, -24],
-    /* village east */
-    [14, -24, 14, -40],
-    /* training yard */
-    [-26, -28, -18, -28],
-    [-26, -40, -26, -28],
-    [-18, -40, -18, -28],
-    /* path to bridge (west side) */
-    [-4, -24, -4, 6],
-    /* beach path south */
-    [14, -20, 38, -20],
+  const runs = [
+    /* village border */
+    [[-18, -24], [8, -24], [14, -26], [14, -40]],
+    /* training yard perimeter */
+    [[-26, -40], [-26, -28], [-18, -28], [-18, -40], [-26, -40]],
+    /* river path guard fence */
+    [[-4, -24], [-4, -8], [-4, 2], [-3, 10]],
+    /* beach path fence with bend */
+    [[14, -20], [26, -20], [34, -18], [40, -16]],
   ];
 
-  const spacing = TILE_S; // one fence segment per tile
+  const segLen = TILE_S * 0.8;
+  const placePost = (tmpl, x, z, rot) => {
+    const p = tmpl.clone();
+    p.scale.setScalar(TILE_S * 0.95);
+    p.position.set(x, getWorldSurfaceHeight(x, z) + 0.01, z);
+    p.rotation.y = rot;
+    group.add(p);
+  };
 
-  for (const [sx, sz, ex, ez] of lines) {
-    const dx = ex - sx, dz = ez - sz;
-    const len = Math.hypot(dx, dz);
-    const steps = Math.max(1, Math.round(len / spacing));
-    const rot = Math.atan2(dx, dz);
+  runs.forEach((run, runI) => {
+    const curve = new THREE.CatmullRomCurve3(
+      run.map(([x, z]) => new THREE.Vector3(x, 0, z)),
+      false,
+      "centripetal",
+      0.28
+    );
+    const segs = Math.max(2, Math.round(curve.getLength() / segLen));
 
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const x = sx + dx * t, z = sz + dz * t;
-      const y = getWorldSurfaceHeight(x, z);
+    for (let i = 0; i < segs; i++) {
+      const t0 = i / segs;
+      const t1 = (i + 1) / segs;
+      const tm = (t0 + t1) * 0.5;
+      const p0 = curve.getPointAt(t0);
+      const p1 = curve.getPointAt(t1);
+      const pm = curve.getPointAt(tm);
+      const rot = Math.atan2(p1.x - p0.x, p1.z - p0.z);
 
-      if (i < steps) {
-        const f = fence.clone();
-        f.scale.setScalar(TILE_S);
-        f.position.set(x + dx / steps * 0.5, y, z + dz / steps * 0.5);
-        f.rotation.y = rot;
-        group.add(f);
+      const b = boards[(i + runI) % boards.length].clone();
+      b.scale.setScalar(TILE_S * 0.95);
+      b.position.set(pm.x, getWorldSurfaceHeight(pm.x, pm.z) + 0.02, pm.z);
+      b.rotation.y = rot;
+      group.add(b);
+
+      if (posts.length && i % 2 === 0) {
+        placePost(posts[(i + runI) % posts.length], p0.x, p0.z, rot);
       }
-      if (post && i % 2 === 0) {
-        const p = post.clone();
-        p.scale.setScalar(TILE_S);
-        p.position.set(x, y, z);
-        p.rotation.y = rot;
-        group.add(p);
+      if (posts.length && i === segs - 1) {
+        placePost(posts[(i + runI + 1) % posts.length], p1.x, p1.z, rot);
       }
     }
-  }
+  });
 
   group.renderOrder = R_DECOR;
   return group;
