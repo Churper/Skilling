@@ -90,6 +90,11 @@ const TILES = {
   /* water */
   waterFlat:   "Water_Flat.glb",
   waterSlope:  "Water_Slope.glb",
+  waterCurve:  "Water_Curve.glb",
+  waterfallWaterTop:      "Waterfall_Water_Top.glb",
+  waterfallWaterTopEdge:  "Waterfall_Water_Top_Edge.glb",
+  waterfallWaterMid:      "Waterfall_Water_Mid.glb",
+  waterfallWaterMidEdge:  "Waterfall_Water_Mid_Edge.glb",
 
   /* sand */
   sandFlat:            "Sand_Flat.glb",
@@ -198,6 +203,11 @@ const EDITOR_TILE_TO_LIB = Object.freeze({
   Path_Steps_Grass_Edge_Top: "pathStepsGrassEdgeTop",
   Water_Flat: "waterFlat",
   Water_Slope: "waterSlope",
+  Water_Curve: "waterCurve",
+  Waterfall_Water_Top: "waterfallWaterTop",
+  Waterfall_Water_Top_Edge: "waterfallWaterTopEdge",
+  Waterfall_Water_Mid: "waterfallWaterMid",
+  Waterfall_Water_Mid_Edge: "waterfallWaterMidEdge",
   Sand_Flat: "sandFlat",
   Sand_Side: "sandSide",
   Sand_Corner_Outer_3x3: "sandCornerOuter",
@@ -338,10 +348,17 @@ function getEditorTileExtensions(gx, gz, tile, rot) {
 
 function classifyEditorTileZone(tileName) {
   if (!tileName) return "grass";
-  if (tileName.startsWith("Water_")) return "water";
+  if (isEditorWaterTile(tileName)) return "water";
   if (tileName.startsWith("Sand_")) return "sand";
   if (tileName.startsWith("Path_")) return "path";
   return "grass";
+}
+
+function isEditorWaterTile(tileName) {
+  return !!tileName && (
+    tileName.startsWith("Water_") ||
+    tileName.startsWith("Waterfall_Water_")
+  );
 }
 
 /* village keep-out zones (for buildProps scatter) */
@@ -383,16 +400,16 @@ export function buildTerrain(lib, waterUniforms, tilemapData = null) {
       if (!tmpl) return;
       const y = Number.isFinite(entryObj.y) ? entryObj.y : 0;
       const rot = Number.isFinite(entryObj.rot) ? entryObj.rot : 0;
-      const arr = entryObj.tile.startsWith("Water_") || preferUnderlay ? waterH : landH;
+      const arr = isEditorWaterTile(entryObj.tile) || preferUnderlay ? waterH : landH;
       arr.push(...harvestTile(tmpl, tileMat4(gx * TILE_S, y, gz * TILE_S, rot)));
     };
 
     const underlays = tilemapData.underlays || {};
     for (const [key, val] of Object.entries(tilemapData.tiles)) markCoverage(val, key);
     for (const [key, val] of Object.entries(underlays)) {
-      // Skip duplicate stacked water if this cell already has a Water_* top tile.
+      // Skip duplicate stacked water if this cell already has a water top tile.
       const top = tilemapData.tiles[key];
-      if (top?.tile?.startsWith("Water_") && val?.tile?.startsWith("Water_")) continue;
+      if (isEditorWaterTile(top?.tile) && isEditorWaterTile(val?.tile)) continue;
       addPlaced(val, key, true);
     }
     for (const [key, val] of Object.entries(tilemapData.tiles)) addPlaced(val, key, false);
