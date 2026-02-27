@@ -45,6 +45,7 @@ canvas{display:block}
   <div id="cell-display">Cell: —</div>
   <div id="palette"></div>
   <div id="btns">
+    <button id="btn-fill" style="background:#264;flex-basis:100%">Fill Base Layout</button>
     <button id="btn-export">Export JSON</button>
     <button id="btn-import">Import JSON</button>
     <button id="btn-clear">Clear All</button>
@@ -468,6 +469,117 @@ document.getElementById("btn-clear").addEventListener("click", () => {
   tileObjs.clear();
   tilemap.clear();
   updateCount();
+});
+
+/* ═══ Zone classification (from terrainHeight.js) ═══ */
+const WATER_Y = 0.00, GRASS_Y = 0.40;
+
+/* River centre-line [worldX, worldZ, halfWidth] */
+const RP = [
+  [0,40,2.5],[0,34,2.5],[0,26,2.8],[0,18,3.0],[0,12,3.2],[0,6,3.5],
+  [2,2,3.5],[6,-2,4.0],[12,-6,4.5],[20,-10,5.0],[28,-14,5.5],[36,-14,6.5],[48,-14,8.0],
+];
+function riverQuery(px, pz) {
+  let best = { dist: 1e9, width: 3 };
+  for (let i = 0; i < RP.length - 1; i++) {
+    const [ax,az,aw] = RP[i], [bx,bz,bw] = RP[i+1];
+    const dx = bx-ax, dz = bz-az, len2 = dx*dx+dz*dz;
+    const t = len2 > 0 ? Math.max(0, Math.min(1, ((px-ax)*dx+(pz-az)*dz)/len2)) : 0;
+    const d = Math.hypot(px-(ax+t*dx), pz-(az+t*dz));
+    if (d < best.dist) best = { dist: d, width: aw+(bw-aw)*t };
+  }
+  return best;
+}
+function isInRiver(x, z) { const q = riverQuery(x, z); return q.dist < q.width; }
+function isBeach(x, z) { return x > 30 && z < 4; }
+
+/* smoothstep for terrainH */
+function smoothstep(x, min, max) {
+  const t = Math.max(0, Math.min(1, (x - min) / (max - min)));
+  return t * t * (3 - 2 * t);
+}
+
+function terrainH(x, z) {
+  const rq = riverQuery(x, z);
+  let h = GRASS_Y;
+  /* beach slope */
+  if (isBeach(x, z)) h -= smoothstep(x, 30, 48) * 1.0;
+  /* bank carve */
+  const bankHi = rq.width + TILE_S;
+  if (rq.dist < bankHi) {
+    const center = 1 - smoothstep(rq.dist, 0, rq.width);
+    const bank = 1 - smoothstep(rq.dist, rq.width, bankHi);
+    const bed = WATER_Y - 0.72 - 0.48 * center;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    h = lerp(h, bed, Math.max(center, bank * 0.45));
+  }
+  return h;
+}
+function isOceanCell(wx, wz) { return wx > 34 && terrainH(wx, wz) < WATER_Y + 0.08; }
+function isWater(wx, wz) { return isInRiver(wx, wz) || isOceanCell(wx, wz); }
+
+/* Path centre-lines */
+const PATH_CLS = [
+  [[0,-28],[0,-16],[0,-4],[0,8],[0,12]],
+  [[10,-30],[20,-26],[30,-22],[40,-18],[46,-16]],
+  [[0,14],[0,22],[0,34],[0,40]],
+];
+function distToPath(x, z) {
+  let md = 1e9;
+  for (const pts of PATH_CLS)
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [ax,az] = pts[i], [bx,bz] = pts[i+1];
+      const dx = bx-ax, dz = bz-az, l2 = dx*dx+dz*dz;
+      const t = l2 > 0 ? Math.max(0, Math.min(1, ((x-ax)*dx+(z-az)*dz)/l2)) : 0;
+      md = Math.min(md, Math.hypot(x-(ax+t*dx), z-(az+t*dz)));
+    }
+  return md;
+}
+function isOnPath(x, z) { return distToPath(x, z) < 3.0; }
+
+/* Playable bounds */
+function isPlayable(gx, gz) { return !(gz > 19 || gx < -19 || gz < -18); }
+
+/* ═══ Auto-fill base layout ═══ */
+function fillBaseLayout() {
+  /* Clear existing */
+  for (const obj of tileObjs.values()) scene.remove(obj);
+  tileObjs.clear();
+  tilemap.clear();
+
+  let count = 0;
+  for (let gx = -19; gx <= 24; gx++) {
+    for (let gz = -18; gz <= 19; gz++) {
+      if (!isPlayable(gx, gz)) continue;
+      const wx = gx * TILE_S, wz = gz * TILE_S;
+
+      let tile, y = 0;
+      if (isWater(wx, wz))       tile = "Water_Flat";
+      else if (isBeach(wx, wz))  tile = "Sand_Flat";
+      else if (isOnPath(wx, wz)) tile = "Path_Center";
+      else                       tile = "Grass_Flat";
+
+      const key = `${gx},${gz}`;
+      tilemap.set(key, { tile, rot: 0, y });
+
+      const tmpl = tileLib[tile];
+      if (tmpl) {
+        const obj = tmpl.clone();
+        obj.scale.setScalar(TILE_S);
+        obj.position.set(gx * TILE_S, y, gz * TILE_S);
+        scene.add(obj);
+        tileObjs.set(key, obj);
+      }
+      count++;
+    }
+  }
+  updateCount();
+  console.log(`Filled ${count} base tiles. Now replace edges with Hill_Side, Sand_Side, etc.`);
+}
+
+document.getElementById("btn-fill").addEventListener("click", () => {
+  if (tilemap.size > 0 && !confirm("This will replace all tiles with the base layout. Continue?")) return;
+  fillBaseLayout();
 });
 
 /* ═══ Resize ═══ */
