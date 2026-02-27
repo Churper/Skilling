@@ -387,29 +387,8 @@ function buildCliffs(lib) {
 }
 
 function buildRiverBankCurves(lib) {
-  const slope = lib.waterSlope;
-  if (!slope) return [];
-  const harvested = [];
-  const RP = [
-    [0, 40, 2.5], [0, 34, 2.5], [0, 26, 2.8], [0, 18, 3.0],
-    [0, 12, 3.2], [0, 6, 3.5], [2, 2, 3.5], [6, -2, 4.0],
-    [12, -6, 4.5], [20, -10, 5.0], [28, -14, 5.5], [36, -14, 6.5], [48, -14, 8.0],
-  ];
-  for (let i = 1; i < RP.length - 1; i++) {
-    const [cx, cz, hw] = RP[i];
-    const dx = RP[i + 1][0] - RP[i - 1][0];
-    const dz = RP[i + 1][1] - RP[i - 1][1];
-    const len = Math.hypot(dx, dz) || 1;
-    const px = -dz / len, pz = dx / len;
-    for (const s of [-1, 1]) {
-      const x = cx + px * s * (hw + 0.8);
-      const z = cz + pz * s * (hw + 0.8);
-      const y = getWorldSurfaceHeight(x, z) - 0.22;
-      const rot = Math.atan2(dx, dz) + (s > 0 ? Math.PI / 2 : -Math.PI / 2);
-      harvested.push(...harvestTile(slope, tileMat4(x, y, z, rot)));
-    }
-  }
-  return mergeByMaterial(harvested);
+  // Disabled: water-slope tile overlays produced visible spikes/tears.
+  return [];
 }
 
 /* ═══════════════════════════════════════════
@@ -529,8 +508,6 @@ export function buildTerrain(lib) {
   /* stacked cliff tiles */
   const cliffMeshes = buildCliffs(lib);
   cliffMeshes.forEach(m => group.add(m));
-  const bankCurves = buildRiverBankCurves(lib);
-  bankCurves.forEach(m => group.add(m));
 
   return group;
 }
@@ -546,12 +523,28 @@ export function buildWater(waterUniforms) {
     [0, 12, 3.2], [0, 6, 3.5], [2, 2, 3.5], [6, -2, 4.0],
     [12, -6, 4.5], [20, -10, 5.0], [28, -14, 5.5], [36, -14, 6.5], [48, -14, 8.0],
   ];
+  const S = 5; // subdivisions per segment for smoother river curvature
+  const samples = [];
+  for (let i = 0; i < RP.length - 1; i++) {
+    const [ax, az, aw] = RP[i];
+    const [bx, bz, bw] = RP[i + 1];
+    for (let s = 0; s < S; s++) {
+      const t = s / S;
+      samples.push([
+        ax + (bx - ax) * t,
+        az + (bz - az) * t,
+        aw + (bw - aw) * t,
+      ]);
+    }
+  }
+  samples.push(RP[RP.length - 1]);
+
   const pos = [], idx = [];
-  for (let i = 0; i < RP.length; i++) {
-    const [cx, cz, hw] = RP[i];
-    let dx = 0, dz = 1;
-    if (i < RP.length - 1) { dx = RP[i + 1][0] - cx; dz = RP[i + 1][1] - cz; }
-    else if (i > 0) { dx = cx - RP[i - 1][0]; dz = cz - RP[i - 1][1]; }
+  for (let i = 0; i < samples.length; i++) {
+    const [cx, cz, hw] = samples[i];
+    const prev = samples[Math.max(0, i - 1)];
+    const next = samples[Math.min(samples.length - 1, i + 1)];
+    const dx = next[0] - prev[0], dz = next[1] - prev[1];
     const len = Math.hypot(dx, dz) || 1;
     const px = -dz / len, pz = dx / len;
     pos.push(cx + px * hw, 0, cz + pz * hw);
@@ -561,10 +554,21 @@ export function buildWater(waterUniforms) {
       idx.push(a, c, b, b, c, d);
     }
   }
-  /* ocean rectangle on east side */
+  /* ocean side fan on east edge (less blocky than a large rectangle) */
+  const [mx, mz, mw] = samples[samples.length - 1];
   const oi = pos.length / 3;
-  pos.push(34, 0, 6,  58, 0, 6,  58, 0, -30,  34, 0, -30);
-  idx.push(oi, oi + 1, oi + 2,  oi, oi + 2, oi + 3);
+  pos.push(
+    mx + mw * 1.05, 0, mz + 1.2,
+    58, 0, mz + 4.0,
+    58, 0, -30,
+    mx - mw * 1.05, 0, mz - 1.2,
+    58, 0, mz - 8.0
+  );
+  idx.push(
+    oi, oi + 1, oi + 4,
+    oi, oi + 4, oi + 3,
+    oi + 3, oi + 4, oi + 2
+  );
 
   const geo = new THREE.BufferGeometry();
   geo.setIndex(idx);
@@ -777,7 +781,7 @@ export function buildSteppingStones() {
    addWaterfall() — cascading from north cliff
    ═══════════════════════════════════════════ */
 
-export function addWaterfall(scene, waterUniforms, tileLib = null) {
+export function addWaterfall(scene, waterUniforms) {
   const cx = 0, baseZ = 40;
   const topY = terrainH(cx, 48) + 1.5;
   const botY = WATER_Y + 0.2;
@@ -794,29 +798,6 @@ export function addWaterfall(scene, waterUniforms, tileLib = null) {
     m.position.set(cx, l.y, l.z);
     m.renderOrder = R_DECOR;
     scene.add(m);
-  }
-
-  // Use pack waterfall tiles so the feature matches the curved low-poly reference style.
-  if (tileLib?.waterfallTop) {
-    const t = tileLib.waterfallTop.clone();
-    t.scale.setScalar(TILE_S);
-    t.position.set(cx, topY + 0.35, 47.2);
-    t.renderOrder = R_DECOR + 1;
-    scene.add(t);
-  }
-  if (tileLib?.waterfallTile) {
-    const steps = [
-      [topY + 0.18, 45.8],
-      [topY * 0.65 + botY * 0.35 + 0.35, 43.7],
-      [botY + 0.85, 41.9],
-    ];
-    for (const [y, z] of steps) {
-      const w = tileLib.waterfallTile.clone();
-      w.scale.setScalar(TILE_S);
-      w.position.set(cx, y, z);
-      w.renderOrder = R_DECOR + 1;
-      scene.add(w);
-    }
   }
 
   /* animated water cascade */

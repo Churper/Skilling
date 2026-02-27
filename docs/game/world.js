@@ -445,7 +445,7 @@ export async function createWorld(scene) {
   scene.add(stones);
 
   /* waterfall from north cliff */
-  addWaterfall(scene, waterUniforms, tileLib);
+  addWaterfall(scene, waterUniforms);
 
   /* ── character / prop models ── */
   let models = null;
