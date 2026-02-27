@@ -7,10 +7,18 @@ const TILE_S = 2;
 const PI = Math.PI;
 const HP = PI / 2;
 
-// ── Load user's tilemap as BASE ──
+// ── Load user's tilemap, keep ONLY slope tiles (strip auto-generated flats) ──
 const data = JSON.parse(fs.readFileSync("user_tilemap5.json", "utf8"));
-const tiles = data.tiles;
-console.log("Loaded user tilemap:", Object.keys(tiles).length, "tiles");
+const rawTiles = data.tiles;
+const tiles = {};
+const FLAT_NAMES = new Set(["Grass_Flat", "Water_Flat", "Sand_Flat", "Path_Center"]);
+let kept = 0, stripped = 0;
+for (const [key, val] of Object.entries(rawTiles)) {
+  if (FLAT_NAMES.has(val.tile)) { stripped++; continue; }
+  tiles[key] = val;
+  kept++;
+}
+console.log(`Loaded: ${kept} slope tiles kept, ${stripped} flat tiles stripped`);
 
 // ── World-space zone helpers (fallback only) ──
 const RP = [
@@ -78,8 +86,7 @@ const GZ_MIN = -18, GZ_MAX = 19;
 function ck(gx, gz) { return `${gx},${gz}`; }
 
 // ── Flat tile check ──
-const FLAT_SET = new Set(["Grass_Flat", "Water_Flat", "Sand_Flat", "Path_Center"]);
-function isFlat(tile) { return FLAT_SET.has(tile); }
+function isFlat(tile) { return FLAT_NAMES.has(tile); }
 function isSlope(tile) { return tile && !isFlat(tile); }
 
 // ── Extension cells for multi-cell tiles ──
@@ -122,38 +129,29 @@ console.log("Cells claimed by existing tiles:", claimed.size);
 
 const elev = new Map(); // key → "low" | "elevated" | "boundary"
 
-// Step 1a: Classify from existing tiles
+// Step 1a: Slope tiles → boundary
 for (const [key, val] of Object.entries(tiles)) {
-  if (isFlat(val.tile)) {
-    elev.set(key, val.y >= 1.5 ? "elevated" : "low");
-  } else {
-    elev.set(key, "boundary"); // slope tile = boundary
+  elev.set(key, "boundary");
+}
+
+// Step 1b: World-space elevation for ALL other cells
+for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
+  for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
+    const key = ck(gx, gz);
+    if (elev.has(key)) continue;
+    const wx = gx * TILE_S, wz = gz * TILE_S;
+    elev.set(key, (isWater(wx, wz) || isBeach(wx, wz)) ? "low" : "elevated");
   }
 }
 
-// Step 1b: Extension cells of slope tiles → LOW (they're on the downhill side)
-for (const [key, val] of Object.entries(tiles)) {
-  if (isFlat(val.tile)) continue;
-  const [gx, gz] = key.split(",").map(Number);
-  const exts = getExtensions(gx, gz, val.tile, val.rot);
-  for (const [ex, ez] of exts) {
-    const ek = ck(ex, ez);
-    if (!elev.has(ek) || elev.get(ek) !== "boundary") {
-      elev.set(ek, "low");
-    }
-  }
-}
-
-// Step 1c: HIGH side of slope tiles → ELEVATED
+// Step 1c: Override from slope tiles — extensions LOW, high-side ELEVATED
 function getHighNeighbors(gx, gz, tile, rotRad) {
   const r = Math.round(rotRad * 180 / PI);
   if (tile === "Hill_Side" || tile.includes("Transition")) {
     return r === 0 ? [[gx,gz+1]] : r === 90 ? [[gx+1,gz]] :
            r === 180 ? [[gx,gz-1]] : [[gx-1,gz]];
   }
-  // HCO: high side is the two sides NOT facing water
   if (tile === "Hill_Corner_Outer_2x2") {
-    // rot=0 (SE): high to N and W from anchor
     return r === 0   ? [[gx-1,gz],[gx,gz+1]] :
            r === 90  ? [[gx+1,gz],[gx,gz+1]] :
            r === 180 ? [[gx+1,gz],[gx,gz-1]] :
@@ -163,63 +161,48 @@ function getHighNeighbors(gx, gz, tile, rotRad) {
 }
 
 for (const [key, val] of Object.entries(tiles)) {
-  if (isFlat(val.tile)) continue;
   const [gx, gz] = key.split(",").map(Number);
+  // Extensions → force LOW (overrides world-space if wrong)
+  const exts = getExtensions(gx, gz, val.tile, val.rot);
+  for (const [ex, ez] of exts) elev.set(ck(ex, ez), "low");
+  // High-side → force ELEVATED
   const highCells = getHighNeighbors(gx, gz, val.tile, val.rot);
-  for (const [hx, hz] of highCells) {
-    const hk = ck(hx, hz);
-    if (!elev.has(hk)) {
-      elev.set(hk, "elevated");
-    }
-  }
+  for (const [hx, hz] of highCells) elev.set(ck(hx, hz), "elevated");
 }
 
-// Step 1d: Flood-fill LOW from all known LOW cells
-// Stop at cells that have an ELEVATED neighbor (those are potential bank cells)
+// Step 1d: Propagate LOW between opposing banks
+// If a cell is between a LOW cell and another LOW/boundary on opposite side → LOW
 const lowQueue = [];
-for (const [key, e] of elev) {
-  if (e === "low") lowQueue.push(key);
+for (const [key, val] of Object.entries(tiles)) {
+  const [gx, gz] = key.split(",").map(Number);
+  const exts = getExtensions(gx, gz, val.tile, val.rot);
+  for (const [ex, ez] of exts) lowQueue.push(ck(ex, ez));
 }
-
-let lowFilled = 0;
+let lowFixed = 0;
+const visited = new Set();
 while (lowQueue.length > 0) {
   const key = lowQueue.shift();
+  if (visited.has(key)) continue;
+  visited.add(key);
   const [gx, gz] = key.split(",").map(Number);
-
+  if (gx < GX_MIN || gx > GX_MAX || gz < GZ_MIN || gz > GZ_MAX) continue;
   for (const [dx, dz] of [[0,1],[0,-1],[1,0],[-1,0]]) {
-    const nx = gx+dx, nz = gz+dz;
-    const nk = ck(nx, nz);
-    if (elev.has(nk)) continue; // already classified
-    if (nx < GX_MIN-2 || nx > GX_MAX+2 || nz < GZ_MIN-2 || nz > GZ_MAX+2) continue;
-
-    // Don't flood into cells adjacent to an ELEVATED cell (those are bank edges)
-    let touchesElevated = false;
-    for (const [ddx, ddz] of [[0,1],[0,-1],[1,0],[-1,0]]) {
-      const adjE = elev.get(ck(nx+ddx, nz+ddz));
-      if (adjE === "elevated") { touchesElevated = true; break; }
-    }
-    if (touchesElevated) continue;
-
-    elev.set(nk, "low");
-    lowQueue.push(nk);
-    lowFilled++;
-  }
-}
-console.log("Flood-filled LOW:", lowFilled);
-
-// Step 1e: Remaining cells → world-space fallback
-for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
-  for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
-    const key = ck(gx, gz);
-    if (elev.has(key)) continue;
-    const wx = gx * TILE_S, wz = gz * TILE_S;
-    if (isWater(wx, wz) || isBeach(wx, wz)) {
-      elev.set(key, "low");
-    } else {
-      elev.set(key, "elevated");
+    const nx = gx+dx, nz = gz+dz, nk = ck(nx, nz);
+    if (visited.has(nk) || elev.get(nk) === "boundary") continue;
+    if (elev.get(nk) === "elevated") {
+      // Only override to LOW if the opposite side is also low/boundary
+      const opp = elev.get(ck(nx+dx, nz+dz));
+      if (opp === "low" || opp === "boundary") {
+        elev.set(nk, "low");
+        lowQueue.push(nk);
+        lowFixed++;
+      }
+    } else if (elev.get(nk) === "low") {
+      lowQueue.push(nk);
     }
   }
 }
+console.log("Propagated LOW overrides:", lowFixed);
 
 // Helper: is this cell LOW? (water/sand level)
 function cellIsLow(gx, gz) {
