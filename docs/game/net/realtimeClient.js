@@ -35,7 +35,7 @@ export function resolveOnlineConfig() {
   const storedWs = storage?.getItem("skilling_ws_url") || "";
   const storedRoom = storage?.getItem("skilling_room") || "";
   const storedName = storage?.getItem("skilling_name") || "";
-  const defaultWs = host === "localhost" || host === "127.0.0.1" ? "ws://localhost:8081" : storedWs;
+  const defaultWs = host === "localhost" || host === "127.0.0.1" ? "ws://localhost:8081" : (storedWs || "wss://skilling.onrender.com");
 
   return {
     wsUrl: params.get("ws") || window.SKILLING_WS_URL || defaultWs,
