@@ -265,9 +265,6 @@ function inVillage(x, z, pad = 0) {
    ═══════════════════════════════════════════ */
 
 export function buildTerrain(lib, waterUniforms) {
-  /* Water tile base Y — positions Water_Flat so its top surface = WATER_Y */
-  const WTY = WATER_Y - 0.35 * TILE_S;   // = 0.00 − 0.70 = −0.70
-
   /* ── 1. Zone + height maps ── */
   const zoneMap = new Map(), hMap = new Map();
   for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
@@ -352,25 +349,50 @@ export function buildTerrain(lib, waterUniforms) {
       const cells = [[gx, gz], [gx + 1, gz], [gx, gz + 1], [gx + 1, gz + 1]];
       if (!canClaim(cells)) continue;
       const k = ck(gx, gz);
-      if (zoneMap.get(k) === ZONE.WATER) continue;
+      /* all 4 cells must be non-water */
+      if (cells.some(([cx, cz]) => {
+        const zn = zoneMap.get(ck(cx, cz));
+        return zn == null || zn === ZONE.WATER;
+      })) continue;
       const h = hMap.get(k);
 
-      /* Riverbank corner: 2 adjacent water neighbors → Hill_Corner_Outer */
-      const waterAdj = DIRS.filter(d => nz(gx, gz, d) === ZONE.WATER);
-      if (waterAdj.length >= 2) {
+      /* Riverbank corner: check which block edges face water (outside the 2x2) */
+      const bWater = [];
+      const isW = (cx, cz) => zoneMap.get(ck(cx, cz)) === ZONE.WATER;
+      if (isW(gx, gz + 2) || isW(gx + 1, gz + 2)) bWater.push("n");
+      if (isW(gx + 2, gz) || isW(gx + 2, gz + 1)) bWater.push("e");
+      if (isW(gx, gz - 1) || isW(gx + 1, gz - 1)) bWater.push("s");
+      if (isW(gx - 1, gz) || isW(gx - 1, gz + 1)) bWater.push("w");
+      if (bWater.length >= 2) {
         for (const [a, b] of ADJ_PAIRS) {
-          if (waterAdj.includes(a) && waterAdj.includes(b)) {
+          if (bWater.includes(a) && bWater.includes(b)) {
             putL("hillCornerOuter", gx, gz, 0, CORNER_ROT[a + "," + b] ?? 0);
             claimAll(cells); break;
           }
         }
         if (claimed.has(k)) continue;
       }
+      /* Inner corner: no cardinal water, but diagonal water outside block */
+      if (bWater.length === 0) {
+        const diagCells = { ne: [gx+2,gz+2], se: [gx+2,gz-1], sw: [gx-1,gz-1], nw: [gx-1,gz+2] };
+        let innerDone = false;
+        for (const diag of ["ne", "se", "sw", "nw"]) {
+          const [dcx, dcz] = diagCells[diag];
+          if (isW(dcx, dcz)) {
+            putL("hillCornerInner", gx, gz, 0, DIAG_ROT[diag]);
+            claimAll(cells); innerDone = true; break;
+          }
+        }
+        if (innerDone) continue;
+      }
 
-      /* Hill corner: 2 adjacent height drops (non-water) */
+      /* Skip height-based corners near river (bank carving causes false drops) */
+      const rq2 = riverQuery(gx * TILE_S, gz * TILE_S);
+      if (rq2.dist < rq2.width + TILE_S * 3) continue;
+
+      /* Hill corner: 2 adjacent height drops (actual hills only) */
       const drops = {};
       for (const d of DIRS) {
-        if (nz(gx, gz, d) === ZONE.WATER) { drops[d] = 0; continue; }
         const n = nh(gx, gz, d); drops[d] = n != null ? h - n : 0;
       }
       const topY = Math.max(0, h - GRASS_Y);
@@ -423,31 +445,35 @@ export function buildTerrain(lib, waterUniforms) {
         claimed.add(k); continue;
       }
 
-      /* ── Height-based hill tiles (actual hills, not river) ── */
-      const drops = {};
-      const dropDirs = [];
-      for (const d of DIRS) {
-        const n = nh(gx, gz, d);
-        drops[d] = n != null ? h - n : 0;
-        if (drops[d] > DROP_MIN) dropDirs.push(d);
-      }
-      const topY = Math.max(0, h - GRASS_Y);
-
-      if (dropDirs.length >= 2) {
-        for (const [a, b] of OPP_PAIRS) {
-          if (drops[a] > DROP_MIN && drops[b] > DROP_MIN) {
-            putL("hillSideOnSide", gx, gz, topY, a === "n" ? 0 : -Math.PI / 2);
-            claimed.add(k); break;
-          }
+      /* ── Height-based hill tiles (actual hills only — skip near river/ocean) ── */
+      const cellRq = riverQuery(gx * TILE_S, gz * TILE_S);
+      const nearWaterBody = cellRq.dist < cellRq.width + TILE_S * 3;
+      if (!nearWaterBody) {
+        const drops = {};
+        const dropDirs = [];
+        for (const d of DIRS) {
+          const n = nh(gx, gz, d);
+          drops[d] = n != null ? h - n : 0;
+          if (drops[d] > DROP_MIN) dropDirs.push(d);
         }
-        if (claimed.has(k)) continue;
-      }
+        const topY = Math.max(0, h - GRASS_Y);
 
-      if (dropDirs.length >= 1) {
-        let bestDir = dropDirs[0], bestVal = drops[dropDirs[0]];
-        for (const d of dropDirs) if (drops[d] > bestVal) { bestVal = drops[d]; bestDir = d; }
-        putL("hillSide", gx, gz, topY, DIR_ROT[bestDir]);
-        claimed.add(k); continue;
+        if (dropDirs.length >= 2) {
+          for (const [a, b] of OPP_PAIRS) {
+            if (drops[a] > DROP_MIN && drops[b] > DROP_MIN) {
+              putL("hillSideOnSide", gx, gz, topY, a === "n" ? 0 : -Math.PI / 2);
+              claimed.add(k); break;
+            }
+          }
+          if (claimed.has(k)) continue;
+        }
+
+        if (dropDirs.length >= 1) {
+          let bestDir = dropDirs[0], bestVal = drops[dropDirs[0]];
+          for (const d of dropDirs) if (drops[d] > bestVal) { bestVal = drops[d]; bestDir = d; }
+          putL("hillSide", gx, gz, topY, DIR_ROT[bestDir]);
+          claimed.add(k); continue;
+        }
       }
 
       /* ── Zone-specific edge tiles (flat boundaries) ── */
@@ -511,7 +537,7 @@ export function buildTerrain(lib, waterUniforms) {
       if (claimed.has(k) || !zoneMap.has(k)) continue;
       const z = zoneMap.get(k), h = hMap.get(k);
       switch (z) {
-        case ZONE.WATER: putW("waterFlat", gx, gz, WTY, 0);             break;
+        case ZONE.WATER: putW("waterFlat", gx, gz, 0, 0);              break;
         case ZONE.SAND:  putL("sandFlat",  gx, gz, 0, 0);              break;
         case ZONE.PATH:  putL("pathCenter", gx, gz, GRASS_Y, 0);       break;
         default:         putL("grass",      gx, gz, flatY(h), 0);      break;

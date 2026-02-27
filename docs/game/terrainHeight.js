@@ -10,7 +10,7 @@ import * as THREE from "three";
 
 /* ── Constants ── */
 export const TILE_S     = 2;          // world-units per tile
-export const WATER_Y    = 0.00;       // water surface (tile placed at -0.70 so top lands here)
+export const WATER_Y    = 0.00;       // water surface at tile base level (tiles placed at y=0)
 export const GRASS_Y    = 0.40;       // grass surface (Grass_Flat top 0.20 × TILE_S)
 export const HILL_Y     = 2.40;       // hilltop surface (1.20 × TILE_S)
 export const PATH_Y     = 0.00;       // path surface (Path_Center top 0.00 × TILE_S)
