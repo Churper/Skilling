@@ -128,9 +128,12 @@ const CATEGORIES = [
 /* ═══ Three.js Setup ═══ */
 const wrap = document.getElementById("canvas-wrap");
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(wrap.clientWidth, wrap.clientHeight);
-renderer.setClearColor(0x1a1a2e);
+renderer.setClearColor("#68b8d8", 1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NoToneMapping;
+renderer.toneMappingExposure = 1.0;
 wrap.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -143,12 +146,15 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.update();
 
-/* Lighting */
-const amb = new THREE.AmbientLight(0xffffff, 0.6);
-scene.add(amb);
-const dir = new THREE.DirectionalLight(0xffffff, 0.8);
-dir.position.set(30, 50, 20);
-scene.add(dir);
+/* Lighting — match the game's scene.js */
+scene.add(new THREE.HemisphereLight("#f0fbff", "#6aa057", 0.92));
+scene.add(new THREE.AmbientLight("#ffffff", 0.18));
+const sun = new THREE.DirectionalLight("#fff2d0", 1.46);
+sun.position.set(42, 54, 18);
+scene.add(sun);
+const fill = new THREE.DirectionalLight("#d8efff", 0.32);
+fill.position.set(-34, 26, -24);
+scene.add(fill);
 
 /* ═══ Grid ═══ */
 const GRID_MIN = -25, GRID_MAX = 25;
@@ -202,19 +208,32 @@ const tileLib = {};
 const allTileNames = CATEGORIES.flatMap(c => c.tiles);
 
 async function loadAllTiles() {
+  const status = document.getElementById("count");
+  status.textContent = "Loading tiles...";
+  const failed = [];
   const promises = allTileNames.map(name =>
     new Promise((res) => {
       loader.load(TILE_DIR + name + ".glb", gltf => {
         tileLib[name] = gltf.scene;
+        status.textContent = `Loaded ${Object.keys(tileLib).length}/${allTileNames.length}...`;
         res();
-      }, undefined, () => {
-        console.warn("Failed to load:", name);
+      }, undefined, (err) => {
+        console.warn("Failed to load:", name, err);
+        failed.push(name);
         res();
       });
     })
   );
   await Promise.all(promises);
-  console.log(`Loaded ${Object.keys(tileLib).length}/${allTileNames.length} tiles`);
+  const msg = `Loaded ${Object.keys(tileLib).length}/${allTileNames.length} tiles`;
+  console.log(msg);
+  if (failed.length > 0) {
+    status.textContent = msg + ` (FAILED: ${failed.join(", ")})`;
+    status.style.color = "#f44";
+  } else {
+    status.textContent = msg;
+    status.style.color = "#4f4";
+  }
 }
 
 /* ═══ State ═══ */
@@ -600,6 +619,8 @@ function animate() {
 /* ═══ Init ═══ */
 buildPalette();
 await loadAllTiles();
+/* Auto-fill on load so user sees the base terrain immediately */
+if (Object.keys(tileLib).length > 0) fillBaseLayout();
 animate();
 console.log("Tile Editor ready. Place tiles and export JSON when done.");
 </script>
