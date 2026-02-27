@@ -248,6 +248,9 @@ let hoverCell = null;     // { gx, gz }
 const tilemap = new Map();
 // Scene objects: "gx,gz" -> THREE.Object3D
 const tileObjs = new Map();
+// Optional underlay tiles (e.g. Water_Flat under Hill_Corner_Inner_2x2 pool)
+const underlays = new Map();
+const underlayObjs = new Map();
 
 /* ═══ Preview ghost ═══ */
 let previewObj = null;
@@ -275,20 +278,60 @@ function updatePreview() {
   scene.add(obj);
 }
 
+function spawnTileObject(tileName, gx, gz, rot, y) {
+  const tmpl = tileLib[tileName];
+  if (!tmpl) return null;
+  const obj = tmpl.clone();
+  obj.scale.setScalar(TILE_S);
+  obj.position.set(gx * TILE_S, y, gz * TILE_S);
+  obj.rotation.y = rot || 0;
+  scene.add(obj);
+  return obj;
+}
+
+function setUnderlay(gx, gz, entry) {
+  const key = `${gx},${gz}`;
+  if (underlayObjs.has(key)) {
+    scene.remove(underlayObjs.get(key));
+    underlayObjs.delete(key);
+  }
+  underlays.set(key, entry);
+  const obj = spawnTileObject(entry.tile, gx, gz, entry.rot || 0, (entry.y || 0) - 0.01);
+  if (obj) {
+    obj.renderOrder = -1;
+    underlayObjs.set(key, obj);
+  }
+}
+
 /* ═══ Place / Remove ═══ */
 function placeTile(gx, gz) {
   const key = `${gx},${gz}`;
-  removeTile(gx, gz);
+  const existing = tilemap.get(key);
+  const placingWater = selectedTile === "Water_Flat";
+
+  // Special case: placing water into a Hill_Corner_Inner_2x2 pool should not delete the hill tile.
+  if (placingWater && existing && existing.tile === "Hill_Corner_Inner_2x2") {
+    setUnderlay(gx, gz, { tile: selectedTile, rot: rotation, y: tileY });
+    updateCount();
+    return;
+  }
+
+  if (tileObjs.has(key)) {
+    scene.remove(tileObjs.get(key));
+    tileObjs.delete(key);
+  }
+  tilemap.delete(key);
+  // Replacing a non-water main tile clears any old underlay on this cell.
+  if (!placingWater && underlayObjs.has(key)) {
+    scene.remove(underlayObjs.get(key));
+    underlayObjs.delete(key);
+    underlays.delete(key);
+  }
 
   tilemap.set(key, { tile: selectedTile, rot: rotation, y: tileY });
 
-  const tmpl = tileLib[selectedTile];
-  if (tmpl) {
-    const obj = tmpl.clone();
-    obj.scale.setScalar(TILE_S);
-    obj.position.set(gx * TILE_S, tileY, gz * TILE_S);
-    obj.rotation.y = rotation;
-    scene.add(obj);
+  const obj = spawnTileObject(selectedTile, gx, gz, rotation, tileY);
+  if (obj) {
     tileObjs.set(key, obj);
   }
   updateCount();
@@ -299,6 +342,16 @@ function removeTile(gx, gz) {
   if (tileObjs.has(key)) {
     scene.remove(tileObjs.get(key));
     tileObjs.delete(key);
+    tilemap.delete(key);
+    updateCount();
+    return;
+  }
+  if (underlayObjs.has(key)) {
+    scene.remove(underlayObjs.get(key));
+    underlayObjs.delete(key);
+    underlays.delete(key);
+    updateCount();
+    return;
   }
   tilemap.delete(key);
   updateCount();
@@ -351,9 +404,14 @@ renderer.domElement.addEventListener("mousemove", e => {
     hoverMesh.position.x = cell.gx * TILE_S + TILE_S / 2;
     hoverMesh.position.z = cell.gz * TILE_S + TILE_S / 2;
     hoverMesh.visible = true;
+    const key = `${cell.gx},${cell.gz}`;
+    const top = tilemap.get(key)?.tile;
+    const under = underlays.get(key)?.tile;
+    let label = "Cell: " + cell.gx + ", " + cell.gz;
+    if (top) label += ` [${top}]`;
+    if (under) label += ` {under: ${under}}`;
     document.getElementById("cell-display").textContent =
-      `Cell: ${cell.gx}, ${cell.gz}` +
-      (tilemap.has(`${cell.gx},${cell.gz}`) ? ` [${tilemap.get(`${cell.gx},${cell.gz}`).tile}]` : "");
+      label;
   } else {
     hoverMesh.visible = false;
   }
@@ -414,7 +472,7 @@ function updatePalette() {
 }
 
 function updateCount() {
-  document.getElementById("count").textContent = `${tilemap.size} tiles placed`;
+  document.getElementById("count").textContent = `${tilemap.size} tiles placed` + (underlays.size ? ` (+${underlays.size} underlays)` : "");
 }
 
 /* Y controls */
@@ -433,7 +491,11 @@ document.getElementById("y-down").addEventListener("click", () => {
 function exportJSON() {
   const data = {};
   for (const [key, val] of tilemap) data[key] = val;
-  const json = JSON.stringify({ version: 1, tileSize: TILE_S, tiles: data }, null, 2);
+  const under = {};
+  for (const [key, val] of underlays) under[key] = val;
+  const payload = { version: 1, tileSize: TILE_S, tiles: data };
+  if (underlays.size) payload.underlays = under;
+  const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -446,23 +508,27 @@ function exportJSON() {
 
 function importJSON(json) {
   try {
-    const { tiles } = JSON.parse(json);
+    const { tiles, underlays: importedUnderlays } = JSON.parse(json);
     // Clear existing
     for (const obj of tileObjs.values()) scene.remove(obj);
     tileObjs.clear();
     tilemap.clear();
+    for (const obj of underlayObjs.values()) scene.remove(obj);
+    underlayObjs.clear();
+    underlays.clear();
 
     for (const [key, val] of Object.entries(tiles)) {
       tilemap.set(key, val);
       const [gx, gz] = key.split(",").map(Number);
-      const tmpl = tileLib[val.tile];
-      if (tmpl) {
-        const obj = tmpl.clone();
-        obj.scale.setScalar(TILE_S);
-        obj.position.set(gx * TILE_S, val.y || 0, gz * TILE_S);
-        obj.rotation.y = val.rot || 0;
-        scene.add(obj);
+      const obj = spawnTileObject(val.tile, gx, gz, val.rot || 0, val.y || 0);
+      if (obj) {
         tileObjs.set(key, obj);
+      }
+    }
+    if (importedUnderlays) {
+      for (const [key, val] of Object.entries(importedUnderlays)) {
+        const [gx, gz] = key.split(",").map(Number);
+        setUnderlay(gx, gz, val);
       }
     }
     updateCount();
@@ -489,6 +555,9 @@ document.getElementById("btn-clear").addEventListener("click", () => {
   for (const obj of tileObjs.values()) scene.remove(obj);
   tileObjs.clear();
   tilemap.clear();
+  for (const obj of underlayObjs.values()) scene.remove(obj);
+  underlayObjs.clear();
+  underlays.clear();
   updateCount();
 });
 
@@ -567,6 +636,9 @@ function fillBaseLayout() {
   for (const obj of tileObjs.values()) scene.remove(obj);
   tileObjs.clear();
   tilemap.clear();
+  for (const obj of underlayObjs.values()) scene.remove(obj);
+  underlayObjs.clear();
+  underlays.clear();
 
   let count = 0;
   for (let gx = -19; gx <= 24; gx++) {
@@ -583,12 +655,8 @@ function fillBaseLayout() {
       const key = `${gx},${gz}`;
       tilemap.set(key, { tile, rot: 0, y });
 
-      const tmpl = tileLib[tile];
-      if (tmpl) {
-        const obj = tmpl.clone();
-        obj.scale.setScalar(TILE_S);
-        obj.position.set(gx * TILE_S, y, gz * TILE_S);
-        scene.add(obj);
+      const obj = spawnTileObject(tile, gx, gz, 0, y);
+      if (obj) {
         tileObjs.set(key, obj);
       }
       count++;
