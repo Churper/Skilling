@@ -125,30 +125,13 @@ for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
     if (tiles[key]) continue;        // already has tile
     if (claimed.has(key)) continue;   // extension cell — leave empty
 
-    // Check neighbors
-    const neighborTiles = [];
-    for (const [dx, dz] of DIRS) {
-      const nk = ck(gx + dx, gz + dz);
-      if (tiles[nk]) neighborTiles.push(tiles[nk].tile);
-    }
-
+    // Always use world-space to decide tile type (no neighbor spreading)
+    const wx = gx * TILE_S, wz = gz * TILE_S;
     let fillTile, fillY;
-    if (neighborTiles.some(t => t === "Water_Flat")) {
-      fillTile = "Water_Flat"; fillY = 0;
-    } else if (neighborTiles.some(t => t === "Sand_Flat")) {
-      fillTile = "Sand_Flat"; fillY = 0;
-    } else if (neighborTiles.some(t => t === "Path_Center")) {
-      fillTile = "Path_Center"; fillY = 2.0;
-    } else if (neighborTiles.length > 0) {
-      fillTile = "Grass_Flat"; fillY = 2.0;
-    } else {
-      // No neighbors — world-space fallback
-      const wx = gx * TILE_S, wz = gz * TILE_S;
-      if (isInRiver(wx, wz)) { fillTile = "Water_Flat"; fillY = 0; }
-      else if (isBeach(wx, wz)) { fillTile = "Sand_Flat"; fillY = 0; }
-      else if (isOnPath(wx, wz)) { fillTile = "Path_Center"; fillY = 2.0; }
-      else { fillTile = "Grass_Flat"; fillY = 2.0; }
-    }
+    if (isInRiver(wx, wz)) { fillTile = "Water_Flat"; fillY = 0; }
+    else if (isBeach(wx, wz)) { fillTile = "Sand_Flat"; fillY = 0; }
+    else if (isOnPath(wx, wz)) { fillTile = "Path_Center"; fillY = 2.0; }
+    else { fillTile = "Grass_Flat"; fillY = 2.0; }
 
     tiles[key] = { tile: fillTile, rot: 0, y: fillY };
     filled++;
@@ -210,47 +193,7 @@ for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
 console.log(`Phase 4: ${sandSideCount} Sand_Side, ${sandOverlapCount} Sand_Side_Overlap_Side`);
 
 // ═══════════════════════════════════════════════════════════
-// PHASE 5: Water_Slope at river edges
-// ═══════════════════════════════════════════════════════════
-function isLandTile(t) {
-  if (!t) return false;
-  return t.startsWith("Grass_") || t.startsWith("Sand_") ||
-         t.startsWith("Path_") || t.startsWith("Hill_");
-}
-
-let waterSlopeCount = 0;
-for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
-  for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
-    const key = ck(gx, gz);
-    const val = tiles[key];
-    if (!val || val.tile !== "Water_Flat") continue;
-
-    const landDirs = [];
-    const checks = [
-      { dx: 0, dz: 1, name: "n" },
-      { dx: -1, dz: 0, name: "w" },
-      { dx: 0, dz: -1, name: "s" },
-      { dx: 1, dz: 0, name: "e" },
-    ];
-    for (const { dx, dz, name } of checks) {
-      const nk = ck(gx + dx, gz + dz);
-      const nt = tiles[nk];
-      if (nt && isLandTile(nt.tile)) landDirs.push(name);
-    }
-
-    // Only place slope for single-side edges
-    if (landDirs.length !== 1) continue;
-
-    const dir = landDirs[0];
-    const rot = dir === "n" ? 0 : dir === "w" ? HP : dir === "s" ? PI : HP * 3;
-    tiles[key] = { tile: "Water_Slope", rot, y: 0 };
-    waterSlopeCount++;
-  }
-}
-console.log(`Phase 5: ${waterSlopeCount} Water_Slope placed`);
-
-// ═══════════════════════════════════════════════════════════
-// PHASE 6: Output
+// PHASE 5: Output
 // ═══════════════════════════════════════════════════════════
 const output = { version: 1, tileSize: TILE_S, tiles };
 fs.writeFileSync("docs/tilemap.json", JSON.stringify(output, null, 2));
@@ -281,7 +224,6 @@ for (const [key, val] of Object.entries(tiles)) {
   if (val.tile === "Path_Center" && val.y !== 2.0) badY++;
   if (val.tile === "Sand_Flat" && val.y !== 0) badY++;
   if (val.tile === "Water_Flat" && val.y !== 0) badY++;
-  if (val.tile === "Water_Slope" && val.y !== 0) badY++;
   if (val.tile.startsWith("Hill_") && val.y !== 0) badY++;
 }
 if (badY > 0) console.warn(`WARNING: ${badY} tiles with unexpected Y values`);

@@ -3648,8 +3648,8 @@
       "y": 2
     },
     "0,8": {
-      "tile": "Water_Slope",
-      "rot": 3.141592653589793,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "0,9": {
@@ -3663,48 +3663,48 @@
       "y": 0
     },
     "0,11": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "0,12": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "0,13": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "0,14": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "0,15": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "0,16": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "0,17": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "0,18": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "0,19": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "1,-18": {
@@ -3758,13 +3758,13 @@
       "y": 2
     },
     "1,5": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "1,6": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "1,12": {
@@ -3928,8 +3928,8 @@
       "y": 2
     },
     "3,-1": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "3,2": {
@@ -4823,13 +4823,13 @@
       "y": 0
     },
     "13,-7": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "13,-6": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "13,3": {
@@ -6738,8 +6738,8 @@
       "y": 0
     },
     "1,7": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,8": {
@@ -6763,48 +6763,48 @@
       "y": 0
     },
     "2,12": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,13": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,14": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,15": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,16": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,17": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,18": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,19": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,6": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,4": {
@@ -6813,8 +6813,8 @@
       "y": 0
     },
     "2,5": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "2,3": {
@@ -6833,18 +6833,18 @@
       "y": 0
     },
     "1,3": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "1,4": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "4,-1": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "4,-2": {
@@ -6883,8 +6883,8 @@
       "y": 0
     },
     "5,-2": {
-      "tile": "Water_Slope",
-      "rot": 0,
+      "tile": "Water_Flat",
+      "rot": 1.5707963267948966,
       "y": 0
     },
     "1,0": {
@@ -7223,8 +7223,8 @@
       "y": 0
     },
     "4,0": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "3,1": {
@@ -7233,23 +7233,23 @@
       "y": 0
     },
     "3,0": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "4,1": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "8,-4": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 0,
       "y": 0
     },
     "13,-5": {
-      "tile": "Water_Slope",
-      "rot": 4.71238898038469,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "12,-5": {
@@ -7268,27 +7268,27 @@
       "y": 0
     },
     "9,-4": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 0,
       "y": 0
     },
     "10,-4": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 0,
       "y": 0
     },
     "11,-4": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 0,
       "y": 0
     },
     "12,-4": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 0,
       "y": 0
     },
     "13,-4": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 0,
       "y": 0
     },
@@ -7298,8 +7298,8 @@
       "y": 0
     },
     "3,-2": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 0,
       "y": 0
     },
     "4,-3": {
@@ -7693,8 +7693,8 @@
       "y": 0
     },
     "5,-5": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 3.141592653589793,
       "y": 0
     },
     "6,-5": {
@@ -7703,8 +7703,8 @@
       "y": 0
     },
     "5,-6": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 3.141592653589793,
       "y": 0
     },
     "4,-8": {
@@ -7763,8 +7763,8 @@
       "y": 0
     },
     "9,-9": {
-      "tile": "Water_Slope",
-      "rot": 3.141592653589793,
+      "tile": "Water_Flat",
+      "rot": 4.71238898038469,
       "y": 0
     },
     "6,-9": {
@@ -7803,12 +7803,12 @@
       "y": 0
     },
     "8,-9": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 3.141592653589793,
       "y": 0
     },
     "6,-8": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 3.141592653589793,
       "y": 0
     },
@@ -7818,22 +7818,22 @@
       "y": 0
     },
     "5,-8": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
+      "tile": "Water_Flat",
+      "rot": 3.141592653589793,
       "y": 0
     },
     "10,-9": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 3.141592653589793,
       "y": 0
     },
     "11,-9": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 3.141592653589793,
       "y": 0
     },
     "12,-9": {
-      "tile": "Water_Slope",
+      "tile": "Water_Flat",
       "rot": 3.141592653589793,
       "y": 0
     },
@@ -7858,17 +7858,17 @@
       "y": 2
     },
     "-1,-15": {
-      "tile": "Grass_Flat",
+      "tile": "Path_Center",
       "rot": 0,
       "y": 2
     },
     "-1,-14": {
-      "tile": "Grass_Flat",
+      "tile": "Path_Center",
       "rot": 0,
       "y": 2
     },
     "-1,-13": {
-      "tile": "Grass_Flat",
+      "tile": "Path_Center",
       "rot": 0,
       "y": 2
     },
@@ -7893,12 +7893,12 @@
       "y": 2
     },
     "0,-15": {
-      "tile": "Grass_Flat",
+      "tile": "Path_Center",
       "rot": 0,
       "y": 2
     },
     "0,-14": {
-      "tile": "Grass_Flat",
+      "tile": "Path_Center",
       "rot": 0,
       "y": 2
     },
@@ -7918,7 +7918,7 @@
       "y": 2
     },
     "1,-15": {
-      "tile": "Grass_Flat",
+      "tile": "Path_Center",
       "rot": 0,
       "y": 2
     },
@@ -7958,24 +7958,24 @@
       "y": 2
     },
     "3,3": {
-      "tile": "Water_Flat",
+      "tile": "Grass_Flat",
       "rot": 0,
-      "y": 0
+      "y": 2
     },
     "3,4": {
-      "tile": "Water_Slope",
+      "tile": "Grass_Flat",
       "rot": 0,
-      "y": 0
+      "y": 2
     },
     "3,10": {
-      "tile": "Water_Flat",
+      "tile": "Grass_Flat",
       "rot": 0,
-      "y": 0
+      "y": 2
     },
     "3,11": {
-      "tile": "Water_Slope",
+      "tile": "Grass_Flat",
       "rot": 0,
-      "y": 0
+      "y": 2
     },
     "4,-7": {
       "tile": "Grass_Flat",
@@ -7983,29 +7983,29 @@
       "y": 2
     },
     "4,3": {
-      "tile": "Water_Flat",
+      "tile": "Grass_Flat",
       "rot": 0,
-      "y": 0
+      "y": 2
     },
     "4,10": {
-      "tile": "Water_Flat",
+      "tile": "Grass_Flat",
       "rot": 0,
-      "y": 0
+      "y": 2
     },
     "5,-10": {
-      "tile": "Water_Flat",
+      "tile": "Grass_Flat",
       "rot": 0,
-      "y": 0
+      "y": 2
     },
     "5,-7": {
-      "tile": "Water_Slope",
-      "rot": 1.5707963267948966,
-      "y": 0
+      "tile": "Grass_Flat",
+      "rot": 0,
+      "y": 2
     },
     "5,3": {
-      "tile": "Water_Flat",
+      "tile": "Grass_Flat",
       "rot": 0,
-      "y": 0
+      "y": 2
     },
     "6,4": {
       "tile": "Grass_Flat",
@@ -8023,9 +8023,9 @@
       "y": 2
     },
     "7,-1": {
-      "tile": "Grass_Flat",
+      "tile": "Water_Flat",
       "rot": 0,
-      "y": 2
+      "y": 0
     },
     "7,4": {
       "tile": "Grass_Flat",
