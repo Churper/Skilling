@@ -1045,61 +1045,77 @@ export function buildSteppingStones() {
    ═══════════════════════════════════════════ */
 
 export function addWaterfall(scene, waterUniforms) {
-  const cx = 0, baseZ = 40;
-  const topY = terrainH(cx, 48) + 1.5;
-  const botY = WATER_Y + 0.2;
+  const cx = 0;
+  const topZ = 40.9;
+  const endZ = 34.4;
+  const topY = terrainH(cx, 40) + 4.8;
+  const botY = WATER_Y + 0.16;
+  const midZ = (topZ + endZ) * 0.5;
+  const midY = topY * 0.58 + botY * 0.42;
 
-  const ledgeMat = tMat("#8f8e87");
-  const ledges = [
-    { y: topY, z: 46, w: 7, h: 1.2, d: 3 },
-    { y: topY * 0.65 + botY * 0.35, z: 43, w: 6, h: 0.9, d: 2.5 },
-    { y: botY + 0.5, z: 41, w: 5, h: 0.6, d: 2 },
-  ];
-  for (const l of ledges) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(l.w, l.h, l.d), ledgeMat);
-    m.position.set(cx, l.y, l.z);
-    m.renderOrder = R_DECOR;
-    scene.add(m);
-  }
-
-  const wfMat = new THREE.ShaderMaterial({
-    transparent: true, side: THREE.DoubleSide,
-    uniforms: { uTime: waterUniforms.uTime },
-    vertexShader: `varying vec2 vUv;
-      void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-    fragmentShader: `
-      varying vec2 vUv; uniform float uTime;
+  const makeMat = (phase = 0, alpha = 1) => new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: {
+      uTime: waterUniforms.uTime,
+      uPhase: { value: phase },
+      uAlpha: { value: alpha },
+    },
+    vertexShader: `
+      varying vec2 vUv;
       void main(){
-        float flow = fract(vUv.y*1.35 - uTime*0.42);
-        float wave = smoothstep(0.0,0.42,flow)*smoothstep(1.0,0.6,flow);
-        vec3 c = mix(vec3(.3,.58,.75),vec3(.4,.68,.85),wave*.5);
-        float edge = smoothstep(0.0,0.18,vUv.x)*smoothstep(1.0,0.82,vUv.x);
-        float foam = smoothstep(0.55,1.0,abs(sin((vUv.y-uTime*.45)*14.0)))*0.10;
-        gl_FragColor = vec4(c+foam, edge*0.9);
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+      }`,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform float uTime, uPhase, uAlpha;
+      void main(){
+        float t = fract(vUv.y * 2.2 - uTime * 0.45 + uPhase);
+        float streak = smoothstep(0.0, 0.24, t) * smoothstep(1.0, 0.62, t);
+        float edge = smoothstep(0.0, 0.15, vUv.x) * smoothstep(1.0, 0.85, vUv.x);
+        float foam = smoothstep(0.75, 1.0, abs(sin((vUv.y * 18.0) - (uTime * 5.2))));
+        vec3 col = mix(vec3(0.62,0.86,0.97), vec3(0.80,0.95,1.0), streak * 0.65);
+        float a = edge * (0.26 + streak * 0.48) * uAlpha;
+        a += edge * foam * 0.08 * uAlpha;
+        gl_FragColor = vec4(col, clamp(a, 0.0, 0.85));
       }`,
   });
 
-  const pts = [
-    [cx, topY, 47], [cx, topY * 0.65 + botY * 0.35 + 0.5, 44],
-    [cx, botY + 0.8, 42], [cx, botY, 40.5],
-  ];
-  for (let i = 0; i < pts.length - 1; i++) {
-    const [x0, y0, z0] = pts[i], [x1, y1, z1] = pts[i + 1];
-    const len = Math.hypot(y1 - y0, z1 - z0);
-    const plane = new THREE.Mesh(new THREE.PlaneGeometry(4, len, 1, 10), wfMat);
-    plane.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
-    const dir = new THREE.Vector3(0, y1 - y0, z1 - z0).normalize();
-    plane.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
-    plane.renderOrder = R_DECOR + 1;
-    scene.add(plane);
-  }
+  const addRibbon = (x, width, phase, alpha = 1) => {
+    const pts = [[x, topY, topZ], [x, midY, midZ], [x, botY, endZ]];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [x0, y0, z0] = pts[i], [x1, y1, z1] = pts[i + 1];
+      const len = Math.hypot(y1 - y0, z1 - z0);
+      const plane = new THREE.Mesh(new THREE.PlaneGeometry(width, len, 1, 12), makeMat(phase + i * 0.17, alpha));
+      plane.position.set((x0 + x1) * 0.5, (y0 + y1) * 0.5, (z0 + z1) * 0.5);
+      const dir = new THREE.Vector3(0, y1 - y0, z1 - z0).normalize();
+      plane.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+      plane.renderOrder = R_DECOR + 1;
+      scene.add(plane);
+    }
+  };
+
+  // Main fall + softer side ribbons.
+  addRibbon(cx, 3.6, 0.0, 1.0);
+  addRibbon(cx - 1.05, 1.4, 0.22, 0.7);
+  addRibbon(cx + 1.05, 1.4, 0.41, 0.7);
+
+  const lip = new THREE.Mesh(
+    new THREE.BoxGeometry(3.8, 0.12, 0.9),
+    tMat("#8a8f92", { flatShading: true })
+  );
+  lip.position.set(cx, topY + 0.02, topZ + 0.2);
+  lip.renderOrder = R_DECOR;
+  scene.add(lip);
 
   const foam = new THREE.Mesh(
-    new THREE.CircleGeometry(3.5, 16),
-    new THREE.MeshBasicMaterial({ color: "#c8e8f0", transparent: true, opacity: 0.4 })
+    new THREE.CircleGeometry(2.25, 20),
+    new THREE.MeshBasicMaterial({ color: "#dff6ff", transparent: true, opacity: 0.42, depthWrite: false })
   );
   foam.rotation.x = -Math.PI / 2;
-  foam.position.set(cx, WATER_Y + 0.03, baseZ - 0.5);
+  foam.position.set(cx, WATER_Y + 0.03, endZ + 0.15);
   foam.renderOrder = R_WATER + 1;
   scene.add(foam);
 }
