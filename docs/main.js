@@ -57,11 +57,14 @@ const skills = {
   bow: { xp: 0, level: 1 },
   mage: { xp: 0, level: 1 },
 };
+let inCave = false;
+let caveGround = null;
 const onlineConfig = resolveOnlineConfig();
 const remotePlayers = createRemotePlayers({
   scene,
   addShadowBlob,
   getGroundY: (x, z) => getPlayerGroundY(x, z),
+  weaponModels,
 });
 let netClient = null;
 
@@ -596,6 +599,7 @@ function pushPointOutsideObstacles(point, extraRadius = 0) {
 }
 
 function resolvePlayerCollisions() {
+  if (inCave) return; // no overworld obstacles in cave
   if (!collisionObstacles.length) return;
   // Two passes for stable separation when obstacles are close.
   pushPointOutsideObstacles(player.position, playerCollisionRadius);
@@ -603,6 +607,9 @@ function resolvePlayerCollisions() {
 }
 
 function getPlayerGroundY(x, z) {
+  if (inCave && caveGround) {
+    return 0; // flat cave floor
+  }
   const analyticY = getWorldSurfaceHeight(x, z);
   groundRayOrigin.set(x, analyticY + 30, z);
   groundRaycaster.set(groundRayOrigin, groundRayDir);
@@ -849,9 +856,242 @@ function purchaseToolUpgrade(tool) {
   );
 }
 
+/* ═══════════════════════════════════════════
+   Volcano Cave — dungeon instance
+   ═══════════════════════════════════════════ */
+const caveObjects = [];
+const savedOverworldPos = new THREE.Vector3();
+
+function buildVolcanoCave() {
+  const caveGroup = new THREE.Group();
+  caveGroup.name = "volcano_cave";
+
+  /* Floor — dark rock */
+  const floorGeo = new THREE.PlaneGeometry(60, 60);
+  const floorMat = new THREE.MeshToonMaterial({ color: "#2a1a12" });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = 0;
+  caveGroup.add(floor);
+
+  /* Lava pools */
+  const lavaMat = new THREE.MeshBasicMaterial({
+    color: "#ff3300",
+    transparent: true,
+    opacity: 0.85,
+    depthWrite: false,
+  });
+  const lavaPositions = [
+    [8, 6, 4], [-10, 8, 3], [5, -9, 2.5], [-6, -5, 3.5], [14, -3, 2],
+  ];
+  for (const [lx, lz, lr] of lavaPositions) {
+    const pool = new THREE.Mesh(new THREE.CircleGeometry(lr, 20), lavaMat.clone());
+    pool.rotation.x = -Math.PI / 2;
+    pool.position.set(lx, 0.02, lz);
+    pool.renderOrder = 2;
+    caveGroup.add(pool);
+  }
+
+  /* Stalagmites */
+  const stalMat = new THREE.MeshToonMaterial({ color: "#3d2a1a" });
+  for (let i = 0; i < 25; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 8 + Math.random() * 18;
+    const sx = Math.cos(angle) * dist;
+    const sz = Math.sin(angle) * dist;
+    const h = 1.5 + Math.random() * 3;
+    const r = 0.3 + Math.random() * 0.5;
+    const stal = new THREE.Mesh(new THREE.ConeGeometry(r, h, 6), stalMat);
+    stal.position.set(sx, h / 2, sz);
+    caveGroup.add(stal);
+  }
+
+  /* Stalactites (hanging from ceiling) */
+  const ceilMat = new THREE.MeshToonMaterial({ color: "#352218" });
+  for (let i = 0; i < 20; i++) {
+    const cx = (Math.random() - 0.5) * 40;
+    const cz = (Math.random() - 0.5) * 40;
+    const ch = 1 + Math.random() * 2;
+    const cr = 0.2 + Math.random() * 0.3;
+    const stl = new THREE.Mesh(new THREE.ConeGeometry(cr, ch, 5), ceilMat);
+    stl.position.set(cx, 10 - ch / 2, cz);
+    stl.rotation.x = Math.PI;
+    caveGroup.add(stl);
+  }
+
+  /* Ceiling */
+  const ceilGeo = new THREE.PlaneGeometry(60, 60);
+  const ceilFloor = new THREE.Mesh(ceilGeo, new THREE.MeshToonMaterial({ color: "#1a0e08", side: THREE.BackSide }));
+  ceilFloor.rotation.x = -Math.PI / 2;
+  ceilFloor.position.y = 10;
+  caveGroup.add(ceilFloor);
+
+  /* Walls — ring of rock */
+  const wallGeo = new THREE.CylinderGeometry(28, 30, 10, 24, 1, true);
+  const wallMat = new THREE.MeshToonMaterial({ color: "#2d1c10", side: THREE.BackSide });
+  const walls = new THREE.Mesh(wallGeo, wallMat);
+  walls.position.y = 5;
+  caveGroup.add(walls);
+
+  /* Glowing crystals */
+  const crystalColors = ["#ff6622", "#ffaa00", "#ff4400", "#ff8844"];
+  for (let i = 0; i < 12; i++) {
+    const ca = (i / 12) * Math.PI * 2;
+    const cd = 22 + Math.random() * 5;
+    const crystal = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.4 + Math.random() * 0.3, 0),
+      new THREE.MeshBasicMaterial({
+        color: crystalColors[i % crystalColors.length],
+        transparent: true,
+        opacity: 0.8,
+      })
+    );
+    crystal.position.set(Math.cos(ca) * cd, 0.5 + Math.random() * 1.5, Math.sin(ca) * cd);
+    crystal.rotation.set(Math.random(), Math.random(), Math.random());
+    caveGroup.add(crystal);
+  }
+
+  /* Exit portal — to go back */
+  const portalGeo = new THREE.TorusGeometry(1.2, 0.15, 8, 24);
+  const portalMat = new THREE.MeshBasicMaterial({ color: "#44aaff", transparent: true, opacity: 0.7 });
+  const portal = new THREE.Mesh(portalGeo, portalMat);
+  portal.position.set(0, 1.5, -20);
+  portal.userData.serviceType = "cave_exit";
+  portal.userData.resourceLabel = "Exit Portal";
+  caveGroup.add(portal);
+
+  /* Light from lava */
+  const lavaLight = new THREE.PointLight("#ff4400", 2.5, 40);
+  lavaLight.position.set(0, 3, 0);
+  caveGroup.add(lavaLight);
+
+  const ambientLight = new THREE.AmbientLight("#331100", 0.4);
+  caveGroup.add(ambientLight);
+
+  return { group: caveGroup, floor, portal, lavaPositions, lavaLight };
+}
+
+function enterCave() {
+  if (inCave) return;
+  inCave = true;
+  savedOverworldPos.copy(player.position);
+
+  /* Hide overworld */
+  scene.traverse(child => {
+    if (child === scene || child === camera) return;
+    if (!child._caveObject) child._overworldVisible = child.visible;
+  });
+  for (const child of [...scene.children]) {
+    if (child === camera || child._caveObject) continue;
+    child.visible = false;
+  }
+
+  /* Build & add cave */
+  const cave = buildVolcanoCave();
+  cave.group._caveObject = true;
+  cave.group.traverse(c => { c._caveObject = true; });
+  scene.add(cave.group);
+  caveObjects.push(cave);
+
+  /* Make cave floor walkable */
+  caveGround = cave.floor;
+
+  /* Position player at cave entrance */
+  player.position.set(0, playerFootOffset, 18);
+  player.visible = true;
+  player._caveObject = true;
+  playerBlob.visible = true;
+  playerBlob._caveObject = true;
+  marker._caveObject = true;
+
+  /* Add exit portal to interactables */
+  resourceNodes.push(cave.portal);
+
+  hasMoveTarget = false;
+  marker.visible = false;
+  pendingResource = null;
+  pendingService = null;
+  activeGather = null;
+  activeAttack = null;
+
+  /* Adjust camera */
+  cameraFocus.set(player.position.x, player.position.y + 0.4, player.position.z);
+  controls.target.copy(cameraFocus);
+  camera.position.set(player.position.x, player.position.y + 8, player.position.z + 14);
+
+  /* Adjust fog for cave atmosphere */
+  if (scene.fog) {
+    scene.fog.color.set("#1a0a04");
+    scene.fog.near = 5;
+    scene.fog.far = 35;
+  }
+
+  ui?.setStatus("You enter the Volcano Cave... heat rises from the lava below.", "info");
+}
+
+function exitCave() {
+  if (!inCave) return;
+  inCave = false;
+
+  /* Remove cave portal from interactables */
+  for (const cave of caveObjects) {
+    const idx = resourceNodes.indexOf(cave.portal);
+    if (idx >= 0) resourceNodes.splice(idx, 1);
+  }
+
+  /* Remove cave objects */
+  for (const cave of caveObjects) {
+    scene.remove(cave.group);
+    cave.group.traverse(c => {
+      if (c.geometry) c.geometry.dispose();
+      if (c.material) {
+        if (Array.isArray(c.material)) c.material.forEach(m => m.dispose());
+        else c.material.dispose();
+      }
+    });
+  }
+  caveObjects.length = 0;
+  caveGround = null;
+
+  /* Restore overworld */
+  scene.traverse(child => {
+    if (child._overworldVisible !== undefined) {
+      child.visible = child._overworldVisible;
+      delete child._overworldVisible;
+    }
+  });
+  delete player._caveObject;
+  delete playerBlob._caveObject;
+
+  /* Restore player position */
+  player.position.copy(savedOverworldPos);
+  player.position.y = getPlayerStandY(player.position.x, player.position.z);
+
+  /* Restore fog */
+  if (scene.fog) {
+    scene.fog.color.set("#95b57a");
+    scene.fog.near = 620;
+    scene.fog.far = 1650;
+  }
+
+  hasMoveTarget = false;
+  marker.visible = false;
+  ui?.setStatus("You emerge from the Volcano Cave.", "info");
+}
+
 function runServiceAction(node) {
   const serviceType = node.userData.serviceType;
   if (!serviceType) return;
+
+  if (serviceType === "cave") {
+    enterCave();
+    return;
+  }
+
+  if (serviceType === "cave_exit") {
+    exitCave();
+    return;
+  }
 
   if (serviceType === "bank") {
     ui?.openBank(getBankState());
@@ -1159,10 +1399,11 @@ function animate() {
 
   resolvePlayerCollisions();
 
-  // Clamp player to playable area (before mountains)
+  // Clamp player to playable area
+  const maxR = inCave ? 26 : PLAYABLE_RADIUS;
   const playerR = Math.hypot(player.position.x, player.position.z);
-  if (playerR > PLAYABLE_RADIUS) {
-    const scale = PLAYABLE_RADIUS / playerR;
+  if (playerR > maxR) {
+    const scale = maxR / playerR;
     player.position.x *= scale;
     player.position.z *= scale;
   }
@@ -1306,6 +1547,8 @@ function animate() {
     yaw: player.rotation.y,
     moving: isMovingNow,
     gathering: !!activeGather,
+    attacking: !!activeAttack,
+    combatStyle,
     tool: equippedTool,
   });
 

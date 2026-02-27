@@ -358,6 +358,104 @@ function addPlaza(scene, nodes, obstacles) {
   return { constructionSite: cs };
 }
 
+/* ── Cave entrance ── */
+function addCaveEntrance(scene, x, z, nodes, obstacles) {
+  const y = getMeshSurfaceY(x, z);
+  const g = new THREE.Group();
+  g.position.set(x, y, z);
+
+  /* Rock arch */
+  const rockMat = toonMat("#5a5550");
+  const darkMat = toonMat("#1a1412");
+
+  /* Left pillar */
+  const pillarL = new THREE.Mesh(new THREE.BoxGeometry(1.2, 3.4, 1.6), rockMat);
+  pillarL.position.set(-1.8, 1.7, 0);
+  pillarL.rotation.z = 0.08;
+  g.add(pillarL);
+
+  /* Right pillar */
+  const pillarR = new THREE.Mesh(new THREE.BoxGeometry(1.2, 3.4, 1.6), rockMat);
+  pillarR.position.set(1.8, 1.7, 0);
+  pillarR.rotation.z = -0.08;
+  g.add(pillarR);
+
+  /* Arch top */
+  const archTop = new THREE.Mesh(new THREE.BoxGeometry(5, 1.2, 1.8), rockMat);
+  archTop.position.set(0, 3.6, 0);
+  g.add(archTop);
+
+  /* Jagged rocks on top */
+  const spikeGeo = new THREE.ConeGeometry(0.5, 1.2, 5);
+  for (let i = 0; i < 4; i++) {
+    const spike = new THREE.Mesh(spikeGeo, rockMat);
+    spike.position.set(-1.5 + i * 1.0, 4.2 + Math.random() * 0.4, (Math.random() - 0.5) * 0.4);
+    spike.rotation.z = (Math.random() - 0.5) * 0.3;
+    g.add(spike);
+  }
+
+  /* Dark cave opening */
+  const opening = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 3.0), darkMat);
+  opening.position.set(0, 1.5, 0.05);
+  opening.renderOrder = R_DECOR;
+  g.add(opening);
+
+  /* Lava glow at bottom of entrance */
+  const glowMat = new THREE.MeshBasicMaterial({
+    color: "#ff4400",
+    transparent: true,
+    opacity: 0.6,
+    depthWrite: false,
+  });
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.5), glowMat);
+  glow.position.set(0, 0.3, 0.08);
+  glow.renderOrder = R_DECOR + 1;
+  g.add(glow);
+
+  /* Smoke particles — small spheres above entrance */
+  const smokeMat = new THREE.MeshBasicMaterial({
+    color: "#555555",
+    transparent: true,
+    opacity: 0.25,
+    depthWrite: false,
+  });
+  const smokeParticles = [];
+  for (let i = 0; i < 5; i++) {
+    const s = new THREE.Mesh(new THREE.SphereGeometry(0.3 + Math.random() * 0.3, 6, 6), smokeMat.clone());
+    s.position.set((Math.random() - 0.5) * 2, 4.5 + Math.random() * 1.5, (Math.random() - 0.5) * 0.5);
+    g.add(s);
+    smokeParticles.push({ mesh: s, phase: Math.random() * Math.PI * 2, speed: 0.4 + Math.random() * 0.3 });
+  }
+
+  /* Sign post */
+  const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.6, 6), toonMat("#7a5b38"));
+  signPost.position.set(-3.2, 0.8, 0.5);
+  g.add(signPost);
+  const signBoard = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.6, 0.08), toonMat("#3a5a6e"));
+  signBoard.position.set(-3.2, 1.65, 0.5);
+  g.add(signBoard);
+
+  setSvc(g, "cave", "Volcano Cave");
+  scene.add(g);
+  addBlob(scene, x, z, 3.2, 0.2);
+  nodes.push(addHS(g, 0, 1.5, 1.0));
+  obstacles.push({ x, z, radius: 2.2, id: "cave" });
+
+  return {
+    node: g, smokeParticles, glowMesh: glow,
+    update(t) {
+      /* animate smoke */
+      for (const p of smokeParticles) {
+        p.mesh.position.y = 4.5 + Math.sin(t * p.speed + p.phase) * 0.6;
+        p.mesh.material.opacity = 0.15 + Math.sin(t * 0.8 + p.phase) * 0.1;
+        p.mesh.position.x += Math.sin(t * 0.3 + p.phase) * 0.002;
+      }
+      /* pulse lava glow */
+      glow.material.opacity = 0.45 + Math.sin(t * 3.0) * 0.2;
+    },
+  };
+}
+
 /* ── Fishing — river + dock spots ── */
 const RING_GEO = new THREE.TorusGeometry(.5, .045, 8, 24);
 const BOB_GEO = new THREE.SphereGeometry(.13, 8, 7);
@@ -456,6 +554,9 @@ export async function createWorld(scene) {
   /* buildings / village */
   const { constructionSite } = addPlaza(scene, nodes, obstacles);
 
+  /* cave entrance — placed in the cliff region east side */
+  const cave = addCaveEntrance(scene, -30, -10, nodes, obstacles);
+
   return {
     ground,
     skyMat,
@@ -463,7 +564,7 @@ export async function createWorld(scene) {
     causticMap: null,
     addShadowBlob: (x, z, r, o) => addBlob(scene, x, z, r, o),
     resourceNodes: nodes,
-    updateWorld: t => updateFishing(fishing, t),
+    updateWorld: t => { updateFishing(fishing, t); cave.update(t); },
     constructionSite,
     collisionObstacles: obstacles,
     weaponModels: models?.weapons ?? null,

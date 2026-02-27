@@ -178,6 +178,8 @@ wss.on("connection", (ws) => {
         yaw: Number(state.yaw) || 0,
         moving: !!state.moving,
         gathering: !!state.gathering,
+        attacking: !!state.attacking,
+        combatStyle: typeof state.combatStyle === "string" ? state.combatStyle : "melee",
         tool: typeof state.tool === "string" ? state.tool : "fishing",
       };
       broadcast(

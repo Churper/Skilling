@@ -555,7 +555,8 @@ export function buildFences(lib) {
         const b = boardTmpl.clone();
         b.scale.setScalar(TILE_S);
         b.position.set(x, y, z);
-        b.rotation.y = rot;
+        b.rotation.set(0, rot, 0);
+        b.rotateX(Math.PI / 2);
         group.add(b);
 
         /* post at same position */
@@ -563,7 +564,8 @@ export function buildFences(lib) {
           const p = postTmpl.clone();
           p.scale.setScalar(TILE_S);
           p.position.set(x, y, z);
-          p.rotation.y = rot;
+          p.rotation.set(0, rot, 0);
+          p.rotateX(Math.PI / 2);
           group.add(p);
         }
       }
@@ -572,7 +574,8 @@ export function buildFences(lib) {
         const p = postTmpl.clone();
         p.scale.setScalar(TILE_S);
         p.position.set(bx, getMeshSurfaceY(bx, bz), bz);
-        p.rotation.y = rot;
+        p.rotation.set(0, rot, 0);
+        p.rotateX(Math.PI / 2);
         group.add(p);
       }
     }

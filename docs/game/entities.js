@@ -263,18 +263,141 @@ export function createRemotePlayerAvatar(scene, addShadowBlob, options = {}) {
   const player = new THREE.Mesh(slimeGeo, slimeMaterial);
   player.position.set(0, 1.2, 28);
   addSlimeFace(player);
+
+  /* ── Tool anchor + meshes (same as local player) ── */
+  const toolAnchor = new THREE.Group();
+  toolAnchor.position.set(0.0, 0.18, 0.1);
+  player.add(toolAnchor);
+
+  const wm = options.weaponModels;
+  function makeWeaponFromModel(model, scale = 0.6) {
+    if (!model) return null;
+    const g = model.clone();
+    g.scale.setScalar(scale);
+    return g;
+  }
+
+  const toolMeshes = {
+    axe: createAxeMesh(),
+    pickaxe: createPickaxeMesh(),
+    fishing: createFishingPoleMesh(),
+    sword: (wm?.sword ? makeWeaponFromModel(wm.sword, 0.5) : null) || createSwordFallback(),
+    bow: (wm?.bow ? makeWeaponFromModel(wm.bow, 0.55) : null) || createBowMesh(),
+    staff: (wm?.staff ? makeWeaponFromModel(wm.staff, 0.5) : null) || createStaffMesh(),
+  };
+  if (wm?.sword && toolMeshes.sword) toolMeshes.sword.rotation.set(0, 0, 0);
+  if (wm?.bow && toolMeshes.bow) toolMeshes.bow.rotation.set(0, 0, Math.PI * 0.5);
+  for (const key of Object.keys(toolMeshes)) toolMeshes[key].visible = false;
+  toolMeshes.fishing.visible = true;
+  toolAnchor.add(toolMeshes.axe, toolMeshes.pickaxe, toolMeshes.sword, toolMeshes.fishing, toolMeshes.bow, toolMeshes.staff);
+  let currentTool = "fishing";
+
+  const carryPose = {
+    axe:     { x: -0.36, y: 0.19, z: 0.11, rx: 0.64, ry: -0.74, rz: -0.08 },
+    pickaxe: { x: -0.36, y: 0.19, z: 0.11, rx: 0.58, ry: -0.82, rz: -0.06 },
+    sword:   { x: -0.33, y: 0.22, z: 0.13, rx: 0.98, ry: 0.36, rz: -0.42 },
+    fishing: { x: -0.36, y: 0.2, z: 0.12, rx: 0.94, ry: -0.78, rz: -0.05 },
+    bow:     { x: -0.34, y: 0.22, z: 0.18, rx: 0.16, ry: -0.05, rz: -0.28 },
+    staff:   { x: -0.32, y: 0.2, z: 0.14, rx: 0.8, ry: -0.6, rz: -0.1 },
+  };
+
+  const gatherPose = {
+    axe:     { x: -0.34, y: 0.25, z: 0.13, rx: -0.24, ry: -0.88, rz: 0.03 },
+    pickaxe: { x: -0.34, y: 0.25, z: 0.13, rx: -0.36, ry: -0.9, rz: 0.02 },
+    sword:   { x: -0.31, y: 0.27, z: 0.15, rx: 0.62, ry: 0.2, rz: -0.5 },
+    fishing: { x: -0.34, y: 0.25, z: 0.14, rx: 1.42, ry: -0.72, rz: -0.24 },
+    bow:     { x: -0.3, y: 0.28, z: 0.2, rx: -0.12, ry: -0.06, rz: -0.16 },
+    staff:   { x: -0.28, y: 0.3, z: 0.16, rx: 0.3, ry: -0.5, rz: 0.0 },
+  };
+
+  function setEquippedTool(tool) {
+    currentTool = toolMeshes[tool] ? tool : "fishing";
+    for (const key of Object.keys(toolMeshes)) toolMeshes[key].visible = key === currentTool;
+  }
+
   scene.add(player);
   const playerBlob = addShadowBlob(player.position.x, player.position.z, 0.95, 0.19);
 
   let animTime = 0;
-  function updateAnimation(dt, moving = false) {
+  function updateAnimation(dt, state = {}) {
     animTime += dt;
-    const idle = Math.sin(animTime * 1.8) * 0.022;
-    const move = moving ? Math.sin(animTime * 6.4) * 0.03 : 0;
-    const targetScaleY = 1 + idle + move;
+    const moving = typeof state === "object" ? !!state.moving : !!state;
+    const gathering = typeof state === "object" ? !!state.gathering : false;
+    const attacking = typeof state === "object" ? !!state.attacking : false;
+    const combatStyle = (typeof state === "object" ? state.combatStyle : null) || "melee";
+
+    let targetPitch = 0;
+    let targetRoll = 0;
+    let targetScaleY = 1;
+    const useAttackPose = attacking || gathering;
+    const basePose = useAttackPose
+      ? (gatherPose[currentTool] || gatherPose.fishing)
+      : (carryPose[currentTool] || carryPose.fishing);
+    let toolRotX = basePose.rx;
+    let toolRotY = basePose.ry;
+    let toolRotZ = basePose.rz;
+    let toolPosX = basePose.x;
+    let toolPosY = basePose.y;
+    let toolPosZ = basePose.z;
+    const idle = Math.sin(animTime * 1.9);
+    toolPosY += idle * 0.005;
+    toolRotZ += Math.sin(animTime * 1.6) * 0.015;
+
+    if (attacking) {
+      if (combatStyle === "melee") {
+        const swing = Math.sin(animTime * 8.0);
+        const windup = Math.max(0, Math.sin(animTime * 8.0 - 1.1));
+        const impact = Math.max(0, swing);
+        targetPitch = impact * 0.09 + windup * 0.03;
+        targetRoll = Math.sin(animTime * 4.0) * 0.01;
+        targetScaleY = 1 - impact * 0.05;
+        toolRotX += windup * 0.2 - swing * 0.5;
+        toolRotY += impact * 0.14;
+        toolRotZ += impact * -0.12;
+      } else if (combatStyle === "bow") {
+        const draw = Math.sin(animTime * 5.5) * 0.5 + 0.5;
+        targetPitch = -0.02 + draw * 0.01;
+        targetScaleY = 1 - draw * 0.02;
+        toolRotX += draw * -0.15;
+        toolRotZ += draw * 0.06;
+      } else if (combatStyle === "mage") {
+        const hover = Math.sin(animTime * 3.2);
+        const pulse = Math.sin(animTime * 5.0) * 0.5 + 0.5;
+        targetPitch = hover * 0.012;
+        targetScaleY = 1 + hover * 0.03;
+        toolRotX += pulse * 0.12;
+        toolPosY += hover * 0.025;
+      }
+    } else if (gathering) {
+      const swing = Math.sin(animTime * 6.8);
+      const windup = Math.max(0, Math.sin(animTime * 6.8 - 1.1));
+      const impact = Math.max(0, swing);
+      targetPitch = impact * 0.07 + windup * 0.02;
+      targetScaleY = 1 - impact * 0.036;
+      toolRotX += windup * 0.16 - swing * 0.44;
+    } else if (moving) {
+      const stride = Math.sin(animTime * 7.2);
+      targetPitch = stride * 0.013;
+      targetRoll = Math.sin(animTime * 3.6) * 0.008;
+      targetScaleY = 1 + Math.sin(animTime * 7.2 + 0.9) * 0.025;
+      toolRotX += stride * 0.06;
+      toolPosY += Math.abs(stride) * 0.008;
+    } else {
+      targetScaleY = 1 + Math.sin(animTime * 1.9) * 0.035;
+    }
+
+    player.rotation.x = THREE.MathUtils.damp(player.rotation.x, targetPitch, 14, dt);
+    player.rotation.z = THREE.MathUtils.damp(player.rotation.z, targetRoll, 14, dt);
     player.scale.y = THREE.MathUtils.damp(player.scale.y, targetScaleY, 10, dt);
     player.scale.x = THREE.MathUtils.damp(player.scale.x, 1, 10, dt);
     player.scale.z = THREE.MathUtils.damp(player.scale.z, 1, 10, dt);
+
+    toolAnchor.position.x = THREE.MathUtils.damp(toolAnchor.position.x, toolPosX, 16, dt);
+    toolAnchor.rotation.x = THREE.MathUtils.damp(toolAnchor.rotation.x, toolRotX, 16, dt);
+    toolAnchor.rotation.y = THREE.MathUtils.damp(toolAnchor.rotation.y, toolRotY, 16, dt);
+    toolAnchor.rotation.z = THREE.MathUtils.damp(toolAnchor.rotation.z, toolRotZ, 16, dt);
+    toolAnchor.position.y = THREE.MathUtils.damp(toolAnchor.position.y, toolPosY, 16, dt);
+    toolAnchor.position.z = THREE.MathUtils.damp(toolAnchor.position.z, toolPosZ, 16, dt);
   }
 
   function setColor(hexColor) {
@@ -288,7 +411,7 @@ export function createRemotePlayerAvatar(scene, addShadowBlob, options = {}) {
     slimeMaterial.dispose();
   }
 
-  return { player, playerBlob, updateAnimation, setColor, dispose };
+  return { player, playerBlob, updateAnimation, setColor, setEquippedTool, dispose };
 }
 
 function createAxeMesh() {

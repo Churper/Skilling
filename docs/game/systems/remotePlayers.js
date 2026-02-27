@@ -1,14 +1,17 @@
 import * as THREE from "three";
 import { createRemotePlayerAvatar } from "../entities.js";
 
-export function createRemotePlayers({ scene, addShadowBlob, getGroundY }) {
+export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponModels = null }) {
   const peers = new Map();
 
   function ensurePeer(peer) {
     if (!peer || !peer.id) return null;
     let entry = peers.get(peer.id);
     if (!entry) {
-      const avatar = createRemotePlayerAvatar(scene, addShadowBlob, { color: peer.color || "#6ed998" });
+      const avatar = createRemotePlayerAvatar(scene, addShadowBlob, {
+        color: peer.color || "#6ed998",
+        weaponModels,
+      });
       avatar.player.geometry.computeBoundingBox();
       const footOffset = -avatar.player.geometry.boundingBox.min.y;
       entry = {
@@ -17,6 +20,10 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY }) {
         targetPos: new THREE.Vector3(0, 0, 0),
         targetYaw: 0,
         moving: false,
+        gathering: false,
+        attacking: false,
+        tool: "fishing",
+        combatStyle: "melee",
         initialized: false,
         footOffset,
         headOffset: avatar.player.geometry.boundingBox.max.y,
@@ -41,6 +48,13 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY }) {
     }
     if (Number.isFinite(state.yaw)) entry.targetYaw = state.yaw;
     entry.moving = !!state.moving;
+    entry.gathering = !!state.gathering;
+    entry.attacking = !!state.attacking;
+    if (typeof state.tool === "string") {
+      entry.tool = state.tool;
+      if (entry.avatar.setEquippedTool) entry.avatar.setEquippedTool(state.tool);
+    }
+    if (typeof state.combatStyle === "string") entry.combatStyle = state.combatStyle;
   }
 
   function upsertPeer(peer) {
@@ -83,7 +97,13 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY }) {
       if (entry.avatar.playerBlob) {
         entry.avatar.playerBlob.position.set(entry.avatar.player.position.x, groundY + 0.03, entry.avatar.player.position.z);
       }
-      entry.avatar.updateAnimation(dt, entry.moving);
+      entry.avatar.updateAnimation(dt, {
+        moving: entry.moving,
+        gathering: entry.gathering,
+        attacking: entry.attacking,
+        combatStyle: entry.combatStyle,
+        tool: entry.tool,
+      });
     }
   }
 
