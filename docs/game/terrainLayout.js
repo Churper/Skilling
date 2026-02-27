@@ -34,9 +34,8 @@ function tMat(color, opts = {}) {
 
 function setupWaterMaterial(mesh, waterUniforms) {
   if (!mesh) return;
-  const srcColor = mesh.material?.color ? mesh.material.color.clone() : new THREE.Color("#8ecdea");
   const mat = new THREE.MeshBasicMaterial({
-    color: srcColor,
+    color: new THREE.Color("#93d8f6"),
     transparent: true,
     opacity: 0.62,
     depthWrite: false,
@@ -365,6 +364,16 @@ export function buildTerrain(lib, waterUniforms, tilemapData = null) {
   /* Optional direct terrain placement from editor tilemap */
   if (tilemapData && tilemapData.tiles && typeof tilemapData.tiles === "object") {
     const landH = [], waterH = [];
+    const coverage = new Set();
+    const markCoverage = (entryObj, key) => {
+      if (!entryObj || !entryObj.tile) return;
+      const [gx, gz] = key.split(",").map(Number);
+      if (!Number.isFinite(gx) || !Number.isFinite(gz)) return;
+      coverage.add(ck(gx, gz));
+      for (const [ex, ez] of getEditorTileExtensions(gx, gz, entryObj.tile, entryObj.rot || 0)) {
+        coverage.add(ck(ex, ez));
+      }
+    };
     const addPlaced = (entryObj, key, preferUnderlay = false) => {
       if (!entryObj || !entryObj.tile) return;
       const [gx, gz] = key.split(",").map(Number);
@@ -379,8 +388,29 @@ export function buildTerrain(lib, waterUniforms, tilemapData = null) {
     };
 
     const underlays = tilemapData.underlays || {};
-    for (const [key, val] of Object.entries(underlays)) addPlaced(val, key, true);
+    for (const [key, val] of Object.entries(tilemapData.tiles)) markCoverage(val, key);
+    for (const [key, val] of Object.entries(underlays)) {
+      // Skip duplicate stacked water if this cell already has a Water_* top tile.
+      const top = tilemapData.tiles[key];
+      if (top?.tile?.startsWith("Water_") && val?.tile?.startsWith("Water_")) continue;
+      addPlaced(val, key, true);
+    }
     for (const [key, val] of Object.entries(tilemapData.tiles)) addPlaced(val, key, false);
+
+    // Fill uncovered playable cells with flat fallback tiles to eliminate holes.
+    for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
+      for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
+        if (!isPlayableTerrainCell(gx, gz)) continue;
+        const k = ck(gx, gz);
+        if (coverage.has(k)) continue;
+        const wx = gx * TILE_S, wz = gz * TILE_S;
+        let tile = "Grass_Flat";
+        if (isWaterCellWorld(wx, wz)) tile = "Water_Flat";
+        else if (isBeach(wx, wz)) tile = "Sand_Flat";
+        else if (isOnPath(wx, wz)) tile = "Path_Center";
+        addPlaced({ tile, rot: 0, y: 0 }, k, false);
+      }
+    }
 
     const group = new THREE.Group();
     group.name = "terrain";
