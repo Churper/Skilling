@@ -199,7 +199,7 @@ function lerpColor(a, b, t) {
 }
 
 /* zone colors */
-const C_GRASS = [0.20, 0.70, 0.27];
+const C_GRASS = [0.29, 0.76, 0.34];
 const C_DIRT  = [0.769, 0.686, 0.561];
 const C_SAND  = [0.969, 0.918, 0.792];
 const C_ROCK  = [0.631, 0.624, 0.612];
@@ -225,15 +225,11 @@ function inVillage(x, z, pad = 0) {
 function getVertexColor(x, z, slope = 0) {
   let col = C_GRASS;
 
-  /* river */
+  /* river bank shaping only; water surface is a separate opaque mesh */
   const rq = riverQuery(x, z);
-  if (rq.dist < rq.width) {
-    const t = smoothstep(rq.dist, 0, rq.width);
-    return lerpColor([0.50, 0.80, 0.90], [0.27, 0.58, 0.33], t * 0.35);
-  }
-  if (rq.dist < rq.width + 2.2) {
-    const t = 1 - smoothstep(rq.dist, rq.width, rq.width + 2.2);
-    col = lerpColor(col, [0.17, 0.57, 0.22], t * 0.34);
+  if (rq.dist < rq.width + 2.1) {
+    const t = 1 - smoothstep(rq.dist, rq.width, rq.width + 2.1);
+    col = lerpColor(col, [0.21, 0.62, 0.27], t * 0.28);
   }
 
   /* cliff rock coloring */
@@ -251,8 +247,8 @@ function getVertexColor(x, z, slope = 0) {
   }
 
   /* beach */
-  if (x > 30 && z < 6) {
-    const t = smoothstep(x, 30, 34);
+  if (x > 30 && z < 4.5) {
+    const t = smoothstep(x, 30, 35);
     col = lerpColor(col, C_SAND, t);
   }
 
@@ -273,9 +269,9 @@ function getVertexColor(x, z, slope = 0) {
   }
 
   /* slope tinting for stronger low-poly terrain read */
-  if (slope > 0.04) {
-    const shade = smoothstep(slope, 0.04, 0.28) * 0.16;
-    col = lerpColor(col, [0.11, 0.46, 0.17], shade);
+  if (slope > 0.05) {
+    const shade = smoothstep(slope, 0.05, 0.34) * 0.13;
+    col = lerpColor(col, [0.16, 0.53, 0.22], shade);
   }
 
   return col;
@@ -340,59 +336,85 @@ function buildGroundMesh() {
 }
 
 function buildPathOverlayMesh() {
-  const mkStrip = (width, yOff = 0.04) => {
-    const pos = [];
-    const idx = [];
-    let vBase = 0;
+  const pos = [];
+  const idx = [];
 
-    const pushPath = points => {
-      const curve = new THREE.CatmullRomCurve3(
-        points.map(([x, z]) => new THREE.Vector3(x, 0, z)),
-        false,
-        "centripetal",
-        0.3
-      );
-      const steps = Math.max(6, Math.round(curve.getLength() * 1.2));
-      for (let i = 0; i <= steps; i++) {
-        const t = i / steps;
-        const p = curve.getPointAt(t);
-        const tg = curve.getTangentAt(t).normalize();
-        const px = -tg.z, pz = tg.x;
-
-        const lx = p.x + px * width, lz = p.z + pz * width;
-        const rx = p.x - px * width, rz = p.z - pz * width;
-        const ly = terrainH(lx, lz) + yOff;
-        const ry = terrainH(rx, rz) + yOff;
-        pos.push(lx, ly, lz, rx, ry, rz);
-
-        if (i > 0) {
-          const a = vBase + (i - 1) * 2;
-          const b = a + 1;
-          const c = vBase + i * 2;
-          const d = c + 1;
-          idx.push(a, c, b, b, c, d);
-        }
+  const pushPath = (points, width) => {
+    const curve = new THREE.CatmullRomCurve3(
+      points.map(([x, z]) => new THREE.Vector3(x, 0, z)),
+      false,
+      "centripetal",
+      0.3
+    );
+    const steps = Math.max(10, Math.round(curve.getLength() * 1.25));
+    let lastPair = -1;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const p = curve.getPointAt(t);
+      if (isInRiver(p.x, p.z)) {
+        lastPair = -1; // break strip at river crossing
+        continue;
       }
-      vBase += (steps + 1) * 2;
-    };
-    PATH_LINES.forEach(pushPath);
 
-    const geo = new THREE.BufferGeometry();
-    geo.setIndex(idx);
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-    geo.computeVertexNormals();
-    return geo;
+      const tg = curve.getTangentAt(t).normalize();
+      const px = -tg.z, pz = tg.x;
+
+      const lx = p.x + px * width, lz = p.z + pz * width;
+      const rx = p.x - px * width, rz = p.z - pz * width;
+
+      // Use center height for both edges to prevent "pitched" path strips.
+      const y = terrainH(p.x, p.z) + 0.024;
+      const cur = pos.length / 3;
+      pos.push(lx, y, lz, rx, y, rz);
+
+      if (lastPair >= 0) {
+        const a = lastPair;
+        const b = a + 1;
+        const c = cur;
+        const d = c + 1;
+        idx.push(a, c, b, b, c, d);
+      }
+      lastPair = cur;
+    }
   };
 
-  const g = new THREE.Group();
-  const outer = new THREE.Mesh(mkStrip(1.6, 0.038), tMat("#ddd3bf", { flatShading: true, transparent: true, opacity: 0.9 }));
-  outer.renderOrder = R_GND + 1;
-  const inner = new THREE.Mesh(mkStrip(1.16, 0.05), tMat("#cfbea0", { flatShading: true }));
-  inner.renderOrder = R_GND + 2;
-  g.add(outer, inner);
+  pushPath(PATH_LINES[0], 1.36);
+  pushPath(PATH_LINES[1], 1.52);
+  pushPath(PATH_LINES[2], 1.28);
 
-  g.name = "path_overlay";
-  return g;
+  const geo = new THREE.BufferGeometry();
+  geo.setIndex(idx);
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  geo.computeVertexNormals();
+
+  const path = new THREE.Mesh(geo, tMat("#d7c9af", { flatShading: true }));
+  path.name = "path_overlay";
+  path.renderOrder = R_GND + 2;
+  return path;
+}
+
+function buildBeachOverlayMesh() {
+  const shape = new THREE.Shape();
+  const pts = [
+    [26, -24], [34, -24], [45, -23], [52, -20], [54, -14],
+    [50, -9], [42, -7], [34, -8], [28, -12], [24, -18],
+  ];
+  shape.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i][0], pts[i][1]);
+  shape.closePath();
+
+  const geo = new THREE.ShapeGeometry(shape, 10);
+  const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), z = p.getY(i);
+    p.setXYZ(i, x, terrainH(x, z) + 0.03, z);
+  }
+  geo.computeVertexNormals();
+
+  const beach = new THREE.Mesh(geo, tMat("#ede1c8", { flatShading: true, side: THREE.DoubleSide }));
+  beach.renderOrder = R_GND + 1;
+  beach.name = "beach_overlay";
+  return beach;
 }
 
 /* ═══════════════════════════════════════════
@@ -581,7 +603,8 @@ export function buildTerrain(lib) {
 
   /* procedural heightmap ground */
   group.add(buildGroundMesh());
-  // Path tint is already baked into the ground vertex colors.
+  group.add(buildPathOverlayMesh());
+  group.add(buildBeachOverlayMesh());
 
   /* stacked cliff tiles */
   const cliffMeshes = buildCliffs(lib);
@@ -600,8 +623,12 @@ export function buildWater(waterUniforms) {
     [0, 12, 3.2], [0, 6, 3.5], [2, 2, 3.5], [6, -2, 4.0],
     [12, -6, 4.5], [20, -10, 5.0], [28, -14, 5.5], [36, -14, 6.5], [48, -14, 8.0],
   ];
-  const ctrl = RP.map(([x, z]) => new THREE.Vector3(x, 0, z));
-  const curve = new THREE.CatmullRomCurve3(ctrl, false, "centripetal", 0.3);
+  const curve = new THREE.CatmullRomCurve3(
+    RP.map(([x, z]) => new THREE.Vector3(x, 0, z)),
+    false,
+    "centripetal",
+    0.3
+  );
   const widthAt = t => {
     const seg = t * (RP.length - 1);
     const i = Math.min(RP.length - 2, Math.max(0, Math.floor(seg)));
@@ -609,94 +636,71 @@ export function buildWater(waterUniforms) {
     return RP[i][2] + (RP[i + 1][2] - RP[i][2]) * f;
   };
 
-  const pos = [], uv = [], idx = [];
-  const STEPS = 180;
-  for (let i = 0; i <= STEPS; i++) {
-    const t = i / STEPS;
-    const p = curve.getPointAt(t);
-    const tg = curve.getTangentAt(t).normalize();
-    const hw = widthAt(t) * 1.02;
-    const px = -tg.z, pz = tg.x;
-
-    pos.push(
-      p.x + px * hw, 0, p.z + pz * hw,
-      p.x - px * hw, 0, p.z - pz * hw
-    );
-    uv.push(t, 0, t, 1);
-
-    if (i > 0) {
-      const a = (i - 1) * 2, b = a + 1, c = i * 2, d = c + 1;
-      idx.push(a, c, b, b, c, d);
+  const mkStrip = (widthScale, yJitter = 0) => {
+    const pos = [];
+    const idx = [];
+    const STEPS = 180;
+    for (let i = 0; i <= STEPS; i++) {
+      const t = i / STEPS;
+      const p = curve.getPointAt(t);
+      const tg = curve.getTangentAt(t).normalize();
+      const hw = widthAt(t) * widthScale;
+      const px = -tg.z, pz = tg.x;
+      pos.push(
+        p.x + px * hw, yJitter, p.z + pz * hw,
+        p.x - px * hw, yJitter, p.z - pz * hw
+      );
+      if (i > 0) {
+        const a = (i - 1) * 2, b = a + 1, c = i * 2, d = c + 1;
+        idx.push(a, c, b, b, c, d);
+      }
     }
-  }
 
-  const m = curve.getPointAt(1);
-  const mt = curve.getTangentAt(1).normalize();
-  const mw = widthAt(1);
-  const mpx = -mt.z, mpz = mt.x;
-  const oi = pos.length / 3;
-  pos.push(
-    m.x + mpx * mw * 1.03, 0, m.z + mpz * mw * 1.03,
-    58, 0, m.z + 5.5,
-    58, 0, -30,
-    m.x - mpx * mw * 1.03, 0, m.z - mpz * mw * 1.03,
-    58, 0, m.z - 8.5
+    const m = curve.getPointAt(1);
+    const mt = curve.getTangentAt(1).normalize();
+    const mw = widthAt(1) * widthScale;
+    const mpx = -mt.z, mpz = mt.x;
+    const oi = pos.length / 3;
+    pos.push(
+      m.x + mpx * mw * 1.02, yJitter, m.z + mpz * mw * 1.02,
+      58, yJitter, m.z + 5.0,
+      58, yJitter, -30,
+      m.x - mpx * mw * 1.02, yJitter, m.z - mpz * mw * 1.02,
+      58, yJitter, m.z - 8.0
+    );
+    idx.push(
+      oi, oi + 1, oi + 4,
+      oi, oi + 4, oi + 3,
+      oi + 3, oi + 4, oi + 2
+    );
+
+    const geo = new THREE.BufferGeometry();
+    geo.setIndex(idx);
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geo.computeVertexNormals();
+    return geo;
+  };
+
+  const g = new THREE.Group();
+  g.name = "water";
+
+  const base = new THREE.Mesh(
+    mkStrip(1.0, 0),
+    tMat("#73c9ee", { flatShading: true, transparent: false })
   );
-  uv.push(
-    1, 0,
-    1.08, 0.12,
-    1.18, 0.5,
-    1, 1,
-    1.08, 0.88
+  base.position.y = WATER_Y + 0.012;
+  base.renderOrder = R_WATER;
+  g.add(base);
+
+  const core = new THREE.Mesh(
+    mkStrip(0.62, 0.01),
+    tMat("#8cdaf8", { flatShading: true, transparent: true, opacity: 0.85 })
   );
-  idx.push(
-    oi, oi + 1, oi + 4,
-    oi, oi + 4, oi + 3,
-    oi + 3, oi + 4, oi + 2
-  );
+  core.position.y = WATER_Y + 0.012;
+  core.renderOrder = R_WATER + 1;
+  g.add(core);
 
-  const geo = new THREE.BufferGeometry();
-  geo.setIndex(idx);
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  geo.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
-  geo.computeVertexNormals();
-
-  const mat = new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
-    side: THREE.DoubleSide,
-    uniforms: waterUniforms,
-    vertexShader: `
-      varying vec2 vUv2;
-      varying vec2 vW;
-      uniform float uTime;
-      void main(){
-        vec3 p = position;
-        p.y += sin((p.x+p.z)*0.11 + uTime*0.55)*0.015;
-        p.y += cos((p.x*0.27-p.z*0.21) + uTime*0.35)*0.01;
-        vUv2 = uv;
-        vW = p.xz;
-        gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
-      }`,
-    fragmentShader: `
-      varying vec2 vUv2;
-      varying vec2 vW;
-      uniform float uTime;
-      void main(){
-        float flow = sin(vUv2.x * 18.0 - uTime * 0.8) * 0.5 + 0.5;
-        vec3 cA = vec3(0.44, 0.76, 0.89);
-        vec3 cB = vec3(0.60, 0.87, 0.95);
-        vec3 c = mix(cA, cB, 0.28 + flow * 0.16);
-        c += sin(vW.x * 0.30 + vW.y * 0.22 + uTime * 0.9) * 0.012;
-        float alpha = 0.66;
-        gl_FragColor = vec4(c, alpha);
-      }`,
-  });
-
-  const water = new THREE.Mesh(geo, mat);
-  water.position.y = WATER_Y + 0.015;
-  water.renderOrder = R_WATER;
-  return water;
+  return g;
 }
 
 /* ═══════════════════════════════════════════
@@ -789,49 +793,33 @@ export function buildDock(lib) {
 export function buildFences(lib) {
   const group = new THREE.Group();
   group.name = "fences";
-  const postGeo = new THREE.BoxGeometry(0.32, 1.02, 0.32);
-  const railGeo = new THREE.BoxGeometry(0.14, 0.13, 1.0);
-  const postMat = tMat("#61686b");
-  const railMat = tMat("#b9ad96");
+  const board = lib.fenceBoard2 || lib.fenceBoard1 || lib.fenceBoard3 || lib.fenceBoard4;
+  const post = lib.fencePost1 || lib.fencePost2 || lib.fencePost3 || lib.fencePost4;
+  if (!board || !post) return group;
 
   const runs = [
-    /* right-side river run from bridge to village */
     [[4, 8], [8, 4], [12, 0], [16, -4], [20, -8], [24, -12], [30, -16]],
-    /* lower village perimeter */
     [[10, -24], [16, -26], [22, -28], [28, -30], [34, -30]],
-    /* training area */
     [[-26, -40], [-26, -28], [-18, -28], [-18, -40], [-26, -40]],
-    /* bridge approach accent */
     [[-2, 10], [2, 10], [6, 8]],
   ];
 
-  const segmentLen = 1.2;
-  const addPost = (x, z) => {
-    const y = getWorldSurfaceHeight(x, z);
-    const m = new THREE.Mesh(postGeo, postMat);
-    m.position.set(x, y + 0.50, z);
-    m.renderOrder = R_DECOR;
-    group.add(m);
-    return y;
+  const spacing = 1.25;
+  const addPost = (x, z, rot) => {
+    const p = post.clone();
+    p.scale.setScalar(TILE_S * 0.9);
+    p.position.set(x, getWorldSurfaceHeight(x, z) + 0.02, z);
+    p.rotation.y = rot;
+    p.renderOrder = R_DECOR;
+    group.add(p);
   };
-
-  const addRails = (a, b, yA, yB) => {
-    const dx = b.x - a.x, dz = b.z - a.z;
-    const len = Math.hypot(dx, dz);
-    if (len < 0.001) return;
-    const rot = Math.atan2(dx, dz);
-    const mx = (a.x + b.x) * 0.5, mz = (a.z + b.z) * 0.5;
-
-    const mkRail = y => {
-      const r = new THREE.Mesh(railGeo, railMat);
-      r.scale.z = len;
-      r.position.set(mx, y, mz);
-      r.rotation.y = rot;
-      r.renderOrder = R_DECOR;
-      group.add(r);
-    };
-    mkRail((yA + yB) * 0.5 + 0.37);
-    mkRail((yA + yB) * 0.5 + 0.62);
+  const addBoard = (x, z, rot) => {
+    const b = board.clone();
+    b.scale.setScalar(TILE_S * 0.9);
+    b.position.set(x, getWorldSurfaceHeight(x, z) + 0.03, z);
+    b.rotation.y = rot;
+    b.renderOrder = R_DECOR;
+    group.add(b);
   };
 
   for (const run of runs) {
@@ -839,19 +827,19 @@ export function buildFences(lib) {
       run.map(([x, z]) => new THREE.Vector3(x, 0, z)),
       false,
       "centripetal",
-      0.2
+      0.22
     );
-    const count = Math.max(2, Math.round(curve.getLength() / segmentLen));
-    const pts = [];
-    const ys = [];
+    const count = Math.max(2, Math.round(curve.getLength() / spacing));
     for (let i = 0; i <= count; i++) {
       const t = i / count;
       const p = curve.getPointAt(t);
-      pts.push({ x: p.x, z: p.z });
-      ys.push(addPost(p.x, p.z));
-    }
-    for (let i = 0; i < pts.length - 1; i++) {
-      addRails(pts[i], pts[i + 1], ys[i], ys[i + 1]);
+      const tg = curve.getTangentAt(Math.min(1, t + 0.001));
+      const rot = Math.atan2(tg.x, tg.z);
+      addPost(p.x, p.z, rot);
+      if (i < count) {
+        const pN = curve.getPointAt((i + 0.5) / count);
+        addBoard(pN.x, pN.z, rot);
+      }
     }
   }
 

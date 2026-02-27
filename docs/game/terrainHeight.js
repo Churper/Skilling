@@ -142,7 +142,7 @@ export function terrainH(x, z) {
   for (const sv of SVC)
     flat = Math.max(flat, 1 - s(Math.hypot(x - sv.x, z - sv.z), sv.r - 2, sv.r + 5));
   const pd = distToPath(x, z);
-  flat = Math.max(flat, 1 - s(pd, 0, 4));
+  flat = Math.max(flat, 1 - s(pd, 0, 2.8));
   if (flat > 0) h = THREE.MathUtils.lerp(h, GRASS_Y, flat);
 
   /* ─ river channel + bank carve (smooth, no hard step at edge) ─ */
