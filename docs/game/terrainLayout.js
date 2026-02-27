@@ -199,7 +199,7 @@ function lerpColor(a, b, t) {
 }
 
 /* zone colors */
-const C_GRASS = [0.29, 0.76, 0.34];
+const C_GRASS = [0.22, 0.69, 0.26];
 const C_DIRT  = [0.769, 0.686, 0.561];
 const C_SAND  = [0.969, 0.918, 0.792];
 const C_ROCK  = [0.631, 0.624, 0.612];
@@ -220,6 +220,12 @@ function inVillage(x, z, pad = 0) {
   for (const s of SVC)
     if (Math.hypot(x - s.x, z - s.z) <= s.r + pad) return true;
   return false;
+}
+
+function hashGrid(x, z) {
+  const xi = Math.floor(x), zi = Math.floor(z);
+  const h = Math.sin(xi * 127.1 + zi * 311.7) * 43758.5453123;
+  return h - Math.floor(h);
 }
 
 function getVertexColor(x, z, slope = 0) {
@@ -274,12 +280,19 @@ function getVertexColor(x, z, slope = 0) {
     col = lerpColor(col, [0.16, 0.53, 0.22], shade);
   }
 
+  /* subtle macro color breaks so ground is not a single flat swatch */
+  const patch = (hashGrid(x * 0.35, z * 0.35) - 0.5) * 0.12;
+  if (patch > 0) col = lerpColor(col, [0.30, 0.78, 0.36], patch);
+  else col = lerpColor(col, [0.16, 0.55, 0.21], -patch);
+
   return col;
 }
 
 function buildGroundMesh() {
   const xMin = -42, xMax = 50, zMin = -40, zMax = 42;
-  const cols = xMax - xMin, rows = zMax - zMin;
+  const STEP = 2;
+  const cols = Math.floor((xMax - xMin) / STEP);
+  const rows = Math.floor((zMax - zMin) / STEP);
   const vCount = (cols + 1) * (rows + 1);
 
   const positions = new Float32Array(vCount * 3);
@@ -289,16 +302,16 @@ function buildGroundMesh() {
   for (let iz = 0; iz <= rows; iz++) {
     for (let ix = 0; ix <= cols; ix++) {
       const vi = iz * (cols + 1) + ix;
-      const x = xMin + ix;
-      const z = zMin + iz;
+      const x = xMin + ix * STEP;
+      const z = zMin + iz * STEP;
       const y = terrainH(x, z);
 
       positions[vi * 3]     = x;
       positions[vi * 3 + 1] = y;
       positions[vi * 3 + 2] = z;
 
-      const dx = terrainH(x + 0.45, z) - terrainH(x - 0.45, z);
-      const dz = terrainH(x, z + 0.45) - terrainH(x, z - 0.45);
+      const dx = terrainH(x + STEP * 0.45, z) - terrainH(x - STEP * 0.45, z);
+      const dz = terrainH(x, z + STEP * 0.45) - terrainH(x, z - STEP * 0.45);
       const slope = Math.min(1, Math.hypot(dx, dz));
       const c = getVertexColor(x, z, slope);
       colors[vi * 3]     = c[0];
@@ -396,8 +409,8 @@ function buildPathOverlayMesh() {
 function buildBeachOverlayMesh() {
   const shape = new THREE.Shape();
   const pts = [
-    [26, -24], [34, -24], [45, -23], [52, -20], [54, -14],
-    [50, -9], [42, -7], [34, -8], [28, -12], [24, -18],
+    [30, -24], [38, -24], [46, -22], [50, -19], [51, -15],
+    [49, -11], [44, -8], [37, -8], [32, -10], [30, -14], [29, -20],
   ];
   shape.moveTo(pts[0][0], pts[0][1]);
   for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i][0], pts[i][1]);
@@ -793,53 +806,62 @@ export function buildDock(lib) {
 export function buildFences(lib) {
   const group = new THREE.Group();
   group.name = "fences";
-  const board = lib.fenceBoard2 || lib.fenceBoard1 || lib.fenceBoard3 || lib.fenceBoard4;
-  const post = lib.fencePost1 || lib.fencePost2 || lib.fencePost3 || lib.fencePost4;
-  if (!board || !post) return group;
+  const postGeo = new THREE.BoxGeometry(0.28, 1.02, 0.28);
+  const railGeo = new THREE.BoxGeometry(0.12, 0.11, 1.0);
+  const postMat = tMat("#646d72");
+  const railMat = tMat("#c7bda8");
 
   const runs = [
-    [[4, 8], [8, 4], [12, 0], [16, -4], [20, -8], [24, -12], [30, -16]],
-    [[10, -24], [16, -26], [22, -28], [28, -30], [34, -30]],
-    [[-26, -40], [-26, -28], [-18, -28], [-18, -40], [-26, -40]],
+    [[4, 8], [8, 4], [12, 0], [16, -4], [20, -8], [24, -12], [28, -15]],
+    [[9, -24], [15, -26], [21, -28], [27, -30], [34, -30]],
+    [[-26, -40], [-26, -30], [-18, -30], [-18, -40], [-26, -40]],
     [[-2, 10], [2, 10], [6, 8]],
   ];
 
-  const spacing = 1.25;
-  const addPost = (x, z, rot) => {
-    const p = post.clone();
-    p.scale.setScalar(TILE_S * 0.9);
-    p.position.set(x, getWorldSurfaceHeight(x, z) + 0.02, z);
-    p.rotation.y = rot;
+  const spacing = 1.9;
+  const addPost = (x, z) => {
+    const y = getWorldSurfaceHeight(x, z);
+    const p = new THREE.Mesh(postGeo, postMat);
+    p.position.set(x, y + 0.50, z);
     p.renderOrder = R_DECOR;
     group.add(p);
+    return y;
   };
-  const addBoard = (x, z, rot) => {
-    const b = board.clone();
-    b.scale.setScalar(TILE_S * 0.9);
-    b.position.set(x, getWorldSurfaceHeight(x, z) + 0.03, z);
-    b.rotation.y = rot;
-    b.renderOrder = R_DECOR;
-    group.add(b);
+  const addRails = (ax, az, ay, bx, bz, by) => {
+    const dx = bx - ax, dz = bz - az;
+    const len = Math.hypot(dx, dz);
+    if (len < 0.01) return;
+    const rot = Math.atan2(dx, dz);
+    const mx = (ax + bx) * 0.5, mz = (az + bz) * 0.5;
+    const make = y => {
+      const r = new THREE.Mesh(railGeo, railMat);
+      r.scale.z = len;
+      r.position.set(mx, y, mz);
+      r.rotation.y = rot;
+      r.renderOrder = R_DECOR;
+      group.add(r);
+    };
+    make((ay + by) * 0.5 + 0.36);
+    make((ay + by) * 0.5 + 0.62);
   };
 
   for (const run of runs) {
-    const curve = new THREE.CatmullRomCurve3(
-      run.map(([x, z]) => new THREE.Vector3(x, 0, z)),
-      false,
-      "centripetal",
-      0.22
-    );
-    const count = Math.max(2, Math.round(curve.getLength() / spacing));
-    for (let i = 0; i <= count; i++) {
-      const t = i / count;
-      const p = curve.getPointAt(t);
-      const tg = curve.getTangentAt(Math.min(1, t + 0.001));
-      const rot = Math.atan2(tg.x, tg.z);
-      addPost(p.x, p.z, rot);
-      if (i < count) {
-        const pN = curve.getPointAt((i + 0.5) / count);
-        addBoard(pN.x, pN.z, rot);
+    const pts = [];
+    for (let i = 0; i < run.length - 1; i++) {
+      const [ax, az] = run[i], [bx, bz] = run[i + 1];
+      const dx = bx - ax, dz = bz - az;
+      const segLen = Math.hypot(dx, dz);
+      const steps = Math.max(1, Math.round(segLen / spacing));
+      for (let s = 0; s <= steps; s++) {
+        if (i > 0 && s === 0) continue;
+        const t = s / steps;
+        pts.push([ax + dx * t, az + dz * t]);
       }
+    }
+
+    const ys = pts.map(([x, z]) => addPost(x, z));
+    for (let i = 0; i < pts.length - 1; i++) {
+      addRails(pts[i][0], pts[i][1], ys[i], pts[i + 1][0], pts[i + 1][1], ys[i + 1]);
     }
   }
 
