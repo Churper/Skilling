@@ -193,6 +193,9 @@ const BUMPS = [];
   }
 }
 
+/* Bridge location — suppress terrain underneath */
+const BRIDGE_X0 = -6, BRIDGE_X1 = 6, BRIDGE_Z = 8, BRIDGE_HW = 3;
+
 /** Surface Y that matches the actual mesh vertices (terrainH + hills + bumps) */
 export function getMeshSurfaceY(x, z) {
   let y = terrainH(x, z);
@@ -203,7 +206,7 @@ export function getMeshSurfaceY(x, z) {
   let villageFar  = 1;
   for (const sv of SVC)
     villageFar = Math.min(villageFar, sm(Math.hypot(x - sv.x, z - sv.z), sv.r, sv.r + 6));
-  const beachFar  = sm(Math.hypot(x - beachCX, z - beachCZ), beachR - 14, beachR);
+  const beachFar  = sm(Math.hypot(x - beachCX, z - beachCZ), beachR - 18, beachR + 4);
   const hillAmp   = riverFar * pathFar * villageFar * beachFar;
   y += (Math.sin(x * 0.07 + z * 0.05) * 0.5
       + Math.cos(x * 0.11 - z * 0.06) * 0.35
@@ -211,6 +214,13 @@ export function getMeshSurfaceY(x, z) {
   for (const b of BUMPS) {
     const d = Math.hypot(x - b.x, z - b.z);
     if (d < b.r) { const t = 1 - d / b.r; y += b.h * t * t * (3 - 2 * t) * hillAmp; }
+  }
+  /* flatten terrain under/near bridge so ground doesn't poke through */
+  if (x > BRIDGE_X0 - 2 && x < BRIDGE_X1 + 2 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 2) {
+    const bxT = 1 - sm(Math.max(BRIDGE_X0 - x, x - BRIDGE_X1, 0), 0, 2);
+    const bzT = 1 - sm(Math.abs(z - BRIDGE_Z), BRIDGE_HW, BRIDGE_HW + 2);
+    const bridgeT = bxT * bzT;
+    if (bridgeT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.1, bridgeT);
   }
   return y;
 }

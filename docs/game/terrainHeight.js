@@ -68,7 +68,7 @@ const HILL_R = 16;
 export function isHillNE(x, z) { return hillNEDist(x, z) < HILL_R; }
 export function isHillNW(x, z) { return hillNWDist(x, z) < HILL_R; }
 
-export function isBeach(x, z) { return x > 30 && z < 4; }
+export function isBeach(x, z) { return x > 24 && z < 6; }
 
 /* ── Flatten zones (village + paths) ── */
 const SVC = [
@@ -133,8 +133,8 @@ export function terrainH(x, z) {
 
   /* ─ beach slopes down to water ─ */
   if (isBeach(x, z)) {
-    const bt = s(x, 28, 44);
-    h = THREE.MathUtils.lerp(h, WATER_Y - 0.05, bt * 0.95);
+    const bt = s(x, 26, 38);
+    h = THREE.MathUtils.lerp(h, WATER_Y + 0.05, bt);
   }
 
   /* ─ flatten for village / paths ─ */
