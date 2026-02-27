@@ -163,7 +163,7 @@ function createTerrain(scene) {
       const a=gridMap.get(gi+","+gj), b=gridMap.get((gi+1)+","+gj);
       const c=gridMap.get(gi+","+(gj+1)), d=gridMap.get((gi+1)+","+(gj+1));
       if(a==null||b==null||c==null||d==null) continue;
-      idx.push(a,b,c, b,d,c);
+      idx.push(a,c,b, b,c,d);
     }
   }
   const geo=new THREE.BufferGeometry();
