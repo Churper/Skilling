@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import {
-  TILE_S, WATER_Y,
+  TILE_S, WATER_Y, GRASS_Y,
   GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
   isInRiver, isBeach, isOnPath,
   riverQuery, distToPath,
@@ -35,6 +35,12 @@ function tMat(color, opts = {}) {
 /* ── tile catalogue — GLB files to load ── */
 const TILE_DIR = "models/terrain/";
 const TILES = {
+  /* ground tiles */
+  grass:       "Grass_Flat.glb",
+  pathCenter:  "Path_Center.glb",
+  waterFlat:   "Water_Flat.glb",
+  sandFlat:    "Sand_Flat.glb",
+
   /* structure tiles */
   bridgeEnd:   "Prop_Bridge_Log_End.glb",
   bridgeMid:   "Prop_Bridge_Log_Middle.glb",
@@ -171,12 +177,12 @@ function mergeByMaterial(harvested) {
 }
 
 /* helper: build a 4×4 placement matrix */
-function tileMat4(wx, wy, wz, rotY = 0) {
+function tileMat4(wx, wy, wz, rotY = 0, scale = 1) {
   const m = new THREE.Matrix4();
   m.compose(
     new THREE.Vector3(wx, wy, wz),
     new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotY),
-    new THREE.Vector3(TILE_S, TILE_S, TILE_S)
+    new THREE.Vector3(TILE_S * scale, TILE_S * scale, TILE_S * scale)
   );
   return m;
 }
@@ -614,23 +620,77 @@ export function buildProps(lib, scene) {
   return group;
 }
 
+/* Return ground-tile placements for a grid cell (cliffs handled separately). */
+function getCellPlacements(gx, gz) {
+  const wx = gx * TILE_S, wz = gz * TILE_S;
+
+  // Outside playable ring.
+  if (gz > 19 || gx < -19 || gz < -18) return null;
+
+  // River cells.
+  if (isInRiver(wx, wz)) return [{ tile: "waterFlat", y: 0, rot: 0 }];
+
+  // East ocean cells.
+  if (wx > 34 && terrainH(wx, wz) < WATER_Y + 0.08) {
+    return [{ tile: "waterFlat", y: 0, rot: 0 }];
+  }
+
+  // Beach / paths / grass.
+  if (isBeach(wx, wz)) {
+    const h = terrainH(wx, wz);
+    return [{ tile: "sandFlat", y: h - GRASS_Y, rot: 0 }];
+  }
+  if (isOnPath(wx, wz)) {
+    const h = terrainH(wx, wz);
+    return [{ tile: "pathCenter", y: h, rot: 0 }];
+  }
+
+  // River-bank connector tile: place sloped edge tile where land directly borders river.
+  const n = isInRiver(wx, wz + TILE_S);
+  const s = isInRiver(wx, wz - TILE_S);
+  const e = isInRiver(wx + TILE_S, wz);
+  const w = isInRiver(wx - TILE_S, wz);
+  const cnt = (n ? 1 : 0) + (s ? 1 : 0) + (e ? 1 : 0) + (w ? 1 : 0);
+  if (cnt === 1) {
+    const h = terrainH(wx, wz);
+    let rot = 0;
+    if (e) rot = -Math.PI / 2;
+    else if (s) rot = Math.PI;
+    else if (w) rot = Math.PI / 2;
+    return [{ tile: "waterSlope", y: h - GRASS_Y, rot }];
+  }
+
+  const h = terrainH(wx, wz);
+  return [{ tile: "grass", y: h - GRASS_Y, rot: 0 }];
+}
+
 /* ═══════════════════════════════════════════
-   buildTerrain() — main entry: returns walkable ground Group
+   buildTerrain() — tile-driven terrain (no gradient ground mesh)
    ═══════════════════════════════════════════ */
 
 export function buildTerrain(lib) {
+  const harvested = [];
+  for (let gx = GX_MIN; gx <= GX_MAX; gx++) {
+    for (let gz = GZ_MIN; gz <= GZ_MAX; gz++) {
+      const placements = getCellPlacements(gx, gz);
+      if (!placements) continue;
+      const wx = gx * TILE_S, wz = gz * TILE_S;
+      for (const { tile, y, rot } of placements) {
+        const tmpl = lib[tile];
+        if (!tmpl) continue;
+        harvested.push(...harvestTile(tmpl, tileMat4(wx, y, wz, rot)));
+      }
+    }
+  }
+
+  // Curved cliff walls/corners from the tile set.
+  const cliffMeshes = buildCliffs(lib);
+
+  const meshes = mergeByMaterial(harvested);
   const group = new THREE.Group();
   group.name = "terrain";
-
-  /* procedural heightmap ground */
-  group.add(buildGroundMesh());
-  group.add(buildPathOverlayMesh());
-  group.add(buildBeachOverlayMesh());
-
-  /* stacked cliff tiles */
-  const cliffMeshes = buildCliffs(lib);
+  meshes.forEach(m => group.add(m));
   cliffMeshes.forEach(m => group.add(m));
-
   return group;
 }
 
@@ -639,88 +699,9 @@ export function buildTerrain(lib) {
    ═══════════════════════════════════════════ */
 
 export function buildWater(waterUniforms) {
-  const RP = [
-    [0, 40, 2.5], [0, 34, 2.5], [0, 26, 2.8], [0, 18, 3.0],
-    [0, 12, 3.2], [0, 6, 3.5], [2, 2, 3.5], [6, -2, 4.0],
-    [12, -6, 4.5], [20, -10, 5.0], [28, -14, 5.5], [36, -14, 6.5], [48, -14, 8.0],
-  ];
-  const curve = new THREE.CatmullRomCurve3(
-    RP.map(([x, z]) => new THREE.Vector3(x, 0, z)),
-    false,
-    "centripetal",
-    0.3
-  );
-  const widthAt = t => {
-    const seg = t * (RP.length - 1);
-    const i = Math.min(RP.length - 2, Math.max(0, Math.floor(seg)));
-    const f = seg - i;
-    return RP[i][2] + (RP[i + 1][2] - RP[i][2]) * f;
-  };
-
-  const mkStrip = (widthScale, yJitter = 0) => {
-    const pos = [];
-    const idx = [];
-    const STEPS = 180;
-    for (let i = 0; i <= STEPS; i++) {
-      const t = i / STEPS;
-      const p = curve.getPointAt(t);
-      const tg = curve.getTangentAt(t).normalize();
-      const hw = widthAt(t) * widthScale;
-      const px = -tg.z, pz = tg.x;
-      pos.push(
-        p.x + px * hw, yJitter, p.z + pz * hw,
-        p.x - px * hw, yJitter, p.z - pz * hw
-      );
-      if (i > 0) {
-        const a = (i - 1) * 2, b = a + 1, c = i * 2, d = c + 1;
-        idx.push(a, c, b, b, c, d);
-      }
-    }
-
-    const m = curve.getPointAt(1);
-    const mt = curve.getTangentAt(1).normalize();
-    const mw = widthAt(1) * widthScale;
-    const mpx = -mt.z, mpz = mt.x;
-    const oi = pos.length / 3;
-    pos.push(
-      m.x + mpx * mw * 1.02, yJitter, m.z + mpz * mw * 1.02,
-      58, yJitter, m.z + 5.0,
-      58, yJitter, -30,
-      m.x - mpx * mw * 1.02, yJitter, m.z - mpz * mw * 1.02,
-      58, yJitter, m.z - 8.0
-    );
-    idx.push(
-      oi, oi + 1, oi + 4,
-      oi, oi + 4, oi + 3,
-      oi + 3, oi + 4, oi + 2
-    );
-
-    const geo = new THREE.BufferGeometry();
-    geo.setIndex(idx);
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-    geo.computeVertexNormals();
-    return geo;
-  };
-
+  // Water is tile-driven (Water_Flat) from buildTerrain placements.
   const g = new THREE.Group();
-  g.name = "water";
-
-  const base = new THREE.Mesh(
-    mkStrip(1.0, 0),
-    tMat("#73c9ee", { flatShading: true, transparent: false })
-  );
-  base.position.y = WATER_Y + 0.012;
-  base.renderOrder = R_WATER;
-  g.add(base);
-
-  const core = new THREE.Mesh(
-    mkStrip(0.62, 0.01),
-    tMat("#8cdaf8", { flatShading: true, transparent: true, opacity: 0.85 })
-  );
-  core.position.y = WATER_Y + 0.012;
-  core.renderOrder = R_WATER + 1;
-  g.add(core);
-
+  g.name = "water_tiles_only";
   return g;
 }
 
@@ -814,10 +795,10 @@ export function buildDock(lib) {
 export function buildFences(lib) {
   const group = new THREE.Group();
   group.name = "fences";
-  const postGeo = new THREE.BoxGeometry(0.28, 1.02, 0.28);
-  const railGeo = new THREE.BoxGeometry(0.12, 0.11, 1.0);
-  const postMat = tMat("#646d72");
-  const railMat = tMat("#c7bda8");
+  const board = lib.fenceBoard2 || lib.fenceBoard1 || lib.fenceBoard3 || lib.fenceBoard4;
+  const post = lib.fencePost1 || lib.fencePost2 || lib.fencePost3 || lib.fencePost4;
+  if (!board || !post) return group;
+  const harvested = [];
 
   const runs = [
     [[4, 8], [8, 4], [12, 0], [16, -4], [20, -8], [24, -12], [28, -15]],
@@ -826,53 +807,38 @@ export function buildFences(lib) {
     [[-2, 10], [2, 10], [6, 8]],
   ];
 
-  const spacing = 1.9;
-  const addPost = (x, z) => {
+  const spacing = TILE_S;
+  const yawOffset = Math.PI * 0.5;
+  const addBoard = (x, z, rot) => {
     const y = getWorldSurfaceHeight(x, z);
-    const p = new THREE.Mesh(postGeo, postMat);
-    p.position.set(x, y + 0.50, z);
-    p.renderOrder = R_DECOR;
-    group.add(p);
-    return y;
+    harvested.push(...harvestTile(board, tileMat4(x, y, z, rot + yawOffset, 0.9)));
   };
-  const addRails = (ax, az, ay, bx, bz, by) => {
-    const dx = bx - ax, dz = bz - az;
-    const len = Math.hypot(dx, dz);
-    if (len < 0.01) return;
-    const rot = Math.atan2(dx, dz);
-    const mx = (ax + bx) * 0.5, mz = (az + bz) * 0.5;
-    const make = y => {
-      const r = new THREE.Mesh(railGeo, railMat);
-      r.scale.z = len;
-      r.position.set(mx, y, mz);
-      r.rotation.y = rot;
-      r.renderOrder = R_DECOR;
-      group.add(r);
-    };
-    make((ay + by) * 0.5 + 0.36);
-    make((ay + by) * 0.5 + 0.62);
+  const addPost = (x, z, rot) => {
+    const y = getWorldSurfaceHeight(x, z);
+    harvested.push(...harvestTile(post, tileMat4(x, y, z, rot + yawOffset, 0.9)));
   };
 
   for (const run of runs) {
-    const pts = [];
     for (let i = 0; i < run.length - 1; i++) {
       const [ax, az] = run[i], [bx, bz] = run[i + 1];
       const dx = bx - ax, dz = bz - az;
       const segLen = Math.hypot(dx, dz);
       const steps = Math.max(1, Math.round(segLen / spacing));
+      const rot = Math.atan2(dx, dz);
       for (let s = 0; s <= steps; s++) {
         if (i > 0 && s === 0) continue;
         const t = s / steps;
-        pts.push([ax + dx * t, az + dz * t]);
+        const x = ax + dx * t, z = az + dz * t;
+        if (s < steps) {
+          const mt = (s + 0.5) / steps;
+          addBoard(ax + dx * mt, az + dz * mt, rot);
+        }
+        addPost(x, z, rot);
       }
-    }
-
-    const ys = pts.map(([x, z]) => addPost(x, z));
-    for (let i = 0; i < pts.length - 1; i++) {
-      addRails(pts[i][0], pts[i][1], ys[i], pts[i + 1][0], pts[i + 1][1], ys[i + 1]);
     }
   }
 
+  mergeByMaterial(harvested).forEach(m => group.add(m));
   group.renderOrder = R_DECOR;
   return group;
 }
