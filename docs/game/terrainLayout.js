@@ -193,12 +193,19 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
 
   /* ── ground mesh ── */
   const step = lodStep || 1.0;
-  const xMin = bounds ? bounds.xMin : (GX_MIN - 1) * TILE_S;
-  const xMax = bounds ? bounds.xMax : (GX_MAX + 1) * TILE_S;
-  const zMin = bounds ? bounds.zMin : (GZ_MIN - 1) * TILE_S;
-  const zMax = bounds ? bounds.zMax : (GZ_MAX + 1) * TILE_S;
+  const MESH_PAD = 1; // extend mesh 1 unit past chunk edge to cover gaps
+  const dxMin = bounds ? bounds.xMin : (GX_MIN - 1) * TILE_S;
+  const dxMax = bounds ? bounds.xMax : (GX_MAX + 1) * TILE_S;
+  const dzMin = bounds ? bounds.zMin : (GZ_MIN - 1) * TILE_S;
+  const dzMax = bounds ? bounds.zMax : (GZ_MAX + 1) * TILE_S;
+  /* padded mesh bounds */
+  const xMin = dxMin - MESH_PAD, xMax = dxMax + MESH_PAD;
+  const zMin = dzMin - MESH_PAD, zMax = dzMax + MESH_PAD;
   const nx = Math.ceil((xMax - xMin) / step) + 1;
   const nz = Math.ceil((zMax - zMin) / step) + 1;
+  /* data grid dimensions (unpadded) */
+  const dnx = Math.ceil((dxMax - dxMin) / step) + 1;
+  const dnz = Math.ceil((dzMax - dzMin) / step) + 1;
   const pos = new Float32Array(nx * nz * 3);
   const col = new Float32Array(nx * nz * 3);
   const idx = [];
@@ -222,8 +229,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
-      /* local coords for data lookup (subtract chunk world offset) */
-      const lx = x - loX, lz = z - loZ;
+      /* local coords for data lookup — clamp to data grid edge */
+      const lx = Math.max(dxMin, Math.min(dxMax, x)) - loX;
+      const lz = Math.max(dzMin, Math.min(dzMax, z)) - loZ;
       let y = GRASS_Y;
       /* apply editor height offsets */
       if (heightOffsets) {
@@ -246,8 +254,8 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       else { c = cGrass; }
       /* editor color overrides */
       if (colorOverrides) {
-        const key = `${lx},${lz}`;
-        if (key in colorOverrides) { const ov = colorOverrides[key]; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
+        const clKey = `${lx},${lz}`;
+        if (clKey in colorOverrides) { const ov = colorOverrides[clKey]; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
       }
       col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
 

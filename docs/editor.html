@@ -495,6 +495,7 @@ const TOON_GRAD = (() => {
 })();
 
 const hStep = 1.0;
+const MESH_PAD = 1; // extend mesh 1 unit past chunk edge to cover gaps
 const xMin = (GX_MIN - 1) * TILE_S, xMax = (GX_MAX + 1) * TILE_S;
 const zMin = (GZ_MIN - 1) * TILE_S, zMax = (GZ_MAX + 1) * TILE_S;
 const hnx = Math.ceil((xMax - xMin) / hStep) + 1;
@@ -679,16 +680,24 @@ function buildChunkMesh(cx, cz) {
     if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) ho[hvi(ix, iz)] = val;
   }
   Object.assign(co, cd.colorData);
-  const hp = new Float32Array(hnx * hnz * 3);
-  const hc = new Float32Array(hnx * hnz * 3);
+  /* build mesh with MESH_PAD extension on each side to cover inter-chunk gaps */
+  const mxMin = xMin - MESH_PAD, mxMax = xMax + MESH_PAD;
+  const mzMin = zMin - MESH_PAD, mzMax = zMax + MESH_PAD;
+  const mnx = Math.ceil((mxMax - mxMin) / hStep) + 1;
+  const mnz = Math.ceil((mzMax - mzMin) / hStep) + 1;
+  const hp = new Float32Array(mnx * mnz * 3);
+  const hc = new Float32Array(mnx * mnz * 3);
   const idx = [];
-  for (let iz = 0; iz < hnz; iz++) {
-    for (let ix = 0; ix < hnx; ix++) {
-      const lx = xMin + ix * hStep, lz = zMin + iz * hStep;
-      const vi = hvi(ix, iz), i3 = vi * 3;
-      const y = GRASS_Y + ho[vi];
+  for (let iz = 0; iz < mnz; iz++) {
+    for (let ix = 0; ix < mnx; ix++) {
+      const lx = mxMin + ix * hStep, lz = mzMin + iz * hStep;
+      const vi = iz * mnx + ix, i3 = vi * 3;
+      /* clamp to editable grid for height lookup */
+      const eix = Math.max(0, Math.min(hnx - 1, Math.round((lx - xMin) / hStep)));
+      const eiz = Math.max(0, Math.min(hnz - 1, Math.round((lz - zMin) / hStep)));
+      const y = GRASS_Y + ho[hvi(eix, eiz)];
       hp[i3] = lx + ox; hp[i3+1] = y; hp[i3+2] = lz + oz;
-      const ckey = `${lx},${lz}`;
+      const ckey = `${Math.max(xMin, Math.min(xMax, lx))},${Math.max(zMin, Math.min(zMax, lz))}`;
       if (co[ckey]) {
         hc[i3] = co[ckey][0]; hc[i3+1] = co[ckey][1]; hc[i3+2] = co[ckey][2];
       } else {
@@ -698,7 +707,7 @@ function buildChunkMesh(cx, cz) {
         else fc = bc;
         hc[i3] = fc.r; hc[i3+1] = fc.g; hc[i3+2] = fc.b;
       }
-      if (ix < hnx-1 && iz < hnz-1) idx.push(vi, vi+hnx, vi+1, vi+1, vi+hnx, vi+hnx+1);
+      if (ix < mnx-1 && iz < mnz-1) idx.push(vi, vi+mnx, vi+1, vi+1, vi+mnx, vi+mnx+1);
     }
   }
   const geo = new THREE.BufferGeometry();
