@@ -317,8 +317,14 @@ export function buildTerrainMesh(waterUniforms) {
       col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
 
       if (ix < nx - 1 && iz < nz - 1) {
-        const a = iz * nx + ix, b = a + 1, d = a + nx, e = d + 1;
-        idx.push(a, d, b, b, d, e);
+        /* skip triangles directly under bridge/dock so no ground renders there */
+        const cx = x + step * 0.5, cz = z + step * 0.5;
+        const underBridge = cx > BRIDGE_X0 && cx < BRIDGE_X1 && Math.abs(cz - BRIDGE_Z) < BRIDGE_HW;
+        const underDock = cx > 36 && cx < 50 && Math.abs(cz - (-16)) < 2.5;
+        if (!underBridge && !underDock) {
+          const a = iz * nx + ix, b = a + 1, d = a + nx, e = d + 1;
+          idx.push(a, d, b, b, d, e);
+        }
       }
     }
   }
