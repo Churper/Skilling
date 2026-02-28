@@ -500,7 +500,7 @@ let activeEditChunk = [0, 0];
 const chunkMeshes = new Map(); // "cx,cz" → { mesh, geo, hPos, hCol, heightOffsets, colorOverrides, waterMesh, baseType, cx, cz }
 
 function worldToChunk(wx, wz) {
-  return [Math.round(wx / CHUNK_SIZE), Math.round(wz / CHUNK_SIZE)];
+  return [Math.floor((wx - xMin) / CHUNK_SIZE), Math.floor((wz - zMin) / CHUNK_SIZE)];
 }
 let hUndoSnap = null;
 
@@ -783,8 +783,6 @@ function updateMeshRegion(cx, cz, radius) {
       hPos[i3 + 1] = y;
       const fc = vertColor(x, z, y);
       hCol[i3] = fc.r; hCol[i3 + 1] = fc.g; hCol[i3 + 2] = fc.b;
-      /* push to neighbor if this vertex is on a chunk edge */
-      if (ix === 0 || ix === hnx-1 || iz === 0 || iz === hnz-1) syncOneVertex(ix, iz);
     }
   }
   groundGeo.attributes.position.needsUpdate = true;
@@ -804,35 +802,6 @@ function rebuildAllVerts() {
   groundGeo.attributes.position.needsUpdate = true;
   groundGeo.attributes.color.needsUpdate = true;
   groundGeo.computeVertexNormals();
-}
-
-/**
- * If vertex (ix, iz) sits on an edge of the active chunk, push that single
- * vertex's Y + color to the matching vertex in the neighbor chunk mesh.
- * Called per-vertex inside the brush loop — only fires for the handful of
- * vertices actually on an edge, so near-zero cost for interior edits.
- */
-function syncOneVertex(ix, iz) {
-  const [acx, acz] = activeEditChunk;
-  const svi = hvi(ix, iz), s3 = svi * 3;
-  /* west edge */
-  if (ix === 0)       _pushToNeighbor(acx - 1, acz, hnx - 1, iz, svi, s3);
-  /* east edge */
-  if (ix === hnx - 1) _pushToNeighbor(acx + 1, acz, 0, iz, svi, s3);
-  /* south edge */
-  if (iz === 0)       _pushToNeighbor(acx, acz - 1, ix, hnz - 1, svi, s3);
-  /* north edge */
-  if (iz === hnz - 1) _pushToNeighbor(acx, acz + 1, ix, 0, svi, s3);
-}
-function _pushToNeighbor(ncx, ncz, nix, niz, svi, s3) {
-  const ne = chunkMeshes.get(chunkKey(ncx, ncz));
-  if (!ne) return;
-  const dvi = hvi(nix, niz), d3 = dvi * 3;
-  ne.hPos[d3 + 1] = hPos[s3 + 1];
-  ne.hCol[d3] = hCol[s3]; ne.hCol[d3+1] = hCol[s3+1]; ne.hCol[d3+2] = hCol[s3+2];
-  ne.heightOffsets[dvi] = heightOffsets[svi];
-  ne.geo.attributes.position.needsUpdate = true;
-  ne.geo.attributes.color.needsUpdate = true;
 }
 
 /* Ghost system removed — all chunks rendered as full-res meshes */
@@ -1126,12 +1095,6 @@ function pushObjUndo(a) { objUndoStack.push(a); if (objUndoStack.length > 100) o
    Height painting
    ═══════════════════════════════════════════ */
 function paintAt(wx, wz, dt) {
-  /* auto-switch active chunk if brush center moved to a different chunk */
-  const [bcx, bcz] = worldToChunk(wx, wz);
-  if (bcx !== activeEditChunk[0] || bcz !== activeEditChunk[1]) {
-    const bk = chunkKey(bcx, bcz);
-    if (chunkMeshes.has(bk)) activateChunkForEditing(bcx, bcz);
-  }
   /* convert world coords to local (chunk-relative) coords */
   const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
   const lx = wx - chOx, lz = wz - chOz;
@@ -1164,7 +1127,6 @@ function paintAt(wx, wz, dt) {
     }
   }
   updateMeshRegion(cx, cz, brushRadius);
-
 }
 
 function hSaveUndo() { hUndoSnap = new Float32Array(heightOffsets); }
@@ -1173,12 +1135,6 @@ function hUndo() { if (!hUndoStack.length) return; heightOffsets.set(hUndoStack.
 
 /* ── Color painting ── */
 function paintColorAt(wx, wz, dt) {
-  /* auto-switch active chunk if brush center moved to a different chunk */
-  const [bcx, bcz] = worldToChunk(wx, wz);
-  if (bcx !== activeEditChunk[0] || bcz !== activeEditChunk[1]) {
-    const bk = chunkKey(bcx, bcz);
-    if (chunkMeshes.has(bk)) activateChunkForEditing(bcx, bcz);
-  }
   /* convert world coords to local (chunk-relative) coords */
   const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
   const lx = wx - chOx, lz = wz - chOz;
@@ -1211,7 +1167,6 @@ function paintColorAt(wx, wz, dt) {
     }
   }
   updateMeshRegion(cx, cz, brushRadius);
-
 }
 function pSaveUndo() { pUndoSnap = JSON.parse(JSON.stringify(colorOverrides)); }
 function pPushUndo() { if (pUndoSnap !== null) { pUndoStack.push(pUndoSnap); if (pUndoStack.length > 50) pUndoStack.shift(); pUndoSnap = null; } }
@@ -1358,6 +1313,16 @@ function raycastGround(e) {
   const allMeshes = getAllGroundMeshes();
   const hits = raycaster.intersectObjects(allMeshes);
   if (hits.length > 0) {
+    /* auto-switch active edit chunk based on which mesh was hit */
+    for (const [key, entry] of chunkMeshes) {
+      if (entry.mesh === hits[0].object) {
+        if (activeEditChunk[0] !== entry.cx || activeEditChunk[1] !== entry.cz) {
+          activateChunkForEditing(entry.cx, entry.cz);
+          updateMinimap();
+        }
+        break;
+      }
+    }
     return hits[0].point;
   }
   /* fallback: plane */
