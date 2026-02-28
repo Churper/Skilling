@@ -92,6 +92,7 @@ canvas{display:block}
 
 /* ── Canvas ── */
 #canvas-wrap{position:fixed;left:220px;top:0;right:0;bottom:0}
+#compass{position:absolute;top:10px;right:10px;width:80px;height:80px;pointer-events:none;z-index:5}
 .hidden{display:none!important}
 </style>
 </head>
@@ -200,7 +201,7 @@ canvas{display:block}
   <div id="count">—</div>
 </div>
 
-<div id="canvas-wrap"></div>
+<div id="canvas-wrap"><canvas id="compass" width="160" height="160"></canvas></div>
 <input type="file" id="file-input" accept=".json" style="display:none">
 
 <script type="importmap">
@@ -1713,6 +1714,66 @@ window.addEventListener("resize", () => {
   camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
 });
 
+/* ── Compass ── */
+const compassCvs = document.getElementById("compass");
+const compassCtx = compassCvs.getContext("2d");
+const _cpDir = new THREE.Vector3();
+const _cpRight = new THREE.Vector3();
+
+function drawCompass() {
+  const w = compassCvs.width, h = compassCvs.height;
+  const cx = w / 2, cy = h / 2, r = w * 0.36;
+  compassCtx.clearRect(0, 0, w, h);
+
+  /* get camera's forward projected onto XZ plane */
+  camera.getWorldDirection(_cpDir);
+  _cpDir.y = 0; _cpDir.normalize();
+  _cpRight.crossVectors(_cpDir, new THREE.Vector3(0, 1, 0)).normalize();
+
+  /* project world directions to screen-space compass
+     North = +z, East = +x in world coords
+     On compass: up = camera forward, right = camera right */
+  const dirs = [
+    { label: "N", wx: 0, wz: 1, col: "#e8c44a" },
+    { label: "S", wx: 0, wz: -1, col: "#666" },
+    { label: "E", wx: 1, wz: 0, col: "#888" },
+    { label: "W", wx: -1, wz: 0, col: "#888" },
+  ];
+
+  for (const d of dirs) {
+    /* dot with camera right = screen X, dot with camera forward = screen -Y (up) */
+    const sx = d.wx * _cpRight.x + d.wz * _cpRight.z;
+    const sy = -(d.wx * _cpDir.x + d.wz * _cpDir.z);
+    const px = cx + sx * r, py = cy + sy * r;
+
+    /* line from center */
+    compassCtx.beginPath();
+    compassCtx.moveTo(cx, cy);
+    compassCtx.lineTo(px, py);
+    compassCtx.strokeStyle = d.col;
+    compassCtx.lineWidth = d.label === "N" ? 3 : 1.5;
+    compassCtx.globalAlpha = d.label === "N" ? 1 : 0.5;
+    compassCtx.stroke();
+
+    /* label */
+    compassCtx.globalAlpha = 1;
+    compassCtx.font = d.label === "N" ? "bold 18px sans-serif" : "13px sans-serif";
+    compassCtx.fillStyle = d.col;
+    compassCtx.textAlign = "center";
+    compassCtx.textBaseline = "middle";
+    const lx = cx + sx * (r + 14), ly = cy + sy * (r + 14);
+    compassCtx.fillText(d.label, lx, ly);
+  }
+
+  /* center dot */
+  compassCtx.globalAlpha = 0.6;
+  compassCtx.beginPath();
+  compassCtx.arc(cx, cy, 3, 0, Math.PI * 2);
+  compassCtx.fillStyle = "#ccc";
+  compassCtx.fill();
+  compassCtx.globalAlpha = 1;
+}
+
 function animate(t) {
   requestAnimationFrame(animate);
   waterUniforms.uTime.value = (t || 0) * 0.001;
@@ -1730,6 +1791,7 @@ function animate(t) {
 
   orbitControls.update();
   renderer.render(scene, camera);
+  drawCompass();
 }
 
 /* ═══════════════════════════════════════════
