@@ -11,6 +11,13 @@ const ITEM_ICON = {
   fish: "\u{1F41F}",
   ore: "\u{1FAA8}",
   logs: "\u{1FAB5}",
+  "Raw Beef": "\u{1F969}",
+  "Raw Pork": "\u{1F356}",
+  "Wool": "\u{1F9F6}",
+  "Horse Hide": "\u{1F3AF}",
+  "Llama Wool": "\u{1F9F6}",
+  "Bone": "\u{1F9B4}",
+  "Striped Hide": "\u{1F993}",
 };
 
 const ITEM_LABEL = {

@@ -594,6 +594,12 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         /* GLTF-based services — tag with service interaction */
         const svcTag = SERVICE_TAG[entry.type];
         if (svcTag) { setSvc(m, svcTag.service, svcTag.label); nodes.push(addHS(m, 0, 0.95, 0.55)); }
+        /* tag animals as attackable NPCs */
+        if (ANIMAL_TYPES.has(entry.type)) {
+          setSvc(m, "animal", entry.type);
+          m.userData.animalType = entry.type;
+          nodes.push(addHS(m, 0, 0.7, 0));
+        }
         objGroup.add(m);
       }
     }
@@ -751,6 +757,9 @@ _fileLookup["Farm"] = "models/terrain/Farm.glb";
 for (const a of ["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra"])
   _fileLookup[a] = "models/terrain/" + a + ".glb";
 
+/* ── Animal types (attackable NPCs) ── */
+const ANIMAL_TYPES = new Set(["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra"]);
+
 async function loadMapObjects(scene, nodes) {
   try {
     const data = _tilemapData;
@@ -806,6 +815,13 @@ async function loadMapObjects(scene, nodes) {
         setRes(m, res.type, res.label);
         nodes.push(m);
         addBlob(scene, entry.x, entry.z, entry.scale || 1, .15);
+      }
+      /* tag animals as attackable NPCs */
+      if (ANIMAL_TYPES.has(entry.type)) {
+        setSvc(m, "animal", entry.type);
+        m.userData.animalType = entry.type;
+        const hs = addHS(m, 0, 0.7, 0);
+        nodes.push(hs);
       }
       group.add(m);
     }

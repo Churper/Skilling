@@ -45,6 +45,13 @@ export const SELL_PRICE_BY_ITEM = {
   fish: 4,
   ore: 7,
   logs: 5,
+  "Raw Beef": 8,
+  "Raw Pork": 6,
+  "Wool": 5,
+  "Horse Hide": 10,
+  "Llama Wool": 7,
+  "Bone": 3,
+  "Striped Hide": 12,
 };
 
 export const TOOL_UPGRADE_BASE_COST = 28;

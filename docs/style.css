@@ -1421,3 +1421,27 @@ body {
 .ui-tab-btn {
   position: relative;
 }
+
+/* ── Animal HP bars ── */
+.animal-hp-bar {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9;
+}
+.animal-hp-fill {
+  height: 100%;
+  border-radius: 2px;
+  width: 100%;
+  transition: width 0.15s ease, background 0.15s ease;
+  background: #4ade80;
+}
+.animal-hp-bar[data-state="hidden"] {
+  display: none;
+}

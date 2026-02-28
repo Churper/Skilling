@@ -69,6 +69,37 @@ const skills = {
 let inCave = false;
 const activePrayers = new Set();
 
+/* ── Animals ── */
+const ANIMAL_HP = { Cow: 20, Horse: 25, Llama: 15, Pig: 10, Pug: 8, Sheep: 12, Zebra: 30 };
+const ANIMAL_LOOT = {
+  Cow: "Raw Beef", Horse: "Horse Hide", Llama: "Llama Wool",
+  Pig: "Raw Pork", Pug: "Bone", Sheep: "Wool", Zebra: "Striped Hide",
+};
+const animals = [];  // { node, hp, maxHp, spawnPos, alive, wanderTimer, wanderTarget, hpBar, hpFill, respawnTimer, parentModel }
+
+function registerAnimal(hsNode, parentModel) {
+  const type = parentModel.userData.animalType || "Cow";
+  const maxHp = ANIMAL_HP[type] || 10;
+  const spawnPos = new THREE.Vector3();
+  parentModel.getWorldPosition(spawnPos);
+
+  const hpBar = document.createElement("div");
+  hpBar.className = "animal-hp-bar";
+  hpBar.dataset.state = "hidden";
+  const hpFill = document.createElement("div");
+  hpFill.className = "animal-hp-fill";
+  hpBar.appendChild(hpFill);
+  getBubbleLayer().appendChild(hpBar);
+
+  animals.push({
+    node: hsNode, parentModel, type, hp: maxHp, maxHp,
+    spawnPos: spawnPos.clone(), alive: true,
+    wanderTimer: 3 + Math.random() * 5,
+    wanderTarget: null, hpBar, hpFill, respawnTimer: 0,
+    origScale: parentModel.scale.x,
+  });
+}
+
 /* ── Save / Load system ── */
 const SAVE_KEY = "skilling_save";
 const SAVE_INTERVAL = 15_000; // auto-save every 15s
@@ -129,7 +160,8 @@ const ui = initializeUI({
     equipTool(tool, true);
     if (!isCombatTool(tool)) {
       activeAttack = null;
-      if (pendingService?.userData?.serviceType === "dummy") pendingService = null;
+      const _ps = pendingService?.userData?.serviceType;
+      if (_ps === "dummy" || _ps === "animal") pendingService = null;
     }
   },
   onEmote: (emoji) => triggerEmote(emoji),
@@ -377,6 +409,12 @@ setSlimeColor(getCurrentSlimeColorHex());
 syncInventoryUI();
 syncHouseBuildVisual();
 syncSkillsUI();
+
+/* scan resource nodes for placed animals and register them */
+for (const n of resourceNodes) {
+  const p = n.parent;
+  if (p && p.userData?.serviceType === "animal") registerAnimal(n, p);
+}
 
 const moveTarget = new THREE.Vector3();
 const resourceTargetPos = new THREE.Vector3();
@@ -636,6 +674,78 @@ function updateNameTags() {
     if (tag.sx < 0) { tag.sx = rxTarget; tag.sy = ryTarget; }
     else { tag.sx += (rxTarget - tag.sx) * TAG_LERP; tag.sy += (ryTarget - tag.sy) * TAG_LERP; }
     tag.el.style.transform = `translate(${tag.sx.toFixed(1)}px, ${tag.sy.toFixed(1)}px) translate(-50%, -50%)`;
+  }
+}
+
+/* ── Animal update (wander + HP bars + death/respawn) ── */
+const _animalProj = new THREE.Vector3();
+const _animalWanderDir = new THREE.Vector3();
+
+function updateAnimals(dt) {
+  const hw = renderer.domElement.clientWidth * 0.5;
+  const hh = renderer.domElement.clientHeight * 0.5;
+  for (const a of animals) {
+    if (!a.alive) {
+      /* death shrink animation */
+      if (a._deathAnim) {
+        a._deathAnim.elapsed += dt;
+        const t = Math.min(a._deathAnim.elapsed / a._deathAnim.duration, 1);
+        a.parentModel.scale.setScalar(a.origScale * (1 - t));
+        if (t >= 1) {
+          a.parentModel.visible = false;
+          a._deathAnim = null;
+          /* remove from interactables */
+          const idx = resourceNodes.indexOf(a.node);
+          if (idx >= 0) resourceNodes.splice(idx, 1);
+        }
+      }
+      /* respawn countdown */
+      a.respawnTimer -= dt;
+      if (a.respawnTimer <= 0) respawnAnimal(a);
+      continue;
+    }
+
+    /* idle wandering */
+    a.wanderTimer -= dt;
+    if (a.wanderTimer <= 0) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 1 + Math.random() * 2;
+      a.wanderTarget = new THREE.Vector3(
+        a.spawnPos.x + Math.cos(angle) * dist,
+        0,
+        a.spawnPos.z + Math.sin(angle) * dist,
+      );
+      a.wanderTarget.y = getPlayerGroundY(a.wanderTarget.x, a.wanderTarget.z);
+      a.wanderTimer = 3 + Math.random() * 5;
+    }
+    if (a.wanderTarget) {
+      _animalWanderDir.subVectors(a.wanderTarget, a.parentModel.position);
+      _animalWanderDir.y = 0;
+      const dist = _animalWanderDir.length();
+      if (dist > 0.15) {
+        _animalWanderDir.divideScalar(dist);
+        const step = Math.min(dt * 1.0, dist);
+        a.parentModel.position.x += _animalWanderDir.x * step;
+        a.parentModel.position.z += _animalWanderDir.z * step;
+        a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
+        /* face walk direction */
+        a.parentModel.rotation.y = Math.atan2(_animalWanderDir.x, _animalWanderDir.z);
+      } else {
+        a.wanderTarget = null;
+      }
+    }
+    /* subtle bob */
+    a.parentModel.position.y += Math.sin(Date.now() * 0.003 + a.spawnPos.x * 7) * 0.003;
+
+    /* update HP bar screen position */
+    if (a.hpBar.dataset.state !== "hidden") {
+      _animalProj.copy(a.parentModel.position);
+      _animalProj.y += 1.6;
+      _animalProj.project(camera);
+      const sx = _animalProj.x * hw + hw;
+      const sy = -_animalProj.y * hh + hh;
+      a.hpBar.style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) translate(-50%, -50%)`;
+    }
   }
 }
 
@@ -1452,6 +1562,21 @@ function performAttackHit(node) {
   const damage = Math.floor(Math.random() * (maxDmg - minDmg + 1)) + minDmg;
   spawnFloatingDrop(dummyPos.x, dummyPos.z, `Hit ${damage}`, "combat");
 
+  /* check if this is an animal */
+  const animal = animals.find(a => a.node === node);
+  if (animal && animal.alive) {
+    animal.hp = Math.max(0, animal.hp - damage);
+    animal.hpBar.dataset.state = "";
+    animal.hpFill.style.width = ((animal.hp / animal.maxHp) * 100) + "%";
+    const pct = animal.hp / animal.maxHp;
+    animal.hpFill.style.background = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
+    if (animal.hp <= 0) {
+      killAnimal(animal);
+      activeAttack = null;
+    }
+  }
+
+  const label = animal ? animal.type : "Training Dummy";
   const combatXp = 10 + damage;
   const combatSkill = skills[combatStyle];
   if (combatSkill) {
@@ -1464,11 +1589,46 @@ function performAttackHit(node) {
       ui?.setStatus(`${combatStyle} level ${combatSkill.level}!`, "success");
     } else {
       spawnFloatingDrop(dummyPos.x + 0.14, dummyPos.z - 0.1, `+${combatXp} XP`, "xp");
-      ui?.setStatus(`Hit Training Dummy for ${damage} damage! +${combatXp} XP`, "success");
+      ui?.setStatus(`Hit ${label} for ${damage} damage! +${combatXp} XP`, "success");
     }
   } else {
-    ui?.setStatus(`Hit Training Dummy for ${damage} damage!`, "success");
+    ui?.setStatus(`Hit ${label} for ${damage} damage!`, "success");
   }
+}
+
+function killAnimal(a) {
+  a.alive = false;
+  a.respawnTimer = 15;
+  a.hpBar.dataset.state = "hidden";
+  /* loot drop */
+  const lootName = ANIMAL_LOOT[a.type];
+  if (lootName) {
+    const added = bagSystem.addItem(lootName);
+    if (added) {
+      syncInventoryUI();
+      const p = new THREE.Vector3();
+      a.parentModel.getWorldPosition(p);
+      spawnFloatingDrop(p.x, p.z, `+1 ${lootName}`, "item");
+    } else {
+      const p = new THREE.Vector3();
+      a.parentModel.getWorldPosition(p);
+      spawnFloatingDrop(p.x, p.z, "Bag full!", "warn");
+    }
+  }
+  /* death animation — shrink to 0 */
+  a._deathAnim = { elapsed: 0, duration: 0.5 };
+}
+
+function respawnAnimal(a) {
+  a.alive = true;
+  a.hp = a.maxHp;
+  a.parentModel.position.copy(a.spawnPos);
+  a.parentModel.scale.setScalar(a.origScale);
+  a.parentModel.visible = true;
+  a.wanderTimer = 3 + Math.random() * 5;
+  a.wanderTarget = null;
+  /* re-add hitspot to interactables if missing */
+  if (!resourceNodes.includes(a.node)) resourceNodes.push(a.node);
 }
 
 function startActiveAttack(node) {
@@ -1508,6 +1668,32 @@ function onInteractNode(node, hitPoint) {
       return;
     }
     startActiveAttack(node);
+    return;
+  }
+
+  // Animal: walk to it and auto-attack (like dummy but with HP)
+  if (node.userData?.serviceType === "animal" || node.parent?.userData?.serviceType === "animal") {
+    const animalHS = node.userData?.serviceType === "animal" ? node : node.parent;
+    const a = animals.find(a => a.node === animalHS || a.parentModel === animalHS);
+    if (!a || !a.alive) return;
+    if (activeAttack && activeAttack.node === a.node) return;
+    const aPos = interactPos;
+    a.parentModel.getWorldPosition(aPos);
+    spawnClickEffect(aPos.x, aPos.z, "neutral");
+    const distance = aPos.distanceTo(player.position);
+    const range = getAttackRange();
+    if (distance > range) {
+      pendingResource = null;
+      activeGather = null;
+      activeAttack = null;
+      pendingService = a.node;
+      pendingServicePos.copy(aPos);
+      pendingServicePos.y = getPlayerGroundY(aPos.x, aPos.z);
+      setMoveTarget(pendingServicePos, true);
+      ui?.setStatus(`Walking to ${a.type}...`, "info");
+      return;
+    }
+    startActiveAttack(a.node);
     return;
   }
 
@@ -1826,10 +2012,14 @@ function animate(now) {
 
   if (pendingService && !activeGather && !activeAttack) {
     const serviceDistance = pendingServicePos.distanceTo(player.position);
-    const arrivalDist = pendingService.userData?.serviceType === "dummy" ? getAttackRange() : 2.7;
+    const svcType = pendingService.userData?.serviceType;
+    const isAttackable = svcType === "dummy" || svcType === "animal";
+    const arrivalDist = isAttackable ? getAttackRange() : 2.7;
     if (serviceDistance <= arrivalDist) {
-      if (pendingService.userData?.serviceType === "dummy") {
-        startActiveAttack(pendingService);
+      if (isAttackable) {
+        const a = svcType === "animal" ? animals.find(a => a.node === pendingService) : null;
+        if (a && !a.alive) { pendingService = null; }
+        else startActiveAttack(pendingService);
       } else {
         runServiceAction(pendingService);
         pendingService = null;
@@ -1870,6 +2060,9 @@ function animate(now) {
     if (equippedTool !== getCombatToolForStyle(combatStyle)) {
       activeAttack = null;
     }
+    /* stop attacking dead animals */
+    const atkAnimal = activeAttack ? animals.find(a => a.node === activeAttack.node) : null;
+    if (atkAnimal && !atkAnimal.alive) activeAttack = null;
   }
 
   if (activeAttack) {
@@ -1917,6 +2110,7 @@ function animate(now) {
   updateNameTags();
   updateOverheadIcons();
   updateFloatingDrops(dt);
+  updateAnimals(dt);
   combatEffects.update(dt);
   updateSlimeTrail(dt, t, isMovingNow);
   remotePlayers.update(dt);
