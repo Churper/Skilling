@@ -700,6 +700,11 @@ function removeChunkMesh(cx, cz) {
   chunkMeshes.delete(key);
 }
 
+/* chunk highlight outline */
+const _chunkHighlightGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(xMax - xMin, 0.6, zMax - zMin));
+const _chunkHighlight = new THREE.LineSegments(_chunkHighlightGeo, new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2, transparent: true, opacity: 0.7 }));
+_chunkHighlight.renderOrder = 999;
+
 function activateChunkForEditing(cx, cz) {
   const key = chunkKey(cx, cz);
   let entry = chunkMeshes.get(key);
@@ -712,6 +717,10 @@ function activateChunkForEditing(cx, cz) {
   hCol = entry.hCol;
   activeBaseType = entry.baseType;
   activeEditChunk = [cx, cz];
+  /* move highlight outline to this chunk */
+  const ox = cx * CHUNK_SIZE + (xMin + xMax) / 2, oz = cz * CHUNK_SIZE + (zMin + zMax) / 2;
+  _chunkHighlight.position.set(ox, GRASS_Y + 0.3, oz);
+  if (!_chunkHighlight.parent) scene.add(_chunkHighlight);
 }
 
 function ensureAllChunkMeshes() {
