@@ -224,6 +224,7 @@ canvas{display:block}
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
 import {
   TILE_S, WATER_Y, GRASS_Y, HILL_Y,
   GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
@@ -455,7 +456,7 @@ function loadChunkFromStore(cx, cz) {
   for (const [ck, cData] of chunkDataStore) {
     for (const entry of cData.objects) {
       const tmpl = objLib[entry.type]; if (!tmpl) continue;
-      const mesh = tmpl.clone();
+      const mesh = SkeletonUtils.clone(tmpl);
       mesh.scale.setScalar(entry.scale || 1);
       mesh.position.set(entry.x, entry.y || 0, entry.z);
       mesh.rotation.y = entry.rot || 0;
@@ -1080,7 +1081,7 @@ async function loadGameStructures() {
 
   function placeProp(type, x, z, s, r) {
     const tmpl = objLib[type]; if (!tmpl) return;
-    const mesh = tmpl.clone();
+    const mesh = SkeletonUtils.clone(tmpl);
     const y = getMeshSurfaceY(x, z);
     mesh.scale.setScalar(TILE_S * s);
     mesh.position.set(x, y, z); mesh.rotation.y = r;
@@ -1136,7 +1137,7 @@ async function loadGameObjects() {
   /* Add hard-coded game objects as real editable entries in the objects array */
   function addGameObj(type, x, z, s, r, yOffset) {
     const tmpl = objLib[type]; if (!tmpl) return;
-    const mesh = tmpl.clone();
+    const mesh = SkeletonUtils.clone(tmpl);
     const y = getMeshSurfaceY(x, z) + (yOffset || 0);
     mesh.scale.setScalar(s);
     mesh.position.set(x, y, z);
@@ -1327,7 +1328,7 @@ function updatePreview() {
   if (previewObj) { scene.remove(previewObj); previewObj = null; }
   if (mode !== "objects" || !selectedObj || !lastHit) return;
   const tmpl = objLib[selectedObj]; if (!tmpl) return;
-  const obj = tmpl.clone();
+  const obj = SkeletonUtils.clone(tmpl);
   obj.scale.setScalar(objScale);
   obj.position.set(lastHit.x, lastHit.y, lastHit.z);
   obj.rotation.y = objRot;
@@ -1356,7 +1357,7 @@ function addClickHelper(root) {
 function placeObject(wx, wy, wz) {
   if (!selectedObj) return;
   const tmpl = objLib[selectedObj]; if (!tmpl) return;
-  const mesh = tmpl.clone();
+  const mesh = SkeletonUtils.clone(tmpl);
   mesh.scale.setScalar(objScale);
   mesh.position.set(wx, wy, wz);
   mesh.rotation.y = objRot;
@@ -1410,7 +1411,7 @@ function objUndo() {
     if (idx >= 0) { scene.remove(objects[idx].mesh); objects.splice(idx, 1); }
   } else if (a.type === "remove") {
     const tmpl = objLib[a.data.type]; if (!tmpl) return;
-    const mesh = tmpl.clone(); mesh.scale.setScalar(a.data.scale); mesh.position.set(a.data.x, a.data.y, a.data.z); mesh.rotation.y = a.data.rot;
+    const mesh = SkeletonUtils.clone(tmpl); mesh.scale.setScalar(a.data.scale); mesh.position.set(a.data.x, a.data.y, a.data.z); mesh.rotation.y = a.data.rot;
     scene.add(mesh); objects.push({ ...a.data, mesh });
   } else if (a.type === "move") {
     const obj = objects.find(o => o.id === a.id);

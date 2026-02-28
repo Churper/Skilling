@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
 import {
   WATER_Y, GRASS_Y,
   CHUNK_SIZE, chunkBounds,
@@ -609,7 +610,7 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         if (svcB) { svcB.builder(scene, wx, wz, nodes); continue; }
         const tmpl = templates[entry.type];
         if (!tmpl) continue;
-        const m = tmpl.clone();
+        const m = SkeletonUtils.clone(tmpl);
         m.scale.setScalar(entry.scale || 1);
         let y = GRASS_Y;
         if (heightOffsets) {
@@ -833,7 +834,7 @@ async function loadMapObjects(scene, nodes) {
       if (svcB) { svcB.builder(scene, entry.x, entry.z, nodes); continue; }
       const tmpl = templates[entry.type];
       if (!tmpl) continue;
-      const m = tmpl.clone();
+      const m = SkeletonUtils.clone(tmpl);
       m.scale.setScalar(entry.scale || 1);
       let y = GRASS_Y;
       if (ho) {

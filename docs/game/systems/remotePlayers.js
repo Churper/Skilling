@@ -40,6 +40,7 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
 
     if (Number.isFinite(state.x) && Number.isFinite(state.z)) {
       const y = getGroundY(state.x, state.z);
+      entry.targetGroundY = y;
       entry.targetPos.set(state.x, y + entry.footOffset, state.z);
       if (!entry.initialized) {
         entry.avatar.player.position.copy(entry.targetPos);
@@ -92,7 +93,8 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
       delta = Math.atan2(Math.sin(delta), Math.cos(delta));
       entry.avatar.player.rotation.y += delta * Math.min(1, dt * 10);
 
-      const groundY = getGroundY(entry.avatar.player.position.x, entry.avatar.player.position.z);
+      /* use cached groundY from applyState instead of raycasting every frame */
+      const groundY = entry.targetGroundY != null ? entry.targetGroundY : 0;
       entry.avatar.player.position.y = groundY + entry.footOffset;
       if (entry.avatar.playerBlob) {
         entry.avatar.playerBlob.position.set(entry.avatar.player.position.x, groundY + 0.03, entry.avatar.player.position.z);
