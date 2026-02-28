@@ -1605,103 +1605,67 @@ function buildChunkPayload(cx, cz) {
 function exportJSON() {
   /* save current editor state first */
   saveCurrentChunkToStore();
-  /* export all chunks that have data */
   const allChunks = [...chunkDataStore.keys()];
-  if (allChunks.length <= 1) {
-    /* single chunk — export as tilemap.json for backwards compat + chunk file */
-    const [cx, cz] = currentChunk;
-    const payload = buildChunkPayload(cx, cz);
-    const json = JSON.stringify(payload, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = cx === 0 && cz === 0 ? "tilemap.json" : `chunk_${cx}_${cz}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    console.log(`Exported chunk ${cx},${cz}`);
-  } else {
-    /* multi-chunk — export each chunk + manifest as zip-like downloads */
-    for (const key of allChunks) {
-      const [cx, cz] = key.split(",").map(Number);
-      const payload = buildChunkPayload(cx, cz);
-      const json = JSON.stringify(payload, null, 2);
-      const blob = new Blob([json], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `chunk_${cx}_${cz}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-    /* also export manifest */
-    const manifest = { chunks: allChunks, spawn: "0,0" };
-    const mJson = JSON.stringify(manifest, null, 2);
-    const mBlob = new Blob([mJson], { type: "application/json" });
-    const mA = document.createElement("a");
-    mA.href = URL.createObjectURL(mBlob);
-    mA.download = "chunks.json";
-    mA.click();
-    URL.revokeObjectURL(mA.href);
-    console.log(`Exported ${allChunks.length} chunks + manifest`);
+  /* always export as single world.json — contains manifest + all chunk data */
+  const world = {
+    chunks: allChunks,
+    spawn: "0,0",
+    data: {},
+  };
+  for (const key of allChunks) {
+    const [cx, cz] = key.split(",").map(Number);
+    world.data[key] = buildChunkPayload(cx, cz);
   }
+  const json = JSON.stringify(world);
+  const blob = new Blob([json], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "world.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  console.log(`Exported ${allChunks.length} chunks as world.json`);
+}
+
+function importChunkData(cData, cx, cz) {
+  const cd = ensureChunkData(cx, cz);
+  cd.water = cData.water !== false;
+  cd.edges = cData.edges || {};
+  cd.baseType = cData.baseType || "grass";
+  cd.heightData = cData.heightOffsets || {};
+  cd.colorData = cData.colorOverrides || {};
+  cd.objects = (cData.objects || []).filter(o => !STRUCTURAL_TYPES.has(o.type));
 }
 
 function importJSON(json) {
   try {
     const data = JSON.parse(json);
-    /* detect chunk info */
+    /* world.json format: { chunks, spawn, data: { "cx,cz": chunkPayload } } */
+    if (data.data && data.chunks) {
+      chunkDataStore.clear();
+      for (const key of data.chunks) {
+        const [cx, cz] = key.split(",").map(Number);
+        if (data.data[key]) importChunkData(data.data[key], cx, cz);
+      }
+      const spawn = data.spawn || "0,0";
+      const [sx, sz] = spawn.split(",").map(Number);
+      currentChunk = [sx, sz];
+      document.getElementById("chunk-id").textContent = `${sx},${sz}`;
+      loadChunkFromStore(sx, sz);
+      rebuildGhosts();
+      updateMinimap();
+      console.log(`Imported world.json with ${data.chunks.length} chunks`);
+      return;
+    }
+    /* single chunk format (legacy) */
     if (data.chunk) {
       currentChunk = data.chunk;
       document.getElementById("chunk-id").textContent = `${data.chunk[0]},${data.chunk[1]}`;
     }
-    /* clear non-structural objects only (keep bridge/dock/fences from loadGameStructures) */
-    const keep = objects.filter(o => STRUCTURAL_TYPES.has(o.type));
-    const remove = objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
-    for (const obj of remove) scene.remove(obj.mesh);
-    objects.length = 0; objects.push(...keep); deselectInstance();
-    /* load objects — skip structural types since game builds those */
-    if (data.objects) {
-      for (const entry of data.objects) {
-        if (STRUCTURAL_TYPES.has(entry.type)) continue;
-        const tmpl = objLib[entry.type]; if (!tmpl) { console.warn("Unknown:", entry.type); continue; }
-        const mesh = tmpl.clone();
-        mesh.scale.setScalar(entry.scale || 1);
-        mesh.position.set(entry.x, entry.y || 0, entry.z);
-        mesh.rotation.y = entry.rot || 0;
-        scene.add(mesh);
-        objects.push({ id: nextObjId++, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
-      }
-    }
-    /* load height offsets */
-    if (data.heightOffsets) {
-      heightOffsets.fill(0);
-      for (const [key, val] of Object.entries(data.heightOffsets)) {
-        const [wx, wz] = key.split(",").map(Number);
-        const [ix, iz] = worldToHGrid(wx, wz);
-        if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) heightOffsets[hvi(ix, iz)] = val;
-      }
-    }
-    /* load color overrides */
-    for (const k in colorOverrides) delete colorOverrides[k];
-    if (data.colorOverrides) Object.assign(colorOverrides, data.colorOverrides);
-    /* load chunk options */
-    document.getElementById("chunk-water").checked = data.water !== false;
-    if (data.edges) {
-      document.getElementById("edge-n").classList.toggle("on", !!data.edges.north);
-      document.getElementById("edge-s").classList.toggle("on", !!data.edges.south);
-      document.getElementById("edge-e").classList.toggle("on", !!data.edges.east);
-      document.getElementById("edge-w").classList.toggle("on", !!data.edges.west);
-    }
-    /* store imported data into chunk store */
-    const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
-    cd.water = data.water !== false;
-    cd.edges = data.edges || {};
-    cd.baseType = data.baseType || "grass";
-    if (data.heightOffsets) cd.heightData = data.heightOffsets;
-    if (data.colorOverrides) cd.colorData = data.colorOverrides;
-    if (data.objects) cd.objects = data.objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
-    rebuildAllVerts();
-    updateCount();
-    console.log(`Imported ${objects.length} objects for chunk ${currentChunk[0]},${currentChunk[1]}`);
+    importChunkData(data, currentChunk[0], currentChunk[1]);
+    loadChunkFromStore(currentChunk[0], currentChunk[1]);
+    rebuildGhosts();
+    updateMinimap();
+    console.log(`Imported chunk ${currentChunk[0]},${currentChunk[1]}`);
   } catch (e) { alert("Invalid JSON: " + e.message); }
 }
 
@@ -1772,36 +1736,41 @@ function animate(t) {
    Load existing map
    ═══════════════════════════════════════════ */
 async function loadExistingMap() {
-  /* try chunk system first */
+  /* try world.json first (single-file format) */
+  try {
+    const wResp = await fetch(`world.json?v=${Date.now()}`, { cache: "no-store" });
+    if (wResp.ok) {
+      const text = await wResp.text();
+      importJSON(text);
+      console.log("Auto-loaded world.json");
+      return;
+    }
+  } catch (e) { /* try next */ }
+
+  /* try chunks.json manifest + individual chunk files */
   try {
     const mResp = await fetch(`chunks.json?v=${Date.now()}`, { cache: "no-store" });
     if (mResp.ok) {
       const manifest = await mResp.json();
       if (manifest.chunks && manifest.chunks.length) {
-        /* load all chunks into store */
         for (const key of manifest.chunks) {
           const [cx, cz] = key.split(",").map(Number);
           try {
             const cResp = await fetch(`chunks/chunk_${cx}_${cz}.json?v=${Date.now()}`, { cache: "no-store" });
             if (cResp.ok) {
               const cData = await cResp.json();
-              const cd = ensureChunkData(cx, cz);
-              cd.heightData = cData.heightOffsets || {};
-              cd.colorData = cData.colorOverrides || {};
-              cd.objects = (cData.objects || []).filter(o => !STRUCTURAL_TYPES.has(o.type));
-              cd.water = cData.water !== false;
-              cd.edges = cData.edges || {};
-              cd.baseType = cData.baseType || "grass";
+              importChunkData(cData, cx, cz);
               console.log(`Loaded chunk ${cx},${cz} into store`);
             }
           } catch (e) { /* skip */ }
         }
-        /* load spawn chunk into editor */
         const spawn = manifest.spawn || "0,0";
         const [sx, sz] = spawn.split(",").map(Number);
         currentChunk = [sx, sz];
         document.getElementById("chunk-id").textContent = `${sx},${sz}`;
         loadChunkFromStore(sx, sz);
+        rebuildGhosts();
+        updateMinimap();
         console.log(`Loaded ${manifest.chunks.length} chunks from manifest`);
         return;
       }
