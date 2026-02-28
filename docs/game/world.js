@@ -616,6 +616,8 @@ export async function createWorld(scene) {
   ground.name = "ground";
   ground.add(buildTerrainMesh(waterUniforms, heightOffsets));
 
+  const hasEditorObjects = _tilemapData && _tilemapData.objects && _tilemapData.objects.length > 0;
+
   if (tileLib) {
     /* bridge */
     const bridge = buildBridge(tileLib);
@@ -630,8 +632,8 @@ export async function createWorld(scene) {
     /* fences */
     scene.add(buildFences(tileLib));
 
-    /* props (grass clumps, flowers, cattails, etc.) */
-    buildProps(tileLib, scene);
+    /* props — skip if editor tilemap has objects (editor is source of truth) */
+    if (!hasEditorObjects) buildProps(tileLib, scene);
   }
 
   scene.add(ground);
@@ -643,10 +645,11 @@ export async function createWorld(scene) {
   addWaterfall(scene, waterUniforms);
 
   /* ── character / prop models ── */
+  /* skip hard-coded placements if editor tilemap has objects */
   let models = null;
   try { models = await loadModels(); } catch (e) { console.warn("Model load failed:", e); }
 
-  if (models) {
+  if (models && !hasEditorObjects) {
     placeTrees(scene, models, nodes);
     placeRocks(scene, models, nodes);
     placeBushes(scene, models);

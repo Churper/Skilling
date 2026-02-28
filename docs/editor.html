@@ -649,6 +649,8 @@ let brushStrength = 0.30;
 let flattenY = GRASS_Y;
 let painting = false, paintSign = 1, lastPaintTime = 0;
 
+const STRUCTURAL_TYPES = new Set(["bridge","dock","fence","stepping_stones","bridge_piece","dock_piece","fence_piece"]);
+
 /* Undo (objects) */
 const objUndoStack = [];
 function pushObjUndo(a) { objUndoStack.push(a); if (objUndoStack.length > 100) objUndoStack.shift(); }
@@ -689,8 +691,24 @@ function paintAt(wx, wz, dt) {
 }
 
 function hSaveUndo() { hUndoSnap = new Float32Array(heightOffsets); }
-function hPushUndo() { if (hUndoSnap) { hUndoStack.push(hUndoSnap); if (hUndoStack.length > 50) hUndoStack.shift(); hUndoSnap = null; } }
-function hUndo() { if (!hUndoStack.length) return; heightOffsets.set(hUndoStack.pop()); rebuildAllVerts(); }
+function hPushUndo() { if (hUndoSnap) { hUndoStack.push(hUndoSnap); if (hUndoStack.length > 50) hUndoStack.shift(); hUndoSnap = null; } resnapObjects(); }
+function hUndo() { if (!hUndoStack.length) return; heightOffsets.set(hUndoStack.pop()); rebuildAllVerts(); resnapObjects(); }
+
+/* Re-snap all non-structural objects to current terrain surface after height edits */
+function resnapObjects() {
+  for (const obj of objects) {
+    if (STRUCTURAL_TYPES.has(obj.type)) continue;
+    /* raycast down from above to find new ground height */
+    const rc = new THREE.Raycaster(new THREE.Vector3(obj.x, 50, obj.z), new THREE.Vector3(0, -1, 0));
+    const hits = rc.intersectObject(groundMesh);
+    if (hits.length) {
+      const newY = hits[0].point.y;
+      obj.y = newY;
+      obj.mesh.position.y = newY;
+    }
+  }
+  if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
+}
 
 /* ═══════════════════════════════════════════
    Object placement
@@ -1068,7 +1086,6 @@ function exportJSON() {
   console.log(`Exported ${objData.length} objects + ${Object.keys(hData).length} height offsets`);
 }
 
-const STRUCTURAL_TYPES = new Set(["bridge","dock","fence","stepping_stones","bridge_piece","dock_piece","fence_piece"]);
 function importJSON(json) {
   try {
     const data = JSON.parse(json);
