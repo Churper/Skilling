@@ -1935,7 +1935,7 @@ function drawCompass() {
   /* get camera's forward projected onto XZ plane */
   camera.getWorldDirection(_cpDir);
   _cpDir.y = 0; _cpDir.normalize();
-  _cpRight.crossVectors(_cpDir, new THREE.Vector3(0, 1, 0)).normalize();
+  _cpRight.crossVectors(new THREE.Vector3(0, 1, 0), _cpDir).normalize();
 
   /* project world directions to screen-space compass
      North = +z, East = +x in world coords
