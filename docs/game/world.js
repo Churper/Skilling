@@ -810,8 +810,8 @@ async function loadMapObjects(scene, nodes) {
     const objs = data.objects;
     if (!objs || !objs.length) return;
 
-    /* Filter out structural types (game builds bridge/dock/fences already) */
-    const placeableObjs = objs.filter(o => !STRUCTURAL_TYPES.has(o.type));
+    /* Filter out structural types and animals (chunk system handles animals) */
+    const placeableObjs = objs.filter(o => !STRUCTURAL_TYPES.has(o.type) && !ANIMAL_TYPES.has(o.type));
     if (!placeableObjs.length) return;
 
     const loader = new GLTFLoader();
@@ -865,12 +865,6 @@ async function loadMapObjects(scene, nodes) {
         setRes(m, res.type, res.label);
         nodes.push(m);
         addBlob(scene, entry.x, entry.z, entry.scale || 1, .15);
-      }
-      /* tag animals as attackable NPCs — push model itself so any mesh is clickable */
-      if (ANIMAL_TYPES.has(entry.type)) {
-        setSvc(m, "animal", entry.type);
-        m.userData.animalType = entry.type;
-        nodes.push(m);
       }
       group.add(m);
     }
@@ -959,13 +953,40 @@ export async function createWorld(scene) {
   /* cave entrance — placed in the cliff region east side */
   const cave = addCaveEntrance(scene, -30, -10, nodes, obstacles);
 
-  /* editor-placed objects from tilemap.json */
+  /* editor-placed objects from tilemap.json (animals excluded — chunk system handles them) */
   await loadMapObjects(scene, nodes);
 
   /* ── chunk system: store refs and pre-load adjacent chunks ── */
   _chunkScene = scene;
   _chunkGround = ground;
   _chunkNodes = nodes;
+
+  /* spawn chunk 0,0 animals separately (loadMapObjects skips animals) */
+  const spawn00animals = (_tilemapData?.objects || []).filter(o => ANIMAL_TYPES.has(o.type));
+  if (spawn00animals.length) {
+    const loader00 = new GLTFLoader();
+    const load00 = url => new Promise((r, j) => loader00.load(url, g => r(g.scene), undefined, j));
+    const aTypes = [...new Set(spawn00animals.map(o => o.type))];
+    const aTmpls = {};
+    await Promise.all(aTypes.map(async t => {
+      const p = _fileLookup[t]; if (!p) return;
+      try { const s = await load00(p); stabilizeModelLook(s); aTmpls[t] = s; } catch {}
+    }));
+    const aGroup = new THREE.Group(); aGroup.name = "chunk_animals_0_0";
+    for (const entry of spawn00animals) {
+      const tmpl = aTmpls[entry.type]; if (!tmpl) continue;
+      const m = SkeletonUtils.clone(tmpl);
+      m.scale.setScalar(entry.scale || 1);
+      m.position.set(entry.x, GRASS_Y, entry.z);
+      m.rotation.y = entry.rot || 0;
+      setSvc(m, "animal", entry.type);
+      m.userData.animalType = entry.type;
+      nodes.push(m);
+      aGroup.add(m);
+    }
+    scene.add(aGroup);
+  }
+
   /* mark spawn chunk as loaded (terrain already built above) */
   _loadedChunks.set("0,0", { terrainGroup: ground.children[0], objGroup: null, data: _tilemapData, waterUniforms });
   /* load adjacent chunks from manifest */

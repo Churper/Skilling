@@ -707,10 +707,12 @@ function updateAnimals(dt) {
     const acx = Math.round(a.spawnPos.x / CHUNK_SIZE), acz = Math.round(a.spawnPos.z / CHUNK_SIZE);
     if (acx !== playerCX || acz !== playerCZ) {
       a.parentModel.visible = false;
+      a.parentModel.traverse(c => { c.visible = false; });
       a.hpBar.dataset.state = "hidden";
       continue;
     }
     a.parentModel.visible = true;
+    a.parentModel.traverse(c => { c.visible = true; });
     if (!a.alive) {
       /* death shrink animation */
       if (a._deathAnim) {
