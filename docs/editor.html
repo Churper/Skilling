@@ -500,6 +500,11 @@ const xMin = (GX_MIN - 1) * TILE_S, xMax = (GX_MAX + 1) * TILE_S;
 const zMin = (GZ_MIN - 1) * TILE_S, zMax = (GZ_MAX + 1) * TILE_S;
 const hnx = Math.ceil((xMax - xMin) / hStep) + 1;
 const hnz = Math.ceil((zMax - zMin) / hStep) + 1;
+/* padded mesh grid (1 extra vertex on each side) */
+const PAD_V = Math.round(MESH_PAD / hStep); // padding in vertices
+const mnx = hnx + PAD_V * 2;
+const mnz = hnz + PAD_V * 2;
+function mvi(ix, iz) { return (iz + PAD_V) * mnx + (ix + PAD_V); } // data-grid ix,iz → mesh vertex index
 let heightOffsets = new Float32Array(hnx * hnz);
 const hUndoStack = [];
 let activeBaseType = "grass";
@@ -683,8 +688,6 @@ function buildChunkMesh(cx, cz) {
   /* build mesh with MESH_PAD extension on each side to cover inter-chunk gaps */
   const mxMin = xMin - MESH_PAD, mxMax = xMax + MESH_PAD;
   const mzMin = zMin - MESH_PAD, mzMax = zMax + MESH_PAD;
-  const mnx = Math.ceil((mxMax - mxMin) / hStep) + 1;
-  const mnz = Math.ceil((mzMax - mzMin) / hStep) + 1;
   const hp = new Float32Array(mnx * mnz * 3);
   const hc = new Float32Array(mnx * mnz * 3);
   const idx = [];
@@ -811,28 +814,51 @@ function updateMeshRegion(cx, cz, radius) {
   const r = Math.ceil(radius / hStep) + 2;
   for (let iz = Math.max(0, cz - r); iz <= Math.min(hnz - 1, cz + r); iz++) {
     for (let ix = Math.max(0, cx - r); ix <= Math.min(hnx - 1, cx + r); ix++) {
-      const vi = hvi(ix, iz), i3 = vi * 3;
+      const mi = mvi(ix, iz), mi3 = mi * 3; // mesh vertex index
+      const di = hvi(ix, iz); // data grid index
       const x = xMin + ix * hStep, z = zMin + iz * hStep;
-      const y = getBaseY(x, z) + heightOffsets[vi];
-      hPos[i3 + 1] = y;
+      const y = getBaseY(x, z) + heightOffsets[di];
+      hPos[mi3 + 1] = y;
       const fc = vertColor(x, z, y);
-      hCol[i3] = fc.r; hCol[i3 + 1] = fc.g; hCol[i3 + 2] = fc.b;
+      hCol[mi3] = fc.r; hCol[mi3 + 1] = fc.g; hCol[mi3 + 2] = fc.b;
     }
   }
+  /* also update padded edge vertices that mirror the data edge */
+  updatePadEdges();
   groundGeo.attributes.position.needsUpdate = true;
   groundGeo.attributes.color.needsUpdate = true;
   groundGeo.computeVertexNormals();
 }
 
+/* copy edge data-grid values out to the pad vertices so they stay in sync */
+function updatePadEdges() {
+  for (let iz = -PAD_V; iz < hnz + PAD_V; iz++) {
+    for (let ix = -PAD_V; ix < hnx + PAD_V; ix++) {
+      if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) continue; // skip interior
+      const ci = Math.max(0, Math.min(hnx - 1, ix));
+      const cj = Math.max(0, Math.min(hnz - 1, iz));
+      const mi = (iz + PAD_V) * mnx + (ix + PAD_V), mi3 = mi * 3;
+      const di = hvi(ci, cj);
+      const x = xMin + ci * hStep, z = zMin + cj * hStep;
+      const y = getBaseY(x, z) + heightOffsets[di];
+      hPos[mi3 + 1] = y;
+      const fc = vertColor(x, z, y);
+      hCol[mi3] = fc.r; hCol[mi3 + 1] = fc.g; hCol[mi3 + 2] = fc.b;
+    }
+  }
+}
+
 function rebuildAllVerts() {
   for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
-    const vi = hvi(ix, iz), i3 = vi * 3;
+    const mi = mvi(ix, iz), mi3 = mi * 3;
+    const di = hvi(ix, iz);
     const x = xMin + ix * hStep, z = zMin + iz * hStep;
-    const y = getBaseY(x, z) + heightOffsets[vi];
-    hPos[i3 + 1] = y;
+    const y = getBaseY(x, z) + heightOffsets[di];
+    hPos[mi3 + 1] = y;
     const fc = vertColor(x, z, y);
-    hCol[i3] = fc.r; hCol[i3 + 1] = fc.g; hCol[i3 + 2] = fc.b;
+    hCol[mi3] = fc.r; hCol[mi3 + 1] = fc.g; hCol[mi3 + 2] = fc.b;
   }
+  updatePadEdges();
   groundGeo.attributes.position.needsUpdate = true;
   groundGeo.attributes.color.needsUpdate = true;
   groundGeo.computeVertexNormals();
