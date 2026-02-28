@@ -2412,8 +2412,8 @@ function animate(now) {
   }
   /* Crouch squish — lerp toward target, snap when close */
   const crouchTarget = _isCrouching ? 1 : 0;
-  _crouchT += (crouchTarget - _crouchT) * Math.min(1, dt * CROUCH_SPEED);
-  if (Math.abs(_crouchT - crouchTarget) < 0.005) _crouchT = crouchTarget;
+  if (_crouchT < crouchTarget) _crouchT = Math.min(crouchTarget, _crouchT + dt * CROUCH_SPEED);
+  else if (_crouchT > crouchTarget) _crouchT = Math.max(crouchTarget, _crouchT - dt * CROUCH_SPEED);
 
   /* Jump stretch — tall & narrow (opposite of crouch) */
   let jumpStretch = 0;
