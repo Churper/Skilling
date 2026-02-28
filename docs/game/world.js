@@ -587,12 +587,15 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         catch (e) { /* skip */ }
       }));
       for (const entry of placeableObjs) {
+        /* object positions are in local chunk coords — offset to world */
+        const wx = entry.x + chunkOffX, wz = entry.z + chunkOffZ;
+        /* service buildings — built procedurally, not from GLTF */
+        const svc = SERVICE_MAP[entry.type];
+        if (svc) { svc.builder(scene, wx, wz, nodes); continue; }
         const tmpl = templates[entry.type];
         if (!tmpl) continue;
         const m = tmpl.clone();
         m.scale.setScalar(entry.scale || 1);
-        /* object positions are in local chunk coords — offset to world */
-        const wx = entry.x + chunkOffX, wz = entry.z + chunkOffZ;
         let y = GRASS_Y;
         if (heightOffsets) {
           const fx = Math.floor(entry.x), fz = Math.floor(entry.z);
@@ -659,7 +662,6 @@ function updateChunks(px, pz) {
   }
   /* unload chunks more than 2 away */
   for (const [key] of _loadedChunks) {
-    if (key === "0,0") continue; // never unload spawn
     const [cx, cz] = key.split(",").map(Number);
     if (Math.abs(cx - ccx) > 2 || Math.abs(cz - ccz) > 2) {
       unloadChunk(cx, cz, _chunkScene, _chunkGround, _chunkNodes);
@@ -746,6 +748,16 @@ for (const t of [
   "Prop_Cliff_Rock_1","Prop_Cliff_Rock_2",
 ]) RESOURCE_MAP[t] = { type: "mining", label: "Rock" };
 
+/* Service type lookup — maps editor object types to procedural building builders */
+const SERVICE_MAP = {
+  "Svc_Bank":        { builder: (s, x, z, n) => addBank(s, x, z, n),        service: "bank" },
+  "Svc_Store":       { builder: (s, x, z, n) => addStore(s, x, z, n),       service: "store" },
+  "Svc_Blacksmith":  { builder: (s, x, z, n) => addSmith(s, x, z, n),       service: "blacksmith" },
+  "Svc_Dummy":       { builder: (s, x, z, n) => addDummy(s, x, z, n),       service: "dummy" },
+  "Svc_Construction":{ builder: (s, x, z, n) => addYard(s, x, z, n),        service: "construction" },
+  "Svc_Cave":        { builder: (s, x, z, n) => addCaveEntrance(s, x, z, n, []), service: "cave" },
+};
+
 async function loadMapObjects(scene, nodes) {
   try {
     const data = _tilemapData;
@@ -772,6 +784,9 @@ async function loadMapObjects(scene, nodes) {
     const group = new THREE.Group();
     group.name = "map_objects";
     for (const entry of placeableObjs) {
+      /* service buildings — built procedurally */
+      const svc = SERVICE_MAP[entry.type];
+      if (svc) { svc.builder(scene, entry.x, entry.z, nodes); continue; }
       const tmpl = templates[entry.type];
       if (!tmpl) continue;
       const m = tmpl.clone();

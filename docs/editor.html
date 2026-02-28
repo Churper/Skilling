@@ -362,6 +362,14 @@ const OBJ_CATEGORIES = [
     { id: "Prop_Docks_Corner", file: "Prop_Docks_Corner.glb", scale: 1.0 },
     { id: "Prop_Docks_Corner_Supports", file: "Prop_Docks_Corner_Supports.glb", scale: 1.0 },
   ]},
+  { name: "Services", items: [
+    { id: "Svc_Bank", placeholder: true, color: "#d4a63c", label: "Bank" },
+    { id: "Svc_Store", placeholder: true, color: "#e8944a", label: "Store" },
+    { id: "Svc_Blacksmith", placeholder: true, color: "#6e7880", label: "Smith" },
+    { id: "Svc_Dummy", placeholder: true, color: "#a07040", label: "Dummy" },
+    { id: "Svc_Construction", placeholder: true, color: "#b7aea0", label: "House" },
+    { id: "Svc_Cave", placeholder: true, color: "#5a5550", label: "Cave" },
+  ]},
 ];
 
 /* ═══════════════════════════════════════════
@@ -962,13 +970,39 @@ const gltfLoader = new GLTFLoader();
 const objLib = {};
 const allObjItems = OBJ_CATEGORIES.flatMap(c => c.items.map(it => ({ ...it, dir: c.dir || MODEL_DIR })));
 
+/* create placeholder box meshes for service buildings */
+for (const cat of OBJ_CATEGORIES) {
+  for (const item of cat.items) {
+    if (!item.placeholder) continue;
+    const g = new THREE.Group();
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(1.8, 1.8, 1.8),
+      new THREE.MeshToonMaterial({ color: item.color || "#888", gradientMap: TOON_GRAD })
+    );
+    box.position.y = 0.9;
+    g.add(box);
+    /* floating label */
+    const canvas = document.createElement("canvas"); canvas.width = 128; canvas.height = 48;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, 0, 128, 48);
+    ctx.font = "bold 22px sans-serif"; ctx.fillStyle = "#fff"; ctx.textAlign = "center";
+    ctx.fillText(item.label || item.id, 64, 32);
+    const tex = new THREE.CanvasTexture(canvas);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+    sprite.scale.set(2.2, 0.8, 1); sprite.position.y = 2.4;
+    g.add(sprite);
+    objLib[item.id] = g;
+  }
+}
+
 async function loadAllModels() {
   const status = document.getElementById("count");
-  const total = allObjItems.length;
+  const gltfItems = allObjItems.filter(it => !it.placeholder && it.file);
+  const total = gltfItems.length;
   let loaded = 0;
   status.textContent = `Loading 0/${total}...`;
   const loadOne = url => new Promise(res => { gltfLoader.load(url, gltf => res(gltf.scene), undefined, () => res(null)); });
-  await Promise.all(allObjItems.map(async item => {
+  await Promise.all(gltfItems.map(async item => {
     const s = await loadOne(item.dir + item.file);
     if (s) objLib[item.id] = s;
     status.textContent = `Loading ${++loaded}/${total}...`;
@@ -1676,17 +1710,25 @@ function buildPalette() {
       d.className = "obj-btn" + (item.id === selectedObj ? " active" : "");
       d.dataset.obj = item.id;
       /* thumbnail */
-      const img = document.createElement("img");
-      img.className = "obj-thumb";
-      img.alt = item.id;
-      img.width = 36; img.height = 36;
-      const url = renderThumb(item.id);
-      if (url) img.src = url;
-      else img.style.background = "#1e1e32";
-      d.appendChild(img);
+      if (item.placeholder) {
+        const swatch = document.createElement("div");
+        swatch.className = "obj-thumb";
+        swatch.style.background = item.color || "#888";
+        swatch.style.borderRadius = "4px";
+        d.appendChild(swatch);
+      } else {
+        const img = document.createElement("img");
+        img.className = "obj-thumb";
+        img.alt = item.id;
+        img.width = 36; img.height = 36;
+        const url = renderThumb(item.id);
+        if (url) img.src = url;
+        else img.style.background = "#1e1e32";
+        d.appendChild(img);
+      }
       /* label */
       const span = document.createElement("span");
-      span.textContent = item.id.replace(/_/g, " ");
+      span.textContent = item.label || item.id.replace(/_/g, " ");
       d.appendChild(span);
       d.addEventListener("click", () => {
         if (selectedObj === item.id) { selectedObj = null; }
@@ -1935,7 +1977,7 @@ function drawCompass() {
   /* get camera's forward projected onto XZ plane */
   camera.getWorldDirection(_cpDir);
   _cpDir.y = 0; _cpDir.normalize();
-  _cpRight.crossVectors(new THREE.Vector3(0, 1, 0), _cpDir).normalize();
+  _cpRight.crossVectors(_cpDir, new THREE.Vector3(0, 1, 0)).normalize();
 
   /* project world directions to screen-space compass
      North = +z, East = +x in world coords
