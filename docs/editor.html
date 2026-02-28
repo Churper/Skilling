@@ -691,6 +691,8 @@ function buildGhostMesh(cx, cz, cd) {
   return new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
 }
 
+let _lastNearCenter = null; // track which chunk center ghosts were built for
+
 function rebuildUnifiedMesh() {
   const [pcx, pcz] = currentChunk;
   /* determine which chunks are "near" (3x3 around current) — unified editable mesh */
@@ -724,8 +726,8 @@ function rebuildUnifiedMesh() {
     for (const [hk, hv] of Object.entries(cd.heightData)) {
       const [lx, lz] = hk.split(",").map(Number);
       const wx = lx + ox, wz = lz + oz;
-      const [ix, iz] = worldToHGrid(wx, wz);
-      if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) heightOffsets[hvi(ix, iz)] = hv;
+      const ix = Math.round((wx - xMin) / hStep), iz = Math.round((wz - zMin) / hStep);
+      if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) heightOffsets[iz * hnx + ix] = hv;
     }
     for (const [ck, cv] of Object.entries(cd.colorData)) {
       const [lx, lz] = ck.split(",").map(Number);
@@ -733,19 +735,42 @@ function rebuildUnifiedMesh() {
     }
   }
 
-  /* build geometry */
+  /* pre-build a per-vertex base color lookup (avoids worldToChunk + map hit per vertex) */
+  const chunkBaseColors = new Map();
+  for (const key of nearKeys) {
+    const cd = chunkDataStore.get(key);
+    chunkBaseColors.set(key, BASE_COLORS[(cd && cd.baseType) || "grass"] || cGrass);
+  }
+
+  /* build geometry — inline color computation to avoid per-vertex function calls */
   const hp = new Float32Array(hnx * hnz * 3);
   const hc = new Float32Array(hnx * hnz * 3);
   const numQuads = (hnx - 1) * (hnz - 1);
   const idx = new Uint32Array(numQuads * 6);
   let ii = 0;
   for (let iz = 0; iz < hnz; iz++) {
+    const wz = zMin + iz * hStep;
     for (let ix = 0; ix < hnx; ix++) {
+      const wx = xMin + ix * hStep;
       const vi = iz * hnx + ix, i3 = vi * 3;
       const y = GRASS_Y + heightOffsets[vi];
-      hp[i3] = xMin + ix * hStep; hp[i3+1] = y; hp[i3+2] = zMin + iz * hStep;
-      const fc = vertColor(hp[i3], hp[i3+2], y);
-      hc[i3] = fc.r; hc[i3+1] = fc.g; hc[i3+2] = fc.b;
+      hp[i3] = wx; hp[i3+1] = y; hp[i3+2] = wz;
+      /* inline vertColor */
+      const ovKey = `${wx},${wz}`;
+      const ov = colorOverrides[ovKey];
+      if (ov) { hc[i3] = ov[0]; hc[i3+1] = ov[1]; hc[i3+2] = ov[2]; }
+      else {
+        const ccx = Math.floor((wx - CL_XMIN) / CHUNK_SIZE);
+        const ccz = Math.floor((wz - CL_ZMIN) / CHUNK_SIZE);
+        const bc = chunkBaseColors.get(chunkKey(ccx, ccz)) || cGrass;
+        if (y > GRASS_Y + 3) { hc[i3] = cCliff.r; hc[i3+1] = cCliff.g; hc[i3+2] = cCliff.b; }
+        else if (y > GRASS_Y + 0.5) {
+          const t = sm(y, GRASS_Y + 0.5, GRASS_Y + 3) * 0.4;
+          hc[i3] = bc.r + (cCliff.r - bc.r) * t;
+          hc[i3+1] = bc.g + (cCliff.g - bc.g) * t;
+          hc[i3+2] = bc.b + (cCliff.b - bc.b) * t;
+        } else { hc[i3] = bc.r; hc[i3+1] = bc.g; hc[i3+2] = bc.b; }
+      }
       if (ix < hnx-1 && iz < hnz-1) {
         idx[ii++] = vi; idx[ii++] = vi+hnx; idx[ii++] = vi+1;
         idx[ii++] = vi+1; idx[ii++] = vi+hnx; idx[ii++] = vi+hnx+1;
@@ -763,30 +788,37 @@ function rebuildUnifiedMesh() {
   groundGeo = geo; hPos = hp; hCol = hc;
   scene.add(groundMesh);
 
-  /* rebuild ghost meshes for distant chunks */
-  for (const [, gm] of ghostMeshes) { scene.remove(gm); gm.geometry.dispose(); }
-  ghostMeshes.clear();
-  for (const [key, cd] of chunkDataStore) {
-    if (nearKeys.has(key)) continue; // already in unified mesh
-    const [cx, cz] = key.split(",").map(Number);
-    const gm = buildGhostMesh(cx, cz, cd);
-    scene.add(gm);
-    ghostMeshes.set(key, gm);
+  /* rebuild ghost meshes only when center chunk changes */
+  const centerKey = `${pcx},${pcz}`;
+  if (_lastNearCenter !== centerKey) {
+    _lastNearCenter = centerKey;
+    for (const [, gm] of ghostMeshes) { scene.remove(gm); gm.geometry.dispose(); }
+    ghostMeshes.clear();
+    for (const [key, cd] of chunkDataStore) {
+      if (nearKeys.has(key)) continue;
+      const [cx, cz] = key.split(",").map(Number);
+      const gm = buildGhostMesh(cx, cz, cd);
+      scene.add(gm);
+      ghostMeshes.set(key, gm);
+    }
+  } else {
+    /* just toggle visibility — hide near chunks' ghosts, show distant */
+    for (const [key, gm] of ghostMeshes) gm.visible = !nearKeys.has(key);
   }
 
-  /* rebuild per-chunk water planes */
-  for (const [, wm] of waterMeshes) { scene.remove(wm); wm.geometry.dispose(); }
-  waterMeshes.clear();
-  for (const [key, cd] of chunkDataStore) {
-    const [cx, cz] = key.split(",").map(Number);
-    const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
-    const wGeo = new THREE.PlaneGeometry(CL_XMAX - CL_XMIN + 2, CL_ZMAX - CL_ZMIN + 2, 1, 1);
-    wGeo.rotateX(-Math.PI / 2);
-    const wMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
-    wMesh.position.set((CL_XMIN + CL_XMAX) / 2 + ox, WATER_Y, (CL_ZMIN + CL_ZMAX) / 2 + oz);
-    wMesh.renderOrder = 2; wMesh.visible = cd.water !== false;
-    scene.add(wMesh);
-    waterMeshes.set(key, wMesh);
+  /* rebuild per-chunk water planes only once */
+  if (waterMeshes.size === 0) {
+    for (const [key, cd] of chunkDataStore) {
+      const [cx, cz] = key.split(",").map(Number);
+      const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
+      const wGeo = new THREE.PlaneGeometry(CL_XMAX - CL_XMIN + 2, CL_ZMAX - CL_ZMIN + 2, 1, 1);
+      wGeo.rotateX(-Math.PI / 2);
+      const wMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
+      wMesh.position.set((CL_XMIN + CL_XMAX) / 2 + ox, WATER_Y, (CL_ZMIN + CL_ZMAX) / 2 + oz);
+      wMesh.renderOrder = 2; wMesh.visible = cd.water !== false;
+      scene.add(wMesh);
+      waterMeshes.set(key, wMesh);
+    }
   }
 }
 
@@ -2038,9 +2070,8 @@ buildPalette(); /* rebuild with thumbnails now that models are loaded */
 await loadGameStructures();
 await loadGameObjects();
 await loadExistingMap();
-/* ensure spawn chunk mesh exists */
-if (!chunkDataStore.has("0,0")) ensureChunkData(0, 0);
-rebuildUnifiedMesh();
+/* ensure spawn chunk mesh exists (loadExistingMap already calls rebuildUnifiedMesh) */
+if (!chunkDataStore.has("0,0")) { ensureChunkData(0, 0); rebuildUnifiedMesh(); }
 moveChunkHighlight(0, 0);
 updateMinimap();
 animate();
