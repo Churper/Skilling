@@ -40,7 +40,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -622,6 +622,40 @@ export function initializeUI(options = {}) {
     if (volumeMuteBtn) volumeMuteBtn.textContent = v === 0 ? "\u{1F507}" : "\u{1F50A}";
   }
 
+  /* ── Music slider ── */
+  const musicSlider = document.getElementById("setting-music");
+  const musicMuteBtn = document.getElementById("setting-music-mute");
+  let _musicMuted = false, _premuteMusicVol = 0.35;
+  if (musicSlider) {
+    musicSlider.addEventListener("input", () => {
+      const v = parseInt(musicSlider.value) / 100;
+      _musicMuted = false;
+      if (musicMuteBtn) musicMuteBtn.textContent = v === 0 ? "\u{1F507}" : "\u{1F3B5}";
+      if (typeof onMusicChange === "function") onMusicChange(v);
+    });
+  }
+  if (musicMuteBtn) {
+    musicMuteBtn.addEventListener("click", () => {
+      if (_musicMuted) {
+        _musicMuted = false;
+        if (musicSlider) musicSlider.value = String(Math.round(_premuteMusicVol * 100));
+        musicMuteBtn.textContent = "\u{1F3B5}";
+        if (typeof onMusicChange === "function") onMusicChange(_premuteMusicVol);
+      } else {
+        _musicMuted = true;
+        _premuteMusicVol = musicSlider ? parseInt(musicSlider.value) / 100 : 0.35;
+        if (musicSlider) musicSlider.value = "0";
+        musicMuteBtn.textContent = "\u{1F507}";
+        if (typeof onMusicChange === "function") onMusicChange(0);
+      }
+    });
+  }
+
+  function setMusicSlider(v) {
+    if (musicSlider) musicSlider.value = String(Math.round(v * 100));
+    if (musicMuteBtn) musicMuteBtn.textContent = v === 0 ? "\u{1F507}" : "\u{1F3B5}";
+  }
+
   return {
     setActiveTool,
     setActive,
@@ -641,5 +675,6 @@ export function initializeUI(options = {}) {
     setPrayerActive,
     setHp,
     setVolumeSlider,
+    setMusicSlider,
   };
 }

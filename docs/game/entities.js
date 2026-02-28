@@ -365,11 +365,23 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
       applyVertexColorPattern(slimeGeo, hexOrPattern);
       slimeMaterial.vertexColors = true;
       slimeMaterial.color.set("#ffffff");
+      if (hexOrPattern === "stained") {
+        slimeMaterial.opacity = 0.48;
+        slimeMaterial.shininess = 80;
+        slimeMaterial.specular.set("#ffffff");
+      } else {
+        slimeMaterial.opacity = 0.68;
+        slimeMaterial.shininess = 38;
+        slimeMaterial.specular.set("#d8ffe4");
+      }
       slimeMaterial.needsUpdate = true;
     } else {
       clearVertexColors(slimeGeo);
       slimeMaterial.vertexColors = false;
       slimeMaterial.color.set(hexOrPattern || "#58df78");
+      slimeMaterial.opacity = 0.68;
+      slimeMaterial.shininess = 38;
+      slimeMaterial.specular.set("#d8ffe4");
       slimeMaterial.needsUpdate = true;
     }
   }
@@ -533,11 +545,23 @@ export function createRemotePlayerAvatar(scene, addShadowBlob, options = {}) {
       applyVertexColorPattern(slimeGeo, hexOrPattern);
       slimeMaterial.vertexColors = true;
       slimeMaterial.color.set("#ffffff");
+      if (hexOrPattern === "stained") {
+        slimeMaterial.opacity = 0.48;
+        slimeMaterial.shininess = 80;
+        slimeMaterial.specular.set("#ffffff");
+      } else {
+        slimeMaterial.opacity = 0.68;
+        slimeMaterial.shininess = 34;
+        slimeMaterial.specular.set("#d8ffe4");
+      }
       slimeMaterial.needsUpdate = true;
     } else {
       clearVertexColors(slimeGeo);
       slimeMaterial.vertexColors = false;
       slimeMaterial.color.set(hexOrPattern || "#6ed998");
+      slimeMaterial.opacity = 0.68;
+      slimeMaterial.shininess = 34;
+      slimeMaterial.specular.set("#d8ffe4");
       slimeMaterial.needsUpdate = true;
     }
   }

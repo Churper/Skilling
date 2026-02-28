@@ -1325,9 +1325,11 @@ body {
   #ui-dock {
     max-width: calc(100vw - 24px);
     overflow-x: auto;
+    scrollbar-width: none;
     padding-top: 10px;
     gap: 6px;
   }
+  #ui-dock::-webkit-scrollbar { display: none; }
 
   .ui-tab-btn {
     width: 44px;

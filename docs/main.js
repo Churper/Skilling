@@ -157,10 +157,29 @@ const _masterGain = _audioCtx.createGain();
 _masterGain.gain.value = _masterVolume;
 _masterGain.connect(_audioCtx.destination);
 
+/* Separate gain for music so SFX and music can be independently balanced */
+const _musicGain = _audioCtx.createGain();
+_musicGain.gain.value = 0.35; // music softer than SFX
+_musicGain.connect(_masterGain);
+let _bgmElement = null;
+let _bgmSource = null;
+let _musicMuted = false;
+
 function setVolume(v) {
   _masterVolume = Math.max(0, Math.min(1, v));
   _masterGain.gain.value = _masterVolume;
 }
+
+function initBGM() {
+  if (_bgmElement) return;
+  _bgmElement = new Audio("./sounds/churpa1_3.mp3");
+  _bgmElement.loop = true;
+  _bgmElement.volume = 1; // volume controlled via gain node
+  _bgmSource = _audioCtx.createMediaElementSource(_bgmElement);
+  _bgmSource.connect(_musicGain);
+  _bgmElement.play().catch(() => {}); // may fail until user gesture
+}
+
 
 /* ── Save / Load system ── */
 const SAVE_KEY = "skilling_save";
@@ -182,6 +201,7 @@ function saveGame() {
       px: player.position.x,
       pz: player.position.z,
       volume: _masterVolume,
+      musicVolume: _musicGain.gain.value,
       v: 1,
     };
     for (const [k, s] of Object.entries(skills)) data.skills[k] = { xp: s.xp, level: s.level };
@@ -207,6 +227,7 @@ function loadGame() {
     if (d.constructionStock) constructionProgress.deposit(d.constructionStock);
     if (d.px != null) { player.position.x = d.px; player.position.z = d.pz; }
     if (d.volume != null) { setVolume(d.volume); }
+    if (d.musicVolume != null) { _musicGain.gain.value = d.musicVolume; _musicMuted = d.musicVolume === 0; }
   } catch (e) { console.warn("Load save failed:", e); }
 }
 
@@ -281,6 +302,11 @@ const ui = initializeUI({
   },
   onVolumeChange: (v) => {
     setVolume(v);
+    saveGame();
+  },
+  onMusicChange: (v) => {
+    _musicGain.gain.value = v;
+    _musicMuted = v === 0;
     saveGame();
   },
 });
@@ -527,6 +553,17 @@ syncHouseBuildVisual();
 syncSkillsUI();
 ui?.setHp(playerHp, playerMaxHp);
 ui?.setVolumeSlider?.(_masterVolume);
+ui?.setMusicSlider?.(_musicGain.gain.value);
+
+/* Start BGM on first user gesture (browsers block autoplay) */
+function _startBGMOnce() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  initBGM();
+  window.removeEventListener("pointerdown", _startBGMOnce);
+  window.removeEventListener("keydown", _startBGMOnce);
+}
+window.addEventListener("pointerdown", _startBGMOnce);
+window.addEventListener("keydown", _startBGMOnce);
 
 const moveTarget = new THREE.Vector3();
 const resourceTargetPos = new THREE.Vector3();
@@ -1525,6 +1562,7 @@ const GRAVITY = -18.0;
 let _isCrouching = false;
 let _crouchT = 0; // 0 = standing, 1 = fully crouched
 const CROUCH_SPEED = 8.0;
+let _crouchHoldTimer = 0; // debounce: prevent flicker from Ctrl key quirks
 
 function runServiceAction(node) {
   const serviceType = node.userData.serviceType;
@@ -2260,8 +2298,15 @@ function animate(now) {
     _jumpVelocity = JUMP_FORCE;
   }
 
-  /* Crouch */
-  _isCrouching = input.keys.has("control") && !_isJumping;
+  /* Crouch (debounced — Ctrl key can flicker on Windows) */
+  const wantCrouch = input.keys.has("control") && !_isJumping;
+  if (wantCrouch) {
+    _isCrouching = true;
+    _crouchHoldTimer = 0;
+  } else {
+    _crouchHoldTimer += dt;
+    if (_crouchHoldTimer > 0.06) _isCrouching = false;
+  }
 
   const keyboardMove = moveDir.lengthSq() > 0.0001;
   if (keyboardMove) {
