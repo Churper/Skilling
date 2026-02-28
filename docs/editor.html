@@ -1292,20 +1292,30 @@ function pUndo() { if (!pUndoStack.length) return; const snap = pUndoStack.pop()
 const _snapRC = new THREE.Raycaster();
 const _snapOrigin = new THREE.Vector3();
 const _snapDir = new THREE.Vector3(0, -1, 0);
+let _resnapId = 0;
 function resnapObjects() {
   if (!groundMesh) return;
-  const mesh = [groundMesh]; // only resnap against active chunk
-  for (const obj of objects) {
-    if (STRUCTURAL_TYPES.has(obj.type)) continue;
-    _snapOrigin.set(obj.x, 50, obj.z);
-    _snapRC.set(_snapOrigin, _snapDir);
-    const hits = _snapRC.intersectObjects(mesh);
-    if (hits.length) {
-      obj.y = hits[0].point.y;
-      obj.mesh.position.y = obj.y;
+  const mesh = [groundMesh];
+  const id = ++_resnapId;
+  let i = 0;
+  function batch() {
+    if (id !== _resnapId) return; // newer resnap superseded this one
+    const end = Math.min(i + 80, objects.length);
+    for (; i < end; i++) {
+      const obj = objects[i];
+      if (STRUCTURAL_TYPES.has(obj.type)) continue;
+      _snapOrigin.set(obj.x, 50, obj.z);
+      _snapRC.set(_snapOrigin, _snapDir);
+      const hits = _snapRC.intersectObjects(mesh);
+      if (hits.length) {
+        obj.y = hits[0].point.y;
+        obj.mesh.position.y = obj.y;
+      }
     }
+    if (i < objects.length) requestAnimationFrame(batch);
+    else if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
   }
-  if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
+  batch();
 }
 
 /* ═══════════════════════════════════════════
