@@ -747,6 +747,7 @@ const SERVICE_TAG = {
 };
 /* Register Svc_Bank in file lookup so it loads the chest model */
 _fileLookup["Svc_Bank"] = "models/terrain/Prop_Treasure_Chest.glb";
+_fileLookup["Farm"] = "models/terrain/Farm.glb";
 
 async function loadMapObjects(scene, nodes) {
   try {
