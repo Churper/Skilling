@@ -1068,15 +1068,19 @@ function exportJSON() {
   console.log(`Exported ${objData.length} objects + ${Object.keys(hData).length} height offsets`);
 }
 
+const STRUCTURAL_TYPES = new Set(["bridge","dock","fence","stepping_stones","bridge_piece","dock_piece","fence_piece"]);
 function importJSON(json) {
   try {
     const data = JSON.parse(json);
-    /* clear objects */
-    for (const obj of objects) scene.remove(obj.mesh);
-    objects.length = 0; deselectInstance();
-    /* load objects */
+    /* clear non-structural objects only (keep bridge/dock/fences from loadGameStructures) */
+    const keep = objects.filter(o => STRUCTURAL_TYPES.has(o.type));
+    const remove = objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
+    for (const obj of remove) scene.remove(obj.mesh);
+    objects.length = 0; objects.push(...keep); deselectInstance();
+    /* load objects — skip structural types since game builds those */
     if (data.objects) {
       for (const entry of data.objects) {
+        if (STRUCTURAL_TYPES.has(entry.type)) continue;
         const tmpl = objLib[entry.type]; if (!tmpl) { console.warn("Unknown:", entry.type); continue; }
         const mesh = tmpl.clone();
         mesh.scale.setScalar(entry.scale || 1);
