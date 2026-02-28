@@ -500,22 +500,107 @@ async function loadAllModels() {
    Load and display ALL game structures (bridge, dock, fences, props)
    + trees, rocks, bushes, cliff rocks as ghost references
    ═══════════════════════════════════════════ */
+/* village keep-out (same as terrainLayout.js) */
+const SVC = [{ x: 0, z: -32, r: 14 }, { x: 18, z: -35, r: 10 }, { x: -22, z: -34, r: 8 }];
+function inVillage(x, z, pad) { for (const s of SVC) if (Math.hypot(x - s.x, z - s.z) <= s.r + (pad||0)) return true; return false; }
+function mulberry32(seed) { let s = seed|0; return () => { s=(s+0x6D2B79F5)|0; let t=Math.imul(s^(s>>>15),1|s); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
+
 async function loadGameStructures() {
-  /* load tile lib for bridge/dock/fences/props */
   let tileLib;
   try { tileLib = await loadTiles(); } catch (e) { console.warn("Tile load failed:", e); return; }
   if (!tileLib) return;
 
-  /* bridge */
-  scene.add(buildBridge(tileLib));
-  /* dock */
-  scene.add(buildDock(tileLib));
-  /* fences */
-  scene.add(buildFences(tileLib));
-  /* props (grass clumps, flowers, cattails, mushrooms, shells, etc.) */
-  buildProps(tileLib, scene);
+  /* Also make tileLib models available in objLib for future clone/export */
+  const TILE_OBJ_MAP = {
+    grassClump1:"Prop_Grass_Clump_1", grassClump2:"Prop_Grass_Clump_2", grassClump3:"Prop_Grass_Clump_3", grassClump4:"Prop_Grass_Clump_4",
+    flowerDaisy:"Prop_Flower_Daisy", flowerRose:"Prop_Flower_Rose", flowerSunflower:"Prop_Flower_Sunflower", flowerTulip:"Prop_Flower_Tulip",
+    cattail1:"Prop_Cattail_1", cattail2:"Prop_Cattail_2", mushroom1:"Prop_Mushroom_1", mushroom2:"Prop_Mushroom_2",
+    palmTree1:"Prop_Tree_Palm_1", palmTree2:"Prop_Tree_Palm_2",
+    shell1:"Prop_Shell_1", shell2:"Prop_Shell_2", starfish1:"Prop_Starfish_1", starfish2:"Prop_Starfish_2",
+    stump:"Prop_Stump", hollowTrunk:"Prop_Hollow_Trunk",
+  };
+  for (const [tk, ok] of Object.entries(TILE_OBJ_MAP)) {
+    if (tileLib[tk] && !objLib[ok]) objLib[ok] = tileLib[tk];
+  }
 
-  console.log("Loaded game structures: bridge, dock, fences, props");
+  /* ── Bridge / Dock / Fences — extract children as editable objects ── */
+  function groupToObjects(group, typeLabel) {
+    const children = [...group.children];
+    for (const mesh of children) {
+      group.remove(mesh);
+      scene.add(mesh);
+      mesh.updateMatrixWorld(true);
+      const pos = new THREE.Vector3(); mesh.getWorldPosition(pos);
+      const id = nextObjId++;
+      objects.push({ id, type: typeLabel, x: pos.x, z: pos.z, y: pos.y, scale: mesh.scale.x, rot: mesh.rotation.y, mesh });
+    }
+  }
+  groupToObjects(buildBridge(tileLib), "bridge_piece");
+  groupToObjects(buildDock(tileLib), "dock_piece");
+  groupToObjects(buildFences(tileLib), "fence_piece");
+
+  /* ── Props — replicate scatter using objLib keys for proper export ── */
+  const rng = mulberry32(42);
+  const rand = (lo, hi) => lo + rng() * (hi - lo);
+  const grassKeys = ["Prop_Grass_Clump_1","Prop_Grass_Clump_2","Prop_Grass_Clump_3","Prop_Grass_Clump_4"].filter(k => objLib[k]);
+  const flowerKeys = ["Prop_Flower_Daisy","Prop_Flower_Rose","Prop_Flower_Sunflower","Prop_Flower_Tulip"].filter(k => objLib[k]);
+  const cattailKeys = ["Prop_Cattail_1","Prop_Cattail_2"].filter(k => objLib[k]);
+  const mushKeys = ["Prop_Mushroom_1","Prop_Mushroom_2"].filter(k => objLib[k]);
+  const shellKeys = ["Prop_Shell_1","Prop_Shell_2","Prop_Starfish_1","Prop_Starfish_2"].filter(k => objLib[k]);
+  const palmKeys = ["Prop_Tree_Palm_1","Prop_Tree_Palm_2"].filter(k => objLib[k]);
+
+  function placeProp(type, x, z, s, r) {
+    const tmpl = objLib[type]; if (!tmpl) return;
+    const mesh = tmpl.clone();
+    const y = getMeshSurfaceY(x, z);
+    mesh.scale.setScalar(TILE_S * s);
+    mesh.position.set(x, y, z); mesh.rotation.y = r;
+    scene.add(mesh);
+    const id = nextObjId++;
+    objects.push({ id, type, x, z, y, scale: +(TILE_S * s).toFixed(2), rot: r, mesh });
+  }
+
+  if (grassKeys.length) for (let i = 0; i < 80; i++) {
+    const x = rand(-36,28), z = rand(-34,36);
+    const rq = riverQuery(x,z); if (rq.dist < rq.width+1.5) continue;
+    if (isBeach(x,z) || inVillage(x,z,3) || isOnPath(x,z)) continue;
+    placeProp(grassKeys[i % grassKeys.length], x, z, rand(0.7,1.1), rng()*Math.PI*2);
+  }
+  if (flowerKeys.length) for (let i = 0; i < 40; i++) {
+    const x = rand(-34,26), z = rand(-30,34);
+    const rq = riverQuery(x,z); if (rq.dist < rq.width+2) continue;
+    if (isBeach(x,z) || inVillage(x,z,4) || isOnPath(x,z)) continue;
+    placeProp(flowerKeys[i % flowerKeys.length], x, z, rand(0.6,1.0), rng()*Math.PI*2);
+  }
+  if (cattailKeys.length) for (let i = 0; i < 15; i++) {
+    const x = rand(-10,30), z = rand(-16,38);
+    const rq = riverQuery(x,z); if (rq.dist < rq.width || rq.dist > rq.width+3) continue;
+    placeProp(cattailKeys[i % cattailKeys.length], x, z, rand(0.8,1.2), rng()*Math.PI*2);
+  }
+  if (mushKeys.length) for (let i = 0; i < 10; i++) {
+    const x = rand(-32,34), z = rand(10,34);
+    const rq = riverQuery(x,z); if (rq.dist < rq.width+1) continue;
+    if (isOnPath(x,z)) continue;
+    placeProp(mushKeys[i % mushKeys.length], x, z, rand(0.6,1.0), rng()*Math.PI*2);
+  }
+  if (shellKeys.length) for (let i = 0; i < 8; i++) {
+    const x = rand(32,46), z = rand(-22,2);
+    if (isInRiver(x,z)) continue;
+    placeProp(shellKeys[i % shellKeys.length], x, z, rand(0.5,0.9), rng()*Math.PI*2);
+  }
+  if (palmKeys.length) for (let i = 0; i < 4; i++) {
+    const x = rand(34,44), z = rand(-20,0);
+    if (isInRiver(x,z)) continue;
+    placeProp(palmKeys[i % palmKeys.length], x, z, rand(0.8,1.2), rng()*Math.PI*2);
+  }
+  const stumpSpots = [[22,20],[26,26],[-24,20],[-18,24],[30,24]];
+  if (objLib["Prop_Stump"]) for (const [sx,sz] of stumpSpots) {
+    placeProp("Prop_Stump", sx+rand(-2,2), sz+rand(-2,2), rand(0.7,1.0), rng()*Math.PI*2);
+  }
+  if (objLib["Prop_Hollow_Trunk"]) placeProp("Prop_Hollow_Trunk", -28, 18, 0.9, rand(0,Math.PI*2));
+
+  updateCount();
+  console.log(`Loaded structures + props as ${objects.length} editable objects`);
 }
 
 async function loadGameObjects() {
