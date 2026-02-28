@@ -505,6 +505,7 @@ netClient = createRealtimeClient({
     removeNameTag(id);
     removeOverheadIcon(id);
     removeRemoteCampfire(id);
+    _peerWasJumping.delete(id);
     syncFriendsUI();
   },
   onPeerState: (msg) => {
@@ -528,6 +529,19 @@ netClient = createRealtimeClient({
     if (msg.id && msg.state) {
       setRemoteOverhead(msg.id, msg.state.overhead || null);
       syncRemoteCampfire(msg.id, msg.state.campfireX, msg.state.campfireZ);
+      /* directional jump land plop */
+      const wasJumping = _peerWasJumping.get(msg.id) || false;
+      const nowJumping = !!msg.state.jumping;
+      _peerWasJumping.set(msg.id, nowJumping);
+      if (wasJumping && !nowJumping && msg.state.x != null) {
+        const dx = msg.state.x - player.position.x;
+        const dz = msg.state.z - player.position.z;
+        const dist = Math.sqrt(dx * dx + dz * dz);
+        if (dist < 30) {
+          const vol = Math.max(0.05, 1 - dist / 30);
+          playJumpLandSound(vol);
+        }
+      }
     }
   },
   onPeerEmote: (msg) => {
@@ -1462,6 +1476,7 @@ function purchaseToolUpgrade(tool) {
 let activeCampfire = null; // { group, timer, node }
 let activeCook = null; // { elapsed, duration }
 const remoteCampfires = new Map(); // peerId -> { group, light }
+const _peerWasJumping = new Map(); // peerId -> bool (for jump land sound)
 
 function syncRemoteCampfire(peerId, cfX, cfZ) {
   const existing = remoteCampfires.get(peerId);
@@ -1692,6 +1707,142 @@ function playBowSound() {
   gain.connect(_masterGain);
   osc.start();
   osc.stop(_audioCtx.currentTime + 0.12);
+}
+
+/* ── Gathering sounds ── */
+function playChopSound() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  const p = 0.9 + Math.random() * 0.2;
+  /* sharp transient thwack */
+  const bufLen = _audioCtx.sampleRate * 0.06;
+  const buf = _audioCtx.createBuffer(1, bufLen, _audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) {
+    const env = Math.exp(-i / (bufLen * 0.15));
+    d[i] = (Math.random() * 2 - 1) * env * 0.6;
+  }
+  const src = _audioCtx.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = p;
+  const filt = _audioCtx.createBiquadFilter();
+  filt.type = "bandpass"; filt.frequency.value = 1800 * p; filt.Q.value = 1.5;
+  const g = _audioCtx.createGain();
+  g.gain.setValueAtTime(0.4, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  src.connect(filt); filt.connect(g); g.connect(_masterGain);
+  src.start(); src.stop(t + 0.1);
+  /* woody thud undertone */
+  const osc = _audioCtx.createOscillator();
+  osc.type = "sine"; osc.frequency.setValueAtTime(180 * p, t);
+  osc.frequency.exponentialRampToValueAtTime(80 * p, t + 0.05);
+  const g2 = _audioCtx.createGain();
+  g2.gain.setValueAtTime(0.25, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+  osc.connect(g2); g2.connect(_masterGain);
+  osc.start(); osc.stop(t + 0.08);
+}
+
+function playMineSound() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  const p = 0.85 + Math.random() * 0.3;
+  /* metallic clink */
+  const osc = _audioCtx.createOscillator();
+  osc.type = "square";
+  osc.frequency.setValueAtTime(2200 * p, t);
+  osc.frequency.exponentialRampToValueAtTime(600 * p, t + 0.04);
+  const g = _audioCtx.createGain();
+  g.gain.setValueAtTime(0.18, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+  osc.connect(g); g.connect(_masterGain);
+  osc.start(); osc.stop(t + 0.12);
+  /* rocky crunch */
+  const bufLen = _audioCtx.sampleRate * 0.08;
+  const buf = _audioCtx.createBuffer(1, bufLen, _audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) {
+    const env = Math.exp(-i / (bufLen * 0.2));
+    d[i] = (Math.random() * 2 - 1) * env * 0.35;
+  }
+  const src = _audioCtx.createBufferSource();
+  src.buffer = buf; src.playbackRate.value = p * 0.7;
+  const filt = _audioCtx.createBiquadFilter();
+  filt.type = "highpass"; filt.frequency.value = 800;
+  const g2 = _audioCtx.createGain();
+  g2.gain.setValueAtTime(0.3, t + 0.01);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+  src.connect(filt); filt.connect(g2); g2.connect(_masterGain);
+  src.start(t + 0.01); src.stop(t + 0.12);
+}
+
+function playFishSound() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  const p = 0.9 + Math.random() * 0.2;
+  /* water splash — filtered noise burst */
+  const bufLen = _audioCtx.sampleRate * 0.12;
+  const buf = _audioCtx.createBuffer(1, bufLen, _audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) {
+    const env = Math.exp(-i / (bufLen * 0.3));
+    d[i] = (Math.random() * 2 - 1) * env * 0.5;
+  }
+  const src = _audioCtx.createBufferSource();
+  src.buffer = buf; src.playbackRate.value = p;
+  const filt = _audioCtx.createBiquadFilter();
+  filt.type = "bandpass"; filt.frequency.value = 600 * p; filt.Q.value = 0.8;
+  const g = _audioCtx.createGain();
+  g.gain.setValueAtTime(0.3, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+  src.connect(filt); filt.connect(g); g.connect(_masterGain);
+  src.start(); src.stop(t + 0.18);
+  /* soft plop tone */
+  const osc = _audioCtx.createOscillator();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(400 * p, t);
+  osc.frequency.exponentialRampToValueAtTime(150 * p, t + 0.08);
+  const g2 = _audioCtx.createGain();
+  g2.gain.setValueAtTime(0.12, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+  osc.connect(g2); g2.connect(_masterGain);
+  osc.start(); osc.stop(t + 0.12);
+}
+
+function playJumpLandSound(volumeScale = 1) {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  const p = 0.9 + Math.random() * 0.2;
+  /* squishy plop — descending sine + noise */
+  const osc = _audioCtx.createOscillator();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(320 * p, t);
+  osc.frequency.exponentialRampToValueAtTime(90 * p, t + 0.1);
+  const g = _audioCtx.createGain();
+  g.gain.setValueAtTime(0.22 * volumeScale, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+  osc.connect(g); g.connect(_masterGain);
+  osc.start(); osc.stop(t + 0.14);
+  /* soft thud */
+  const bufLen = _audioCtx.sampleRate * 0.06;
+  const buf = _audioCtx.createBuffer(1, bufLen, _audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufLen * 0.25)) * 0.3;
+  const src = _audioCtx.createBufferSource();
+  src.buffer = buf; src.playbackRate.value = p * 1.2;
+  const filt = _audioCtx.createBiquadFilter();
+  filt.type = "lowpass"; filt.frequency.value = 500;
+  const g2 = _audioCtx.createGain();
+  g2.gain.setValueAtTime(0.25 * volumeScale, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  src.connect(filt); filt.connect(g2); g2.connect(_masterGain);
+  src.start(); src.stop(t + 0.1);
+}
+
+function playGatherSound(resourceType) {
+  if (resourceType === "woodcutting") playChopSound();
+  else if (resourceType === "mining") playMineSound();
+  else if (resourceType === "fishing") playFishSound();
 }
 
 /* ── Level-up celebration jingle ── */
@@ -2438,6 +2589,7 @@ function animate(now) {
       activeGather.elapsed += dt;
       if (activeGather.elapsed >= activeGather.duration) {
         activeGather.elapsed = 0;
+        playGatherSound(activeGather.resourceType);
         tryGather(activeGather.node);
       }
     }
@@ -2493,6 +2645,7 @@ function animate(now) {
       player.position.y = standY;
       _isJumping = false;
       _jumpVelocity = 0;
+      playJumpLandSound();
     }
   } else {
     player.position.y = standY;
