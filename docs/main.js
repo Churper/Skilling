@@ -172,7 +172,7 @@ function setVolume(v) {
 
 function initBGM() {
   if (_bgmElement) return;
-  _bgmElement = new Audio("./sounds/churpa1_3.mp3");
+  _bgmElement = new Audio("./sounds/churpa1_5.mp3");
   _bgmElement.loop = true;
   _bgmElement.crossOrigin = "anonymous";
   _bgmSource = _audioCtx.createMediaElementSource(_bgmElement);
