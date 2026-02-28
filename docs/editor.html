@@ -735,7 +735,6 @@ canvas.addEventListener("mousedown", e => {
   if (mode === "height" && (e.button === 0 || e.button === 2)) {
     painting = true;
     paintSign = e.button === 0 ? 1 : -1;
-    orbitControls.enabled = false;
     hSaveUndo(); lastPaintTime = performance.now();
     const pt = raycastGround(e);
     if (pt) paintAt(pt.x, pt.z, 0.016);
@@ -743,7 +742,7 @@ canvas.addEventListener("mousedown", e => {
 });
 
 canvas.addEventListener("mouseup", e => {
-  if (mode === "height" && painting) { painting = false; orbitControls.enabled = true; hPushUndo(); return; }
+  if (mode === "height" && painting) { painting = false; hPushUndo(); return; }
   if (!mouseDownPos) return;
   if (Math.abs(e.clientX - mouseDownPos.x) > 4 || Math.abs(e.clientY - mouseDownPos.y) > 4) return;
   if (mode !== "objects") return;
@@ -792,7 +791,7 @@ canvas.addEventListener("mousemove", e => {
 });
 
 canvas.addEventListener("mouseleave", () => {
-  if (painting) { painting = false; orbitControls.enabled = true; hPushUndo(); }
+  if (painting) { painting = false; hPushUndo(); }
   hoverMesh.visible = false; brushCircle.visible = false;
 });
 
@@ -851,15 +850,17 @@ function setMode(m) {
   document.getElementById("height-panel").classList.toggle("hidden", mode !== "height");
   hoverMesh.visible = false; brushCircle.visible = false;
   if (mode === "objects") {
+    orbitControls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null };
     document.getElementById("info").innerHTML =
       '<kbd>Click</kbd> place &nbsp; <kbd>RClick</kbd> remove<br>' +
       '<kbd>R</kbd> rotate &nbsp; <kbd>Shift+Scroll</kbd> resize<br>' +
       '<kbd>Del</kbd> delete &nbsp; <kbd>Esc</kbd> deselect<br>' +
       '<kbd>G</kbd> grid &nbsp; <kbd>Ctrl+S</kbd> export &nbsp; <kbd>Ctrl+Z</kbd> undo';
   } else {
+    orbitControls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.ROTATE, RIGHT: null };
     document.getElementById("info").innerHTML =
       '<kbd>Left-drag</kbd> raise &nbsp; <kbd>Right-drag</kbd> lower<br>' +
-      '<kbd>Shift+Scroll</kbd> brush size<br>' +
+      '<kbd>Middle</kbd> orbit &nbsp; <kbd>Shift+Scroll</kbd> brush size<br>' +
       '<kbd>F</kbd> flatten &nbsp; <kbd>S</kbd> smooth &nbsp; <kbd>R</kbd> raise<br>' +
       '<kbd>Ctrl+Z</kbd> undo &nbsp; <kbd>Ctrl+S</kbd> export';
   }
