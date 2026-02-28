@@ -180,13 +180,6 @@ export function getMeshSurfaceY(x, z) {
     const dockT = dxT * dzT;
     if (dockT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 2, dockT);
   }
-  /* flatten fenced path corridor: bridge → village */
-  if (z > -26 && z < 7 && Math.abs(x) < 7) {
-    const cFade = 1 - sm(Math.abs(x), 4, 6);
-    const cZfade = sm(z, -26, -24) * (1 - sm(z, 5, 7));
-    const corrT = cFade * cZfade;
-    if (corrT > 0) y = THREE.MathUtils.lerp(y, GRASS_Y, corrT);
-  }
   return y;
 }
 
@@ -418,55 +411,59 @@ export function buildBridge(lib) {
   const bz = 8;
   const deckY = WATER_Y + 0.35;
 
-  /* 5 tiles — ends + middle, with edge railings on both sides */
+  /*  Bridge runs along X at z=8.  All pieces use rotation.y = π/2.
+      Model defaults: ramp descends toward local -Z, railing on local -X.
+      After π/2 rotation: ramp → west (-X), railing → north (+Z).
+      scale.x flips railing side:  +1 = north,  -1 = south
+      scale.z flips ramp direction: +1 = west (left end), -1 = east (right end) */
+
   const xs = [-4, -2, 0, 2, 4];
   for (let i = 0; i < xs.length; i++) {
-    const isLeftEnd = i === 0;
+    const isEnd = i === 0 || i === xs.length - 1;
     const isRightEnd = i === xs.length - 1;
-    const isEnd = isLeftEnd || isRightEnd;
-    /* left end ramp faces west, right end / middle face east */
-    const baseRot = isLeftEnd ? -Math.PI / 2 : Math.PI / 2;
 
-    /* main plank */
+    /* main plank — only end pieces have a ramp to flip */
     const tmpl = isEnd ? lib.bridgeEnd : lib.bridgeMid;
     if (tmpl) {
       const m = tmpl.clone();
       m.scale.setScalar(TILE_S);
       m.position.set(xs[i], deckY, bz);
-      m.rotation.y = baseRot;
+      m.rotation.y = isRightEnd ? -Math.PI / 2 : Math.PI / 2;
       group.add(m);
     }
-    /* edge railing on both sides — mirror via scale.z for south side */
+
+    /* edge railings — scale.x for side, scale.z for ramp direction */
     const eTmpl = isEnd ? lib.bridgeEndE : lib.bridgeMidE;
     if (eTmpl) {
+      const flipZ = (isEnd && isRightEnd) ? -1 : 1;
       for (const side of [1, -1]) {
         const e = eTmpl.clone();
-        e.scale.set(TILE_S, TILE_S, side * TILE_S);
+        e.scale.set(side * TILE_S, TILE_S, flipZ * TILE_S);
         e.position.set(xs[i], deckY, bz + side * TILE_S * 0.5);
-        e.rotation.y = baseRot;
+        e.rotation.y = Math.PI / 2;
         group.add(e);
       }
     }
   }
 
-  /* support posts at each end — mirror via scale.z for south side */
+  /* support posts at each end */
   const endXs = [xs[0], xs[xs.length - 1]];
   for (let ei = 0; ei < endXs.length; ei++) {
     const px = endXs[ei];
-    const postRot = ei === 0 ? -Math.PI / 2 : Math.PI / 2;
+    const flipZ = ei === 1 ? -1 : 1;
     for (const side of [1, -1]) {
       if (lib.bridgePost) {
         const p = lib.bridgePost.clone();
-        p.scale.set(TILE_S, TILE_S, side * TILE_S);
+        p.scale.set(side * TILE_S, TILE_S, flipZ * TILE_S);
         p.position.set(px, WATER_Y - 0.3, bz + side * TILE_S * 0.4);
-        p.rotation.y = postRot;
+        p.rotation.y = Math.PI / 2;
         group.add(p);
       }
       if (lib.bridgePostT) {
         const pt = lib.bridgePostT.clone();
-        pt.scale.set(TILE_S, TILE_S, side * TILE_S);
+        pt.scale.set(side * TILE_S, TILE_S, flipZ * TILE_S);
         pt.position.set(px, deckY, bz + side * TILE_S * 0.4);
-        pt.rotation.y = postRot;
+        pt.rotation.y = Math.PI / 2;
         group.add(pt);
       }
     }
@@ -561,13 +558,8 @@ export function buildFences(lib) {
   const postTmpl  = lib.fencePost1 || lib.fencePost2;
   if (!boardTmpl) return group;
 
-  /* fence runs — gently curving path from bridge to village + behind buildings */
+  /* fence runs — behind village buildings */
   const runs = [
-    /* west fence: widens slightly in middle then narrows toward village */
-    [[-3, 5], [-3.5, 0], [-4, -6], [-4.5, -12], [-4, -18], [-3, -24]],
-    /* east fence: mirrors west side */
-    [[3, 5], [3.5, 0], [4, -6], [4.5, -12], [4, -18], [3, -24]],
-    /* behind village buildings */
     [[-14, -38], [-7, -38], [0, -38], [7, -38], [14, -38]],
   ];
 
