@@ -20,6 +20,8 @@ import {
   HOUSE_BUILD_TARGET,
   SLIME_COLOR_SHOP,
   PRAYERS,
+  ANIMAL_DAMAGE,
+  POTION_SHOP,
 } from "./game/config.js";
 import { createBagSystem } from "./game/systems/bagSystem.js";
 import { createConstructionProgress } from "./game/systems/constructionProgress.js";
@@ -69,6 +71,44 @@ const skills = {
 const inCave = false; /* cave system removed */
 const activePrayers = new Set();
 
+/* ── Player HP ── */
+let playerHp = 100;
+const playerMaxHp = 100;
+const hpBarEl = document.getElementById("ui-hp-bar");
+const deathOverlay = (() => {
+  let el = document.getElementById("death-overlay");
+  if (!el) { el = document.createElement("div"); el.id = "death-overlay"; document.body.appendChild(el); }
+  return el;
+})();
+
+function damagePlayer(amount) {
+  if (playerHp <= 0) return;
+  playerHp = Math.max(0, playerHp - amount);
+  ui?.setHp(playerHp, playerMaxHp);
+  /* flash HP bar */
+  if (hpBarEl) { hpBarEl.classList.remove("damage-flash"); void hpBarEl.offsetWidth; hpBarEl.classList.add("damage-flash"); }
+  /* floating damage on player */
+  spawnFloatingDrop(player.position.x, player.position.z, `-${amount}`, "warn");
+  if (playerHp <= 0) playerDeath();
+}
+
+function playerDeath() {
+  /* red flash overlay */
+  deathOverlay.classList.add("active");
+  setTimeout(() => deathOverlay.classList.remove("active"), 800);
+  /* respawn at village */
+  player.position.set(0, 0, -32);
+  playerHp = playerMaxHp;
+  ui?.setHp(playerHp, playerMaxHp);
+  /* clear combat state */
+  activeAttack = null;
+  pendingService = null;
+  hasMoveTarget = false;
+  /* de-aggro all animals */
+  for (const a of animals) { a.aggro = false; a.aggroTarget = null; a.lastHitTime = 0; }
+  ui?.setStatus("You died! Respawned at village.", "warn");
+}
+
 /* ── Animals ── */
 const ANIMAL_HP = { Cow: 50, Horse: 60, Llama: 40, Pig: 30, Pug: 20, Sheep: 35, Zebra: 70 };
 const ANIMAL_LOOT = {
@@ -97,6 +137,7 @@ function registerAnimal(hsNode, parentModel) {
     wanderTimer: 1 + Math.random() * 3,
     wanderTarget: null, hpBar, hpFill, respawnTimer: 0,
     origScale: parentModel.scale.x,
+    aggro: false, aggroTarget: null, lastHitTime: 0, attackCooldown: 0,
   });
   console.log(`Registered animal: ${type} at pos(${spawnPos.x.toFixed(1)}, ${spawnPos.y.toFixed(1)}, ${spawnPos.z.toFixed(1)}) modelPos(${parentModel.position.x.toFixed(1)}, ${parentModel.position.z.toFixed(1)})`);
 }
@@ -184,6 +225,34 @@ const ui = initializeUI({
   },
   onPrayerToggle: (id, on) => {
     togglePrayer(id, on);
+  },
+  onBuyPotion: (potionId) => {
+    const pot = POTION_SHOP.find(p => p.id === potionId);
+    if (!pot) return;
+    if (coins < pot.cost) { ui?.setStatus(`Need ${pot.cost} coins!`, "warn"); return; }
+    if (bagSystem.isFull()) { ui?.setStatus("Bag is full!", "warn"); return; }
+    coins -= pot.cost;
+    bagSystem.addItem(pot.item);
+    syncInventoryUI();
+    ui?.setStatus(`Bought ${pot.label}!`, "success");
+  },
+  onUseItem: (itemType, slotIndex) => {
+    if (itemType === "Health Potion") {
+      if (playerHp >= playerMaxHp) { ui?.setStatus("Already full HP!", "info"); return; }
+      bagSystem.slots[slotIndex] = null;
+      bagSystem.recount();
+      playerHp = Math.min(playerMaxHp, playerHp + 40);
+      ui?.setHp(playerHp, playerMaxHp);
+      syncInventoryUI();
+      spawnFloatingDrop(player.position.x, player.position.z, "+40 HP", "item");
+      ui?.setStatus("Used Health Potion! +40 HP", "success");
+    } else if (itemType === "Mana Potion") {
+      bagSystem.slots[slotIndex] = null;
+      bagSystem.recount();
+      syncInventoryUI();
+      spawnFloatingDrop(player.position.x, player.position.z, "+30 Mana", "item");
+      ui?.setStatus("Used Mana Potion! (no effect yet)", "info");
+    }
   },
 });
 
@@ -416,6 +485,7 @@ setSlimeColor(getCurrentSlimeColorHex());
 syncInventoryUI();
 syncHouseBuildVisual();
 syncSkillsUI();
+ui?.setHp(playerHp, playerMaxHp);
 
 const moveTarget = new THREE.Vector3();
 const resourceTargetPos = new THREE.Vector3();
@@ -737,35 +807,67 @@ function updateAnimals(dt) {
       continue;
     }
 
-    /* idle wandering */
-    a.wanderTimer -= dt;
-    if (a.wanderTimer <= 0) {
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 1.5 + Math.random() * 2.5;
-      a.wanderTarget = new THREE.Vector3(
-        a.spawnPos.x + Math.cos(angle) * dist,
-        0,
-        a.spawnPos.z + Math.sin(angle) * dist,
-      );
-      a.wanderTarget.y = getPlayerGroundY(a.wanderTarget.x, a.wanderTarget.z);
-      a.wanderTimer = 2 + Math.random() * 3;
-    }
-    if (a.wanderTarget) {
-      const wx = a.parentModel.position.x;
-      const wz = a.parentModel.position.z;
-      const ddx = a.wanderTarget.x - wx;
-      const ddz = a.wanderTarget.z - wz;
-      const dist = Math.sqrt(ddx * ddx + ddz * ddz);
-      if (dist > 0.15) {
-        const nx = ddx / dist, nz = ddz / dist;
-        const step = Math.min(dt * 2.0, dist);
-        a.parentModel.position.x += nx * step;
-        a.parentModel.position.z += nz * step;
+    /* aggro chase + attack */
+    if (a.aggro && a.aggroTarget) {
+      const elapsed = clock.elapsedTime;
+      const adx = px - a.parentModel.position.x;
+      const adz = pz - a.parentModel.position.z;
+      const adist = Math.sqrt(adx * adx + adz * adz);
+      /* de-aggro: too far away or 8s without being hit */
+      if (adist > 15 || (elapsed - a.lastHitTime) > 8) {
+        a.aggro = false;
+        a.aggroTarget = null;
+        a.wanderTimer = 1 + Math.random() * 2;
+      } else if (adist > 2.0) {
+        /* chase player */
+        const cnx = adx / adist, cnz = adz / adist;
+        const chaseSpeed = 3.5;
+        const cstep = Math.min(dt * chaseSpeed, adist - 1.8);
+        a.parentModel.position.x += cnx * cstep;
+        a.parentModel.position.z += cnz * cstep;
         a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
-        /* face walk direction */
-        a.parentModel.rotation.y = Math.atan2(nx, nz);
+        a.parentModel.rotation.y = Math.atan2(cnx, cnz);
       } else {
-        a.wanderTarget = null;
+        /* in melee range — attack */
+        a.parentModel.rotation.y = Math.atan2(adx, adz);
+        a.attackCooldown -= dt;
+        if (a.attackCooldown <= 0) {
+          const dmgRange = ANIMAL_DAMAGE[a.type] || [1, 3];
+          const dmg = Math.floor(Math.random() * (dmgRange[1] - dmgRange[0] + 1)) + dmgRange[0];
+          damagePlayer(dmg);
+          a.attackCooldown = 2.0;
+        }
+      }
+    } else {
+      /* idle wandering */
+      a.wanderTimer -= dt;
+      if (a.wanderTimer <= 0) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 1.5 + Math.random() * 2.5;
+        a.wanderTarget = new THREE.Vector3(
+          a.spawnPos.x + Math.cos(angle) * dist,
+          0,
+          a.spawnPos.z + Math.sin(angle) * dist,
+        );
+        a.wanderTarget.y = getPlayerGroundY(a.wanderTarget.x, a.wanderTarget.z);
+        a.wanderTimer = 2 + Math.random() * 3;
+      }
+      if (a.wanderTarget) {
+        const wx = a.parentModel.position.x;
+        const wz = a.parentModel.position.z;
+        const ddx = a.wanderTarget.x - wx;
+        const ddz = a.wanderTarget.z - wz;
+        const dist = Math.sqrt(ddx * ddx + ddz * ddz);
+        if (dist > 0.15) {
+          const nx = ddx / dist, nz = ddz / dist;
+          const step = Math.min(dt * 2.0, dist);
+          a.parentModel.position.x += nx * step;
+          a.parentModel.position.z += nz * step;
+          a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
+          a.parentModel.rotation.y = Math.atan2(nx, nz);
+        } else {
+          a.wanderTarget = null;
+        }
       }
     }
     /* subtle bob */
@@ -1328,6 +1430,10 @@ function performAttackHit(node) {
     animal.hpFill.style.width = ((animal.hp / animal.maxHp) * 100) + "%";
     const pct = animal.hp / animal.maxHp;
     animal.hpFill.style.background = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
+    /* aggro — animal fights back */
+    animal.aggro = true;
+    animal.aggroTarget = player;
+    animal.lastHitTime = clock.elapsedTime;
     /* face the player when hit */
     const dx = player.position.x - animal.parentModel.position.x;
     const dz = player.position.z - animal.parentModel.position.z;
@@ -1364,6 +1470,8 @@ function killAnimal(a) {
   a.alive = false;
   a.respawnTimer = 15;
   a.hpBar.dataset.state = "hidden";
+  a.aggro = false;
+  a.aggroTarget = null;
   /* loot drop */
   const lootName = ANIMAL_LOOT[a.type];
   if (lootName) {
@@ -1391,6 +1499,9 @@ function respawnAnimal(a) {
   a.parentModel.visible = true;
   a.wanderTimer = 3 + Math.random() * 5;
   a.wanderTarget = null;
+  a.aggro = false;
+  a.aggroTarget = null;
+  a.attackCooldown = 0;
   /* re-add hitspot to interactables if missing */
   if (!resourceNodes.includes(a.node)) resourceNodes.push(a.node);
 }

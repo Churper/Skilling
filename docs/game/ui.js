@@ -18,6 +18,8 @@ const ITEM_ICON = {
   "Llama Wool": "\u{1F9F6}",
   "Bone": "\u{1F9B4}",
   "Striped Hide": "\u{1F993}",
+  "Health Potion": "\u{2764}\u{FE0F}",
+  "Mana Potion": "\u{1F4A7}",
 };
 
 const ITEM_LABEL = {
@@ -29,7 +31,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -74,6 +76,9 @@ export function initializeUI(options = {}) {
 
   const combatStyleButtons = Array.from(document.querySelectorAll("[data-combat-style]"));
   const attackButton = document.getElementById("ui-attack-btn");
+  const hpBarFill = document.getElementById("ui-hp-bar-fill");
+  const hpBarText = document.getElementById("ui-hp-bar-text");
+  const potionButtons = Array.from(document.querySelectorAll("[data-buy-potion]"));
 
   const labelByTab = {
     inventory: "Inventory",
@@ -140,11 +145,17 @@ export function initializeUI(options = {}) {
       const slot = document.createElement("div");
       slot.className = itemType ? "ui-bag-slot" : "ui-bag-slot is-empty";
       if (itemType) {
-        slot.title = ITEM_LABEL[itemType] || "Item";
+        slot.title = ITEM_LABEL[itemType] || itemType;
         const icon = document.createElement("span");
         icon.className = "ui-bag-slot-icon";
         icon.textContent = ITEM_ICON[itemType] || "?";
         slot.append(icon);
+        if (itemType === "Health Potion" || itemType === "Mana Potion") {
+          slot.classList.add("is-usable");
+          slot.addEventListener("click", () => {
+            if (typeof onUseItem === "function") onUseItem(itemType, i);
+          });
+        }
       } else {
         slot.title = "Empty";
         const empty = document.createElement("span");
@@ -260,6 +271,23 @@ export function initializeUI(options = {}) {
           ? `Buy for ${state.cost} coins`
           : `Need ${state.cost ?? 0} coins`;
     }
+  }
+
+  function setHp(hp, maxHp) {
+    if (hpBarFill) {
+      const pct = Math.max(0, Math.min(100, (hp / maxHp) * 100));
+      hpBarFill.style.width = pct + "%";
+      hpBarFill.style.background = pct > 50 ? "#4ade80" : pct > 25 ? "#facc15" : "#ef4444";
+    }
+    if (hpBarText) hpBarText.textContent = `HP ${Math.max(0, hp)}/${maxHp}`;
+  }
+
+  /* potion buy buttons */
+  for (const btn of potionButtons) {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.buyPotion;
+      if (typeof onBuyPotion === "function") onBuyPotion(id);
+    });
   }
 
   let _bankOpen = false;
@@ -549,5 +577,6 @@ export function initializeUI(options = {}) {
     closeBank,
     isBankOpen,
     setPrayerActive,
+    setHp,
   };
 }

@@ -21,6 +21,10 @@
   </div>
   <div id="debug-overlay" aria-hidden="true"></div>
   <div id="ui-root">
+    <div id="ui-hp-bar" aria-label="Player health">
+      <div id="ui-hp-bar-fill"></div>
+      <span id="ui-hp-bar-text">HP 100/100</span>
+    </div>
     <div id="ui-coins-chip" aria-live="polite" aria-label="Gold coins">
       <span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span>
       <strong id="ui-coins-value">0</strong>
@@ -126,6 +130,10 @@
           <button type="button" class="ui-dye-btn" data-store-color="sunset"><span class="ui-dye-swatch" style="--sw:#f5b35f"></span><span>Sunset</span><small data-store-cost="sunset">0</small></button>
           <button type="button" class="ui-dye-btn" data-store-color="violet"><span class="ui-dye-swatch" style="--sw:#af89f6"></span><span>Violet</span><small data-store-cost="violet">0</small></button>
           <button type="button" class="ui-dye-btn" data-store-color="rose"><span class="ui-dye-swatch" style="--sw:#f57fb3"></span><span>Rose</span><small data-store-cost="rose">0</small></button>
+        </div>
+        <div class="ui-store-potions">
+          <button type="button" class="ui-potion-btn" data-buy-potion="health_potion"><span>&#x2764;&#xFE0F;</span><span>Health Potion</span><small>25c</small></button>
+          <button type="button" class="ui-potion-btn" data-buy-potion="mana_potion"><span>&#x1F4A7;</span><span>Mana Potion</span><small>20c</small></button>
         </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="skills" hidden>

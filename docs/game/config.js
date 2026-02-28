@@ -39,7 +39,7 @@ export const GATHER_DURATION_BY_RESOURCE = {
 
 export const BAG_CAPACITY = 28;
 
-export const BAG_ITEM_KEYS = ["fish", "ore", "logs", "Raw Beef", "Raw Pork", "Wool", "Horse Hide", "Llama Wool", "Bone", "Striped Hide"];
+export const BAG_ITEM_KEYS = ["fish", "ore", "logs", "Raw Beef", "Raw Pork", "Wool", "Horse Hide", "Llama Wool", "Bone", "Striped Hide", "Health Potion", "Mana Potion"];
 
 export const SELL_PRICE_BY_ITEM = {
   fish: 4,
@@ -76,6 +76,16 @@ export const PRAYERS = {
   protect_range: { label: "Protect from Range", type: "overhead", icon: "\uD83C\uDFF9", desc: "Block ranged attacks", exclusive: "overhead" },
   protect_mage: { label: "Protect from Magic", type: "overhead", icon: "\uD83D\uDD25", desc: "Block magic attacks", exclusive: "overhead" },
 };
+
+export const ANIMAL_DAMAGE = {
+  Pig: [2, 4], Cow: [3, 6], Sheep: [2, 5], Llama: [3, 6],
+  Horse: [4, 8], Zebra: [5, 10], Pug: [1, 3],
+};
+
+export const POTION_SHOP = [
+  { id: "health_potion", label: "Health Potion", icon: "\u2764\uFE0F", cost: 25, item: "Health Potion", heal: 40 },
+  { id: "mana_potion", label: "Mana Potion", icon: "\uD83D\uDCA7", cost: 20, item: "Mana Potion", mana: 30 },
+];
 
 export const SLIME_COLOR_SHOP = [
   { id: "lime", label: "Lime", color: "#58df78", cost: 0 },

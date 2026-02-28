@@ -46,6 +46,65 @@ body {
   z-index: 24;
 }
 
+/* ── Player HP bar ── */
+#ui-hp-bar {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 26px;
+  border-radius: 13px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 2px solid rgba(74, 222, 128, 0.45);
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.25), inset 0 1px 3px rgba(0,0,0,0.4);
+  overflow: hidden;
+  z-index: 120;
+  pointer-events: none;
+}
+#ui-hp-bar-fill {
+  position: absolute;
+  inset: 2px;
+  border-radius: 10px;
+  width: calc(100% - 4px);
+  background: #4ade80;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+#ui-hp-bar-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-family: var(--ui-font-heading);
+  font-size: 13px;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+  pointer-events: none;
+}
+#ui-hp-bar.damage-flash {
+  animation: hpFlash 0.3s ease;
+}
+@keyframes hpFlash {
+  0%, 100% { border-color: rgba(74, 222, 128, 0.45); }
+  50% { border-color: #ef4444; box-shadow: 0 0 14px rgba(239, 68, 68, 0.5); }
+}
+
+/* ── Death overlay ── */
+#death-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(180, 20, 20, 0.45);
+  z-index: 500;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#death-overlay.active {
+  opacity: 1;
+}
+
 /* ── Coins chip — no background ── */
 #ui-coins-chip {
   position: fixed;
@@ -1501,4 +1560,44 @@ body {
 }
 .animal-hp-bar[data-state="hidden"] {
   display: none;
+}
+
+/* ── Potion shop buttons ── */
+.ui-store-potions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ui-ink-3, rgba(255,255,255,0.1));
+}
+.ui-potion-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: var(--ui-ink-1, #fff);
+  font-family: var(--ui-font-body);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ui-potion-btn:hover {
+  background: rgba(255,255,255,0.12);
+}
+.ui-potion-btn small {
+  opacity: 0.65;
+  font-size: 11px;
+}
+
+/* ── Usable inventory slot ── */
+.ui-bag-slot.is-usable {
+  cursor: pointer;
+  border: 1px solid rgba(74, 222, 128, 0.4);
+}
+.ui-bag-slot.is-usable:hover {
+  background: rgba(74, 222, 128, 0.15);
 }
