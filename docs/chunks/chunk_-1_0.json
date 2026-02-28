@@ -1,1 +1,1 @@
-{"version":2,"chunk":[-1,0],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[]}
+{"version":2,"chunk":[-1,0],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[{"type":"Zebra","x":22.370000000000005,"z":6.47,"y":0.4,"scale":1,"rot":0}]}
