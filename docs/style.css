@@ -287,7 +287,7 @@ body {
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   width: min(520px, 92vw);
-  max-height: 95vh;
+  max-height: min(480px, 80vh);
   display: flex;
   flex-direction: column;
   overflow: hidden;
