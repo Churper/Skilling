@@ -176,6 +176,16 @@
             <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-woodcutting"></div></div>
           </div>
         </div>
+        <div class="ui-skill-row" data-skill="cooking">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F373;</span>
+            <strong class="ui-skill-level" id="ui-skill-cooking">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Cooking</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-cooking"></div></div>
+          </div>
+        </div>
         <p>Combat</p>
         <div class="ui-skill-row" data-skill="melee">
           <div class="ui-skill-icon-wrap">
@@ -309,6 +319,13 @@
       <div class="ui-settings-row">
         <span>Server</span>
         <span id="setting-connection" class="ui-conn-status">--</span>
+      </div>
+      <div class="ui-settings-row ui-volume-row">
+        <span>Volume</span>
+        <div class="ui-volume-controls">
+          <button type="button" id="setting-volume-mute" class="ui-volume-mute-btn">&#x1F50A;</button>
+          <input type="range" id="setting-volume" min="0" max="100" value="50" class="ui-volume-slider">
+        </div>
       </div>
       <hr class="ui-settings-divider">
       <label class="ui-settings-row">

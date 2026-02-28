@@ -100,6 +100,54 @@ function addHS(par, x, y, z) {
   m.position.set(x, y, z); m.renderOrder = R_DECOR + 10; par.add(m); return m;
 }
 
+/* ── Campfire builder ── */
+export function createCampfire(scene, x, y, z) {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+
+  /* log pile — 3 brown cylinders */
+  const logGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.7, 6);
+  const logMat = toonMat("#6b3a1f");
+  for (let i = 0; i < 3; i++) {
+    const log = new THREE.Mesh(logGeo, logMat);
+    log.rotation.z = Math.PI / 2;
+    log.rotation.y = (i / 3) * Math.PI;
+    log.position.set(Math.cos(i * 2.1) * 0.12, 0.08, Math.sin(i * 2.1) * 0.12);
+    group.add(log);
+  }
+
+  /* fire — orange cone */
+  const fireGeo = new THREE.ConeGeometry(0.22, 0.55, 8);
+  const fireMat = toonMat("#ff6b1a", { emissive: "#ff4500", emissiveIntensity: 0.6 });
+  const fire = new THREE.Mesh(fireGeo, fireMat);
+  fire.position.y = 0.35;
+  group.add(fire);
+
+  /* inner flame — yellow smaller cone */
+  const innerGeo = new THREE.ConeGeometry(0.12, 0.35, 6);
+  const innerMat = toonMat("#ffdd44", { emissive: "#ffaa00", emissiveIntensity: 0.8 });
+  const inner = new THREE.Mesh(innerGeo, innerMat);
+  inner.position.y = 0.30;
+  group.add(inner);
+
+  /* point light */
+  const light = new THREE.PointLight("#ff8833", 1.2, 8);
+  light.position.y = 0.5;
+  group.add(light);
+
+  /* shadow blob */
+  const blobGeo = new THREE.CircleGeometry(0.4, 12);
+  const blobMat = new THREE.MeshBasicMaterial({ color: "#000", transparent: true, opacity: 0.25, depthWrite: false });
+  const blob = new THREE.Mesh(blobGeo, blobMat);
+  blob.rotation.x = -Math.PI / 2;
+  blob.position.y = 0.01;
+  blob.renderOrder = 1;
+  group.add(blob);
+
+  scene.add(group);
+  return { group, light };
+}
+
 /* ── Sky ── */
 function addSky(scene) {
   const mat = new THREE.ShaderMaterial({

@@ -465,6 +465,48 @@ body {
   border-top: 1px solid rgba(255,255,255,0.06);
   margin: 4px 12px;
 }
+/* ── Volume controls ── */
+.ui-volume-row { cursor: default; }
+.ui-volume-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ui-volume-mute-btn {
+  background: none;
+  border: none;
+  color: var(--ui-ink-1);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+}
+.ui-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.15);
+  outline: none;
+}
+.ui-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ui-accent-1);
+  cursor: pointer;
+  border: none;
+}
+.ui-volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ui-accent-1);
+  cursor: pointer;
+  border: none;
+}
 .ui-conn-status {
   font-size: 0.8rem;
   font-weight: 600;

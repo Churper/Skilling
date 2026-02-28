@@ -39,7 +39,7 @@ export const GATHER_DURATION_BY_RESOURCE = {
 
 export const BAG_CAPACITY = 28;
 
-export const BAG_ITEM_KEYS = ["fish", "ore", "logs", "Raw Beef", "Raw Pork", "Wool", "Horse Hide", "Llama Wool", "Bone", "Striped Hide", "Health Potion", "Mana Potion"];
+export const BAG_ITEM_KEYS = ["fish", "ore", "logs", "Raw Beef", "Raw Pork", "Wool", "Horse Hide", "Llama Wool", "Bone", "Striped Hide", "Health Potion", "Mana Potion", "Cooked Fish", "Cooked Beef", "Cooked Pork", "Burnt Food"];
 
 export const SELL_PRICE_BY_ITEM = {
   fish: 4,
@@ -52,6 +52,10 @@ export const SELL_PRICE_BY_ITEM = {
   "Llama Wool": 7,
   "Bone": 3,
   "Striped Hide": 12,
+  "Cooked Fish": 8,
+  "Cooked Beef": 14,
+  "Cooked Pork": 10,
+  "Burnt Food": 1,
 };
 
 export const TOOL_UPGRADE_BASE_COST = 28;
@@ -86,6 +90,14 @@ export const POTION_SHOP = [
   { id: "health_potion", label: "Health Potion", icon: "\u2764\uFE0F", cost: 25, item: "Health Potion", heal: 40 },
   { id: "mana_potion", label: "Mana Potion", icon: "\uD83D\uDCA7", cost: 20, item: "Mana Potion", mana: 30 },
 ];
+
+export const CAMPFIRE_LOG_COST = 3;
+
+export const COOKING_RECIPES = {
+  "fish":      { result: "Cooked Fish",  xp: 20, burnChance: 0.35 },
+  "Raw Beef":  { result: "Cooked Beef",  xp: 25, burnChance: 0.30 },
+  "Raw Pork":  { result: "Cooked Pork",  xp: 22, burnChance: 0.32 },
+};
 
 export const SLIME_COLOR_SHOP = [
   { id: "lime", label: "Lime", color: "#58df78", cost: 0 },

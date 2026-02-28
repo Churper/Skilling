@@ -20,6 +20,10 @@ const ITEM_ICON = {
   "Striped Hide": "\u{1F993}",
   "Health Potion": "\u{2764}\u{FE0F}",
   "Mana Potion": "\u{1F4A7}",
+  "Cooked Fish": "\u{1F373}",
+  "Cooked Beef": "\u{1F356}",
+  "Cooked Pork": "\u{1F969}",
+  "Burnt Food": "\u{1F4A8}",
 };
 
 const ITEM_LABEL = {
@@ -30,12 +34,13 @@ const ITEM_LABEL = {
 const SELL_PRICE = {
   fish: 4, ore: 7, logs: 5, "Raw Beef": 8, "Raw Pork": 6,
   "Wool": 5, "Horse Hide": 10, "Llama Wool": 7, "Bone": 3, "Striped Hide": 12,
+  "Cooked Fish": 8, "Cooked Beef": 14, "Cooked Pork": 10, "Burnt Food": 1,
 };
 const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -58,12 +63,14 @@ export function initializeUI(options = {}) {
   const meleeLevelEl = document.getElementById("ui-skill-melee");
   const bowLevelEl = document.getElementById("ui-skill-bow");
   const mageLevelEl = document.getElementById("ui-skill-mage");
+  const cookingLevelEl = document.getElementById("ui-skill-cooking");
   const fishBarEl = document.getElementById("ui-skill-bar-fishing");
   const miningBarEl = document.getElementById("ui-skill-bar-mining");
   const woodcutBarEl = document.getElementById("ui-skill-bar-woodcutting");
   const meleeBarEl = document.getElementById("ui-skill-bar-melee");
   const bowBarEl = document.getElementById("ui-skill-bar-bow");
   const mageBarEl = document.getElementById("ui-skill-bar-mage");
+  const cookingBarEl = document.getElementById("ui-skill-bar-cooking");
   const friendsOnlineEl = document.getElementById("ui-friends-online");
   const friendsCountEl = document.getElementById("ui-friends-count");
   const smithButtons = Array.from(document.querySelectorAll("[data-smith-upgrade]"));
@@ -163,9 +170,10 @@ export function initializeUI(options = {}) {
         if (sellVal) tipText += `\nSell: ${sellVal}c`;
         if (itemType === "Health Potion") tipText += "\nClick to use (+40 HP)";
         else if (itemType === "Mana Potion") tipText += "\nClick to use";
+        else if (itemType === "logs") tipText += "\nClick to place Campfire (3 logs)";
         tip.textContent = tipText;
         slot.append(tip);
-        if (itemType === "Health Potion" || itemType === "Mana Potion") {
+        if (itemType === "Health Potion" || itemType === "Mana Potion" || itemType === "logs") {
           slot.classList.add("is-usable");
           slot.addEventListener("click", () => {
             if (typeof onUseItem === "function") onUseItem(itemType, i);
@@ -206,6 +214,7 @@ export function initializeUI(options = {}) {
     if (meleeLevelEl) meleeLevelEl.textContent = String(skills.melee ?? 1);
     if (bowLevelEl) bowLevelEl.textContent = String(skills.bow ?? 1);
     if (mageLevelEl) mageLevelEl.textContent = String(skills.mage ?? 1);
+    if (cookingLevelEl) cookingLevelEl.textContent = String(skills.cooking ?? 1);
 
     const progress = skills._progress || {};
     if (fishBarEl) fishBarEl.style.width = (progress.fishing ?? 0) + "%";
@@ -214,6 +223,7 @@ export function initializeUI(options = {}) {
     if (meleeBarEl) meleeBarEl.style.width = (progress.melee ?? 0) + "%";
     if (bowBarEl) bowBarEl.style.width = (progress.bow ?? 0) + "%";
     if (mageBarEl) mageBarEl.style.width = (progress.mage ?? 0) + "%";
+    if (cookingBarEl) cookingBarEl.style.width = (progress.cooking ?? 0) + "%";
   }
 
   function setStatus(text, tone = "info") {
@@ -578,6 +588,40 @@ export function initializeUI(options = {}) {
 
   renderHotkeys();
 
+  /* ── Volume slider ── */
+  const volumeSlider = document.getElementById("setting-volume");
+  const volumeMuteBtn = document.getElementById("setting-volume-mute");
+  let _muted = false, _premuteVol = 0.5;
+  if (volumeSlider) {
+    volumeSlider.addEventListener("input", () => {
+      const v = parseInt(volumeSlider.value) / 100;
+      _muted = false;
+      if (volumeMuteBtn) volumeMuteBtn.textContent = v === 0 ? "\u{1F507}" : "\u{1F50A}";
+      if (typeof onVolumeChange === "function") onVolumeChange(v);
+    });
+  }
+  if (volumeMuteBtn) {
+    volumeMuteBtn.addEventListener("click", () => {
+      if (_muted) {
+        _muted = false;
+        if (volumeSlider) volumeSlider.value = String(Math.round(_premuteVol * 100));
+        volumeMuteBtn.textContent = "\u{1F50A}";
+        if (typeof onVolumeChange === "function") onVolumeChange(_premuteVol);
+      } else {
+        _muted = true;
+        _premuteVol = volumeSlider ? parseInt(volumeSlider.value) / 100 : 0.5;
+        if (volumeSlider) volumeSlider.value = "0";
+        volumeMuteBtn.textContent = "\u{1F507}";
+        if (typeof onVolumeChange === "function") onVolumeChange(0);
+      }
+    });
+  }
+
+  function setVolumeSlider(v) {
+    if (volumeSlider) volumeSlider.value = String(Math.round(v * 100));
+    if (volumeMuteBtn) volumeMuteBtn.textContent = v === 0 ? "\u{1F507}" : "\u{1F50A}";
+  }
+
   return {
     setActiveTool,
     setActive,
@@ -596,5 +640,6 @@ export function initializeUI(options = {}) {
     isBankOpen,
     setPrayerActive,
     setHp,
+    setVolumeSlider,
   };
 }

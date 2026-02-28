@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { createSceneContext } from "./game/scene.js";
-import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE } from "./game/world.js";
+import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE, createCampfire } from "./game/world.js";
 import { createPlayer, createMoveMarker, createCombatEffects } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
@@ -22,6 +22,8 @@ import {
   PRAYERS,
   ANIMAL_DAMAGE,
   POTION_SHOP,
+  CAMPFIRE_LOG_COST,
+  COOKING_RECIPES,
 } from "./game/config.js";
 import { createBagSystem } from "./game/systems/bagSystem.js";
 import { createConstructionProgress } from "./game/systems/constructionProgress.js";
@@ -67,6 +69,7 @@ const skills = {
   melee: { xp: 0, level: 1 },
   bow: { xp: 0, level: 1 },
   mage: { xp: 0, level: 1 },
+  cooking: { xp: 0, level: 1 },
 };
 const inCave = false; /* cave system removed */
 const activePrayers = new Set();
@@ -161,6 +164,7 @@ function saveGame() {
       constructionStock: constructionProgress.getStock(),
       px: player.position.x,
       pz: player.position.z,
+      volume: _masterVolume,
       v: 1,
     };
     for (const [k, s] of Object.entries(skills)) data.skills[k] = { xp: s.xp, level: s.level };
@@ -185,6 +189,7 @@ function loadGame() {
     if (d.bag) bagSystem.deserialize(d.bag);
     if (d.constructionStock) constructionProgress.deposit(d.constructionStock);
     if (d.px != null) { player.position.x = d.px; player.position.z = d.pz; }
+    if (d.volume != null) { setVolume(d.volume); }
   } catch (e) { console.warn("Load save failed:", e); }
 }
 
@@ -235,6 +240,7 @@ const ui = initializeUI({
     bagSystem.addItem(pot.item);
     syncInventoryUI();
     ui?.setStatus(`Bought ${pot.label}!`, "success");
+    saveGame();
   },
   onUseItem: (itemType, slotIndex) => {
     if (itemType === "Health Potion") {
@@ -252,7 +258,13 @@ const ui = initializeUI({
       syncInventoryUI();
       spawnFloatingDrop(player.position.x, player.position.z, "+30 Mana", "item");
       ui?.setStatus("Used Mana Potion! (no effect yet)", "info");
+    } else if (itemType === "logs") {
+      placeCampfire();
     }
+  },
+  onVolumeChange: (v) => {
+    setVolume(v);
+    saveGame();
   },
 });
 
@@ -344,6 +356,7 @@ function syncSkillsUI() {
     melee: skills.melee.level,
     bow: skills.bow.level,
     mage: skills.mage.level,
+    cooking: skills.cooking.level,
     _progress: {
       fishing: getSkillProgress("fishing"),
       mining: getSkillProgress("mining"),
@@ -351,6 +364,7 @@ function syncSkillsUI() {
       melee: getSkillProgress("melee"),
       bow: getSkillProgress("bow"),
       mage: getSkillProgress("mage"),
+      cooking: getSkillProgress("cooking"),
     },
   });
 }
@@ -487,6 +501,7 @@ syncInventoryUI();
 syncHouseBuildVisual();
 syncSkillsUI();
 ui?.setHp(playerHp, playerMaxHp);
+ui?.setVolumeSlider?.(_masterVolume);
 
 const moveTarget = new THREE.Vector3();
 const resourceTargetPos = new THREE.Vector3();
@@ -1310,6 +1325,7 @@ function transferBankItem(direction, itemKey, qtyRaw) {
   ui?.setStatus(`${verb} ${moved} ${itemKey}.`, "success");
   /* refresh the bank overlay so slots update instantly */
   if (ui?.isBankOpen?.()) ui.setBank(getBankState());
+  saveGame();
 }
 
 function sellBagViaStoreUI() {
@@ -1320,6 +1336,7 @@ function sellBagViaStoreUI() {
   } else {
     ui?.setStatus(`Sold ${sold} item${sold === 1 ? "" : "s"} for ${coinsGained} coins.`, "success");
   }
+  saveGame();
 }
 
 function buyOrEquipSlimeColor(colorId) {
@@ -1340,6 +1357,7 @@ function buyOrEquipSlimeColor(colorId) {
   netClient.updateProfile({ color: nextColor });
   syncInventoryUI();
   ui?.setStatus(`Slime color equipped: ${entry.label}.`, "success");
+  saveGame();
 }
 
 function purchaseToolUpgrade(tool) {
@@ -1367,14 +1385,128 @@ function purchaseToolUpgrade(tool) {
       : `${TOOL_LABEL[tool]} upgraded to +${toolUpgrades[tool]}. Next: ${next} coins.`,
     "success"
   );
+  saveGame();
 }
 
+
+/* ── Campfire + Cooking system ── */
+let activeCampfire = null; // { group, timer, node }
+let activeCook = null; // { elapsed, duration }
+
+function placeCampfire() {
+  if (activeCampfire) { ui?.setStatus("You already have an active campfire!", "warn"); return; }
+  if ((inventory.logs || 0) < CAMPFIRE_LOG_COST) { ui?.setStatus(`Need ${CAMPFIRE_LOG_COST} logs to build a campfire.`, "warn"); return; }
+  let removed = 0;
+  for (let i = 0; i < bagSlots.length && removed < CAMPFIRE_LOG_COST; i++) {
+    if (bagSlots[i] === "logs") { bagSlots[i] = null; removed++; }
+  }
+  bagSystem.recount();
+  syncInventoryUI();
+
+  const cx = player.position.x, cz = player.position.z;
+  const cy = getPlayerGroundY(cx, cz);
+  const { group, light } = createCampfire(scene, cx, cy, cz);
+  const hsNode = group;
+  hsNode.userData.serviceType = "campfire";
+  hsNode.userData.resourceLabel = "Campfire";
+  resourceNodes.push(hsNode);
+  activeCampfire = { group, light, timer: 120, node: hsNode, x: cx, z: cz };
+  spawnFloatingDrop(cx, cz, "Campfire lit!", "item");
+  ui?.setStatus("Campfire placed! Click it to cook.", "success");
+  saveGame();
+}
+
+function updateCampfire(dt) {
+  if (!activeCampfire) return;
+  activeCampfire.timer -= dt;
+  /* animate fire flicker */
+  if (activeCampfire.light) {
+    activeCampfire.light.intensity = 1.2 + Math.sin(Date.now() * 0.01) * 0.4;
+  }
+  if (activeCampfire.timer <= 0) {
+    /* burn out */
+    scene.remove(activeCampfire.group);
+    const idx = resourceNodes.indexOf(activeCampfire.node);
+    if (idx >= 0) resourceNodes.splice(idx, 1);
+    if (activeCook) { activeCook = null; }
+    spawnFloatingDrop(activeCampfire.x, activeCampfire.z, "Fire burned out", "warn");
+    activeCampfire = null;
+  }
+}
+
+function startCooking() {
+  /* find cookable items */
+  const hasCookable = bagSlots.some(s => s && COOKING_RECIPES[s]);
+  if (!hasCookable) { ui?.setStatus("No raw food to cook!", "warn"); return; }
+  activeCook = { elapsed: 0, duration: 1.2 };
+  activeGather = null;
+  activeAttack = null;
+  hasMoveTarget = false;
+  marker.visible = false;
+  ui?.setStatus("Cooking...", "info");
+}
+
+function updateCooking(dt) {
+  if (!activeCook) return;
+  if (!activeCampfire) { activeCook = null; return; }
+  /* check distance to campfire */
+  const dx = player.position.x - activeCampfire.x;
+  const dz = player.position.z - activeCampfire.z;
+  if (Math.sqrt(dx * dx + dz * dz) > 3.5) { activeCook = null; ui?.setStatus("Moved away from campfire.", "info"); return; }
+  activeCook.elapsed += dt;
+  if (activeCook.elapsed < activeCook.duration) return;
+  activeCook.elapsed = 0;
+  /* cook one item */
+  let cookedIdx = -1;
+  for (let i = 0; i < bagSlots.length; i++) {
+    if (bagSlots[i] && COOKING_RECIPES[bagSlots[i]]) { cookedIdx = i; break; }
+  }
+  if (cookedIdx < 0) { activeCook = null; ui?.setStatus("Nothing left to cook.", "info"); return; }
+  const rawKey = bagSlots[cookedIdx];
+  const recipe = COOKING_RECIPES[rawKey];
+  const cookLvl = skills.cooking.level;
+  const burnChance = Math.max(0.05, recipe.burnChance * (1 - cookLvl * 0.03));
+  const burnt = Math.random() < burnChance;
+  bagSlots[cookedIdx] = burnt ? "Burnt Food" : recipe.result;
+  bagSystem.recount();
+  if (!burnt) {
+    const prevLevel = skills.cooking.level;
+    skills.cooking.xp += recipe.xp;
+    skills.cooking.level = xpToLevel(skills.cooking.xp);
+    syncSkillsUI();
+    spawnFloatingDrop(activeCampfire.x, activeCampfire.z, `+${recipe.xp} XP`, "xp");
+    if (skills.cooking.level > prevLevel) {
+      spawnFloatingDrop(activeCampfire.x - 0.14, activeCampfire.z + 0.1, `Cooking Lv ${skills.cooking.level}!`, "level");
+      ui?.setStatus(`Cooked ${recipe.result}! Cooking level ${skills.cooking.level}!`, "success");
+    } else {
+      ui?.setStatus(`Cooked ${recipe.result}! +${recipe.xp} XP`, "success");
+    }
+  } else {
+    spawnFloatingDrop(activeCampfire.x, activeCampfire.z, "Burnt!", "warn");
+    ui?.setStatus("You burnt the food!", "warn");
+  }
+  syncInventoryUI();
+  /* check if more to cook */
+  const moreCookable = bagSlots.some(s => s && COOKING_RECIPES[s]);
+  if (!moreCookable) { activeCook = null; ui?.setStatus("Finished cooking.", "info"); }
+}
+
+/* ── Jump system ── */
+let _jumpVelocity = 0;
+let _isJumping = false;
+const JUMP_FORCE = 6.0;
+const GRAVITY = -18.0;
 
 function runServiceAction(node) {
   const serviceType = node.userData.serviceType;
   if (!serviceType) return;
 
   if (serviceType === "cave" || serviceType === "cave_exit") return;
+
+  if (serviceType === "campfire") {
+    startCooking();
+    return;
+  }
 
   if (serviceType === "bank") {
     ui?.openBank(getBankState());
@@ -1425,6 +1557,16 @@ function runServiceAction(node) {
 
 /* ── Sound system ── */
 const _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let _masterVolume = 0.5;
+const _masterGain = _audioCtx.createGain();
+_masterGain.gain.value = _masterVolume;
+_masterGain.connect(_audioCtx.destination);
+
+function setVolume(v) {
+  _masterVolume = Math.max(0, Math.min(1, v));
+  _masterGain.gain.value = _masterVolume;
+}
+
 let _attackBuffer = null;
 fetch("./sounds/attack1.wav")
   .then(r => r.arrayBuffer())
@@ -1437,13 +1579,29 @@ function playAttackSound() {
   if (_audioCtx.state === "suspended") _audioCtx.resume();
   const src = _audioCtx.createBufferSource();
   src.buffer = _attackBuffer;
-  src.playbackRate.value = 0.85 + Math.random() * 0.3; // random pitch 0.85–1.15
-  src.connect(_audioCtx.destination);
+  src.playbackRate.value = 0.85 + Math.random() * 0.3;
+  src.connect(_masterGain);
   src.start();
 }
 
+function playBowSound() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const osc = _audioCtx.createOscillator();
+  const gain = _audioCtx.createGain();
+  osc.type = "sine";
+  const pitchShift = 0.85 + Math.random() * 0.3;
+  osc.frequency.setValueAtTime(800 * pitchShift, _audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(200 * pitchShift, _audioCtx.currentTime + 0.08);
+  gain.gain.setValueAtTime(0.3, _audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + 0.12);
+  osc.connect(gain);
+  gain.connect(_masterGain);
+  osc.start();
+  osc.stop(_audioCtx.currentTime + 0.12);
+}
+
 function performAttackHit(node) {
-  playAttackSound();
+  if (combatStyle === "bow") playBowSound(); else playAttackSound();
   const dummyPos = combatPos;
   node.getWorldPosition(dummyPos);
   const dx = dummyPos.x - player.position.x;
@@ -1712,6 +1870,7 @@ function getTooltipText(node) {
   if (ud.serviceType === "store") return "General Store\nBuy & sell items";
   if (ud.serviceType === "blacksmith") return "Blacksmith\nUpgrade tools";
   if (ud.serviceType === "construction") return "Construction Site\nBuild your house";
+  if (ud.serviceType === "campfire") return "Campfire\nClick to cook";
   if (ud.resourceLabel) return ud.resourceLabel;
   return null;
 }
@@ -1798,6 +1957,7 @@ renderer.domElement.addEventListener("contextmenu", (e) => {
     + `<span>\u{1F5E1} Melee ${sk.melee}</span>`
     + `<span>\u{1F3F9} Range ${sk.bow}</span>`
     + `<span>\u{1F525} Mage ${sk.mage}</span>`
+    + `<span>\u{1F373} Cook ${sk.cooking || 1}</span>`
     + `</div>` : "";
   popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Total Lv ${hit.totalLevel}</div>${skillsHtml}<div class="inspect-activity">${activity}</div>`;
   popup.style.left = Math.min(e.clientX, window.innerWidth - 220) + "px";
@@ -1957,6 +2117,12 @@ function animate(now) {
   if (input.keys.has("d") || input.keys.has("arrowright")) moveDir.add(camRight);
   if (input.keys.has("a") || input.keys.has("arrowleft")) moveDir.sub(camRight);
 
+  /* Jump */
+  if (input.keys.has(" ") && !_isJumping) {
+    _isJumping = true;
+    _jumpVelocity = JUMP_FORCE;
+  }
+
   const keyboardMove = moveDir.lengthSq() > 0.0001;
   if (keyboardMove) {
     hasMoveTarget = false;
@@ -2092,7 +2258,17 @@ function animate(now) {
 
   const groundY = getPlayerGroundY(player.position.x, player.position.z);
   const standY = groundY + playerFootOffset - playerGroundSink;
-  player.position.y = standY;
+  if (_isJumping) {
+    _jumpVelocity += GRAVITY * dt;
+    player.position.y += _jumpVelocity * dt;
+    if (player.position.y <= standY) {
+      player.position.y = standY;
+      _isJumping = false;
+      _jumpVelocity = 0;
+    }
+  } else {
+    player.position.y = standY;
+  }
   playerBlob.position.set(player.position.x, groundY + 0.03, player.position.z);
   const isMovingNow = moveDir.lengthSq() > 0.0001 && !activeGather && !activeAttack;
   updateAnimation(dt, {
@@ -2102,6 +2278,8 @@ function animate(now) {
     combatStyle,
     resourceType: activeGather?.resourceType,
   });
+  updateCampfire(dt);
+  updateCooking(dt);
   updateClickEffects(dt);
   updateEmoteBubbles(dt);
   updateNameTags();
@@ -2162,6 +2340,7 @@ function animate(now) {
       melee: skills.melee.level,
       bow: skills.bow.level,
       mage: skills.mage.level,
+      cooking: skills.cooking.level,
     },
   });
 

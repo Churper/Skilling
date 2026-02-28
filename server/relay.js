@@ -190,6 +190,7 @@ wss.on("connection", (ws) => {
           melee: Number(state.skills.melee) || 1,
           bow: Number(state.skills.bow) || 1,
           mage: Number(state.skills.mage) || 1,
+          cooking: Number(state.skills.cooking) || 1,
         } : null,
       };
       broadcast(
