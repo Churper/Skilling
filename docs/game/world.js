@@ -116,19 +116,48 @@ export function createCampfire(scene, x, y, z) {
     group.add(log);
   }
 
-  /* fire — orange cone */
-  const fireGeo = new THREE.ConeGeometry(0.22, 0.55, 8);
-  const fireMat = toonMat("#ff6b1a", { emissive: "#ff4500", emissiveIntensity: 0.6 });
-  const fire = new THREE.Mesh(fireGeo, fireMat);
-  fire.position.y = 0.35;
-  group.add(fire);
+  /* fire — multiple transparent additive flame layers */
+  const flameDefs = [
+    { r: 0.24, h: 0.6,  segs: 8, color: "#ff4500", opacity: 0.38, y: 0.38 },
+    { r: 0.17, h: 0.50, segs: 7, color: "#ff7b20", opacity: 0.32, y: 0.34 },
+    { r: 0.11, h: 0.38, segs: 6, color: "#ffaa22", opacity: 0.45, y: 0.30 },
+    { r: 0.06, h: 0.28, segs: 5, color: "#ffdd55", opacity: 0.50, y: 0.28 },
+  ];
+  const flames = [];
+  for (const fd of flameDefs) {
+    const geo = new THREE.ConeGeometry(fd.r, fd.h, fd.segs);
+    const mat = new THREE.MeshBasicMaterial({
+      color: fd.color,
+      transparent: true,
+      opacity: fd.opacity,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.y = fd.y;
+    mesh.renderOrder = 5;
+    group.add(mesh);
+    flames.push({ mesh, mat, baseY: fd.y, baseOp: fd.opacity, baseR: fd.r });
+  }
 
-  /* inner flame — yellow smaller cone */
-  const innerGeo = new THREE.ConeGeometry(0.12, 0.35, 6);
-  const innerMat = toonMat("#ffdd44", { emissive: "#ffaa00", emissiveIntensity: 0.8 });
-  const inner = new THREE.Mesh(innerGeo, innerMat);
-  inner.position.y = 0.30;
-  group.add(inner);
+  /* animate flames — wobble scale, position, and opacity */
+  let _flameT = Math.random() * 100;
+  const origUpdate = group.onBeforeRender;
+  group.onBeforeRender = () => {
+    _flameT += 0.016; // ~60fps step
+    for (let i = 0; i < flames.length; i++) {
+      const f = flames[i];
+      const phase = _flameT * (5 + i * 1.3) + i * 2.1;
+      const wobble = Math.sin(phase) * 0.4 + Math.sin(phase * 2.3) * 0.2;
+      f.mesh.scale.x = 0.8 + wobble * 0.35;
+      f.mesh.scale.z = 0.8 - wobble * 0.25;
+      f.mesh.scale.y = 0.85 + Math.sin(phase * 1.7) * 0.25;
+      f.mesh.position.y = f.baseY + Math.sin(phase * 0.9) * 0.04;
+      f.mesh.rotation.y = wobble * 0.3;
+      f.mat.opacity = f.baseOp * (0.7 + Math.sin(phase * 3.1) * 0.3);
+    }
+  };
 
   /* point light */
   const light = new THREE.PointLight("#ff8833", 1.2, 8);
