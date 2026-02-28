@@ -1254,9 +1254,9 @@ body {
   top: calc(58px + env(safe-area-inset-top));
   right: calc(16px + env(safe-area-inset-right));
   width: min(300px, calc(100vw - 32px));
-  max-height: min(70vh, 520px);
+  max-height: min(80vh, 640px);
   overflow-y: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   background: rgba(12, 18, 28, 0.92);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 14px;
@@ -1265,6 +1265,7 @@ body {
   z-index: 30;
   backdrop-filter: blur(12px);
 }
+.ui-settings-overlay::-webkit-scrollbar { display: none; }
 .ui-settings-overlay[hidden] { display: none; }
 .ui-settings-overlay-head {
   display: flex;
