@@ -56,6 +56,10 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
       if (entry.avatar.setEquippedTool) entry.avatar.setEquippedTool(state.tool);
     }
     if (typeof state.combatStyle === "string") entry.combatStyle = state.combatStyle;
+    if (Number.isFinite(state.scaleY) && Number.isFinite(state.scaleXZ)) {
+      entry.targetScaleY = state.scaleY;
+      entry.targetScaleXZ = state.scaleXZ;
+    }
   }
 
   function upsertPeer(peer) {
@@ -99,6 +103,18 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
       if (entry.avatar.playerBlob) {
         entry.avatar.playerBlob.position.set(entry.avatar.player.position.x, groundY + 0.03, entry.avatar.player.position.z);
       }
+      /* apply crouch/jump squish from remote */
+      const tgtSY = entry.targetScaleY ?? 1;
+      const tgtSXZ = entry.targetScaleXZ ?? 1;
+      const curSY = entry.avatar.player.scale.y;
+      const curSXZ = entry.avatar.player.scale.x;
+      const lerpF = 1 - Math.exp(-dt * 12);
+      entry.avatar.player.scale.set(
+        curSXZ + (tgtSXZ - curSXZ) * lerpF,
+        curSY + (tgtSY - curSY) * lerpF,
+        curSXZ + (tgtSXZ - curSXZ) * lerpF,
+      );
+
       entry.avatar.updateAnimation(dt, {
         moving: entry.moving,
         gathering: entry.gathering,

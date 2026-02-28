@@ -2281,11 +2281,21 @@ function animate(now) {
   } else {
     player.position.y = standY;
   }
-  /* Crouch squish — lerp toward target */
+  /* Crouch squish — lerp toward target, snap when close */
   const crouchTarget = _isCrouching ? 1 : 0;
   _crouchT += (crouchTarget - _crouchT) * Math.min(1, dt * CROUCH_SPEED);
-  const squishY = 1 - _crouchT * 0.45;       // flatten to 55% height
-  const squishXZ = 1 + _crouchT * 0.25;       // widen to 125%
+  if (Math.abs(_crouchT - crouchTarget) < 0.005) _crouchT = crouchTarget;
+
+  /* Jump stretch — tall & narrow (opposite of crouch) */
+  let jumpStretch = 0;
+  if (_isJumping) {
+    const upPhase = _jumpVelocity > 0 ? 1 : 0;
+    const speed = Math.abs(_jumpVelocity) / JUMP_FORCE;
+    jumpStretch = speed * 0.35 * (upPhase ? 1 : 0.6);
+  }
+
+  const squishY = (1 - _crouchT * 0.45) * (1 + jumpStretch);
+  const squishXZ = (1 + _crouchT * 0.25) * (1 - jumpStretch * 0.4);
   player.scale.set(squishXZ, squishY, squishXZ);
 
   playerBlob.position.set(player.position.x, groundY + 0.03, player.position.z);
@@ -2348,6 +2358,10 @@ function animate(now) {
     moving: isMovingNow,
     gathering: !!activeGather,
     attacking: !!activeAttack,
+    crouching: _isCrouching,
+    jumping: _isJumping,
+    scaleY: squishY,
+    scaleXZ: squishXZ,
     combatStyle,
     tool: equippedTool,
     overhead: getActiveOverhead() || "",
