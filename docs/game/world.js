@@ -789,7 +789,6 @@ const SERVICE_BUILDER = {
   "Svc_Blacksmith":  { builder: (s, x, z, n) => addSmith(s, x, z, n) },
   "Svc_Dummy":       { builder: (s, x, z, n) => addDummy(s, x, z, n) },
   "Svc_Construction":{ builder: (s, x, z, n) => addYard(s, x, z, n) },
-  "Svc_Cave":        { builder: (s, x, z, n) => addCaveEntrance(s, x, z, n, []) },
 };
 /* Service tags — GLTF model objects that need service interaction wired up */
 const SERVICE_TAG = {
