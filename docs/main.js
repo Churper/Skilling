@@ -80,8 +80,8 @@ const animals = [];  // { node, hp, maxHp, spawnPos, alive, wanderTimer, wanderT
 function registerAnimal(hsNode, parentModel) {
   const type = parentModel.userData.animalType || "Cow";
   const maxHp = ANIMAL_HP[type] || 10;
-  const spawnPos = new THREE.Vector3();
-  parentModel.getWorldPosition(spawnPos);
+  /* use local position directly — map_objects group is always at origin */
+  const spawnPos = parentModel.position.clone();
 
   const hpBar = document.createElement("div");
   hpBar.className = "animal-hp-bar";
@@ -93,7 +93,7 @@ function registerAnimal(hsNode, parentModel) {
 
   animals.push({
     node: hsNode, parentModel, type, hp: maxHp, maxHp,
-    spawnPos: spawnPos.clone(), alive: true,
+    spawnPos, alive: true,
     wanderTimer: 1 + Math.random() * 3,
     wanderTarget: null, hpBar, hpFill, respawnTimer: 0,
     origScale: parentModel.scale.x,
