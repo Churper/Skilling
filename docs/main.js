@@ -619,6 +619,7 @@ function showEmote(emoji, options = {}) {
     UKR: '<span class="flag-ukr"></span>',
     ISR: '<span class="flag-isr"><svg viewBox="0 0 26 18" style="position:absolute;top:0;left:0;width:100%;height:100%"><polygon points="13,5 15.2,10 10.8,10" fill="none" stroke="#0038b8" stroke-width="0.8"/><polygon points="13,13 10.8,8 15.2,8" fill="none" stroke="#0038b8" stroke-width="0.8"/></svg></span>',
     POL: '<span class="flag-pol"></span>',
+    TRANS: '<span class="flag-trans"></span>',
   };
   const el = document.createElement("div");
   el.className = "chat-bubble";

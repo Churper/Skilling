@@ -973,7 +973,7 @@ body {
 }
 /* ── Mini CSS flags ── */
 .ui-emote-btn.ui-emote-flag { padding: 4px; }
-.flag-usa, .flag-ukr, .flag-isr, .flag-pol {
+.flag-usa, .flag-ukr, .flag-isr, .flag-pol, .flag-trans {
   display: block;
   width: 26px;
   height: 18px;
@@ -1001,6 +1001,14 @@ body {
       #0038b8 85%, #0038b8 100%);
 }
 .flag-pol { background: linear-gradient(to bottom, #fff 50%, #dc143c 50%); }
+.flag-trans {
+  background: linear-gradient(to bottom,
+    #5bcefa 0%, #5bcefa 20%,
+    #f5a9b8 20%, #f5a9b8 40%,
+    #fff 40%, #fff 60%,
+    #f5a9b8 60%, #f5a9b8 80%,
+    #5bcefa 80%, #5bcefa 100%);
+}
 
 /* ── Prayer ── */
 .ui-prayer-heading {
@@ -1108,7 +1116,8 @@ body {
 .chat-bubble .flag-usa,
 .chat-bubble .flag-ukr,
 .chat-bubble .flag-isr,
-.chat-bubble .flag-pol {
+.chat-bubble .flag-pol,
+.chat-bubble .flag-trans {
   width: 40px;
   height: 28px;
   border-radius: 4px;
