@@ -783,6 +783,8 @@ function updateMeshRegion(cx, cz, radius) {
       hPos[i3 + 1] = y;
       const fc = vertColor(x, z, y);
       hCol[i3] = fc.r; hCol[i3 + 1] = fc.g; hCol[i3 + 2] = fc.b;
+      /* push to neighbor if this vertex is on a chunk edge */
+      if (ix === 0 || ix === hnx-1 || iz === 0 || iz === hnz-1) syncOneVertex(ix, iz);
     }
   }
   groundGeo.attributes.position.needsUpdate = true;
@@ -805,46 +807,32 @@ function rebuildAllVerts() {
 }
 
 /**
- * Sync edge vertices from the active chunk to its neighbor chunk meshes.
- * When brush touches the edge of a chunk, the neighbor's matching edge row/col
- * must show the same height + color so there's no visible seam.
+ * If vertex (ix, iz) sits on an edge of the active chunk, push that single
+ * vertex's Y + color to the matching vertex in the neighbor chunk mesh.
+ * Called per-vertex inside the brush loop — only fires for the handful of
+ * vertices actually on an edge, so near-zero cost for interior edits.
  */
-function syncNeighborEdges() {
+function syncOneVertex(ix, iz) {
   const [acx, acz] = activeEditChunk;
-  /* edges: local grid ix=0 → neighbor (acx-1, acz) ix=hnx-1, etc. */
-  const edgePairs = [
-    { dix: 0,      diz: null, ncx: acx - 1, ncz: acz, nix: hnx - 1, niz: null }, // west edge
-    { dix: hnx-1,  diz: null, ncx: acx + 1, ncz: acz, nix: 0,       niz: null }, // east edge
-    { dix: null,   diz: 0,    ncx: acx,     ncz: acz - 1, nix: null, niz: hnz - 1 }, // south edge
-    { dix: null,   diz: hnz-1,ncx: acx,     ncz: acz + 1, nix: null, niz: 0       }, // north edge
-  ];
-  for (const ep of edgePairs) {
-    const nk = chunkKey(ep.ncx, ep.ncz);
-    const ne = chunkMeshes.get(nk);
-    if (!ne) continue;
-    const np = ne.hPos, nc = ne.hCol;
-    if (ep.dix !== null) {
-      /* vertical edge — copy column */
-      for (let iz = 0; iz < hnz; iz++) {
-        const svi = hvi(ep.dix, iz), dvi = hvi(ep.nix, iz);
-        np[dvi*3+1] = hPos[svi*3+1]; // y position
-        nc[dvi*3] = hCol[svi*3]; nc[dvi*3+1] = hCol[svi*3+1]; nc[dvi*3+2] = hCol[svi*3+2];
-        ne.heightOffsets[dvi] = heightOffsets[svi];
-      }
-    } else {
-      /* horizontal edge — copy row */
-      for (let ix = 0; ix < hnx; ix++) {
-        const svi = hvi(ix, ep.diz), dvi = hvi(ix, ep.niz);
-        np[dvi*3+1] = hPos[svi*3+1];
-        nc[dvi*3] = hCol[svi*3]; nc[dvi*3+1] = hCol[svi*3+1]; nc[dvi*3+2] = hCol[svi*3+2];
-        ne.heightOffsets[dvi] = heightOffsets[svi];
-      }
-    }
-    ne.geo.attributes.position.needsUpdate = true;
-    ne.geo.attributes.color.needsUpdate = true;
-    /* skip full computeVertexNormals — position match eliminates the visible seam,
-       normals update on next full rebuild or when that chunk becomes active */
-  }
+  const svi = hvi(ix, iz), s3 = svi * 3;
+  /* west edge */
+  if (ix === 0)       _pushToNeighbor(acx - 1, acz, hnx - 1, iz, svi, s3);
+  /* east edge */
+  if (ix === hnx - 1) _pushToNeighbor(acx + 1, acz, 0, iz, svi, s3);
+  /* south edge */
+  if (iz === 0)       _pushToNeighbor(acx, acz - 1, ix, hnz - 1, svi, s3);
+  /* north edge */
+  if (iz === hnz - 1) _pushToNeighbor(acx, acz + 1, ix, 0, svi, s3);
+}
+function _pushToNeighbor(ncx, ncz, nix, niz, svi, s3) {
+  const ne = chunkMeshes.get(chunkKey(ncx, ncz));
+  if (!ne) return;
+  const dvi = hvi(nix, niz), d3 = dvi * 3;
+  ne.hPos[d3 + 1] = hPos[s3 + 1];
+  ne.hCol[d3] = hCol[s3]; ne.hCol[d3+1] = hCol[s3+1]; ne.hCol[d3+2] = hCol[s3+2];
+  ne.heightOffsets[dvi] = heightOffsets[svi];
+  ne.geo.attributes.position.needsUpdate = true;
+  ne.geo.attributes.color.needsUpdate = true;
 }
 
 /* Ghost system removed — all chunks rendered as full-res meshes */
@@ -1176,7 +1164,7 @@ function paintAt(wx, wz, dt) {
     }
   }
   updateMeshRegion(cx, cz, brushRadius);
-  syncNeighborEdges();
+
 }
 
 function hSaveUndo() { hUndoSnap = new Float32Array(heightOffsets); }
@@ -1223,7 +1211,7 @@ function paintColorAt(wx, wz, dt) {
     }
   }
   updateMeshRegion(cx, cz, brushRadius);
-  syncNeighborEdges();
+
 }
 function pSaveUndo() { pUndoSnap = JSON.parse(JSON.stringify(colorOverrides)); }
 function pPushUndo() { if (pUndoSnap !== null) { pUndoStack.push(pUndoSnap); if (pUndoStack.length > 50) pUndoStack.shift(); pUndoSnap = null; } }
