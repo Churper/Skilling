@@ -402,8 +402,8 @@ function saveCurrentChunkToStore() {
   const entry = chunkMeshes.get(currentChunkKey());
   if (entry) {
     entry.baseType = cd.baseType;
-    entry.waterMesh.visible = cd.water;
   }
+  rebuildWaterPlane();
 }
 
 /** Load chunk data from store — build mesh if needed, update UI */
@@ -459,7 +459,6 @@ function switchChunk(cx, cz) {
   const prevEntry = chunkMeshes.get(chunkKey(currentChunk[0], currentChunk[1]));
   if (prevEntry) {
     prevEntry.baseType = prevCd.baseType;
-    prevEntry.waterMesh.visible = prevCd.water;
   }
   /* switch to new chunk */
   currentChunk = [cx, cz];
@@ -497,7 +496,7 @@ let heightOffsets = new Float32Array(hnx * hnz);
 const hUndoStack = [];
 let activeBaseType = "grass";
 let activeEditChunk = [0, 0];
-const chunkMeshes = new Map(); // "cx,cz" → { mesh, geo, hPos, hCol, heightOffsets, colorOverrides, waterMesh, baseType, cx, cz }
+const chunkMeshes = new Map(); // "cx,cz" → { mesh, geo, hPos, hCol, heightOffsets, colorOverrides, baseType, cx, cz }
 
 function worldToChunk(wx, wz) {
   return [Math.floor((wx - xMin) / CHUNK_SIZE), Math.floor((wz - zMin) / CHUNK_SIZE)];
@@ -700,13 +699,8 @@ function buildChunkMesh(cx, cz) {
   geo.setAttribute("color", new THREE.BufferAttribute(hc, 3));
   geo.setIndex(idx); geo.computeVertexNormals();
   const mesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
-  const wGeo = new THREE.PlaneGeometry(xMax-xMin+6, zMax-zMin+6, 1, 1);
-  wGeo.rotateX(-Math.PI / 2);
-  const wMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
-  wMesh.position.set((xMin+xMax)/2 + ox, WATER_Y, (zMin+zMax)/2 + oz);
-  wMesh.renderOrder = 2; wMesh.visible = cd.water;
-  scene.add(mesh); scene.add(wMesh);
-  const entry = { mesh, geo, hPos: hp, hCol: hc, heightOffsets: ho, colorOverrides: co, waterMesh: wMesh, baseType: bt, cx, cz };
+  scene.add(mesh);
+  const entry = { mesh, geo, hPos: hp, hCol: hc, heightOffsets: ho, colorOverrides: co, baseType: bt, cx, cz };
   chunkMeshes.set(chunkKey(cx, cz), entry);
   return entry;
 }
@@ -716,7 +710,6 @@ function removeChunkMesh(cx, cz) {
   const entry = chunkMeshes.get(key);
   if (!entry) return;
   scene.remove(entry.mesh); entry.geo.dispose();
-  scene.remove(entry.waterMesh); entry.waterMesh.geometry.dispose();
   chunkMeshes.delete(key);
 }
 
@@ -753,6 +746,31 @@ function ensureAllChunkMeshes() {
     }
   }
   if (!chunkMeshes.has("0,0")) { ensureChunkData(0, 0); buildChunkMesh(0, 0); }
+  rebuildWaterPlane();
+}
+
+/* single water plane covering all water-enabled chunks */
+let _waterMesh = null;
+function rebuildWaterPlane() {
+  if (_waterMesh) { scene.remove(_waterMesh); _waterMesh.geometry.dispose(); _waterMesh = null; }
+  /* find bounding box of all chunks with water enabled */
+  let wxMin = Infinity, wxMax = -Infinity, wzMin = Infinity, wzMax = -Infinity;
+  let hasWater = false;
+  for (const [key, cd] of chunkDataStore) {
+    if (!cd.water) continue;
+    hasWater = true;
+    const [cx, cz] = key.split(",").map(Number);
+    const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
+    wxMin = Math.min(wxMin, xMin + ox); wxMax = Math.max(wxMax, xMax + ox);
+    wzMin = Math.min(wzMin, zMin + oz); wzMax = Math.max(wzMax, zMax + oz);
+  }
+  if (!hasWater) return;
+  const wGeo = new THREE.PlaneGeometry(wxMax - wxMin, wzMax - wzMin, 1, 1);
+  wGeo.rotateX(-Math.PI / 2);
+  _waterMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
+  _waterMesh.position.set((wxMin + wxMax) / 2, WATER_Y, (wzMin + wzMax) / 2);
+  _waterMesh.renderOrder = 2;
+  scene.add(_waterMesh);
 }
 
 function saveAllChunksToStore() {
@@ -1720,7 +1738,6 @@ function importJSON(json) {
     /* remove existing chunk meshes */
     for (const [key, entry] of chunkMeshes) {
       scene.remove(entry.mesh); entry.geo.dispose();
-      scene.remove(entry.waterMesh); entry.waterMesh.geometry.dispose();
     }
     chunkMeshes.clear();
     /* world.json format: { chunks, spawn, data: { "cx,cz": chunkPayload } } */
@@ -1784,8 +1801,9 @@ document.getElementById("chunk-new").addEventListener("click", () => {
 
 /* water toggle — toggle selected chunk's water mesh */
 document.getElementById("chunk-water").addEventListener("change", () => {
-  const entry = chunkMeshes.get(currentChunkKey());
-  if (entry) entry.waterMesh.visible = document.getElementById("chunk-water").checked;
+  const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
+  cd.water = document.getElementById("chunk-water").checked;
+  rebuildWaterPlane();
 });
 /* edge toggle buttons */
 for (const id of ["edge-n", "edge-s", "edge-e", "edge-w"]) {
