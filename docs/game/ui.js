@@ -63,6 +63,7 @@ export function initializeUI(options = {}) {
   const bankCloseBtn = document.getElementById("ui-bank-close");
   const bankVaultGrid = document.getElementById("ui-bank-vault-grid");
   const bankInvGrid = document.getElementById("ui-bank-inv-grid");
+  const bankQtyButtons = Array.from(document.querySelectorAll(".ui-bank-qty-btn"));
 
   const combatStyleButtons = Array.from(document.querySelectorAll("[data-combat-style]"));
   const attackButton = document.getElementById("ui-attack-btn");
@@ -255,6 +256,15 @@ export function initializeUI(options = {}) {
   }
 
   let _bankOpen = false;
+  let _bankQty = "1";
+
+  /* Quantity toggle */
+  for (const btn of bankQtyButtons) {
+    btn.addEventListener("click", () => {
+      _bankQty = btn.dataset.bankQty;
+      for (const b of bankQtyButtons) b.classList.toggle("is-active", b === btn);
+    });
+  }
 
   function _renderBankSlot(container, itemType, count, onClick) {
     const slot = document.createElement("div");
@@ -282,7 +292,6 @@ export function initializeUI(options = {}) {
 
   function setBank(payload = {}) {
     if (!bankVaultGrid || !bankInvGrid) return;
-    const bag = payload.bag || {};
     const bank = payload.bank || {};
     const slots = Array.isArray(payload.slots) ? payload.slots : [];
     const capacity = Math.max(0, Math.floor(Number(payload.capacity) || 0));
@@ -292,7 +301,7 @@ export function initializeUI(options = {}) {
     const bankItems = Object.keys(bank).filter(k => bank[k] > 0);
     for (const key of bankItems) {
       _renderBankSlot(bankVaultGrid, key, bank[key], () => {
-        if (typeof onBankTransfer === "function") onBankTransfer("withdraw", key, "1");
+        if (typeof onBankTransfer === "function") onBankTransfer("withdraw", key, _bankQty);
       });
     }
     if (bankItems.length === 0) {
@@ -307,7 +316,7 @@ export function initializeUI(options = {}) {
     for (let i = 0; i < capacity; i++) {
       const itemType = slots[i] || null;
       _renderBankSlot(bankInvGrid, itemType, 1, () => {
-        if (itemType && typeof onBankTransfer === "function") onBankTransfer("deposit", itemType, "1");
+        if (itemType && typeof onBankTransfer === "function") onBankTransfer("deposit", itemType, _bankQty);
       });
     }
   }

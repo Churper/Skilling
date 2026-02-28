@@ -63,8 +63,14 @@
     <div id="ui-bank-overlay" class="ui-bank-overlay" hidden>
       <div class="ui-bank-modal">
         <div class="ui-bank-modal-header">
-          <span class="ui-bank-modal-title">Bank</span>
+          <span class="ui-bank-modal-title">&#x1F4E6; Bank</span>
           <button type="button" id="ui-bank-close" class="ui-bank-close-btn">&times;</button>
+        </div>
+        <div class="ui-bank-qty-bar">
+          <span class="ui-bank-qty-label">Amount:</span>
+          <button type="button" class="ui-bank-qty-btn is-active" data-bank-qty="1">1</button>
+          <button type="button" class="ui-bank-qty-btn" data-bank-qty="5">5</button>
+          <button type="button" class="ui-bank-qty-btn" data-bank-qty="all">All</button>
         </div>
         <div class="ui-bank-modal-body">
           <div class="ui-bank-col">
