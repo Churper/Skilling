@@ -22,7 +22,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -76,6 +76,7 @@ export function initializeUI(options = {}) {
     store: "Store",
     skills: "Skills",
     combat: "Combat",
+    prayer: "Prayer",
     emotes: "Emotes",
     friends: "Friends",
     settings: "Settings",
@@ -381,6 +382,22 @@ export function initializeUI(options = {}) {
     });
   }
 
+  const prayerButtons = Array.from(document.querySelectorAll(".ui-prayer-btn"));
+  for (const button of prayerButtons) {
+    button.addEventListener("click", () => {
+      const id = button.dataset.prayer;
+      if (!id) return;
+      const wasActive = button.classList.contains("is-active");
+      if (typeof onPrayerToggle === "function") onPrayerToggle(id, !wasActive);
+    });
+  }
+
+  function setPrayerActive(id, active) {
+    for (const b of prayerButtons) {
+      if (b.dataset.prayer === id) b.classList.toggle("is-active", active);
+    }
+  }
+
   const emoteButtons = Array.from(document.querySelectorAll(".ui-emote-btn"));
   for (const button of emoteButtons) {
     button.addEventListener("click", () => {
@@ -423,5 +440,6 @@ export function initializeUI(options = {}) {
     openStore,
     setBank,
     openBank,
+    setPrayerActive,
   };
 }

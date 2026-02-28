@@ -19,6 +19,7 @@ import {
   TOOL_UPGRADE_MAX_LEVEL,
   HOUSE_BUILD_TARGET,
   SLIME_COLOR_SHOP,
+  PRAYERS,
 } from "./game/config.js";
 import { createBagSystem } from "./game/systems/bagSystem.js";
 import { createConstructionProgress } from "./game/systems/constructionProgress.js";
@@ -58,6 +59,7 @@ const skills = {
   mage: { xp: 0, level: 1 },
 };
 let inCave = false;
+const activePrayers = new Set();
 const onlineConfig = resolveOnlineConfig();
 const remotePlayers = createRemotePlayers({
   scene,
@@ -92,6 +94,9 @@ const ui = initializeUI({
     combatStyle = style;
     equipTool(getCombatToolForStyle(style), false);
   },
+  onPrayerToggle: (id, on) => {
+    togglePrayer(id, on);
+  },
 });
 
 function getCombatToolForStyle(style) {
@@ -107,6 +112,35 @@ function equipTool(tool, announce = false) {
   setEquippedTool(tool);
   ui?.setActiveTool(tool);
   if (announce) ui?.setStatus(`Equipped ${TOOL_LABEL[tool]}.`, "info");
+}
+
+function togglePrayer(id, on) {
+  const prayer = PRAYERS[id];
+  if (!prayer) return;
+  if (on) {
+    // Overhead prayers are exclusive — only one at a time
+    if (prayer.exclusive === "overhead") {
+      for (const [pid, p] of Object.entries(PRAYERS)) {
+        if (p.exclusive === "overhead" && pid !== id && activePrayers.has(pid)) {
+          activePrayers.delete(pid);
+          ui?.setPrayerActive(pid, false);
+        }
+      }
+    }
+    activePrayers.add(id);
+  } else {
+    activePrayers.delete(id);
+  }
+  ui?.setPrayerActive(id, on);
+  updateLocalOverheadIcon();
+}
+
+function getActiveOverhead() {
+  for (const id of activePrayers) {
+    const p = PRAYERS[id];
+    if (p && p.exclusive === "overhead") return id;
+  }
+  return null;
 }
 
 function bagUsedCount() {
@@ -248,6 +282,7 @@ netClient = createRealtimeClient({
   onPeerLeave: (id) => {
     remotePlayers.removePeer(id);
     removeNameTag(id);
+    removeOverheadIcon(id);
     syncFriendsUI();
   },
   onPeerState: (msg) => {
@@ -256,6 +291,9 @@ netClient = createRealtimeClient({
     if (msg.id && msg.name) {
       const tag = getOrCreateNameTag(msg.id);
       if (tag.name !== msg.name) { tag.nameSpan.textContent = msg.name; tag.name = msg.name; }
+    }
+    if (msg.id && msg.state) {
+      setRemoteOverhead(msg.id, msg.state.overhead || null);
     }
   },
   onPeerEmote: (msg) => {
@@ -534,6 +572,83 @@ function updateNameTags() {
     anchor.project(camera);
     tag.el.style.left = (anchor.x * hw + hw) + "px";
     tag.el.style.top = (-anchor.y * hh + hh) + "px";
+  }
+}
+
+/* ── Overhead prayer icons ── */
+const OVERHEAD_ICON_MAP = {
+  protect_melee: "\uD83D\uDEE1\uFE0F",
+  protect_range: "\uD83C\uDFF9",
+  protect_mage: "\uD83D\uDD25",
+};
+const overheadIcons = new Map(); // key -> { el, prayerId }
+const _ohProj = new THREE.Vector3();
+
+function getOrCreateOverheadIcon(key) {
+  let entry = overheadIcons.get(key);
+  if (entry) return entry;
+  const el = document.createElement("div");
+  el.className = "prayer-overhead-icon";
+  getBubbleLayer().appendChild(el);
+  entry = { el, prayerId: null };
+  overheadIcons.set(key, entry);
+  return entry;
+}
+
+function removeOverheadIcon(key) {
+  const entry = overheadIcons.get(key);
+  if (!entry) return;
+  entry.el.remove();
+  overheadIcons.delete(key);
+}
+
+function updateLocalOverheadIcon() {
+  const overhead = getActiveOverhead();
+  if (overhead) {
+    const entry = getOrCreateOverheadIcon("local");
+    if (entry.prayerId !== overhead) {
+      entry.el.textContent = OVERHEAD_ICON_MAP[overhead] || "";
+      entry.prayerId = overhead;
+    }
+  } else {
+    removeOverheadIcon("local");
+  }
+}
+
+function updateOverheadIcons() {
+  const hw = renderer.domElement.clientWidth * 0.5;
+  const hh = renderer.domElement.clientHeight * 0.5;
+
+  // Local player
+  const localEntry = overheadIcons.get("local");
+  if (localEntry) {
+    _ohProj.set(player.position.x, player.position.y + playerHeadOffset + 0.65, player.position.z);
+    _ohProj.project(camera);
+    localEntry.el.style.left = (_ohProj.x * hw + hw) + "px";
+    localEntry.el.style.top = (-_ohProj.y * hh + hh) + "px";
+  }
+
+  // Remote players
+  for (const [key, entry] of overheadIcons) {
+    if (key === "local") continue;
+    const anchor = remotePlayers.getEmoteAnchor(key, _ohProj);
+    if (!anchor) { removeOverheadIcon(key); continue; }
+    anchor.y += 0.25;
+    anchor.project(camera);
+    entry.el.style.left = (anchor.x * hw + hw) + "px";
+    entry.el.style.top = (-anchor.y * hh + hh) + "px";
+  }
+}
+
+function setRemoteOverhead(id, prayerId) {
+  if (!prayerId) {
+    removeOverheadIcon(id);
+    return;
+  }
+  const entry = getOrCreateOverheadIcon(id);
+  if (entry.prayerId !== prayerId) {
+    entry.el.textContent = OVERHEAD_ICON_MAP[prayerId] || "";
+    entry.prayerId = prayerId;
   }
 }
 
@@ -1531,6 +1646,28 @@ if (bloomCheck && composer.passes) {
     }
   });
 }
+/* name input */
+const nameInput = document.getElementById("setting-name");
+if (nameInput) {
+  nameInput.value = onlineConfig.name;
+  const applyName = () => {
+    const v = nameInput.value.trim();
+    if (v && netClient) { onlineConfig.name = v; netClient.updateProfile({ name: v }); }
+  };
+  nameInput.addEventListener("change", applyName);
+  nameInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { nameInput.blur(); } });
+}
+/* connection status */
+const connStatus = document.getElementById("setting-connection");
+let _lastConnState = null;
+function updateConnStatus() {
+  if (!connStatus) return;
+  const on = netClient && netClient.isConnected();
+  if (on === _lastConnState) return;
+  _lastConnState = on;
+  connStatus.textContent = on ? "Online" : "Offline";
+  connStatus.className = "ui-conn-status " + (on ? "connected" : "disconnected");
+}
 
 function animate() {
   const dt = Math.min(0.033, clock.getDelta());
@@ -1691,6 +1828,7 @@ function animate() {
   updateClickEffects(dt);
   updateEmoteBubbles(dt);
   updateNameTags();
+  updateOverheadIcons();
   updateFloatingDrops(dt);
   combatEffects.update(dt);
   updateSlimeTrail(dt, t, isMovingNow);
@@ -1735,10 +1873,12 @@ function animate() {
     attacking: !!activeAttack,
     combatStyle,
     tool: equippedTool,
+    overhead: getActiveOverhead() || "",
   });
 
   composer.render();
   updateDebugOverlay();
+  updateConnStatus();
   requestAnimationFrame(animate);
 }
 

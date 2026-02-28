@@ -42,6 +42,10 @@
         <span class="ui-tab-icon" aria-hidden="true">&#x2694;</span>
         <span class="ui-tab-label">Combat</span>
       </button>
+      <button type="button" class="ui-tab-btn" data-tab="prayer">
+        <span class="ui-tab-icon" aria-hidden="true">&#x271D;</span>
+        <span class="ui-tab-label">Prayer</span>
+      </button>
       <button type="button" class="ui-tab-btn" data-tab="friends">
         <span class="ui-tab-icon" aria-hidden="true">&#x1F465;</span>
         <span class="ui-tab-label">Friends</span>
@@ -98,6 +102,15 @@
       </section>
       <section class="ui-panel-section" data-tab-panel="settings" hidden>
         <div class="ui-settings-list">
+          <div class="ui-settings-row">
+            <span>Name</span>
+            <input type="text" id="setting-name" maxlength="16" placeholder="Slime1234" spellcheck="false" autocomplete="off">
+          </div>
+          <div class="ui-settings-row">
+            <span>Server</span>
+            <span id="setting-connection" class="ui-conn-status">--</span>
+          </div>
+          <hr class="ui-settings-divider">
           <label class="ui-settings-row">
             <span>Show FPS</span>
             <input type="checkbox" id="setting-fps">
@@ -295,6 +308,23 @@
           <button type="button" class="ui-combat-btn ui-tool-btn is-active" data-tool="fishing" title="Fishing Pole">&#x1F3A3;</button>
         </div>
         <p class="ui-combat-hint">Left-click a Training Dummy to attack</p>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="prayer" hidden>
+        <p class="ui-prayer-heading">Offensive</p>
+        <div class="ui-prayer-grid">
+          <button type="button" class="ui-prayer-btn" data-prayer="clarity" title="Clarity of Thought: +5% melee accuracy">&#x2694;&#xFE0F;<span>Clarity</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="sharp_eye" title="Sharp Eye: +5% ranged accuracy">&#x1F3F9;<span>Sharp Eye</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="mystic_will" title="Mystic Will: +5% magic accuracy">&#x1F52E;<span>Mystic Will</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="burst_str" title="Burst of Strength: +5% melee damage">&#x1F4AA;<span>Burst Str</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="superhuman" title="Superhuman Strength: +10% melee damage">&#x26A1;<span>Superhuman</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="eagle_eye" title="Eagle Eye: +10% ranged accuracy">&#x1F9E0;<span>Eagle Eye</span></button>
+        </div>
+        <p class="ui-prayer-heading">Overhead Protection</p>
+        <div class="ui-prayer-grid ui-prayer-overhead">
+          <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_melee" title="Protect from Melee">&#x1F6E1;&#xFE0F;<span>Melee</span></button>
+          <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_range" title="Protect from Range">&#x1F3F9;<span>Range</span></button>
+          <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_mage" title="Protect from Magic">&#x1F525;<span>Magic</span></button>
+        </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="friends" hidden>
         <p id="ui-friends-online">Offline</p>

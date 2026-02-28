@@ -331,6 +331,40 @@ body {
   font-size: 0.8rem;
   font-family: inherit;
 }
+.ui-settings-row input[type="text"] {
+  background: var(--ui-btn-bg);
+  color: var(--ui-fg);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  width: 110px;
+  text-align: right;
+}
+.ui-settings-row input[type="text"]:focus {
+  outline: none;
+  border-color: var(--ui-accent);
+}
+.ui-settings-divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin: 4px 12px;
+}
+.ui-conn-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.ui-conn-status.connected {
+  color: #4ade80;
+  background: rgba(74,222,128,0.1);
+}
+.ui-conn-status.disconnected {
+  color: #f87171;
+  background: rgba(248,113,113,0.1);
+}
 
 /* ── Debug overlay ── */
 #debug-overlay {
@@ -861,6 +895,83 @@ body {
 
 .ui-emote-btn:active {
   transform: scale(0.94);
+}
+
+/* ── Prayer ── */
+.ui-prayer-heading {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ui-ink-2);
+  text-shadow: var(--ui-text-shadow);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.ui-prayer-heading + .ui-prayer-heading,
+.ui-prayer-grid + .ui-prayer-heading {
+  margin-top: 12px;
+}
+.ui-prayer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.ui-prayer-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 2px;
+  border-radius: var(--ui-radius-md);
+  border: 2px solid transparent;
+  background: var(--ui-btn-bg);
+  color: var(--ui-ink-1);
+  font-size: 22px;
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms ease, border-color 120ms ease;
+}
+.ui-prayer-btn span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ui-ink-3);
+  line-height: 1;
+}
+.ui-prayer-btn:hover {
+  background: var(--ui-btn-bg-hover);
+  transform: scale(1.04);
+}
+.ui-prayer-btn:active {
+  transform: scale(0.96);
+}
+.ui-prayer-btn.is-active {
+  border-color: rgba(220, 200, 80, 0.7);
+  background: rgba(240, 220, 80, 0.2);
+  box-shadow: 0 0 8px rgba(240, 220, 80, 0.25);
+}
+.ui-prayer-btn.is-active span {
+  color: var(--ui-ink-1);
+}
+.ui-prayer-overhead-btn.is-active {
+  border-color: rgba(80, 180, 255, 0.7);
+  background: rgba(80, 180, 255, 0.2);
+  box-shadow: 0 0 8px rgba(80, 180, 255, 0.25);
+}
+
+/* overhead prayer icon above player */
+.prayer-overhead-icon {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  font-size: 20px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+  pointer-events: none;
+  animation: prayer-pulse 1.5s ease-in-out infinite;
+}
+@keyframes prayer-pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
 }
 
 /* ── Friends ── */

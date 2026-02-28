@@ -350,6 +350,8 @@ export function createRealtimeClient({
   return {
     isEnabled: !!wsUrl || !!fallbackLocal,
     getLocalId: () => localId,
+    isConnected: () => connected || usingLocalTransport,
+    getName: () => name,
     connect,
     disconnect,
     sendState,

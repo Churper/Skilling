@@ -56,6 +56,20 @@ export const HOUSE_BUILD_TARGET = {
   ore: 80,
 };
 
+export const PRAYERS = {
+  // Offensive
+  clarity: { label: "Clarity of Thought", type: "offensive", icon: "\u2694\uFE0F", desc: "+5% melee accuracy" },
+  sharp_eye: { label: "Sharp Eye", type: "offensive", icon: "\uD83C\uDFF9", desc: "+5% ranged accuracy" },
+  mystic_will: { label: "Mystic Will", type: "offensive", icon: "\uD83D\uDD2E", desc: "+5% magic accuracy" },
+  burst_str: { label: "Burst of Strength", type: "offensive", icon: "\uD83D\uDCAA", desc: "+5% melee damage" },
+  superhuman: { label: "Superhuman Strength", type: "offensive", icon: "\u26A1", desc: "+10% melee damage" },
+  eagle_eye: { label: "Eagle Eye", type: "offensive", icon: "\uD83E\uDDE0", desc: "+10% ranged accuracy" },
+  // Defensive (overhead)
+  protect_melee: { label: "Protect from Melee", type: "overhead", icon: "\uD83D\uDEE1\uFE0F", desc: "Block melee attacks", exclusive: "overhead" },
+  protect_range: { label: "Protect from Range", type: "overhead", icon: "\uD83C\uDFF9", desc: "Block ranged attacks", exclusive: "overhead" },
+  protect_mage: { label: "Protect from Magic", type: "overhead", icon: "\uD83D\uDD25", desc: "Block magic attacks", exclusive: "overhead" },
+};
+
 export const SLIME_COLOR_SHOP = [
   { id: "lime", label: "Lime", color: "#58df78", cost: 0 },
   { id: "mint", label: "Mint", color: "#79f0b2", cost: 40 },
