@@ -314,17 +314,15 @@ export function buildTerrainMesh(waterUniforms) {
       } else {
         c = cGrass;
       }
+      /* force water color under bridge/dock so it matches surrounding river */
+      const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
+      const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
+      if ((underBridge || underDock) && y < WATER_Y + 0.1) c = cRiver;
       col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
 
       if (ix < nx - 1 && iz < nz - 1) {
-        /* skip triangles directly under bridge/dock so no ground renders there */
-        const cx = x + step * 0.5, cz = z + step * 0.5;
-        const underBridge = cx > BRIDGE_X0 && cx < BRIDGE_X1 && Math.abs(cz - BRIDGE_Z) < BRIDGE_HW;
-        const underDock = cx > 36 && cx < 50 && Math.abs(cz - (-16)) < 2.5;
-        if (!underBridge && !underDock) {
-          const a = iz * nx + ix, b = a + 1, d = a + nx, e = d + 1;
-          idx.push(a, d, b, b, d, e);
-        }
+        const a = iz * nx + ix, b = a + 1, d = a + nx, e = d + 1;
+        idx.push(a, d, b, b, d, e);
       }
     }
   }
@@ -506,7 +504,7 @@ export function buildDock(lib) {
   const group = new THREE.Group();
   group.name = "dock";
   const dx = 40, dz = -16, count = 4;
-  const deckY = WATER_Y + 0.55;
+  const deckY = WATER_Y + 0.35;
 
   /* entry steps at shore end */
   if (lib.dockSteps) {
@@ -538,9 +536,9 @@ export function buildDock(lib) {
     }
   }
 
-  /* invisible walkable deck — sits on top of dock planks */
-  const deckTop = deckY + 0.2;
-  const deckGeo = new THREE.BoxGeometry(count * TILE_S + 2, 0.8, TILE_S * 2);
+  /* invisible walkable deck — matches plank surface */
+  const deckTop = deckY + 0.1;
+  const deckGeo = new THREE.BoxGeometry(count * TILE_S + 2, 0.4, TILE_S * 2);
   const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
   deck.position.set(dx + (count - 1) * TILE_S * 0.5, deckTop, dz);
   deck.name = "dock_deck";
