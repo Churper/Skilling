@@ -145,8 +145,6 @@ function connect() {
     sendBtn.disabled = false;
     refreshBtn.disabled = false;
     ws.send(JSON.stringify({ type: "hello", room: "main", name: "Admin", color: "#ffd700" }));
-    setTimeout(requestPlayers, 500);
-    refreshInterval = setInterval(requestPlayers, 5000);
   };
   ws.onmessage = (e) => {
     let msg;
@@ -168,9 +166,24 @@ function connect() {
 
 function requestPlayers() {
   const key = keyInput.value.trim();
-  if (!key || !ws || ws.readyState !== WebSocket.OPEN) return;
+  if (!key) { playerCountEl.textContent = "Enter admin key first"; return; }
+  if (!ws || ws.readyState !== WebSocket.OPEN) { playerCountEl.textContent = "Not connected"; return; }
   ws.send(JSON.stringify({ type: "admin_players", key }));
+  playerCountEl.textContent = "Requesting...";
 }
+
+function startAutoRefresh() {
+  clearInterval(refreshInterval);
+  requestPlayers();
+  refreshInterval = setInterval(requestPlayers, 5000);
+}
+
+/* start polling once key is entered */
+keyInput.addEventListener("input", () => {
+  if (keyInput.value.trim() && ws && ws.readyState === WebSocket.OPEN) {
+    startAutoRefresh();
+  }
+});
 
 function getActivity(state) {
   if (!state) return "Idle";
