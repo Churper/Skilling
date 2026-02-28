@@ -464,6 +464,7 @@ netClient = createRealtimeClient({
     });
   },
   onServerMessage: (msg) => {
+    console.log("[admin broadcast]", msg);
     showAnnouncement(msg.text || "");
   },
 });
