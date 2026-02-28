@@ -193,10 +193,10 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
 
   /* ── ground mesh ── */
   const step = lodStep || 1.0;
-  const xMin = bounds ? bounds.xMin - step : (GX_MIN - 1) * TILE_S;
-  const xMax = bounds ? bounds.xMax + step : (GX_MAX + 1) * TILE_S;
-  const zMin = bounds ? bounds.zMin - step : (GZ_MIN - 1) * TILE_S;
-  const zMax = bounds ? bounds.zMax + step : (GZ_MAX + 1) * TILE_S;
+  const xMin = bounds ? bounds.xMin : (GX_MIN - 1) * TILE_S;
+  const xMax = bounds ? bounds.xMax : (GX_MAX + 1) * TILE_S;
+  const zMin = bounds ? bounds.zMin : (GZ_MIN - 1) * TILE_S;
+  const zMax = bounds ? bounds.zMax : (GZ_MAX + 1) * TILE_S;
   const nx = Math.ceil((xMax - xMin) / step) + 1;
   const nz = Math.ceil((zMax - zMin) / step) + 1;
   const pos = new Float32Array(nx * nz * 3);
