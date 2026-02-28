@@ -489,23 +489,25 @@ export function buildBridge(lib) {
     }
   }
 
-  /* support posts at each end — post below + top cap above deck */
-  for (const px of [xs[0], xs[xs.length - 1]]) {
-    if (lib.bridgePost) {
-      for (const side of [1, -1]) {
+  /* support posts at each end — each faces outward from bridge center */
+  const endXs = [xs[0], xs[xs.length - 1]];
+  for (let ei = 0; ei < endXs.length; ei++) {
+    const px = endXs[ei];
+    const endRot = ei === 0 ? Math.PI : 0; // left end faces left, right faces right
+    for (const side of [1, -1]) {
+      const sideRot = endRot + (side === 1 ? 0 : Math.PI);
+      if (lib.bridgePost) {
         const p = lib.bridgePost.clone();
         p.scale.setScalar(TILE_S);
         p.position.set(px, WATER_Y - 0.3, bz + side * TILE_S * 0.4);
-        p.rotation.y = Math.PI / 2;
+        p.rotation.y = sideRot;
         group.add(p);
       }
-    }
-    if (lib.bridgePostT) {
-      for (const side of [1, -1]) {
+      if (lib.bridgePostT) {
         const pt = lib.bridgePostT.clone();
         pt.scale.setScalar(TILE_S);
         pt.position.set(px, deckY, bz + side * TILE_S * 0.4);
-        pt.rotation.y = Math.PI / 2;
+        pt.rotation.y = sideRot;
         group.add(pt);
       }
     }
@@ -535,12 +537,12 @@ export function buildDock(lib) {
   const dx = 40, dz = -16, count = 4;
   const deckY = WATER_Y + 0.15;
 
-  /* entry steps at shore end */
+  /* entry steps at shore end — faces from shore out to water */
   if (lib.dockSteps) {
     const st = lib.dockSteps.clone();
     st.scale.setScalar(TILE_S);
     st.position.set(dx - TILE_S, deckY, dz);
-    st.rotation.y = Math.PI / 2;
+    st.rotation.y = -Math.PI / 2;
     group.add(st);
   }
 
@@ -565,26 +567,10 @@ export function buildDock(lib) {
     }
   }
 
-  /* corner piece at far end */
-  if (lib.dockCorner) {
-    const c = lib.dockCorner.clone();
-    c.scale.setScalar(TILE_S);
-    c.position.set(dx + count * TILE_S, deckY, dz);
-    c.rotation.y = Math.PI / 2;
-    group.add(c);
-  }
-  if (lib.dockCornerSup) {
-    const cs = lib.dockCornerSup.clone();
-    cs.scale.setScalar(TILE_S);
-    cs.position.set(dx + count * TILE_S, deckY, dz);
-    cs.rotation.y = Math.PI / 2;
-    group.add(cs);
-  }
-
   /* invisible walkable deck — at plank surface level */
   const deckTop = deckY + 0.1;
   const dockDeckMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
-  const fullLen = (count + 1) * TILE_S + 2;
+  const fullLen = count * TILE_S + 2;
   const deckGeo = new THREE.BoxGeometry(fullLen, 0.4, TILE_S * 2.5);
   const deck = new THREE.Mesh(deckGeo, dockDeckMat);
   deck.position.set(dx + count * TILE_S * 0.5, deckTop, dz);
@@ -616,8 +602,13 @@ export function buildFences(lib) {
   const postTmpl  = lib.fencePost1 || lib.fencePost2;
   if (!boardTmpl) return group;
 
-  /* fence runs — behind village buildings */
+  /* fence runs — path from bridge to village + behind buildings */
   const runs = [
+    /* west side of north path */
+    [[-4, 6], [-4, 0], [-4, -6], [-4, -12], [-4, -18], [-4, -24]],
+    /* east side of north path */
+    [[4, 6], [4, 0], [4, -6], [4, -12], [4, -18], [4, -24]],
+    /* behind village buildings */
     [[-14, -38], [-7, -38], [0, -38], [7, -38], [14, -38]],
   ];
 
