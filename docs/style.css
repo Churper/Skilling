@@ -1624,6 +1624,36 @@ body {
   max-width: 220px;
 }
 
+/* ── Inventory slot tooltip ── */
+.ui-bag-slot {
+  position: relative;
+}
+.ui-slot-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: rgba(10, 10, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f0f0f0;
+  font-family: var(--ui-font-body);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: pre-line;
+  pointer-events: none;
+  z-index: 300;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  min-width: 80px;
+  text-align: center;
+}
+.ui-bag-slot:hover .ui-slot-tooltip,
+.ui-bank-slot:hover .ui-slot-tooltip {
+  display: block;
+}
+
 .ui-bag-slot.is-usable {
   cursor: pointer;
   border: 1px solid rgba(74, 222, 128, 0.4);

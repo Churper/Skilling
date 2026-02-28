@@ -151,11 +151,20 @@ export function initializeUI(options = {}) {
       if (itemType) {
         const displayName = ITEM_LABEL[itemType] || itemType;
         const sellVal = SELL_PRICE[itemType];
-        slot.title = sellVal ? `${displayName} (${sellVal}c)` : displayName;
+        const iconChar = ITEM_ICON[itemType] || "?";
         const icon = document.createElement("span");
         icon.className = "ui-bag-slot-icon";
-        icon.textContent = ITEM_ICON[itemType] || "?";
+        icon.textContent = iconChar;
         slot.append(icon);
+        /* styled tooltip */
+        const tip = document.createElement("div");
+        tip.className = "ui-slot-tooltip";
+        let tipText = displayName;
+        if (sellVal) tipText += `\nSell: ${sellVal}c`;
+        if (itemType === "Health Potion") tipText += "\nClick to use (+40 HP)";
+        else if (itemType === "Mana Potion") tipText += "\nClick to use";
+        tip.textContent = tipText;
+        slot.append(tip);
         if (itemType === "Health Potion" || itemType === "Mana Potion") {
           slot.classList.add("is-usable");
           slot.addEventListener("click", () => {
@@ -163,7 +172,6 @@ export function initializeUI(options = {}) {
           });
         }
       } else {
-        slot.title = "Empty";
         const empty = document.createElement("span");
         empty.className = "ui-bag-slot-empty";
         slot.append(empty);
@@ -311,11 +319,15 @@ export function initializeUI(options = {}) {
     const slot = document.createElement("div");
     slot.className = itemType ? "ui-bank-slot" : "ui-bank-slot is-empty";
     if (itemType && count > 0) {
-      slot.title = `${ITEM_LABEL[itemType] || itemType} (${count})`;
+      const displayName = ITEM_LABEL[itemType] || itemType;
       const icon = document.createElement("span");
       icon.className = "ui-bank-slot-icon";
       icon.textContent = ITEM_ICON[itemType] || "?";
       slot.append(icon);
+      const tip = document.createElement("div");
+      tip.className = "ui-slot-tooltip";
+      tip.textContent = `${displayName}\nx${count}`;
+      slot.append(tip);
       if (count > 1) {
         const badge = document.createElement("span");
         badge.className = "ui-bank-slot-count";
