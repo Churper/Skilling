@@ -698,7 +698,8 @@ function buildChunkMesh(cx, cz) {
       /* clamp to editable grid for height lookup */
       const eix = Math.max(0, Math.min(hnx - 1, Math.round((lx - xMin) / hStep)));
       const eiz = Math.max(0, Math.min(hnz - 1, Math.round((lz - zMin) / hStep)));
-      const y = GRASS_Y + ho[hvi(eix, eiz)];
+      const isPad = lx < xMin || lx > xMax || lz < zMin || lz > zMax;
+      const y = GRASS_Y + ho[hvi(eix, eiz)] - (isPad ? 0.02 : 0);
       hp[i3] = lx + ox; hp[i3+1] = y; hp[i3+2] = lz + oz;
       const ckey = `${Math.max(xMin, Math.min(xMax, lx))},${Math.max(zMin, Math.min(zMax, lz))}`;
       if (co[ckey]) {
@@ -840,7 +841,7 @@ function updatePadEdges() {
       const mi = (iz + PAD_V) * mnx + (ix + PAD_V), mi3 = mi * 3;
       const di = hvi(ci, cj);
       const x = xMin + ci * hStep, z = zMin + cj * hStep;
-      const y = getBaseY(x, z) + heightOffsets[di];
+      const y = getBaseY(x, z) + heightOffsets[di] - 0.02;
       hPos[mi3 + 1] = y;
       const fc = vertColor(x, z, y);
       hCol[mi3] = fc.r; hCol[mi3 + 1] = fc.g; hCol[mi3 + 2] = fc.b;

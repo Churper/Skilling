@@ -232,12 +232,14 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       /* local coords for data lookup — clamp to data grid edge */
       const lx = Math.max(dxMin, Math.min(dxMax, x)) - loX;
       const lz = Math.max(dzMin, Math.min(dzMax, z)) - loZ;
+      const isPad = x < dxMin || x > dxMax || z < dzMin || z > dzMax;
       let y = GRASS_Y;
       /* apply editor height offsets */
       if (heightOffsets) {
         const key = `${lx},${lz}`;
         if (key in heightOffsets) y += heightOffsets[key];
       }
+      if (isPad) y -= 0.02; // nudge pad verts down to avoid z-fighting with neighbor
       const i3 = (iz * nx + ix) * 3;
 
       /* low-poly jitter (don't jitter edges) */
