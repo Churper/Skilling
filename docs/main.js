@@ -1111,8 +1111,7 @@ function enterCave() {
   scene.add(cave.group);
   caveObjects.push(cave);
 
-  /* Make cave floor walkable */
-  caveGround = cave.floor;
+  /* cave floor is flat y=0, handled by getPlayerGroundY */
 
   /* Position player at cave entrance */
   player.position.set(0, playerFootOffset, 18);
@@ -1169,7 +1168,6 @@ function exitCave() {
     });
   }
   caveObjects.length = 0;
-  caveGround = null;
 
   /* Restore overworld */
   scene.traverse(child => {

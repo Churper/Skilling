@@ -53,6 +53,8 @@ const TILES = {
   dockStr:     "Prop_Docks_Straight.glb",
   dockStrSup:  "Prop_Docks_Straight_Supports.glb",
   dockSteps:   "Prop_Docks_Steps.glb",
+  dockCorner:  "Prop_Docks_Corner.glb",
+  dockCornerSup: "Prop_Docks_Corner_Supports.glb",
   /* props */
   grassClump1:     "Prop_Grass_Clump_1.glb",
   grassClump2:     "Prop_Grass_Clump_2.glb",
@@ -460,30 +462,54 @@ export function buildBridge(lib) {
   const bz = 8;
   const deckY = WATER_Y + 0.35;
 
-  /* 5 tiles at TILE_S spacing across the river */
+  /* 5 tiles — ends + middle, with edge railings on both sides */
   const xs = [-4, -2, 0, 2, 4];
   for (let i = 0; i < xs.length; i++) {
     const isEnd = i === 0 || i === xs.length - 1;
+    /* main plank */
     const tmpl = isEnd ? lib.bridgeEnd : lib.bridgeMid;
-    if (!tmpl) continue;
-    const m = tmpl.clone();
-    m.scale.setScalar(TILE_S);
-    m.position.set(xs[i], deckY, bz);
-    m.rotation.y = Math.PI / 2;
-    group.add(m);
-  }
-
-  /* support posts at each end */
-  if (lib.bridgePost) {
-    for (const px of [xs[0], xs[xs.length - 1]]) {
-      const p = lib.bridgePost.clone();
-      p.scale.setScalar(TILE_S);
-      p.position.set(px, WATER_Y - 0.5, bz);
-      group.add(p);
+    if (tmpl) {
+      const m = tmpl.clone();
+      m.scale.setScalar(TILE_S);
+      m.position.set(xs[i], deckY, bz);
+      m.rotation.y = Math.PI / 2;
+      group.add(m);
+    }
+    /* edge railing on both sides */
+    const eTmpl = isEnd ? lib.bridgeEndE : lib.bridgeMidE;
+    if (eTmpl) {
+      for (const side of [1, -1]) {
+        const e = eTmpl.clone();
+        e.scale.setScalar(TILE_S);
+        e.position.set(xs[i], deckY, bz + side * TILE_S * 0.5);
+        e.rotation.y = Math.PI / 2;
+        if (side === -1) e.rotation.y += Math.PI;
+        group.add(e);
+      }
     }
   }
 
-  /* invisible walkable deck — extends past bridge ends for smooth transition */
+  /* support posts at each end — post + top cap */
+  for (const px of [xs[0], xs[xs.length - 1]]) {
+    if (lib.bridgePost) {
+      for (const side of [1, -1]) {
+        const p = lib.bridgePost.clone();
+        p.scale.setScalar(TILE_S);
+        p.position.set(px, WATER_Y - 0.3, bz + side * TILE_S * 0.4);
+        group.add(p);
+      }
+    }
+    if (lib.bridgePostT) {
+      for (const side of [1, -1]) {
+        const pt = lib.bridgePostT.clone();
+        pt.scale.setScalar(TILE_S);
+        pt.position.set(px, deckY, bz + side * TILE_S * 0.4);
+        group.add(pt);
+      }
+    }
+  }
+
+  /* invisible walkable deck */
   const span = (xs[xs.length - 1] - xs[0]) + TILE_S;
   const cx = (xs[0] + xs[xs.length - 1]) / 2;
   const deckGeo = new THREE.BoxGeometry(span + 3, 0.4, TILE_S * 2.5);
@@ -516,7 +542,7 @@ export function buildDock(lib) {
     group.add(st);
   }
 
-  /* straight sections at TILE_S spacing */
+  /* straight sections with supports */
   for (let i = 0; i < count; i++) {
     if (lib.dockStr) {
       const m = lib.dockStr.clone();
@@ -525,7 +551,6 @@ export function buildDock(lib) {
       m.rotation.y = Math.PI / 2;
       group.add(m);
     }
-    /* supports on both sides */
     if (lib.dockStrSup) {
       for (const rot of [Math.PI / 2, -Math.PI / 2]) {
         const s = lib.dockStrSup.clone();
@@ -537,12 +562,29 @@ export function buildDock(lib) {
     }
   }
 
-  /* invisible walkable deck — matches plank surface */
+  /* corner piece at far end */
+  if (lib.dockCorner) {
+    const c = lib.dockCorner.clone();
+    c.scale.setScalar(TILE_S);
+    c.position.set(dx + count * TILE_S, deckY, dz);
+    c.rotation.y = Math.PI / 2;
+    group.add(c);
+  }
+  if (lib.dockCornerSup) {
+    const cs = lib.dockCornerSup.clone();
+    cs.scale.setScalar(TILE_S);
+    cs.position.set(dx + count * TILE_S, deckY - 0.6, dz);
+    cs.rotation.y = Math.PI / 2;
+    group.add(cs);
+  }
+
+  /* invisible walkable deck — covers full dock length including corner */
   const deckTop = deckY + 0.15;
   const dockDeckMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
-  const deckGeo = new THREE.BoxGeometry(count * TILE_S + 2, 0.5, TILE_S * 2.5);
+  const fullLen = (count + 1) * TILE_S + 2;
+  const deckGeo = new THREE.BoxGeometry(fullLen, 0.5, TILE_S * 2.5);
   const deck = new THREE.Mesh(deckGeo, dockDeckMat);
-  deck.position.set(dx + (count - 1) * TILE_S * 0.5, deckTop, dz);
+  deck.position.set(dx + count * TILE_S * 0.5, deckTop, dz);
   deck.name = "dock_deck";
   group.add(deck);
 
