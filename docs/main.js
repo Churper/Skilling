@@ -480,6 +480,14 @@ netClient = createRealtimeClient({
       const tag = getOrCreateNameTag(msg.id);
       const peerLvl = msg.state?.totalLevel || 6;
       const peerLvlStr = `Lv ${peerLvl} · `;
+      /* detect remote level-up — fireworks at their position */
+      if (tag.level && tag.level !== peerLvlStr) {
+        const anchor = remotePlayers.getEmoteAnchor(msg.id);
+        if (anchor) {
+          spawnFireworks(anchor.x, anchor.z);
+          playLevelUpJingle();
+        }
+      }
       if (tag.level !== peerLvlStr) { tag.lvlText.textContent = peerLvlStr; tag.level = peerLvlStr; }
       if (tag.name !== msg.name) { tag.nameSpan.textContent = msg.name; tag.name = msg.name; }
     }
@@ -1241,6 +1249,7 @@ function tryGather(node) {
   spawnFloatingDrop(successPos.x, successPos.z, `+${xpGain} XP`, "xp");
   if (leveled) {
     spawnFloatingDrop(successPos.x - 0.14, successPos.z + 0.1, `${skillKey} Lv ${skills[skillKey].level}!`, "level");
+    celebrateLevelUp(successPos.x, successPos.z);
   }
 }
 
@@ -1491,6 +1500,7 @@ function updateCooking(dt) {
     spawnFloatingDrop(activeCampfire.x, activeCampfire.z, `+${recipe.xp} XP`, "xp");
     if (skills.cooking.level > prevLevel) {
       spawnFloatingDrop(activeCampfire.x - 0.14, activeCampfire.z + 0.1, `Cooking Lv ${skills.cooking.level}!`, "level");
+      celebrateLevelUp(activeCampfire.x, activeCampfire.z);
       ui?.setStatus(`Cooked ${recipe.result}! Cooking level ${skills.cooking.level}!`, "success");
     } else {
       ui?.setStatus(`Cooked ${recipe.result}! +${recipe.xp} XP`, "success");
@@ -1608,6 +1618,124 @@ function playBowSound() {
   osc.stop(_audioCtx.currentTime + 0.12);
 }
 
+/* ── Level-up celebration jingle ── */
+function playLevelUpJingle() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  /* Major arpeggio: C5 E5 G5 C6, then shimmer chord */
+  const notes = [523, 659, 784, 1047, 1319];
+  const timing = [0, 0.08, 0.16, 0.26, 0.26];
+  const durations = [0.18, 0.18, 0.18, 0.45, 0.45];
+  for (let i = 0; i < notes.length; i++) {
+    const osc = _audioCtx.createOscillator();
+    const g = _audioCtx.createGain();
+    osc.type = i < 4 ? "triangle" : "sine";
+    osc.frequency.setValueAtTime(notes[i], t + timing[i]);
+    /* slight vibrato on final notes */
+    if (i >= 3) {
+      osc.frequency.setValueAtTime(notes[i], t + timing[i]);
+      osc.frequency.linearRampToValueAtTime(notes[i] * 1.005, t + timing[i] + 0.15);
+      osc.frequency.linearRampToValueAtTime(notes[i], t + timing[i] + 0.3);
+    }
+    const vol = i >= 3 ? 0.18 : 0.22;
+    g.gain.setValueAtTime(vol, t + timing[i]);
+    g.gain.exponentialRampToValueAtTime(0.001, t + timing[i] + durations[i]);
+    osc.connect(g);
+    g.connect(_masterGain);
+    osc.start(t + timing[i]);
+    osc.stop(t + timing[i] + durations[i] + 0.05);
+  }
+  /* sparkle shimmer — short noise burst */
+  const bufLen = _audioCtx.sampleRate * 0.15;
+  const noiseBuf = _audioCtx.createBuffer(1, bufLen, _audioCtx.sampleRate);
+  const data = noiseBuf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * 0.12;
+  const noise = _audioCtx.createBufferSource();
+  noise.buffer = noiseBuf;
+  const nf = _audioCtx.createBiquadFilter();
+  nf.type = "bandpass";
+  nf.frequency.value = 6000;
+  nf.Q.value = 2;
+  const ng = _audioCtx.createGain();
+  ng.gain.setValueAtTime(0.15, t + 0.3);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+  noise.connect(nf);
+  nf.connect(ng);
+  ng.connect(_masterGain);
+  noise.start(t + 0.3);
+  noise.stop(t + 0.55);
+}
+
+/* ── Fireworks / confetti particles ── */
+const _fireworks = []; // { particles: [{x,y,z,vx,vy,vz,color,mesh}], age, duration }
+const _fwGeo = new THREE.SphereGeometry(0.06, 4, 3);
+
+function spawnFireworks(worldX, worldZ) {
+  const baseY = getPlayerGroundY(worldX, worldZ) + 1.5;
+  const particles = [];
+  const count = 28 + Math.floor(Math.random() * 12);
+  const palette = [
+    "#ff3366", "#ffcc00", "#33ccff", "#66ff66", "#ff6633",
+    "#cc66ff", "#ff99cc", "#00ffcc", "#ffff66", "#ff4444",
+    "#44aaff", "#ff8800", "#aa66ff", "#55ff55",
+  ];
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const elev = (Math.random() - 0.3) * Math.PI;
+    const speed = 3 + Math.random() * 5;
+    const color = palette[Math.floor(Math.random() * palette.length)];
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1, depthWrite: false });
+    const mesh = new THREE.Mesh(_fwGeo, mat);
+    const sz = 0.6 + Math.random() * 0.8;
+    mesh.scale.setScalar(sz);
+    mesh.position.set(worldX, baseY, worldZ);
+    mesh.renderOrder = 200;
+    scene.add(mesh);
+    particles.push({
+      mesh, mat,
+      x: worldX, y: baseY, z: worldZ,
+      vx: Math.cos(angle) * Math.cos(elev) * speed,
+      vy: Math.sin(elev) * speed + 3,
+      vz: Math.sin(angle) * Math.cos(elev) * speed,
+    });
+  }
+  _fireworks.push({ particles, age: 0, duration: 1.6 });
+}
+
+function updateFireworks(dt) {
+  for (let i = _fireworks.length - 1; i >= 0; i--) {
+    const fw = _fireworks[i];
+    fw.age += dt;
+    const t = fw.age / fw.duration;
+    for (const p of fw.particles) {
+      p.vy -= 9 * dt; // gravity
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.z += p.vz * dt;
+      p.mesh.position.set(p.x, p.y, p.z);
+      p.mat.opacity = Math.max(0, 1 - t * 1.2);
+      /* trail sparkle — slight random offset */
+      p.mesh.rotation.x += dt * 8;
+      p.mesh.rotation.y += dt * 6;
+    }
+    if (fw.age >= fw.duration) {
+      for (const p of fw.particles) {
+        scene.remove(p.mesh);
+        p.mat.dispose();
+      }
+      _fireworks.splice(i, 1);
+    }
+  }
+}
+
+/* ── Unified level-up celebration ── */
+function celebrateLevelUp(worldX, worldZ) {
+  playLevelUpJingle();
+  spawnFireworks(worldX, worldZ);
+  /* second burst slightly delayed for a staggered effect */
+  setTimeout(() => spawnFireworks(worldX + (Math.random() - 0.5) * 1.5, worldZ + (Math.random() - 0.5) * 1.5), 200);
+}
+
 function performAttackHit(node) {
   if (combatStyle === "bow") playBowSound(); else playAttackSound();
   const dummyPos = combatPos;
@@ -1656,6 +1784,7 @@ function performAttackHit(node) {
     syncSkillsUI();
     if (combatSkill.level > prevLevel) {
       spawnFloatingDrop(dummyPos.x - 0.14, dummyPos.z + 0.1, `${combatStyle} Lv ${combatSkill.level}!`, "level");
+      celebrateLevelUp(dummyPos.x, dummyPos.z);
       ui?.setStatus(`${combatStyle} level ${combatSkill.level}!`, "success");
     } else {
       spawnFloatingDrop(dummyPos.x + 0.14, dummyPos.z - 0.1, `+${combatXp} XP`, "xp");
@@ -2309,6 +2438,7 @@ function animate(now) {
   });
   updateCampfire(dt);
   updateCooking(dt);
+  updateFireworks(dt);
   updateClickEffects(dt);
   updateEmoteBubbles(dt);
   updateNameTags();
