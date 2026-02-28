@@ -519,40 +519,33 @@ async function loadGameStructures() {
 }
 
 async function loadGameObjects() {
-  /* place trees, rocks, bushes, cliff rocks as semi-transparent ghosts */
-  const ghostGroup = new THREE.Group();
-  ghostGroup.name = "game_objects";
-
-  function makeGhost(tmpl, x, z, s, r) {
-    const m = tmpl.clone();
-    m.scale.setScalar(s);
-    m.position.set(x, getMeshSurfaceY(x, z), z);
-    m.rotation.y = r;
-    m.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.4; c.material.depthWrite = false; } });
-    ghostGroup.add(m);
+  /* Add hard-coded game objects as real editable entries in the objects array */
+  function addGameObj(type, x, z, s, r, yOffset) {
+    const tmpl = objLib[type]; if (!tmpl) return;
+    const mesh = tmpl.clone();
+    const y = getMeshSurfaceY(x, z) + (yOffset || 0);
+    mesh.scale.setScalar(s);
+    mesh.position.set(x, y, z);
+    mesh.rotation.y = r;
+    scene.add(mesh);
+    const id = nextObjId++;
+    objects.push({ id, type, x, z, y, scale: s, rot: r, mesh });
   }
 
   const treeModels = ["Tree_1_A","Tree_2_A","Tree_2_C","Tree_3_A","Tree_4_A"].filter(k => objLib[k]);
   const rockModels = ["Rock_1_J","Rock_1_K","Rock_3_A","Rock_3_C","Rock_3_E","Rock_3_G"].filter(k => objLib[k]);
   const bushModels = ["Bush_1_A","Bush_2_A"].filter(k => objLib[k]);
 
-  if (treeModels.length) TREE_SPOTS.forEach(([x,z,s,r], i) => makeGhost(objLib[treeModels[i % treeModels.length]], x, z, s, r));
+  if (treeModels.length) TREE_SPOTS.forEach(([x,z,s,r], i) => addGameObj(treeModels[i % treeModels.length], x, z, s, r));
   if (rockModels.length) {
-    ROCK_MAJOR_SPOTS.forEach(([x,z,s,r], i) => makeGhost(objLib[rockModels[i % rockModels.length]], x, z, s, r));
-    ROCK_SMALL_SPOTS.forEach(([x,z,s,r], i) => makeGhost(objLib[rockModels[i % rockModels.length]], x, z, s, r));
+    ROCK_MAJOR_SPOTS.forEach(([x,z,s,r], i) => addGameObj(rockModels[i % rockModels.length], x, z, s, r));
+    ROCK_SMALL_SPOTS.forEach(([x,z,s,r], i) => addGameObj(rockModels[i % rockModels.length], x, z, s, r));
   }
-  if (bushModels.length) BUSH_SPOTS.forEach(([x,z,s,r], i) => makeGhost(objLib[bushModels[i % bushModels.length]], x, z, s, r));
-  if (rockModels.length) CLIFF_ROCK_SPOTS.forEach(([x,z,s,r], i) => {
-    const m = objLib[rockModels[i % rockModels.length]].clone();
-    m.scale.setScalar(s); m.rotation.y = r;
-    m.position.set(x, getMeshSurfaceY(x, z) - 2, z);
-    m.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.4; c.material.depthWrite = false; } });
-    ghostGroup.add(m);
-  });
+  if (bushModels.length) BUSH_SPOTS.forEach(([x,z,s,r], i) => addGameObj(bushModels[i % bushModels.length], x, z, s, r));
+  if (rockModels.length) CLIFF_ROCK_SPOTS.forEach(([x,z,s,r], i) => addGameObj(rockModels[i % rockModels.length], x, z, s, r, -2));
 
-  scene.add(ghostGroup);
-  const total = TREE_SPOTS.length + ROCK_MAJOR_SPOTS.length + ROCK_SMALL_SPOTS.length + BUSH_SPOTS.length + CLIFF_ROCK_SPOTS.length;
-  console.log(`Showing ${total} game objects as ghosts`);
+  updateCount();
+  console.log(`Loaded ${objects.length} game objects as editable`);
 }
 
 /* ═══════════════════════════════════════════
