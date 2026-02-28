@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import {
-  WATER_Y,
+  WATER_Y, GRASS_Y,
   CHUNK_SIZE, chunkBounds,
   getWorldSurfaceHeight as _getWSH,
   getWaterSurfaceHeight as _getWaSH,
@@ -552,7 +552,7 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         if (!tmpl) continue;
         const m = tmpl.clone();
         m.scale.setScalar(entry.scale || 1);
-        let y = getMeshSurfaceY(entry.x, entry.z);
+        let y = GRASS_Y;
         if (heightOffsets) {
           const fx = Math.floor(entry.x), fz = Math.floor(entry.z);
           const tx = entry.x - fx, tz = entry.z - fz;

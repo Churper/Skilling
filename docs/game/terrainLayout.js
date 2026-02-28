@@ -210,11 +210,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   };
   const baseType = bounds && bounds.baseType || "grass";
   const cGrass = new THREE.Color(BASE_COLORS[baseType] || BASE_COLORS.grass);
-  const cPath  = new THREE.Color("#c4a060");
-  const cSand  = new THREE.Color("#e2d098");
   const cHill  = new THREE.Color(baseType === "grass" ? "#3d8a2e" : cGrass.clone().multiplyScalar(0.85));
-  const cBank  = new THREE.Color("#6d8854");
-  const cRiver = new THREE.Color("#5a7454");
   const cCliff = new THREE.Color("#8a8a7a");
   const tmp = new THREE.Color();
   const sm = THREE.MathUtils.smoothstep;
@@ -222,65 +218,26 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
-      let y = getMeshSurfaceY(x, z);
+      let y = GRASS_Y;
       /* apply editor height offsets */
       if (heightOffsets) {
         const key = `${x},${z}`;
         if (key in heightOffsets) y += heightOffsets[key];
       }
       const i3 = (iz * nx + ix) * 3;
-      const rq = riverQuery(x, z);
 
-      /* low-poly jitter (don't jitter edges or river) */
-      const jit = (rq.dist < rq.width + 2 || ix === 0 || ix === nx - 1 || iz === 0 || iz === nz - 1)
+      /* low-poly jitter (don't jitter edges) */
+      const jit = (ix === 0 || ix === nx - 1 || iz === 0 || iz === nz - 1)
         ? 0 : (hash21(x, z) - 0.5) * 0.12;
-
       pos[i3] = x + jit;
       pos[i3 + 1] = y;
       pos[i3 + 2] = z + jit * 0.7;
 
-      /* color */
-      const beachDist = Math.hypot(x - beachCX, z - beachCZ);
-      const beachT = 1 - sm(beachDist, beachR - 6, beachR);
-      /* any ground near or below water level = sand */
-      const lowSandT = 1 - sm(y, WATER_Y - 0.1, WATER_Y + 0.25);
-      /* near ocean/coastline — sand overrides everything */
-      const nearCoast = sm(x, 14, 24) * (1 - sm(z, -6, 8));
-      const sandiness = Math.max(lowSandT, beachT, nearCoast);
+      /* base color with height variation */
       let c;
-      if (sandiness > 0.8) {
-        c = cSand;
-      } else if (sandiness > 0.01) {
-        tmp.copy(cGrass).lerp(cSand, sandiness);
-        c = tmp;
-      } else if (isInRiver(x, z)) {
-        c = cRiver;
-      } else if (rq.dist < rq.width + 2.5) {
-        const t = Math.max(0, (rq.dist - rq.width) / 2.5);
-        tmp.copy(cBank).lerp(cGrass, t);
-        c = tmp;
-      } else if (lowSandT > 0.01 || beachT > 0.01) {
-        const sandBlend = Math.max(lowSandT, beachT);
-        tmp.copy(cGrass).lerp(cSand, sandBlend);
-        c = tmp;
-      } else if (isOnPath(x, z)) {
-        const pd = distToPath(x, z);
-        const edge = THREE.MathUtils.smoothstep(pd, 0, 2.5);
-        tmp.copy(cPath).lerp(cGrass, edge);
-        c = tmp;
-      } else if (y > GRASS_Y + 3) {
-        c = cCliff;
-      } else if (y > GRASS_Y + 0.5) {
-        const ht = THREE.MathUtils.smoothstep(y, GRASS_Y + 0.5, HILL_Y);
-        tmp.copy(cHill).lerp(cGrass, 1 - ht);
-        c = tmp;
-      } else {
-        c = cGrass;
-      }
-      /* force water color under bridge/dock so it matches surrounding river */
-      const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
-      const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
-      if ((underBridge || underDock) && y < WATER_Y + 0.1) c = cRiver;
+      if (y > GRASS_Y + 3) { c = cCliff; }
+      else if (y > GRASS_Y + 0.5) { tmp.copy(cHill).lerp(cGrass, 1 - sm(y, GRASS_Y + 0.5, HILL_Y)); c = tmp; }
+      else { c = cGrass; }
       /* editor color overrides */
       if (colorOverrides) {
         const key = `${x},${z}`;
@@ -309,7 +266,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   /* ── water plane (optional per chunk) ── */
   const showWater = !bounds || bounds.water !== false;
   if (showWater) {
-    const ww = xMax - xMin + 20, wh = zMax - zMin + 20;
+    const ww = xMax - xMin, wh = zMax - zMin;
     const waterGeo = new THREE.PlaneGeometry(ww, wh, 48, 48);
     waterGeo.rotateX(-Math.PI / 2);
     const waterMat = new THREE.MeshBasicMaterial({

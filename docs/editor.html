@@ -31,9 +31,11 @@ canvas{display:block}
 #palette-wrap{flex:1;overflow-y:auto;padding:6px 8px}
 .cat{color:#555;font-size:9px;text-transform:uppercase;padding:8px 2px 3px;letter-spacing:1.2px;font-weight:700}
 .obj-btn{padding:4px 8px;margin:1px 0;cursor:pointer;border-radius:4px;font-size:10px;
-  color:#999;transition:all .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  color:#999;transition:all .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  display:flex;align-items:center;gap:6px}
 .obj-btn:hover{background:#252540;color:#ddd}
 .obj-btn.active{background:#2a2a50;color:#e8c44a;font-weight:600}
+.obj-thumb{width:36px;height:36px;border-radius:3px;background:#0d0d18;flex-shrink:0;image-rendering:auto}
 
 /* panel flex layouts for scrollable content */
 #objects-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -421,12 +423,19 @@ function loadChunkFromStore(cx, cz) {
   /* load colors */
   for (const k in colorOverrides) delete colorOverrides[k];
   Object.assign(colorOverrides, cd.colorData);
-  /* load objects */
-  const keep = objects.filter(o => STRUCTURAL_TYPES.has(o.type));
+  /* load objects — remove all non-structural, keep structural but toggle visibility */
+  const structural = objects.filter(o => STRUCTURAL_TYPES.has(o.type));
   const remove = objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
   for (const obj of remove) scene.remove(obj.mesh);
-  objects.length = 0; objects.push(...keep);
+  objects.length = 0; objects.push(...structural);
   deselectInstance();
+  /* show/hide structural objects + waterfall based on chunk */
+  const onSpawn = cx === 0 && cz === 0;
+  for (const obj of structural) obj.mesh.visible = onSpawn;
+  if (typeof waterfallGroup !== "undefined") waterfallGroup.visible = onSpawn;
+  /* toggle water plane */
+  if (typeof waterMesh !== "undefined") waterMesh.visible = cd.water;
+  /* add chunk objects */
   for (const entry of cd.objects) {
     const tmpl = objLib[entry.type]; if (!tmpl) continue;
     const mesh = tmpl.clone();
@@ -509,29 +518,11 @@ function computeColor(x, z, y) {
   return computeBaseColor(x, z, y);
 }
 function computeBaseColor(x, z, y) {
-  /* for non-default base types, use flat base color with height variation */
   const baseType = document.getElementById("chunk-base").value;
-  if (baseType !== "grass") {
-    const bc = BASE_COLORS[baseType] || cGrass;
-    if (y > GRASS_Y + 3) { tmpC.copy(bc).lerp(cCliff, 0.5); return tmpC; }
-    if (y > GRASS_Y + 0.5) { tmpC.copy(bc).multiplyScalar(0.85 + 0.15 * (1 - sm(y, GRASS_Y + 0.5, HILL_Y))); return tmpC; }
-    return bc;
-  }
-  /* original procedural coloring for grass base */
-  const rq = riverQuery(x, z);
-  const beachDist = Math.hypot(x - beachCX, z - beachCZ);
-  const beachT = 1 - sm(beachDist, beachR - 6, beachR);
-  const lowSandT = 1 - sm(y, WATER_Y - 0.1, WATER_Y + 0.25);
-  const nearCoast = sm(x, 14, 24) * (1 - sm(z, -6, 8));
-  const sandiness = Math.max(lowSandT, beachT, nearCoast);
-  if (sandiness > 0.8) return cSand;
-  if (sandiness > 0.01) { tmpC.copy(cGrass).lerp(cSand, sandiness); return tmpC; }
-  if (isInRiver(x, z)) return cRiver;
-  if (rq.dist < rq.width + 2.5) { tmpC.copy(cBank).lerp(cGrass, Math.max(0, (rq.dist - rq.width) / 2.5)); return tmpC; }
-  if (isOnPath(x, z)) { tmpC.copy(cPath).lerp(cGrass, sm(distToPath(x, z), 0, 2.5)); return tmpC; }
-  if (y > GRASS_Y + 3) return cCliff;
-  if (y > GRASS_Y + 0.5) { tmpC.copy(cHill).lerp(cGrass, 1 - sm(y, GRASS_Y + 0.5, HILL_Y)); return tmpC; }
-  return cGrass;
+  const bc = BASE_COLORS[baseType] || cGrass;
+  if (y > GRASS_Y + 3) { tmpC.copy(cCliff); return tmpC; }
+  if (y > GRASS_Y + 0.5) { tmpC.copy(bc).lerp(cCliff, sm(y, GRASS_Y + 0.5, GRASS_Y + 3) * 0.4); return tmpC; }
+  return bc;
 }
 
 /* ═══════════════════════════════════════════
@@ -626,22 +617,10 @@ document.getElementById("minimap").addEventListener("click", e => {
   switchChunk(cx, cz);
 });
 
-/** Base height: procedural for chunk 0,0, flat GRASS_Y for all others */
-function getBaseY(x, z) {
-  if (currentChunk[0] === 0 && currentChunk[1] === 0) return getMeshSurfaceY(x, z);
-  return GRASS_Y;
-}
+/** Base height: flat GRASS_Y for all chunks (terrain defined by heightOffsets) */
+function getBaseY(x, z) { return GRASS_Y; }
 
-function vertColor(x, z, y) {
-  const c = computeColor(x, z, y);
-  /* bridge/dock river-color override only on chunk 0,0 */
-  if (currentChunk[0] === 0 && currentChunk[1] === 0) {
-    const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
-    const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
-    if ((underBridge || underDock) && y < WATER_Y + 0.1) return cRiver;
-  }
-  return c;
-}
+function vertColor(x, z, y) { return computeColor(x, z, y); }
 
 let hPos, hCol, groundMesh, groundGeo;
 function buildHeightMesh() {
@@ -705,7 +684,7 @@ const ghostGroup = new THREE.Group();
 ghostGroup.name = "ghost_chunks";
 const ghostMat = new THREE.MeshToonMaterial({
   vertexColors: true, gradientMap: TOON_GRAD, flatShading: true,
-  transparent: true, opacity: 0.35, depthWrite: false,
+  transparent: true, opacity: 0.65, depthWrite: false,
 });
 const GHOST_STEP = 4; // lower resolution for ghosts (every 4th vertex)
 
@@ -751,11 +730,11 @@ function rebuildGhosts() {
   /* clear old ghosts */
   while (ghostGroup.children.length) {
     const c = ghostGroup.children[0];
-    c.geometry.dispose();
+    if (c.geometry) c.geometry.dispose();
     ghostGroup.remove(c);
   }
-  /* build ghosts for adjacent chunks that have data */
-  const dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+  /* build ghosts for adjacent chunks (cardinal + diagonal) */
+  const dirs = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
   for (const [dx, dz] of dirs) {
     const ncx = currentChunk[0] + dx, ncz = currentChunk[1] + dz;
     const key = chunkKey(ncx, ncz);
@@ -804,8 +783,8 @@ fillL.position.set(-34, 26, -24); scene.add(fillL);
 scene.add(buildHeightMesh());
 scene.add(ghostGroup);
 
-/* water plane */
-const ww = xMax - xMin + 20, wh = zMax - zMin + 20;
+/* water plane — sized to chunk bounds (no overflow) */
+const ww = xMax - xMin, wh = zMax - zMin;
 const waterGeo = new THREE.PlaneGeometry(ww, wh, 1, 1);
 waterGeo.rotateX(-Math.PI / 2);
 const waterMesh = new THREE.Mesh(waterGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
@@ -815,9 +794,12 @@ scene.add(waterMesh);
 
 /* stepping stones — registered as editable in loadGameStructures */
 
-/* waterfall */
+/* waterfall — only shown on spawn chunk */
 const waterUniforms = { uTime: { value: 0 } };
-addWaterfall(scene, waterUniforms);
+const waterfallGroup = new THREE.Group();
+waterfallGroup.name = "waterfall";
+addWaterfall(waterfallGroup, waterUniforms);
+scene.add(waterfallGroup);
 
 /* grid */
 const GRID_MIN = -25, GRID_MAX = 25;
@@ -1503,6 +1485,42 @@ document.querySelectorAll("#height-modes button").forEach(b => b.addEventListene
 /* ═══════════════════════════════════════════
    Palette
    ═══════════════════════════════════════════ */
+/* ── Thumbnail renderer (offscreen) ── */
+const thumbSize = 72; // px (render 2x, display 36x36)
+const thumbRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+thumbRenderer.setSize(thumbSize, thumbSize);
+thumbRenderer.setClearColor(0x000000, 0);
+thumbRenderer.outputColorSpace = THREE.SRGBColorSpace;
+const thumbScene = new THREE.Scene();
+thumbScene.add(new THREE.HemisphereLight("#f0fbff", "#6aa057", 1.2));
+const thumbSun = new THREE.DirectionalLight("#fff2d0", 1.4);
+thumbSun.position.set(3, 5, 4); thumbScene.add(thumbSun);
+const thumbCam = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
+const thumbCache = {}; // id → dataURL
+
+function renderThumb(id) {
+  if (thumbCache[id]) return thumbCache[id];
+  const model = objLib[id];
+  if (!model) return null;
+  const clone = model.clone();
+  thumbScene.add(clone);
+  /* fit camera to model */
+  clone.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(clone);
+  const center = new THREE.Vector3(); box.getCenter(center);
+  const size = new THREE.Vector3(); box.getSize(size);
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  const dist = maxDim * 1.6;
+  thumbCam.position.set(center.x + dist * 0.6, center.y + dist * 0.5, center.z + dist * 0.7);
+  thumbCam.lookAt(center);
+  thumbCam.updateProjectionMatrix();
+  thumbRenderer.render(thumbScene, thumbCam);
+  const url = thumbRenderer.domElement.toDataURL();
+  thumbScene.remove(clone);
+  thumbCache[id] = url;
+  return url;
+}
+
 function buildPalette() {
   const pal = document.getElementById("palette-wrap");
   pal.innerHTML = "";
@@ -1511,8 +1529,20 @@ function buildPalette() {
     for (const item of cat.items) {
       const d = document.createElement("div");
       d.className = "obj-btn" + (item.id === selectedObj ? " active" : "");
-      d.textContent = item.id.replace(/_/g, " ");
       d.dataset.obj = item.id;
+      /* thumbnail */
+      const img = document.createElement("img");
+      img.className = "obj-thumb";
+      img.alt = item.id;
+      img.width = 36; img.height = 36;
+      const url = renderThumb(item.id);
+      if (url) img.src = url;
+      else img.style.background = "#1e1e32";
+      d.appendChild(img);
+      /* label */
+      const span = document.createElement("span");
+      span.textContent = item.id.replace(/_/g, " ");
+      d.appendChild(span);
       d.addEventListener("click", () => {
         if (selectedObj === item.id) { selectedObj = null; }
         else { selectedObj = item.id; objScale = item.scale; document.getElementById("obj-scale").value = objScale; document.getElementById("obj-scale-val").textContent = objScale.toFixed(2); }
@@ -1820,6 +1850,7 @@ async function loadExistingMap() {
 buildPalette();
 setMode("objects");
 await loadAllModels();
+buildPalette(); /* rebuild with thumbnails now that models are loaded */
 await loadGameStructures();
 await loadGameObjects();
 await loadExistingMap();
