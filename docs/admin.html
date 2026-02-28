@@ -12,18 +12,12 @@
     color: #e0e0e0;
     display: flex;
     justify-content: center;
-    align-items: center;
+    padding: 32px 16px;
     min-height: 100vh;
   }
-  .panel {
-    background: #16213e;
-    border: 1px solid #334;
-    border-radius: 12px;
-    padding: 32px;
-    width: 420px;
-    max-width: 95vw;
-  }
+  .wrap { width: 600px; max-width: 100%; }
   h1 { font-size: 20px; margin-bottom: 20px; color: #ffd700; }
+  h2 { font-size: 16px; margin: 24px 0 12px; color: #ffd700; }
   label { display: block; font-size: 13px; margin-bottom: 4px; color: #aaa; }
   input, textarea {
     width: 100%;
@@ -33,53 +27,94 @@
     background: #0f3460;
     color: #fff;
     font-size: 14px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     outline: none;
   }
   input:focus, textarea:focus { border-color: #ffd700; }
-  textarea { resize: vertical; min-height: 80px; }
+  textarea { resize: vertical; min-height: 60px; }
+  .row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .row input { margin-bottom: 0; }
+  .row label { flex: 1; }
   button {
-    width: 100%;
-    padding: 12px;
+    padding: 10px 16px;
     background: #ffd700;
     color: #1a1a2e;
     border: none;
     border-radius: 6px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
   }
   button:hover { background: #ffed4a; }
   button:disabled { background: #555; color: #888; cursor: not-allowed; }
-  .status {
-    margin-top: 12px;
-    font-size: 13px;
-    text-align: center;
-    min-height: 20px;
-  }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-secondary { background: #334; color: #e0e0e0; }
+  .btn-secondary:hover { background: #445; }
+  .status { margin-top: 8px; font-size: 13px; text-align: center; min-height: 20px; }
   .status.ok { color: #6ed998; }
   .status.err { color: #ff6b6b; }
-  .conn { font-size: 12px; color: #888; margin-bottom: 16px; }
+  .conn { font-size: 12px; color: #888; margin-bottom: 12px; }
   .conn.connected { color: #6ed998; }
+
+  /* Player list */
+  .player-count { font-size: 13px; color: #aaa; margin-bottom: 8px; }
+  .player-list { display: flex; flex-direction: column; gap: 6px; }
+  .player-card {
+    background: #16213e;
+    border: 1px solid #334;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .player-swatch {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    margin-top: 3px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .player-info { flex: 1; min-width: 0; }
+  .player-name { font-weight: bold; font-size: 14px; color: #fff; }
+  .player-room { font-size: 11px; color: #888; margin-left: 6px; }
+  .player-meta { font-size: 12px; color: #aaa; margin-top: 3px; }
+  .player-skills {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px 10px;
+    font-size: 11px;
+    color: #ccc;
+    margin-top: 4px;
+  }
+  .player-activity { font-size: 11px; color: #6ed998; margin-top: 3px; }
+  .player-pos { font-size: 11px; color: #666; }
+  .no-players { color: #555; font-size: 13px; padding: 12px 0; text-align: center; }
 </style>
 </head>
 <body>
-<div class="panel">
+<div class="wrap">
   <h1>Admin Panel</h1>
 
-  <label>Server URL</label>
-  <input id="ws-url" value="wss://skilling.onrender.com" />
-
-  <label>Admin Key</label>
-  <input id="admin-key" type="password" />
-
+  <div class="row">
+    <label>Server URL<input id="ws-url" value="wss://skilling.onrender.com" /></label>
+    <label>Admin Key<input id="admin-key" type="password" /></label>
+  </div>
   <div id="conn-status" class="conn">Disconnected</div>
 
-  <label>Broadcast Message</label>
+  <h2>Broadcast</h2>
   <textarea id="msg" placeholder="Message to all players..."></textarea>
-
-  <button id="send-btn" disabled>Send Broadcast</button>
+  <div class="btn-row">
+    <button id="send-btn" disabled>Send Broadcast</button>
+    <button id="refresh-btn" class="btn-secondary" disabled>Refresh Players</button>
+  </div>
   <div id="status" class="status"></div>
+
+  <h2>Online Players</h2>
+  <div id="player-count" class="player-count">—</div>
+  <div id="player-list" class="player-list">
+    <div class="no-players">Connect to see players</div>
+  </div>
 </div>
 
 <script>
@@ -87,13 +122,18 @@ const wsInput = document.getElementById("ws-url");
 const keyInput = document.getElementById("admin-key");
 const msgInput = document.getElementById("msg");
 const sendBtn = document.getElementById("send-btn");
+const refreshBtn = document.getElementById("refresh-btn");
 const statusEl = document.getElementById("status");
 const connEl = document.getElementById("conn-status");
+const playerCountEl = document.getElementById("player-count");
+const playerListEl = document.getElementById("player-list");
 
 let ws = null;
+let refreshInterval = null;
 
 function connect() {
   if (ws) { ws.close(); ws = null; }
+  clearInterval(refreshInterval);
   const url = wsInput.value.trim();
   if (!url) return;
   connEl.textContent = "Connecting...";
@@ -103,13 +143,22 @@ function connect() {
     connEl.textContent = "Connected";
     connEl.className = "conn connected";
     sendBtn.disabled = false;
-    // join as admin (doesn't need a room for broadcast, but server requires hello first)
+    refreshBtn.disabled = false;
     ws.send(JSON.stringify({ type: "hello", room: "main", name: "Admin", color: "#ffd700" }));
+    setTimeout(requestPlayers, 500);
+    refreshInterval = setInterval(requestPlayers, 5000);
+  };
+  ws.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
+    if (msg.type === "admin_players") renderPlayers(msg.players || []);
   };
   ws.onclose = () => {
     connEl.textContent = "Disconnected";
     connEl.className = "conn";
     sendBtn.disabled = true;
+    refreshBtn.disabled = true;
+    clearInterval(refreshInterval);
   };
   ws.onerror = () => {
     connEl.textContent = "Connection error";
@@ -117,8 +166,67 @@ function connect() {
   };
 }
 
+function requestPlayers() {
+  const key = keyInput.value.trim();
+  if (!key || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: "admin_players", key }));
+}
+
+function getActivity(state) {
+  if (!state) return "Idle";
+  if (state.attacking) return `Fighting (${state.combatStyle || "melee"})`;
+  if (state.gathering) return `Skilling (${state.tool || "?"})`;
+  if (state.moving) return "Walking";
+  return "Idle";
+}
+
+function renderPlayers(players) {
+  // filter out the Admin connection itself
+  const real = players.filter(p => p.name !== "Admin");
+  playerCountEl.textContent = `${real.length} player${real.length !== 1 ? "s" : ""} online`;
+  if (real.length === 0) {
+    playerListEl.innerHTML = '<div class="no-players">No players online</div>';
+    return;
+  }
+  playerListEl.innerHTML = "";
+  for (const p of real) {
+    const s = p.state || {};
+    const sk = s.skills || {};
+    const card = document.createElement("div");
+    card.className = "player-card";
+    card.innerHTML = `
+      <div class="player-swatch" style="background:${p.color || '#58df78'}"></div>
+      <div class="player-info">
+        <div>
+          <span class="player-name">${esc(p.name)}</span>
+          <span class="player-room">${esc(p.room)}</span>
+        </div>
+        <div class="player-meta">Total Lv ${s.totalLevel || 6}</div>
+        <div class="player-skills">
+          <span>🐟 Fish ${sk.fishing || 1}</span>
+          <span>🪨 Mine ${sk.mining || 1}</span>
+          <span>🪵 WC ${sk.woodcutting || 1}</span>
+          <span>🗡 Melee ${sk.melee || 1}</span>
+          <span>🏹 Range ${sk.bow || 1}</span>
+          <span>🔥 Mage ${sk.mage || 1}</span>
+        </div>
+        <div class="player-activity">${getActivity(s)}</div>
+        <div class="player-pos">Pos: (${(s.x||0).toFixed(0)}, ${(s.z||0).toFixed(0)})</div>
+      </div>`;
+    playerListEl.appendChild(card);
+  }
+}
+
+function esc(str) {
+  const d = document.createElement("div");
+  d.textContent = str || "";
+  return d.innerHTML;
+}
+
 wsInput.addEventListener("change", connect);
 setTimeout(connect, 300);
+
+refreshBtn.addEventListener("click", requestPlayers);
 
 sendBtn.addEventListener("click", () => {
   const text = msgInput.value.trim();

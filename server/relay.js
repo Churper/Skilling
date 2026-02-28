@@ -221,6 +221,26 @@ wss.on("connection", (ws) => {
       );
     }
 
+    if (msg.type === "admin_players") {
+      if (msg.key !== ADMIN_KEY) return;
+      const players = [];
+      for (const [, set] of rooms) {
+        for (const peer of set) {
+          const m = clients.get(peer);
+          if (!m) continue;
+          players.push({
+            id: m.id,
+            name: m.name,
+            room: m.room,
+            color: m.color,
+            state: m.state,
+          });
+        }
+      }
+      send(ws, { type: "admin_players", players });
+      return;
+    }
+
     if (msg.type === "admin_broadcast") {
       if (msg.key !== ADMIN_KEY) return;
       const text = typeof msg.text === "string" ? msg.text.trim().slice(0, 200) : "";
