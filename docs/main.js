@@ -391,6 +391,9 @@ netClient = createRealtimeClient({
       duration: 2.8,
     });
   },
+  onServerMessage: (msg) => {
+    showAnnouncement(msg.text || "");
+  },
 });
 
 if (netClient.isEnabled) {
@@ -492,6 +495,17 @@ function updateClickEffects(dt) {
       clickEffects.splice(i, 1);
     }
   }
+}
+
+// ── Admin announcements ──
+function showAnnouncement(text) {
+  if (!text) return;
+  const el = document.createElement("div");
+  el.className = "server-announcement";
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => { el.classList.add("fade-out"); }, 5000);
+  setTimeout(() => { el.remove(); }, 6000);
 }
 
 // ── Emote chat bubbles ──

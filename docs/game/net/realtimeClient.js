@@ -59,6 +59,7 @@ export function createRealtimeClient({
   onPeerLeave = null,
   onPeerState = null,
   onPeerEmote = null,
+  onServerMessage = null,
 } = {}) {
   let ws = null;
   let channel = null;
@@ -154,6 +155,9 @@ export function createRealtimeClient({
     if (msg.type === "peer_emote") {
       if (msg.id && msg.id === localId) return;
       if (typeof onPeerEmote === "function") onPeerEmote(msg);
+    }
+    if (msg.type === "server_message") {
+      if (typeof onServerMessage === "function") onServerMessage(msg);
     }
   }
 

@@ -1059,6 +1059,33 @@ body {
   }
 }
 
+/* ── Server announcements ── */
+.server-announcement {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #2d1b69, #1a1a2e);
+  color: #ffd700;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  padding: 12px 28px;
+  border-radius: 8px;
+  border: 2px solid #ffd700;
+  z-index: 9999;
+  pointer-events: none;
+  animation: announce-in 0.4s ease-out;
+  transition: opacity 0.8s;
+  text-align: center;
+  max-width: 80vw;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+.server-announcement.fade-out { opacity: 0; }
+@keyframes announce-in {
+  from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
 /* ── Name tags ── */
 .nametag {
   position: absolute;

@@ -3,6 +3,7 @@ const { WebSocketServer } = require("ws");
 const crypto = require("node:crypto");
 
 const port = Number(process.env.PORT || 8081);
+const ADMIN_KEY = process.env.ADMIN_KEY || "skilling-dev-2026";
 
 // HTTP server for Render health checks + WebSocket upgrade
 const server = http.createServer((req, res) => {
@@ -209,6 +210,18 @@ wss.on("connection", (ws) => {
         },
         ws
       );
+    }
+
+    if (msg.type === "admin_broadcast") {
+      if (msg.key !== ADMIN_KEY) return;
+      const text = typeof msg.text === "string" ? msg.text.trim().slice(0, 200) : "";
+      if (!text) return;
+      /* send to ALL rooms */
+      for (const [room, set] of rooms) {
+        for (const peer of set) {
+          send(peer, { type: "server_message", text });
+        }
+      }
     }
   });
 
