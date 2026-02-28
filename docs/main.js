@@ -632,12 +632,11 @@ function getOrCreateNameTag(key) {
   if (tag) return tag;
   const el = document.createElement("div");
   el.className = "nametag";
-  const nameSpan = document.createElement("span");
-  nameSpan.className = "nametag-name";
   const levelSpan = document.createElement("span");
   levelSpan.className = "nametag-level";
-  el.appendChild(nameSpan);
-  el.appendChild(document.createElement("br"));
+  const nameSpan = document.createElement("span");
+  nameSpan.className = "nametag-name";
+  levelSpan.appendChild(nameSpan);
   el.appendChild(levelSpan);
   getBubbleLayer().appendChild(el);
   tag = { el, nameSpan, levelSpan, name: "", level: "", sx: -1, sy: -1 };
@@ -660,9 +659,9 @@ function updateNameTags() {
   const localTag = getOrCreateNameTag("local");
   const totalLevel = Object.values(skills).reduce((sum, s) => sum + s.level, 0);
   const localName = onlineConfig.name || "You";
-  if (localTag.name !== localName) { localTag.nameSpan.textContent = localName; localTag.name = localName; }
   const lvlStr = `Lv ${totalLevel}`;
-  if (localTag.level !== lvlStr) { localTag.levelSpan.textContent = lvlStr; localTag.level = lvlStr; }
+  const combined = `${localName} · ${lvlStr}`;
+  if (localTag.level !== combined) { localTag.nameSpan.textContent = combined; localTag.level = combined; }
   _tagProj.set(player.position.x, player.position.y + playerHeadOffset - 1.1, player.position.z);
   _tagProj.project(camera);
   const lxTarget = _tagProj.x * hw + hw;

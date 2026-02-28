@@ -1101,22 +1101,17 @@ body {
   will-change: transform;
 }
 .nametag-name {
-  display: block;
-  font-family: var(--ui-font-heading);
-  font-size: 13px;
   color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.4);
-  letter-spacing: 0.03em;
 }
 .nametag-level {
   display: inline-block;
-  margin-top: 1px;
-  padding: 1px 7px;
+  padding: 2px 10px;
   border-radius: 8px;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.5);
   font-family: var(--ui-font-heading);
-  font-size: 10px;
+  font-size: 11px;
   color: #ffe999;
+  letter-spacing: 0.03em;
   letter-spacing: 0.04em;
 }
 
