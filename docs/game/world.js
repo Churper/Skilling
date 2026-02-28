@@ -743,6 +743,7 @@ const SERVICE_BUILDER = {
 /* Service tags — GLTF model objects that need service interaction wired up */
 const SERVICE_TAG = {
   "Svc_Bank": { service: "bank", label: "Bank Chest" },
+  "Prop_Treasure_Chest": { service: "bank", label: "Bank Chest" },
 };
 /* Register Svc_Bank in file lookup so it loads the chest model */
 _fileLookup["Svc_Bank"] = "models/terrain/Prop_Treasure_Chest.glb";
