@@ -96,6 +96,7 @@ canvas{display:block}
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { buildTerrainMesh, buildSteppingStones, addWaterfall } from "./game/terrainLayout.js";
 
 /* ═══════════════════════════════════════════
    Constants
@@ -286,12 +287,11 @@ function buildGrid() {
 }
 buildGrid();
 
-/* Flat green ground plane so you can see where you're placing */
-const groundGeo = new THREE.PlaneGeometry((GRID_MAX - GRID_MIN + 1) * TILE_S, (GRID_MAX - GRID_MIN + 1) * TILE_S);
-groundGeo.rotateX(-Math.PI / 2);
-const groundMesh = new THREE.Mesh(groundGeo, new THREE.MeshToonMaterial({ color: "#4dad38" }));
-groundMesh.position.set((GRID_MIN + GRID_MAX + 1) * TILE_S / 2, -0.01, (GRID_MIN + GRID_MAX + 1) * TILE_S / 2);
-scene.add(groundMesh);
+/* Real procedural terrain mesh from the game */
+const waterUniforms = { uTime: { value: 0 } };
+scene.add(buildTerrainMesh(waterUniforms));
+scene.add(buildSteppingStones());
+addWaterfall(scene, waterUniforms);
 
 /* Hover highlight */
 const hoverGeo = new THREE.PlaneGeometry(TILE_S, TILE_S);
@@ -668,8 +668,9 @@ window.addEventListener("resize", () => {
   camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
 });
 
-function animate() {
+function animate(t) {
   requestAnimationFrame(animate);
+  waterUniforms.uTime.value = t * 0.001;
   controls.update();
   renderer.render(scene, camera);
 }
