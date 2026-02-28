@@ -2,64 +2,134 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Tile Editor</title>
+<title>Map Editor</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:monospace}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:'Segoe UI',system-ui,sans-serif;color:#ccc}
 canvas{display:block}
-#ui{position:fixed;left:0;top:0;bottom:0;width:200px;background:rgba(0,0,0,0.92);color:#ccc;
-  display:flex;flex-direction:column;border-right:1px solid #333;z-index:10}
-#ui h2{padding:8px;text-align:center;color:#ff0;font-size:14px;border-bottom:1px solid #333}
-#info{padding:6px 8px;font-size:10px;color:#888;border-bottom:1px solid #222;line-height:1.6}
-#info kbd{background:#333;padding:1px 4px;border-radius:2px;color:#ddd}
-#rot-display{padding:4px 8px;font-size:11px;color:#ff0;border-bottom:1px solid #222}
-#cell-display{padding:4px 8px;font-size:10px;color:#aaa;border-bottom:1px solid #222}
-#palette{flex:1;overflow-y:auto;padding:4px}
-.cat{color:#666;font-size:9px;text-transform:uppercase;padding:6px 4px 2px;letter-spacing:1px}
-.tile-btn{padding:3px 6px;margin:1px 0;cursor:pointer;border-radius:3px;font-size:10px;
-  color:#ccc;transition:background 0.1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tile-btn:hover{background:#333}
-.tile-btn.active{background:#335;color:#ff0}
-#btns{padding:6px;border-top:1px solid #333;display:flex;gap:4px;flex-wrap:wrap}
-#btns button{flex:1;min-width:55px;padding:5px;font-size:10px;cursor:pointer;
-  background:#333;color:#fff;border:1px solid #555;border-radius:3px;font-family:monospace}
-#btns button:hover{background:#555}
-#count{padding:4px 8px;font-size:10px;color:#666;text-align:center;border-top:1px solid #222}
-#canvas-wrap{position:fixed;left:200px;top:0;right:0;bottom:0}
-#y-controls{position:fixed;right:10px;bottom:10px;background:rgba(0,0,0,0.85);
-  padding:8px;border-radius:6px;color:#ccc;font-size:11px;z-index:10;display:flex;gap:6px;align-items:center}
-#y-controls button{padding:3px 8px;cursor:pointer;background:#333;color:#fff;border:1px solid #555;border-radius:3px}
-#y-controls button:hover{background:#555}
+
+/* ── Sidebar ── */
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:#12121f;
+  display:flex;flex-direction:column;border-right:1px solid #2a2a3e;z-index:10}
+#sidebar h1{padding:10px 12px;font-size:15px;font-weight:700;color:#e8c44a;
+  border-bottom:1px solid #2a2a3e;letter-spacing:1px;text-align:center}
+
+/* tabs */
+#tabs{display:flex;border-bottom:1px solid #2a2a3e}
+.tab{flex:1;padding:8px 4px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;
+  color:#666;background:#0d0d18;border-right:1px solid #2a2a3e;transition:all .15s}
+.tab:last-child{border-right:none}
+.tab:hover{color:#aaa;background:#1a1a2e}
+.tab.active{color:#e8c44a;background:#1e1e32;border-bottom:2px solid #e8c44a}
+
+/* info bar */
+#info{padding:6px 10px;font-size:10px;color:#666;border-bottom:1px solid #1a1a2e;line-height:1.7}
+#info kbd{background:#2a2a3e;padding:1px 5px;border-radius:3px;color:#bbb;font-family:monospace;font-size:9px}
+#cell-display{padding:4px 10px;font-size:10px;color:#888;border-bottom:1px solid #1a1a2e}
+
+/* palette area */
+#palette-wrap{flex:1;overflow-y:auto;padding:6px 8px}
+.cat{color:#555;font-size:9px;text-transform:uppercase;padding:8px 2px 3px;letter-spacing:1.2px;font-weight:700}
+.tile-btn{padding:4px 8px;margin:1px 0;cursor:pointer;border-radius:4px;font-size:10px;
+  color:#999;transition:all .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile-btn:hover{background:#252540;color:#ddd}
+.tile-btn.active{background:#2a2a50;color:#e8c44a;font-weight:600}
+
+/* bottom controls */
+#controls{padding:8px 10px;border-top:1px solid #2a2a3e;display:flex;flex-direction:column;gap:6px}
+#controls .row{display:flex;gap:4px;align-items:center}
+#controls label{font-size:10px;color:#666;min-width:30px}
+#controls input[type=range]{flex:1;height:4px;accent-color:#e8c44a}
+#controls .val{font-size:10px;color:#e8c44a;min-width:32px;text-align:right;font-family:monospace}
+
+/* buttons */
+#btns{padding:8px 10px;border-top:1px solid #2a2a3e;display:flex;gap:4px;flex-wrap:wrap}
+#btns button{flex:1;min-width:60px;padding:6px;font-size:10px;cursor:pointer;
+  background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:4px;font-family:inherit;transition:all .12s}
+#btns button:hover{background:#2a2a50;border-color:#555}
+#btns .accent{background:#264a32;border-color:#3a6a48}
+#btns .accent:hover{background:#2e5a3a}
+
+#count{padding:5px 10px;font-size:10px;color:#555;text-align:center;border-top:1px solid #1a1a2e;font-family:monospace}
+
+/* ── Canvas ── */
+#canvas-wrap{position:fixed;left:220px;top:0;right:0;bottom:0}
+
+/* ── Floating controls ── */
+.float-panel{position:fixed;background:rgba(18,18,31,0.92);padding:8px 12px;border-radius:8px;
+  border:1px solid #2a2a3e;z-index:10;font-size:11px;display:flex;gap:8px;align-items:center}
+.float-panel button{padding:3px 10px;cursor:pointer;background:#1e1e32;color:#ccc;
+  border:1px solid #333;border-radius:4px;font-family:inherit;font-size:11px}
+.float-panel button:hover{background:#2a2a50}
+#y-controls{right:12px;bottom:12px}
+#rot-display{right:12px;bottom:52px;color:#e8c44a}
+
+/* ── Object mode specific ── */
+.obj-selected{outline:2px solid #e8c44a;outline-offset:2px}
+#obj-props{padding:8px 10px;border-top:1px solid #2a2a3e;font-size:10px}
+#obj-props .row{display:flex;gap:4px;align-items:center;margin-bottom:4px}
+#obj-props label{color:#666;min-width:40px}
+#obj-props input{flex:1;background:#1a1a2e;border:1px solid #333;color:#ccc;padding:2px 6px;
+  border-radius:3px;font-size:10px;font-family:monospace}
+
+/* hidden */
+.hidden{display:none!important}
 </style>
 </head>
 <body>
-<div id="ui">
-  <h2>TILE EDITOR</h2>
+
+<div id="sidebar">
+  <h1>MAP EDITOR</h1>
+  <div id="tabs">
+    <div class="tab active" data-tab="tiles">Tiles</div>
+    <div class="tab" data-tab="objects">Objects</div>
+  </div>
   <div id="info">
     <kbd>Click</kbd> place &nbsp; <kbd>RClick</kbd> remove<br>
     <kbd>R</kbd> rotate 90° &nbsp; <kbd>G</kbd> toggle grid<br>
-    <kbd>1-5</kbd> quick select category<br>
-    <kbd>Ctrl+S</kbd> export JSON
+    <kbd>Ctrl+S</kbd> export &nbsp; <kbd>Ctrl+Z</kbd> undo
   </div>
-  <div id="rot-display">Rotation: 0°</div>
   <div id="cell-display">Cell: —</div>
-  <div id="palette"></div>
+  <div id="palette-wrap"></div>
+
+  <!-- Tile mode controls -->
+  <div id="tile-controls" class="hidden">
+    <div id="controls">
+      <div class="row">
+        <label>Y</label>
+        <input type="range" id="y-slider" min="-2" max="4" step="0.1" value="0">
+        <span class="val" id="y-val">0.00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Object mode controls -->
+  <div id="obj-controls" class="hidden">
+    <div id="obj-props">
+      <div class="row"><label>Scale</label>
+        <input type="range" id="obj-scale" min="0.2" max="5" step="0.1" value="1.0">
+        <span class="val" id="obj-scale-val">1.00</span>
+      </div>
+      <div class="row"><label>Rot</label>
+        <input type="range" id="obj-rot" min="0" max="6.28" step="0.05" value="0">
+        <span class="val" id="obj-rot-val">0°</span>
+      </div>
+    </div>
+  </div>
+
   <div id="btns">
-    <button id="btn-fill" style="background:#264;flex-basis:100%">Fill Base Layout</button>
-    <button id="btn-validate" style="background:#356;flex-basis:100%">Validate Map</button>
-    <button id="btn-export">Export JSON</button>
-    <button id="btn-import">Import JSON</button>
+    <!-- tile mode buttons -->
+    <button id="btn-fill" class="accent tile-only">Fill Base</button>
+    <button id="btn-validate" class="tile-only">Validate</button>
+    <button id="btn-export">Export</button>
+    <button id="btn-import">Import</button>
     <button id="btn-clear">Clear All</button>
   </div>
-  <div id="count">0 tiles placed</div>
+  <div id="count">0 items</div>
 </div>
+
 <div id="canvas-wrap"></div>
-<div id="y-controls">
-  Y: <button id="y-down">-</button>
-  <span id="y-val">0.00</span>
-  <button id="y-up">+</button>
-  <span style="color:#666;font-size:9px">(tile height)</span>
-</div>
+<div class="float-panel" id="rot-display">Rotation: 0°</div>
 <input type="file" id="file-input" accept=".json" style="display:none">
 
 <script type="importmap">
@@ -75,176 +145,180 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-/* ═══ Constants ═══ */
+/* ═══════════════════════════════════════════
+   Constants
+   ═══════════════════════════════════════════ */
 const TILE_S = 2;
 const TILE_DIR = "models/terrain/";
+const MODEL_DIR = "models/";
 
-/* Terrain tiles grouped by category (for the palette) */
-const CATEGORIES = [
-  { name: "Ground", tiles: [
-    "Grass_Flat",
+/* ═══════════════════════════════════════════
+   Object catalogue (trees, rocks, bushes, etc.)
+   ═══════════════════════════════════════════ */
+const OBJ_CATEGORIES = [
+  { name: "Trees", items: [
+    { id: "Tree_1_A", file: "Tree_1_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_1_B", file: "Tree_1_B_Color1.gltf", scale: 2.0 },
+    { id: "Tree_1_C", file: "Tree_1_C_Color1.gltf", scale: 2.0 },
+    { id: "Tree_2_A", file: "Tree_2_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_2_B", file: "Tree_2_B_Color1.gltf", scale: 2.0 },
+    { id: "Tree_2_C", file: "Tree_2_C_Color1.gltf", scale: 2.0 },
+    { id: "Tree_3_A", file: "Tree_3_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_3_B", file: "Tree_3_B_Color1.gltf", scale: 2.0 },
+    { id: "Tree_4_A", file: "Tree_4_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_4_B", file: "Tree_4_B_Color1.gltf", scale: 2.0 },
+    { id: "Tree_Bare_1_A", file: "Tree_Bare_1_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_Bare_2_A", file: "Tree_Bare_2_A_Color1.gltf", scale: 2.0 },
   ]},
-  { name: "Hills", tiles: [
-    "Hill_Side",
-    "Hill_Side_On_Side",
-    "Hill_Corner_Outer_2x2",
-    "Hill_Corner_Inner_2x2",
-    "Hill_Side_Transition_From_Gentle",
-    "Hill_Side_Transition_To_Gentle",
+  { name: "Rocks", items: [
+    { id: "Rock_1_A", file: "Rock_1_A_Color1.gltf", scale: 1.0 },
+    { id: "Rock_1_J", file: "Rock_1_J_Color1.gltf", scale: 1.0 },
+    { id: "Rock_1_K", file: "Rock_1_K_Color1.gltf", scale: 1.0 },
+    { id: "Rock_2_A", file: "Rock_2_A_Color1.gltf", scale: 1.0 },
+    { id: "Rock_3_A", file: "Rock_3_A_Color1.gltf", scale: 1.0 },
+    { id: "Rock_3_C", file: "Rock_3_C_Color1.gltf", scale: 1.0 },
+    { id: "Rock_3_E", file: "Rock_3_E_Color1.gltf", scale: 1.0 },
+    { id: "Rock_3_G", file: "Rock_3_G_Color1.gltf", scale: 1.0 },
   ]},
-  { name: "Water", tiles: [
-    "Water_Flat",
-    "Water_Slope",
-    "Water_Curve",
-    "Waterfall",
-    "Waterfall_Top",
-    "Waterfall_Water_Top",
-    "Waterfall_Water_Top_Edge",
-    "Waterfall_Water_Mid",
-    "Waterfall_Water_Mid_Edge",
+  { name: "Bushes", items: [
+    { id: "Bush_1_A", file: "Bush_1_A_Color1.gltf", scale: 1.0 },
+    { id: "Bush_2_A", file: "Bush_2_A_Color1.gltf", scale: 1.0 },
+    { id: "Bush_3_A", file: "Bush_3_A_Color1.gltf", scale: 1.0 },
+    { id: "Bush_4_A", file: "Bush_4_A_Color1.gltf", scale: 1.0 },
   ]},
-  { name: "Sand", tiles: [
-    "Sand_Flat",
-    "Sand_Side",
-    "Sand_Corner_Outer_3x3",
-    "Sand_Corner_Inner_3x3",
-    "Sand_Side_Overlap_Side",
-    "Sand_Side_Transition_From_Gentle",
-    "Sand_Side_Transition_To_Gentle",
+  { name: "Grass/Flowers", items: [
+    { id: "Grass_1_A", file: "Grass_1_A_Color1.gltf", scale: 1.0 },
+    { id: "Grass_2_A", file: "Grass_2_A_Color1.gltf", scale: 1.0 },
   ]},
-  { name: "Path", tiles: [
-    "Path_Center",
-    "Path_Side",
-    "Path_Corner_Inner_1x1",
-    "Path_Corner_Inner_2x2",
-    "Path_Corner_Outer_1x1",
-    "Path_Corner_Outer_2x2",
-    "Path_Corner_Outer_3x3",
-    "Path_Corner_Y_2x2",
-    "Path_Corner_Y_3x3",
-    "Path_Hill_Gentle_Center",
-    "Path_Hill_Gentle_Side",
-    "Path_Hill_Sharp_Center",
-    "Path_Hill_Sharp_Side",
-    "Path_Steps_Center",
-    "Path_Steps_Edge",
-    "Path_Steps_Grass_Edge",
-    "Path_Steps_Grass_Edge_Top",
+  { name: "Terrain Props", dir: TILE_DIR, glb: true, items: [
+    { id: "Prop_Grass_Clump_1", file: "Prop_Grass_Clump_1.glb", scale: 1.0 },
+    { id: "Prop_Grass_Clump_2", file: "Prop_Grass_Clump_2.glb", scale: 1.0 },
+    { id: "Prop_Grass_Clump_3", file: "Prop_Grass_Clump_3.glb", scale: 1.0 },
+    { id: "Prop_Grass_Clump_4", file: "Prop_Grass_Clump_4.glb", scale: 1.0 },
+    { id: "Prop_Flower_Daisy", file: "Prop_Flower_Daisy.glb", scale: 1.0 },
+    { id: "Prop_Flower_Rose", file: "Prop_Flower_Rose.glb", scale: 1.0 },
+    { id: "Prop_Flower_Sunflower", file: "Prop_Flower_Sunflower.glb", scale: 1.0 },
+    { id: "Prop_Flower_Tulip", file: "Prop_Flower_Tulip.glb", scale: 1.0 },
+    { id: "Prop_Flower_Lily_Blue", file: "Prop_Flower_Lily_Blue.glb", scale: 1.0 },
+    { id: "Prop_Flower_Lily_Pink", file: "Prop_Flower_Lily_Pink.glb", scale: 1.0 },
+    { id: "Prop_Cattail_1", file: "Prop_Cattail_1.glb", scale: 1.0 },
+    { id: "Prop_Cattail_2", file: "Prop_Cattail_2.glb", scale: 1.0 },
+    { id: "Prop_Mushroom_1", file: "Prop_Mushroom_1.glb", scale: 1.0 },
+    { id: "Prop_Mushroom_2", file: "Prop_Mushroom_2.glb", scale: 1.0 },
+    { id: "Prop_Stump", file: "Prop_Stump.glb", scale: 1.0 },
+    { id: "Prop_Hollow_Trunk", file: "Prop_Hollow_Trunk.glb", scale: 1.0 },
+    { id: "Prop_Branch_1", file: "Prop_Branch_1.glb", scale: 1.0 },
+    { id: "Prop_Branch_2", file: "Prop_Branch_2.glb", scale: 1.0 },
+    { id: "Prop_Branch_3", file: "Prop_Branch_3.glb", scale: 1.0 },
+    { id: "Prop_Rock_1", file: "Prop_Rock_1.glb", scale: 1.0 },
+    { id: "Prop_Rock_2", file: "Prop_Rock_2.glb", scale: 1.0 },
+    { id: "Prop_Rock_3", file: "Prop_Rock_3.glb", scale: 1.0 },
+    { id: "Prop_Rock_4", file: "Prop_Rock_4.glb", scale: 1.0 },
+    { id: "Prop_Bush_1", file: "Prop_Bush_1.glb", scale: 1.0 },
+    { id: "Prop_Bush_2", file: "Prop_Bush_2.glb", scale: 1.0 },
+    { id: "Prop_Bush_3", file: "Prop_Bush_3.glb", scale: 1.0 },
+    { id: "Prop_Cliff_Rock_1", file: "Prop_Cliff_Rock_1.glb", scale: 1.0 },
+    { id: "Prop_Cliff_Rock_2", file: "Prop_Cliff_Rock_2.glb", scale: 1.0 },
+    { id: "Prop_Shell_1", file: "Prop_Shell_1.glb", scale: 1.0 },
+    { id: "Prop_Shell_2", file: "Prop_Shell_2.glb", scale: 1.0 },
+    { id: "Prop_Starfish_1", file: "Prop_Starfish_1.glb", scale: 1.0 },
+    { id: "Prop_Starfish_2", file: "Prop_Starfish_2.glb", scale: 1.0 },
+    { id: "Prop_Treasure_Chest", file: "Prop_Treasure_Chest.glb", scale: 1.0 },
   ]},
-  { name: "Cliffs", tiles: [
-    "Cliff_Base_Corner_Inner_Lg",
-    "Cliff_Base_Corner_Inner_Sm",
-    "Cliff_Base_Corner_Outer_Lg",
-    "Cliff_Base_Corner_Outer_Sm",
-    "Cliff_Base_Hill_Gentle",
-    "Cliff_Base_Hill_Sharp",
-    "Cliff_Base_Straight",
-    "Cliff_Base_Top_Joined_Hill_Gentle",
-    "Cliff_Base_Top_Joined_Hill_Sharp",
-    "Cliff_Base_Waterfall",
-    "Cliff_Mid_Corner_Inner_Lg",
-    "Cliff_Mid_Corner_Inner_Sm",
-    "Cliff_Mid_Corner_Outer_Lg",
-    "Cliff_Mid_Corner_Outer_Sm",
-    "Cliff_Mid_Straight",
-    "Cliff_Mid_Waterfall",
-    "Cliff_Top_Corner_Inner_Lg",
-    "Cliff_Top_Corner_Inner_Sm",
-    "Cliff_Top_Corner_Outer_Lg",
-    "Cliff_Top_Corner_Outer_Sm",
-    "Cliff_Top_Hill_Gentle",
-    "Cliff_Top_Hill_Sharp",
-    "Cliff_Top_Straight",
-    "Cliff_Top_Waterfall",
+  { name: "Palm Trees", dir: TILE_DIR, glb: true, items: [
+    { id: "Prop_Tree_Cedar_1", file: "Prop_Tree_Cedar_1.glb", scale: 1.0 },
+    { id: "Prop_Tree_Cedar_2", file: "Prop_Tree_Cedar_2.glb", scale: 1.0 },
+    { id: "Prop_Tree_Oak_1", file: "Prop_Tree_Oak_1.glb", scale: 1.0 },
+    { id: "Prop_Tree_Oak_2", file: "Prop_Tree_Oak_2.glb", scale: 1.0 },
+    { id: "Prop_Tree_Oak_3", file: "Prop_Tree_Oak_3.glb", scale: 1.0 },
+    { id: "Prop_Tree_Palm_1", file: "Prop_Tree_Palm_1.glb", scale: 1.0 },
+    { id: "Prop_Tree_Palm_2", file: "Prop_Tree_Palm_2.glb", scale: 1.0 },
+    { id: "Prop_Tree_Palm_3", file: "Prop_Tree_Palm_3.glb", scale: 1.0 },
+    { id: "Prop_Tree_Pine_1", file: "Prop_Tree_Pine_1.glb", scale: 1.0 },
+    { id: "Prop_Tree_Pine_2", file: "Prop_Tree_Pine_2.glb", scale: 1.0 },
+    { id: "Prop_Tree_Pine_3", file: "Prop_Tree_Pine_3.glb", scale: 1.0 },
   ]},
-  { name: "Props", tiles: [
-    "Prop_Branch_1",
-    "Prop_Branch_2",
-    "Prop_Branch_3",
-    "Prop_Bridge_Log_End",
-    "Prop_Bridge_Log_End_Edge",
-    "Prop_Bridge_Log_Middle",
-    "Prop_Bridge_Log_Middle_Edge",
-    "Prop_Bridge_Log_Post_Support",
-    "Prop_Bridge_Log_Post_Top",
-    "Prop_Bridge_Rope_End",
-    "Prop_Bridge_Rope_Middle",
-    "Prop_Bridge_Rope_Rope_Support",
-    "Prop_Bush_1",
-    "Prop_Bush_2",
-    "Prop_Bush_3",
-    "Prop_Cattail_1",
-    "Prop_Cattail_2",
-    "Prop_Cliff_Rock_1",
-    "Prop_Cliff_Rock_2",
-    "Prop_Docks_Corner",
-    "Prop_Docks_Corner_Supports",
-    "Prop_Docks_Steps",
-    "Prop_Docks_Straight",
-    "Prop_Docks_Straight_Supports",
-    "Prop_Fence_Boards_1",
-    "Prop_Fence_Boards_2",
-    "Prop_Fence_Boards_3",
-    "Prop_Fence_Boards_4",
-    "Prop_Fence_Curve_1x1",
-    "Prop_Fence_Curve_2x2",
-    "Prop_Fence_Curve_3x3",
-    "Prop_Fence_Gate_1",
-    "Prop_Fence_Gate_2",
-    "Prop_Fence_Hill_Gentle",
-    "Prop_Fence_Hill_Sharp",
-    "Prop_Fence_Post_1",
-    "Prop_Fence_Post_2",
-    "Prop_Fence_Post_3",
-    "Prop_Fence_Post_4",
-    "Prop_Flower_Daisy",
-    "Prop_Flower_Lily_Blue",
-    "Prop_Flower_Lily_Pink",
-    "Prop_Flower_Rose",
-    "Prop_Flower_Sunflower",
-    "Prop_Flower_Tulip",
-    "Prop_Grass_Clump_1",
-    "Prop_Grass_Clump_2",
-    "Prop_Grass_Clump_3",
-    "Prop_Grass_Clump_4",
-    "Prop_Hollow_Trunk",
-    "Prop_Mushroom_1",
-    "Prop_Mushroom_2",
-    "Prop_Rock_1",
-    "Prop_Rock_2",
-    "Prop_Rock_3",
-    "Prop_Rock_4",
-    "Prop_Shell_1",
-    "Prop_Shell_2",
-    "Prop_Starfish_1",
-    "Prop_Starfish_2",
-    "Prop_Stump",
-    "Prop_Treasure_Chest",
+  { name: "Fences", dir: TILE_DIR, glb: true, items: [
+    { id: "Prop_Fence_Boards_1", file: "Prop_Fence_Boards_1.glb", scale: 1.0 },
+    { id: "Prop_Fence_Boards_2", file: "Prop_Fence_Boards_2.glb", scale: 1.0 },
+    { id: "Prop_Fence_Boards_3", file: "Prop_Fence_Boards_3.glb", scale: 1.0 },
+    { id: "Prop_Fence_Boards_4", file: "Prop_Fence_Boards_4.glb", scale: 1.0 },
+    { id: "Prop_Fence_Post_1", file: "Prop_Fence_Post_1.glb", scale: 1.0 },
+    { id: "Prop_Fence_Post_2", file: "Prop_Fence_Post_2.glb", scale: 1.0 },
+    { id: "Prop_Fence_Post_3", file: "Prop_Fence_Post_3.glb", scale: 1.0 },
+    { id: "Prop_Fence_Post_4", file: "Prop_Fence_Post_4.glb", scale: 1.0 },
+    { id: "Prop_Fence_Curve_1x1", file: "Prop_Fence_Curve_1x1.glb", scale: 1.0 },
+    { id: "Prop_Fence_Curve_2x2", file: "Prop_Fence_Curve_2x2.glb", scale: 1.0 },
+    { id: "Prop_Fence_Curve_3x3", file: "Prop_Fence_Curve_3x3.glb", scale: 1.0 },
+    { id: "Prop_Fence_Gate_1", file: "Prop_Fence_Gate_1.glb", scale: 1.0 },
+    { id: "Prop_Fence_Gate_2", file: "Prop_Fence_Gate_2.glb", scale: 1.0 },
+    { id: "Prop_Fence_Hill_Gentle", file: "Prop_Fence_Hill_Gentle.glb", scale: 1.0 },
+    { id: "Prop_Fence_Hill_Sharp", file: "Prop_Fence_Hill_Sharp.glb", scale: 1.0 },
   ]},
-  { name: "Trees", tiles: [
-    "Prop_Tree_Cedar_1",
-    "Prop_Tree_Cedar_2",
-    "Prop_Tree_Oak_1",
-    "Prop_Tree_Oak_2",
-    "Prop_Tree_Oak_3",
-    "Prop_Tree_Palm_1",
-    "Prop_Tree_Palm_2",
-    "Prop_Tree_Palm_3",
-    "Prop_Tree_Pine_1",
-    "Prop_Tree_Pine_2",
-    "Prop_Tree_Pine_3",
+  { name: "Bridge", dir: TILE_DIR, glb: true, items: [
+    { id: "Prop_Bridge_Log_End", file: "Prop_Bridge_Log_End.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_End_Edge", file: "Prop_Bridge_Log_End_Edge.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_Middle", file: "Prop_Bridge_Log_Middle.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_Middle_Edge", file: "Prop_Bridge_Log_Middle_Edge.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_Post_Support", file: "Prop_Bridge_Log_Post_Support.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_Post_Top", file: "Prop_Bridge_Log_Post_Top.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Rope_End", file: "Prop_Bridge_Rope_End.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Rope_Middle", file: "Prop_Bridge_Rope_Middle.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Rope_Rope_Support", file: "Prop_Bridge_Rope_Rope_Support.glb", scale: 1.0 },
+  ]},
+  { name: "Dock", dir: TILE_DIR, glb: true, items: [
+    { id: "Prop_Docks_Straight", file: "Prop_Docks_Straight.glb", scale: 1.0 },
+    { id: "Prop_Docks_Straight_Supports", file: "Prop_Docks_Straight_Supports.glb", scale: 1.0 },
+    { id: "Prop_Docks_Steps", file: "Prop_Docks_Steps.glb", scale: 1.0 },
+    { id: "Prop_Docks_Corner", file: "Prop_Docks_Corner.glb", scale: 1.0 },
+    { id: "Prop_Docks_Corner_Supports", file: "Prop_Docks_Corner_Supports.glb", scale: 1.0 },
   ]},
 ];
 
-/* ═══ Three.js Setup ═══ */
+/* Tile categories (same as before) */
+const TILE_CATEGORIES = [
+  { name: "Ground", tiles: ["Grass_Flat"] },
+  { name: "Hills", tiles: [
+    "Hill_Side","Hill_Side_On_Side","Hill_Corner_Outer_2x2","Hill_Corner_Inner_2x2",
+    "Hill_Side_Transition_From_Gentle","Hill_Side_Transition_To_Gentle",
+  ]},
+  { name: "Water", tiles: [
+    "Water_Flat","Water_Slope","Water_Curve","Waterfall","Waterfall_Top",
+    "Waterfall_Water_Top","Waterfall_Water_Top_Edge","Waterfall_Water_Mid","Waterfall_Water_Mid_Edge",
+  ]},
+  { name: "Sand", tiles: [
+    "Sand_Flat","Sand_Side","Sand_Corner_Outer_3x3","Sand_Corner_Inner_3x3",
+    "Sand_Side_Overlap_Side","Sand_Side_Transition_From_Gentle","Sand_Side_Transition_To_Gentle",
+  ]},
+  { name: "Path", tiles: [
+    "Path_Center","Path_Side","Path_Corner_Inner_1x1","Path_Corner_Inner_2x2",
+    "Path_Corner_Outer_1x1","Path_Corner_Outer_2x2","Path_Corner_Outer_3x3",
+    "Path_Corner_Y_2x2","Path_Corner_Y_3x3","Path_Hill_Gentle_Center","Path_Hill_Gentle_Side",
+    "Path_Hill_Sharp_Center","Path_Hill_Sharp_Side","Path_Steps_Center","Path_Steps_Edge",
+    "Path_Steps_Grass_Edge","Path_Steps_Grass_Edge_Top",
+  ]},
+  { name: "Cliffs", tiles: [
+    "Cliff_Base_Corner_Inner_Lg","Cliff_Base_Corner_Inner_Sm","Cliff_Base_Corner_Outer_Lg",
+    "Cliff_Base_Corner_Outer_Sm","Cliff_Base_Hill_Gentle","Cliff_Base_Hill_Sharp",
+    "Cliff_Base_Straight","Cliff_Base_Top_Joined_Hill_Gentle","Cliff_Base_Top_Joined_Hill_Sharp",
+    "Cliff_Base_Waterfall","Cliff_Mid_Corner_Inner_Lg","Cliff_Mid_Corner_Inner_Sm",
+    "Cliff_Mid_Corner_Outer_Lg","Cliff_Mid_Corner_Outer_Sm","Cliff_Mid_Straight",
+    "Cliff_Mid_Waterfall","Cliff_Top_Corner_Inner_Lg","Cliff_Top_Corner_Inner_Sm",
+    "Cliff_Top_Corner_Outer_Lg","Cliff_Top_Corner_Outer_Sm","Cliff_Top_Hill_Gentle",
+    "Cliff_Top_Hill_Sharp","Cliff_Top_Straight","Cliff_Top_Waterfall",
+  ]},
+];
+
+/* ═══════════════════════════════════════════
+   Three.js Setup
+   ═══════════════════════════════════════════ */
 const wrap = document.getElementById("canvas-wrap");
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
 renderer.setSize(wrap.clientWidth, wrap.clientHeight);
 renderer.setClearColor(0x1a1a2e);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.NoToneMapping;
-renderer.toneMappingExposure = 1.0;
 wrap.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -255,47 +329,39 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
-/* Left=orbit, Middle=pan, disable right-click from controls so we can use it for tile removal */
 controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null };
 controls.update();
 
-/* Lighting — match the game's scene.js */
+/* Lighting */
 scene.add(new THREE.HemisphereLight("#f0fbff", "#6aa057", 0.92));
 scene.add(new THREE.AmbientLight("#ffffff", 0.18));
 const sun = new THREE.DirectionalLight("#fff2d0", 1.46);
-sun.position.set(42, 54, 18);
-scene.add(sun);
+sun.position.set(42, 54, 18); scene.add(sun);
 const fill = new THREE.DirectionalLight("#d8efff", 0.32);
-fill.position.set(-34, 26, -24);
-scene.add(fill);
+fill.position.set(-34, 26, -24); scene.add(fill);
 
-/* ═══ Grid ═══ */
+/* ═══════════════════════════════════════════
+   Grid
+   ═══════════════════════════════════════════ */
 const GRID_MIN = -25, GRID_MAX = 25;
-const gridGroup = new THREE.Group();
-gridGroup.name = "grid";
+const gridGroup = new THREE.Group(); gridGroup.name = "grid";
 
 function buildGrid() {
-  const mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 });
+  const mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.12 });
   const pts = [];
   for (let i = GRID_MIN; i <= GRID_MAX + 1; i++) {
     const x = i * TILE_S;
-    pts.push(new THREE.Vector3(x, 0.01, GRID_MIN * TILE_S));
-    pts.push(new THREE.Vector3(x, 0.01, (GRID_MAX + 1) * TILE_S));
+    pts.push(new THREE.Vector3(x, 0.01, GRID_MIN * TILE_S), new THREE.Vector3(x, 0.01, (GRID_MAX + 1) * TILE_S));
   }
   for (let j = GRID_MIN; j <= GRID_MAX + 1; j++) {
     const z = j * TILE_S;
-    pts.push(new THREE.Vector3(GRID_MIN * TILE_S, 0.01, z));
-    pts.push(new THREE.Vector3((GRID_MAX + 1) * TILE_S, 0.01, z));
+    pts.push(new THREE.Vector3(GRID_MIN * TILE_S, 0.01, z), new THREE.Vector3((GRID_MAX + 1) * TILE_S, 0.01, z));
   }
   gridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), mat));
-
-  /* Axis markers */
-  const axMat = new THREE.LineBasicMaterial({ color: 0xff4444, transparent: true, opacity: 0.4 });
+  const axMat = new THREE.LineBasicMaterial({ color: 0xff4444, transparent: true, opacity: 0.35 });
   const axPts = [
-    new THREE.Vector3(GRID_MIN * TILE_S, 0.02, 0),
-    new THREE.Vector3((GRID_MAX + 1) * TILE_S, 0.02, 0),
-    new THREE.Vector3(0, 0.02, GRID_MIN * TILE_S),
-    new THREE.Vector3(0, 0.02, (GRID_MAX + 1) * TILE_S),
+    new THREE.Vector3(GRID_MIN * TILE_S, 0.02, 0), new THREE.Vector3((GRID_MAX + 1) * TILE_S, 0.02, 0),
+    new THREE.Vector3(0, 0.02, GRID_MIN * TILE_S), new THREE.Vector3(0, 0.02, (GRID_MAX + 1) * TILE_S),
   ];
   gridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(axPts), axMat));
   scene.add(gridGroup);
@@ -304,83 +370,141 @@ buildGrid();
 
 /* Hover highlight */
 const hoverGeo = new THREE.PlaneGeometry(TILE_S, TILE_S);
-const hoverMat = new THREE.MeshBasicMaterial({
-  color: 0xffff00, transparent: true, opacity: 0.2, side: THREE.DoubleSide, depthTest: false
-});
+const hoverMat = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthTest: false });
 const hoverMesh = new THREE.Mesh(hoverGeo, hoverMat);
-hoverMesh.rotation.x = -Math.PI / 2;
-hoverMesh.position.y = 0.03;
-hoverMesh.visible = false;
-hoverMesh.renderOrder = 999;
+hoverMesh.rotation.x = -Math.PI / 2; hoverMesh.position.y = 0.03; hoverMesh.visible = false; hoverMesh.renderOrder = 999;
 scene.add(hoverMesh);
 
-/* ═══ Load Tile Models ═══ */
+/* ═══════════════════════════════════════════
+   Model Loading
+   ═══════════════════════════════════════════ */
 THREE.Cache.enabled = true;
 const loader = new GLTFLoader();
-const tileLib = {};
-const allTileNames = CATEGORIES.flatMap(c => c.tiles);
 
-async function loadAllTiles() {
+/* Tile model lib (terrain tiles: Grass_Flat, Hill_Side, etc.) */
+const tileLib = {};
+const allTileNames = TILE_CATEGORIES.flatMap(c => c.tiles);
+
+/* Object model lib (trees, rocks, etc.) */
+const objLib = {};
+const allObjItems = OBJ_CATEGORIES.flatMap(c => c.items.map(it => ({ ...it, dir: c.dir || MODEL_DIR })));
+
+async function loadAllModels() {
   const status = document.getElementById("count");
-  status.textContent = "Loading tiles...";
-  const failed = [];
-  const promises = allTileNames.map(name =>
-    new Promise((res) => {
-      loader.load(TILE_DIR + name + ".glb", gltf => {
-        tileLib[name] = gltf.scene;
-        status.textContent = `Loaded ${Object.keys(tileLib).length}/${allTileNames.length}...`;
-        res();
-      }, undefined, (err) => {
-        console.warn("Failed to load:", name, err);
-        failed.push(name);
-        res();
-      });
-    })
-  );
-  await Promise.all(promises);
-  const msg = `Loaded ${Object.keys(tileLib).length}/${allTileNames.length} tiles`;
+  const total = allTileNames.length + allObjItems.length;
+  let loaded = 0;
+  status.textContent = `Loading 0/${total}...`;
+
+  const loadOne = (url) => new Promise(res => {
+    loader.load(url, gltf => res(gltf.scene), undefined, () => res(null));
+  });
+
+  /* tiles */
+  const tilePromises = allTileNames.map(async name => {
+    const s = await loadOne(TILE_DIR + name + ".glb");
+    if (s) tileLib[name] = s;
+    status.textContent = `Loading ${++loaded}/${total}...`;
+  });
+
+  /* objects */
+  const objPromises = allObjItems.map(async item => {
+    const s = await loadOne(item.dir + item.file);
+    if (s) objLib[item.id] = s;
+    status.textContent = `Loading ${++loaded}/${total}...`;
+  });
+
+  await Promise.all([...tilePromises, ...objPromises]);
+  const msg = `Loaded ${Object.keys(tileLib).length} tiles + ${Object.keys(objLib).length} objects`;
+  status.textContent = msg;
+  status.style.color = "#4a4";
   console.log(msg);
-  if (failed.length > 0) {
-    status.textContent = msg + ` (FAILED: ${failed.join(", ")})`;
-    status.style.color = "#f44";
-  } else {
-    status.textContent = msg;
-    status.style.color = "#4f4";
-  }
 }
 
-/* ═══ State ═══ */
+/* ═══════════════════════════════════════════
+   Editor State
+   ═══════════════════════════════════════════ */
+let mode = "tiles"; // "tiles" | "objects"
 let selectedTile = "Grass_Flat";
-let rotation = 0;         // radians: 0, PI/2, PI, 3PI/2
-let tileY = 0;            // Y offset for placement
-let hoverCell = null;     // { gx, gz }
+let selectedObj = null; // obj category item id
+let rotation = 0;
+let tileY = 0;
+let objScale = 1.0;
+let objRot = 0;
+let hoverCell = null;
 
-// Tilemap: "gx,gz" -> { tile, rot, y }
-const tilemap = new Map();
-// Scene objects: "gx,gz" -> THREE.Object3D
-const tileObjs = new Map();
-// Optional underlay tiles (e.g. Water_Flat under Hill_Corner_Inner_2x2 pool)
+/* Tile state */
+const tilemap = new Map();    // "gx,gz" -> { tile, rot, y }
+const tileObjs = new Map();   // "gx,gz" -> THREE.Object3D
 const underlays = new Map();
 const underlayObjs = new Map();
 const FLAT_TILES = new Set(["Grass_Flat", "Sand_Flat", "Path_Center", "Water_Flat"]);
-let tileRules = { tiles: {} };
 
-function canPlaceWaterAsUnderlay(tileName) {
-  return !!tileName && !FLAT_TILES.has(tileName);
+/* Object state */
+let nextObjId = 1;
+const objects = [];           // { id, type, x, z, y, scale, rot, mesh }
+let selectedObjInstance = null; // currently selected placed object
+let highlightRing = null;
+
+/* Undo stack */
+const undoStack = [];
+const MAX_UNDO = 100;
+
+function pushUndo(action) {
+  undoStack.push(action);
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
 }
 
+function undo() {
+  const action = undoStack.pop();
+  if (!action) return;
+  if (action.type === "place_tile") {
+    const { key, prev } = action;
+    removeTileByKey(key);
+    if (prev) {
+      const [gx, gz] = key.split(",").map(Number);
+      tilemap.set(key, prev);
+      const obj = spawnTileObject(prev.tile, gx, gz, prev.rot || 0, prev.y || 0);
+      if (obj) tileObjs.set(key, obj);
+    }
+  } else if (action.type === "remove_tile") {
+    const { key, data } = action;
+    const [gx, gz] = key.split(",").map(Number);
+    tilemap.set(key, data);
+    const obj = spawnTileObject(data.tile, gx, gz, data.rot || 0, data.y || 0);
+    if (obj) tileObjs.set(key, obj);
+  } else if (action.type === "place_obj") {
+    const idx = objects.findIndex(o => o.id === action.objId);
+    if (idx >= 0) {
+      scene.remove(objects[idx].mesh);
+      objects.splice(idx, 1);
+    }
+  } else if (action.type === "remove_obj") {
+    const { data } = action;
+    const tmpl = objLib[data.type];
+    if (tmpl) {
+      const mesh = tmpl.clone();
+      mesh.scale.setScalar(data.scale);
+      mesh.position.set(data.x, data.y, data.z);
+      mesh.rotation.y = data.rot;
+      scene.add(mesh);
+      objects.push({ ...data, mesh });
+    }
+  }
+  updateCount();
+}
+
+/* Tile rules (for validation) */
+let tileRules = { tiles: {} };
 async function loadTileRules() {
   try {
     const resp = await fetch(`game/tilesetRules.json?v=${Date.now()}`, { cache: "no-store" });
-    if (!resp.ok) throw new Error(resp.status);
-    tileRules = await resp.json();
-    console.log("Loaded tileset rules");
-  } catch (e) {
-    console.warn("Could not load tileset rules:", e);
-    tileRules = { tiles: {} };
-  }
+    if (resp.ok) tileRules = await resp.json();
+  } catch (e) { /* ignore */ }
 }
 
+/* ═══════════════════════════════════════════
+   Tile helpers (from original editor)
+   ═══════════════════════════════════════════ */
 function rotQuarterTurn(rot) {
   return ((Math.round((rot || 0) / (Math.PI / 2)) % 4) + 4) % 4;
 }
@@ -388,10 +512,8 @@ function rotQuarterTurn(rot) {
 function getTileExtensions(gx, gz, tile, rot, footprint) {
   const r = rotQuarterTurn(rot);
   if (footprint === "hill_side") {
-    if (r === 0) return [[gx, gz - 1]];
-    if (r === 1) return [[gx - 1, gz]];
-    if (r === 2) return [[gx, gz + 1]];
-    return [[gx + 1, gz]];
+    if (r === 0) return [[gx, gz - 1]]; if (r === 1) return [[gx - 1, gz]];
+    if (r === 2) return [[gx, gz + 1]]; return [[gx + 1, gz]];
   }
   if (footprint === "hill_corner_outer_2x2") {
     if (r === 0) return [[gx + 1, gz], [gx, gz - 1], [gx + 1, gz - 1]];
@@ -413,39 +535,37 @@ function validatePlacement(gx, gz, tile, rot) {
   if (!rule) return { ok: true };
   const ext = getTileExtensions(gx, gz, tile, rot, rule.footprint);
   for (const [cx, cz] of ext) {
-    const key = `${cx},${cz}`;
-    const cur = tilemap.get(key);
-    if (cur && !FLAT_TILES.has(cur.tile)) {
-      return { ok: false, message: `Blocked by ${cur.tile} at ${key}` };
-    }
+    const cur = tilemap.get(`${cx},${cz}`);
+    if (cur && !FLAT_TILES.has(cur.tile)) return { ok: false, message: `Blocked by ${cur.tile} at ${cx},${cz}` };
   }
   return { ok: true };
 }
 
-/* ═══ Preview ghost ═══ */
+/* Preview ghost */
 let previewObj = null;
-
 function updatePreview() {
   if (previewObj) { scene.remove(previewObj); previewObj = null; }
   if (!hoverCell) return;
-  const tmpl = tileLib[selectedTile];
-  if (!tmpl) return;
 
-  const obj = tmpl.clone();
-  obj.scale.setScalar(TILE_S);
-  obj.position.set(hoverCell.gx * TILE_S, tileY + 0.02, hoverCell.gz * TILE_S);
-  obj.rotation.y = rotation;
-  obj.traverse(c => {
-    if (c.isMesh) {
-      c.material = c.material.clone();
-      c.material.transparent = true;
-      c.material.opacity = 0.35;
-      c.material.depthWrite = false;
-    }
-  });
-  obj.renderOrder = 998;
-  previewObj = obj;
-  scene.add(obj);
+  if (mode === "tiles") {
+    const tmpl = tileLib[selectedTile];
+    if (!tmpl) return;
+    const obj = tmpl.clone();
+    obj.scale.setScalar(TILE_S);
+    obj.position.set(hoverCell.gx * TILE_S, tileY + 0.02, hoverCell.gz * TILE_S);
+    obj.rotation.y = rotation;
+    obj.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.35; c.material.depthWrite = false; } });
+    obj.renderOrder = 998; previewObj = obj; scene.add(obj);
+  } else if (mode === "objects" && selectedObj) {
+    const tmpl = objLib[selectedObj];
+    if (!tmpl) return;
+    const obj = tmpl.clone();
+    obj.scale.setScalar(objScale);
+    obj.position.set(hoverCell.gx * TILE_S + TILE_S / 2, 0.02, hoverCell.gz * TILE_S + TILE_S / 2);
+    obj.rotation.y = objRot;
+    obj.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.35; c.material.depthWrite = false; } });
+    obj.renderOrder = 998; previewObj = obj; scene.add(obj);
+  }
 }
 
 function spawnTileObject(tileName, gx, gz, rot, y) {
@@ -459,81 +579,152 @@ function spawnTileObject(tileName, gx, gz, rot, y) {
   return obj;
 }
 
-function setUnderlay(gx, gz, entry) {
-  const key = `${gx},${gz}`;
-  if (underlayObjs.has(key)) {
-    scene.remove(underlayObjs.get(key));
-    underlayObjs.delete(key);
-  }
-  underlays.set(key, entry);
-  const obj = spawnTileObject(entry.tile, gx, gz, entry.rot || 0, (entry.y || 0) - 0.01);
-  if (obj) {
-    obj.renderOrder = -1;
-    underlayObjs.set(key, obj);
-  }
+function removeTileByKey(key) {
+  if (tileObjs.has(key)) { scene.remove(tileObjs.get(key)); tileObjs.delete(key); }
+  tilemap.delete(key);
 }
 
-/* ═══ Place / Remove ═══ */
+function canPlaceWaterAsUnderlay(tileName) {
+  return !!tileName && !FLAT_TILES.has(tileName);
+}
+
+function setUnderlay(gx, gz, entry) {
+  const key = `${gx},${gz}`;
+  if (underlayObjs.has(key)) { scene.remove(underlayObjs.get(key)); underlayObjs.delete(key); }
+  underlays.set(key, entry);
+  const obj = spawnTileObject(entry.tile, gx, gz, entry.rot || 0, (entry.y || 0) - 0.01);
+  if (obj) { obj.renderOrder = -1; underlayObjs.set(key, obj); }
+}
+
+/* ═══════════════════════════════════════════
+   Place / Remove — Tiles
+   ═══════════════════════════════════════════ */
 function placeTile(gx, gz) {
   const key = `${gx},${gz}`;
   const existing = tilemap.get(key);
   const placingWater = selectedTile === "Water_Flat";
 
-  // Preserve non-flat bank/slope/corner tiles; paint water as an underlay on the same cell.
   if (placingWater && existing && canPlaceWaterAsUnderlay(existing.tile)) {
     setUnderlay(gx, gz, { tile: selectedTile, rot: rotation, y: tileY });
-    updateCount();
-    return;
+    updateCount(); return;
   }
 
-  const placement = validatePlacement(gx, gz, selectedTile, rotation);
-  if (!placement.ok) {
-    document.getElementById("cell-display").textContent = `Cell: ${gx}, ${gz} [invalid: ${placement.message}]`;
-    return;
-  }
+  const v = validatePlacement(gx, gz, selectedTile, rotation);
+  if (!v.ok) { document.getElementById("cell-display").textContent = `Cell: ${gx}, ${gz} [${v.message}]`; return; }
 
-  if (tileObjs.has(key)) {
-    scene.remove(tileObjs.get(key));
-    tileObjs.delete(key);
-  }
+  pushUndo({ type: "place_tile", key, prev: existing ? { ...existing } : null });
+
+  if (tileObjs.has(key)) { scene.remove(tileObjs.get(key)); tileObjs.delete(key); }
   tilemap.delete(key);
-  // Replacing a non-water main tile clears any old underlay on this cell.
   if (!placingWater && underlayObjs.has(key)) {
-    scene.remove(underlayObjs.get(key));
-    underlayObjs.delete(key);
-    underlays.delete(key);
+    scene.remove(underlayObjs.get(key)); underlayObjs.delete(key); underlays.delete(key);
   }
 
   tilemap.set(key, { tile: selectedTile, rot: rotation, y: tileY });
-
   const obj = spawnTileObject(selectedTile, gx, gz, rotation, tileY);
-  if (obj) {
-    tileObjs.set(key, obj);
-  }
+  if (obj) tileObjs.set(key, obj);
   updateCount();
 }
 
 function removeTile(gx, gz) {
   const key = `${gx},${gz}`;
-  if (tileObjs.has(key)) {
-    scene.remove(tileObjs.get(key));
-    tileObjs.delete(key);
-    tilemap.delete(key);
-    updateCount();
-    return;
-  }
-  if (underlayObjs.has(key)) {
-    scene.remove(underlayObjs.get(key));
-    underlayObjs.delete(key);
-    underlays.delete(key);
-    updateCount();
-    return;
-  }
+  const data = tilemap.get(key);
+  if (data) { pushUndo({ type: "remove_tile", key, data: { ...data } }); }
+  if (tileObjs.has(key)) { scene.remove(tileObjs.get(key)); tileObjs.delete(key); tilemap.delete(key); updateCount(); return; }
+  if (underlayObjs.has(key)) { scene.remove(underlayObjs.get(key)); underlayObjs.delete(key); underlays.delete(key); updateCount(); return; }
   tilemap.delete(key);
   updateCount();
 }
 
-/* ═══ Raycasting ═══ */
+/* ═══════════════════════════════════════════
+   Place / Remove — Objects
+   ═══════════════════════════════════════════ */
+function placeObject(gx, gz) {
+  if (!selectedObj) return;
+  const tmpl = objLib[selectedObj];
+  if (!tmpl) return;
+
+  const x = gx * TILE_S + TILE_S / 2;
+  const z = gz * TILE_S + TILE_S / 2;
+  const mesh = tmpl.clone();
+  mesh.scale.setScalar(objScale);
+  mesh.position.set(x, 0, z);
+  mesh.rotation.y = objRot;
+  scene.add(mesh);
+
+  const id = nextObjId++;
+  const entry = { id, type: selectedObj, x, z, y: 0, scale: objScale, rot: objRot, mesh };
+  objects.push(entry);
+  pushUndo({ type: "place_obj", objId: id });
+  selectObjectInstance(entry);
+  updateCount();
+}
+
+function removeObject(gx, gz) {
+  /* find closest object near this cell */
+  const cx = gx * TILE_S + TILE_S / 2;
+  const cz = gz * TILE_S + TILE_S / 2;
+  let best = null, bestDist = TILE_S * 1.5;
+  for (const obj of objects) {
+    const d = Math.hypot(obj.x - cx, obj.z - cz);
+    if (d < bestDist) { bestDist = d; best = obj; }
+  }
+  if (!best) return;
+  pushUndo({ type: "remove_obj", data: { id: best.id, type: best.type, x: best.x, z: best.z, y: best.y, scale: best.scale, rot: best.rot } });
+  scene.remove(best.mesh);
+  const idx = objects.indexOf(best);
+  if (idx >= 0) objects.splice(idx, 1);
+  if (selectedObjInstance === best) deselectObject();
+  updateCount();
+}
+
+/* Selection ring for objects */
+function createHighlightRing() {
+  const geo = new THREE.RingGeometry(0.8, 1.0, 24);
+  const mat = new THREE.MeshBasicMaterial({ color: 0xe8c44a, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthTest: false });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.renderOrder = 1000;
+  mesh.visible = false;
+  scene.add(mesh);
+  return mesh;
+}
+
+function selectObjectInstance(obj) {
+  selectedObjInstance = obj;
+  if (!highlightRing) highlightRing = createHighlightRing();
+  highlightRing.visible = true;
+  highlightRing.position.set(obj.x, obj.y + 0.05, obj.z);
+  highlightRing.scale.setScalar(obj.scale);
+  /* update sliders to match */
+  document.getElementById("obj-scale").value = obj.scale;
+  document.getElementById("obj-scale-val").textContent = obj.scale.toFixed(2);
+  document.getElementById("obj-rot").value = obj.rot;
+  document.getElementById("obj-rot-val").textContent = Math.round(obj.rot * 180 / Math.PI) + "°";
+  objScale = obj.scale;
+  objRot = obj.rot;
+}
+
+function deselectObject() {
+  selectedObjInstance = null;
+  if (highlightRing) highlightRing.visible = false;
+}
+
+function updateSelectedObject() {
+  if (!selectedObjInstance) return;
+  selectedObjInstance.scale = objScale;
+  selectedObjInstance.rot = objRot;
+  selectedObjInstance.mesh.scale.setScalar(objScale);
+  selectedObjInstance.mesh.rotation.y = objRot;
+  if (highlightRing) {
+    highlightRing.position.set(selectedObjInstance.x, selectedObjInstance.y + 0.05, selectedObjInstance.z);
+    highlightRing.scale.setScalar(objScale);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Raycasting
+   ═══════════════════════════════════════════ */
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -545,30 +736,58 @@ function screenToGrid(e) {
   raycaster.setFromCamera(mouse, camera);
   const target = new THREE.Vector3();
   if (!raycaster.ray.intersectPlane(groundPlane, target)) return null;
-  return {
-    gx: Math.floor(target.x / TILE_S),
-    gz: Math.floor(target.z / TILE_S),
-  };
+  return { gx: Math.floor(target.x / TILE_S), gz: Math.floor(target.z / TILE_S), wx: target.x, wz: target.z };
 }
 
-/* ═══ Input ═══ */
+/* Click to find nearest placed object */
+function findObjectAt(wx, wz) {
+  let best = null, bestDist = TILE_S * 1.2;
+  for (const obj of objects) {
+    const d = Math.hypot(obj.x - wx, obj.z - wz);
+    if (d < bestDist) { bestDist = d; best = obj; }
+  }
+  return best;
+}
+
+/* ═══════════════════════════════════════════
+   Input
+   ═══════════════════════════════════════════ */
 let mouseDownPos = null;
+let isDragging = false;
 
 renderer.domElement.addEventListener("mousedown", e => {
   mouseDownPos = { x: e.clientX, y: e.clientY };
+  isDragging = false;
 });
 
 renderer.domElement.addEventListener("mouseup", e => {
   if (!mouseDownPos) return;
   const dx = Math.abs(e.clientX - mouseDownPos.x);
   const dy = Math.abs(e.clientY - mouseDownPos.y);
-  if (dx > 4 || dy > 4) return; // was a drag (orbit), ignore
+  if (dx > 4 || dy > 4) return;
 
   const cell = screenToGrid(e);
   if (!cell) return;
 
-  if (e.button === 0) placeTile(cell.gx, cell.gz);
-  if (e.button === 2) removeTile(cell.gx, cell.gz);
+  if (mode === "tiles") {
+    if (e.button === 0) placeTile(cell.gx, cell.gz);
+    if (e.button === 2) removeTile(cell.gx, cell.gz);
+  } else {
+    if (e.button === 0) {
+      /* If clicking near an existing object, select it; otherwise place new */
+      const existing = findObjectAt(cell.wx, cell.wz);
+      if (existing && !selectedObj) {
+        selectObjectInstance(existing);
+      } else if (selectedObj) {
+        placeObject(cell.gx, cell.gz);
+      } else if (existing) {
+        selectObjectInstance(existing);
+      }
+    }
+    if (e.button === 2) {
+      removeObject(cell.gx, cell.gz);
+    }
+  }
 });
 
 renderer.domElement.addEventListener("contextmenu", e => e.preventDefault());
@@ -580,14 +799,19 @@ renderer.domElement.addEventListener("mousemove", e => {
     hoverMesh.position.x = cell.gx * TILE_S + TILE_S / 2;
     hoverMesh.position.z = cell.gz * TILE_S + TILE_S / 2;
     hoverMesh.visible = true;
-    const key = `${cell.gx},${cell.gz}`;
-    const top = tilemap.get(key)?.tile;
-    const under = underlays.get(key)?.tile;
-    let label = "Cell: " + cell.gx + ", " + cell.gz;
-    if (top) label += ` [${top}]`;
-    if (under) label += ` {under: ${under}}`;
-    document.getElementById("cell-display").textContent =
-      label;
+
+    let label = `Cell: ${cell.gx}, ${cell.gz}`;
+    if (mode === "tiles") {
+      const key = `${cell.gx},${cell.gz}`;
+      const top = tilemap.get(key)?.tile;
+      const under = underlays.get(key)?.tile;
+      if (top) label += ` [${top}]`;
+      if (under) label += ` {${under}}`;
+    } else {
+      const near = findObjectAt(cell.wx, cell.wz);
+      if (near) label += ` [${near.type}]`;
+    }
+    document.getElementById("cell-display").textContent = label;
   } else {
     hoverMesh.visible = false;
   }
@@ -596,111 +820,191 @@ renderer.domElement.addEventListener("mousemove", e => {
 
 window.addEventListener("keydown", e => {
   if (e.key === "r" || e.key === "R") {
-    rotation = (rotation + Math.PI / 2) % (Math.PI * 2);
-    document.getElementById("rot-display").textContent =
-      `Rotation: ${Math.round(rotation * 180 / Math.PI)}°`;
+    if (mode === "tiles") {
+      rotation = (rotation + Math.PI / 2) % (Math.PI * 2);
+      document.getElementById("rot-display").textContent = `Rotation: ${Math.round(rotation * 180 / Math.PI)}°`;
+    } else {
+      objRot = (objRot + Math.PI / 4) % (Math.PI * 2);
+      document.getElementById("obj-rot").value = objRot;
+      document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°";
+      updateSelectedObject();
+    }
     updatePreview();
   }
-  if (e.key === "g" || e.key === "G") {
-    gridGroup.visible = !gridGroup.visible;
+  if (e.key === "g" || e.key === "G") gridGroup.visible = !gridGroup.visible;
+  if (e.key === "s" && e.ctrlKey) { e.preventDefault(); exportJSON(); }
+  if (e.key === "z" && e.ctrlKey) { e.preventDefault(); undo(); }
+  if (e.key === "Escape") deselectObject();
+  if (e.key === "Delete" && selectedObjInstance) {
+    const obj = selectedObjInstance;
+    pushUndo({ type: "remove_obj", data: { id: obj.id, type: obj.type, x: obj.x, z: obj.z, y: obj.y, scale: obj.scale, rot: obj.rot } });
+    scene.remove(obj.mesh);
+    objects.splice(objects.indexOf(obj), 1);
+    deselectObject();
+    updateCount();
   }
-  if (e.key === "s" && e.ctrlKey) {
-    e.preventDefault();
-    exportJSON();
-  }
-  /* Quick category: 1-5 selects first tile of that category */
+
+  /* Quick category */
   const num = parseInt(e.key);
-  if (num >= 1 && num <= CATEGORIES.length) {
-    selectedTile = CATEGORIES[num - 1].tiles[0];
-    updatePalette();
-    updatePreview();
+  if (mode === "tiles" && num >= 1 && num <= TILE_CATEGORIES.length) {
+    selectedTile = TILE_CATEGORIES[num - 1].tiles[0];
+    buildPalette(); updatePreview();
   }
 });
 
-/* ═══ UI ═══ */
+/* Scroll to resize selected object or change scale for placement */
+renderer.domElement.addEventListener("wheel", e => {
+  if (mode !== "objects") return;
+  if (!e.shiftKey) return; // only when shift held, otherwise orbit zoom
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -0.1 : 0.1;
+  objScale = Math.max(0.2, Math.min(5, objScale + delta));
+  document.getElementById("obj-scale").value = objScale;
+  document.getElementById("obj-scale-val").textContent = objScale.toFixed(2);
+  updateSelectedObject();
+  updatePreview();
+}, { passive: false });
+
+/* ═══════════════════════════════════════════
+   Tab Switching
+   ═══════════════════════════════════════════ */
+function setMode(newMode) {
+  mode = newMode;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === mode));
+  document.getElementById("tile-controls").classList.toggle("hidden", mode !== "tiles");
+  document.getElementById("obj-controls").classList.toggle("hidden", mode !== "objects");
+  document.querySelectorAll(".tile-only").forEach(el => el.classList.toggle("hidden", mode !== "tiles"));
+  document.getElementById("rot-display").classList.toggle("hidden", mode !== "tiles");
+  if (mode === "objects") deselectObject();
+  buildPalette();
+  updatePreview();
+}
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => setMode(tab.dataset.tab));
+});
+
+/* ═══════════════════════════════════════════
+   Palette Building
+   ═══════════════════════════════════════════ */
 function buildPalette() {
-  const pal = document.getElementById("palette");
+  const pal = document.getElementById("palette-wrap");
   pal.innerHTML = "";
-  for (const cat of CATEGORIES) {
-    const h = document.createElement("div");
-    h.className = "cat";
-    h.textContent = cat.name;
-    pal.appendChild(h);
-    for (const tile of cat.tiles) {
-      const d = document.createElement("div");
-      d.className = "tile-btn" + (tile === selectedTile ? " active" : "");
-      d.textContent = tile.replace(/_/g, " ");
-      d.dataset.tile = tile;
-      d.addEventListener("click", () => {
-        selectedTile = tile;
-        updatePalette();
-        updatePreview();
-      });
-      pal.appendChild(d);
+
+  if (mode === "tiles") {
+    for (const cat of TILE_CATEGORIES) {
+      const h = document.createElement("div"); h.className = "cat"; h.textContent = cat.name; pal.appendChild(h);
+      for (const tile of cat.tiles) {
+        const d = document.createElement("div");
+        d.className = "tile-btn" + (tile === selectedTile ? " active" : "");
+        d.textContent = tile.replace(/_/g, " ");
+        d.dataset.tile = tile;
+        d.addEventListener("click", () => { selectedTile = tile; updatePaletteSelection(); updatePreview(); });
+        pal.appendChild(d);
+      }
+    }
+  } else {
+    for (const cat of OBJ_CATEGORIES) {
+      const h = document.createElement("div"); h.className = "cat"; h.textContent = cat.name; pal.appendChild(h);
+      for (const item of cat.items) {
+        const d = document.createElement("div");
+        d.className = "tile-btn" + (item.id === selectedObj ? " active" : "");
+        d.textContent = item.id.replace(/_/g, " ").replace("Color1", "");
+        d.dataset.obj = item.id;
+        d.addEventListener("click", () => {
+          if (selectedObj === item.id) { selectedObj = null; deselectObject(); }
+          else { selectedObj = item.id; objScale = item.scale; document.getElementById("obj-scale").value = objScale; document.getElementById("obj-scale-val").textContent = objScale.toFixed(2); }
+          updatePaletteSelection();
+          updatePreview();
+        });
+        pal.appendChild(d);
+      }
     }
   }
 }
 
-function updatePalette() {
-  for (const d of document.querySelectorAll(".tile-btn")) {
-    d.classList.toggle("active", d.dataset.tile === selectedTile);
-  }
+function updatePaletteSelection() {
+  document.querySelectorAll(".tile-btn").forEach(d => {
+    if (mode === "tiles") d.classList.toggle("active", d.dataset.tile === selectedTile);
+    else d.classList.toggle("active", d.dataset.obj === selectedObj);
+  });
 }
 
 function updateCount() {
   const el = document.getElementById("count");
-  el.textContent = `${tilemap.size} tiles placed` + (underlays.size ? ` (+${underlays.size} underlays)` : "");
-  el.style.color = "#666";
+  el.textContent = `${tilemap.size} tiles, ${objects.length} objects`;
+  el.style.color = "#555";
 }
 
-/* Y controls */
-document.getElementById("y-up").addEventListener("click", () => {
-  tileY = Math.round((tileY + 0.2) * 100) / 100;
-  document.getElementById("y-val").textContent = tileY.toFixed(2);
+/* ═══════════════════════════════════════════
+   Object controls (scale/rot sliders)
+   ═══════════════════════════════════════════ */
+document.getElementById("obj-scale").addEventListener("input", e => {
+  objScale = parseFloat(e.target.value);
+  document.getElementById("obj-scale-val").textContent = objScale.toFixed(2);
+  updateSelectedObject();
   updatePreview();
 });
-document.getElementById("y-down").addEventListener("click", () => {
-  tileY = Math.round((tileY - 0.2) * 100) / 100;
+
+document.getElementById("obj-rot").addEventListener("input", e => {
+  objRot = parseFloat(e.target.value);
+  document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°";
+  updateSelectedObject();
+  updatePreview();
+});
+
+/* Tile Y slider */
+document.getElementById("y-slider").addEventListener("input", e => {
+  tileY = parseFloat(e.target.value);
   document.getElementById("y-val").textContent = tileY.toFixed(2);
   updatePreview();
 });
 
-/* ═══ Export / Import ═══ */
+/* ═══════════════════════════════════════════
+   Export / Import
+   ═══════════════════════════════════════════ */
 function exportJSON() {
-  const data = {};
-  for (const [key, val] of tilemap) data[key] = val;
-  const under = {};
-  for (const [key, val] of underlays) under[key] = val;
-  const payload = { version: 1, tileSize: TILE_S, tiles: data };
-  if (underlays.size) payload.underlays = under;
+  const tileData = {};
+  for (const [key, val] of tilemap) tileData[key] = val;
+  const underData = {};
+  for (const [key, val] of underlays) underData[key] = val;
+  const objData = objects.map(o => ({ type: o.type, x: o.x, z: o.z, y: o.y, scale: o.scale, rot: o.rot }));
+
+  const payload = { version: 2, tileSize: TILE_S, tiles: tileData };
+  if (underlays.size) payload.underlays = underData;
+  if (objects.length) payload.objects = objData;
+
   const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "tilemap.json";
-  a.click();
+  const a = document.createElement("a"); a.href = url; a.download = "tilemap.json"; a.click();
   URL.revokeObjectURL(url);
-  console.log(`Exported ${tilemap.size} tiles`);
+  console.log(`Exported ${tilemap.size} tiles + ${objects.length} objects`);
 }
 
 function importJSON(json) {
   try {
-    const { tiles, underlays: importedUnderlays } = JSON.parse(json);
-    // Clear existing
-    for (const obj of tileObjs.values()) scene.remove(obj);
-    tileObjs.clear();
-    tilemap.clear();
-    for (const obj of underlayObjs.values()) scene.remove(obj);
-    underlayObjs.clear();
-    underlays.clear();
+    const data = JSON.parse(json);
+    const { tiles, underlays: importedUnderlays, objects: importedObjects } = data;
 
-    for (const [key, val] of Object.entries(tiles)) {
-      tilemap.set(key, val);
-      const [gx, gz] = key.split(",").map(Number);
-      const obj = spawnTileObject(val.tile, gx, gz, val.rot || 0, val.y || 0);
-      if (obj) {
-        tileObjs.set(key, obj);
+    /* Clear tiles */
+    for (const obj of tileObjs.values()) scene.remove(obj);
+    tileObjs.clear(); tilemap.clear();
+    for (const obj of underlayObjs.values()) scene.remove(obj);
+    underlayObjs.clear(); underlays.clear();
+
+    /* Clear objects */
+    for (const obj of objects) scene.remove(obj.mesh);
+    objects.length = 0;
+    deselectObject();
+
+    /* Load tiles */
+    if (tiles) {
+      for (const [key, val] of Object.entries(tiles)) {
+        tilemap.set(key, val);
+        const [gx, gz] = key.split(",").map(Number);
+        const obj = spawnTileObject(val.tile, gx, gz, val.rot || 0, val.y || 0);
+        if (obj) tileObjs.set(key, obj);
       }
     }
     if (importedUnderlays) {
@@ -709,98 +1013,63 @@ function importJSON(json) {
         setUnderlay(gx, gz, val);
       }
     }
+
+    /* Load objects */
+    if (importedObjects) {
+      for (const entry of importedObjects) {
+        const tmpl = objLib[entry.type];
+        if (!tmpl) { console.warn("Unknown object type:", entry.type); continue; }
+        const mesh = tmpl.clone();
+        mesh.scale.setScalar(entry.scale || 1);
+        mesh.position.set(entry.x, entry.y || 0, entry.z);
+        mesh.rotation.y = entry.rot || 0;
+        scene.add(mesh);
+        const id = nextObjId++;
+        objects.push({ id, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
+      }
+    }
+
     updateCount();
-    console.log(`Imported ${tilemap.size} tiles`);
+    console.log(`Imported ${tilemap.size} tiles + ${objects.length} objects`);
   } catch (e) {
     alert("Invalid JSON: " + e.message);
   }
 }
 
+/* ═══════════════════════════════════════════
+   Validation (tiles only)
+   ═══════════════════════════════════════════ */
 function runValidation() {
   const rules = tileRules.tiles || {};
-  const warnings = [];
-  const errors = [];
+  const warnings = [], errors = [];
   const coverage = new Set();
-  const card = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+  const card = [[0,1],[1,0],[0,-1],[-1,0]];
   const key = (x, z) => `${x},${z}`;
-
   function addCoverage(gx, gz) { coverage.add(key(gx, gz)); }
 
   for (const [k, v] of tilemap) {
     const [gx, gz] = k.split(",").map(Number);
     const rule = rules[v.tile];
-    if (!rule) {
-      errors.push(`Unknown tile "${v.tile}" at ${k}`);
-      continue;
-    }
+    if (!rule) { errors.push(`Unknown tile "${v.tile}" at ${k}`); continue; }
     addCoverage(gx, gz);
     const exts = getTileExtensions(gx, gz, v.tile, v.rot || 0, rule.footprint);
     for (const [ex, ez] of exts) addCoverage(ex, ez);
   }
-
-  // Flat shoreline check.
   for (const [k, v] of tilemap) {
     if (!FLAT_TILES.has(v.tile) || v.tile === "Water_Flat") continue;
     const [gx, gz] = k.split(",").map(Number);
-    let adjWater = 0;
-    for (const [dx, dz] of card) if (tilemap.get(key(gx + dx, gz + dz))?.tile === "Water_Flat") adjWater++;
-    if (adjWater > 0) warnings.push(`Flat shoreline: ${k} (${v.tile})`);
+    for (const [dx, dz] of card) if (tilemap.get(key(gx + dx, gz + dz))?.tile === "Water_Flat") warnings.push(`Flat shoreline: ${k}`);
   }
-
-  // Uncovered holes near water.
-  const keys = [...tilemap.keys()].map(k => k.split(",").map(Number));
-  if (keys.length) {
-    const xs = keys.map(([x]) => x), zs = keys.map(([, z]) => z);
-    const minX = Math.min(...xs) - 1, maxX = Math.max(...xs) + 1;
-    const minZ = Math.min(...zs) - 1, maxZ = Math.max(...zs) + 1;
-    for (let x = minX; x <= maxX; x++) {
-      for (let z = minZ; z <= maxZ; z++) {
-        const k = key(x, z);
-        if (coverage.has(k)) continue;
-        let adjWater = false;
-        for (const [dx, dz] of card) if (tilemap.get(key(x + dx, z + dz))?.tile === "Water_Flat") adjWater = true;
-        if (adjWater) warnings.push(`Hole near water: ${k}`);
-      }
-    }
-  }
-
-  const summary = `Validation: ${errors.length} error(s), ${warnings.length} warning(s)`;
+  const summary = `${errors.length} error(s), ${warnings.length} warning(s)`;
   document.getElementById("count").textContent = summary;
-  document.getElementById("count").style.color = errors.length ? "#ff6666" : (warnings.length ? "#ffcc66" : "#66dd88");
-  console.log(summary);
-  if (errors.length) console.log("Errors:", errors);
-  if (warnings.length) console.log("Warnings:", warnings.slice(0, 120));
-  if (!errors.length && !warnings.length) alert("Validation passed: no issues found.");
+  document.getElementById("count").style.color = errors.length ? "#f66" : (warnings.length ? "#fc6" : "#6d8");
+  if (!errors.length && !warnings.length) alert("Validation passed!");
 }
 
-document.getElementById("btn-export").addEventListener("click", exportJSON);
-document.getElementById("btn-validate").addEventListener("click", runValidation);
-document.getElementById("btn-import").addEventListener("click", () => {
-  document.getElementById("file-input").click();
-});
-document.getElementById("file-input").addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => importJSON(reader.result);
-  reader.readAsText(file);
-  e.target.value = "";
-});
-document.getElementById("btn-clear").addEventListener("click", () => {
-  if (!confirm("Clear all placed tiles?")) return;
-  for (const obj of tileObjs.values()) scene.remove(obj);
-  tileObjs.clear();
-  tilemap.clear();
-  for (const obj of underlayObjs.values()) scene.remove(obj);
-  underlayObjs.clear();
-  underlays.clear();
-  updateCount();
-});
-
-/* ═══ Zone classification (from terrainHeight.js) ═══ */
+/* ═══════════════════════════════════════════
+   Zone helpers (for auto-fill)
+   ═══════════════════════════════════════════ */
 const WATER_Y = 0.00, GRASS_Y = 0.40;
-
-/* River centre-line [worldX, worldZ, halfWidth] */
 const RP = [
   [0,40,2.5],[0,34,2.5],[0,26,2.8],[0,18,3.0],[0,12,3.2],[0,6,3.5],
   [2,2,3.5],[6,-2,4.0],[12,-6,4.5],[20,-10,5.0],[28,-14,5.5],[36,-14,6.5],[48,-14,8.0],
@@ -818,134 +1087,120 @@ function riverQuery(px, pz) {
 }
 function isInRiver(x, z) { const q = riverQuery(x, z); return q.dist < q.width; }
 function isBeach(x, z) { return x > 30 && z < 4; }
-
-/* smoothstep for terrainH */
-function smoothstep(x, min, max) {
-  const t = Math.max(0, Math.min(1, (x - min) / (max - min)));
-  return t * t * (3 - 2 * t);
-}
-
+function smoothstep(x, min, max) { const t = Math.max(0, Math.min(1, (x - min) / (max - min))); return t * t * (3 - 2 * t); }
 function terrainH(x, z) {
-  const rq = riverQuery(x, z);
-  let h = GRASS_Y;
-  /* beach slope */
+  const rq = riverQuery(x, z); let h = GRASS_Y;
   if (isBeach(x, z)) h -= smoothstep(x, 30, 48) * 1.0;
-  /* bank carve */
   const bankHi = rq.width + TILE_S;
-  if (rq.dist < bankHi) {
-    const center = 1 - smoothstep(rq.dist, 0, rq.width);
-    const bank = 1 - smoothstep(rq.dist, rq.width, bankHi);
-    const bed = WATER_Y - 0.72 - 0.48 * center;
-    const lerp = (a, b, t) => a + (b - a) * t;
-    h = lerp(h, bed, Math.max(center, bank * 0.45));
-  }
+  if (rq.dist < bankHi) { const center = 1 - smoothstep(rq.dist, 0, rq.width); const bank = 1 - smoothstep(rq.dist, rq.width, bankHi); const bed = WATER_Y - 0.72 - 0.48 * center; h = h + (Math.max(center, bank * 0.45)) * (bed - h); }
   return h;
 }
 function isOceanCell(wx, wz) { return wx > 34 && terrainH(wx, wz) < WATER_Y + 0.08; }
 function isWater(wx, wz) { return isInRiver(wx, wz) || isOceanCell(wx, wz); }
-
-/* Path centre-lines */
-const PATH_CLS = [
-  [[0,-28],[0,-16],[0,-4],[0,8],[0,12]],
-  [[10,-30],[20,-26],[30,-22],[40,-18],[46,-16]],
-  [[0,14],[0,22],[0,34],[0,40]],
-];
+const PATH_CLS = [[[0,-28],[0,-16],[0,-4],[0,8],[0,12]],[[10,-30],[20,-26],[30,-22],[40,-18],[46,-16]],[[0,14],[0,22],[0,34],[0,40]]];
 function distToPath(x, z) {
   let md = 1e9;
-  for (const pts of PATH_CLS)
-    for (let i = 0; i < pts.length - 1; i++) {
-      const [ax,az] = pts[i], [bx,bz] = pts[i+1];
-      const dx = bx-ax, dz = bz-az, l2 = dx*dx+dz*dz;
-      const t = l2 > 0 ? Math.max(0, Math.min(1, ((x-ax)*dx+(z-az)*dz)/l2)) : 0;
-      md = Math.min(md, Math.hypot(x-(ax+t*dx), z-(az+t*dz)));
-    }
+  for (const pts of PATH_CLS) for (let i = 0; i < pts.length - 1; i++) {
+    const [ax,az] = pts[i], [bx,bz] = pts[i+1]; const dx = bx-ax, dz = bz-az, l2 = dx*dx+dz*dz;
+    const t = l2 > 0 ? Math.max(0, Math.min(1, ((x-ax)*dx+(z-az)*dz)/l2)) : 0;
+    md = Math.min(md, Math.hypot(x-(ax+t*dx), z-(az+t*dz)));
+  }
   return md;
 }
 function isOnPath(x, z) { return distToPath(x, z) < 3.0; }
-
-/* Playable bounds */
 function isPlayable(gx, gz) { return !(gz > 19 || gx < -19 || gz < -18); }
 
-/* ═══ Auto-fill base layout ═══ */
 function fillBaseLayout() {
-  /* Clear existing */
   for (const obj of tileObjs.values()) scene.remove(obj);
-  tileObjs.clear();
-  tilemap.clear();
+  tileObjs.clear(); tilemap.clear();
   for (const obj of underlayObjs.values()) scene.remove(obj);
-  underlayObjs.clear();
-  underlays.clear();
-
+  underlayObjs.clear(); underlays.clear();
   let count = 0;
   for (let gx = -19; gx <= 24; gx++) {
     for (let gz = -18; gz <= 19; gz++) {
       if (!isPlayable(gx, gz)) continue;
       const wx = gx * TILE_S, wz = gz * TILE_S;
-
-      let tile, y = 0;
-      if (isWater(wx, wz))       tile = "Water_Flat";
-      else if (isBeach(wx, wz))  tile = "Sand_Flat";
+      let tile;
+      if (isWater(wx, wz)) tile = "Water_Flat";
+      else if (isBeach(wx, wz)) tile = "Sand_Flat";
       else if (isOnPath(wx, wz)) tile = "Path_Center";
-      else                       tile = "Grass_Flat";
-
+      else tile = "Grass_Flat";
       const key = `${gx},${gz}`;
-      tilemap.set(key, { tile, rot: 0, y });
-
-      const obj = spawnTileObject(tile, gx, gz, 0, y);
-      if (obj) {
-        tileObjs.set(key, obj);
-      }
+      tilemap.set(key, { tile, rot: 0, y: 0 });
+      const obj = spawnTileObject(tile, gx, gz, 0, 0);
+      if (obj) tileObjs.set(key, obj);
       count++;
     }
   }
   updateCount();
-  console.log(`Filled ${count} base tiles. Now replace edges with Hill_Side, Sand_Side, etc.`);
+  console.log(`Filled ${count} base tiles`);
 }
 
+/* ═══════════════════════════════════════════
+   Button wiring
+   ═══════════════════════════════════════════ */
+document.getElementById("btn-export").addEventListener("click", exportJSON);
+document.getElementById("btn-validate").addEventListener("click", runValidation);
+document.getElementById("btn-import").addEventListener("click", () => document.getElementById("file-input").click());
+document.getElementById("file-input").addEventListener("change", e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => importJSON(reader.result);
+  reader.readAsText(file); e.target.value = "";
+});
+document.getElementById("btn-clear").addEventListener("click", () => {
+  if (!confirm("Clear all?")) return;
+  for (const obj of tileObjs.values()) scene.remove(obj); tileObjs.clear(); tilemap.clear();
+  for (const obj of underlayObjs.values()) scene.remove(obj); underlayObjs.clear(); underlays.clear();
+  for (const obj of objects) scene.remove(obj.mesh); objects.length = 0; deselectObject();
+  updateCount();
+});
 document.getElementById("btn-fill").addEventListener("click", () => {
-  if (tilemap.size > 0 && !confirm("This will replace all tiles with the base layout. Continue?")) return;
+  if (tilemap.size > 0 && !confirm("Replace all tiles with base layout?")) return;
   fillBaseLayout();
 });
 
-/* ═══ Resize ═══ */
+/* ═══════════════════════════════════════════
+   Resize + Animate
+   ═══════════════════════════════════════════ */
 window.addEventListener("resize", () => {
   const w = wrap.clientWidth, h = wrap.clientHeight;
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w, h);
+  camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
 });
 
-/* ═══ Animate ═══ */
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
 }
 
-/* ═══ Load tilemap.json on startup ═══ */
+/* ═══════════════════════════════════════════
+   Load existing tilemap.json
+   ═══════════════════════════════════════════ */
 async function loadTilemapJSON() {
   try {
     const resp = await fetch(`tilemap.json?v=${Date.now()}`, { cache: "no-store" });
     if (!resp.ok) throw new Error(resp.status);
-    const json = await resp.text();
-    importJSON(json);
+    importJSON(await resp.text());
     console.log("Auto-loaded tilemap.json");
     return true;
   } catch (e) {
-    console.log("No tilemap.json found, will fill base layout:", e.message);
+    console.log("No tilemap.json found:", e.message);
     return false;
   }
 }
 
-/* ═══ Init ═══ */
+/* ═══════════════════════════════════════════
+   Init
+   ═══════════════════════════════════════════ */
 buildPalette();
+setMode("tiles");
 await loadTileRules();
-await loadAllTiles();
-/* Try loading tilemap.json first, fall back to zone auto-fill */
+await loadAllModels();
 const loaded = await loadTilemapJSON();
 if (!loaded && Object.keys(tileLib).length > 0) fillBaseLayout();
 animate();
-console.log("Tile Editor ready. Place tiles and export JSON when done.");
+console.log("Map Editor ready.");
 </script>
 </body>
 </html>

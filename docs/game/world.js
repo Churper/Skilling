@@ -490,6 +490,88 @@ function updateFishing(spots, t) {
   }
 }
 
+/* ── Load editor-placed objects from tilemap.json ── */
+async function loadMapObjects(scene) {
+  try {
+    const resp = await fetch(`tilemap.json?v=${Date.now()}`, { cache: "no-store" });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const objs = data.objects;
+    if (!objs || !objs.length) return;
+    const loader = new GLTFLoader();
+    const load = url => new Promise((res, rej) => loader.load(url, g => res(g.scene), undefined, rej));
+
+    /* Build lookup: object type → file path */
+    const MODEL_DIR = "models/";
+    const TILE_DIR = "models/terrain/";
+    const fileLookup = {};
+    /* gltf models (trees, rocks, bushes) */
+    const gltfTypes = [
+      "Tree_1_A","Tree_1_B","Tree_1_C","Tree_2_A","Tree_2_B","Tree_2_C",
+      "Tree_3_A","Tree_3_B","Tree_4_A","Tree_4_B",
+      "Tree_Bare_1_A","Tree_Bare_2_A",
+      "Rock_1_A","Rock_1_J","Rock_1_K","Rock_2_A",
+      "Rock_3_A","Rock_3_C","Rock_3_E","Rock_3_G",
+      "Bush_1_A","Bush_2_A","Bush_3_A","Bush_4_A",
+      "Grass_1_A","Grass_2_A",
+    ];
+    for (const t of gltfTypes) fileLookup[t] = MODEL_DIR + t + "_Color1.gltf";
+    /* glb terrain props — anything starting with Prop_ */
+    const glbProps = [
+      "Prop_Grass_Clump_1","Prop_Grass_Clump_2","Prop_Grass_Clump_3","Prop_Grass_Clump_4",
+      "Prop_Flower_Daisy","Prop_Flower_Rose","Prop_Flower_Sunflower","Prop_Flower_Tulip",
+      "Prop_Flower_Lily_Blue","Prop_Flower_Lily_Pink",
+      "Prop_Cattail_1","Prop_Cattail_2","Prop_Mushroom_1","Prop_Mushroom_2",
+      "Prop_Stump","Prop_Hollow_Trunk","Prop_Branch_1","Prop_Branch_2","Prop_Branch_3",
+      "Prop_Rock_1","Prop_Rock_2","Prop_Rock_3","Prop_Rock_4",
+      "Prop_Bush_1","Prop_Bush_2","Prop_Bush_3",
+      "Prop_Cliff_Rock_1","Prop_Cliff_Rock_2",
+      "Prop_Shell_1","Prop_Shell_2","Prop_Starfish_1","Prop_Starfish_2",
+      "Prop_Treasure_Chest",
+      "Prop_Tree_Cedar_1","Prop_Tree_Cedar_2",
+      "Prop_Tree_Oak_1","Prop_Tree_Oak_2","Prop_Tree_Oak_3",
+      "Prop_Tree_Palm_1","Prop_Tree_Palm_2","Prop_Tree_Palm_3",
+      "Prop_Tree_Pine_1","Prop_Tree_Pine_2","Prop_Tree_Pine_3",
+      "Prop_Fence_Boards_1","Prop_Fence_Boards_2","Prop_Fence_Boards_3","Prop_Fence_Boards_4",
+      "Prop_Fence_Post_1","Prop_Fence_Post_2","Prop_Fence_Post_3","Prop_Fence_Post_4",
+      "Prop_Fence_Curve_1x1","Prop_Fence_Curve_2x2","Prop_Fence_Curve_3x3",
+      "Prop_Fence_Gate_1","Prop_Fence_Gate_2","Prop_Fence_Hill_Gentle","Prop_Fence_Hill_Sharp",
+      "Prop_Bridge_Log_End","Prop_Bridge_Log_End_Edge","Prop_Bridge_Log_Middle","Prop_Bridge_Log_Middle_Edge",
+      "Prop_Bridge_Log_Post_Support","Prop_Bridge_Log_Post_Top",
+      "Prop_Bridge_Rope_End","Prop_Bridge_Rope_Middle","Prop_Bridge_Rope_Rope_Support",
+      "Prop_Docks_Straight","Prop_Docks_Straight_Supports","Prop_Docks_Steps",
+      "Prop_Docks_Corner","Prop_Docks_Corner_Supports",
+    ];
+    for (const t of glbProps) fileLookup[t] = TILE_DIR + t + ".glb";
+
+    /* Dedupe: only load each unique type once */
+    const types = [...new Set(objs.map(o => o.type))];
+    const templates = {};
+    await Promise.all(types.map(async t => {
+      const path = fileLookup[t];
+      if (!path) { console.warn("Unknown map object type:", t); return; }
+      try { const s = await load(path); stabilizeModelLook(s); templates[t] = s; }
+      catch (e) { console.warn("Failed to load map object:", t, e); }
+    }));
+
+    const group = new THREE.Group();
+    group.name = "map_objects";
+    for (const entry of objs) {
+      const tmpl = templates[entry.type];
+      if (!tmpl) continue;
+      const m = tmpl.clone();
+      m.scale.setScalar(entry.scale || 1);
+      m.position.set(entry.x, entry.y || 0, entry.z);
+      m.rotation.y = entry.rot || 0;
+      group.add(m);
+    }
+    scene.add(group);
+    console.log(`Loaded ${objs.length} map objects from tilemap.json`);
+  } catch (e) {
+    /* tilemap.json not found or no objects — that's fine */
+  }
+}
+
 /* ══════════════════════════════════════════════════════════
    createWorld() — main entry
    ══════════════════════════════════════════════════════════ */
@@ -556,6 +638,9 @@ export async function createWorld(scene) {
 
   /* cave entrance — placed in the cliff region east side */
   const cave = addCaveEntrance(scene, -30, -10, nodes, obstacles);
+
+  /* editor-placed objects from tilemap.json */
+  await loadMapObjects(scene);
 
   return {
     ground,
