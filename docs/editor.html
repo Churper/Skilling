@@ -333,6 +333,7 @@ const cBank = new THREE.Color("#6d8854"), cRiver = new THREE.Color("#5a7454");
 const cCliff = new THREE.Color("#8a8a7a"), tmpC = new THREE.Color();
 const beachCX = 38, beachCZ = -6, beachR = 26;
 const BRIDGE_X0 = -6, BRIDGE_X1 = 6, BRIDGE_Z = 8, BRIDGE_HW = 3;
+const colorOverrides = {};
 
 function computeColor(x, z, y) {
   const key = `${x},${z}`;
@@ -698,7 +699,6 @@ const PAINT_COLORS = [
   { name: "River Bank", hex: "#6d8854", color: new THREE.Color("#6d8854") },
   { name: "Dirt", hex: "#8b6a3e", color: new THREE.Color("#8b6a3e") },
 ];
-const colorOverrides = {};
 let selectedPaintColor = PAINT_COLORS[0].color;
 let paintStrength = 0.50;
 let colorPainting = false, colorPaintSign = 1, lastColorPaintTime = 0;
