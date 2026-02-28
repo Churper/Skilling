@@ -594,11 +594,11 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         /* GLTF-based services — tag with service interaction */
         const svcTag = SERVICE_TAG[entry.type];
         if (svcTag) { setSvc(m, svcTag.service, svcTag.label); nodes.push(addHS(m, 0, 0.95, 0.55)); }
-        /* tag animals as attackable NPCs */
+        /* tag animals as attackable NPCs — push model itself so any mesh is clickable */
         if (ANIMAL_TYPES.has(entry.type)) {
           setSvc(m, "animal", entry.type);
           m.userData.animalType = entry.type;
-          nodes.push(addHS(m, 0, 0.7, 0));
+          nodes.push(m);
         }
         objGroup.add(m);
       }
@@ -816,12 +816,11 @@ async function loadMapObjects(scene, nodes) {
         nodes.push(m);
         addBlob(scene, entry.x, entry.z, entry.scale || 1, .15);
       }
-      /* tag animals as attackable NPCs */
+      /* tag animals as attackable NPCs — push model itself so any mesh is clickable */
       if (ANIMAL_TYPES.has(entry.type)) {
         setSvc(m, "animal", entry.type);
         m.userData.animalType = entry.type;
-        const hs = addHS(m, 0, 0.7, 0);
-        nodes.push(hs);
+        nodes.push(m);
       }
       group.add(m);
     }

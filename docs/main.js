@@ -2160,8 +2160,7 @@ function animate(now) {
 
 /* scan resource nodes for placed animals and register them */
 for (const n of resourceNodes) {
-  const p = n.parent;
-  if (p && p.userData?.serviceType === "animal") registerAnimal(n, p);
+  if (n.userData?.serviceType === "animal") registerAnimal(n, n);
 }
 
 requestAnimationFrame(animate);
