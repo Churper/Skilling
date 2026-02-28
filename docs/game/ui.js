@@ -64,9 +64,6 @@ export function initializeUI(options = {}) {
   const bankActionButtons = Array.from(document.querySelectorAll("[data-bank-action]"));
 
   const combatStyleButtons = Array.from(document.querySelectorAll("[data-combat-style]"));
-  const combatFlipButton = document.getElementById("ui-combat-flip-btn");
-  const combatStylesPanel = document.getElementById("ui-combat-styles");
-  const combatToolsPanel = document.getElementById("ui-combat-tools");
   const attackButton = document.getElementById("ui-attack-btn");
 
   const labelByTab = {
@@ -78,15 +75,11 @@ export function initializeUI(options = {}) {
     combat: "Combat",
     prayer: "Prayer",
     emotes: "Emotes",
-    friends: "Friends",
-    settings: "Settings",
   };
 
   const mobileQuery = window.matchMedia("(max-width: 760px)");
   let activeTab = "inventory";
   let panelCollapsed = false;
-  let combatPanelMode = "combat";
-
   function setPanelCollapsed(collapsed) {
     panelCollapsed = !!collapsed;
     if (uiRoot) uiRoot.classList.toggle("panel-collapsed", panelCollapsed);
@@ -122,23 +115,11 @@ export function initializeUI(options = {}) {
     title.textContent = labelByTab[tab] || "Panel";
   }
 
-  function setCombatPanelMode(mode) {
-    combatPanelMode = mode === "skilling" ? "skilling" : "combat";
-    if (combatStylesPanel) combatStylesPanel.hidden = combatPanelMode !== "combat";
-    if (combatToolsPanel) combatToolsPanel.hidden = combatPanelMode !== "skilling";
-    if (combatFlipButton) {
-      combatFlipButton.dataset.mode = combatPanelMode;
-      combatFlipButton.textContent = combatPanelMode === "combat" ? "Skilling" : "Combat";
-    }
-  }
-
   function setActiveTool(tool) {
     for (const button of toolButtons) {
       button.classList.toggle("is-active", button.dataset.tool === tool);
     }
     if (equippedToolEl) equippedToolEl.textContent = `Equipped: ${TOOL_LABEL[tool] || "Unknown"}`;
-    if (SKILLING_TOOLS.has(tool)) setCombatPanelMode("skilling");
-    else if (COMBAT_TOOLS.has(tool)) setCombatPanelMode("combat");
   }
 
   function renderInventoryGrid(slots, capacity) {
@@ -371,11 +352,6 @@ export function initializeUI(options = {}) {
       if (typeof onCombatStyle === "function") onCombatStyle(style);
     });
   }
-  if (combatFlipButton) {
-    combatFlipButton.addEventListener("click", () => {
-      setCombatPanelMode(combatPanelMode === "combat" ? "skilling" : "combat");
-    });
-  }
   if (attackButton) {
     attackButton.addEventListener("click", () => {
       if (typeof onAttack === "function") onAttack();
@@ -423,12 +399,91 @@ export function initializeUI(options = {}) {
   refreshMobileLayout();
   setPanelCollapsed(false);
   setActive("inventory");
-  setCombatPanelMode("combat");
   setActiveTool("fishing");
   setFriendsState({ connected: false, peers: 0 });
 
+  /* ── Settings overlay ── */
+  const settingsBtn = document.getElementById("ui-settings-btn");
+  const settingsOverlay = document.getElementById("ui-settings-overlay");
+  const settingsClose = document.getElementById("ui-settings-close");
+  if (settingsBtn && settingsOverlay) {
+    settingsBtn.addEventListener("click", () => {
+      settingsOverlay.hidden = !settingsOverlay.hidden;
+    });
+    if (settingsClose) settingsClose.addEventListener("click", () => { settingsOverlay.hidden = true; });
+  }
+
+  /* ── Hotkey binding system ── */
+  const HOTKEY_STORAGE_KEY = "skilling_hotkeys";
+  const hotkeyRows = Array.from(document.querySelectorAll(".ui-hotkey-row"));
+  const hotkeys = JSON.parse(localStorage.getItem(HOTKEY_STORAGE_KEY) || "{}");
+  let pendingHotkeyRow = null;
+
+  function renderHotkeys() {
+    for (const row of hotkeyRows) {
+      const tab = row.dataset.hotkeyTab;
+      const display = row.querySelector(".ui-hotkey-display");
+      if (display) display.textContent = hotkeys[tab] || "—";
+      /* show key hint under dock button */
+      const dockBtn = document.querySelector(`.ui-tab-btn[data-tab="${tab}"]`);
+      if (dockBtn) {
+        let hint = dockBtn.querySelector(".ui-tab-hotkey");
+        if (!hint) { hint = document.createElement("span"); hint.className = "ui-tab-hotkey"; dockBtn.appendChild(hint); }
+        hint.textContent = hotkeys[tab] || "";
+      }
+    }
+  }
+
+  for (const row of hotkeyRows) {
+    const setBtn = row.querySelector(".ui-hotkey-set-btn");
+    if (setBtn) setBtn.addEventListener("click", () => {
+      if (pendingHotkeyRow) pendingHotkeyRow.classList.remove("is-listening");
+      pendingHotkeyRow = row;
+      row.classList.add("is-listening");
+      setBtn.textContent = "Press…";
+    });
+  }
+
+  window.addEventListener("keydown", (e) => {
+    /* cancel hotkey listen on Escape */
+    if (pendingHotkeyRow && e.key === "Escape") {
+      pendingHotkeyRow.classList.remove("is-listening");
+      pendingHotkeyRow.querySelector(".ui-hotkey-set-btn").textContent = "Set";
+      pendingHotkeyRow = null;
+      return;
+    }
+    /* assign hotkey */
+    if (pendingHotkeyRow) {
+      if (["Shift","Control","Alt","Meta"].includes(e.key)) return;
+      const tab = pendingHotkeyRow.dataset.hotkeyTab;
+      hotkeys[tab] = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+      localStorage.setItem(HOTKEY_STORAGE_KEY, JSON.stringify(hotkeys));
+      pendingHotkeyRow.classList.remove("is-listening");
+      pendingHotkeyRow.querySelector(".ui-hotkey-set-btn").textContent = "Set";
+      pendingHotkeyRow = null;
+      renderHotkeys();
+      e.preventDefault();
+      return;
+    }
+    /* activate tab via hotkey (skip if typing in input) */
+    const tag = document.activeElement?.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    const pressed = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+    for (const [tab, key] of Object.entries(hotkeys)) {
+      if (key === pressed) {
+        setPanelCollapsed(false);
+        setActive(tab);
+        e.preventDefault();
+        return;
+      }
+    }
+  });
+
+  renderHotkeys();
+
   return {
     setActiveTool,
+    setActive,
     setInventory,
     setCoins,
     setSkills,

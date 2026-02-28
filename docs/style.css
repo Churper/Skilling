@@ -813,51 +813,6 @@ body {
   margin-left: 24px;
 }
 
-.ui-combat-mode-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 8px;
-}
-
-.ui-combat-flip-btn {
-  border-radius: 12px;
-  border: none;
-  background: var(--ui-btn-bg);
-  color: var(--ui-ink-1);
-  font-family: var(--ui-font-heading);
-  font-size: 15px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  min-height: 44px;
-  padding: 10px 16px;
-  cursor: pointer;
-  text-shadow: var(--ui-text-shadow);
-}
-
-.ui-combat-flip-btn:hover {
-  background: var(--ui-btn-bg-hover);
-}
-
-#ui-combat-tools {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-#ui-combat-styles[hidden],
-#ui-combat-tools[hidden] {
-  display: none !important;
-}
-
-#ui-combat-tools .ui-tool-btn {
-  width: auto;
-  aspect-ratio: 1;
-  padding: 0;
-  justify-content: center;
-  font-size: 28px;
-  line-height: 1;
-}
 
 /* ── Emotes ── */
 [data-tab-panel="emotes"] {
@@ -1265,4 +1220,151 @@ body {
   opacity: 0 !important;
   transform: translateY(-12px) !important;
   pointer-events: none !important;
+}
+
+/* ── Settings gear button ── */
+#ui-settings-btn {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top));
+  right: calc(80px + env(safe-area-inset-right));
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ui-btn-bg);
+  color: var(--ui-ink-1);
+  font-size: 18px;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: var(--ui-text-shadow);
+  transition: background-color 130ms ease, transform 130ms ease;
+}
+#ui-settings-btn:hover {
+  background: var(--ui-btn-bg-hover);
+  transform: scale(1.08);
+}
+
+/* ── Settings overlay ── */
+.ui-settings-overlay {
+  position: fixed;
+  top: calc(58px + env(safe-area-inset-top));
+  right: calc(16px + env(safe-area-inset-right));
+  width: min(300px, calc(100vw - 32px));
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  background: rgba(12, 18, 28, 0.92);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 10px 12px 14px;
+  pointer-events: auto;
+  z-index: 30;
+  backdrop-filter: blur(12px);
+}
+.ui-settings-overlay[hidden] { display: none; }
+.ui-settings-overlay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.ui-settings-overlay-head h3 {
+  margin: 0;
+  font-family: var(--ui-font-heading);
+  font-size: 18px;
+  color: var(--ui-ink-1);
+  text-shadow: var(--ui-text-shadow);
+}
+.ui-settings-overlay-head button {
+  background: none;
+  border: none;
+  color: var(--ui-ink-2);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.ui-settings-overlay-head button:hover { color: var(--ui-ink-1); }
+
+/* ── Friends bar inside emotes ── */
+.ui-friends-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--ui-btn-bg);
+  font-size: 12px;
+  color: var(--ui-ink-3);
+  text-shadow: var(--ui-text-shadow);
+}
+
+/* ── Hotkey rows ── */
+.ui-hotkey-header span {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ui-accent-1);
+}
+.ui-hotkey-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: var(--ui-ink-2);
+}
+.ui-hotkey-set-btn {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 5px;
+  background: var(--ui-btn-bg);
+  color: var(--ui-ink-1);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+  margin: 0 8px;
+}
+.ui-hotkey-set-btn:hover { background: var(--ui-btn-bg-hover); }
+.ui-hotkey-row.is-listening .ui-hotkey-set-btn {
+  border-color: var(--ui-accent-1);
+  animation: hotkey-pulse 0.8s ease-in-out infinite;
+}
+@keyframes hotkey-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.ui-hotkey-display {
+  min-width: 28px;
+  text-align: center;
+  font-size: 12px;
+  font-family: monospace;
+  color: var(--ui-ink-1);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* ── Tab hotkey hint under dock buttons ── */
+.ui-tab-hotkey {
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-family: monospace;
+  color: var(--ui-ink-3);
+  text-shadow: var(--ui-text-shadow);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.ui-tab-btn {
+  position: relative;
 }

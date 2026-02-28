@@ -21,17 +21,14 @@
     <button type="button" id="ui-mobile-toggle" aria-expanded="false" aria-controls="ui-dock ui-panel">
       Menu
     </button>
+    <button type="button" id="ui-settings-btn" aria-label="Settings" title="Settings">&#x2699;</button>
     <nav id="ui-dock" aria-label="Main tabs">
       <button type="button" class="ui-tab-btn is-active" data-tab="inventory">
         <span class="ui-tab-icon" aria-hidden="true">&#x1F392;</span>
         <span class="ui-tab-label">Inventory</span>
       </button>
-      <button type="button" class="ui-tab-btn" data-tab="settings">
-        <span class="ui-tab-icon" aria-hidden="true">&#x2699;</span>
-        <span class="ui-tab-label">Settings</span>
-      </button>
       <button type="button" class="ui-tab-btn" data-tab="skills">
-        <span class="ui-tab-icon" aria-hidden="true">&#x1F3AF;</span>
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F4CA;</span>
         <span class="ui-tab-label">Skills</span>
       </button>
       <button type="button" class="ui-tab-btn" data-tab="emotes">
@@ -45,10 +42,6 @@
       <button type="button" class="ui-tab-btn" data-tab="prayer">
         <span class="ui-tab-icon" aria-hidden="true">&#x271D;</span>
         <span class="ui-tab-label">Prayer</span>
-      </button>
-      <button type="button" class="ui-tab-btn" data-tab="friends">
-        <span class="ui-tab-icon" aria-hidden="true">&#x1F465;</span>
-        <span class="ui-tab-label">Friends</span>
       </button>
     </nav>
     <aside id="ui-panel" aria-live="polite">
@@ -98,49 +91,6 @@
               <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="logs" data-bank-qty="all">WAll</button>
             </div>
           </div>
-        </div>
-      </section>
-      <section class="ui-panel-section" data-tab-panel="settings" hidden>
-        <div class="ui-settings-list">
-          <div class="ui-settings-row">
-            <span>Name</span>
-            <input type="text" id="setting-name" maxlength="16" placeholder="Slime1234" spellcheck="false" autocomplete="off">
-          </div>
-          <div class="ui-settings-row">
-            <span>Server</span>
-            <span id="setting-connection" class="ui-conn-status">--</span>
-          </div>
-          <hr class="ui-settings-divider">
-          <label class="ui-settings-row">
-            <span>Show FPS</span>
-            <input type="checkbox" id="setting-fps">
-          </label>
-          <label class="ui-settings-row">
-            <span>Show Memory</span>
-            <input type="checkbox" id="setting-memory">
-          </label>
-          <label class="ui-settings-row">
-            <span>Show Draw Calls</span>
-            <input type="checkbox" id="setting-drawcalls">
-          </label>
-          <label class="ui-settings-row">
-            <span>Show Player Position</span>
-            <input type="checkbox" id="setting-position">
-          </label>
-          <label class="ui-settings-row">
-            <span>Render Scale</span>
-            <select id="setting-dpr">
-              <option value="0.5">0.5x (Fast)</option>
-              <option value="0.75">0.75x</option>
-              <option value="1" selected>1x (Default)</option>
-              <option value="1.5">1.5x</option>
-              <option value="2">2x (Sharp)</option>
-            </select>
-          </label>
-          <label class="ui-settings-row">
-            <span>Bloom</span>
-            <input type="checkbox" id="setting-bloom" checked>
-          </label>
         </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="blacksmith" hidden>
@@ -292,20 +242,16 @@
           <button type="button" class="ui-emote-btn" data-emote="&#x1F44E;&#x1F3FF;" title="Thumbs Down">&#x1F44E;&#x1F3FF;</button>
           <button type="button" class="ui-emote-btn" data-emote="&#x1F633;" title="Flushed">&#x1F633;</button>
         </div>
+        <div class="ui-friends-bar">
+          <span id="ui-friends-online">Offline</span>
+          <span id="ui-friends-count">Players online: 0</span>
+        </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="combat" hidden>
-        <div class="ui-combat-mode-row">
-          <button type="button" id="ui-combat-flip-btn" class="ui-combat-flip-btn" data-mode="combat">Skilling</button>
-        </div>
         <div id="ui-combat-styles">
           <button type="button" class="ui-combat-btn is-active" data-combat-style="melee" title="Melee">&#x1F5E1;</button>
           <button type="button" class="ui-combat-btn" data-combat-style="bow" title="Bow">&#x1F3F9;</button>
           <button type="button" class="ui-combat-btn" data-combat-style="mage" title="Mage">&#x1F525;</button>
-        </div>
-        <div id="ui-combat-tools" hidden>
-          <button type="button" class="ui-combat-btn ui-tool-btn" data-tool="axe" title="Axe">&#x1FA93;</button>
-          <button type="button" class="ui-combat-btn ui-tool-btn" data-tool="pickaxe" title="Pickaxe">&#x26CF;</button>
-          <button type="button" class="ui-combat-btn ui-tool-btn is-active" data-tool="fishing" title="Fishing Pole">&#x1F3A3;</button>
         </div>
         <p class="ui-combat-hint">Left-click a Training Dummy to attack</p>
       </section>
@@ -326,11 +272,81 @@
           <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_mage" title="Protect from Magic">&#x1F525;<span>Magic</span></button>
         </div>
       </section>
-      <section class="ui-panel-section" data-tab-panel="friends" hidden>
-        <p id="ui-friends-online">Offline</p>
-        <p id="ui-friends-count">Players online: 0</p>
-      </section>
     </aside>
+  </div>
+  <div id="ui-settings-overlay" class="ui-settings-overlay" hidden>
+    <div class="ui-settings-overlay-head">
+      <h3>Settings</h3>
+      <button type="button" id="ui-settings-close" aria-label="Close settings">&times;</button>
+    </div>
+    <div class="ui-settings-list">
+      <div class="ui-settings-row">
+        <span>Name</span>
+        <input type="text" id="setting-name" maxlength="16" placeholder="Slime1234" spellcheck="false" autocomplete="off">
+      </div>
+      <div class="ui-settings-row">
+        <span>Server</span>
+        <span id="setting-connection" class="ui-conn-status">--</span>
+      </div>
+      <hr class="ui-settings-divider">
+      <label class="ui-settings-row">
+        <span>Show FPS</span>
+        <input type="checkbox" id="setting-fps">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Memory</span>
+        <input type="checkbox" id="setting-memory">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Draw Calls</span>
+        <input type="checkbox" id="setting-drawcalls">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Player Position</span>
+        <input type="checkbox" id="setting-position">
+      </label>
+      <label class="ui-settings-row">
+        <span>Render Scale</span>
+        <select id="setting-dpr">
+          <option value="0.5">0.5x (Fast)</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1x (Default)</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x (Sharp)</option>
+        </select>
+      </label>
+      <label class="ui-settings-row">
+        <span>Bloom</span>
+        <input type="checkbox" id="setting-bloom" checked>
+      </label>
+      <hr class="ui-settings-divider">
+      <div class="ui-settings-row ui-hotkey-header"><span>Tab Hotkeys</span></div>
+      <div class="ui-hotkey-row" data-hotkey-tab="inventory">
+        <span>Inventory</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="combat">
+        <span>Combat</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="prayer">
+        <span>Prayer</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="emotes">
+        <span>Emotes</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="skills">
+        <span>Skills</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+    </div>
   </div>
   <script type="importmap">
     {
