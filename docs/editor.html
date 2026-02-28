@@ -398,22 +398,15 @@ function saveCurrentChunkToStore() {
     west:  document.getElementById("edge-w").classList.contains("on"),
   };
   cd.baseType = document.getElementById("chunk-base").value;
-  /* update the mesh entry's baseType + water visibility */
-  const entry = chunkMeshes.get(currentChunkKey());
-  if (entry) {
-    entry.baseType = cd.baseType;
-    entry.waterMesh.visible = cd.water;
-  }
+  /* update water plane visibility */
+  const wm = waterMeshes.get(currentChunkKey());
+  if (wm) wm.visible = cd.water;
 }
 
 /** Load chunk data from store — build mesh if needed, update UI */
 function loadChunkFromStore(cx, cz) {
   const cd = ensureChunkData(cx, cz);
-  /* build mesh for this chunk if not already built */
-  const key = chunkKey(cx, cz);
-  if (!chunkMeshes.has(key)) buildChunkMesh(cx, cz);
-  /* activate for editing */
-  activateChunkForEditing(cx, cz);
+  rebuildUnifiedMesh();
   /* load objects — remove all non-structural, keep structural but toggle visibility */
   const structural = objects.filter(o => STRUCTURAL_TYPES.has(o.type));
   const remove = objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
@@ -456,16 +449,12 @@ function switchChunk(cx, cz) {
     west:  document.getElementById("edge-w").classList.contains("on"),
   };
   prevCd.baseType = document.getElementById("chunk-base").value;
-  const prevEntry = chunkMeshes.get(chunkKey(currentChunk[0], currentChunk[1]));
-  if (prevEntry) {
-    prevEntry.baseType = prevCd.baseType;
-    prevEntry.waterMesh.visible = prevCd.water;
-  }
+  const prevWm = waterMeshes.get(chunkKey(currentChunk[0], currentChunk[1]));
+  if (prevWm) prevWm.visible = prevCd.water;
   /* switch to new chunk */
   currentChunk = [cx, cz];
   document.getElementById("chunk-id").textContent = `${cx},${cz}`;
   const cd = ensureChunkData(cx, cz);
-  if (!chunkMeshes.has(chunkKey(cx, cz))) buildChunkMesh(cx, cz);
   /* update UI for new selected chunk */
   document.getElementById("chunk-water").checked = cd.water;
   document.getElementById("edge-n").classList.toggle("on", !!cd.edges.north);
@@ -489,18 +478,19 @@ const TOON_GRAD = (() => {
 })();
 
 const hStep = 1.0;
-const xMin = (GX_MIN - 1) * TILE_S, xMax = (GX_MAX + 1) * TILE_S;
-const zMin = (GZ_MIN - 1) * TILE_S, zMax = (GZ_MAX + 1) * TILE_S;
-const hnx = Math.ceil((xMax - xMin) / hStep) + 1;
-const hnz = Math.ceil((zMax - zMin) / hStep) + 1;
+/* per-chunk local dimensions (used for chunk ↔ world coord conversion) */
+const CL_XMIN = (GX_MIN - 1) * TILE_S, CL_XMAX = (GX_MAX + 1) * TILE_S;
+const CL_ZMIN = (GZ_MIN - 1) * TILE_S, CL_ZMAX = (GZ_MAX + 1) * TILE_S;
+/* unified bounds — recalculated when chunks change */
+let xMin = CL_XMIN, xMax = CL_XMAX, zMin = CL_ZMIN, zMax = CL_ZMAX;
+let hnx = Math.ceil((xMax - xMin) / hStep) + 1;
+let hnz = Math.ceil((zMax - zMin) / hStep) + 1;
 let heightOffsets = new Float32Array(hnx * hnz);
 const hUndoStack = [];
-let activeBaseType = "grass";
-let activeEditChunk = [0, 0];
-const chunkMeshes = new Map(); // "cx,cz" → { mesh, geo, hPos, hCol, heightOffsets, colorOverrides, waterMesh, baseType, cx, cz }
+const waterMeshes = new Map(); // "cx,cz" → THREE.Mesh (per-chunk water planes)
 
 function worldToChunk(wx, wz) {
-  return [Math.floor((wx - xMin) / CHUNK_SIZE), Math.floor((wz - zMin) / CHUNK_SIZE)];
+  return [Math.floor((wx - CL_XMIN) / CHUNK_SIZE), Math.floor((wz - CL_ZMIN) / CHUNK_SIZE)];
 }
 let hUndoSnap = null;
 
@@ -535,10 +525,13 @@ function computeColor(x, z, y) {
   return computeBaseColor(x, z, y);
 }
 function computeBaseColor(x, z, y) {
-  const bc = BASE_COLORS[activeBaseType] || cGrass;
+  const [ccx, ccz] = worldToChunk(x, z);
+  const cd = chunkDataStore.get(chunkKey(ccx, ccz));
+  const bt = (cd && cd.baseType) || "grass";
+  const bc = BASE_COLORS[bt] || cGrass;
   if (y > GRASS_Y + 3) { tmpC.copy(cCliff); return tmpC; }
   if (y > GRASS_Y + 0.5) { tmpC.copy(bc).lerp(cCliff, sm(y, GRASS_Y + 0.5, GRASS_Y + 3) * 0.4); return tmpC; }
-  return bc;
+  tmpC.copy(bc); return tmpC;
 }
 
 /* ═══════════════════════════════════════════
@@ -596,14 +589,7 @@ function updateMinimap() {
       ctx.strokeStyle = "#2a2a3e";
       ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
 
-      /* active edit chunk highlight (cyan) */
-      if (cx === activeEditChunk[0] && cz === activeEditChunk[1]) {
-        ctx.strokeStyle = "#00ffff";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x + 1.5, y + 1.5, cellSize - 3, cellSize - 3);
-        ctx.lineWidth = 1;
-      }
-      /* selected chunk highlight (yellow) */
+      /* selected chunk highlight */
       if (cx === currentChunk[0] && cz === currentChunk[1]) {
         ctx.strokeStyle = "#e8c44a";
         ctx.lineWidth = 2;
@@ -638,7 +624,6 @@ document.getElementById("minimap").addEventListener("click", e => {
   if (col < 0 || col >= md.cols || row < 0 || row >= md.rows) return;
   const cx = md.cxMin + col, cz = md.czMax - row;
   switchChunk(cx, cz);
-  activateChunkForEditing(cx, cz);
   moveChunkHighlight(cx, cz);
   updateMinimap();
 });
@@ -650,118 +635,119 @@ function vertColor(x, z, y) { return computeColor(x, z, y); }
 
 let hPos, hCol, groundMesh, groundGeo;
 
-function buildChunkMesh(cx, cz) {
-  const cd = ensureChunkData(cx, cz);
-  const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
-  const bt = cd.baseType || "grass";
-  const bc = BASE_COLORS[bt] || cGrass;
-  const ho = new Float32Array(hnx * hnz);
-  const co = {};
-  for (const [key, val] of Object.entries(cd.heightData)) {
-    const [wx, wz] = key.split(",").map(Number);
-    const [ix, iz] = worldToHGrid(wx, wz);
-    if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) ho[hvi(ix, iz)] = val;
+/* chunk highlight outline */
+const _chunkHighlightGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(CL_XMAX - CL_XMIN, 0.6, CL_ZMAX - CL_ZMIN));
+const _chunkHighlight = new THREE.LineSegments(_chunkHighlightGeo, new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2, transparent: true, opacity: 0.7 }));
+_chunkHighlight.renderOrder = 999;
+
+function moveChunkHighlight(cx, cz) {
+  const ox = cx * CHUNK_SIZE + (CL_XMIN + CL_XMAX) / 2, oz = cz * CHUNK_SIZE + (CL_ZMIN + CL_ZMAX) / 2;
+  _chunkHighlight.position.set(ox, GRASS_Y + 0.3, oz);
+  if (!_chunkHighlight.parent) scene.add(_chunkHighlight);
+}
+
+/** Build ONE unified mesh covering all chunks */
+function rebuildUnifiedMesh() {
+  /* compute bounds from all chunks */
+  let cxMin = 0, cxMax = 0, czMin = 0, czMax = 0;
+  for (const key of chunkDataStore.keys()) {
+    const [cx, cz] = key.split(",").map(Number);
+    cxMin = Math.min(cxMin, cx); cxMax = Math.max(cxMax, cx);
+    czMin = Math.min(czMin, cz); czMax = Math.max(czMax, cz);
   }
-  Object.assign(co, cd.colorData);
+  /* unified world bounds */
+  xMin = cxMin * CHUNK_SIZE + CL_XMIN;
+  xMax = cxMax * CHUNK_SIZE + CL_XMAX;
+  zMin = czMin * CHUNK_SIZE + CL_ZMIN;
+  zMax = czMax * CHUNK_SIZE + CL_ZMAX;
+  hnx = Math.ceil((xMax - xMin) / hStep) + 1;
+  hnz = Math.ceil((zMax - zMin) / hStep) + 1;
+
+  /* populate unified heightOffsets + colorOverrides from all chunk data */
+  heightOffsets = new Float32Array(hnx * hnz);
+  colorOverrides = {};
+  for (const [key, cd] of chunkDataStore) {
+    const [cx, cz] = key.split(",").map(Number);
+    const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
+    for (const [hk, hv] of Object.entries(cd.heightData)) {
+      const [lx, lz] = hk.split(",").map(Number);
+      const wx = lx + ox, wz = lz + oz;
+      const [ix, iz] = worldToHGrid(wx, wz);
+      if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) heightOffsets[hvi(ix, iz)] = hv;
+    }
+    for (const [ck, cv] of Object.entries(cd.colorData)) {
+      const [lx, lz] = ck.split(",").map(Number);
+      colorOverrides[`${lx + ox},${lz + oz}`] = cv;
+    }
+  }
+
+  /* build geometry */
   const hp = new Float32Array(hnx * hnz * 3);
   const hc = new Float32Array(hnx * hnz * 3);
   const idx = [];
   for (let iz = 0; iz < hnz; iz++) {
     for (let ix = 0; ix < hnx; ix++) {
-      const lx = xMin + ix * hStep, lz = zMin + iz * hStep;
+      const wx = xMin + ix * hStep, wz = zMin + iz * hStep;
       const vi = hvi(ix, iz), i3 = vi * 3;
-      const y = GRASS_Y + ho[vi];
-      hp[i3] = lx + ox; hp[i3+1] = y; hp[i3+2] = lz + oz;
-      const ckey = `${lx},${lz}`;
-      if (co[ckey]) {
-        hc[i3] = co[ckey][0]; hc[i3+1] = co[ckey][1]; hc[i3+2] = co[ckey][2];
-      } else {
-        let fc;
-        if (y > GRASS_Y + 3) fc = cCliff;
-        else if (y > GRASS_Y + 0.5) { tmpC.copy(bc).lerp(cCliff, sm(y, GRASS_Y+0.5, GRASS_Y+3)*0.4); fc = tmpC; }
-        else fc = bc;
-        hc[i3] = fc.r; hc[i3+1] = fc.g; hc[i3+2] = fc.b;
-      }
+      const y = GRASS_Y + heightOffsets[vi];
+      hp[i3] = wx; hp[i3+1] = y; hp[i3+2] = wz;
+      const fc = vertColor(wx, wz, y);
+      hc[i3] = fc.r; hc[i3+1] = fc.g; hc[i3+2] = fc.b;
       if (ix < hnx-1 && iz < hnz-1) idx.push(vi, vi+hnx, vi+1, vi+1, vi+hnx, vi+hnx+1);
     }
   }
+
+  /* dispose old mesh */
+  if (groundMesh) { scene.remove(groundMesh); groundGeo.dispose(); }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(hp, 3));
   geo.setAttribute("color", new THREE.BufferAttribute(hc, 3));
   geo.setIndex(idx); geo.computeVertexNormals();
-  const mesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
-  const wGeo = new THREE.PlaneGeometry(xMax-xMin+2, zMax-zMin+2, 1, 1);
-  wGeo.rotateX(-Math.PI / 2);
-  const wMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
-  wMesh.position.set((xMin+xMax)/2 + ox, WATER_Y, (zMin+zMax)/2 + oz);
-  wMesh.renderOrder = 2; wMesh.visible = cd.water;
-  scene.add(mesh); scene.add(wMesh);
-  const entry = { mesh, geo, hPos: hp, hCol: hc, heightOffsets: ho, colorOverrides: co, waterMesh: wMesh, baseType: bt, cx, cz };
-  chunkMeshes.set(chunkKey(cx, cz), entry);
-  return entry;
-}
+  groundMesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
+  groundGeo = geo; hPos = hp; hCol = hc;
+  scene.add(groundMesh);
 
-function removeChunkMesh(cx, cz) {
-  const key = chunkKey(cx, cz);
-  const entry = chunkMeshes.get(key);
-  if (!entry) return;
-  scene.remove(entry.mesh); entry.geo.dispose();
-  scene.remove(entry.waterMesh); entry.waterMesh.geometry.dispose();
-  chunkMeshes.delete(key);
-}
-
-/* chunk highlight outline */
-const _chunkHighlightGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(xMax - xMin, 0.6, zMax - zMin));
-const _chunkHighlight = new THREE.LineSegments(_chunkHighlightGeo, new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2, transparent: true, opacity: 0.7 }));
-_chunkHighlight.renderOrder = 999;
-
-function activateChunkForEditing(cx, cz) {
-  const key = chunkKey(cx, cz);
-  let entry = chunkMeshes.get(key);
-  if (!entry) { ensureChunkData(cx, cz); entry = buildChunkMesh(cx, cz); }
-  heightOffsets = entry.heightOffsets;
-  colorOverrides = entry.colorOverrides;
-  groundMesh = entry.mesh;
-  groundGeo = entry.geo;
-  hPos = entry.hPos;
-  hCol = entry.hCol;
-  activeBaseType = entry.baseType;
-  activeEditChunk = [cx, cz];
-}
-
-function moveChunkHighlight(cx, cz) {
-  const ox = cx * CHUNK_SIZE + (xMin + xMax) / 2, oz = cz * CHUNK_SIZE + (zMin + zMax) / 2;
-  _chunkHighlight.position.set(ox, GRASS_Y + 0.3, oz);
-  if (!_chunkHighlight.parent) scene.add(_chunkHighlight);
-}
-
-function ensureAllChunkMeshes() {
-  for (const key of chunkDataStore.keys()) {
-    if (!chunkMeshes.has(key)) {
-      const [cx, cz] = key.split(",").map(Number);
-      buildChunkMesh(cx, cz);
-    }
+  /* rebuild per-chunk water planes */
+  for (const [, wm] of waterMeshes) { scene.remove(wm); wm.geometry.dispose(); }
+  waterMeshes.clear();
+  for (const [key, cd] of chunkDataStore) {
+    const [cx, cz] = key.split(",").map(Number);
+    const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
+    const wGeo = new THREE.PlaneGeometry(CL_XMAX - CL_XMIN + 2, CL_ZMAX - CL_ZMIN + 2, 1, 1);
+    wGeo.rotateX(-Math.PI / 2);
+    const wMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
+    wMesh.position.set((CL_XMIN + CL_XMAX) / 2 + ox, WATER_Y, (CL_ZMIN + CL_ZMAX) / 2 + oz);
+    wMesh.renderOrder = 2; wMesh.visible = cd.water !== false;
+    scene.add(wMesh);
+    waterMeshes.set(key, wMesh);
   }
-  if (!chunkMeshes.has("0,0")) { ensureChunkData(0, 0); buildChunkMesh(0, 0); }
 }
 
+/** Save unified heightOffsets + colorOverrides back into per-chunk data */
 function saveAllChunksToStore() {
-  for (const [key, entry] of chunkMeshes) {
-    const cd = ensureChunkData(entry.cx, entry.cz);
-    cd.heightData = {};
-    for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
-      const vi = hvi(ix, iz);
-      if (Math.abs(entry.heightOffsets[vi]) > 0.001)
-        cd.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +entry.heightOffsets[vi].toFixed(3);
-    }
-    cd.colorData = {};
-    for (const [ck, cv] of Object.entries(entry.colorOverrides))
-      cd.colorData[ck] = [+cv[0].toFixed(4), +cv[1].toFixed(4), +cv[2].toFixed(4)];
-    cd.baseType = entry.baseType;
+  /* clear existing data */
+  for (const cd of chunkDataStore.values()) { cd.heightData = {}; cd.colorData = {}; }
+  /* split unified heightOffsets per chunk */
+  for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+    const vi = hvi(ix, iz);
+    if (Math.abs(heightOffsets[vi]) < 0.001) continue;
+    const wx = xMin + ix * hStep, wz = zMin + iz * hStep;
+    const [cx, cz] = worldToChunk(wx, wz);
+    const cd = chunkDataStore.get(chunkKey(cx, cz));
+    if (!cd) continue;
+    const lx = wx - cx * CHUNK_SIZE, lz = wz - cz * CHUNK_SIZE;
+    cd.heightData[`${lx},${lz}`] = +heightOffsets[vi].toFixed(3);
+  }
+  /* split unified colorOverrides per chunk */
+  for (const [wkey, cv] of Object.entries(colorOverrides)) {
+    const [wx, wz] = wkey.split(",").map(Number);
+    const [cx, cz] = worldToChunk(wx, wz);
+    const cd = chunkDataStore.get(chunkKey(cx, cz));
+    if (!cd) continue;
+    const lx = wx - cx * CHUNK_SIZE, lz = wz - cz * CHUNK_SIZE;
+    cd.colorData[`${lx},${lz}`] = [+cv[0].toFixed(4), +cv[1].toFixed(4), +cv[2].toFixed(4)];
   }
 }
-
-function getAllGroundMeshes() { return [...chunkMeshes.values()].map(e => e.mesh); }
 
 function updateMeshRegion(cx, cz, radius) {
   const r = Math.ceil(radius / hStep) + 2;
@@ -830,10 +816,9 @@ fillL.position.set(-34, 26, -24); scene.add(fillL);
 /* ═══════════════════════════════════════════
    Scene: terrain mesh + water + structures
    ═══════════════════════════════════════════ */
-/* Initial chunk mesh — more built after loading data */
+/* Initial chunk mesh — rebuilt after loading data */
 ensureChunkData(0, 0);
-buildChunkMesh(0, 0);
-activateChunkForEditing(0, 0);
+rebuildUnifiedMesh();
 
 /* stepping stones — registered as editable in loadGameStructures */
 
@@ -1085,17 +1070,14 @@ function pushObjUndo(a) { objUndoStack.push(a); if (objUndoStack.length > 100) o
    Height painting
    ═══════════════════════════════════════════ */
 function paintAt(wx, wz, dt) {
-  /* convert world coords to local (chunk-relative) coords */
-  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
-  const lx = wx - chOx, lz = wz - chOz;
-  const [cx, cz] = worldToHGrid(lx, lz);
+  const [cx, cz] = worldToHGrid(wx, wz);
   const r = Math.ceil(brushRadius / hStep);
   for (let dz = -r; dz <= r; dz++) {
     for (let dx = -r; dx <= r; dx++) {
       const ix = cx + dx, iz = cz + dz;
       if (ix < 0 || ix >= hnx || iz < 0 || iz >= hnz) continue;
       const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
-      const dist = Math.hypot(vx - lx, vz - lz);
+      const dist = Math.hypot(vx - wx, vz - wz);
       if (dist > brushRadius) continue;
       const falloff = 1 - sm(dist, 0, brushRadius);
       const vi = hvi(ix, iz);
@@ -1125,17 +1107,14 @@ function hUndo() { if (!hUndoStack.length) return; heightOffsets.set(hUndoStack.
 
 /* ── Color painting ── */
 function paintColorAt(wx, wz, dt) {
-  /* convert world coords to local (chunk-relative) coords */
-  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
-  const lx = wx - chOx, lz = wz - chOz;
-  const [cx, cz] = worldToHGrid(lx, lz);
+  const [cx, cz] = worldToHGrid(wx, wz);
   const r = Math.ceil(brushRadius / hStep);
   for (let dz = -r; dz <= r; dz++) {
     for (let dx = -r; dx <= r; dx++) {
       const ix = cx + dx, iz = cz + dz;
       if (ix < 0 || ix >= hnx || iz < 0 || iz >= hnz) continue;
       const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
-      const dist = Math.hypot(vx - lx, vz - lz);
+      const dist = Math.hypot(vx - wx, vz - wz);
       if (dist > brushRadius) continue;
       const falloff = 1 - sm(dist, 0, brushRadius);
       const key = `${vx},${vz}`;
@@ -1164,11 +1143,11 @@ function pUndo() { if (!pUndoStack.length) return; const snap = pUndoStack.pop()
 
 /* Re-snap all non-structural objects to current terrain surface after height edits */
 function resnapObjects() {
-  const allMeshes = getAllGroundMeshes();
+  if (!groundMesh) return;
   for (const obj of objects) {
     if (STRUCTURAL_TYPES.has(obj.type)) continue;
     const rc = new THREE.Raycaster(new THREE.Vector3(obj.x, 50, obj.z), new THREE.Vector3(0, -1, 0));
-    const hits = rc.intersectObjects(allMeshes);
+    const hits = rc.intersectObjects([groundMesh]);
     if (hits.length) {
       const newY = hits[0].point.y;
       obj.y = newY;
@@ -1300,21 +1279,9 @@ function raycastGround(e) {
   mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
-  const allMeshes = getAllGroundMeshes();
-  const hits = raycaster.intersectObjects(allMeshes);
-  if (hits.length > 0) {
-    /* auto-switch active edit chunk based on which mesh was hit */
-    for (const [key, entry] of chunkMeshes) {
-      if (entry.mesh === hits[0].object) {
-        if (activeEditChunk[0] !== entry.cx || activeEditChunk[1] !== entry.cz) {
-          activateChunkForEditing(entry.cx, entry.cz);
-          updateMinimap();
-        }
-        break;
-      }
-    }
-    return hits[0].point;
-  }
+  if (!groundMesh) return null;
+  const hits = raycaster.intersectObjects([groundMesh]);
+  if (hits.length > 0) return hits[0].point;
   /* fallback: plane */
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   const target = new THREE.Vector3();
@@ -1411,11 +1378,9 @@ canvas.addEventListener("mousemove", e => {
       brushCircle.visible = true;
       brushCircle.position.set(pt.x, pt.y + 0.2, pt.z);
       if (mode === "height") {
-        const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
-        const lx = pt.x - chOx, lz = pt.z - chOz;
-        const [gx, gz] = worldToHGrid(lx, lz);
+        const [gx, gz] = worldToHGrid(pt.x, pt.z);
         const vi = (gx >= 0 && gx < hnx && gz >= 0 && gz < hnz) ? hvi(gx, gz) : -1;
-        const baseY = getBaseY(lx, lz).toFixed(2);
+        const baseY = getBaseY(pt.x, pt.z).toFixed(2);
         const offset = vi >= 0 ? heightOffsets[vi].toFixed(2) : "—";
         document.getElementById("cell-display").textContent = `${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}\nBase Y: ${baseY}  Offset: ${offset}`;
         if (painting) {
@@ -1425,9 +1390,7 @@ canvas.addEventListener("mousemove", e => {
           paintAt(pt.x, pt.z, dt);
         }
       } else if (mode === "paint") {
-        const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
-        const lx = pt.x - chOx, lz = pt.z - chOz;
-        const key = `${Math.round(lx)},${Math.round(lz)}`;
+        const key = `${Math.round(pt.x)},${Math.round(pt.z)}`;
         const hasOv = !!colorOverrides[key];
         document.getElementById("cell-display").textContent = `${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}${hasOv ? " [painted]" : ""}`;
         if (colorPainting) {
@@ -1703,12 +1666,6 @@ function importChunkData(cData, cx, cz) {
 function importJSON(json) {
   try {
     const data = JSON.parse(json);
-    /* remove existing chunk meshes */
-    for (const [key, entry] of chunkMeshes) {
-      scene.remove(entry.mesh); entry.geo.dispose();
-      scene.remove(entry.waterMesh); entry.waterMesh.geometry.dispose();
-    }
-    chunkMeshes.clear();
     /* world.json format: { chunks, spawn, data: { "cx,cz": chunkPayload } } */
     if (data.data && data.chunks) {
       chunkDataStore.clear();
@@ -1720,8 +1677,6 @@ function importJSON(json) {
       const [sx, sz] = spawn.split(",").map(Number);
       currentChunk = [sx, sz];
       document.getElementById("chunk-id").textContent = `${sx},${sz}`;
-      /* build meshes for ALL chunks */
-      ensureAllChunkMeshes();
       loadChunkFromStore(sx, sz);
       updateMinimap();
       console.log(`Imported world.json with ${data.chunks.length} chunks`);
@@ -1733,7 +1688,6 @@ function importJSON(json) {
       document.getElementById("chunk-id").textContent = `${data.chunk[0]},${data.chunk[1]}`;
     }
     importChunkData(data, currentChunk[0], currentChunk[1]);
-    ensureAllChunkMeshes();
     loadChunkFromStore(currentChunk[0], currentChunk[1]);
     updateMinimap();
     console.log(`Imported chunk ${currentChunk[0]},${currentChunk[1]}`);
@@ -1749,7 +1703,20 @@ document.getElementById("file-input").addEventListener("change", e => {
 });
 document.getElementById("btn-clear").addEventListener("click", () => {
   if (!confirm("Clear current chunk?")) return;
-  heightOffsets.fill(0); for (const k in colorOverrides) delete colorOverrides[k]; rebuildAllVerts(); updateCount();
+  const [ccx, ccz] = currentChunk;
+  const ox = ccx * CHUNK_SIZE, oz = ccz * CHUNK_SIZE;
+  /* clear only vertices belonging to this chunk */
+  for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+    const wx = xMin + ix * hStep, wz = zMin + iz * hStep;
+    const [cx, cz] = worldToChunk(wx, wz);
+    if (cx === ccx && cz === ccz) heightOffsets[hvi(ix, iz)] = 0;
+  }
+  for (const k in colorOverrides) {
+    const [wx, wz] = k.split(",").map(Number);
+    const [cx, cz] = worldToChunk(wx, wz);
+    if (cx === ccx && cz === ccz) delete colorOverrides[k];
+  }
+  rebuildAllVerts(); updateCount();
 });
 
 /* ── Chunk navigation ── */
@@ -1761,8 +1728,7 @@ document.getElementById("chunk-new").addEventListener("click", () => {
   const key = currentChunkKey();
   if (!chunkDataStore.has(key)) {
     ensureChunkData(currentChunk[0], currentChunk[1]);
-    buildChunkMesh(currentChunk[0], currentChunk[1]);
-    activateChunkForEditing(currentChunk[0], currentChunk[1]);
+    rebuildUnifiedMesh();
     updateMinimap();
     console.log(`Created new chunk ${key}`);
   }
@@ -1770,8 +1736,8 @@ document.getElementById("chunk-new").addEventListener("click", () => {
 
 /* water toggle — toggle selected chunk's water mesh */
 document.getElementById("chunk-water").addEventListener("change", () => {
-  const entry = chunkMeshes.get(currentChunkKey());
-  if (entry) entry.waterMesh.visible = document.getElementById("chunk-water").checked;
+  const wm = waterMeshes.get(currentChunkKey());
+  if (wm) wm.visible = document.getElementById("chunk-water").checked;
 });
 /* edge toggle buttons */
 for (const id of ["edge-n", "edge-s", "edge-e", "edge-w"]) {
@@ -1780,26 +1746,10 @@ for (const id of ["edge-n", "edge-s", "edge-e", "edge-w"]) {
 /* base type change → rebuild selected chunk's terrain colors */
 document.getElementById("chunk-base").addEventListener("change", () => {
   const bt = document.getElementById("chunk-base").value;
-  const key = currentChunkKey();
-  const entry = chunkMeshes.get(key);
-  if (entry) {
-    entry.baseType = bt;
-    /* if this is the active edit chunk, update the global */
-    if (activeEditChunk[0] === currentChunk[0] && activeEditChunk[1] === currentChunk[1]) {
-      activeBaseType = bt;
-    }
-    /* rebuild that chunk's mesh colors using its data */
-    const prevHO = heightOffsets, prevCO = colorOverrides, prevGM = groundMesh, prevGG = groundGeo, prevHP = hPos, prevHC = hCol, prevBT = activeBaseType;
-    heightOffsets = entry.heightOffsets; colorOverrides = entry.colorOverrides;
-    groundMesh = entry.mesh; groundGeo = entry.geo; hPos = entry.hPos; hCol = entry.hCol;
-    activeBaseType = bt;
-    rebuildAllVerts();
-    /* restore if different from active edit chunk */
-    if (activeEditChunk[0] !== currentChunk[0] || activeEditChunk[1] !== currentChunk[1]) {
-      heightOffsets = prevHO; colorOverrides = prevCO; groundMesh = prevGM;
-      groundGeo = prevGG; hPos = prevHP; hCol = prevHC; activeBaseType = prevBT;
-    }
-  }
+  const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
+  cd.baseType = bt;
+  /* rebuild colors for the affected region */
+  rebuildAllVerts();
 });
 
 /* ═══════════════════════════════════════════
@@ -1926,7 +1876,6 @@ async function loadExistingMap() {
         const [sx, sz] = spawn.split(",").map(Number);
         currentChunk = [sx, sz];
         document.getElementById("chunk-id").textContent = `${sx},${sz}`;
-        ensureAllChunkMeshes();
         loadChunkFromStore(sx, sz);
         updateMinimap();
         console.log(`Loaded ${manifest.chunks.length} chunks from manifest`);
@@ -1983,8 +1932,7 @@ await loadGameObjects();
 await loadExistingMap();
 /* ensure spawn chunk mesh exists */
 if (!chunkDataStore.has("0,0")) ensureChunkData(0, 0);
-ensureAllChunkMeshes();
-activateChunkForEditing(0, 0);
+rebuildUnifiedMesh();
 moveChunkHighlight(0, 0);
 updateMinimap();
 animate();
