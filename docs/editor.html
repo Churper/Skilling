@@ -815,7 +815,12 @@ canvas.addEventListener("wheel", e => {
   }
 }, { passive: false });
 
+/* WASD pan */
+const keysDown = new Set();
+window.addEventListener("keyup", e => keysDown.delete(e.key.toLowerCase()));
+
 window.addEventListener("keydown", e => {
+  keysDown.add(e.key.toLowerCase());
   if (e.key === "r" || e.key === "R") {
     if (mode === "objects") {
       objRot = (objRot + Math.PI / 4) % (Math.PI * 2);
@@ -988,6 +993,18 @@ window.addEventListener("resize", () => {
 function animate(t) {
   requestAnimationFrame(animate);
   waterUniforms.uTime.value = (t || 0) * 0.001;
+
+  /* WASD pan */
+  const panSpeed = 0.5;
+  const forward = new THREE.Vector3();
+  camera.getWorldDirection(forward);
+  forward.y = 0; forward.normalize();
+  const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
+  if (keysDown.has("w")) { orbitControls.target.addScaledVector(forward, panSpeed); camera.position.addScaledVector(forward, panSpeed); }
+  if (keysDown.has("s") && !keysDown.has("control") && mode !== "height") { orbitControls.target.addScaledVector(forward, -panSpeed); camera.position.addScaledVector(forward, -panSpeed); }
+  if (keysDown.has("a")) { orbitControls.target.addScaledVector(right, -panSpeed); camera.position.addScaledVector(right, -panSpeed); }
+  if (keysDown.has("d")) { orbitControls.target.addScaledVector(right, panSpeed); camera.position.addScaledVector(right, panSpeed); }
+
   orbitControls.update();
   renderer.render(scene, camera);
 }
