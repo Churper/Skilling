@@ -971,6 +971,52 @@ body {
   font-family: var(--ui-font-heading);
   letter-spacing: 0.5px;
 }
+/* ── Mini CSS flags ── */
+.ui-emote-btn.ui-emote-flag { padding: 4px; }
+.ui-emote-flag span {
+  display: block;
+  width: 26px;
+  height: 18px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.flag-usa {
+  background: repeating-linear-gradient(
+    to bottom,
+    #bf0a30 0px, #bf0a30 2px,
+    #fff 2px, #fff 4px
+  );
+  position: relative;
+}
+.flag-usa::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 11px; height: 10px;
+  background: #002868;
+}
+.flag-ukr {
+  background: linear-gradient(to bottom, #005bbb 50%, #ffd500 50%);
+}
+.flag-isr {
+  background: #fff;
+  position: relative;
+  border: 1px solid #ddd;
+}
+.flag-isr::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: 2px; height: 3px;
+  background: #0038b8;
+}
+.flag-isr::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 2px; height: 3px;
+  background: #0038b8;
+}
 
 /* ── Prayer ── */
 .ui-prayer-heading {
