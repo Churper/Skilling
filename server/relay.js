@@ -182,6 +182,7 @@ wss.on("connection", (ws) => {
         attacking: !!state.attacking,
         combatStyle: typeof state.combatStyle === "string" ? state.combatStyle : "melee",
         tool: typeof state.tool === "string" ? state.tool : "fishing",
+        totalLevel: Number(state.totalLevel) || 6,
       };
       broadcast(
         meta.room,

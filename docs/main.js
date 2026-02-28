@@ -378,7 +378,9 @@ netClient = createRealtimeClient({
     syncFriendsUI();
     if (msg.id && msg.name) {
       const tag = getOrCreateNameTag(msg.id);
-      if (tag.name !== msg.name) { tag.nameSpan.textContent = msg.name; tag.name = msg.name; }
+      const peerLvl = msg.state?.totalLevel || 6;
+      const peerLabel = `${msg.name} · Lv ${peerLvl}`;
+      if (tag.name !== peerLabel) { tag.nameSpan.textContent = peerLabel; tag.name = peerLabel; }
     }
     if (msg.id && msg.state) {
       setRemoteOverhead(msg.id, msg.state.overhead || null);
@@ -1915,6 +1917,7 @@ function animate(now) {
     combatStyle,
     tool: equippedTool,
     overhead: getActiveOverhead() || "",
+    totalLevel: Object.values(skills).reduce((s, sk) => s + sk.level, 0),
   });
 
   /* auto-save periodically */
