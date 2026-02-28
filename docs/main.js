@@ -892,6 +892,7 @@ function setMoveTarget(point, preservePending = false) {
   pushPointOutsideObstacles(moveTarget, playerCollisionRadius + 0.14);
   moveTarget.y = getPlayerGroundY(moveTarget.x, moveTarget.z);
   hasMoveTarget = true;
+  if (ui?.isBankOpen?.()) ui.closeBank();
   marker.visible = true;
   const waterY = getWaterSurfaceHeight(markerTarget.x, markerTarget.z, waterUniforms.uTime.value);
   markerOnWater = Number.isFinite(waterY);
@@ -1781,6 +1782,7 @@ function animate(now) {
     pendingService = null;
     activeGather = null;
     activeAttack = null;
+    if (ui?.isBankOpen?.()) ui.closeBank();
     moveDir.normalize();
   } else if (hasMoveTarget) {
     moveDir.subVectors(moveTarget, player.position);
