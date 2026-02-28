@@ -1422,7 +1422,27 @@ function runServiceAction(node) {
   }
 }
 
+/* ── Sound system ── */
+const _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let _attackBuffer = null;
+fetch("./sounds/attack1.wav")
+  .then(r => r.arrayBuffer())
+  .then(buf => _audioCtx.decodeAudioData(buf))
+  .then(decoded => { _attackBuffer = decoded; })
+  .catch(() => {});
+
+function playAttackSound() {
+  if (!_attackBuffer) return;
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const src = _audioCtx.createBufferSource();
+  src.buffer = _attackBuffer;
+  src.playbackRate.value = 0.85 + Math.random() * 0.3; // random pitch 0.85–1.15
+  src.connect(_audioCtx.destination);
+  src.start();
+}
+
 function performAttackHit(node) {
+  playAttackSound();
   const dummyPos = combatPos;
   node.getWorldPosition(dummyPos);
   const dx = dummyPos.x - player.position.x;
