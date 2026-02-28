@@ -677,7 +677,7 @@ function resolvePlayerCollisions() {
 }
 
 function getPlayerGroundY(x, z) {
-  if (inCave && caveGround) {
+  if (inCave) {
     return 0; // flat cave floor
   }
   const analyticY = getWorldSurfaceHeight(x, z);

@@ -220,14 +220,14 @@ export function getMeshSurfaceY(x, z) {
     const bxT = 1 - sm(Math.max(BRIDGE_X0 - x, x - BRIDGE_X1, 0), 0, 3);
     const bzT = 1 - sm(Math.abs(z - BRIDGE_Z), BRIDGE_HW, BRIDGE_HW + 3);
     const bridgeT = bxT * bzT;
-    if (bridgeT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.5, bridgeT);
+    if (bridgeT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 2, bridgeT);
   }
   /* flatten terrain under dock */
   if (x > 34 && x < 54 && Math.abs(z - (-16)) < 6) {
     const dxT = 1 - sm(Math.max(34 - x, x - 54, 0), 0, 3);
     const dzT = 1 - sm(Math.abs(z - (-16)), 3, 6);
     const dockT = dxT * dzT;
-    if (dockT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 0.5, dockT);
+    if (dockT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 2, dockT);
   }
   return y;
 }
@@ -486,9 +486,10 @@ export function buildBridge(lib) {
   /* invisible walkable deck — extends past bridge ends for smooth transition */
   const span = (xs[xs.length - 1] - xs[0]) + TILE_S;
   const cx = (xs[0] + xs[xs.length - 1]) / 2;
-  const deckGeo = new THREE.BoxGeometry(span + 3, 0.3, TILE_S * 2);
-  const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
-  deck.position.set(cx, deckY + 0.15, bz);
+  const deckGeo = new THREE.BoxGeometry(span + 3, 0.4, TILE_S * 2.5);
+  const deckMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+  const deck = new THREE.Mesh(deckGeo, deckMat);
+  deck.position.set(cx, deckY + 0.1, bz);
   deck.name = "bridge_deck";
   group.add(deck);
 
@@ -537,17 +538,18 @@ export function buildDock(lib) {
   }
 
   /* invisible walkable deck — matches plank surface */
-  const deckTop = deckY + 0.1;
-  const deckGeo = new THREE.BoxGeometry(count * TILE_S + 2, 0.4, TILE_S * 2);
-  const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
+  const deckTop = deckY + 0.15;
+  const dockDeckMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+  const deckGeo = new THREE.BoxGeometry(count * TILE_S + 2, 0.5, TILE_S * 2.5);
+  const deck = new THREE.Mesh(deckGeo, dockDeckMat);
   deck.position.set(dx + (count - 1) * TILE_S * 0.5, deckTop, dz);
   deck.name = "dock_deck";
   group.add(deck);
 
-  /* invisible walkable ramp for stairs — slopes from shore up to dock height */
+  /* invisible walkable ramp for stairs */
   const stairLen = TILE_S * 3;
-  const stairGeo = new THREE.BoxGeometry(stairLen, 0.5, TILE_S * 2);
-  const stairDeck = new THREE.Mesh(stairGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
+  const stairGeo = new THREE.BoxGeometry(stairLen, 0.5, TILE_S * 2.5);
+  const stairDeck = new THREE.Mesh(stairGeo, dockDeckMat.clone());
   const shoreY = getMeshSurfaceY(dx - TILE_S * 2, dz);
   stairDeck.position.set(dx - TILE_S, (shoreY + deckTop) / 2, dz);
   stairDeck.rotation.z = Math.atan2(deckTop - shoreY, stairLen);
