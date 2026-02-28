@@ -893,7 +893,7 @@ wrap.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, wrap.clientWidth / wrap.clientHeight, 0.5, 500);
-camera.position.set(20, 30, 40);
+camera.position.set(0, 150, -0.01);
 
 const orbitControls = new OrbitControls(camera, renderer.domElement);
 orbitControls.target.set(0, 0, 0);
