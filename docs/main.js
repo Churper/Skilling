@@ -363,7 +363,7 @@ netClient = createRealtimeClient({
       const tag = getOrCreateNameTag(peer.id);
       tag.nameSpan.textContent = peer.name || "Player";
       tag.name = peer.name || "Player";
-      tag.levelSpan.textContent = "";
+      tag.lvlText.textContent = "";
       tag.level = "";
     }
   },
@@ -379,8 +379,9 @@ netClient = createRealtimeClient({
     if (msg.id && msg.name) {
       const tag = getOrCreateNameTag(msg.id);
       const peerLvl = msg.state?.totalLevel || 6;
-      const peerLabel = `${msg.name} · Lv ${peerLvl}`;
-      if (tag.name !== peerLabel) { tag.nameSpan.textContent = peerLabel; tag.name = peerLabel; }
+      const peerLvlStr = `Lv ${peerLvl} · `;
+      if (tag.level !== peerLvlStr) { tag.lvlText.textContent = peerLvlStr; tag.level = peerLvlStr; }
+      if (tag.name !== msg.name) { tag.nameSpan.textContent = msg.name; tag.name = msg.name; }
     }
     if (msg.id && msg.state) {
       setRemoteOverhead(msg.id, msg.state.overhead || null);
@@ -636,12 +637,14 @@ function getOrCreateNameTag(key) {
   el.className = "nametag";
   const levelSpan = document.createElement("span");
   levelSpan.className = "nametag-level";
+  const lvlText = document.createTextNode("");
   const nameSpan = document.createElement("span");
   nameSpan.className = "nametag-name";
+  levelSpan.appendChild(lvlText);
   levelSpan.appendChild(nameSpan);
   el.appendChild(levelSpan);
   getBubbleLayer().appendChild(el);
-  tag = { el, nameSpan, levelSpan, name: "", level: "", sx: -1, sy: -1 };
+  tag = { el, nameSpan, levelSpan, lvlText, name: "", level: "", sx: -1, sy: -1 };
   nameTags.set(key, tag);
   return tag;
 }
@@ -661,9 +664,9 @@ function updateNameTags() {
   const localTag = getOrCreateNameTag("local");
   const totalLevel = Object.values(skills).reduce((sum, s) => sum + s.level, 0);
   const localName = onlineConfig.name || "You";
-  const lvlStr = `Lv ${totalLevel}`;
-  const combined = `${localName} · ${lvlStr}`;
-  if (localTag.level !== combined) { localTag.nameSpan.textContent = combined; localTag.level = combined; }
+  const lvlStr = `Lv ${totalLevel} · `;
+  if (localTag.level !== lvlStr) { localTag.lvlText.textContent = lvlStr; localTag.level = lvlStr; }
+  if (localTag.name !== localName) { localTag.nameSpan.textContent = localName; localTag.name = localName; }
   _tagProj.set(player.position.x, player.position.y + playerHeadOffset - 1.1, player.position.z);
   _tagProj.project(camera);
   const lxTarget = _tagProj.x * hw + hw;
@@ -1570,6 +1573,38 @@ const input = createInputController({
   onInteract: onInteractNode,
   onHoverChange,
 });
+
+/* ── Right-click inspect remote players ── */
+let _inspectPopup = null;
+const _inspectRay = new THREE.Raycaster();
+const _inspectNdc = new THREE.Vector2();
+
+function closeInspectPopup() {
+  if (_inspectPopup) { _inspectPopup.remove(); _inspectPopup = null; }
+}
+
+renderer.domElement.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  closeInspectPopup();
+  _inspectNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
+  _inspectNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  _inspectRay.setFromCamera(_inspectNdc, camera);
+  const hit = remotePlayers.hitTest(_inspectRay);
+  if (!hit) return;
+  const popup = document.createElement("div");
+  popup.className = "player-inspect-popup";
+  let activity = "Idle";
+  if (hit.attacking) activity = `Fighting (${hit.combatStyle})`;
+  else if (hit.gathering) activity = `Skilling (${hit.tool})`;
+  else if (hit.moving) activity = "Walking";
+  popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Lv ${hit.totalLevel}</div><div class="inspect-activity">${activity}</div>`;
+  popup.style.left = Math.min(e.clientX, window.innerWidth - 200) + "px";
+  popup.style.top = Math.min(e.clientY, window.innerHeight - 100) + "px";
+  document.body.appendChild(popup);
+  _inspectPopup = popup;
+});
+
+renderer.domElement.addEventListener("pointerdown", () => closeInspectPopup());
 
 if (scene.fog) {
   scene.fog.color.set("#95b57a");

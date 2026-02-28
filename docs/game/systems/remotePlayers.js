@@ -124,14 +124,36 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
     return out;
   }
 
+  function hitTest(raycaster) {
+    let closest = null;
+    let closestDist = Infinity;
+    for (const [id, entry] of peers) {
+      if (!entry.initialized) continue;
+      const intersects = raycaster.intersectObject(entry.avatar.player, true);
+      if (intersects.length > 0 && intersects[0].distance < closestDist) {
+        closestDist = intersects[0].distance;
+        closest = { id, name: entry.name || id, totalLevel: entry.totalLevel || 6, tool: entry.tool, combatStyle: entry.combatStyle, moving: entry.moving, gathering: entry.gathering, attacking: entry.attacking };
+      }
+    }
+    return closest;
+  }
+
+  function applyStateFull(id, state = {}, peerMeta = null) {
+    applyState(id, state, peerMeta);
+    const entry = peers.get(id);
+    if (entry && peerMeta?.name) entry.name = peerMeta.name;
+    if (entry && state?.totalLevel) entry.totalLevel = state.totalLevel;
+  }
+
   return {
     upsertPeer,
-    applyState,
+    applyState: applyStateFull,
     removePeer,
     setSnapshot,
     update,
     count: () => peers.size,
     clear,
     getEmoteAnchor,
+    hitTest,
   };
 }
