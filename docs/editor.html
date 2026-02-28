@@ -2074,6 +2074,11 @@ async function loadExistingMap() {
         const [sx, sz] = spawn.split(",").map(Number);
         currentChunk = [sx, sz];
         document.getElementById("chunk-id").textContent = `${sx},${sz}`;
+        /* rebuild all chunk meshes with loaded data (old meshes may be stale) */
+        for (const [key, entry] of chunkMeshes) {
+          scene.remove(entry.mesh); entry.geo.dispose();
+        }
+        chunkMeshes.clear();
         ensureAllChunkMeshes();
         loadChunkFromStore(sx, sz);
         updateMinimap();
