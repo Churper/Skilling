@@ -542,6 +542,11 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
   b.water = data.water !== false;
   b.edges = data.edges || {};
   b.baseType = data.baseType || "grass";
+  /* chunk world offset — heightOffset/colorOverride keys are in local chunk coords */
+  const chunkOffX = cx * CHUNK_SIZE;
+  const chunkOffZ = cz * CHUNK_SIZE;
+  b.localOffsetX = chunkOffX;
+  b.localOffsetZ = chunkOffZ;
   const heightOffsets = data.heightOffsets || null;
   const colorOverrides = data.colorOverrides || null;
   const waterUniforms = { uTime: { value: 0 } };
@@ -569,6 +574,8 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         if (!tmpl) continue;
         const m = tmpl.clone();
         m.scale.setScalar(entry.scale || 1);
+        /* object positions are in local chunk coords — offset to world */
+        const wx = entry.x + chunkOffX, wz = entry.z + chunkOffZ;
         let y = GRASS_Y;
         if (heightOffsets) {
           const fx = Math.floor(entry.x), fz = Math.floor(entry.z);
@@ -579,7 +586,7 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
           const h11 = heightOffsets[`${fx+1},${fz+1}`] || 0;
           y += h00*(1-tx)*(1-tz) + h10*tx*(1-tz) + h01*(1-tx)*tz + h11*tx*tz;
         }
-        m.position.set(entry.x, y, entry.z);
+        m.position.set(wx, y, wz);
         m.rotation.y = entry.rot || 0;
         const res = RESOURCE_MAP[entry.type];
         if (res) { setRes(m, res.type, res.label); nodes.push(m); }

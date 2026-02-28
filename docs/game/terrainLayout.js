@@ -215,13 +215,19 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   const tmp = new THREE.Color();
   const sm = THREE.MathUtils.smoothstep;
 
+  /* chunk local offset — heightOffset/colorOverride keys are stored in local coords */
+  const loX = bounds && bounds.localOffsetX || 0;
+  const loZ = bounds && bounds.localOffsetZ || 0;
+
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
+      /* local coords for data lookup (subtract chunk world offset) */
+      const lx = x - loX, lz = z - loZ;
       let y = GRASS_Y;
       /* apply editor height offsets */
       if (heightOffsets) {
-        const key = `${x},${z}`;
+        const key = `${lx},${lz}`;
         if (key in heightOffsets) y += heightOffsets[key];
       }
       const i3 = (iz * nx + ix) * 3;
@@ -240,7 +246,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       else { c = cGrass; }
       /* editor color overrides */
       if (colorOverrides) {
-        const key = `${x},${z}`;
+        const key = `${lx},${lz}`;
         if (key in colorOverrides) { const ov = colorOverrides[key]; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
       }
       col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
