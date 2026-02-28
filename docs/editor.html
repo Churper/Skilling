@@ -81,6 +81,11 @@ canvas{display:block}
 .edge-toggles button{padding:2px 5px;font-size:9px;cursor:pointer;background:#1e1e32;color:#666;border:1px solid #333;border-radius:2px}
 .edge-toggles button.on{color:#e8c44a;border-color:#e8c44a}
 
+/* minimap */
+#minimap-wrap{padding:6px 10px;border-top:1px solid #2a2a3e}
+#minimap-wrap .label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:3px}
+#minimap{width:100%;aspect-ratio:1;background:#0d0d18;border:1px solid #2a2a3e;border-radius:4px;cursor:pointer;image-rendering:pixelated}
+
 #count{padding:5px 10px;font-size:10px;color:#555;text-align:center;border-top:1px solid #1a1a2e;font-family:monospace}
 
 /* ── Canvas ── */
@@ -181,6 +186,10 @@ canvas{display:block}
     </div>
   </div>
 
+  <div id="minimap-wrap">
+    <div class="label">Chunks</div>
+    <canvas id="minimap" width="200" height="200"></canvas>
+  </div>
   <div id="btns">
     <button id="btn-export">Export</button>
     <button id="btn-import">Import</button>
@@ -443,6 +452,8 @@ function switchChunk(cx, cz) {
   currentChunk = [cx, cz];
   document.getElementById("chunk-id").textContent = `${cx},${cz}`;
   loadChunkFromStore(cx, cz);
+  rebuildGhosts();
+  updateMinimap();
   hUndoStack.length = 0; pUndoStack.length = 0; objUndoStack.length = 0;
 }
 
@@ -523,6 +534,115 @@ function computeBaseColor(x, z, y) {
   return cGrass;
 }
 
+/* ═══════════════════════════════════════════
+   Minimap — shows chunk grid, click to navigate
+   ═══════════════════════════════════════════ */
+const BASE_TYPE_MINIMAP_COLORS = {
+  grass: "#4dad38", dirt: "#8B7355", sand: "#e2d098",
+  stone: "#8a8a7a", snow: "#e8eef0", dark: "#3a3a42",
+};
+
+function updateMinimap() {
+  const cvs = document.getElementById("minimap");
+  const ctx = cvs.getContext("2d");
+  const w = cvs.width, h = cvs.height;
+  ctx.fillStyle = "#0d0d18";
+  ctx.fillRect(0, 0, w, h);
+
+  /* find bounding box of all chunks */
+  let cxMin = 0, cxMax = 0, czMin = 0, czMax = 0;
+  for (const key of chunkDataStore.keys()) {
+    const [cx, cz] = key.split(",").map(Number);
+    cxMin = Math.min(cxMin, cx); cxMax = Math.max(cxMax, cx);
+    czMin = Math.min(czMin, cz); czMax = Math.max(czMax, cz);
+  }
+  /* also include current chunk + 1 padding in each direction */
+  cxMin = Math.min(cxMin, currentChunk[0]) - 1;
+  cxMax = Math.max(cxMax, currentChunk[0]) + 1;
+  czMin = Math.min(czMin, currentChunk[1]) - 1;
+  czMax = Math.max(czMax, currentChunk[1]) + 1;
+
+  const cols = cxMax - cxMin + 1, rows = czMax - czMin + 1;
+  const cellW = Math.floor(w / cols), cellH = Math.floor(h / rows);
+  const cellSize = Math.min(cellW, cellH, 40);
+  const ox = Math.floor((w - cols * cellSize) / 2);
+  const oy = Math.floor((h - rows * cellSize) / 2);
+
+  /* draw grid */
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const cx = cxMin + col, cz = czMax - row; // flip z so north is up
+      const x = ox + col * cellSize, y = oy + row * cellSize;
+      const key = chunkKey(cx, cz);
+      const hasData = chunkDataStore.has(key);
+
+      /* cell fill */
+      if (hasData) {
+        const cd = chunkDataStore.get(key);
+        ctx.fillStyle = BASE_TYPE_MINIMAP_COLORS[cd.baseType || "grass"] || "#4dad38";
+      } else {
+        ctx.fillStyle = "#1a1a2e";
+      }
+      ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+
+      /* grid lines */
+      ctx.strokeStyle = "#2a2a3e";
+      ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
+
+      /* current chunk highlight */
+      if (cx === currentChunk[0] && cz === currentChunk[1]) {
+        ctx.strokeStyle = "#e8c44a";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 1.5, y + 1.5, cellSize - 3, cellSize - 3);
+        ctx.lineWidth = 1;
+      }
+
+      /* coord label */
+      if (cellSize >= 20) {
+        ctx.fillStyle = hasData ? "#000" : "#444";
+        ctx.font = `${Math.min(9, cellSize / 3)}px monospace`;
+        ctx.textAlign = "center";
+        ctx.fillText(`${cx},${cz}`, x + cellSize / 2, y + cellSize / 2 + 3);
+      }
+    }
+  }
+
+  /* store mapping for click handler */
+  cvs._mapData = { cxMin, czMax, cols, rows, cellSize, ox, oy };
+}
+
+/* click minimap to navigate */
+document.getElementById("minimap").addEventListener("click", e => {
+  const cvs = e.target;
+  const md = cvs._mapData;
+  if (!md) return;
+  const rect = cvs.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (cvs.width / rect.width);
+  const my = (e.clientY - rect.top) * (cvs.height / rect.height);
+  const col = Math.floor((mx - md.ox) / md.cellSize);
+  const row = Math.floor((my - md.oy) / md.cellSize);
+  if (col < 0 || col >= md.cols || row < 0 || row >= md.rows) return;
+  const cx = md.cxMin + col, cz = md.czMax - row;
+  switchChunk(cx, cz);
+});
+
+/** Base height: procedural for chunk 0,0, flat GRASS_Y for all others */
+function getBaseY(x, z) {
+  if (currentChunk[0] === 0 && currentChunk[1] === 0) return getMeshSurfaceY(x, z);
+  return GRASS_Y;
+}
+
+function vertColor(x, z, y) {
+  const c = computeColor(x, z, y);
+  /* bridge/dock river-color override only on chunk 0,0 */
+  if (currentChunk[0] === 0 && currentChunk[1] === 0) {
+    const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
+    const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
+    if ((underBridge || underDock) && y < WATER_Y + 0.1) return cRiver;
+  }
+  return c;
+}
+
 let hPos, hCol, groundMesh, groundGeo;
 function buildHeightMesh() {
   hPos = new Float32Array(hnx * hnz * 3);
@@ -532,12 +652,9 @@ function buildHeightMesh() {
     for (let ix = 0; ix < hnx; ix++) {
       const x = xMin + ix * hStep, z = zMin + iz * hStep;
       const vi = hvi(ix, iz), i3 = vi * 3;
-      const y = getMeshSurfaceY(x, z) + heightOffsets[vi];
+      const y = getBaseY(x, z) + heightOffsets[vi];
       hPos[i3] = x; hPos[i3 + 1] = y; hPos[i3 + 2] = z;
-      const c = computeColor(x, z, y);
-      const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
-      const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
-      const fc = (underBridge || underDock) && y < WATER_Y + 0.1 ? cRiver : c;
+      const fc = vertColor(x, z, y);
       hCol[i3] = fc.r; hCol[i3 + 1] = fc.g; hCol[i3 + 2] = fc.b;
       if (ix < hnx - 1 && iz < hnz - 1) { const a = vi; idx.push(a, a + hnx, a + 1, a + 1, a + hnx, a + hnx + 1); }
     }
@@ -556,12 +673,9 @@ function updateMeshRegion(cx, cz, radius) {
     for (let ix = Math.max(0, cx - r); ix <= Math.min(hnx - 1, cx + r); ix++) {
       const vi = hvi(ix, iz), i3 = vi * 3;
       const x = xMin + ix * hStep, z = zMin + iz * hStep;
-      const y = getMeshSurfaceY(x, z) + heightOffsets[vi];
+      const y = getBaseY(x, z) + heightOffsets[vi];
       hPos[i3 + 1] = y;
-      const c = computeColor(x, z, y);
-      const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
-      const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
-      const fc = (underBridge || underDock) && y < WATER_Y + 0.1 ? cRiver : c;
+      const fc = vertColor(x, z, y);
       hCol[i3] = fc.r; hCol[i3 + 1] = fc.g; hCol[i3 + 2] = fc.b;
     }
   }
@@ -574,14 +688,82 @@ function rebuildAllVerts() {
   for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
     const vi = hvi(ix, iz), i3 = vi * 3;
     const x = xMin + ix * hStep, z = zMin + iz * hStep;
-    const y = getMeshSurfaceY(x, z) + heightOffsets[vi];
+    const y = getBaseY(x, z) + heightOffsets[vi];
     hPos[i3 + 1] = y;
-    const c = computeColor(x, z, y);
-    hCol[i3] = c.r; hCol[i3 + 1] = c.g; hCol[i3 + 2] = c.b;
+    const fc = vertColor(x, z, y);
+    hCol[i3] = fc.r; hCol[i3 + 1] = fc.g; hCol[i3 + 2] = fc.b;
   }
   groundGeo.attributes.position.needsUpdate = true;
   groundGeo.attributes.color.needsUpdate = true;
   groundGeo.computeVertexNormals();
+}
+
+/* ═══════════════════════════════════════════
+   Ghost meshes — show adjacent chunks as semi-transparent neighbors
+   ═══════════════════════════════════════════ */
+const ghostGroup = new THREE.Group();
+ghostGroup.name = "ghost_chunks";
+const ghostMat = new THREE.MeshToonMaterial({
+  vertexColors: true, gradientMap: TOON_GRAD, flatShading: true,
+  transparent: true, opacity: 0.35, depthWrite: false,
+});
+const GHOST_STEP = 4; // lower resolution for ghosts (every 4th vertex)
+
+function buildGhostMesh(cd, dx, dz) {
+  const gnx = Math.ceil((xMax - xMin) / GHOST_STEP) + 1;
+  const gnz = Math.ceil((zMax - zMin) / GHOST_STEP) + 1;
+  const gPos = new Float32Array(gnx * gnz * 3);
+  const gCol = new Float32Array(gnx * gnz * 3);
+  const gIdx = [];
+  const offsetX = dx * CHUNK_SIZE, offsetZ = dz * CHUNK_SIZE;
+  const bc = BASE_COLORS[cd.baseType || "grass"] || cGrass;
+
+  for (let iz = 0; iz < gnz; iz++) {
+    for (let ix = 0; ix < gnx; ix++) {
+      const x = xMin + ix * GHOST_STEP, z = zMin + iz * GHOST_STEP;
+      const key = `${x},${z}`;
+      let y = GRASS_Y + (cd.heightData[key] || 0);
+      const vi = iz * gnx + ix, i3 = vi * 3;
+      gPos[i3] = x + offsetX;
+      gPos[i3 + 1] = y;
+      gPos[i3 + 2] = z + offsetZ;
+      /* use override color or base color */
+      if (cd.colorData[key]) {
+        const ov = cd.colorData[key];
+        gCol[i3] = ov[0]; gCol[i3 + 1] = ov[1]; gCol[i3 + 2] = ov[2];
+      } else {
+        gCol[i3] = bc.r; gCol[i3 + 1] = bc.g; gCol[i3 + 2] = bc.b;
+      }
+      if (ix < gnx - 1 && iz < gnz - 1) {
+        const a = vi; gIdx.push(a, a + gnx, a + 1, a + 1, a + gnx, a + gnx + 1);
+      }
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(gPos, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(gCol, 3));
+  geo.setIndex(gIdx);
+  geo.computeVertexNormals();
+  return new THREE.Mesh(geo, ghostMat);
+}
+
+function rebuildGhosts() {
+  /* clear old ghosts */
+  while (ghostGroup.children.length) {
+    const c = ghostGroup.children[0];
+    c.geometry.dispose();
+    ghostGroup.remove(c);
+  }
+  /* build ghosts for adjacent chunks that have data */
+  const dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+  for (const [dx, dz] of dirs) {
+    const ncx = currentChunk[0] + dx, ncz = currentChunk[1] + dz;
+    const key = chunkKey(ncx, ncz);
+    if (chunkDataStore.has(key)) {
+      const cd = chunkDataStore.get(key);
+      ghostGroup.add(buildGhostMesh(cd, dx, dz));
+    }
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -620,6 +802,7 @@ fillL.position.set(-34, 26, -24); scene.add(fillL);
    ═══════════════════════════════════════════ */
 /* height-editable terrain */
 scene.add(buildHeightMesh());
+scene.add(ghostGroup);
 
 /* water plane */
 const ww = xMax - xMin + 20, wh = zMax - zMin + 20;
@@ -888,7 +1071,7 @@ function paintAt(wx, wz, dt) {
       if (dist > brushRadius) continue;
       const falloff = 1 - sm(dist, 0, brushRadius);
       const vi = hvi(ix, iz);
-      const curY = getMeshSurfaceY(vx, vz) + heightOffsets[vi];
+      const curY = getBaseY(vx, vz) + heightOffsets[vi];
       if (brushMode === "raise") {
         heightOffsets[vi] += paintSign * brushStrength * falloff * dt * 8;
       } else if (brushMode === "flatten") {
@@ -898,7 +1081,7 @@ function paintAt(wx, wz, dt) {
         for (const [ox, oz] of [[-1,0],[1,0],[0,-1],[0,1]]) {
           const ni = ix + ox, nj = iz + oz;
           if (ni >= 0 && ni < hnx && nj >= 0 && nj < hnz) {
-            sum += getMeshSurfaceY(xMin + ni * hStep, zMin + nj * hStep) + heightOffsets[hvi(ni, nj)]; cnt++;
+            sum += getBaseY(xMin + ni * hStep, zMin + nj * hStep) + heightOffsets[hvi(ni, nj)]; cnt++;
           }
         }
         if (cnt) heightOffsets[vi] += (sum / cnt - curY) * brushStrength * falloff * dt * 4;
@@ -926,7 +1109,7 @@ function paintColorAt(wx, wz, dt) {
       const falloff = 1 - sm(dist, 0, brushRadius);
       const key = `${vx},${vz}`;
       const vi = hvi(ix, iz);
-      const y = getMeshSurfaceY(vx, vz) + heightOffsets[vi];
+      const y = getBaseY(vx, vz) + heightOffsets[vi];
       if (colorPaintSign < 0) {
         delete colorOverrides[key];
       } else {
@@ -1188,7 +1371,7 @@ canvas.addEventListener("mousemove", e => {
       if (mode === "height") {
         const [gx, gz] = worldToHGrid(pt.x, pt.z);
         const vi = (gx >= 0 && gx < hnx && gz >= 0 && gz < hnz) ? hvi(gx, gz) : -1;
-        const baseY = getMeshSurfaceY(pt.x, pt.z).toFixed(2);
+        const baseY = getBaseY(pt.x, pt.z).toFixed(2);
         const offset = vi >= 0 ? heightOffsets[vi].toFixed(2) : "—";
         document.getElementById("cell-display").textContent = `${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}\nBase Y: ${baseY}  Offset: ${offset}`;
         if (painting) {
@@ -1514,6 +1697,9 @@ document.getElementById("chunk-new").addEventListener("click", () => {
   const key = currentChunkKey();
   if (!chunkDataStore.has(key)) {
     ensureChunkData(currentChunk[0], currentChunk[1]);
+    saveCurrentChunkToStore();
+    rebuildGhosts();
+    updateMinimap();
     console.log(`Created new chunk ${key}`);
   }
 });
@@ -1637,6 +1823,12 @@ await loadAllModels();
 await loadGameStructures();
 await loadGameObjects();
 await loadExistingMap();
+/* ensure spawn chunk is in the store even if no files loaded */
+if (!chunkDataStore.has("0,0")) {
+  saveCurrentChunkToStore();
+}
+rebuildGhosts();
+updateMinimap();
 animate();
 console.log("Map Editor ready.");
 </script>
