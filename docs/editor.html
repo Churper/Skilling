@@ -968,7 +968,7 @@ scene.add(hoverMesh);
 THREE.Cache.enabled = true;
 const gltfLoader = new GLTFLoader();
 const objLib = {};
-const allObjItems = OBJ_CATEGORIES.flatMap(c => c.items.map(it => ({ ...it, dir: c.dir || MODEL_DIR })));
+const allObjItems = OBJ_CATEGORIES.flatMap(c => c.items.map(it => ({ ...it, dir: it.dir || c.dir || MODEL_DIR })));
 
 /* create placeholder box meshes for service buildings */
 for (const cat of OBJ_CATEGORIES) {
