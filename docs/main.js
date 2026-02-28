@@ -743,7 +743,7 @@ function updateAnimals(dt) {
         0,
         a.spawnPos.z + Math.sin(angle) * dist,
       );
-      a.wanderTarget.y = getWorldSurfaceHeight(a.wanderTarget.x, a.wanderTarget.z);
+      a.wanderTarget.y = getPlayerGroundY(a.wanderTarget.x, a.wanderTarget.z);
       a.wanderTimer = 2 + Math.random() * 3;
     }
     if (a.wanderTarget) {
@@ -757,7 +757,7 @@ function updateAnimals(dt) {
         const step = Math.min(dt * 2.0, dist);
         a.parentModel.position.x += nx * step;
         a.parentModel.position.z += nz * step;
-        a.parentModel.position.y = getWorldSurfaceHeight(a.parentModel.position.x, a.parentModel.position.z);
+        a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
         /* face walk direction */
         a.parentModel.rotation.y = Math.atan2(nx, nz);
       } else {
