@@ -343,6 +343,42 @@ function addDummy(scene, x, z, nodes) {
   nodes.push(addHS(g, 0, .8, 0)); addBlob(scene, x, z, .5, .18);
 }
 
+/* ── Shopkeeper slime (spawned next to Market_Stalls) ── */
+function spawnShopkeeper(parent, x, y, z) {
+  const geo = new THREE.SphereGeometry(0.65, 10, 8);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    let px = pos.getX(i), py = pos.getY(i), pz = pos.getZ(i);
+    if (py < 0) py *= 0.52;
+    const yN = (py + 0.65) / 1.3;
+    const bulge = 1.0 + 0.2 * Math.sin(yN * Math.PI);
+    px *= bulge * 1.02; py *= 1.08; pz *= bulge * 1.02;
+    pos.setXYZ(i, px, py, pz);
+  }
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshPhongMaterial({
+    color: "#3ac95e", transparent: true, opacity: 0.72,
+    shininess: 38, specular: new THREE.Color("#d8ffe4"),
+  });
+  const slime = new THREE.Mesh(geo, mat);
+  slime.position.set(x, y + 0.5, z);
+  slime.renderOrder = R_DECOR + 5;
+  /* face */
+  const faceG = new THREE.Group();
+  faceG.position.set(0, 0.22, 0.56);
+  slime.add(faceG);
+  const fMat = new THREE.MeshBasicMaterial({ color: "#0d110f" });
+  const eGeo = new THREE.SphereGeometry(0.052, 8, 8);
+  const lEye = new THREE.Mesh(eGeo, fMat); lEye.position.set(-0.13, 0.1, 0.1);
+  const rEye = new THREE.Mesh(eGeo, fMat); rEye.position.set(0.13, 0.1, 0.1);
+  faceG.add(lEye, rEye);
+  const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.022, 0.007, 5, 10), fMat);
+  mouth.position.set(0, -0.02, 0.11); mouth.rotation.x = Math.PI * 0.08;
+  faceG.add(mouth);
+  parent.add(slime);
+  return slime;
+}
+
 function addTrainYard(scene, x, z) {
   const y = _groundY(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   g.add(m3(new THREE.BoxGeometry(1.55, .52, .08), toonMat("#3d6079"), 0, 1.15, -4.38, R_DECOR + 1));
@@ -354,8 +390,7 @@ function addTrainYard(scene, x, z) {
 /* ── Plaza ── */
 function addPlaza(scene, nodes, obstacles) {
   const tX = SVC.train.x, tZ = SVC.train.z, hX = SVC.build.x, hZ = SVC.build.z;
-  const st = { x: 0, z: -32.5 }, sm = { x: 7, z: -32 };
-  addStore(scene, st.x, st.z, nodes);
+  const sm = { x: 7, z: -32 };
   addSmith(scene, sm.x, sm.z, nodes);
   addTrainYard(scene, tX, tZ);
   addDummy(scene, tX + 3, tZ, nodes);
@@ -364,7 +399,6 @@ function addPlaza(scene, nodes, obstacles) {
   const cs = addYard(scene, hX, hZ, nodes);
   const cx = hX + .15, cz = hZ - .2;
   obstacles.push(
-    { x: st.x, z: st.z, radius: 1.45, id: "store" },
     { x: sm.x, z: sm.z, radius: 1.6, id: "blacksmith" },
     { x: cx, z: cz, radius: 2.35, id: "house-core" },
     { x: cx - 1.2, z: cz, radius: 1.45, id: "house-left" },
@@ -593,7 +627,13 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         if (res) { setRes(m, res.type, res.label); nodes.push(m); }
         /* GLTF-based services — tag with service interaction */
         const svcTag = SERVICE_TAG[entry.type];
-        if (svcTag) { setSvc(m, svcTag.service, svcTag.label); nodes.push(addHS(m, 0, 0.95, 0.55)); }
+        if (svcTag) {
+          setSvc(m, svcTag.service, svcTag.label);
+          nodes.push(addHS(m, 0, 0.95, 0.55));
+          if (entry.type === "Market_Stalls") {
+            spawnShopkeeper(objGroup, wx + 1.2, y, wz + 0.8);
+          }
+        }
         /* tag animals as attackable NPCs — push model itself so any mesh is clickable */
         if (ANIMAL_TYPES.has(entry.type)) {
           setSvc(m, "animal", entry.type);
@@ -740,7 +780,6 @@ for (const t of [
 
 /* Service type lookup — maps editor object types to procedural building builders or service tags */
 const SERVICE_BUILDER = {
-  "Svc_Store":       { builder: (s, x, z, n) => addStore(s, x, z, n) },
   "Svc_Blacksmith":  { builder: (s, x, z, n) => addSmith(s, x, z, n) },
   "Svc_Dummy":       { builder: (s, x, z, n) => addDummy(s, x, z, n) },
   "Svc_Construction":{ builder: (s, x, z, n) => addYard(s, x, z, n) },
@@ -750,9 +789,11 @@ const SERVICE_BUILDER = {
 const SERVICE_TAG = {
   "Svc_Bank": { service: "bank", label: "Bank Chest" },
   "Prop_Treasure_Chest": { service: "bank", label: "Bank Chest" },
+  "Market_Stalls": { service: "store", label: "General Store" },
 };
 /* Register Svc_Bank in file lookup so it loads the chest model */
 _fileLookup["Svc_Bank"] = "models/terrain/Prop_Treasure_Chest.glb";
+_fileLookup["Market_Stalls"] = "models/terrain/Market_Stalls.glb";
 _fileLookup["Farm"] = "models/terrain/Farm.glb";
 for (const a of ["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra"])
   _fileLookup[a] = "models/terrain/" + a + ".glb";
@@ -808,7 +849,14 @@ async function loadMapObjects(scene, nodes) {
       m.rotation.y = entry.rot || 0;
       /* GLTF-based services — tag with service interaction */
       const svcTag = SERVICE_TAG[entry.type];
-      if (svcTag) { setSvc(m, svcTag.service, svcTag.label); nodes.push(addHS(m, 0, 0.95, 0.55)); }
+      if (svcTag) {
+        setSvc(m, svcTag.service, svcTag.label);
+        nodes.push(addHS(m, 0, 0.95, 0.55));
+        /* spawn shopkeeper slime next to market stalls */
+        if (entry.type === "Market_Stalls") {
+          spawnShopkeeper(group, entry.x + 1.2, y, entry.z + 0.8);
+        }
+      }
       /* tag resources so game interaction works */
       const res = RESOURCE_MAP[entry.type];
       if (res) {

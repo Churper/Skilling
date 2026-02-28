@@ -364,6 +364,7 @@ const OBJ_CATEGORIES = [
   ]},
   { name: "Buildings", dir: TILE_DIR, items: [
     { id: "Farm", file: "Farm.glb", scale: 1.0 },
+    { id: "Market_Stalls", file: "Market_Stalls.glb", scale: 1.0, label: "Store" },
   ]},
   { name: "Animals", dir: TILE_DIR, items: [
     { id: "Cow", file: "Cow.glb", scale: 1.0 },
@@ -376,7 +377,6 @@ const OBJ_CATEGORIES = [
   ]},
   { name: "Services", items: [
     { id: "Svc_Bank", dir: TILE_DIR, file: "Prop_Treasure_Chest.glb", scale: 2.0, label: "Bank" },
-    { id: "Svc_Store", placeholder: true, color: "#e8944a", label: "Store" },
     { id: "Svc_Blacksmith", placeholder: true, color: "#6e7880", label: "Smith" },
     { id: "Svc_Dummy", placeholder: true, color: "#a07040", label: "Dummy" },
     { id: "Svc_Construction", placeholder: true, color: "#b7aea0", label: "House" },
@@ -1335,7 +1335,7 @@ function updatePreview() {
   obj.renderOrder = 998; previewObj = obj; scene.add(obj);
 }
 
-const CLICK_HELPER_TYPES = new Set(["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra","Farm"]);
+const CLICK_HELPER_TYPES = new Set(["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra","Farm","Market_Stalls"]);
 const _hbMat = new THREE.MeshBasicMaterial({ visible: false });
 function addClickHelper(root) {
   /* add invisible bounding box so thin GLTF meshes are easier to click */

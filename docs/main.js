@@ -2104,6 +2104,8 @@ function animate(now) {
   updateNameTags();
   updateOverheadIcons();
   updateFloatingDrops(dt);
+  /* lazy-register animals from async-loaded chunks (check every ~2s) */
+  if (Math.random() < dt * 0.5) scanForNewAnimals();
   updateAnimals(dt);
   combatEffects.update(dt);
   updateSlimeTrail(dt, t, isMovingNow);
@@ -2160,10 +2162,16 @@ function animate(now) {
 }
 
 /* scan resource nodes for placed animals and register them */
-console.log(`Scanning ${resourceNodes.length} resource nodes for animals...`);
-for (const n of resourceNodes) {
-  if (n.userData?.serviceType === "animal") registerAnimal(n, n);
+const _registeredAnimalNodes = new Set();
+function scanForNewAnimals() {
+  for (const n of resourceNodes) {
+    if (n.userData?.serviceType === "animal" && !_registeredAnimalNodes.has(n)) {
+      _registeredAnimalNodes.add(n);
+      registerAnimal(n, n);
+    }
+  }
 }
+scanForNewAnimals();
 console.log(`Registered ${animals.length} animals total`);
 
 requestAnimationFrame(animate);

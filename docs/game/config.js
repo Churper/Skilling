@@ -39,7 +39,7 @@ export const GATHER_DURATION_BY_RESOURCE = {
 
 export const BAG_CAPACITY = 28;
 
-export const BAG_ITEM_KEYS = ["fish", "ore", "logs"];
+export const BAG_ITEM_KEYS = ["fish", "ore", "logs", "Raw Beef", "Raw Pork", "Wool", "Horse Hide", "Llama Wool", "Bone", "Striped Hide"];
 
 export const SELL_PRICE_BY_ITEM = {
   fish: 4,
