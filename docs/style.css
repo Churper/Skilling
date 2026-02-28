@@ -965,6 +965,12 @@ body {
 .ui-emote-btn:active {
   transform: scale(0.94);
 }
+.ui-emote-btn.ui-emote-text {
+  font-size: 11px;
+  font-weight: bold;
+  font-family: var(--ui-font-heading);
+  letter-spacing: 0.5px;
+}
 
 /* ── Prayer ── */
 .ui-prayer-heading {
