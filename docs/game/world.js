@@ -616,7 +616,7 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         if (!tmpl) continue;
         const m = SkeletonUtils.clone(tmpl);
         m.scale.setScalar(entry.scale || 1);
-        let y = GRASS_Y;
+        let y = _getWSH(wx, wz);
         if (heightOffsets) {
           const fx = Math.floor(entry.x), fz = Math.floor(entry.z);
           const tx = entry.x - fx, tz = entry.z - fz;
@@ -954,8 +954,8 @@ export async function createWorld(scene) {
   /* buildings / village */
   const { constructionSite } = addPlaza(scene, nodes, obstacles);
 
-  /* cave entrance — placed in the cliff region east side */
-  const cave = addCaveEntrance(scene, -30, -10, nodes, obstacles);
+  /* cave entrance removed */
+  const cave = { update() {} };
 
   /* editor-placed objects from tilemap.json (animals excluded — chunk system handles them) */
   await loadMapObjects(scene, nodes);
@@ -977,11 +977,13 @@ export async function createWorld(scene) {
       try { const s = await load00(p); stabilizeModelLook(s); aTmpls[t] = s; } catch {}
     }));
     const aGroup = new THREE.Group(); aGroup.name = "chunk_animals_0_0";
+    const ho00 = _tilemapData?.heightOffsets || null;
     for (const entry of spawn00animals) {
       const tmpl = aTmpls[entry.type]; if (!tmpl) continue;
       const m = SkeletonUtils.clone(tmpl);
       m.scale.setScalar(entry.scale || 1);
-      m.position.set(entry.x, GRASS_Y, entry.z);
+      let ay = _groundY(entry.x, entry.z);
+      m.position.set(entry.x, ay, entry.z);
       m.rotation.y = entry.rot || 0;
       setSvc(m, "animal", entry.type);
       m.userData.animalType = entry.type;

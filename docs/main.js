@@ -70,7 +70,7 @@ let inCave = false;
 const activePrayers = new Set();
 
 /* ── Animals ── */
-const ANIMAL_HP = { Cow: 20, Horse: 25, Llama: 15, Pig: 10, Pug: 8, Sheep: 12, Zebra: 30 };
+const ANIMAL_HP = { Cow: 50, Horse: 60, Llama: 40, Pig: 30, Pug: 20, Sheep: 35, Zebra: 70 };
 const ANIMAL_LOOT = {
   Cow: "Raw Beef", Horse: "Horse Hide", Llama: "Llama Wool",
   Pig: "Raw Pork", Pug: "Bone", Sheep: "Wool", Zebra: "Striped Hide",
@@ -1524,8 +1524,7 @@ function runServiceAction(node) {
   if (!serviceType) return;
 
   if (serviceType === "cave") {
-    enterCave();
-    return;
+    return; /* cave removed */
   }
 
   if (serviceType === "cave_exit") {
@@ -1600,6 +1599,12 @@ function performAttackHit(node) {
     animal.hpFill.style.width = ((animal.hp / animal.maxHp) * 100) + "%";
     const pct = animal.hp / animal.maxHp;
     animal.hpFill.style.background = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
+    /* face the player when hit */
+    const dx = player.position.x - animal.parentModel.position.x;
+    const dz = player.position.z - animal.parentModel.position.z;
+    animal.parentModel.rotation.y = Math.atan2(dx, dz);
+    animal.wanderTarget = null;
+    animal.wanderTimer = 1.5;
     if (animal.hp <= 0) {
       killAnimal(animal);
       activeAttack = null;
