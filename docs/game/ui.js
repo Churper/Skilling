@@ -78,6 +78,7 @@ export function initializeUI(options = {}) {
     combat: "Combat",
     emotes: "Emotes",
     friends: "Friends",
+    settings: "Settings",
   };
 
   const mobileQuery = window.matchMedia("(max-width: 760px)");

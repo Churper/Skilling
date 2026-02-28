@@ -1464,6 +1464,74 @@ controls.target.copy(cameraFocus);
 cameraInitBack.set(Math.sin(player.rotation.y + Math.PI), 0, Math.cos(player.rotation.y + Math.PI));
 camera.position.copy(cameraFocus).addScaledVector(cameraInitBack, 12).addScaledVector(worldUp, 6);
 
+/* ── Debug overlay + settings ── */
+const debugOverlay = document.getElementById("debug-overlay");
+const debugSettings = { fps: false, memory: false, drawcalls: false, position: false };
+let _fpsFrames = 0, _fpsLast = performance.now(), _fpsValue = 0;
+
+function updateDebugOverlay() {
+  /* FPS counter */
+  _fpsFrames++;
+  const now = performance.now();
+  if (now - _fpsLast >= 500) {
+    _fpsValue = Math.round(_fpsFrames / ((now - _fpsLast) / 1000));
+    _fpsFrames = 0;
+    _fpsLast = now;
+  }
+
+  const lines = [];
+  if (debugSettings.fps) lines.push(`FPS: ${_fpsValue}`);
+  if (debugSettings.memory && performance.memory) {
+    const mb = (performance.memory.usedJSHeapSize / 1048576).toFixed(1);
+    const total = (performance.memory.totalJSHeapSize / 1048576).toFixed(1);
+    lines.push(`MEM: ${mb} / ${total} MB`);
+  } else if (debugSettings.memory) {
+    lines.push("MEM: N/A");
+  }
+  if (debugSettings.drawcalls) {
+    const info = renderer.info.render;
+    lines.push(`Draw: ${info.calls}  Tri: ${info.triangles}`);
+  }
+  if (debugSettings.position) {
+    lines.push(`Pos: ${player.position.x.toFixed(1)}, ${player.position.z.toFixed(1)}`);
+  }
+
+  if (lines.length) {
+    debugOverlay.style.display = "block";
+    debugOverlay.textContent = lines.join("\n");
+  } else {
+    debugOverlay.style.display = "none";
+  }
+}
+
+/* wire up settings checkboxes */
+for (const key of ["fps", "memory", "drawcalls", "position"]) {
+  const el = document.getElementById(`setting-${key}`);
+  if (el) el.addEventListener("change", () => { debugSettings[key] = el.checked; });
+}
+/* render scale */
+const dprSelect = document.getElementById("setting-dpr");
+if (dprSelect) {
+  dprSelect.value = String(Math.min(renderer.getPixelRatio(), 2));
+  dprSelect.addEventListener("change", () => {
+    const dpr = parseFloat(dprSelect.value);
+    renderer.setPixelRatio(dpr);
+    const w = renderer.domElement.parentElement.clientWidth;
+    const h = renderer.domElement.parentElement.clientHeight;
+    renderer.setSize(w, h);
+    composer.setSize(w, h);
+  });
+}
+/* bloom toggle */
+const bloomCheck = document.getElementById("setting-bloom");
+if (bloomCheck && composer.passes) {
+  bloomCheck.addEventListener("change", () => {
+    for (const pass of composer.passes) {
+      if (pass.constructor.name === "UnrealBloomPass") pass.enabled = bloomCheck.checked;
+    }
+  });
+}
+
 function animate() {
   const dt = Math.min(0.033, clock.getDelta());
   const t = clock.elapsedTime;
@@ -1670,6 +1738,7 @@ function animate() {
   });
 
   composer.render();
+  updateDebugOverlay();
   requestAnimationFrame(animate);
 }
 

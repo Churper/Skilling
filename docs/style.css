@@ -296,6 +296,60 @@ body {
   cursor: default;
 }
 
+/* ── Settings panel ── */
+.ui-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+}
+.ui-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s;
+  font-size: 0.85rem;
+  color: var(--ui-dim);
+}
+.ui-settings-row:hover {
+  background: rgba(255,255,255,0.04);
+}
+.ui-settings-row input[type="checkbox"] {
+  accent-color: var(--ui-accent);
+  width: 18px;
+  height: 18px;
+}
+.ui-settings-row select {
+  background: var(--ui-btn-bg);
+  color: var(--ui-fg);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+
+/* ── Debug overlay ── */
+#debug-overlay {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #0f0;
+  background: rgba(0,0,0,0.55);
+  padding: 4px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 9999;
+  white-space: pre;
+  display: none;
+}
+
 .ui-bag-slot {
   aspect-ratio: 1;
   border-radius: 8px;

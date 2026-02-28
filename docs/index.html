@@ -12,6 +12,7 @@
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
+  <div id="debug-overlay" aria-hidden="true"></div>
   <div id="ui-root">
     <div id="ui-coins-chip" aria-live="polite" aria-label="Gold coins">
       <span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span>
@@ -25,9 +26,9 @@
         <span class="ui-tab-icon" aria-hidden="true">&#x1F392;</span>
         <span class="ui-tab-label">Inventory</span>
       </button>
-      <button type="button" class="ui-tab-btn" data-tab="bank">
-        <span class="ui-tab-icon" aria-hidden="true">&#x1F3E6;</span>
-        <span class="ui-tab-label">Bank</span>
+      <button type="button" class="ui-tab-btn" data-tab="settings">
+        <span class="ui-tab-icon" aria-hidden="true">&#x2699;</span>
+        <span class="ui-tab-label">Settings</span>
       </button>
       <button type="button" class="ui-tab-btn" data-tab="skills">
         <span class="ui-tab-icon" aria-hidden="true">&#x1F3AF;</span>
@@ -93,6 +94,40 @@
               <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="logs" data-bank-qty="all">WAll</button>
             </div>
           </div>
+        </div>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="settings" hidden>
+        <div class="ui-settings-list">
+          <label class="ui-settings-row">
+            <span>Show FPS</span>
+            <input type="checkbox" id="setting-fps">
+          </label>
+          <label class="ui-settings-row">
+            <span>Show Memory</span>
+            <input type="checkbox" id="setting-memory">
+          </label>
+          <label class="ui-settings-row">
+            <span>Show Draw Calls</span>
+            <input type="checkbox" id="setting-drawcalls">
+          </label>
+          <label class="ui-settings-row">
+            <span>Show Player Position</span>
+            <input type="checkbox" id="setting-position">
+          </label>
+          <label class="ui-settings-row">
+            <span>Render Scale</span>
+            <select id="setting-dpr">
+              <option value="0.5">0.5x (Fast)</option>
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1x (Default)</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2x (Sharp)</option>
+            </select>
+          </label>
+          <label class="ui-settings-row">
+            <span>Bloom</span>
+            <input type="checkbox" id="setting-bloom" checked>
+          </label>
         </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="blacksmith" hidden>
