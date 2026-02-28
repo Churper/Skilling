@@ -94,4 +94,13 @@ export const SLIME_COLOR_SHOP = [
   { id: "sunset", label: "Sunset", color: "#f5b35f", cost: 60 },
   { id: "violet", label: "Violet", color: "#af89f6", cost: 75 },
   { id: "rose", label: "Rose", color: "#f57fb3", cost: 90 },
+  /* multi-color pattern skins */
+  { id: "fire", label: "Fire", color: "fire", cost: 120, pattern: true },
+  { id: "ice", label: "Ice", color: "ice", cost: 120, pattern: true },
+  { id: "galaxy", label: "Galaxy", color: "galaxy", cost: 150, pattern: true },
+  { id: "toxic", label: "Toxic", color: "toxic", cost: 100, pattern: true },
+  { id: "lava", label: "Lava", color: "lava", cost: 130, pattern: true },
+  { id: "ocean", label: "Ocean", color: "ocean", cost: 110, pattern: true },
+  { id: "rainbow", label: "Rainbow", color: "rainbow", cost: 200, pattern: true },
+  { id: "gold", label: "Gold", color: "gold", cost: 250, pattern: true },
 ];

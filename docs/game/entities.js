@@ -19,6 +19,85 @@ function createSlimeGeometry() {
   return slimeGeo;
 }
 
+/* ── Multi-color skin patterns ── */
+const SKIN_PATTERNS = {
+  fire: (x, y, z) => {
+    const t = (y + 0.3) / 0.8;
+    if (t < 0.33) return [0.15, 0.02, 0.02];
+    if (t < 0.66) return [0.95, 0.3, 0.05];
+    return [1.0, 0.85, 0.1];
+  },
+  ice: (x, y, z) => {
+    const t = (y + 0.3) / 0.8;
+    if (t < 0.33) return [0.1, 0.15, 0.5];
+    if (t < 0.66) return [0.3, 0.6, 0.95];
+    return [0.85, 0.95, 1.0];
+  },
+  galaxy: (x, y, z) => {
+    const angle = Math.atan2(z, x);
+    const t = (angle + Math.PI) / (Math.PI * 2);
+    const band = (t * 5 + y * 3) % 1;
+    if (band < 0.33) return [0.2, 0.05, 0.4];
+    if (band < 0.66) return [0.6, 0.1, 0.7];
+    return [0.15, 0.6, 0.9];
+  },
+  toxic: (x, y, z) => {
+    const t = (y + 0.3) / 0.8;
+    const checker = ((Math.floor(x * 6) + Math.floor(z * 6)) % 2 === 0);
+    if (t < 0.4) return checker ? [0.1, 0.1, 0.1] : [0.2, 0.8, 0.05];
+    return checker ? [0.2, 0.8, 0.05] : [0.5, 1.0, 0.1];
+  },
+  lava: (x, y, z) => {
+    const noise = Math.sin(x * 8 + y * 5) * Math.cos(z * 7 + y * 3);
+    if (noise < -0.3) return [0.15, 0.02, 0.0];
+    if (noise < 0.3) return [0.9, 0.25, 0.0];
+    return [1.0, 0.7, 0.0];
+  },
+  ocean: (x, y, z) => {
+    const wave = Math.sin(x * 5 + z * 5);
+    const t = (y + 0.3) / 0.8;
+    if (t < 0.35) return [0.0, 0.1, 0.3];
+    if (wave > 0) return [0.1, 0.5, 0.8];
+    return [0.2, 0.75, 0.9];
+  },
+  rainbow: (x, y, z) => {
+    const t = (y + 0.3) / 0.8;
+    if (t < 0.17) return [0.9, 0.1, 0.1];
+    if (t < 0.33) return [0.95, 0.5, 0.05];
+    if (t < 0.5) return [0.95, 0.9, 0.1];
+    if (t < 0.67) return [0.2, 0.85, 0.2];
+    if (t < 0.83) return [0.15, 0.4, 0.9];
+    return [0.55, 0.15, 0.85];
+  },
+  gold: (x, y, z) => {
+    const t = (y + 0.3) / 0.8;
+    const shimmer = Math.sin(x * 10 + z * 10) * 0.1;
+    if (t < 0.3) return [0.6 + shimmer, 0.4, 0.05];
+    if (t < 0.7) return [1.0, 0.8 + shimmer, 0.15];
+    return [1.0, 0.95 + shimmer, 0.5];
+  },
+};
+
+function applyVertexColorPattern(geometry, patternId) {
+  const fn = SKIN_PATTERNS[patternId];
+  if (!fn) return false;
+  const pos = geometry.attributes.position;
+  const count = pos.count;
+  const colors = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const rgb = fn(pos.getX(i), pos.getY(i), pos.getZ(i));
+    colors[i * 3] = rgb[0];
+    colors[i * 3 + 1] = rgb[1];
+    colors[i * 3 + 2] = rgb[2];
+  }
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  return true;
+}
+
+function clearVertexColors(geometry) {
+  geometry.deleteAttribute("color");
+}
+
 function addSlimeFace(root, color = "#0d110f") {
   const faceGroup = new THREE.Group();
   faceGroup.position.set(0, 0.16, 0.44);
@@ -242,8 +321,18 @@ export function createPlayer(scene, addShadowBlob, weaponModels = null) {
 
   scene.add(player);
   const playerBlob = addShadowBlob(player.position.x, player.position.z, 1.0, 0.22);
-  function setSlimeColor(hexColor) {
-    slimeMaterial.color.set(hexColor || "#58df78");
+  function setSlimeColor(hexOrPattern) {
+    if (SKIN_PATTERNS[hexOrPattern]) {
+      applyVertexColorPattern(slimeGeo, hexOrPattern);
+      slimeMaterial.vertexColors = true;
+      slimeMaterial.color.set("#ffffff");
+      slimeMaterial.needsUpdate = true;
+    } else {
+      clearVertexColors(slimeGeo);
+      slimeMaterial.vertexColors = false;
+      slimeMaterial.color.set(hexOrPattern || "#58df78");
+      slimeMaterial.needsUpdate = true;
+    }
   }
   return { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor };
 }
@@ -400,8 +489,18 @@ export function createRemotePlayerAvatar(scene, addShadowBlob, options = {}) {
     toolAnchor.position.z = THREE.MathUtils.damp(toolAnchor.position.z, toolPosZ, 16, dt);
   }
 
-  function setColor(hexColor) {
-    slimeMaterial.color.set(hexColor || "#6ed998");
+  function setColor(hexOrPattern) {
+    if (SKIN_PATTERNS[hexOrPattern]) {
+      applyVertexColorPattern(slimeGeo, hexOrPattern);
+      slimeMaterial.vertexColors = true;
+      slimeMaterial.color.set("#ffffff");
+      slimeMaterial.needsUpdate = true;
+    } else {
+      clearVertexColors(slimeGeo);
+      slimeMaterial.vertexColors = false;
+      slimeMaterial.color.set(hexOrPattern || "#6ed998");
+      slimeMaterial.needsUpdate = true;
+    }
   }
 
   function dispose() {
