@@ -1,1 +1,1 @@
-{"version":2,"chunk":[0,1],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[{"type":"Sheep","x":-24.93,"z":-24.950000000000003,"y":0.4,"scale":1,"rot":0},{"type":"Sheep","x":9.04,"z":-17.430000000000007,"y":0.4,"scale":1,"rot":0}]}
+{"version":2,"chunk":[0,1],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[]}

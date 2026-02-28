@@ -1,1 +1,1 @@
-{"version":2,"chunk":[1,0],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[{"type":"Cow","x":-35.980000000000004,"z":-2.37,"y":0.4,"scale":1,"rot":0},{"type":"Cow","x":-32.36,"z":19.76,"y":0.4,"scale":1,"rot":0}]}
+{"version":2,"chunk":[1,0],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[]}
