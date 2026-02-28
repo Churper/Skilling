@@ -649,20 +649,30 @@ function placeObject(wx, wy, wz) {
   updateCount();
 }
 
-function removeObjectAt(wx, wz) {
-  let best = null, bestDist = TILE_S * 1.5;
-  for (const obj of objects) { const d = Math.hypot(obj.x - wx, obj.z - wz); if (d < bestDist) { bestDist = d; best = obj; } }
-  if (!best) return;
-  pushObjUndo({ type: "remove", data: { id: best.id, type: best.type, x: best.x, z: best.z, y: best.y, scale: best.scale, rot: best.rot } });
-  scene.remove(best.mesh); objects.splice(objects.indexOf(best), 1);
-  if (selectedInstance === best) deselectInstance();
+function removeObjectAt() {
+  const obj = raycastObject();
+  if (!obj) return;
+  pushObjUndo({ type: "remove", data: { id: obj.id, type: obj.type, x: obj.x, z: obj.z, y: obj.y, scale: obj.scale, rot: obj.rot } });
+  scene.remove(obj.mesh); objects.splice(objects.indexOf(obj), 1);
+  if (selectedInstance === obj) deselectInstance();
   updateCount();
 }
 
-function findObjectAt(wx, wz) {
-  let best = null, bestDist = TILE_S * 1.2;
-  for (const obj of objects) { const d = Math.hypot(obj.x - wx, obj.z - wz); if (d < bestDist) { bestDist = d; best = obj; } }
-  return best;
+/* Raycast against placed object meshes to find what the cursor is over */
+function raycastObject(e) {
+  const meshes = [];
+  const meshToObj = new Map();
+  for (const obj of objects) {
+    obj.mesh.traverse(c => { if (c.isMesh) { meshes.push(c); meshToObj.set(c, obj); } });
+  }
+  if (!meshes.length) return null;
+  const hits = raycaster.intersectObjects(meshes, false);
+  if (!hits.length) return null;
+  return meshToObj.get(hits[0].object) || null;
+}
+
+function findObjectAt() {
+  return raycastObject();
 }
 
 function objUndo() {
@@ -674,6 +684,13 @@ function objUndo() {
     const tmpl = objLib[a.data.type]; if (!tmpl) return;
     const mesh = tmpl.clone(); mesh.scale.setScalar(a.data.scale); mesh.position.set(a.data.x, a.data.y, a.data.z); mesh.rotation.y = a.data.rot;
     scene.add(mesh); objects.push({ ...a.data, mesh });
+  } else if (a.type === "move") {
+    const obj = objects.find(o => o.id === a.id);
+    if (obj) {
+      obj.x = a.from.x; obj.y = a.from.y; obj.z = a.from.z;
+      obj.mesh.position.set(a.from.x, a.from.y, a.from.z);
+      if (selectedInstance === obj && highlightRing) highlightRing.position.set(a.from.x, a.from.y + 0.05, a.from.z);
+    }
   }
   updateCount();
 }
@@ -728,6 +745,8 @@ function raycastGround(e) {
    Input
    ═══════════════════════════════════════════ */
 let mouseDownPos = null;
+let dragging = null; // object being dragged
+let dragStartPos = null; // original position before drag
 const canvas = renderer.domElement;
 
 canvas.addEventListener("mousedown", e => {
@@ -739,22 +758,42 @@ canvas.addEventListener("mousedown", e => {
     const pt = raycastGround(e);
     if (pt) paintAt(pt.x, pt.z, 0.016);
   }
+  /* Start drag if clicking an existing object */
+  if (mode === "objects" && e.button === 0) {
+    raycastGround(e); // sets raycaster
+    const hit = raycastObject();
+    if (hit) {
+      dragging = hit;
+      dragStartPos = { x: hit.x, y: hit.y, z: hit.z };
+      selectInstance(hit);
+      orbitControls.enabled = false; // disable orbit while dragging
+    }
+  }
 });
 
 canvas.addEventListener("mouseup", e => {
   if (mode === "height" && painting) { painting = false; hPushUndo(); return; }
+  /* Finish drag */
+  if (dragging) {
+    orbitControls.enabled = true;
+    const wasDrag = Math.abs(e.clientX - mouseDownPos.x) > 4 || Math.abs(e.clientY - mouseDownPos.y) > 4;
+    if (wasDrag && dragStartPos) {
+      // Record undo for the move
+      pushObjUndo({ type: "move", id: dragging.id, from: dragStartPos, to: { x: dragging.x, y: dragging.y, z: dragging.z } });
+    }
+    dragging = null; dragStartPos = null;
+    return;
+  }
   if (!mouseDownPos) return;
   if (Math.abs(e.clientX - mouseDownPos.x) > 4 || Math.abs(e.clientY - mouseDownPos.y) > 4) return;
   if (mode !== "objects") return;
   const pt = raycastGround(e);
   if (!pt) return;
   if (e.button === 0) {
-    const existing = findObjectAt(pt.x, pt.z);
-    if (existing && !selectedObj) selectInstance(existing);
-    else if (selectedObj) placeObject(pt.x, pt.y, pt.z);
-    else if (existing) selectInstance(existing);
+    /* Click on empty space with a palette item selected → place */
+    if (selectedObj) placeObject(pt.x, pt.y, pt.z);
   }
-  if (e.button === 2) removeObjectAt(pt.x, pt.z);
+  if (e.button === 2) removeObjectAt();
 });
 
 canvas.addEventListener("mousemove", e => {
@@ -762,11 +801,17 @@ canvas.addEventListener("mousemove", e => {
   lastHit = pt;
   if (pt) {
     if (mode === "objects") {
+      /* Drag-move selected object */
+      if (dragging && (e.buttons & 1)) {
+        dragging.x = pt.x; dragging.z = pt.z; dragging.y = pt.y;
+        dragging.mesh.position.set(pt.x, pt.y, pt.z);
+        if (highlightRing) highlightRing.position.set(pt.x, pt.y + 0.05, pt.z);
+      }
       hoverMesh.position.set(Math.floor(pt.x / TILE_S) * TILE_S + TILE_S / 2, pt.y + 0.03, Math.floor(pt.z / TILE_S) * TILE_S + TILE_S / 2);
-      hoverMesh.visible = true; brushCircle.visible = false;
+      hoverMesh.visible = !dragging; brushCircle.visible = false;
       let label = `${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}`;
-      const near = findObjectAt(pt.x, pt.z);
-      if (near) label += ` [${near.type}]`;
+      if (!dragging) { const near = findObjectAt(); if (near) label += ` [${near.type}]`; }
+      else label += ` [moving ${dragging.type}]`;
       document.getElementById("cell-display").textContent = label;
     } else {
       hoverMesh.visible = false;
@@ -792,6 +837,7 @@ canvas.addEventListener("mousemove", e => {
 
 canvas.addEventListener("mouseleave", () => {
   if (painting) { painting = false; hPushUndo(); }
+  if (dragging) { orbitControls.enabled = true; dragging = null; dragStartPos = null; }
   hoverMesh.visible = false; brushCircle.visible = false;
 });
 
