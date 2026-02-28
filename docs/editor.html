@@ -596,11 +596,18 @@ function updateMinimap() {
       ctx.strokeStyle = "#2a2a3e";
       ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
 
-      /* current chunk highlight */
+      /* active edit chunk highlight (cyan) */
+      if (cx === activeEditChunk[0] && cz === activeEditChunk[1]) {
+        ctx.strokeStyle = "#00ffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 1.5, y + 1.5, cellSize - 3, cellSize - 3);
+        ctx.lineWidth = 1;
+      }
+      /* selected chunk highlight (yellow) */
       if (cx === currentChunk[0] && cz === currentChunk[1]) {
         ctx.strokeStyle = "#e8c44a";
         ctx.lineWidth = 2;
-        ctx.strokeRect(x + 1.5, y + 1.5, cellSize - 3, cellSize - 3);
+        ctx.strokeRect(x + 2.5, y + 2.5, cellSize - 5, cellSize - 5);
         ctx.lineWidth = 1;
       }
 
@@ -631,6 +638,8 @@ document.getElementById("minimap").addEventListener("click", e => {
   if (col < 0 || col >= md.cols || row < 0 || row >= md.rows) return;
   const cx = md.cxMin + col, cz = md.czMax - row;
   switchChunk(cx, cz);
+  activateChunkForEditing(cx, cz);
+  updateMinimap();
 });
 
 /** Base height: flat GRASS_Y for all chunks (terrain defined by heightOffsets) */
@@ -1296,6 +1305,7 @@ function raycastGround(e) {
       if (entry.mesh === hits[0].object) {
         if (activeEditChunk[0] !== entry.cx || activeEditChunk[1] !== entry.cz) {
           activateChunkForEditing(entry.cx, entry.cz);
+          updateMinimap();
         }
         break;
       }
