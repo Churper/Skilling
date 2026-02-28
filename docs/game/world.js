@@ -354,8 +354,7 @@ function addTrainYard(scene, x, z) {
 /* ── Plaza ── */
 function addPlaza(scene, nodes, obstacles) {
   const tX = SVC.train.x, tZ = SVC.train.z, hX = SVC.build.x, hZ = SVC.build.z;
-  const bk = { x: -7, z: -32 }, st = { x: 0, z: -32.5 }, sm = { x: 7, z: -32 };
-  addBank(scene, bk.x, bk.z, nodes);
+  const st = { x: 0, z: -32.5 }, sm = { x: 7, z: -32 };
   addStore(scene, st.x, st.z, nodes);
   addSmith(scene, sm.x, sm.z, nodes);
   addTrainYard(scene, tX, tZ);
@@ -365,7 +364,6 @@ function addPlaza(scene, nodes, obstacles) {
   const cs = addYard(scene, hX, hZ, nodes);
   const cx = hX + .15, cz = hZ - .2;
   obstacles.push(
-    { x: bk.x, z: bk.z, radius: 1.35, id: "bank" },
     { x: st.x, z: st.z, radius: 1.45, id: "store" },
     { x: sm.x, z: sm.z, radius: 1.6, id: "blacksmith" },
     { x: cx, z: cz, radius: 2.35, id: "house-core" },
