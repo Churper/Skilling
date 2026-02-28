@@ -615,9 +615,9 @@ function showEmote(emoji, options = {}) {
   }
 
   const FLAG_HTML = {
-    USA: '<span class="flag-usa"></span>',
+    USA: '<span class="flag-usa"><svg viewBox="0 0 26 18" style="position:absolute;top:0;left:0;width:100%;height:100%"><g fill="#fff" opacity="0.9"><circle cx="2" cy="2" r=".6"/><circle cx="4.5" cy="2" r=".6"/><circle cx="7" cy="2" r=".6"/><circle cx="9.5" cy="2" r=".6"/><circle cx="3.2" cy="3.5" r=".6"/><circle cx="5.8" cy="3.5" r=".6"/><circle cx="8.3" cy="3.5" r=".6"/><circle cx="2" cy="5" r=".6"/><circle cx="4.5" cy="5" r=".6"/><circle cx="7" cy="5" r=".6"/><circle cx="9.5" cy="5" r=".6"/><circle cx="3.2" cy="6.5" r=".6"/><circle cx="5.8" cy="6.5" r=".6"/><circle cx="8.3" cy="6.5" r=".6"/></g></svg></span>',
     UKR: '<span class="flag-ukr"></span>',
-    ISR: '<span class="flag-isr"></span>',
+    ISR: '<span class="flag-isr"><svg viewBox="0 0 26 18" style="position:absolute;top:0;left:0;width:100%;height:100%"><polygon points="13,5 15.2,10 10.8,10" fill="none" stroke="#0038b8" stroke-width="0.8"/><polygon points="13,13 10.8,8 15.2,8" fill="none" stroke="#0038b8" stroke-width="0.8"/></svg></span>',
     POL: '<span class="flag-pol"></span>',
   };
   const el = document.createElement("div");

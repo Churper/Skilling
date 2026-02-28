@@ -973,53 +973,34 @@ body {
 }
 /* ── Mini CSS flags ── */
 .ui-emote-btn.ui-emote-flag { padding: 4px; }
-.ui-emote-flag span {
+.flag-usa, .flag-ukr, .flag-isr, .flag-pol {
   display: block;
   width: 26px;
   height: 18px;
   border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.15);
+  position: relative;
   overflow: hidden;
 }
 .flag-usa {
-  background: repeating-linear-gradient(
-    to bottom,
-    #bf0a30 0px, #bf0a30 2px,
-    #fff 2px, #fff 4px
-  );
-  position: relative;
+  background:
+    linear-gradient(to right, #002868 40%, transparent 40%) no-repeat top left / 100% 54%,
+    repeating-linear-gradient(to bottom,
+      #bf0a30, #bf0a30 7.69%, #fff 7.69%, #fff 15.38%);
 }
-.flag-usa::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0;
-  width: 11px; height: 10px;
-  background: #002868;
-}
-.flag-ukr {
-  background: linear-gradient(to bottom, #005bbb 50%, #ffd500 50%);
-}
+.flag-ukr { background: linear-gradient(to bottom, #005bbb 50%, #ffd500 50%); }
 .flag-isr {
-  background: #fff;
-  position: relative;
-  border: 1px solid #ddd;
+  background:
+    linear-gradient(to bottom,
+      #0038b8 0%, #0038b8 15%,
+      #fff 15%, #fff 28%,
+      #0038b8 28%, #0038b8 33%,
+      #fff 33%, #fff 67%,
+      #0038b8 67%, #0038b8 72%,
+      #fff 72%, #fff 85%,
+      #0038b8 85%, #0038b8 100%);
 }
-.flag-isr::before {
-  content: "";
-  position: absolute;
-  left: 0; right: 0;
-  top: 2px; height: 3px;
-  background: #0038b8;
-}
-.flag-isr::after {
-  content: "";
-  position: absolute;
-  left: 0; right: 0;
-  bottom: 2px; height: 3px;
-  background: #0038b8;
-}
-.flag-pol {
-  background: linear-gradient(to bottom, #fff 50%, #dc143c 50%);
-}
+.flag-pol { background: linear-gradient(to bottom, #fff 50%, #dc143c 50%); }
 
 /* ── Prayer ── */
 .ui-prayer-heading {
@@ -1128,9 +1109,9 @@ body {
 .chat-bubble .flag-ukr,
 .chat-bubble .flag-isr,
 .chat-bubble .flag-pol {
-  width: 36px;
-  height: 24px;
-  border-radius: 3px;
+  width: 40px;
+  height: 28px;
+  border-radius: 4px;
 }
 
 .xp-drop {
