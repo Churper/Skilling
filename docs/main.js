@@ -1470,7 +1470,7 @@ function animate() {
   waterUniforms.uTime.value += dt;
   if (causticMap) { causticMap.offset.x = t * 0.0034; causticMap.offset.y = -t * 0.0026; }
   skyMat.uniforms.uTime.value = t;
-  updateWorld?.(t);
+  updateWorld?.(t, player.position.x, player.position.z);
 
   moveDir.set(0, 0, 0);
   camera.getWorldDirection(camForward);

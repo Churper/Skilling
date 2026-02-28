@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import {
   WATER_Y,
+  CHUNK_SIZE, chunkBounds,
   getWorldSurfaceHeight as _getWSH,
   getWaterSurfaceHeight as _getWaSH,
 } from "./terrainHeight.js";
@@ -490,9 +491,150 @@ function updateFishing(spots, t) {
   }
 }
 
-/* ── Load tilemap.json data (objects + height offsets) ── */
+/* ── Chunk manifest + loading ── */
+let _chunkManifest = null;
+const _loadedChunks = new Map();   // "cx,cz" → { group, data }
+let _chunkScene = null;            // scene ref for chunk add/remove
+let _chunkGround = null;           // ground group ref
+let _chunkNodes = null;            // resourceNodes array ref
+let _chunkTileLib = null;          // tile lib ref
+
+async function loadChunkManifest() {
+  try {
+    const resp = await fetch(`chunks.json?v=${Date.now()}`, { cache: "no-store" });
+    if (resp.ok) { _chunkManifest = await resp.json(); return _chunkManifest; }
+  } catch (e) { /* no manifest */ }
+  return null;
+}
+
+async function loadChunkData(cx, cz) {
+  const file = `chunks/chunk_${cx}_${cz}.json`;
+  try {
+    const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
+    if (resp.ok) return await resp.json();
+  } catch (e) { /* not found */ }
+  return null;
+}
+
+async function loadChunk(cx, cz, scene, ground, nodes) {
+  const key = `${cx},${cz}`;
+  if (_loadedChunks.has(key)) return;
+  const data = await loadChunkData(cx, cz);
+  if (!data) return;
+  const b = chunkBounds(cx, cz);
+  b.water = data.water !== false;
+  b.edges = data.edges || {};
+  b.baseType = data.baseType || "grass";
+  const heightOffsets = data.heightOffsets || null;
+  const colorOverrides = data.colorOverrides || null;
+  const waterUniforms = { uTime: { value: 0 } };
+  const terrainGroup = buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b);
+  terrainGroup.name = `chunk_${cx}_${cz}`;
+  ground.add(terrainGroup);
+  /* place objects from chunk */
+  const objGroup = new THREE.Group();
+  objGroup.name = `chunk_obj_${cx}_${cz}`;
+  if (data.objects && data.objects.length) {
+    const placeableObjs = data.objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
+    if (placeableObjs.length) {
+      const loader = new GLTFLoader();
+      const load = url => new Promise((res, rej) => loader.load(url, g => res(g.scene), undefined, rej));
+      const types = [...new Set(placeableObjs.map(o => o.type))];
+      const templates = {};
+      await Promise.all(types.map(async t => {
+        const path = _fileLookup[t];
+        if (!path) return;
+        try { const s = await load(path); stabilizeModelLook(s); templates[t] = s; }
+        catch (e) { /* skip */ }
+      }));
+      for (const entry of placeableObjs) {
+        const tmpl = templates[entry.type];
+        if (!tmpl) continue;
+        const m = tmpl.clone();
+        m.scale.setScalar(entry.scale || 1);
+        let y = getMeshSurfaceY(entry.x, entry.z);
+        if (heightOffsets) {
+          const fx = Math.floor(entry.x), fz = Math.floor(entry.z);
+          const tx = entry.x - fx, tz = entry.z - fz;
+          const h00 = heightOffsets[`${fx},${fz}`] || 0;
+          const h10 = heightOffsets[`${fx+1},${fz}`] || 0;
+          const h01 = heightOffsets[`${fx},${fz+1}`] || 0;
+          const h11 = heightOffsets[`${fx+1},${fz+1}`] || 0;
+          y += h00*(1-tx)*(1-tz) + h10*tx*(1-tz) + h01*(1-tx)*tz + h11*tx*tz;
+        }
+        m.position.set(entry.x, y, entry.z);
+        m.rotation.y = entry.rot || 0;
+        const res = RESOURCE_MAP[entry.type];
+        if (res) { setRes(m, res.type, res.label); nodes.push(m); }
+        objGroup.add(m);
+      }
+    }
+  }
+  scene.add(objGroup);
+  _loadedChunks.set(key, { terrainGroup, objGroup, data, waterUniforms });
+}
+
+function unloadChunk(cx, cz, scene, ground, nodes) {
+  const key = `${cx},${cz}`;
+  const chunk = _loadedChunks.get(key);
+  if (!chunk) return;
+  /* dispose terrain */
+  chunk.terrainGroup.traverse(o => {
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) {
+      if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
+      else o.material.dispose();
+    }
+  });
+  ground.remove(chunk.terrainGroup);
+  /* dispose objects and remove from resource nodes */
+  chunk.objGroup.traverse(o => {
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) {
+      if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
+      else o.material.dispose();
+    }
+    const idx = nodes.indexOf(o);
+    if (idx >= 0) nodes.splice(idx, 1);
+  });
+  scene.remove(chunk.objGroup);
+  _loadedChunks.delete(key);
+}
+
+/** Call each frame with player world position to load/unload chunks */
+function updateChunks(px, pz) {
+  if (!_chunkManifest || !_chunkScene) return;
+  const ccx = Math.round(px / CHUNK_SIZE);
+  const ccz = Math.round(pz / CHUNK_SIZE);
+  /* load chunks within 1 of player */
+  for (let dz = -1; dz <= 1; dz++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const cx = ccx + dx, cz = ccz + dz;
+      const key = `${cx},${cz}`;
+      if (!_loadedChunks.has(key) && _chunkManifest.chunks.includes(key)) {
+        loadChunk(cx, cz, _chunkScene, _chunkGround, _chunkNodes);
+      }
+    }
+  }
+  /* unload chunks more than 2 away */
+  for (const [key] of _loadedChunks) {
+    if (key === "0,0") continue; // never unload spawn
+    const [cx, cz] = key.split(",").map(Number);
+    if (Math.abs(cx - ccx) > 2 || Math.abs(cz - ccz) > 2) {
+      unloadChunk(cx, cz, _chunkScene, _chunkGround, _chunkNodes);
+    }
+  }
+}
+
+/* ── Load tilemap.json data (objects + height offsets) — legacy fallback ── */
 let _tilemapData = null;
 async function loadTilemapData() {
+  /* try chunk system first */
+  if (_chunkManifest) {
+    const data = await loadChunkData(0, 0);
+    if (data) { _tilemapData = data; return data; }
+  }
+  /* legacy: flat files */
   for (const file of ["objectmap.json", "tilemap.json"]) {
     try {
       const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
@@ -507,6 +649,43 @@ async function loadTilemapData() {
 
 /* Structural types built by the game already — skip these in object loading */
 const STRUCTURAL_TYPES = new Set(["bridge", "dock", "fence", "stepping_stones", "bridge_piece", "dock_piece", "fence_piece"]);
+
+/* ── Shared file lookup for object type → model path ── */
+const _fileLookup = {};
+{
+  const MODEL_DIR = "models/", TILE_DIR = "models/terrain/";
+  for (const t of [
+    "Tree_1_A","Tree_1_B","Tree_1_C","Tree_2_A","Tree_2_B","Tree_2_C",
+    "Tree_3_A","Tree_3_B","Tree_4_A","Tree_4_B","Tree_Bare_1_A","Tree_Bare_2_A",
+    "Rock_1_A","Rock_1_J","Rock_1_K","Rock_2_A","Rock_3_A","Rock_3_C","Rock_3_E","Rock_3_G",
+    "Bush_1_A","Bush_2_A","Bush_3_A","Bush_4_A","Grass_1_A","Grass_2_A",
+  ]) _fileLookup[t] = MODEL_DIR + t + "_Color1.gltf";
+  for (const t of [
+    "Prop_Grass_Clump_1","Prop_Grass_Clump_2","Prop_Grass_Clump_3","Prop_Grass_Clump_4",
+    "Prop_Flower_Daisy","Prop_Flower_Rose","Prop_Flower_Sunflower","Prop_Flower_Tulip",
+    "Prop_Flower_Lily_Blue","Prop_Flower_Lily_Pink",
+    "Prop_Cattail_1","Prop_Cattail_2","Prop_Mushroom_1","Prop_Mushroom_2",
+    "Prop_Stump","Prop_Hollow_Trunk","Prop_Branch_1","Prop_Branch_2","Prop_Branch_3",
+    "Prop_Rock_1","Prop_Rock_2","Prop_Rock_3","Prop_Rock_4",
+    "Prop_Bush_1","Prop_Bush_2","Prop_Bush_3",
+    "Prop_Cliff_Rock_1","Prop_Cliff_Rock_2",
+    "Prop_Shell_1","Prop_Shell_2","Prop_Starfish_1","Prop_Starfish_2",
+    "Prop_Treasure_Chest",
+    "Prop_Tree_Cedar_1","Prop_Tree_Cedar_2",
+    "Prop_Tree_Oak_1","Prop_Tree_Oak_2","Prop_Tree_Oak_3",
+    "Prop_Tree_Palm_1","Prop_Tree_Palm_2","Prop_Tree_Palm_3",
+    "Prop_Tree_Pine_1","Prop_Tree_Pine_2","Prop_Tree_Pine_3",
+    "Prop_Fence_Boards_1","Prop_Fence_Boards_2","Prop_Fence_Boards_3","Prop_Fence_Boards_4",
+    "Prop_Fence_Post_1","Prop_Fence_Post_2","Prop_Fence_Post_3","Prop_Fence_Post_4",
+    "Prop_Fence_Curve_1x1","Prop_Fence_Curve_2x2","Prop_Fence_Curve_3x3",
+    "Prop_Fence_Gate_1","Prop_Fence_Gate_2","Prop_Fence_Hill_Gentle","Prop_Fence_Hill_Sharp",
+    "Prop_Bridge_Log_End","Prop_Bridge_Log_End_Edge","Prop_Bridge_Log_Middle","Prop_Bridge_Log_Middle_Edge",
+    "Prop_Bridge_Log_Post_Support","Prop_Bridge_Log_Post_Top",
+    "Prop_Bridge_Rope_End","Prop_Bridge_Rope_Middle","Prop_Bridge_Rope_Rope_Support",
+    "Prop_Docks_Straight","Prop_Docks_Straight_Supports","Prop_Docks_Steps",
+    "Prop_Docks_Corner","Prop_Docks_Corner_Supports",
+  ]) _fileLookup[t] = TILE_DIR + t + ".glb";
+}
 
 /* Resource type lookup — maps editor object types to game interaction data */
 const RESOURCE_MAP = {};
@@ -540,51 +719,10 @@ async function loadMapObjects(scene, nodes) {
     const loader = new GLTFLoader();
     const load = url => new Promise((res, rej) => loader.load(url, g => res(g.scene), undefined, rej));
 
-    /* Build lookup: object type → file path */
-    const MODEL_DIR = "models/";
-    const TILE_DIR = "models/terrain/";
-    const fileLookup = {};
-    const gltfTypes = [
-      "Tree_1_A","Tree_1_B","Tree_1_C","Tree_2_A","Tree_2_B","Tree_2_C",
-      "Tree_3_A","Tree_3_B","Tree_4_A","Tree_4_B",
-      "Tree_Bare_1_A","Tree_Bare_2_A",
-      "Rock_1_A","Rock_1_J","Rock_1_K","Rock_2_A",
-      "Rock_3_A","Rock_3_C","Rock_3_E","Rock_3_G",
-      "Bush_1_A","Bush_2_A","Bush_3_A","Bush_4_A",
-      "Grass_1_A","Grass_2_A",
-    ];
-    for (const t of gltfTypes) fileLookup[t] = MODEL_DIR + t + "_Color1.gltf";
-    const glbProps = [
-      "Prop_Grass_Clump_1","Prop_Grass_Clump_2","Prop_Grass_Clump_3","Prop_Grass_Clump_4",
-      "Prop_Flower_Daisy","Prop_Flower_Rose","Prop_Flower_Sunflower","Prop_Flower_Tulip",
-      "Prop_Flower_Lily_Blue","Prop_Flower_Lily_Pink",
-      "Prop_Cattail_1","Prop_Cattail_2","Prop_Mushroom_1","Prop_Mushroom_2",
-      "Prop_Stump","Prop_Hollow_Trunk","Prop_Branch_1","Prop_Branch_2","Prop_Branch_3",
-      "Prop_Rock_1","Prop_Rock_2","Prop_Rock_3","Prop_Rock_4",
-      "Prop_Bush_1","Prop_Bush_2","Prop_Bush_3",
-      "Prop_Cliff_Rock_1","Prop_Cliff_Rock_2",
-      "Prop_Shell_1","Prop_Shell_2","Prop_Starfish_1","Prop_Starfish_2",
-      "Prop_Treasure_Chest",
-      "Prop_Tree_Cedar_1","Prop_Tree_Cedar_2",
-      "Prop_Tree_Oak_1","Prop_Tree_Oak_2","Prop_Tree_Oak_3",
-      "Prop_Tree_Palm_1","Prop_Tree_Palm_2","Prop_Tree_Palm_3",
-      "Prop_Tree_Pine_1","Prop_Tree_Pine_2","Prop_Tree_Pine_3",
-      "Prop_Fence_Boards_1","Prop_Fence_Boards_2","Prop_Fence_Boards_3","Prop_Fence_Boards_4",
-      "Prop_Fence_Post_1","Prop_Fence_Post_2","Prop_Fence_Post_3","Prop_Fence_Post_4",
-      "Prop_Fence_Curve_1x1","Prop_Fence_Curve_2x2","Prop_Fence_Curve_3x3",
-      "Prop_Fence_Gate_1","Prop_Fence_Gate_2","Prop_Fence_Hill_Gentle","Prop_Fence_Hill_Sharp",
-      "Prop_Bridge_Log_End","Prop_Bridge_Log_End_Edge","Prop_Bridge_Log_Middle","Prop_Bridge_Log_Middle_Edge",
-      "Prop_Bridge_Log_Post_Support","Prop_Bridge_Log_Post_Top",
-      "Prop_Bridge_Rope_End","Prop_Bridge_Rope_Middle","Prop_Bridge_Rope_Rope_Support",
-      "Prop_Docks_Straight","Prop_Docks_Straight_Supports","Prop_Docks_Steps",
-      "Prop_Docks_Corner","Prop_Docks_Corner_Supports",
-    ];
-    for (const t of glbProps) fileLookup[t] = TILE_DIR + t + ".glb";
-
     const types = [...new Set(placeableObjs.map(o => o.type))];
     const templates = {};
     await Promise.all(types.map(async t => {
-      const path = fileLookup[t];
+      const path = _fileLookup[t];
       if (!path) { console.warn("Unknown map object type:", t); return; }
       try { const s = await load(path); stabilizeModelLook(s); templates[t] = s; }
       catch (e) { console.warn("Failed to load map object:", t, e); }
@@ -639,6 +777,9 @@ export async function createWorld(scene) {
   /* water uniforms (shared by water plane + waterfall) */
   const waterUniforms = { uTime: { value: 0 } };
 
+  /* ── chunk manifest ── */
+  await loadChunkManifest();
+
   /* ── load tile models (bridge, dock, fences, props) ── */
   /* load tilemap data early so height offsets can be applied to terrain */
   await loadTilemapData();
@@ -648,7 +789,7 @@ export async function createWorld(scene) {
   let tileLib = null;
   try { tileLib = await loadTiles(); } catch (e) { console.warn("Tile load failed:", e); }
 
-  /* ── terrain mesh (ground + water) ── */
+  /* ── terrain mesh (ground + water) for spawn chunk ── */
   const ground = new THREE.Group();
   ground.name = "ground";
   ground.add(buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides));
@@ -705,6 +846,23 @@ export async function createWorld(scene) {
   /* editor-placed objects from tilemap.json */
   await loadMapObjects(scene, nodes);
 
+  /* ── chunk system: store refs and pre-load adjacent chunks ── */
+  _chunkScene = scene;
+  _chunkGround = ground;
+  _chunkNodes = nodes;
+  /* mark spawn chunk as loaded (terrain already built above) */
+  _loadedChunks.set("0,0", { terrainGroup: ground.children[0], objGroup: null, data: _tilemapData, waterUniforms });
+  /* load adjacent chunks from manifest */
+  if (_chunkManifest) {
+    for (const key of _chunkManifest.chunks) {
+      if (key === "0,0") continue;
+      const [cx, cz] = key.split(",").map(Number);
+      if (Math.abs(cx) <= 1 && Math.abs(cz) <= 1) {
+        loadChunk(cx, cz, scene, ground, nodes);
+      }
+    }
+  }
+
   return {
     ground,
     skyMat,
@@ -712,7 +870,16 @@ export async function createWorld(scene) {
     causticMap: null,
     addShadowBlob: (x, z, r, o) => addBlob(scene, x, z, r, o),
     resourceNodes: nodes,
-    updateWorld: t => { updateFishing(fishing, t); cave.update(t); },
+    updateWorld: (t, px, pz) => {
+      updateFishing(fishing, t);
+      cave.update(t);
+      /* update loaded chunks based on player position */
+      if (px !== undefined) updateChunks(px, pz);
+      /* sync water time for all loaded chunks */
+      for (const [, c] of _loadedChunks) {
+        if (c.waterUniforms) c.waterUniforms.uTime.value = t;
+      }
+    },
     constructionSite,
     collisionObstacles: obstacles,
     weaponModels: models?.weapons ?? null,

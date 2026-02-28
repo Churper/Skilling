@@ -67,6 +67,20 @@ canvas{display:block}
   background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:4px;font-family:inherit;transition:all .12s}
 #btns button:hover{background:#2a2a50;border-color:#555}
 
+/* chunk selector */
+#chunk-bar{padding:6px 10px;border-bottom:1px solid #2a2a3e;display:flex;gap:3px;align-items:center;flex-wrap:wrap}
+#chunk-bar .label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;width:100%;margin-bottom:1px}
+#chunk-bar button{padding:3px 8px;font-size:10px;cursor:pointer;background:#1e1e32;color:#999;border:1px solid #333;border-radius:3px;font-family:inherit}
+#chunk-bar button:hover{background:#252540;color:#ddd}
+#chunk-bar button.active{background:#2a2a50;color:#e8c44a;border-color:#e8c44a}
+#chunk-id{font-size:11px;color:#e8c44a;font-weight:600;font-family:monospace;margin:0 4px}
+#chunk-opts{padding:4px 10px;font-size:10px;border-bottom:1px solid #2a2a3e;display:flex;gap:8px;align-items:center}
+#chunk-opts label{color:#666;cursor:pointer}
+#chunk-opts input[type=checkbox]{accent-color:#e8c44a;margin-right:2px}
+.edge-toggles{display:flex;gap:3px}
+.edge-toggles button{padding:2px 5px;font-size:9px;cursor:pointer;background:#1e1e32;color:#666;border:1px solid #333;border-radius:2px}
+.edge-toggles button.on{color:#e8c44a;border-color:#e8c44a}
+
 #count{padding:5px 10px;font-size:10px;color:#555;text-align:center;border-top:1px solid #1a1a2e;font-family:monospace}
 
 /* ── Canvas ── */
@@ -78,6 +92,32 @@ canvas{display:block}
 
 <div id="sidebar">
   <h1>MAP EDITOR</h1>
+  <div id="chunk-bar">
+    <div class="label">Chunk</div>
+    <button id="chunk-w" title="West">W</button>
+    <button id="chunk-s" title="South">S</button>
+    <span id="chunk-id">0,0</span>
+    <button id="chunk-n" title="North">N</button>
+    <button id="chunk-e" title="East">E</button>
+    <button id="chunk-new" title="New chunk here">+</button>
+  </div>
+  <div id="chunk-opts">
+    <label><input type="checkbox" id="chunk-water" checked> Water</label>
+    <select id="chunk-base" title="Base terrain type" style="font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;padding:2px 4px">
+      <option value="grass">Grass</option>
+      <option value="dirt">Dirt</option>
+      <option value="sand">Sand</option>
+      <option value="stone">Stone</option>
+      <option value="snow">Snow</option>
+      <option value="dark">Dark</option>
+    </select>
+    <div class="edge-toggles">
+      <button id="edge-n" class="on" title="North edge">N</button>
+      <button id="edge-s" class="on" title="South edge">S</button>
+      <button id="edge-e" class="on" title="East edge">E</button>
+      <button id="edge-w" class="on" title="West edge">W</button>
+    </div>
+  </div>
   <div id="tabs">
     <div class="tab active" data-tab="objects">Objects</div>
     <div class="tab" data-tab="paint">Paint</div>
@@ -167,6 +207,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import {
   TILE_S, WATER_Y, GRASS_Y, HILL_Y,
   GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
+  CHUNK_SIZE, chunkBounds,
   isInRiver, isBeach, isOnPath,
   riverQuery, distToPath, terrainH,
 } from "./game/terrainHeight.js";
@@ -304,6 +345,108 @@ const OBJ_CATEGORIES = [
 ];
 
 /* ═══════════════════════════════════════════
+   Chunk System
+   ═══════════════════════════════════════════ */
+let currentChunk = [0, 0];       // [cx, cz]
+const chunkDataStore = new Map(); // "cx,cz" → { heightOffsets, colorOverrides, objects, water, edges }
+
+function chunkKey(cx, cz) { return `${cx},${cz}`; }
+function currentChunkKey() { return chunkKey(currentChunk[0], currentChunk[1]); }
+
+function ensureChunkData(cx, cz) {
+  const key = chunkKey(cx, cz);
+  if (!chunkDataStore.has(key)) {
+    chunkDataStore.set(key, {
+      heightData: {},  // sparse "wx,wz" → offset
+      colorData: {},   // sparse "wx,wz" → [r,g,b]
+      objects: [],     // { type, x, z, y, scale, rot }
+      water: true,
+      edges: { north: false, south: false, east: false, west: false },
+      baseType: "grass", // grass|dirt|sand|stone|snow|dark
+    });
+  }
+  return chunkDataStore.get(key);
+}
+
+/** Save current editor state into the chunk store */
+function saveCurrentChunkToStore() {
+  const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
+  /* save height offsets (sparse) */
+  cd.heightData = {};
+  for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+    const vi = hvi(ix, iz);
+    if (Math.abs(heightOffsets[vi]) > 0.001) {
+      cd.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +heightOffsets[vi].toFixed(3);
+    }
+  }
+  /* save color overrides */
+  cd.colorData = {};
+  for (const [key, val] of Object.entries(colorOverrides)) {
+    cd.colorData[key] = [+val[0].toFixed(4), +val[1].toFixed(4), +val[2].toFixed(4)];
+  }
+  /* save objects (non-structural only) */
+  cd.objects = objects
+    .filter(o => !STRUCTURAL_TYPES.has(o.type))
+    .map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+  /* save water + edges + baseType */
+  cd.water = document.getElementById("chunk-water").checked;
+  cd.edges = {
+    north: document.getElementById("edge-n").classList.contains("on"),
+    south: document.getElementById("edge-s").classList.contains("on"),
+    east:  document.getElementById("edge-e").classList.contains("on"),
+    west:  document.getElementById("edge-w").classList.contains("on"),
+  };
+  cd.baseType = document.getElementById("chunk-base").value;
+}
+
+/** Load chunk data from store into editor state */
+function loadChunkFromStore(cx, cz) {
+  const cd = ensureChunkData(cx, cz);
+  /* load heights */
+  heightOffsets.fill(0);
+  for (const [key, val] of Object.entries(cd.heightData)) {
+    const [wx, wz] = key.split(",").map(Number);
+    const [ix, iz] = worldToHGrid(wx, wz);
+    if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) heightOffsets[hvi(ix, iz)] = val;
+  }
+  /* load colors */
+  for (const k in colorOverrides) delete colorOverrides[k];
+  Object.assign(colorOverrides, cd.colorData);
+  /* load objects */
+  const keep = objects.filter(o => STRUCTURAL_TYPES.has(o.type));
+  const remove = objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
+  for (const obj of remove) scene.remove(obj.mesh);
+  objects.length = 0; objects.push(...keep);
+  deselectInstance();
+  for (const entry of cd.objects) {
+    const tmpl = objLib[entry.type]; if (!tmpl) continue;
+    const mesh = tmpl.clone();
+    mesh.scale.setScalar(entry.scale || 1);
+    mesh.position.set(entry.x, entry.y || 0, entry.z);
+    mesh.rotation.y = entry.rot || 0;
+    scene.add(mesh);
+    objects.push({ id: nextObjId++, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
+  }
+  /* update water/edges/baseType UI */
+  document.getElementById("chunk-water").checked = cd.water;
+  document.getElementById("edge-n").classList.toggle("on", !!cd.edges.north);
+  document.getElementById("edge-s").classList.toggle("on", !!cd.edges.south);
+  document.getElementById("edge-e").classList.toggle("on", !!cd.edges.east);
+  document.getElementById("edge-w").classList.toggle("on", !!cd.edges.west);
+  document.getElementById("chunk-base").value = cd.baseType || "grass";
+  rebuildAllVerts();
+  updateCount();
+}
+
+function switchChunk(cx, cz) {
+  saveCurrentChunkToStore();
+  currentChunk = [cx, cz];
+  document.getElementById("chunk-id").textContent = `${cx},${cz}`;
+  loadChunkFromStore(cx, cz);
+  hUndoStack.length = 0; pUndoStack.length = 0; objUndoStack.length = 0;
+}
+
+/* ═══════════════════════════════════════════
    Height-editable terrain mesh (from heighteditor.js)
    ═══════════════════════════════════════════ */
 const TOON_GRAD = (() => {
@@ -332,6 +475,16 @@ const cSand = new THREE.Color("#e2d098"), cHill = new THREE.Color("#3d8a2e");
 const cBank = new THREE.Color("#6d8854"), cRiver = new THREE.Color("#5a7454");
 const cCliff = new THREE.Color("#8a8a7a"), tmpC = new THREE.Color();
 const beachCX = 38, beachCZ = -6, beachR = 26;
+
+/* base type → color palette */
+const BASE_COLORS = {
+  grass: new THREE.Color("#4dad38"),
+  dirt:  new THREE.Color("#8B7355"),
+  sand:  new THREE.Color("#e2d098"),
+  stone: new THREE.Color("#8a8a7a"),
+  snow:  new THREE.Color("#e8eef0"),
+  dark:  new THREE.Color("#3a3a42"),
+};
 const BRIDGE_X0 = -6, BRIDGE_X1 = 6, BRIDGE_Z = 8, BRIDGE_HW = 3;
 const colorOverrides = {};
 
@@ -345,6 +498,15 @@ function computeColor(x, z, y) {
   return computeBaseColor(x, z, y);
 }
 function computeBaseColor(x, z, y) {
+  /* for non-default base types, use flat base color with height variation */
+  const baseType = document.getElementById("chunk-base").value;
+  if (baseType !== "grass") {
+    const bc = BASE_COLORS[baseType] || cGrass;
+    if (y > GRASS_Y + 3) { tmpC.copy(bc).lerp(cCliff, 0.5); return tmpC; }
+    if (y > GRASS_Y + 0.5) { tmpC.copy(bc).multiplyScalar(0.85 + 0.15 * (1 - sm(y, GRASS_Y + 0.5, HILL_Y))); return tmpC; }
+    return bc;
+  }
+  /* original procedural coloring for grass base */
   const rq = riverQuery(x, z);
   const beachDist = Math.hypot(x - beachCX, z - beachCZ);
   const beachT = 1 - sm(beachDist, beachR - 6, beachR);
@@ -768,14 +930,17 @@ function paintColorAt(wx, wz, dt) {
       if (colorPaintSign < 0) {
         delete colorOverrides[key];
       } else {
-        /* blend procedural color toward target by strength * falloff (one-shot, not additive) */
-        const pc = computeBaseColor(vx, vz, y);
-        const t = paintStrength * falloff;
-        colorOverrides[key] = [
-          pc.r + (selectedPaintColor.r - pc.r) * t,
-          pc.g + (selectedPaintColor.g - pc.g) * t,
-          pc.b + (selectedPaintColor.b - pc.b) * t,
-        ];
+        /* read from existing override if it exists (so paint accumulates on drag) */
+        let cr, cg, cb;
+        if (colorOverrides[key]) { [cr, cg, cb] = colorOverrides[key]; }
+        else { const pc = computeBaseColor(vx, vz, y); cr = pc.r; cg = pc.g; cb = pc.b; }
+        /* flatter falloff — 60% of brush at full strength, smooth fade at edges */
+        const flatFalloff = 1 - sm(dist, brushRadius * 0.5, brushRadius);
+        const t = Math.min(paintStrength * flatFalloff * dt * 4, 1);
+        cr += (selectedPaintColor.r - cr) * t;
+        cg += (selectedPaintColor.g - cg) * t;
+        cb += (selectedPaintColor.b - cb) * t;
+        colorOverrides[key] = [cr, cg, cb];
       }
     }
   }
@@ -1207,35 +1372,74 @@ document.getElementById("p-str").addEventListener("input", e => { paintStrength 
 /* ═══════════════════════════════════════════
    Export / Import
    ═══════════════════════════════════════════ */
+function buildChunkPayload(cx, cz) {
+  /* get data from store (saveCurrentChunkToStore should be called first for current chunk) */
+  const cd = ensureChunkData(cx, cz);
+  const payload = {
+    version: 2,
+    chunk: [cx, cz],
+    tileSize: TILE_S,
+    water: cd.water,
+    edges: cd.edges,
+    baseType: cd.baseType || "grass",
+  };
+  if (cd.objects.length) payload.objects = cd.objects;
+  if (Object.keys(cd.heightData).length) payload.heightOffsets = cd.heightData;
+  if (Object.keys(cd.colorData).length) payload.colorOverrides = cd.colorData;
+  return payload;
+}
+
 function exportJSON() {
-  const objData = objects.map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
-  /* sparse height offsets */
-  const hData = {};
-  for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
-    const vi = hvi(ix, iz);
-    if (Math.abs(heightOffsets[vi]) > 0.001) {
-      hData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +heightOffsets[vi].toFixed(3);
+  /* save current editor state first */
+  saveCurrentChunkToStore();
+  /* export all chunks that have data */
+  const allChunks = [...chunkDataStore.keys()];
+  if (allChunks.length <= 1) {
+    /* single chunk — export as tilemap.json for backwards compat + chunk file */
+    const [cx, cz] = currentChunk;
+    const payload = buildChunkPayload(cx, cz);
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = cx === 0 && cz === 0 ? "tilemap.json" : `chunk_${cx}_${cz}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    console.log(`Exported chunk ${cx},${cz}`);
+  } else {
+    /* multi-chunk — export each chunk + manifest as zip-like downloads */
+    for (const key of allChunks) {
+      const [cx, cz] = key.split(",").map(Number);
+      const payload = buildChunkPayload(cx, cz);
+      const json = JSON.stringify(payload, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `chunk_${cx}_${cz}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
     }
+    /* also export manifest */
+    const manifest = { chunks: allChunks, spawn: "0,0" };
+    const mJson = JSON.stringify(manifest, null, 2);
+    const mBlob = new Blob([mJson], { type: "application/json" });
+    const mA = document.createElement("a");
+    mA.href = URL.createObjectURL(mBlob);
+    mA.download = "chunks.json";
+    mA.click();
+    URL.revokeObjectURL(mA.href);
+    console.log(`Exported ${allChunks.length} chunks + manifest`);
   }
-  /* sparse color overrides */
-  const cData = {};
-  for (const [key, val] of Object.entries(colorOverrides)) {
-    cData[key] = [+val[0].toFixed(4), +val[1].toFixed(4), +val[2].toFixed(4)];
-  }
-  const payload = { version: 2, tileSize: TILE_S };
-  if (objData.length) payload.objects = objData;
-  if (Object.keys(hData).length) payload.heightOffsets = hData;
-  if (Object.keys(cData).length) payload.colorOverrides = cData;
-  const json = JSON.stringify(payload, null, 2);
-  const blob = new Blob([json], { type: "application/json" });
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "tilemap.json"; a.click();
-  URL.revokeObjectURL(a.href);
-  console.log(`Exported ${objData.length} objects + ${Object.keys(hData).length} height offsets + ${Object.keys(cData).length} color overrides`);
 }
 
 function importJSON(json) {
   try {
     const data = JSON.parse(json);
+    /* detect chunk info */
+    if (data.chunk) {
+      currentChunk = data.chunk;
+      document.getElementById("chunk-id").textContent = `${data.chunk[0]},${data.chunk[1]}`;
+    }
     /* clear non-structural objects only (keep bridge/dock/fences from loadGameStructures) */
     const keep = objects.filter(o => STRUCTURAL_TYPES.has(o.type));
     const remove = objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
@@ -1266,9 +1470,25 @@ function importJSON(json) {
     /* load color overrides */
     for (const k in colorOverrides) delete colorOverrides[k];
     if (data.colorOverrides) Object.assign(colorOverrides, data.colorOverrides);
+    /* load chunk options */
+    document.getElementById("chunk-water").checked = data.water !== false;
+    if (data.edges) {
+      document.getElementById("edge-n").classList.toggle("on", !!data.edges.north);
+      document.getElementById("edge-s").classList.toggle("on", !!data.edges.south);
+      document.getElementById("edge-e").classList.toggle("on", !!data.edges.east);
+      document.getElementById("edge-w").classList.toggle("on", !!data.edges.west);
+    }
+    /* store imported data into chunk store */
+    const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
+    cd.water = data.water !== false;
+    cd.edges = data.edges || {};
+    cd.baseType = data.baseType || "grass";
+    if (data.heightOffsets) cd.heightData = data.heightOffsets;
+    if (data.colorOverrides) cd.colorData = data.colorOverrides;
+    if (data.objects) cd.objects = data.objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
     rebuildAllVerts();
     updateCount();
-    console.log(`Imported ${objects.length} objects`);
+    console.log(`Imported ${objects.length} objects for chunk ${currentChunk[0]},${currentChunk[1]}`);
   } catch (e) { alert("Invalid JSON: " + e.message); }
 }
 
@@ -1284,6 +1504,26 @@ document.getElementById("btn-clear").addEventListener("click", () => {
   for (const obj of objects) scene.remove(obj.mesh); objects.length = 0; deselectInstance();
   heightOffsets.fill(0); for (const k in colorOverrides) delete colorOverrides[k]; rebuildAllVerts(); updateCount();
 });
+
+/* ── Chunk navigation ── */
+document.getElementById("chunk-n").addEventListener("click", () => switchChunk(currentChunk[0], currentChunk[1] + 1));
+document.getElementById("chunk-s").addEventListener("click", () => switchChunk(currentChunk[0], currentChunk[1] - 1));
+document.getElementById("chunk-e").addEventListener("click", () => switchChunk(currentChunk[0] + 1, currentChunk[1]));
+document.getElementById("chunk-w").addEventListener("click", () => switchChunk(currentChunk[0] - 1, currentChunk[1]));
+document.getElementById("chunk-new").addEventListener("click", () => {
+  const key = currentChunkKey();
+  if (!chunkDataStore.has(key)) {
+    ensureChunkData(currentChunk[0], currentChunk[1]);
+    console.log(`Created new chunk ${key}`);
+  }
+});
+
+/* edge toggle buttons */
+for (const id of ["edge-n", "edge-s", "edge-e", "edge-w"]) {
+  document.getElementById(id).addEventListener("click", e => e.target.classList.toggle("on"));
+}
+/* base type change → rebuild terrain colors */
+document.getElementById("chunk-base").addEventListener("change", () => rebuildAllVerts());
 
 /* ═══════════════════════════════════════════
    Resize + Animate
@@ -1316,14 +1556,53 @@ function animate(t) {
    Load existing map
    ═══════════════════════════════════════════ */
 async function loadExistingMap() {
+  /* try chunk system first */
+  try {
+    const mResp = await fetch(`chunks.json?v=${Date.now()}`, { cache: "no-store" });
+    if (mResp.ok) {
+      const manifest = await mResp.json();
+      if (manifest.chunks && manifest.chunks.length) {
+        /* load all chunks into store */
+        for (const key of manifest.chunks) {
+          const [cx, cz] = key.split(",").map(Number);
+          try {
+            const cResp = await fetch(`chunks/chunk_${cx}_${cz}.json?v=${Date.now()}`, { cache: "no-store" });
+            if (cResp.ok) {
+              const cData = await cResp.json();
+              const cd = ensureChunkData(cx, cz);
+              cd.heightData = cData.heightOffsets || {};
+              cd.colorData = cData.colorOverrides || {};
+              cd.objects = (cData.objects || []).filter(o => !STRUCTURAL_TYPES.has(o.type));
+              cd.water = cData.water !== false;
+              cd.edges = cData.edges || {};
+              cd.baseType = cData.baseType || "grass";
+              console.log(`Loaded chunk ${cx},${cz} into store`);
+            }
+          } catch (e) { /* skip */ }
+        }
+        /* load spawn chunk into editor */
+        const spawn = manifest.spawn || "0,0";
+        const [sx, sz] = spawn.split(",").map(Number);
+        currentChunk = [sx, sz];
+        document.getElementById("chunk-id").textContent = `${sx},${sz}`;
+        loadChunkFromStore(sx, sz);
+        console.log(`Loaded ${manifest.chunks.length} chunks from manifest`);
+        return;
+      }
+    }
+  } catch (e) { /* no manifest, try legacy */ }
+
+  /* legacy: flat files */
   for (const file of ["objectmap.json", "tilemap.json"]) {
     try {
       const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
       if (!resp.ok) continue;
       const text = await resp.text();
       const data = JSON.parse(text);
-      if ((data.objects && data.objects.length) || data.heightOffsets) {
+      if ((data.objects && data.objects.length) || data.heightOffsets || data.colorOverrides) {
         importJSON(text);
+        /* also store into chunk store */
+        saveCurrentChunkToStore();
         console.log(`Auto-loaded from ${file}`);
         return;
       }
@@ -1342,6 +1621,7 @@ async function loadExistingMap() {
           if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) heightOffsets[hvi(ix, iz)] = val;
         }
         rebuildAllVerts();
+        saveCurrentChunkToStore();
         console.log("Auto-loaded heightmap.json");
       }
     }

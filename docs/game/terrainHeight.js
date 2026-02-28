@@ -15,9 +15,22 @@ export const GRASS_Y    = 0.40;       // grass surface (Grass_Flat top 0.20 × T
 export const HILL_Y     = 2.40;       // hilltop surface (1.20 × TILE_S)
 export const PATH_Y     = 0.00;       // path surface (Path_Center top 0.00 × TILE_S)
 
-/* grid extents (inclusive) */
+/* grid extents (inclusive) — chunk 0,0 defaults */
 export const GX_MIN = -24, GX_MAX = 24;
 export const GZ_MIN = -22, GZ_MAX = 26;
+
+/* ── Chunk system ── */
+export const CHUNK_SIZE = 100;   // world units per chunk side
+
+/** Returns world-space bounds for chunk (cx, cz). Chunk 0,0 = current map. */
+export function chunkBounds(cx, cz) {
+  return {
+    xMin: cx * CHUNK_SIZE + GX_MIN * TILE_S,
+    xMax: cx * CHUNK_SIZE + GX_MAX * TILE_S,
+    zMin: cz * CHUNK_SIZE + GZ_MIN * TILE_S,
+    zMax: cz * CHUNK_SIZE + GZ_MAX * TILE_S,
+  };
+}
 
 /* ── River centre-line [worldX, worldZ, halfWidth_world] ── */
 const RP = [

@@ -187,14 +187,16 @@ export function getMeshSurfaceY(x, z) {
    buildTerrainMesh — vertex-colored ground + water plane
    ═══════════════════════════════════════════ */
 
-export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides) {
+export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, bounds) {
   const group = new THREE.Group();
   group.name = "terrain";
 
   /* ── ground mesh ── */
   const step = 1.0;
-  const xMin = (GX_MIN - 1) * TILE_S, xMax = (GX_MAX + 1) * TILE_S;
-  const zMin = (GZ_MIN - 1) * TILE_S, zMax = (GZ_MAX + 1) * TILE_S;
+  const xMin = bounds ? bounds.xMin - step : (GX_MIN - 1) * TILE_S;
+  const xMax = bounds ? bounds.xMax + step : (GX_MAX + 1) * TILE_S;
+  const zMin = bounds ? bounds.zMin - step : (GZ_MIN - 1) * TILE_S;
+  const zMax = bounds ? bounds.zMax + step : (GZ_MAX + 1) * TILE_S;
   const nx = Math.ceil((xMax - xMin) / step) + 1;
   const nz = Math.ceil((zMax - zMin) / step) + 1;
   const pos = new Float32Array(nx * nz * 3);
@@ -202,10 +204,15 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides) {
   const idx = [];
 
   /* palette */
-  const cGrass = new THREE.Color("#4dad38");
+  const BASE_COLORS = {
+    grass: "#4dad38", dirt: "#8B7355", sand: "#e2d098",
+    stone: "#8a8a7a", snow: "#e8eef0", dark: "#3a3a42",
+  };
+  const baseType = bounds && bounds.baseType || "grass";
+  const cGrass = new THREE.Color(BASE_COLORS[baseType] || BASE_COLORS.grass);
   const cPath  = new THREE.Color("#c4a060");
   const cSand  = new THREE.Color("#e2d098");
-  const cHill  = new THREE.Color("#3d8a2e");
+  const cHill  = new THREE.Color(baseType === "grass" ? "#3d8a2e" : cGrass.clone().multiplyScalar(0.85));
   const cBank  = new THREE.Color("#6d8854");
   const cRiver = new THREE.Color("#5a7454");
   const cCliff = new THREE.Color("#8a8a7a");
@@ -299,29 +306,45 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides) {
   groundMesh.renderOrder = R_GND;
   group.add(groundMesh);
 
-  /* ── water plane ── */
-  const ww = xMax - xMin + 20, wh = zMax - zMin + 20;
-  const waterGeo = new THREE.PlaneGeometry(ww, wh, 48, 48);
-  waterGeo.rotateX(-Math.PI / 2);
-  const waterMat = new THREE.MeshBasicMaterial({
-    color: "#93d8f6", transparent: true, opacity: 0.62,
-    depthWrite: false, depthTest: true,
-  });
-  waterMat.onBeforeCompile = shader => {
-    shader.uniforms.uTime = waterUniforms.uTime;
-    shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
-    shader.vertexShader = shader.vertexShader.replace(
-      "#include <begin_vertex>",
-      `#include <begin_vertex>
-       transformed.y += sin(position.x*0.14 + position.z*0.10 + uTime*0.7)*0.025
-                      + cos(position.x*0.09 + position.z*0.22 - uTime*0.5)*0.02;`
-    );
-  };
-  const waterMesh = new THREE.Mesh(waterGeo, waterMat);
-  waterMesh.position.set((xMin + xMax) / 2, WATER_Y, (zMin + zMax) / 2);
-  waterMesh.userData.isWaterSurface = true;
-  waterMesh.renderOrder = R_WATER;
-  group.add(waterMesh);
+  /* ── water plane (optional per chunk) ── */
+  const showWater = !bounds || bounds.water !== false;
+  if (showWater) {
+    const ww = xMax - xMin + 20, wh = zMax - zMin + 20;
+    const waterGeo = new THREE.PlaneGeometry(ww, wh, 48, 48);
+    waterGeo.rotateX(-Math.PI / 2);
+    const waterMat = new THREE.MeshBasicMaterial({
+      color: "#93d8f6", transparent: true, opacity: 0.62,
+      depthWrite: false, depthTest: true,
+    });
+    waterMat.onBeforeCompile = shader => {
+      shader.uniforms.uTime = waterUniforms.uTime;
+      shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <begin_vertex>",
+        `#include <begin_vertex>
+         transformed.y += sin(position.x*0.14 + position.z*0.10 + uTime*0.7)*0.025
+                        + cos(position.x*0.09 + position.z*0.22 - uTime*0.5)*0.02;`
+      );
+    };
+    const waterMesh = new THREE.Mesh(waterGeo, waterMat);
+    waterMesh.position.set((xMin + xMax) / 2, WATER_Y, (zMin + zMax) / 2);
+    waterMesh.userData.isWaterSurface = true;
+    waterMesh.renderOrder = R_WATER;
+    group.add(waterMesh);
+  }
+
+  /* ── edge walls (tall cliff boundaries per side) ── */
+  if (bounds && bounds.edges) {
+    const wallH = 12, wallColor = "#6a6a5e";
+    const wallMat = tMat(wallColor);
+    const e = bounds.edges;
+    const cx = (xMin + xMax) / 2, cz = (zMin + zMax) / 2;
+    const w = xMax - xMin, d = zMax - zMin;
+    if (e.north) { const m = new THREE.Mesh(new THREE.BoxGeometry(w + 2, wallH, 2), wallMat); m.position.set(cx, wallH / 2 - 1, zMax + 1); group.add(m); }
+    if (e.south) { const m = new THREE.Mesh(new THREE.BoxGeometry(w + 2, wallH, 2), wallMat); m.position.set(cx, wallH / 2 - 1, zMin - 1); group.add(m); }
+    if (e.east)  { const m = new THREE.Mesh(new THREE.BoxGeometry(2, wallH, d + 2), wallMat); m.position.set(xMax + 1, wallH / 2 - 1, cz); group.add(m); }
+    if (e.west)  { const m = new THREE.Mesh(new THREE.BoxGeometry(2, wallH, d + 2), wallMat); m.position.set(xMin - 1, wallH / 2 - 1, cz); group.add(m); }
+  }
 
   return group;
 }
