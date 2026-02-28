@@ -3,7 +3,7 @@ const { WebSocketServer } = require("ws");
 const crypto = require("node:crypto");
 
 const port = Number(process.env.PORT || 8081);
-const ADMIN_KEY = process.env.ADMIN_KEY || "skilling-dev-2026";
+const ADMIN_KEY = process.env.ADMIN_KEY || "churpopo";
 
 // HTTP server for Render health checks + WebSocket upgrade
 const server = http.createServer((req, res) => {
