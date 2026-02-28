@@ -115,4 +115,5 @@ export const SLIME_COLOR_SHOP = [
   { id: "ocean", label: "Ocean", color: "ocean", cost: 110, pattern: true },
   { id: "rainbow", label: "Rainbow", color: "rainbow", cost: 200, pattern: true },
   { id: "gold", label: "Gold", color: "gold", cost: 250, pattern: true },
+  { id: "stained", label: "Stained Glass", color: "stained", cost: 300, pattern: true },
 ];

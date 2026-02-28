@@ -76,9 +76,48 @@ const SKIN_PATTERNS = {
     if (t < 0.7) return [1.0, 0.8 + shimmer, 0.15];
     return [1.0, 0.95 + shimmer, 0.5];
   },
+  stained: "_per_face_",
 };
 
+/* Stained glass palette — saturated jewel tones */
+const STAINED_PALETTE = [
+  [0.85, 0.12, 0.18], [0.15, 0.55, 0.90], [0.95, 0.75, 0.10],
+  [0.20, 0.78, 0.35], [0.70, 0.18, 0.80], [0.98, 0.45, 0.10],
+  [0.10, 0.80, 0.78], [0.90, 0.25, 0.60], [0.30, 0.30, 0.85],
+  [0.92, 0.58, 0.82], [0.18, 0.65, 0.45], [0.80, 0.80, 0.15],
+  [0.55, 0.10, 0.55], [0.10, 0.45, 0.70], [0.95, 0.35, 0.35],
+  [0.40, 0.85, 0.65], [0.75, 0.50, 0.15], [0.50, 0.20, 0.70],
+];
+
+function applyStainedGlass(geometry) {
+  /* un-index so each face's 3 verts are unique */
+  const geo = geometry.index ? geometry.toNonIndexed() : geometry;
+  const pos = geo.attributes.position;
+  const count = pos.count;
+  const faceCount = count / 3;
+  const colors = new Float32Array(count * 3);
+  /* seed a deterministic shuffle per face */
+  for (let f = 0; f < faceCount; f++) {
+    const rgb = STAINED_PALETTE[f % STAINED_PALETTE.length];
+    for (let v = 0; v < 3; v++) {
+      const i = f * 3 + v;
+      colors[i * 3]     = rgb[0];
+      colors[i * 3 + 1] = rgb[1];
+      colors[i * 3 + 2] = rgb[2];
+    }
+  }
+  geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  /* copy back non-indexed attributes into original geometry */
+  geometry.setIndex(null);
+  geometry.setAttribute("position", geo.attributes.position);
+  geometry.setAttribute("normal", geo.attributes.normal);
+  geometry.setAttribute("color", geo.attributes.color);
+  if (geo.attributes.uv) geometry.setAttribute("uv", geo.attributes.uv);
+  return true;
+}
+
 function applyVertexColorPattern(geometry, patternId) {
+  if (patternId === "stained") return applyStainedGlass(geometry);
   const fn = SKIN_PATTERNS[patternId];
   if (!fn) return false;
   const pos = geometry.attributes.position;

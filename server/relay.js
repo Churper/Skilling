@@ -87,7 +87,7 @@ function sanitizeRoom(value) {
   return trimmed.slice(0, 32);
 }
 
-const VALID_PATTERNS = new Set(["fire","ice","galaxy","toxic","lava","ocean","rainbow","gold"]);
+const VALID_PATTERNS = new Set(["fire","ice","galaxy","toxic","lava","ocean","rainbow","gold","stained"]);
 function sanitizeColor(value) {
   if (typeof value !== "string") return "#58df78";
   const trimmed = value.trim();
