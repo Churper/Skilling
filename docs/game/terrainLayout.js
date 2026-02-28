@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import {
   TILE_S, WATER_Y, GRASS_Y, HILL_Y,
   GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
@@ -96,56 +95,6 @@ export async function loadTiles() {
   return lib;
 }
 
-/* ── Geometry helpers ── */
-function harvestTile(tileScene, worldMatrix) {
-  const out = [];
-  if (!tileScene) return out;
-  tileScene.updateMatrixWorld(true);
-  tileScene.traverse(o => {
-    if (!o.isMesh) return;
-    const geo = o.geometry.clone();
-    const m = new THREE.Matrix4().multiplyMatrices(worldMatrix, o.matrixWorld);
-    geo.applyMatrix4(m);
-    const mat = Array.isArray(o.material) ? o.material[0] : o.material;
-    const name = mat?.name || "default";
-    const color = mat?.color ? "#" + mat.color.getHexString() : "#888888";
-    out.push({ geometry: geo, materialName: name, color });
-  });
-  return out;
-}
-
-function mergeByMaterial(harvested) {
-  const groups = {};
-  for (const { geometry, materialName, color } of harvested) {
-    const key = materialName + "_" + color;
-    if (!groups[key]) groups[key] = { geos: [], color };
-    groups[key].geos.push(geometry);
-  }
-  const meshes = [];
-  for (const [name, { geos, color }] of Object.entries(groups)) {
-    if (!geos.length) continue;
-    const merged = mergeGeometries(geos, false);
-    if (!merged) continue;
-    merged.computeVertexNormals();
-    const mat = tMat(color, { flatShading: true });
-    const mesh = new THREE.Mesh(merged, mat);
-    mesh.name = "terrain_" + name;
-    mesh.renderOrder = R_GND;
-    meshes.push(mesh);
-  }
-  return meshes;
-}
-
-function tileMat4(wx, wy, wz, rotY = 0, scale = 1) {
-  const m = new THREE.Matrix4();
-  m.compose(
-    new THREE.Vector3(wx, wy, wz),
-    new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotY),
-    new THREE.Vector3(TILE_S * scale, TILE_S * scale, TILE_S * scale)
-  );
-  return m;
-}
-
 /* ── village keep-out ── */
 const SVC = [
   { x: 0, z: -32, r: 14 },
@@ -230,6 +179,13 @@ export function getMeshSurfaceY(x, z) {
     const dzT = 1 - sm(Math.abs(z - (-16)), 3, 6);
     const dockT = dxT * dzT;
     if (dockT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 2, dockT);
+  }
+  /* flatten fenced path corridor: bridge → village */
+  if (z > -26 && z < 7 && Math.abs(x) < 7) {
+    const cFade = 1 - sm(Math.abs(x), 4, 6);
+    const cZfade = sm(z, -26, -24) * (1 - sm(z, 5, 7));
+    const corrT = cFade * cZfade;
+    if (corrT > 0) y = THREE.MathUtils.lerp(y, GRASS_Y, corrT);
   }
   return y;
 }
@@ -465,49 +421,52 @@ export function buildBridge(lib) {
   /* 5 tiles — ends + middle, with edge railings on both sides */
   const xs = [-4, -2, 0, 2, 4];
   for (let i = 0; i < xs.length; i++) {
-    const isEnd = i === 0 || i === xs.length - 1;
+    const isLeftEnd = i === 0;
+    const isRightEnd = i === xs.length - 1;
+    const isEnd = isLeftEnd || isRightEnd;
+    /* left end ramp faces west, right end / middle face east */
+    const baseRot = isLeftEnd ? -Math.PI / 2 : Math.PI / 2;
+
     /* main plank */
     const tmpl = isEnd ? lib.bridgeEnd : lib.bridgeMid;
     if (tmpl) {
       const m = tmpl.clone();
       m.scale.setScalar(TILE_S);
       m.position.set(xs[i], deckY, bz);
-      m.rotation.y = Math.PI / 2;
+      m.rotation.y = baseRot;
       group.add(m);
     }
-    /* edge railing on both sides */
+    /* edge railing on both sides — mirror via scale.z for south side */
     const eTmpl = isEnd ? lib.bridgeEndE : lib.bridgeMidE;
     if (eTmpl) {
       for (const side of [1, -1]) {
         const e = eTmpl.clone();
-        e.scale.setScalar(TILE_S);
+        e.scale.set(TILE_S, TILE_S, side * TILE_S);
         e.position.set(xs[i], deckY, bz + side * TILE_S * 0.5);
-        e.rotation.y = Math.PI / 2;
-        if (side === -1) e.rotation.y += Math.PI;
+        e.rotation.y = baseRot;
         group.add(e);
       }
     }
   }
 
-  /* support posts at each end — each faces outward from bridge center */
+  /* support posts at each end — mirror via scale.z for south side */
   const endXs = [xs[0], xs[xs.length - 1]];
   for (let ei = 0; ei < endXs.length; ei++) {
     const px = endXs[ei];
-    const endRot = ei === 0 ? Math.PI : 0; // left end faces left, right faces right
+    const postRot = ei === 0 ? -Math.PI / 2 : Math.PI / 2;
     for (const side of [1, -1]) {
-      const sideRot = endRot + (side === 1 ? 0 : Math.PI);
       if (lib.bridgePost) {
         const p = lib.bridgePost.clone();
-        p.scale.setScalar(TILE_S);
+        p.scale.set(TILE_S, TILE_S, side * TILE_S);
         p.position.set(px, WATER_Y - 0.3, bz + side * TILE_S * 0.4);
-        p.rotation.y = sideRot;
+        p.rotation.y = postRot;
         group.add(p);
       }
       if (lib.bridgePostT) {
         const pt = lib.bridgePostT.clone();
-        pt.scale.setScalar(TILE_S);
+        pt.scale.set(TILE_S, TILE_S, side * TILE_S);
         pt.position.set(px, deckY, bz + side * TILE_S * 0.4);
-        pt.rotation.y = sideRot;
+        pt.rotation.y = postRot;
         group.add(pt);
       }
     }
@@ -542,7 +501,7 @@ export function buildDock(lib) {
     const st = lib.dockSteps.clone();
     st.scale.setScalar(TILE_S);
     st.position.set(dx - TILE_S, deckY, dz);
-    st.rotation.y = -Math.PI / 2;
+    st.rotation.y = Math.PI / 2;
     group.add(st);
   }
 
@@ -602,12 +561,12 @@ export function buildFences(lib) {
   const postTmpl  = lib.fencePost1 || lib.fencePost2;
   if (!boardTmpl) return group;
 
-  /* fence runs — path from bridge to village + behind buildings */
+  /* fence runs — gently curving path from bridge to village + behind buildings */
   const runs = [
-    /* west side of north path */
-    [[-4, 6], [-4, 0], [-4, -6], [-4, -12], [-4, -18], [-4, -24]],
-    /* east side of north path */
-    [[4, 6], [4, 0], [4, -6], [4, -12], [4, -18], [4, -24]],
+    /* west fence: widens slightly in middle then narrows toward village */
+    [[-3, 5], [-3.5, 0], [-4, -6], [-4.5, -12], [-4, -18], [-3, -24]],
+    /* east fence: mirrors west side */
+    [[3, 5], [3.5, 0], [4, -6], [4.5, -12], [4, -18], [3, -24]],
     /* behind village buildings */
     [[-14, -38], [-7, -38], [0, -38], [7, -38], [14, -38]],
   ];
