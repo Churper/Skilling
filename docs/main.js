@@ -565,10 +565,11 @@ function updateNameTags() {
   if (localTag.name !== localName) { localTag.nameSpan.textContent = localName; localTag.name = localName; }
   const lvlStr = `Lv ${totalLevel}`;
   if (localTag.level !== lvlStr) { localTag.levelSpan.textContent = lvlStr; localTag.level = lvlStr; }
-  _tagProj.set(player.position.x, player.position.y + playerHeadOffset - 0.15, player.position.z);
+  _tagProj.set(player.position.x, player.position.y + playerHeadOffset - 0.55, player.position.z);
   _tagProj.project(camera);
-  localTag.el.style.left = (_tagProj.x * hw + hw) + "px";
-  localTag.el.style.top = (-_tagProj.y * hh + hh) + "px";
+  const lx = Math.round(_tagProj.x * hw + hw);
+  const ly = Math.round(-_tagProj.y * hh + hh);
+  localTag.el.style.transform = `translate(${lx}px, ${ly}px) translate(-50%, -50%)`;
 
   // Remote player tags
   for (const [key, tag] of nameTags) {
@@ -576,10 +577,11 @@ function updateNameTags() {
     // Check if peer still exists
     const anchor = remotePlayers.getEmoteAnchor(key, _tagProj);
     if (!anchor) { removeNameTag(key); continue; }
-    anchor.y -= 0.35;
+    anchor.y -= 0.75;
     anchor.project(camera);
-    tag.el.style.left = (anchor.x * hw + hw) + "px";
-    tag.el.style.top = (-anchor.y * hh + hh) + "px";
+    const rx = Math.round(anchor.x * hw + hw);
+    const ry = Math.round(-anchor.y * hh + hh);
+    tag.el.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
   }
 }
 

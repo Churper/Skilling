@@ -1011,11 +1011,12 @@ body {
 /* ── Name tags ── */
 .nametag {
   position: absolute;
-  transform: translate(-50%, 0);
+  left: 0; top: 0;
   pointer-events: none;
   text-align: center;
   white-space: nowrap;
   z-index: 8;
+  will-change: transform;
 }
 .nametag-name {
   display: block;
