@@ -410,12 +410,6 @@ syncInventoryUI();
 syncHouseBuildVisual();
 syncSkillsUI();
 
-/* scan resource nodes for placed animals and register them */
-for (const n of resourceNodes) {
-  const p = n.parent;
-  if (p && p.userData?.serviceType === "animal") registerAnimal(n, p);
-}
-
 const moveTarget = new THREE.Vector3();
 const resourceTargetPos = new THREE.Vector3();
 const markerTarget = new THREE.Vector3();
@@ -2162,6 +2156,12 @@ function animate(now) {
   composer.render();
   updateDebugOverlay();
   updateConnStatus();
+}
+
+/* scan resource nodes for placed animals and register them */
+for (const n of resourceNodes) {
+  const p = n.parent;
+  if (p && p.userData?.serviceType === "animal") registerAnimal(n, p);
 }
 
 requestAnimationFrame(animate);
