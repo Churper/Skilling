@@ -177,6 +177,7 @@ wss.on("connection", (ws) => {
       const state = msg.state || {};
       meta.state = {
         x: Number(state.x) || 0,
+        y: Number(state.y) || 0,
         z: Number(state.z) || 0,
         yaw: Number(state.yaw) || 0,
         moving: !!state.moving,
@@ -186,6 +187,8 @@ wss.on("connection", (ws) => {
         jumping: !!state.jumping,
         scaleY: Math.max(0.3, Math.min(2, Number(state.scaleY) || 1)),
         scaleXZ: Math.max(0.3, Math.min(2, Number(state.scaleXZ) || 1)),
+        campfireX: state.campfireX != null ? Number(state.campfireX) : null,
+        campfireZ: state.campfireZ != null ? Number(state.campfireZ) : null,
         combatStyle: typeof state.combatStyle === "string" ? state.combatStyle : "melee",
         tool: typeof state.tool === "string" ? state.tool : "fishing",
         totalLevel: Number(state.totalLevel) || 6,

@@ -497,6 +497,7 @@ netClient = createRealtimeClient({
     remotePlayers.removePeer(id);
     removeNameTag(id);
     removeOverheadIcon(id);
+    removeRemoteCampfire(id);
     syncFriendsUI();
   },
   onPeerState: (msg) => {
@@ -519,6 +520,7 @@ netClient = createRealtimeClient({
     }
     if (msg.id && msg.state) {
       setRemoteOverhead(msg.id, msg.state.overhead || null);
+      syncRemoteCampfire(msg.id, msg.state.campfireX, msg.state.campfireZ);
     }
   },
   onPeerEmote: (msg) => {
@@ -1452,6 +1454,30 @@ function purchaseToolUpgrade(tool) {
 /* ── Campfire + Cooking system ── */
 let activeCampfire = null; // { group, timer, node }
 let activeCook = null; // { elapsed, duration }
+const remoteCampfires = new Map(); // peerId -> { group, light }
+
+function syncRemoteCampfire(peerId, cfX, cfZ) {
+  const existing = remoteCampfires.get(peerId);
+  if (cfX != null && cfZ != null) {
+    /* peer has campfire — spawn if not already there or if position changed */
+    if (existing && Math.abs(existing.x - cfX) < 0.5 && Math.abs(existing.z - cfZ) < 0.5) return;
+    if (existing) { scene.remove(existing.group); }
+    const cy = getPlayerGroundY(cfX, cfZ);
+    const { group, light } = createCampfire(scene, cfX, cy, cfZ);
+    remoteCampfires.set(peerId, { group, light, x: cfX, z: cfZ });
+  } else {
+    /* peer no longer has campfire — remove it */
+    if (existing) {
+      scene.remove(existing.group);
+      remoteCampfires.delete(peerId);
+    }
+  }
+}
+
+function removeRemoteCampfire(peerId) {
+  const existing = remoteCampfires.get(peerId);
+  if (existing) { scene.remove(existing.group); remoteCampfires.delete(peerId); }
+}
 
 function placeCampfire() {
   if (activeCampfire) { ui?.setStatus("You already have an active campfire!", "warn"); return; }
@@ -1477,6 +1503,10 @@ function placeCampfire() {
 }
 
 function updateCampfire(dt) {
+  /* animate remote campfire lights */
+  for (const rc of remoteCampfires.values()) {
+    if (rc.light) rc.light.intensity = 1.2 + Math.sin(Date.now() * 0.01 + rc.x) * 0.4;
+  }
   if (!activeCampfire) return;
   activeCampfire.timer -= dt;
   /* animate fire flicker */
@@ -1563,6 +1593,7 @@ let _isCrouching = false;
 let _crouchT = 0; // 0 = standing, 1 = fully crouched
 const CROUCH_SPEED = 8.0;
 let _crouchHoldTimer = 0; // debounce: prevent flicker from Ctrl key quirks
+let _smoothGroundY = null; // smoothed ground Y to prevent micro-terrain jitter
 
 function runServiceAction(node) {
   const serviceType = node.userData.serviceType;
@@ -2442,7 +2473,11 @@ function animate(now) {
     }
   }
 
-  const groundY = getPlayerGroundY(player.position.x, player.position.z);
+  const rawGroundY = getPlayerGroundY(player.position.x, player.position.z);
+  /* Smooth ground Y to prevent micro-terrain jitter (especially visible when crouched) */
+  if (_smoothGroundY === null) _smoothGroundY = rawGroundY;
+  else _smoothGroundY += (rawGroundY - _smoothGroundY) * Math.min(1, dt * 28);
+  const groundY = _smoothGroundY;
   const standY = groundY + playerFootOffset - playerGroundSink;
   if (_isJumping) {
     _jumpVelocity += GRAVITY * dt;
@@ -2528,6 +2563,7 @@ function animate(now) {
 
   netClient.sendState({
     x: player.position.x,
+    y: player.position.y,
     z: player.position.z,
     yaw: player.rotation.y,
     moving: isMovingNow,
@@ -2535,6 +2571,8 @@ function animate(now) {
     attacking: !!activeAttack,
     crouching: _isCrouching,
     jumping: _isJumping,
+    campfireX: activeCampfire ? activeCampfire.x : null,
+    campfireZ: activeCampfire ? activeCampfire.z : null,
     scaleY: squishY,
     scaleXZ: squishXZ,
     combatStyle,

@@ -39,9 +39,11 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
     if (!entry) return;
 
     if (Number.isFinite(state.x) && Number.isFinite(state.z)) {
-      const y = getGroundY(state.x, state.z);
-      entry.targetGroundY = y;
-      entry.targetPos.set(state.x, y + entry.footOffset, state.z);
+      const groundY = getGroundY(state.x, state.z);
+      entry.targetGroundY = groundY;
+      /* Use transmitted Y (includes jump height) if available, otherwise ground */
+      const posY = Number.isFinite(state.y) ? state.y : groundY + entry.footOffset;
+      entry.targetPos.set(state.x, posY, state.z);
       if (!entry.initialized) {
         entry.avatar.player.position.copy(entry.targetPos);
         entry.initialized = true;
@@ -97,9 +99,8 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
       delta = Math.atan2(Math.sin(delta), Math.cos(delta));
       entry.avatar.player.rotation.y += delta * Math.min(1, dt * 10);
 
-      /* use cached groundY from applyState instead of raycasting every frame */
+      /* Blob stays on ground; player Y comes from lerped targetPos (includes jump) */
       const groundY = entry.targetGroundY != null ? entry.targetGroundY : 0;
-      entry.avatar.player.position.y = groundY + entry.footOffset;
       if (entry.avatar.playerBlob) {
         entry.avatar.playerBlob.position.set(entry.avatar.player.position.x, groundY + 0.03, entry.avatar.player.position.z);
       }
