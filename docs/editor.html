@@ -768,14 +768,14 @@ function paintColorAt(wx, wz, dt) {
       if (colorPaintSign < 0) {
         delete colorOverrides[key];
       } else {
-        let cr, cg, cb;
-        if (colorOverrides[key]) { [cr, cg, cb] = colorOverrides[key]; }
-        else { const pc = computeBaseColor(vx, vz, y); cr = pc.r; cg = pc.g; cb = pc.b; }
-        const t = Math.min(paintStrength * falloff * dt * 6, 1);
-        cr += (selectedPaintColor.r - cr) * t;
-        cg += (selectedPaintColor.g - cg) * t;
-        cb += (selectedPaintColor.b - cb) * t;
-        colorOverrides[key] = [cr, cg, cb];
+        /* blend procedural color toward target by strength * falloff (one-shot, not additive) */
+        const pc = computeBaseColor(vx, vz, y);
+        const t = paintStrength * falloff;
+        colorOverrides[key] = [
+          pc.r + (selectedPaintColor.r - pc.r) * t,
+          pc.g + (selectedPaintColor.g - pc.g) * t,
+          pc.b + (selectedPaintColor.b - pc.b) * t,
+        ];
       }
     }
   }

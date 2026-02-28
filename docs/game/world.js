@@ -508,7 +508,25 @@ async function loadTilemapData() {
 /* Structural types built by the game already — skip these in object loading */
 const STRUCTURAL_TYPES = new Set(["bridge", "dock", "fence", "stepping_stones", "bridge_piece", "dock_piece", "fence_piece"]);
 
-async function loadMapObjects(scene) {
+/* Resource type lookup — maps editor object types to game interaction data */
+const RESOURCE_MAP = {};
+/* Trees → woodcutting */
+for (const t of [
+  "Tree_1_A","Tree_1_B","Tree_1_C","Tree_2_A","Tree_2_B","Tree_2_C",
+  "Tree_3_A","Tree_3_B","Tree_4_A","Tree_4_B","Tree_Bare_1_A","Tree_Bare_2_A",
+  "Prop_Tree_Cedar_1","Prop_Tree_Cedar_2","Prop_Tree_Oak_1","Prop_Tree_Oak_2","Prop_Tree_Oak_3",
+  "Prop_Tree_Palm_1","Prop_Tree_Palm_2","Prop_Tree_Palm_3",
+  "Prop_Tree_Pine_1","Prop_Tree_Pine_2","Prop_Tree_Pine_3",
+]) RESOURCE_MAP[t] = { type: "woodcutting", label: "Tree" };
+/* Rocks → mining */
+for (const t of [
+  "Rock_1_A","Rock_1_J","Rock_1_K","Rock_2_A",
+  "Rock_3_A","Rock_3_C","Rock_3_E","Rock_3_G",
+  "Prop_Rock_1","Prop_Rock_2","Prop_Rock_3","Prop_Rock_4",
+  "Prop_Cliff_Rock_1","Prop_Cliff_Rock_2",
+]) RESOURCE_MAP[t] = { type: "mining", label: "Rock" };
+
+async function loadMapObjects(scene, nodes) {
   try {
     const data = _tilemapData;
     if (!data) return;
@@ -593,12 +611,19 @@ async function loadMapObjects(scene) {
       }
       m.position.set(entry.x, y, entry.z);
       m.rotation.y = entry.rot || 0;
+      /* tag resources so game interaction works */
+      const res = RESOURCE_MAP[entry.type];
+      if (res) {
+        setRes(m, res.type, res.label);
+        nodes.push(m);
+        addBlob(scene, entry.x, entry.z, entry.scale || 1, .15);
+      }
       group.add(m);
     }
     scene.add(group);
     console.log(`Loaded ${placeableObjs.length} map objects from tilemap`);
   } catch (e) {
-    /* tilemap not found or no objects — that's fine */
+    console.warn("loadMapObjects error:", e);
   }
 }
 
@@ -678,7 +703,7 @@ export async function createWorld(scene) {
   const cave = addCaveEntrance(scene, -30, -10, nodes, obstacles);
 
   /* editor-placed objects from tilemap.json */
-  await loadMapObjects(scene);
+  await loadMapObjects(scene, nodes);
 
   return {
     ground,
