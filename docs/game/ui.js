@@ -27,6 +27,10 @@ const ITEM_LABEL = {
   ore: "Ore",
   logs: "Logs",
 };
+const SELL_PRICE = {
+  fish: 4, ore: 7, logs: 5, "Raw Beef": 8, "Raw Pork": 6,
+  "Wool": 5, "Horse Hide": 10, "Llama Wool": 7, "Bone": 3, "Striped Hide": 12,
+};
 const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
@@ -145,7 +149,9 @@ export function initializeUI(options = {}) {
       const slot = document.createElement("div");
       slot.className = itemType ? "ui-bag-slot" : "ui-bag-slot is-empty";
       if (itemType) {
-        slot.title = ITEM_LABEL[itemType] || itemType;
+        const displayName = ITEM_LABEL[itemType] || itemType;
+        const sellVal = SELL_PRICE[itemType];
+        slot.title = sellVal ? `${displayName} (${sellVal}c)` : displayName;
         const icon = document.createElement("span");
         icon.className = "ui-bag-slot-icon";
         icon.textContent = ITEM_ICON[itemType] || "?";

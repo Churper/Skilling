@@ -183,6 +183,14 @@ wss.on("connection", (ws) => {
         combatStyle: typeof state.combatStyle === "string" ? state.combatStyle : "melee",
         tool: typeof state.tool === "string" ? state.tool : "fishing",
         totalLevel: Number(state.totalLevel) || 6,
+        skills: state.skills && typeof state.skills === "object" ? {
+          fishing: Number(state.skills.fishing) || 1,
+          mining: Number(state.skills.mining) || 1,
+          woodcutting: Number(state.skills.woodcutting) || 1,
+          melee: Number(state.skills.melee) || 1,
+          bow: Number(state.skills.bow) || 1,
+          mage: Number(state.skills.mage) || 1,
+        } : null,
       };
       broadcast(
         meta.room,

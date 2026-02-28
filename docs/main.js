@@ -1648,10 +1648,58 @@ hoverIndicator.renderOrder = 99;
 hoverIndicator.visible = false;
 scene.add(hoverIndicator);
 
+/* ── World tooltip on hover ── */
+let _tooltip = document.getElementById("hover-tooltip");
+if (!_tooltip) {
+  _tooltip = document.createElement("div");
+  _tooltip.id = "hover-tooltip";
+  document.body.appendChild(_tooltip);
+}
+
+function getTooltipText(node) {
+  if (!node?.userData) return null;
+  const ud = node.userData;
+  /* resource nodes (trees, rocks, fish spots) */
+  if (ud.resourceType) {
+    const skillKey = SKILL_BY_RESOURCE[ud.resourceType];
+    const lvl = skillKey && skills[skillKey] ? skills[skillKey].level : 1;
+    return `${ud.resourceLabel || ud.resourceType}\nYour ${skillKey} Lv ${lvl}`;
+  }
+  /* animals */
+  if (ud.serviceType === "animal") {
+    const a = animals.find(a => a.parentModel === node);
+    if (a && a.alive) return `${a.type}\nHP ${a.hp}/${a.maxHp}`;
+    return null;
+  }
+  /* dummies */
+  if (ud.serviceType === "dummy") return "Training Dummy\nAttack to train combat";
+  /* buildings */
+  if (ud.serviceType === "bank") return "Bank\nClick to open";
+  if (ud.serviceType === "store") return "General Store\nBuy & sell items";
+  if (ud.serviceType === "blacksmith") return "Blacksmith\nUpgrade tools";
+  if (ud.serviceType === "construction") return "Construction Site\nBuild your house";
+  if (ud.resourceLabel) return ud.resourceLabel;
+  return null;
+}
+
+renderer.domElement.addEventListener("pointermove", (e) => {
+  if (!hoveredNode) {
+    _tooltip.style.display = "none";
+    return;
+  }
+  const text = getTooltipText(hoveredNode);
+  if (!text) { _tooltip.style.display = "none"; return; }
+  _tooltip.textContent = text;
+  _tooltip.style.display = "block";
+  _tooltip.style.left = (e.clientX + 14) + "px";
+  _tooltip.style.top = (e.clientY + 14) + "px";
+});
+
 function onHoverChange(node) {
   hoveredNode = node;
   if (!node) {
     hoverIndicator.visible = false;
+    _tooltip.style.display = "none";
     return;
   }
   node.getWorldPosition(hoverPos);
@@ -1708,9 +1756,18 @@ renderer.domElement.addEventListener("contextmenu", (e) => {
   if (hit.attacking) activity = `Fighting (${hit.combatStyle})`;
   else if (hit.gathering) activity = `Skilling (${hit.tool})`;
   else if (hit.moving) activity = "Walking";
-  popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Lv ${hit.totalLevel}</div><div class="inspect-activity">${activity}</div>`;
-  popup.style.left = Math.min(e.clientX, window.innerWidth - 200) + "px";
-  popup.style.top = Math.min(e.clientY, window.innerHeight - 100) + "px";
+  const sk = hit.skills;
+  const skillsHtml = sk ? `<div class="inspect-stats">`
+    + `<span>\u{1F41F} Fish ${sk.fishing}</span>`
+    + `<span>\u{1FAA8} Mine ${sk.mining}</span>`
+    + `<span>\u{1FAB5} WC ${sk.woodcutting}</span>`
+    + `<span>\u{1F5E1} Melee ${sk.melee}</span>`
+    + `<span>\u{1F3F9} Range ${sk.bow}</span>`
+    + `<span>\u{1F525} Mage ${sk.mage}</span>`
+    + `</div>` : "";
+  popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Total Lv ${hit.totalLevel}</div>${skillsHtml}<div class="inspect-activity">${activity}</div>`;
+  popup.style.left = Math.min(e.clientX, window.innerWidth - 220) + "px";
+  popup.style.top = Math.min(e.clientY, window.innerHeight - 180) + "px";
   document.body.appendChild(popup);
   _inspectPopup = popup;
 });
@@ -2064,6 +2121,14 @@ function animate(now) {
     tool: equippedTool,
     overhead: getActiveOverhead() || "",
     totalLevel: Object.values(skills).reduce((s, sk) => s + sk.level, 0),
+    skills: {
+      fishing: skills.fishing.level,
+      mining: skills.mining.level,
+      woodcutting: skills.woodcutting.level,
+      melee: skills.melee.level,
+      bow: skills.bow.level,
+      mage: skills.mage.level,
+    },
   });
 
   /* auto-save periodically */
