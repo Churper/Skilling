@@ -690,7 +690,7 @@ function buildChunkMesh(cx, cz) {
   geo.setAttribute("color", new THREE.BufferAttribute(hc, 3));
   geo.setIndex(idx); geo.computeVertexNormals();
   const mesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
-  const wGeo = new THREE.PlaneGeometry(xMax-xMin, zMax-zMin, 1, 1);
+  const wGeo = new THREE.PlaneGeometry(xMax-xMin+2, zMax-zMin+2, 1, 1);
   wGeo.rotateX(-Math.PI / 2);
   const wMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
   wMesh.position.set((xMin+xMax)/2 + ox, WATER_Y, (zMin+zMax)/2 + oz);

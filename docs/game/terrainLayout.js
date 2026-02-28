@@ -272,7 +272,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   /* ── water plane (optional per chunk) ── */
   const showWater = !bounds || bounds.water !== false;
   if (showWater) {
-    const ww = xMax - xMin, wh = zMax - zMin;
+    const ww = xMax - xMin + 2, wh = zMax - zMin + 2;
     const waterGeo = new THREE.PlaneGeometry(ww, wh, 48, 48);
     waterGeo.rotateX(-Math.PI / 2);
     const waterMat = new THREE.MeshBasicMaterial({

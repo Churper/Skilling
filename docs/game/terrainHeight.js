@@ -20,15 +20,15 @@ export const GX_MIN = -24, GX_MAX = 24;
 export const GZ_MIN = -22, GZ_MAX = 26;
 
 /* ── Chunk system ── */
-export const CHUNK_SIZE = 96;    // world units per chunk side (48 tiles * TILE_S=2)
+export const CHUNK_SIZE = 100;   // world units per chunk side (includes 1-tile padding each side)
 
 /** Returns world-space bounds for chunk (cx, cz). Chunk 0,0 = current map. */
 export function chunkBounds(cx, cz) {
   return {
-    xMin: cx * CHUNK_SIZE + GX_MIN * TILE_S,
-    xMax: cx * CHUNK_SIZE + GX_MAX * TILE_S,
-    zMin: cz * CHUNK_SIZE + GZ_MIN * TILE_S,
-    zMax: cz * CHUNK_SIZE + GZ_MAX * TILE_S,
+    xMin: cx * CHUNK_SIZE + (GX_MIN - 1) * TILE_S,
+    xMax: cx * CHUNK_SIZE + (GX_MAX + 1) * TILE_S,
+    zMin: cz * CHUNK_SIZE + (GZ_MIN - 1) * TILE_S,
+    zMax: cz * CHUNK_SIZE + (GZ_MAX + 1) * TILE_S,
   };
 }
 
