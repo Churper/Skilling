@@ -589,9 +589,9 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
       for (const entry of placeableObjs) {
         /* object positions are in local chunk coords — offset to world */
         const wx = entry.x + chunkOffX, wz = entry.z + chunkOffZ;
-        /* service buildings — built procedurally, not from GLTF */
-        const svc = SERVICE_MAP[entry.type];
-        if (svc) { svc.builder(scene, wx, wz, nodes); continue; }
+        /* procedural service buildings */
+        const svcB = SERVICE_BUILDER[entry.type];
+        if (svcB) { svcB.builder(scene, wx, wz, nodes); continue; }
         const tmpl = templates[entry.type];
         if (!tmpl) continue;
         const m = tmpl.clone();
@@ -610,6 +610,9 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         m.rotation.y = entry.rot || 0;
         const res = RESOURCE_MAP[entry.type];
         if (res) { setRes(m, res.type, res.label); nodes.push(m); }
+        /* GLTF-based services — tag with service interaction */
+        const svcTag = SERVICE_TAG[entry.type];
+        if (svcTag) { setSvc(m, svcTag.service, svcTag.label); nodes.push(addHS(m, 0, 0.95, 0.55)); }
         objGroup.add(m);
       }
     }
@@ -748,15 +751,20 @@ for (const t of [
   "Prop_Cliff_Rock_1","Prop_Cliff_Rock_2",
 ]) RESOURCE_MAP[t] = { type: "mining", label: "Rock" };
 
-/* Service type lookup — maps editor object types to procedural building builders */
-const SERVICE_MAP = {
-  "Svc_Bank":        { builder: (s, x, z, n) => addBank(s, x, z, n),        service: "bank" },
-  "Svc_Store":       { builder: (s, x, z, n) => addStore(s, x, z, n),       service: "store" },
-  "Svc_Blacksmith":  { builder: (s, x, z, n) => addSmith(s, x, z, n),       service: "blacksmith" },
-  "Svc_Dummy":       { builder: (s, x, z, n) => addDummy(s, x, z, n),       service: "dummy" },
-  "Svc_Construction":{ builder: (s, x, z, n) => addYard(s, x, z, n),        service: "construction" },
-  "Svc_Cave":        { builder: (s, x, z, n) => addCaveEntrance(s, x, z, n, []), service: "cave" },
+/* Service type lookup — maps editor object types to procedural building builders or service tags */
+const SERVICE_BUILDER = {
+  "Svc_Store":       { builder: (s, x, z, n) => addStore(s, x, z, n) },
+  "Svc_Blacksmith":  { builder: (s, x, z, n) => addSmith(s, x, z, n) },
+  "Svc_Dummy":       { builder: (s, x, z, n) => addDummy(s, x, z, n) },
+  "Svc_Construction":{ builder: (s, x, z, n) => addYard(s, x, z, n) },
+  "Svc_Cave":        { builder: (s, x, z, n) => addCaveEntrance(s, x, z, n, []) },
 };
+/* Service tags — GLTF model objects that need service interaction wired up */
+const SERVICE_TAG = {
+  "Svc_Bank": { service: "bank", label: "Bank Chest" },
+};
+/* Register Svc_Bank in file lookup so it loads the chest model */
+_fileLookup["Svc_Bank"] = "models/terrain/Prop_Treasure_Chest.glb";
 
 async function loadMapObjects(scene, nodes) {
   try {
@@ -784,9 +792,9 @@ async function loadMapObjects(scene, nodes) {
     const group = new THREE.Group();
     group.name = "map_objects";
     for (const entry of placeableObjs) {
-      /* service buildings — built procedurally */
-      const svc = SERVICE_MAP[entry.type];
-      if (svc) { svc.builder(scene, entry.x, entry.z, nodes); continue; }
+      /* procedural service buildings */
+      const svcB = SERVICE_BUILDER[entry.type];
+      if (svcB) { svcB.builder(scene, entry.x, entry.z, nodes); continue; }
       const tmpl = templates[entry.type];
       if (!tmpl) continue;
       const m = tmpl.clone();
@@ -794,6 +802,9 @@ async function loadMapObjects(scene, nodes) {
       let y = _groundY(entry.x, entry.z);
       m.position.set(entry.x, y, entry.z);
       m.rotation.y = entry.rot || 0;
+      /* GLTF-based services — tag with service interaction */
+      const svcTag = SERVICE_TAG[entry.type];
+      if (svcTag) { setSvc(m, svcTag.service, svcTag.label); nodes.push(addHS(m, 0, 0.95, 0.55)); }
       /* tag resources so game interaction works */
       const res = RESOURCE_MAP[entry.type];
       if (res) {
