@@ -614,9 +614,20 @@ function showEmote(emoji, options = {}) {
     emoteBubbles.splice(i, 1);
   }
 
+  const FLAG_HTML = {
+    USA: '<span class="flag-usa"></span>',
+    UKR: '<span class="flag-ukr"></span>',
+    ISR: '<span class="flag-isr"></span>',
+    POL: '<span class="flag-pol"></span>',
+  };
   const el = document.createElement("div");
   el.className = "chat-bubble";
-  el.textContent = emoji.trim();
+  const trimmed = emoji.trim();
+  if (FLAG_HTML[trimmed]) {
+    el.innerHTML = FLAG_HTML[trimmed];
+  } else {
+    el.textContent = trimmed;
+  }
   getBubbleLayer().appendChild(el);
   emoteBubbles.push({ key, anchor, el, age: 0, duration });
 }
