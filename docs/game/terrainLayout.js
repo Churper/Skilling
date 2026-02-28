@@ -538,20 +538,21 @@ export function buildDock(lib) {
     }
   }
 
-  /* invisible walkable deck — main dock */
-  const deckGeo = new THREE.BoxGeometry(count * TILE_S, 0.15, TILE_S * 1.5);
+  /* invisible walkable deck — main dock, thick enough to catch raycast */
+  const deckTop = deckY + 0.35;
+  const deckGeo = new THREE.BoxGeometry(count * TILE_S + 2, 0.6, TILE_S * 2);
   const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
-  deck.position.set(dx + (count - 1) * TILE_S * 0.5, deckY + 0.15, dz);
+  deck.position.set(dx + (count - 1) * TILE_S * 0.5, deckTop, dz);
   deck.name = "dock_deck";
   group.add(deck);
 
   /* invisible walkable ramp for stairs — slopes from shore up to dock height */
-  const stairLen = TILE_S * 2;
-  const stairGeo = new THREE.BoxGeometry(stairLen, 0.15, TILE_S * 1.5);
+  const stairLen = TILE_S * 3;
+  const stairGeo = new THREE.BoxGeometry(stairLen, 0.5, TILE_S * 2);
   const stairDeck = new THREE.Mesh(stairGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
-  const shoreY = getMeshSurfaceY(dx - TILE_S * 1.5, dz);
-  stairDeck.position.set(dx - TILE_S, (shoreY + deckY + 0.15) / 2, dz);
-  stairDeck.rotation.z = Math.atan2(deckY + 0.15 - shoreY, stairLen);
+  const shoreY = getMeshSurfaceY(dx - TILE_S * 2, dz);
+  stairDeck.position.set(dx - TILE_S, (shoreY + deckTop) / 2, dz);
+  stairDeck.rotation.z = Math.atan2(deckTop - shoreY, stairLen);
   stairDeck.name = "dock_deck";
   group.add(stairDeck);
 
@@ -698,9 +699,13 @@ export function addWaterfall(scene, waterUniforms) {
 export const TREE_SPOTS = [
   [20,18,2.2,1.8],[28,28,2.4,3.6],[18,28,2.1,0.9],[32,20,1.9,2.4],[24,32,2.3,4.2],
   [-22,18,2.0,1.0],[-30,24,1.9,5.2],[-20,26,2.2,4.5],[-16,-18,1.7,2.1],[14,-18,1.6,0.7],[-8,-42,2.4,3.3],
+  /* more natural spread */
+  [10,30,1.8,0.5],[-10,22,2.0,3.1],[36,28,1.7,4.4],[-34,16,1.9,1.6],[-26,8,1.8,5.7],
+  [6,24,1.6,2.3],[-6,16,1.7,0.2],[16,10,1.5,4.0],[-12,32,2.1,2.9],[26,14,1.8,5.1],
+  [-28,-8,1.6,3.7],[22,-8,1.5,1.3],[-4,28,1.9,4.6],[30,8,1.7,0.8],[-18,4,1.6,2.5],
 ];
 export const ROCK_MAJOR_SPOTS = [
-  [30,30,1.55,0.3],[-28,26,1.6,1.4],[-14,8,1.45,2.1],[10,16,1.5,4.8],[-20,-6,1.4,0.9],
+  [-28,26,1.6,1.4],[-14,8,1.45,2.1],[-20,-6,1.4,0.9],
 ];
 export const ROCK_SMALL_SPOTS = [
   [22,34,1.04,3.2],[-26,30,1.0,4.1],[34,22,0.98,5.0],[-32,18,0.95,2.6],
