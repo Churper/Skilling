@@ -611,6 +611,16 @@ function updateMinimap() {
     }
   }
 
+  /* compass labels on minimap edges */
+  ctx.font = "bold 11px sans-serif";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillStyle = "#e8c44a";
+  ctx.fillText("N", w / 2, oy - 7);
+  ctx.fillStyle = "#888";
+  ctx.fillText("S", w / 2, oy + rows * cellSize + 8);
+  ctx.fillText("E", ox + cols * cellSize + 9, h / 2);
+  ctx.fillText("W", ox - 9, h / 2);
+
   /* store mapping for click handler */
   cvs._mapData = { cxMin, czMax, cols, rows, cellSize, ox, oy };
 }
