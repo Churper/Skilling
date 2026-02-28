@@ -428,8 +428,7 @@ waterMesh.position.set((xMin + xMax) / 2, WATER_Y, (zMin + zMax) / 2);
 waterMesh.renderOrder = 2;
 scene.add(waterMesh);
 
-/* stepping stones */
-scene.add(buildSteppingStones());
+/* stepping stones — registered as editable in loadGameStructures */
 
 /* waterfall */
 const waterUniforms = { uTime: { value: 0 } };
@@ -523,21 +522,19 @@ async function loadGameStructures() {
     if (tileLib[tk] && !objLib[ok]) objLib[ok] = tileLib[tk];
   }
 
-  /* ── Bridge / Dock / Fences — extract children as editable objects ── */
-  function groupToObjects(group, typeLabel) {
-    const children = [...group.children];
-    for (const mesh of children) {
-      group.remove(mesh);
-      scene.add(mesh);
-      mesh.updateMatrixWorld(true);
-      const pos = new THREE.Vector3(); mesh.getWorldPosition(pos);
-      const id = nextObjId++;
-      objects.push({ id, type: typeLabel, x: pos.x, z: pos.z, y: pos.y, scale: mesh.scale.x, rot: mesh.rotation.y, mesh });
-    }
+  /* ── Bridge / Dock / Fences — register whole group as single editable object ── */
+  function groupAsObject(group, typeLabel) {
+    scene.add(group);
+    group.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(group);
+    const center = new THREE.Vector3(); box.getCenter(center);
+    const id = nextObjId++;
+    objects.push({ id, type: typeLabel, x: center.x, z: center.z, y: center.y, scale: 1, rot: 0, mesh: group });
   }
-  groupToObjects(buildBridge(tileLib), "bridge_piece");
-  groupToObjects(buildDock(tileLib), "dock_piece");
-  groupToObjects(buildFences(tileLib), "fence_piece");
+  groupAsObject(buildBridge(tileLib), "bridge");
+  groupAsObject(buildDock(tileLib), "dock");
+  groupAsObject(buildFences(tileLib), "fence");
+  groupAsObject(buildSteppingStones(), "stepping_stones");
 
   /* ── Props — replicate scatter using objLib keys for proper export ── */
   const rng = mulberry32(42);
@@ -773,7 +770,7 @@ function objUndo() {
     const obj = objects.find(o => o.id === a.id);
     if (obj) {
       obj.x = a.from.x; obj.y = a.from.y; obj.z = a.from.z;
-      obj.mesh.position.set(a.from.x, a.from.y, a.from.z);
+      obj.mesh.position.set(a.from.mx, a.from.my, a.from.mz);
       if (selectedInstance === obj && highlightRing) highlightRing.position.set(a.from.x, a.from.y + 0.05, a.from.z);
     }
   }
@@ -832,6 +829,7 @@ function raycastGround(e) {
 let mouseDownPos = null;
 let dragging = null; // object being dragged
 let dragStartPos = null; // original position before drag
+let dragOffset = { x: 0, z: 0 }; // offset from grab point to object center
 const canvas = renderer.domElement;
 
 canvas.addEventListener("mousedown", e => {
@@ -845,13 +843,14 @@ canvas.addEventListener("mousedown", e => {
   }
   /* Start drag if clicking an existing object */
   if (mode === "objects" && e.button === 0) {
-    raycastGround(e); // sets raycaster
+    const pt = raycastGround(e); // sets raycaster
     const hit = raycastObject();
     if (hit) {
       dragging = hit;
-      dragStartPos = { x: hit.x, y: hit.y, z: hit.z };
+      dragStartPos = { x: hit.x, y: hit.y, z: hit.z, mx: hit.mesh.position.x, my: hit.mesh.position.y, mz: hit.mesh.position.z };
+      dragOffset = pt ? { x: hit.x - pt.x, z: hit.z - pt.z } : { x: 0, z: 0 };
       selectInstance(hit);
-      orbitControls.enabled = false; // disable orbit while dragging
+      orbitControls.enabled = false;
     }
   }
 });
@@ -863,8 +862,7 @@ canvas.addEventListener("mouseup", e => {
     orbitControls.enabled = true;
     const wasDrag = Math.abs(e.clientX - mouseDownPos.x) > 4 || Math.abs(e.clientY - mouseDownPos.y) > 4;
     if (wasDrag && dragStartPos) {
-      // Record undo for the move
-      pushObjUndo({ type: "move", id: dragging.id, from: dragStartPos, to: { x: dragging.x, y: dragging.y, z: dragging.z } });
+      pushObjUndo({ type: "move", id: dragging.id, from: dragStartPos, to: { x: dragging.x, y: dragging.y, z: dragging.z, mx: dragging.mesh.position.x, my: dragging.mesh.position.y, mz: dragging.mesh.position.z } });
     }
     dragging = null; dragStartPos = null;
     return;
@@ -888,9 +886,12 @@ canvas.addEventListener("mousemove", e => {
     if (mode === "objects") {
       /* Drag-move selected object */
       if (dragging && (e.buttons & 1)) {
-        dragging.x = pt.x; dragging.z = pt.z; dragging.y = pt.y;
-        dragging.mesh.position.set(pt.x, pt.y, pt.z);
-        if (highlightRing) highlightRing.position.set(pt.x, pt.y + 0.05, pt.z);
+        const nx = pt.x + dragOffset.x, nz = pt.z + dragOffset.z;
+        const dx = nx - dragging.x, dz = nz - dragging.z;
+        dragging.x = nx; dragging.z = nz; dragging.y = pt.y;
+        dragging.mesh.position.x += dx; dragging.mesh.position.z += dz;
+        dragging.mesh.position.y += pt.y - dragging.mesh.position.y + (dragStartPos.my - dragStartPos.y);
+        if (highlightRing) highlightRing.position.set(nx, pt.y + 0.05, nz);
       }
       hoverMesh.position.set(Math.floor(pt.x / TILE_S) * TILE_S + TILE_S / 2, pt.y + 0.03, Math.floor(pt.z / TILE_S) * TILE_S + TILE_S / 2);
       hoverMesh.visible = !dragging; brushCircle.visible = false;
