@@ -696,9 +696,11 @@ function updateAnimals(dt) {
     /* only update animals within 50 units (same chunk) */
     const adx = a.spawnPos.x - px, adz = a.spawnPos.z - pz;
     if (adx * adx + adz * adz > 2500) {
+      a.parentModel.visible = false;
       a.hpBar.dataset.state = "hidden";
       continue;
     }
+    a.parentModel.visible = true;
     if (!a.alive) {
       /* death shrink animation */
       if (a._deathAnim) {

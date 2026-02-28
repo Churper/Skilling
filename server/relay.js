@@ -216,12 +216,14 @@ wss.on("connection", (ws) => {
       if (msg.key !== ADMIN_KEY) return;
       const text = typeof msg.text === "string" ? msg.text.trim().slice(0, 200) : "";
       if (!text) return;
-      /* send to ALL rooms */
-      for (const [room, set] of rooms) {
+      /* send to ALL rooms including sender */
+      for (const [, set] of rooms) {
         for (const peer of set) {
           send(peer, { type: "server_message", text });
         }
       }
+      console.log(`[admin] broadcast: "${text}"`);
+      return;
     }
   });
 
