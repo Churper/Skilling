@@ -581,13 +581,14 @@ async function loadMapObjects(scene) {
       m.scale.setScalar(entry.scale || 1);
       /* snap to terrain surface + interpolated height offset */
       let y = getMeshSurfaceY(entry.x, entry.z);
-      if (heightOffsets) {
+      const ho = _tilemapData && _tilemapData.heightOffsets;
+      if (ho) {
         const fx = Math.floor(entry.x), fz = Math.floor(entry.z);
         const tx = entry.x - fx, tz = entry.z - fz;
-        const h00 = heightOffsets[`${fx},${fz}`] || 0;
-        const h10 = heightOffsets[`${fx+1},${fz}`] || 0;
-        const h01 = heightOffsets[`${fx},${fz+1}`] || 0;
-        const h11 = heightOffsets[`${fx+1},${fz+1}`] || 0;
+        const h00 = ho[`${fx},${fz}`] || 0;
+        const h10 = ho[`${fx+1},${fz}`] || 0;
+        const h01 = ho[`${fx},${fz+1}`] || 0;
+        const h11 = ho[`${fx+1},${fz+1}`] || 0;
         y += h00*(1-tx)*(1-tz) + h10*tx*(1-tz) + h01*(1-tx)*tz + h11*tx*tz;
       }
       m.position.set(entry.x, y, entry.z);
