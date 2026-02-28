@@ -21,6 +21,7 @@ import {
 /* ── re-export height API (keeps import contract for main.js) ── */
 export function getWorldSurfaceHeight(x, z) { return _getWSH(x, z); }
 export function getWaterSurfaceHeight(x, z, time = 0) { return _getWaSH(x, z, time); }
+export { CHUNK_SIZE };
 
 /* height with chunk heightOffsets baked in (for placing buildings on edited terrain) */
 function _groundY(x, z) {

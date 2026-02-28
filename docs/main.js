@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { createSceneContext } from "./game/scene.js";
-import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight } from "./game/world.js";
+import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE } from "./game/world.js";
 import { createPlayer, createMoveMarker, createCombatEffects } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
@@ -692,6 +692,7 @@ function updateAnimals(dt) {
   const hw = renderer.domElement.clientWidth * 0.5;
   const hh = renderer.domElement.clientHeight * 0.5;
   const px = player.position.x, pz = player.position.z;
+  const playerCX = Math.round(px / CHUNK_SIZE), playerCZ = Math.round(pz / CHUNK_SIZE);
   /* purge animals whose chunk was unloaded */
   for (let i = animals.length - 1; i >= 0; i--) {
     const a = animals[i];
@@ -702,9 +703,9 @@ function updateAnimals(dt) {
     }
   }
   for (const a of animals) {
-    /* only update animals within 50 units (same chunk) */
-    const adx = a.spawnPos.x - px, adz = a.spawnPos.z - pz;
-    if (adx * adx + adz * adz > 2500) {
+    /* only update animals in player's exact chunk */
+    const acx = Math.round(a.spawnPos.x / CHUNK_SIZE), acz = Math.round(a.spawnPos.z / CHUNK_SIZE);
+    if (acx !== playerCX || acz !== playerCZ) {
       a.parentModel.visible = false;
       a.hpBar.dataset.state = "hidden";
       continue;
