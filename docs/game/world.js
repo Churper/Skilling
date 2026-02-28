@@ -21,6 +21,22 @@ import {
 export function getWorldSurfaceHeight(x, z) { return _getWSH(x, z); }
 export function getWaterSurfaceHeight(x, z, time = 0) { return _getWaSH(x, z, time); }
 
+/* height with chunk heightOffsets baked in (for placing buildings on edited terrain) */
+function _groundY(x, z) {
+  let y = _getWSH(x, z);
+  const ho = _tilemapData && _tilemapData.heightOffsets;
+  if (ho) {
+    const fx = Math.floor(x), fz = Math.floor(z);
+    const tx = x - fx, tz = z - fz;
+    const h00 = ho[`${fx},${fz}`] || 0;
+    const h10 = ho[`${fx+1},${fz}`] || 0;
+    const h01 = ho[`${fx},${fz+1}`] || 0;
+    const h11 = ho[`${fx+1},${fz+1}`] || 0;
+    y += h00*(1-tx)*(1-tz) + h10*tx*(1-tz) + h01*(1-tx)*tz + h11*tx*tz;
+  }
+  return y;
+}
+
 /* ── Toon material ── */
 const TOON_GRAD = (() => {
   const c = document.createElement("canvas"); c.width = 6; c.height = 1;
@@ -124,7 +140,7 @@ const blobTex = (() => {
   return t;
 })();
 function addBlob(scene, x, z, radius = 1.8, opacity = .2) {
-  const y = _getWSH(x, z);
+  const y = _groundY(x, z);
   const m = new THREE.Mesh(
     new THREE.PlaneGeometry(radius * 2, radius * 2),
     new THREE.MeshBasicMaterial({
@@ -173,7 +189,7 @@ async function loadModels() {
 
 function placeM(scene, tmpl, x, z, s, r) {
   const m = tmpl.clone(); m.scale.setScalar(s); m.rotation.y = r;
-  m.position.set(x, _getWSH(x, z), z); scene.add(m); return m;
+  m.position.set(x, _groundY(x, z), z); scene.add(m); return m;
 }
 
 /* ── Trees ── */
@@ -193,7 +209,7 @@ function placeRocks(scene, M, nodes) {
     if (inKO(x, z, 1.6)) return;
     const m = C[i % C.length].clone();
     m.scale.setScalar(s); m.rotation.y = r;
-    m.position.set(x, _getWSH(x, z), z); scene.add(m);
+    m.position.set(x, _groundY(x, z), z); scene.add(m);
     setRes(m, "mining", "Rock"); nodes.push(m);
   };
   ROCK_MAJOR_SPOTS.forEach(([x, z, s, r], i) => spawnRock(x, z, s, r, i));
@@ -206,7 +222,7 @@ function placeCliffRocks(scene, M) {
   CLIFF_ROCK_SPOTS.forEach(([x, z, s, r], i) => {
     const m = C[i % C.length].clone();
     m.scale.setScalar(s); m.rotation.y = r;
-    m.position.set(x, _getWSH(x, z) - 2, z); scene.add(m);
+    m.position.set(x, _groundY(x, z) - 2, z); scene.add(m);
   });
 }
 
@@ -220,7 +236,7 @@ function placeBushes(scene, M) {
 
 /* ── Buildings ── */
 function addBank(scene, x, z, nodes) {
-  const y = _getWSH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = _groundY(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   setSvc(g, "bank", "Bank Chest");
   g.add(m3(new THREE.CylinderGeometry(1.2, 1.3, .3, 8), toonMat("#7a9eb5"), 0, .15, 0, R_DECOR));
   g.add(m3(new THREE.BoxGeometry(1.3, .7, .85), toonMat("#d4a63c"), 0, .65, 0, R_DECOR));
@@ -233,7 +249,7 @@ function addBank(scene, x, z, nodes) {
   if (nodes) nodes.push(addHS(g, 0, .95, .55));
 }
 function addStore(scene, x, z, nodes) {
-  const y = _getWSH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = _groundY(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   setSvc(g, "store", "General Store");
   g.add(m3(new THREE.BoxGeometry(2.6, .25, 1.5), toonMat("#9a7044"), 0, .12, 0, R_DECOR));
   g.add(m3(new THREE.BoxGeometry(2.4, 1.4, .15), toonMat("#7e5a30"), 0, .95, -.65, R_DECOR));
@@ -248,7 +264,7 @@ function addStore(scene, x, z, nodes) {
   if (nodes) nodes.push(addHS(g, 0, .9, .66));
 }
 function addSmith(scene, x, z, nodes) {
-  const y = _getWSH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = _groundY(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   setSvc(g, "blacksmith", "Blacksmith Forge");
   g.add(m3(new THREE.CylinderGeometry(1.4, 1.5, .25, 8), toonMat("#5a6068"), 0, .12, 0, R_DECOR));
   g.add(m3(new THREE.BoxGeometry(2, 1.2, 1.5), toonMat("#6e7880"), 0, .85, 0, R_DECOR));
@@ -262,7 +278,7 @@ function addSmith(scene, x, z, nodes) {
 }
 
 function addYard(scene, x, z, nodes) {
-  const y = _getWSH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = _groundY(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   setSvc(g, "construction", "House Construction Yard");
   const sp = new THREE.Mesh(new THREE.CylinderGeometry(.09, .11, 1.45, 6), toonMat("#8f6742"));
   sp.position.set(-3.8, .98, 3.7); sp.renderOrder = R_DECOR; g.add(sp);
@@ -316,7 +332,7 @@ function addYard(scene, x, z, nodes) {
 }
 
 function addDummy(scene, x, z, nodes) {
-  const g = new THREE.Group(), y = _getWSH(x, z); g.position.set(x, y, z);
+  const g = new THREE.Group(), y = _groundY(x, z); g.position.set(x, y, z);
   const bMat = toonMat("#a07040");
   g.add(m3(new THREE.CylinderGeometry(.18, .22, 1.4, 8), bMat, 0, .7, 0));
   const arm = new THREE.Mesh(new THREE.CylinderGeometry(.1, .1, 1, 6), bMat);
@@ -328,7 +344,7 @@ function addDummy(scene, x, z, nodes) {
 }
 
 function addTrainYard(scene, x, z) {
-  const y = _getWSH(x, z), g = new THREE.Group(); g.position.set(x, y, z);
+  const y = _groundY(x, z), g = new THREE.Group(); g.position.set(x, y, z);
   g.add(m3(new THREE.BoxGeometry(1.55, .52, .08), toonMat("#3d6079"), 0, 1.15, -4.38, R_DECOR + 1));
   const sp = new THREE.Mesh(new THREE.CylinderGeometry(.08, .1, 1.3, 6), toonMat("#8a6240"));
   sp.position.set(0, .74, -4.7); sp.renderOrder = R_DECOR; g.add(sp);
@@ -361,7 +377,7 @@ function addPlaza(scene, nodes, obstacles) {
 
 /* ── Cave entrance ── */
 function addCaveEntrance(scene, x, z, nodes, obstacles) {
-  const y = _getWSH(x, z);
+  const y = _groundY(x, z);
   const g = new THREE.Group();
   g.position.set(x, y, z);
 
@@ -759,18 +775,7 @@ async function loadMapObjects(scene, nodes) {
       if (!tmpl) continue;
       const m = tmpl.clone();
       m.scale.setScalar(entry.scale || 1);
-      /* snap to terrain surface + interpolated height offset */
-      let y = _getWSH(entry.x, entry.z);
-      const ho = _tilemapData && _tilemapData.heightOffsets;
-      if (ho) {
-        const fx = Math.floor(entry.x), fz = Math.floor(entry.z);
-        const tx = entry.x - fx, tz = entry.z - fz;
-        const h00 = ho[`${fx},${fz}`] || 0;
-        const h10 = ho[`${fx+1},${fz}`] || 0;
-        const h01 = ho[`${fx},${fz+1}`] || 0;
-        const h11 = ho[`${fx+1},${fz+1}`] || 0;
-        y += h00*(1-tx)*(1-tz) + h10*tx*(1-tz) + h01*(1-tx)*tz + h11*tx*tz;
-      }
+      let y = _groundY(entry.x, entry.z);
       m.position.set(entry.x, y, entry.z);
       m.rotation.y = entry.rot || 0;
       /* tag resources so game interaction works */
