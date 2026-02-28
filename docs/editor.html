@@ -481,6 +481,9 @@ function switchChunk(cx, cz) {
   document.getElementById("chunk-id").textContent = `${cx},${cz}`;
   const cd = ensureChunkData(cx, cz);
   if (!chunkMeshes.has(chunkKey(cx, cz))) buildChunkMesh(cx, cz);
+  /* activate for editing so brush/flatten targets this chunk */
+  activateChunkForEditing(cx, cz);
+  moveChunkHighlight(cx, cz);
   /* update UI for new selected chunk */
   document.getElementById("chunk-water").checked = cd.water;
   document.getElementById("edge-n").classList.toggle("on", !!cd.edges.north);
