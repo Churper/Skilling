@@ -1137,7 +1137,10 @@ function paintAt(wx, wz, dt) {
       if (brushMode === "raise") {
         heightOffsets[vi] += paintSign * brushStrength * falloff * dt * 8;
       } else if (brushMode === "flatten") {
-        heightOffsets[vi] += (flattenY - curY) * brushStrength * falloff * dt * 4;
+        const diff = flattenY - curY;
+        const step = diff * brushStrength * falloff * dt * 4;
+        /* clamp so we never overshoot the target */
+        heightOffsets[vi] += Math.abs(step) > Math.abs(diff) ? diff : step;
       } else if (brushMode === "smooth") {
         let sum = 0, cnt = 0;
         for (const [ox, oz] of [[-1,0],[1,0],[0,-1],[0,1]]) {
