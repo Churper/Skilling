@@ -459,6 +459,7 @@ function loadChunkFromStore(cx, cz) {
       mesh.scale.setScalar(entry.scale || 1);
       mesh.position.set(entry.x, entry.y || 0, entry.z);
       mesh.rotation.y = entry.rot || 0;
+      if (CLICK_HELPER_TYPES.has(entry.type)) addClickHelper(mesh);
       scene.add(mesh);
       objects.push({ id: nextObjId++, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
     }
@@ -1334,6 +1335,24 @@ function updatePreview() {
   obj.renderOrder = 998; previewObj = obj; scene.add(obj);
 }
 
+const CLICK_HELPER_TYPES = new Set(["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra","Farm"]);
+const _hbMat = new THREE.MeshBasicMaterial({ visible: false });
+function addClickHelper(root) {
+  /* add invisible bounding box so thin GLTF meshes are easier to click */
+  const box = new THREE.Box3();
+  root.updateMatrixWorld(true);
+  root.traverse(c => { if (c.isMesh && c.geometry) { c.geometry.computeBoundingBox(); box.expandByObject(c); } });
+  if (box.isEmpty()) return;
+  const size = new THREE.Vector3(); box.getSize(size);
+  const center = new THREE.Vector3(); box.getCenter(center);
+  root.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  center.applyMatrix4(inv);
+  const helper = new THREE.Mesh(new THREE.BoxGeometry(size.x, size.y, size.z), _hbMat);
+  helper.position.copy(center);
+  root.add(helper);
+}
+
 function placeObject(wx, wy, wz) {
   if (!selectedObj) return;
   const tmpl = objLib[selectedObj]; if (!tmpl) return;
@@ -1341,6 +1360,7 @@ function placeObject(wx, wy, wz) {
   mesh.scale.setScalar(objScale);
   mesh.position.set(wx, wy, wz);
   mesh.rotation.y = objRot;
+  if (CLICK_HELPER_TYPES.has(selectedObj)) addClickHelper(mesh);
   scene.add(mesh);
   const id = nextObjId++;
   const entry = { id, type: selectedObj, x: wx, z: wz, y: wy, scale: objScale, rot: objRot, mesh };
