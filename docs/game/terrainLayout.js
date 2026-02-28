@@ -506,7 +506,7 @@ export function buildDock(lib) {
   const group = new THREE.Group();
   group.name = "dock";
   const dx = 40, dz = -16, count = 4;
-  const deckY = WATER_Y + 0.3;
+  const deckY = WATER_Y + 0.55;
 
   /* entry steps at shore end */
   if (lib.dockSteps) {
@@ -538,9 +538,9 @@ export function buildDock(lib) {
     }
   }
 
-  /* invisible walkable deck — main dock, thick enough to catch raycast */
-  const deckTop = deckY + 0.35;
-  const deckGeo = new THREE.BoxGeometry(count * TILE_S + 2, 0.6, TILE_S * 2);
+  /* invisible walkable deck — sits on top of dock planks */
+  const deckTop = deckY + 0.2;
+  const deckGeo = new THREE.BoxGeometry(count * TILE_S + 2, 0.8, TILE_S * 2);
   const deck = new THREE.Mesh(deckGeo, tMat("#8B6A40", { transparent: true, opacity: 0 }));
   deck.position.set(dx + (count - 1) * TILE_S * 0.5, deckTop, dz);
   deck.name = "dock_deck";

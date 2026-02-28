@@ -5,6 +5,7 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+.claude/
 
 # Logs
 *.log
@@ -13,3 +14,8 @@ server/node_modules/
 
 # Asset packs
 *.zip
+
+# Dev artifacts
+package.json
+package-lock.json
+user_tilemap*.json

@@ -58,7 +58,6 @@ const skills = {
   mage: { xp: 0, level: 1 },
 };
 let inCave = false;
-let caveGround = null;
 const onlineConfig = resolveOnlineConfig();
 const remotePlayers = createRemotePlayers({
   scene,
@@ -538,7 +537,7 @@ function updateNameTags() {
   }
 }
 
-const ENABLE_SLIME_TRAIL = true;
+const ENABLE_SLIME_TRAIL = false;
 const slimeTrails = [];
 const trailSegmentGeo = new THREE.PlaneGeometry(1, 1);
 let lastTrailTime = 0;
@@ -621,6 +620,7 @@ function updateSlimeTrail(dt, t, isMoving) {
     if (tr.age >= tr.duration) {
       scene.remove(tr.mesh);
       tr.mesh.material.dispose();
+      tr.mesh.geometry.dispose();
       slimeTrails.splice(i, 1);
     }
   }
