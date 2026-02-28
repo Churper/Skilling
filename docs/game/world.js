@@ -566,10 +566,13 @@ async function loadChunkData(cx, cz) {
   return null;
 }
 
+const _chunkLoading = new Set();  // prevent duplicate async loads
 async function loadChunk(cx, cz, scene, ground, nodes) {
   const key = `${cx},${cz}`;
-  if (_loadedChunks.has(key)) return;
+  if (_loadedChunks.has(key) || _chunkLoading.has(key)) return;
+  _chunkLoading.add(key);
   const data = await loadChunkData(cx, cz);
+  if (!data) { _chunkLoading.delete(key); return; }
   if (!data) return;
   const b = chunkBounds(cx, cz);
   b.water = data.water !== false;
@@ -648,6 +651,7 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
   }
   scene.add(objGroup);
   _loadedChunks.set(key, { terrainGroup, objGroup, data, waterUniforms });
+  _chunkLoading.delete(key);
 }
 
 function unloadChunk(cx, cz, scene, ground, nodes) {
