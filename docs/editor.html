@@ -10,14 +10,22 @@ canvas{display:block}
 
 /* ── Sidebar ── */
 #sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:#12121f;
-  display:flex;flex-direction:column;border-right:1px solid #2a2a3e;z-index:10}
+  display:flex;flex-direction:column;border-right:1px solid #2a2a3e;z-index:10;user-select:none}
 #sidebar h1{padding:10px 12px;font-size:15px;font-weight:700;color:#e8c44a;
   border-bottom:1px solid #2a2a3e;letter-spacing:1px;text-align:center}
+
+/* tabs */
+#tabs{display:flex;border-bottom:1px solid #2a2a3e}
+.tab{flex:1;padding:8px 4px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;
+  color:#666;background:#0d0d18;border-right:1px solid #2a2a3e;transition:all .15s}
+.tab:last-child{border-right:none}
+.tab:hover{color:#aaa;background:#1a1a2e}
+.tab.active{color:#e8c44a;background:#1e1e32;border-bottom:2px solid #e8c44a}
 
 /* info bar */
 #info{padding:6px 10px;font-size:10px;color:#666;border-bottom:1px solid #1a1a2e;line-height:1.7}
 #info kbd{background:#2a2a3e;padding:1px 5px;border-radius:3px;color:#bbb;font-family:monospace;font-size:9px}
-#cell-display{padding:4px 10px;font-size:10px;color:#888;border-bottom:1px solid #1a1a2e}
+#cell-display{padding:4px 10px;font-size:10px;color:#888;border-bottom:1px solid #1a1a2e;white-space:pre-line;min-height:28px}
 
 /* palette area */
 #palette-wrap{flex:1;overflow-y:auto;padding:6px 8px}
@@ -27,12 +35,19 @@ canvas{display:block}
 .obj-btn:hover{background:#252540;color:#ddd}
 .obj-btn.active{background:#2a2a50;color:#e8c44a;font-weight:600}
 
-/* object controls */
-#obj-controls{padding:8px 10px;border-top:1px solid #2a2a3e;font-size:10px}
-#obj-controls .row{display:flex;gap:4px;align-items:center;margin-bottom:4px}
-#obj-controls label{color:#666;min-width:40px}
-#obj-controls input[type=range]{flex:1;height:4px;accent-color:#e8c44a}
-#obj-controls .val{font-size:10px;color:#e8c44a;min-width:32px;text-align:right;font-family:monospace}
+/* mode controls */
+.panel{padding:8px 10px;border-top:1px solid #2a2a3e;font-size:10px}
+.panel .row{display:flex;gap:4px;align-items:center;margin-bottom:4px}
+.panel label{color:#666;min-width:40px}
+.panel input[type=range]{flex:1;height:4px;accent-color:#e8c44a}
+.panel .val{font-size:10px;color:#e8c44a;min-width:32px;text-align:right;font-family:monospace}
+
+/* height mode buttons */
+#height-modes{display:flex;gap:3px;margin-bottom:6px}
+#height-modes button{flex:1;padding:5px;font-size:10px;cursor:pointer;
+  background:#1e1e32;color:#999;border:1px solid #333;border-radius:4px;font-family:inherit}
+#height-modes button.active{background:#2a2a50;color:#e8c44a;border-color:#e8c44a}
+#height-modes button:hover{background:#252540}
 
 /* buttons */
 #btns{padding:8px 10px;border-top:1px solid #2a2a3e;display:flex;gap:4px;flex-wrap:wrap}
@@ -44,8 +59,6 @@ canvas{display:block}
 
 /* ── Canvas ── */
 #canvas-wrap{position:fixed;left:220px;top:0;right:0;bottom:0}
-
-/* hidden */
 .hidden{display:none!important}
 </style>
 </head>
@@ -53,32 +66,57 @@ canvas{display:block}
 
 <div id="sidebar">
   <h1>MAP EDITOR</h1>
-  <div id="info">
-    <kbd>Click</kbd> place &nbsp; <kbd>RClick</kbd> remove<br>
-    <kbd>R</kbd> rotate 45° &nbsp; <kbd>G</kbd> toggle grid<br>
-    <kbd>Shift+Scroll</kbd> resize &nbsp; <kbd>Del</kbd> delete selected<br>
-    <kbd>Ctrl+S</kbd> export &nbsp; <kbd>Ctrl+Z</kbd> undo &nbsp; <kbd>Esc</kbd> deselect
+  <div id="tabs">
+    <div class="tab active" data-tab="objects">Objects</div>
+    <div class="tab" data-tab="height">Height</div>
   </div>
+  <div id="info"></div>
   <div id="cell-display">—</div>
-  <div id="palette-wrap"></div>
 
-  <div id="obj-controls">
-    <div class="row"><label>Scale</label>
-      <input type="range" id="obj-scale" min="0.2" max="5" step="0.1" value="1.0">
-      <span class="val" id="obj-scale-val">1.00</span>
+  <!-- Objects mode -->
+  <div id="objects-panel">
+    <div id="palette-wrap"></div>
+    <div class="panel" id="obj-controls">
+      <div class="row"><label>Scale</label>
+        <input type="range" id="obj-scale" min="0.2" max="5" step="0.1" value="1.0">
+        <span class="val" id="obj-scale-val">1.00</span>
+      </div>
+      <div class="row"><label>Rot</label>
+        <input type="range" id="obj-rot" min="0" max="6.28" step="0.05" value="0">
+        <span class="val" id="obj-rot-val">0°</span>
+      </div>
     </div>
-    <div class="row"><label>Rot</label>
-      <input type="range" id="obj-rot" min="0" max="6.28" step="0.05" value="0">
-      <span class="val" id="obj-rot-val">0°</span>
+  </div>
+
+  <!-- Height mode -->
+  <div id="height-panel" class="hidden">
+    <div class="panel">
+      <div id="height-modes">
+        <button class="active" data-hm="raise">Raise</button>
+        <button data-hm="flatten">Flatten</button>
+        <button data-hm="smooth">Smooth</button>
+      </div>
+      <div class="row"><label>Size</label>
+        <input type="range" id="h-size" min="1" max="20" value="4" step="1">
+        <span class="val" id="h-size-val">4</span>
+      </div>
+      <div class="row"><label>Str</label>
+        <input type="range" id="h-str" min="0.05" max="1.0" value="0.30" step="0.05">
+        <span class="val" id="h-str-val">0.30</span>
+      </div>
+      <div class="row"><label>Flat Y</label>
+        <input type="range" id="h-flat" min="-1.0" max="5.0" value="0.40" step="0.1">
+        <span class="val" id="h-flat-val">0.40</span>
+      </div>
     </div>
   </div>
 
   <div id="btns">
-    <button id="btn-export">Export JSON</button>
-    <button id="btn-import">Import JSON</button>
-    <button id="btn-clear">Clear All</button>
+    <button id="btn-export">Export</button>
+    <button id="btn-import">Import</button>
+    <button id="btn-clear">Clear</button>
   </div>
-  <div id="count">0 objects</div>
+  <div id="count">—</div>
 </div>
 
 <div id="canvas-wrap"></div>
@@ -96,18 +134,25 @@ canvas{display:block}
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { buildTerrainMesh, buildSteppingStones, addWaterfall } from "./game/terrainLayout.js";
+import {
+  TILE_S, WATER_Y, GRASS_Y, HILL_Y,
+  GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
+  isInRiver, isBeach, isOnPath,
+  riverQuery, distToPath, terrainH,
+} from "./game/terrainHeight.js";
+import {
+  getMeshSurfaceY, loadTiles, buildBridge, buildDock, buildFences,
+  buildSteppingStones, addWaterfall, buildProps,
+  TREE_SPOTS, ROCK_MAJOR_SPOTS, ROCK_SMALL_SPOTS, BUSH_SPOTS, CLIFF_ROCK_SPOTS,
+} from "./game/terrainLayout.js";
 
 /* ═══════════════════════════════════════════
-   Constants
+   Constants & Catalogues
    ═══════════════════════════════════════════ */
-const TILE_S = 2;
-const TILE_DIR = "models/terrain/";
 const MODEL_DIR = "models/";
+const TILE_DIR = "models/terrain/";
+const sm = THREE.MathUtils.smoothstep;
 
-/* ═══════════════════════════════════════════
-   Object catalogue
-   ═══════════════════════════════════════════ */
 const OBJ_CATEGORIES = [
   { name: "Trees", items: [
     { id: "Tree_1_A", file: "Tree_1_A_Color1.gltf", scale: 2.0 },
@@ -229,6 +274,115 @@ const OBJ_CATEGORIES = [
 ];
 
 /* ═══════════════════════════════════════════
+   Height-editable terrain mesh (from heighteditor.js)
+   ═══════════════════════════════════════════ */
+const TOON_GRAD = (() => {
+  const c = document.createElement("canvas"); c.width = 4; c.height = 1;
+  const ctx = c.getContext("2d");
+  [25, 95, 185, 255].forEach((v, i) => { ctx.fillStyle = `rgb(${v},${v},${v})`; ctx.fillRect(i, 0, 1, 1); });
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.NoColorSpace; t.minFilter = t.magFilter = THREE.NearestFilter; t.generateMipmaps = false;
+  return t;
+})();
+
+const hStep = 1.0;
+const xMin = (GX_MIN - 1) * TILE_S, xMax = (GX_MAX + 1) * TILE_S;
+const zMin = (GZ_MIN - 1) * TILE_S, zMax = (GZ_MAX + 1) * TILE_S;
+const hnx = Math.ceil((xMax - xMin) / hStep) + 1;
+const hnz = Math.ceil((zMax - zMin) / hStep) + 1;
+const heightOffsets = new Float32Array(hnx * hnz);
+const hUndoStack = [];
+let hUndoSnap = null;
+
+function hvi(ix, iz) { return iz * hnx + ix; }
+function worldToHGrid(wx, wz) { return [Math.round((wx - xMin) / hStep), Math.round((wz - zMin) / hStep)]; }
+
+const cGrass = new THREE.Color("#4dad38"), cPath = new THREE.Color("#c4a060");
+const cSand = new THREE.Color("#e2d098"), cHill = new THREE.Color("#3d8a2e");
+const cBank = new THREE.Color("#6d8854"), cRiver = new THREE.Color("#5a7454");
+const cCliff = new THREE.Color("#8a8a7a"), tmpC = new THREE.Color();
+const beachCX = 38, beachCZ = -6, beachR = 26;
+const BRIDGE_X0 = -6, BRIDGE_X1 = 6, BRIDGE_Z = 8, BRIDGE_HW = 3;
+
+function computeColor(x, z, y) {
+  const rq = riverQuery(x, z);
+  const beachDist = Math.hypot(x - beachCX, z - beachCZ);
+  const beachT = 1 - sm(beachDist, beachR - 6, beachR);
+  const lowSandT = 1 - sm(y, WATER_Y - 0.1, WATER_Y + 0.25);
+  const nearCoast = sm(x, 14, 24) * (1 - sm(z, -6, 8));
+  const sandiness = Math.max(lowSandT, beachT, nearCoast);
+  if (sandiness > 0.8) return cSand;
+  if (sandiness > 0.01) { tmpC.copy(cGrass).lerp(cSand, sandiness); return tmpC; }
+  if (isInRiver(x, z)) return cRiver;
+  if (rq.dist < rq.width + 2.5) { tmpC.copy(cBank).lerp(cGrass, Math.max(0, (rq.dist - rq.width) / 2.5)); return tmpC; }
+  if (isOnPath(x, z)) { tmpC.copy(cPath).lerp(cGrass, sm(distToPath(x, z), 0, 2.5)); return tmpC; }
+  if (y > GRASS_Y + 3) return cCliff;
+  if (y > GRASS_Y + 0.5) { tmpC.copy(cHill).lerp(cGrass, 1 - sm(y, GRASS_Y + 0.5, HILL_Y)); return tmpC; }
+  return cGrass;
+}
+
+let hPos, hCol, groundMesh, groundGeo;
+function buildHeightMesh() {
+  hPos = new Float32Array(hnx * hnz * 3);
+  hCol = new Float32Array(hnx * hnz * 3);
+  const idx = [];
+  for (let iz = 0; iz < hnz; iz++) {
+    for (let ix = 0; ix < hnx; ix++) {
+      const x = xMin + ix * hStep, z = zMin + iz * hStep;
+      const vi = hvi(ix, iz), i3 = vi * 3;
+      const y = getMeshSurfaceY(x, z) + heightOffsets[vi];
+      hPos[i3] = x; hPos[i3 + 1] = y; hPos[i3 + 2] = z;
+      const c = computeColor(x, z, y);
+      const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
+      const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
+      const fc = (underBridge || underDock) && y < WATER_Y + 0.1 ? cRiver : c;
+      hCol[i3] = fc.r; hCol[i3 + 1] = fc.g; hCol[i3 + 2] = fc.b;
+      if (ix < hnx - 1 && iz < hnz - 1) { const a = vi; idx.push(a, a + hnx, a + 1, a + 1, a + hnx, a + hnx + 1); }
+    }
+  }
+  groundGeo = new THREE.BufferGeometry();
+  groundGeo.setAttribute("position", new THREE.BufferAttribute(hPos, 3));
+  groundGeo.setAttribute("color", new THREE.BufferAttribute(hCol, 3));
+  groundGeo.setIndex(idx); groundGeo.computeVertexNormals();
+  groundMesh = new THREE.Mesh(groundGeo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD, flatShading: true }));
+  return groundMesh;
+}
+
+function updateMeshRegion(cx, cz, radius) {
+  const r = Math.ceil(radius / hStep) + 2;
+  for (let iz = Math.max(0, cz - r); iz <= Math.min(hnz - 1, cz + r); iz++) {
+    for (let ix = Math.max(0, cx - r); ix <= Math.min(hnx - 1, cx + r); ix++) {
+      const vi = hvi(ix, iz), i3 = vi * 3;
+      const x = xMin + ix * hStep, z = zMin + iz * hStep;
+      const y = getMeshSurfaceY(x, z) + heightOffsets[vi];
+      hPos[i3 + 1] = y;
+      const c = computeColor(x, z, y);
+      const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
+      const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
+      const fc = (underBridge || underDock) && y < WATER_Y + 0.1 ? cRiver : c;
+      hCol[i3] = fc.r; hCol[i3 + 1] = fc.g; hCol[i3 + 2] = fc.b;
+    }
+  }
+  groundGeo.attributes.position.needsUpdate = true;
+  groundGeo.attributes.color.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+}
+
+function rebuildAllVerts() {
+  for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+    const vi = hvi(ix, iz), i3 = vi * 3;
+    const x = xMin + ix * hStep, z = zMin + iz * hStep;
+    const y = getMeshSurfaceY(x, z) + heightOffsets[vi];
+    hPos[i3 + 1] = y;
+    const c = computeColor(x, z, y);
+    hCol[i3] = c.r; hCol[i3 + 1] = c.g; hCol[i3 + 2] = c.b;
+  }
+  groundGeo.attributes.position.needsUpdate = true;
+  groundGeo.attributes.color.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+}
+
+/* ═══════════════════════════════════════════
    Three.js Setup
    ═══════════════════════════════════════════ */
 const wrap = document.getElementById("canvas-wrap");
@@ -244,28 +398,47 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, wrap.clientWidth / wrap.clientHeight, 0.5, 500);
 camera.position.set(20, 30, 40);
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 0, 0);
-controls.enableDamping = true;
-controls.dampingFactor = 0.1;
-controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null };
-controls.update();
+const orbitControls = new OrbitControls(camera, renderer.domElement);
+orbitControls.target.set(0, 0, 0);
+orbitControls.enableDamping = true;
+orbitControls.dampingFactor = 0.1;
+orbitControls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null };
+orbitControls.update();
 
 /* Lighting */
 scene.add(new THREE.HemisphereLight("#f0fbff", "#6aa057", 0.92));
 scene.add(new THREE.AmbientLight("#ffffff", 0.18));
 const sun = new THREE.DirectionalLight("#fff2d0", 1.46);
 sun.position.set(42, 54, 18); scene.add(sun);
-const fill = new THREE.DirectionalLight("#d8efff", 0.32);
-fill.position.set(-34, 26, -24); scene.add(fill);
+const fillL = new THREE.DirectionalLight("#d8efff", 0.32);
+fillL.position.set(-34, 26, -24); scene.add(fillL);
 
 /* ═══════════════════════════════════════════
-   Grid + ground plane visual
+   Scene: terrain mesh + water + structures
    ═══════════════════════════════════════════ */
-const GRID_MIN = -25, GRID_MAX = 25;
-const gridGroup = new THREE.Group(); gridGroup.name = "grid";
+/* height-editable terrain */
+scene.add(buildHeightMesh());
 
-function buildGrid() {
+/* water plane */
+const ww = xMax - xMin + 20, wh = zMax - zMin + 20;
+const waterGeo = new THREE.PlaneGeometry(ww, wh, 1, 1);
+waterGeo.rotateX(-Math.PI / 2);
+const waterMesh = new THREE.Mesh(waterGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
+waterMesh.position.set((xMin + xMax) / 2, WATER_Y, (zMin + zMax) / 2);
+waterMesh.renderOrder = 2;
+scene.add(waterMesh);
+
+/* stepping stones */
+scene.add(buildSteppingStones());
+
+/* waterfall */
+const waterUniforms = { uTime: { value: 0 } };
+addWaterfall(scene, waterUniforms);
+
+/* grid */
+const GRID_MIN = -25, GRID_MAX = 25;
+const gridGroup = new THREE.Group(); gridGroup.name = "grid"; gridGroup.visible = false;
+{
   const mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.12 });
   const pts = [];
   for (let i = GRID_MIN; i <= GRID_MAX + 1; i++) {
@@ -277,34 +450,34 @@ function buildGrid() {
     pts.push(new THREE.Vector3(GRID_MIN * TILE_S, 0.01, z), new THREE.Vector3((GRID_MAX + 1) * TILE_S, 0.01, z));
   }
   gridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), mat));
-  const axMat = new THREE.LineBasicMaterial({ color: 0xff4444, transparent: true, opacity: 0.35 });
-  const axPts = [
-    new THREE.Vector3(GRID_MIN * TILE_S, 0.02, 0), new THREE.Vector3((GRID_MAX + 1) * TILE_S, 0.02, 0),
-    new THREE.Vector3(0, 0.02, GRID_MIN * TILE_S), new THREE.Vector3(0, 0.02, (GRID_MAX + 1) * TILE_S),
-  ];
-  gridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(axPts), axMat));
   scene.add(gridGroup);
 }
-buildGrid();
 
-/* Real procedural terrain mesh from the game */
-const waterUniforms = { uTime: { value: 0 } };
-scene.add(buildTerrainMesh(waterUniforms));
-scene.add(buildSteppingStones());
-addWaterfall(scene, waterUniforms);
+/* brush circle for height mode */
+let brushRadius = 4;
+const brushGeo = new THREE.RingGeometry(brushRadius - 0.15, brushRadius + 0.15, 48);
+brushGeo.rotateX(-Math.PI / 2);
+const brushCircle = new THREE.Mesh(brushGeo, new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.6, depthTest: false }));
+brushCircle.renderOrder = 100; brushCircle.visible = false; scene.add(brushCircle);
+function updateBrushGeo() {
+  brushCircle.geometry.dispose();
+  brushCircle.geometry = new THREE.RingGeometry(brushRadius - 0.15, brushRadius + 0.15, 48);
+  brushCircle.geometry.rotateX(-Math.PI / 2);
+}
 
-/* Hover highlight */
-const hoverGeo = new THREE.PlaneGeometry(TILE_S, TILE_S);
-const hoverMat = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthTest: false });
-const hoverMesh = new THREE.Mesh(hoverGeo, hoverMat);
+/* hover highlight for object mode */
+const hoverMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(TILE_S, TILE_S),
+  new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthTest: false })
+);
 hoverMesh.rotation.x = -Math.PI / 2; hoverMesh.position.y = 0.03; hoverMesh.visible = false; hoverMesh.renderOrder = 999;
 scene.add(hoverMesh);
 
 /* ═══════════════════════════════════════════
-   Model Loading
+   Load tile models (bridge, dock, fences) + character models
    ═══════════════════════════════════════════ */
 THREE.Cache.enabled = true;
-const loader = new GLTFLoader();
+const gltfLoader = new GLTFLoader();
 const objLib = {};
 const allObjItems = OBJ_CATEGORIES.flatMap(c => c.items.map(it => ({ ...it, dir: c.dir || MODEL_DIR })));
 
@@ -313,134 +486,206 @@ async function loadAllModels() {
   const total = allObjItems.length;
   let loaded = 0;
   status.textContent = `Loading 0/${total}...`;
-
-  const loadOne = (url) => new Promise(res => {
-    loader.load(url, gltf => res(gltf.scene), undefined, () => res(null));
-  });
-
+  const loadOne = url => new Promise(res => { gltfLoader.load(url, gltf => res(gltf.scene), undefined, () => res(null)); });
   await Promise.all(allObjItems.map(async item => {
     const s = await loadOne(item.dir + item.file);
     if (s) objLib[item.id] = s;
     status.textContent = `Loading ${++loaded}/${total}...`;
   }));
-
-  const msg = `Loaded ${Object.keys(objLib).length}/${total} models`;
-  status.textContent = msg;
+  status.textContent = `Loaded ${Object.keys(objLib).length}/${total}`;
   status.style.color = "#4a4";
-  console.log(msg);
 }
 
 /* ═══════════════════════════════════════════
-   State
+   Load and display ALL game structures (bridge, dock, fences, props)
+   + trees, rocks, bushes, cliff rocks as ghost references
    ═══════════════════════════════════════════ */
-let selectedObj = null;
-let objScale = 1.0;
-let objRot = 0;
-let hoverCell = null;
+async function loadGameStructures() {
+  /* load tile lib for bridge/dock/fences/props */
+  let tileLib;
+  try { tileLib = await loadTiles(); } catch (e) { console.warn("Tile load failed:", e); return; }
+  if (!tileLib) return;
 
+  /* bridge */
+  scene.add(buildBridge(tileLib));
+  /* dock */
+  scene.add(buildDock(tileLib));
+  /* fences */
+  scene.add(buildFences(tileLib));
+  /* props (grass clumps, flowers, cattails, mushrooms, shells, etc.) */
+  buildProps(tileLib, scene);
+
+  console.log("Loaded game structures: bridge, dock, fences, props");
+}
+
+async function loadGameObjects() {
+  /* place trees, rocks, bushes, cliff rocks as semi-transparent ghosts */
+  const ghostGroup = new THREE.Group();
+  ghostGroup.name = "game_objects";
+
+  function makeGhost(tmpl, x, z, s, r) {
+    const m = tmpl.clone();
+    m.scale.setScalar(s);
+    m.position.set(x, getMeshSurfaceY(x, z), z);
+    m.rotation.y = r;
+    m.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.4; c.material.depthWrite = false; } });
+    ghostGroup.add(m);
+  }
+
+  const treeModels = ["Tree_1_A","Tree_2_A","Tree_2_C","Tree_3_A","Tree_4_A"].filter(k => objLib[k]);
+  const rockModels = ["Rock_1_J","Rock_1_K","Rock_3_A","Rock_3_C","Rock_3_E","Rock_3_G"].filter(k => objLib[k]);
+  const bushModels = ["Bush_1_A","Bush_2_A"].filter(k => objLib[k]);
+
+  if (treeModels.length) TREE_SPOTS.forEach(([x,z,s,r], i) => makeGhost(objLib[treeModels[i % treeModels.length]], x, z, s, r));
+  if (rockModels.length) {
+    ROCK_MAJOR_SPOTS.forEach(([x,z,s,r], i) => makeGhost(objLib[rockModels[i % rockModels.length]], x, z, s, r));
+    ROCK_SMALL_SPOTS.forEach(([x,z,s,r], i) => makeGhost(objLib[rockModels[i % rockModels.length]], x, z, s, r));
+  }
+  if (bushModels.length) BUSH_SPOTS.forEach(([x,z,s,r], i) => makeGhost(objLib[bushModels[i % bushModels.length]], x, z, s, r));
+  if (rockModels.length) CLIFF_ROCK_SPOTS.forEach(([x,z,s,r], i) => {
+    const m = objLib[rockModels[i % rockModels.length]].clone();
+    m.scale.setScalar(s); m.rotation.y = r;
+    m.position.set(x, getMeshSurfaceY(x, z) - 2, z);
+    m.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.4; c.material.depthWrite = false; } });
+    ghostGroup.add(m);
+  });
+
+  scene.add(ghostGroup);
+  const total = TREE_SPOTS.length + ROCK_MAJOR_SPOTS.length + ROCK_SMALL_SPOTS.length + BUSH_SPOTS.length + CLIFF_ROCK_SPOTS.length;
+  console.log(`Showing ${total} game objects as ghosts`);
+}
+
+/* ═══════════════════════════════════════════
+   Editor State
+   ═══════════════════════════════════════════ */
+let mode = "objects"; // "objects" | "height"
+let selectedObj = null;
+let objScale = 1.0, objRot = 0;
+
+/* Object instances */
 let nextObjId = 1;
 const objects = [];
 let selectedInstance = null;
 let highlightRing = null;
 
-/* Undo */
-const undoStack = [];
-const MAX_UNDO = 100;
-function pushUndo(action) { undoStack.push(action); if (undoStack.length > MAX_UNDO) undoStack.shift(); }
+/* Height brush state */
+let brushMode = "raise";
+let brushStrength = 0.30;
+let flattenY = GRASS_Y;
+let painting = false, paintSign = 1, lastPaintTime = 0;
 
-function undo() {
-  const action = undoStack.pop();
-  if (!action) return;
-  if (action.type === "place") {
-    const idx = objects.findIndex(o => o.id === action.objId);
-    if (idx >= 0) { scene.remove(objects[idx].mesh); objects.splice(idx, 1); }
-  } else if (action.type === "remove") {
-    const { data } = action;
-    const tmpl = objLib[data.type];
-    if (tmpl) {
-      const mesh = tmpl.clone();
-      mesh.scale.setScalar(data.scale);
-      mesh.position.set(data.x, data.y, data.z);
-      mesh.rotation.y = data.rot;
-      scene.add(mesh);
-      objects.push({ ...data, mesh });
-    }
-  }
-  updateCount();
-}
+/* Undo (objects) */
+const objUndoStack = [];
+function pushObjUndo(a) { objUndoStack.push(a); if (objUndoStack.length > 100) objUndoStack.shift(); }
 
 /* ═══════════════════════════════════════════
-   Preview ghost
+   Height painting
+   ═══════════════════════════════════════════ */
+function paintAt(wx, wz, dt) {
+  const [cx, cz] = worldToHGrid(wx, wz);
+  const r = Math.ceil(brushRadius / hStep);
+  for (let dz = -r; dz <= r; dz++) {
+    for (let dx = -r; dx <= r; dx++) {
+      const ix = cx + dx, iz = cz + dz;
+      if (ix < 0 || ix >= hnx || iz < 0 || iz >= hnz) continue;
+      const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
+      const dist = Math.hypot(vx - wx, vz - wz);
+      if (dist > brushRadius) continue;
+      const falloff = 1 - sm(dist, 0, brushRadius);
+      const vi = hvi(ix, iz);
+      const curY = getMeshSurfaceY(vx, vz) + heightOffsets[vi];
+      if (brushMode === "raise") {
+        heightOffsets[vi] += paintSign * brushStrength * falloff * dt * 8;
+      } else if (brushMode === "flatten") {
+        heightOffsets[vi] += (flattenY - curY) * brushStrength * falloff * dt * 4;
+      } else if (brushMode === "smooth") {
+        let sum = 0, cnt = 0;
+        for (const [ox, oz] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+          const ni = ix + ox, nj = iz + oz;
+          if (ni >= 0 && ni < hnx && nj >= 0 && nj < hnz) {
+            sum += getMeshSurfaceY(xMin + ni * hStep, zMin + nj * hStep) + heightOffsets[hvi(ni, nj)]; cnt++;
+          }
+        }
+        if (cnt) heightOffsets[vi] += (sum / cnt - curY) * brushStrength * falloff * dt * 4;
+      }
+    }
+  }
+  updateMeshRegion(cx, cz, brushRadius);
+}
+
+function hSaveUndo() { hUndoSnap = new Float32Array(heightOffsets); }
+function hPushUndo() { if (hUndoSnap) { hUndoStack.push(hUndoSnap); if (hUndoStack.length > 50) hUndoStack.shift(); hUndoSnap = null; } }
+function hUndo() { if (!hUndoStack.length) return; heightOffsets.set(hUndoStack.pop()); rebuildAllVerts(); }
+
+/* ═══════════════════════════════════════════
+   Object placement
    ═══════════════════════════════════════════ */
 let previewObj = null;
 function updatePreview() {
   if (previewObj) { scene.remove(previewObj); previewObj = null; }
-  if (!hoverCell || !selectedObj) return;
-  const tmpl = objLib[selectedObj];
-  if (!tmpl) return;
+  if (mode !== "objects" || !selectedObj || !lastHit) return;
+  const tmpl = objLib[selectedObj]; if (!tmpl) return;
   const obj = tmpl.clone();
   obj.scale.setScalar(objScale);
-  obj.position.set(hoverCell.wx, 0.02, hoverCell.wz);
+  obj.position.set(lastHit.x, lastHit.y, lastHit.z);
   obj.rotation.y = objRot;
   obj.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.35; c.material.depthWrite = false; } });
   obj.renderOrder = 998; previewObj = obj; scene.add(obj);
 }
 
-/* ═══════════════════════════════════════════
-   Place / Remove Objects
-   ═══════════════════════════════════════════ */
-function placeObject(wx, wz) {
+function placeObject(wx, wy, wz) {
   if (!selectedObj) return;
-  const tmpl = objLib[selectedObj];
-  if (!tmpl) return;
+  const tmpl = objLib[selectedObj]; if (!tmpl) return;
   const mesh = tmpl.clone();
   mesh.scale.setScalar(objScale);
-  mesh.position.set(wx, 0, wz);
+  mesh.position.set(wx, wy, wz);
   mesh.rotation.y = objRot;
   scene.add(mesh);
   const id = nextObjId++;
-  const entry = { id, type: selectedObj, x: wx, z: wz, y: 0, scale: objScale, rot: objRot, mesh };
+  const entry = { id, type: selectedObj, x: wx, z: wz, y: wy, scale: objScale, rot: objRot, mesh };
   objects.push(entry);
-  pushUndo({ type: "place", objId: id });
+  pushObjUndo({ type: "place", objId: id });
   selectInstance(entry);
   updateCount();
 }
 
 function removeObjectAt(wx, wz) {
   let best = null, bestDist = TILE_S * 1.5;
-  for (const obj of objects) {
-    const d = Math.hypot(obj.x - wx, obj.z - wz);
-    if (d < bestDist) { bestDist = d; best = obj; }
-  }
+  for (const obj of objects) { const d = Math.hypot(obj.x - wx, obj.z - wz); if (d < bestDist) { bestDist = d; best = obj; } }
   if (!best) return;
-  pushUndo({ type: "remove", data: { id: best.id, type: best.type, x: best.x, z: best.z, y: best.y, scale: best.scale, rot: best.rot } });
-  scene.remove(best.mesh);
-  objects.splice(objects.indexOf(best), 1);
+  pushObjUndo({ type: "remove", data: { id: best.id, type: best.type, x: best.x, z: best.z, y: best.y, scale: best.scale, rot: best.rot } });
+  scene.remove(best.mesh); objects.splice(objects.indexOf(best), 1);
   if (selectedInstance === best) deselectInstance();
   updateCount();
 }
 
 function findObjectAt(wx, wz) {
   let best = null, bestDist = TILE_S * 1.2;
-  for (const obj of objects) {
-    const d = Math.hypot(obj.x - wx, obj.z - wz);
-    if (d < bestDist) { bestDist = d; best = obj; }
-  }
+  for (const obj of objects) { const d = Math.hypot(obj.x - wx, obj.z - wz); if (d < bestDist) { bestDist = d; best = obj; } }
   return best;
 }
 
-/* Selection ring */
-function createHighlightRing() {
-  const geo = new THREE.RingGeometry(0.8, 1.0, 24);
-  const mat = new THREE.MeshBasicMaterial({ color: 0xe8c44a, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthTest: false });
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.rotation.x = -Math.PI / 2; mesh.renderOrder = 1000; mesh.visible = false;
-  scene.add(mesh); return mesh;
+function objUndo() {
+  const a = objUndoStack.pop(); if (!a) return;
+  if (a.type === "place") {
+    const idx = objects.findIndex(o => o.id === a.objId);
+    if (idx >= 0) { scene.remove(objects[idx].mesh); objects.splice(idx, 1); }
+  } else if (a.type === "remove") {
+    const tmpl = objLib[a.data.type]; if (!tmpl) return;
+    const mesh = tmpl.clone(); mesh.scale.setScalar(a.data.scale); mesh.position.set(a.data.x, a.data.y, a.data.z); mesh.rotation.y = a.data.rot;
+    scene.add(mesh); objects.push({ ...a.data, mesh });
+  }
+  updateCount();
 }
 
+/* selection ring */
+function createRing() {
+  const m = new THREE.Mesh(new THREE.RingGeometry(0.8, 1.0, 24), new THREE.MeshBasicMaterial({ color: 0xe8c44a, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthTest: false }));
+  m.rotation.x = -Math.PI / 2; m.renderOrder = 1000; m.visible = false; scene.add(m); return m;
+}
 function selectInstance(obj) {
   selectedInstance = obj;
-  if (!highlightRing) highlightRing = createHighlightRing();
+  if (!highlightRing) highlightRing = createRing();
   highlightRing.visible = true;
   highlightRing.position.set(obj.x, obj.y + 0.05, obj.z);
   highlightRing.scale.setScalar(obj.scale);
@@ -450,22 +695,12 @@ function selectInstance(obj) {
   document.getElementById("obj-rot-val").textContent = Math.round(obj.rot * 180 / Math.PI) + "°";
   objScale = obj.scale; objRot = obj.rot;
 }
-
-function deselectInstance() {
-  selectedInstance = null;
-  if (highlightRing) highlightRing.visible = false;
-}
-
+function deselectInstance() { selectedInstance = null; if (highlightRing) highlightRing.visible = false; }
 function updateSelectedInstance() {
   if (!selectedInstance) return;
-  selectedInstance.scale = objScale;
-  selectedInstance.rot = objRot;
-  selectedInstance.mesh.scale.setScalar(objScale);
-  selectedInstance.mesh.rotation.y = objRot;
-  if (highlightRing) {
-    highlightRing.position.set(selectedInstance.x, selectedInstance.y + 0.05, selectedInstance.z);
-    highlightRing.scale.setScalar(objScale);
-  }
+  selectedInstance.scale = objScale; selectedInstance.rot = objRot;
+  selectedInstance.mesh.scale.setScalar(objScale); selectedInstance.mesh.rotation.y = objRot;
+  if (highlightRing) { highlightRing.position.set(selectedInstance.x, selectedInstance.y + 0.05, selectedInstance.z); highlightRing.scale.setScalar(objScale); }
 }
 
 /* ═══════════════════════════════════════════
@@ -473,88 +708,173 @@ function updateSelectedInstance() {
    ═══════════════════════════════════════════ */
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+let lastHit = null;
 
-function screenToWorld(e) {
+function raycastGround(e) {
   const rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObject(groundMesh);
+  if (hits.length > 0) return hits[0].point;
+  /* fallback: plane */
+  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   const target = new THREE.Vector3();
-  if (!raycaster.ray.intersectPlane(groundPlane, target)) return null;
-  return { gx: Math.floor(target.x / TILE_S), gz: Math.floor(target.z / TILE_S), wx: target.x, wz: target.z };
+  if (raycaster.ray.intersectPlane(plane, target)) return target;
+  return null;
 }
 
 /* ═══════════════════════════════════════════
    Input
    ═══════════════════════════════════════════ */
 let mouseDownPos = null;
+const canvas = renderer.domElement;
 
-renderer.domElement.addEventListener("mousedown", e => {
+canvas.addEventListener("mousedown", e => {
   mouseDownPos = { x: e.clientX, y: e.clientY };
+  if (mode === "height" && (e.button === 0 || e.button === 2)) {
+    painting = true;
+    paintSign = e.button === 0 ? 1 : -1;
+    hSaveUndo(); lastPaintTime = performance.now();
+    const pt = raycastGround(e);
+    if (pt) paintAt(pt.x, pt.z, 0.016);
+  }
 });
 
-renderer.domElement.addEventListener("mouseup", e => {
+canvas.addEventListener("mouseup", e => {
+  if (mode === "height" && painting) { painting = false; hPushUndo(); return; }
   if (!mouseDownPos) return;
   if (Math.abs(e.clientX - mouseDownPos.x) > 4 || Math.abs(e.clientY - mouseDownPos.y) > 4) return;
-  const hit = screenToWorld(e);
-  if (!hit) return;
-
+  if (mode !== "objects") return;
+  const pt = raycastGround(e);
+  if (!pt) return;
   if (e.button === 0) {
-    const existing = findObjectAt(hit.wx, hit.wz);
-    if (existing && !selectedObj) { selectInstance(existing); }
-    else if (selectedObj) { placeObject(hit.wx, hit.wz); }
-    else if (existing) { selectInstance(existing); }
+    const existing = findObjectAt(pt.x, pt.z);
+    if (existing && !selectedObj) selectInstance(existing);
+    else if (selectedObj) placeObject(pt.x, pt.y, pt.z);
+    else if (existing) selectInstance(existing);
   }
-  if (e.button === 2) removeObjectAt(hit.wx, hit.wz);
+  if (e.button === 2) removeObjectAt(pt.x, pt.z);
 });
 
-renderer.domElement.addEventListener("contextmenu", e => e.preventDefault());
-
-renderer.domElement.addEventListener("mousemove", e => {
-  const hit = screenToWorld(e);
-  hoverCell = hit;
-  if (hit) {
-    hoverMesh.position.x = hit.gx * TILE_S + TILE_S / 2;
-    hoverMesh.position.z = hit.gz * TILE_S + TILE_S / 2;
-    hoverMesh.visible = true;
-    let label = `${hit.wx.toFixed(1)}, ${hit.wz.toFixed(1)}`;
-    const near = findObjectAt(hit.wx, hit.wz);
-    if (near) label += ` [${near.type}]`;
-    document.getElementById("cell-display").textContent = label;
+canvas.addEventListener("mousemove", e => {
+  const pt = raycastGround(e);
+  lastHit = pt;
+  if (pt) {
+    if (mode === "objects") {
+      hoverMesh.position.set(Math.floor(pt.x / TILE_S) * TILE_S + TILE_S / 2, pt.y + 0.03, Math.floor(pt.z / TILE_S) * TILE_S + TILE_S / 2);
+      hoverMesh.visible = true; brushCircle.visible = false;
+      let label = `${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}`;
+      const near = findObjectAt(pt.x, pt.z);
+      if (near) label += ` [${near.type}]`;
+      document.getElementById("cell-display").textContent = label;
+    } else {
+      hoverMesh.visible = false;
+      brushCircle.visible = true;
+      brushCircle.position.set(pt.x, pt.y + 0.2, pt.z);
+      const [gx, gz] = worldToHGrid(pt.x, pt.z);
+      const vi = (gx >= 0 && gx < hnx && gz >= 0 && gz < hnz) ? hvi(gx, gz) : -1;
+      const baseY = getMeshSurfaceY(pt.x, pt.z).toFixed(2);
+      const offset = vi >= 0 ? heightOffsets[vi].toFixed(2) : "—";
+      document.getElementById("cell-display").textContent = `${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}\nBase Y: ${baseY}  Offset: ${offset}`;
+      if (painting) {
+        const now = performance.now();
+        const dt = Math.min((now - lastPaintTime) / 1000, 0.05);
+        lastPaintTime = now;
+        paintAt(pt.x, pt.z, dt);
+      }
+    }
   } else {
-    hoverMesh.visible = false;
+    hoverMesh.visible = false; brushCircle.visible = false;
   }
   updatePreview();
 });
 
+canvas.addEventListener("mouseleave", () => {
+  if (painting) { painting = false; hPushUndo(); }
+  hoverMesh.visible = false; brushCircle.visible = false;
+});
+
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+canvas.addEventListener("wheel", e => {
+  if (e.shiftKey) {
+    e.preventDefault();
+    if (mode === "objects") {
+      objScale = Math.max(0.2, Math.min(5, objScale + (e.deltaY > 0 ? -0.1 : 0.1)));
+      document.getElementById("obj-scale").value = objScale;
+      document.getElementById("obj-scale-val").textContent = objScale.toFixed(2);
+      updateSelectedInstance(); updatePreview();
+    } else {
+      const d = e.deltaY > 0 ? -1 : 1;
+      brushRadius = Math.max(1, Math.min(20, brushRadius + d));
+      document.getElementById("h-size").value = brushRadius;
+      document.getElementById("h-size-val").textContent = brushRadius;
+      updateBrushGeo();
+    }
+  }
+}, { passive: false });
+
 window.addEventListener("keydown", e => {
   if (e.key === "r" || e.key === "R") {
-    objRot = (objRot + Math.PI / 4) % (Math.PI * 2);
-    document.getElementById("obj-rot").value = objRot;
-    document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°";
-    updateSelectedInstance(); updatePreview();
+    if (mode === "objects") {
+      objRot = (objRot + Math.PI / 4) % (Math.PI * 2);
+      document.getElementById("obj-rot").value = objRot;
+      document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°";
+      updateSelectedInstance(); updatePreview();
+    }
   }
   if (e.key === "g" || e.key === "G") gridGroup.visible = !gridGroup.visible;
-  if (e.key === "s" && e.ctrlKey) { e.preventDefault(); exportJSON(); }
-  if (e.key === "z" && e.ctrlKey) { e.preventDefault(); undo(); }
+  if (e.ctrlKey && e.key === "s") { e.preventDefault(); exportJSON(); }
+  if (e.ctrlKey && e.key === "z") { e.preventDefault(); if (mode === "objects") objUndo(); else hUndo(); }
   if (e.key === "Escape") { deselectInstance(); selectedObj = null; updatePaletteSelection(); updatePreview(); }
   if (e.key === "Delete" && selectedInstance) {
-    const obj = selectedInstance;
-    pushUndo({ type: "remove", data: { id: obj.id, type: obj.type, x: obj.x, z: obj.z, y: obj.y, scale: obj.scale, rot: obj.rot } });
-    scene.remove(obj.mesh); objects.splice(objects.indexOf(obj), 1); deselectInstance(); updateCount();
+    pushObjUndo({ type: "remove", data: { id: selectedInstance.id, type: selectedInstance.type, x: selectedInstance.x, z: selectedInstance.z, y: selectedInstance.y, scale: selectedInstance.scale, rot: selectedInstance.rot } });
+    scene.remove(selectedInstance.mesh); objects.splice(objects.indexOf(selectedInstance), 1); deselectInstance(); updateCount();
+  }
+  /* height mode shortcuts */
+  if (mode === "height") {
+    if (e.key === "f" || e.key === "F") setHeightMode("flatten");
+    if (e.key === "s" && !e.ctrlKey) setHeightMode("smooth");
+    if ((e.key === "r" || e.key === "R") && mode === "height") setHeightMode("raise");
   }
 });
 
-renderer.domElement.addEventListener("wheel", e => {
-  if (!e.shiftKey) return;
-  e.preventDefault();
-  const delta = e.deltaY > 0 ? -0.1 : 0.1;
-  objScale = Math.max(0.2, Math.min(5, objScale + delta));
-  document.getElementById("obj-scale").value = objScale;
-  document.getElementById("obj-scale-val").textContent = objScale.toFixed(2);
-  updateSelectedInstance(); updatePreview();
-}, { passive: false });
+/* ═══════════════════════════════════════════
+   Tab switching
+   ═══════════════════════════════════════════ */
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === mode));
+  document.getElementById("objects-panel").classList.toggle("hidden", mode !== "objects");
+  document.getElementById("height-panel").classList.toggle("hidden", mode !== "height");
+  hoverMesh.visible = false; brushCircle.visible = false;
+  if (mode === "objects") {
+    orbitControls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null };
+    document.getElementById("info").innerHTML =
+      '<kbd>Click</kbd> place &nbsp; <kbd>RClick</kbd> remove<br>' +
+      '<kbd>R</kbd> rotate &nbsp; <kbd>Shift+Scroll</kbd> resize<br>' +
+      '<kbd>Del</kbd> delete &nbsp; <kbd>Esc</kbd> deselect<br>' +
+      '<kbd>G</kbd> grid &nbsp; <kbd>Ctrl+S</kbd> export &nbsp; <kbd>Ctrl+Z</kbd> undo';
+  } else {
+    orbitControls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.ROTATE, RIGHT: null };
+    document.getElementById("info").innerHTML =
+      '<kbd>Left-drag</kbd> raise &nbsp; <kbd>Right-drag</kbd> lower<br>' +
+      '<kbd>Middle</kbd> orbit &nbsp; <kbd>Shift+Scroll</kbd> brush size<br>' +
+      '<kbd>F</kbd> flatten &nbsp; <kbd>S</kbd> smooth &nbsp; <kbd>R</kbd> raise<br>' +
+      '<kbd>Ctrl+Z</kbd> undo &nbsp; <kbd>Ctrl+S</kbd> export';
+  }
+  deselectInstance(); updatePreview();
+}
+
+document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => setMode(tab.dataset.tab)));
+
+/* height mode buttons */
+function setHeightMode(m) {
+  brushMode = m;
+  document.querySelectorAll("#height-modes button").forEach(b => b.classList.toggle("active", b.dataset.hm === m));
+}
+document.querySelectorAll("#height-modes button").forEach(b => b.addEventListener("click", () => setHeightMode(b.dataset.hm)));
 
 /* ═══════════════════════════════════════════
    Palette
@@ -578,86 +898,83 @@ function buildPalette() {
     }
   }
 }
+function updatePaletteSelection() { document.querySelectorAll(".obj-btn").forEach(d => d.classList.toggle("active", d.dataset.obj === selectedObj)); }
+function updateCount() { document.getElementById("count").textContent = `${objects.length} objects`; document.getElementById("count").style.color = "#555"; }
 
-function updatePaletteSelection() {
-  document.querySelectorAll(".obj-btn").forEach(d => d.classList.toggle("active", d.dataset.obj === selectedObj));
-}
-
-function updateCount() {
-  document.getElementById("count").textContent = `${objects.length} objects`;
-  document.getElementById("count").style.color = "#555";
-}
-
-/* ═══════════════════════════════════════════
-   Controls (scale/rot sliders)
-   ═══════════════════════════════════════════ */
-document.getElementById("obj-scale").addEventListener("input", e => {
-  objScale = parseFloat(e.target.value);
-  document.getElementById("obj-scale-val").textContent = objScale.toFixed(2);
-  updateSelectedInstance(); updatePreview();
-});
-document.getElementById("obj-rot").addEventListener("input", e => {
-  objRot = parseFloat(e.target.value);
-  document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°";
-  updateSelectedInstance(); updatePreview();
-});
+/* sliders */
+document.getElementById("obj-scale").addEventListener("input", e => { objScale = parseFloat(e.target.value); document.getElementById("obj-scale-val").textContent = objScale.toFixed(2); updateSelectedInstance(); updatePreview(); });
+document.getElementById("obj-rot").addEventListener("input", e => { objRot = parseFloat(e.target.value); document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°"; updateSelectedInstance(); updatePreview(); });
+document.getElementById("h-size").addEventListener("input", e => { brushRadius = +e.target.value; document.getElementById("h-size-val").textContent = e.target.value; updateBrushGeo(); });
+document.getElementById("h-str").addEventListener("input", e => { brushStrength = +e.target.value; document.getElementById("h-str-val").textContent = (+e.target.value).toFixed(2); });
+document.getElementById("h-flat").addEventListener("input", e => { flattenY = +e.target.value; document.getElementById("h-flat-val").textContent = (+e.target.value).toFixed(1); });
 
 /* ═══════════════════════════════════════════
    Export / Import
    ═══════════════════════════════════════════ */
 function exportJSON() {
-  const objData = objects.map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: o.y, scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
-  const payload = { version: 2, tileSize: TILE_S, objects: objData };
+  const objData = objects.map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+  /* sparse height offsets */
+  const hData = {};
+  for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+    const vi = hvi(ix, iz);
+    if (Math.abs(heightOffsets[vi]) > 0.001) {
+      hData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +heightOffsets[vi].toFixed(3);
+    }
+  }
+  const payload = { version: 2, tileSize: TILE_S };
+  if (objData.length) payload.objects = objData;
+  if (Object.keys(hData).length) payload.heightOffsets = hData;
   const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download = "objectmap.json"; a.click();
-  URL.revokeObjectURL(url);
-  console.log(`Exported ${objects.length} objects`);
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "objectmap.json"; a.click();
+  URL.revokeObjectURL(a.href);
+  console.log(`Exported ${objData.length} objects + ${Object.keys(hData).length} height offsets`);
 }
 
 function importJSON(json) {
   try {
     const data = JSON.parse(json);
-    const importedObjects = data.objects;
-    if (!importedObjects) { alert("No objects array found in JSON"); return; }
-
-    /* Clear */
+    /* clear objects */
     for (const obj of objects) scene.remove(obj.mesh);
     objects.length = 0; deselectInstance();
-
-    for (const entry of importedObjects) {
-      const tmpl = objLib[entry.type];
-      if (!tmpl) { console.warn("Unknown object:", entry.type); continue; }
-      const mesh = tmpl.clone();
-      mesh.scale.setScalar(entry.scale || 1);
-      mesh.position.set(entry.x, entry.y || 0, entry.z);
-      mesh.rotation.y = entry.rot || 0;
-      scene.add(mesh);
-      objects.push({ id: nextObjId++, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
+    /* load objects */
+    if (data.objects) {
+      for (const entry of data.objects) {
+        const tmpl = objLib[entry.type]; if (!tmpl) { console.warn("Unknown:", entry.type); continue; }
+        const mesh = tmpl.clone();
+        mesh.scale.setScalar(entry.scale || 1);
+        mesh.position.set(entry.x, entry.y || 0, entry.z);
+        mesh.rotation.y = entry.rot || 0;
+        scene.add(mesh);
+        objects.push({ id: nextObjId++, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
+      }
+    }
+    /* load height offsets */
+    if (data.heightOffsets) {
+      heightOffsets.fill(0);
+      for (const [key, val] of Object.entries(data.heightOffsets)) {
+        const [wx, wz] = key.split(",").map(Number);
+        const [ix, iz] = worldToHGrid(wx, wz);
+        if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) heightOffsets[hvi(ix, iz)] = val;
+      }
+      rebuildAllVerts();
     }
     updateCount();
     console.log(`Imported ${objects.length} objects`);
-  } catch (e) {
-    alert("Invalid JSON: " + e.message);
-  }
+  } catch (e) { alert("Invalid JSON: " + e.message); }
 }
 
-/* ═══════════════════════════════════════════
-   Button wiring
-   ═══════════════════════════════════════════ */
+/* buttons */
 document.getElementById("btn-export").addEventListener("click", exportJSON);
 document.getElementById("btn-import").addEventListener("click", () => document.getElementById("file-input").click());
 document.getElementById("file-input").addEventListener("change", e => {
   const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => importJSON(reader.result);
-  reader.readAsText(file); e.target.value = "";
+  const reader = new FileReader(); reader.onload = () => importJSON(reader.result); reader.readAsText(file); e.target.value = "";
 });
 document.getElementById("btn-clear").addEventListener("click", () => {
-  if (!confirm("Clear all objects?")) return;
-  for (const obj of objects) scene.remove(obj.mesh);
-  objects.length = 0; deselectInstance(); updateCount();
+  if (!confirm("Clear all?")) return;
+  for (const obj of objects) scene.remove(obj.mesh); objects.length = 0; deselectInstance();
+  heightOffsets.fill(0); rebuildAllVerts(); updateCount();
 });
 
 /* ═══════════════════════════════════════════
@@ -670,88 +987,58 @@ window.addEventListener("resize", () => {
 
 function animate(t) {
   requestAnimationFrame(animate);
-  waterUniforms.uTime.value = t * 0.001;
-  controls.update();
+  waterUniforms.uTime.value = (t || 0) * 0.001;
+  orbitControls.update();
   renderer.render(scene, camera);
 }
 
 /* ═══════════════════════════════════════════
-   Load existing objectmap.json on startup
+   Load existing map
    ═══════════════════════════════════════════ */
 async function loadExistingMap() {
-  /* Try objectmap.json first, fallback to tilemap.json objects */
   for (const file of ["objectmap.json", "tilemap.json"]) {
     try {
       const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
       if (!resp.ok) continue;
-      const data = await resp.json();
-      if (data.objects && data.objects.length) {
-        importJSON(JSON.stringify(data));
-        console.log(`Auto-loaded objects from ${file}`);
+      const text = await resp.text();
+      const data = JSON.parse(text);
+      if ((data.objects && data.objects.length) || data.heightOffsets) {
+        importJSON(text);
+        console.log(`Auto-loaded from ${file}`);
         return;
       }
     } catch (e) { /* try next */ }
   }
-  console.log("No existing object map found");
-}
-
-/* ═══════════════════════════════════════════
-   Show existing hard-coded game objects as ghosts
-   ═══════════════════════════════════════════ */
-async function loadExistingGameObjects() {
-  /* These match the spots defined in world.js / terrainLayout.js */
-  const TREE_SPOTS = [
-    [20,18,2.2,1.8],[28,28,2.4,3.6],[18,28,2.1,0.9],[32,20,1.9,2.4],[24,32,2.3,4.2],
-    [-22,18,2.0,1.0],[-30,24,1.9,5.2],[-20,26,2.2,4.5],[-16,-18,1.7,2.1],[14,-18,1.6,0.7],[-8,-42,2.4,3.3],
-    [10,30,1.8,0.5],[-10,22,2.0,3.1],[36,28,1.7,4.4],[-34,16,1.9,1.6],[-26,8,1.8,5.7],
-    [6,24,1.6,2.3],[-6,16,1.7,0.2],[16,10,1.5,4.0],[-12,32,2.1,2.9],[26,14,1.8,5.1],
-    [-28,-8,1.6,3.7],[22,-8,1.5,1.3],[-4,28,1.9,4.6],[30,8,1.7,0.8],[-18,4,1.6,2.5],
-  ];
-  const ROCK_SPOTS = [
-    [-28,26,1.6,1.4],[-14,8,1.45,2.1],[-20,-6,1.4,0.9],
-    [22,34,1.04,3.2],[-26,30,1.0,4.1],[34,22,0.98,5.0],[-32,18,0.95,2.6],
-    [-10,14,0.95,1.7],[-16,10,1.0,5.3],[8,20,0.9,0.5],[14,12,1.05,3.9],
-    [-22,-2,0.92,2.4],[-18,-10,0.98,4.6],[6,8,0.88,1.2],[-8,4,1.02,3.5],
-    [12,24,0.96,5.8],[-24,16,0.94,0.3],
-  ];
-  const BUSH_SPOTS = [
-    [-12,-28,1.1,0.4],[12,-28,1.12,2.8],[20,-10,1.1,1.9],[-18,-12,1.08,5.0],[8,-38,1.0,3.8],
-  ];
-
-  const treeModels = ["Tree_1_A","Tree_2_A","Tree_2_C","Tree_3_A","Tree_4_A"].filter(k => objLib[k]);
-  const rockModels = ["Rock_1_J","Rock_1_K","Rock_3_A","Rock_3_C","Rock_3_E","Rock_3_G"].filter(k => objLib[k]);
-  const bushModels = ["Bush_1_A","Bush_2_A"].filter(k => objLib[k]);
-
-  const ghostGroup = new THREE.Group();
-  ghostGroup.name = "existing_objects";
-
-  function placeGhost(tmpl, x, z, s, r) {
-    const m = tmpl.clone();
-    m.scale.setScalar(s);
-    m.position.set(x, 0, z);
-    m.rotation.y = r;
-    /* Make semi-transparent so they're clearly "reference" */
-    m.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.4; c.material.depthWrite = false; } });
-    ghostGroup.add(m);
-  }
-
-  if (treeModels.length) TREE_SPOTS.forEach(([x,z,s,r], i) => placeGhost(objLib[treeModels[i % treeModels.length]], x, z, s, r));
-  if (rockModels.length) ROCK_SPOTS.forEach(([x,z,s,r], i) => placeGhost(objLib[rockModels[i % rockModels.length]], x, z, s, r));
-  if (bushModels.length) BUSH_SPOTS.forEach(([x,z,s,r], i) => placeGhost(objLib[bushModels[i % bushModels.length]], x, z, s, r));
-
-  scene.add(ghostGroup);
-  console.log(`Showing ${TREE_SPOTS.length + ROCK_SPOTS.length + BUSH_SPOTS.length} existing game objects as ghosts`);
+  /* also try heightmap.json */
+  try {
+    const resp = await fetch(`heightmap.json?v=${Date.now()}`, { cache: "no-store" });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.offsets) {
+        heightOffsets.fill(0);
+        for (const [key, val] of Object.entries(data.offsets)) {
+          const [wx, wz] = key.split(",").map(Number);
+          const [ix, iz] = worldToHGrid(wx, wz);
+          if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) heightOffsets[hvi(ix, iz)] = val;
+        }
+        rebuildAllVerts();
+        console.log("Auto-loaded heightmap.json");
+      }
+    }
+  } catch (e) { /* ok */ }
 }
 
 /* ═══════════════════════════════════════════
    Init
    ═══════════════════════════════════════════ */
 buildPalette();
+setMode("objects");
 await loadAllModels();
-await loadExistingGameObjects();
+await loadGameStructures();
+await loadGameObjects();
 await loadExistingMap();
 animate();
-console.log("Map Editor ready — place objects on the map.");
+console.log("Map Editor ready.");
 </script>
 </body>
 </html>
