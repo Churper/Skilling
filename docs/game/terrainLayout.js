@@ -187,12 +187,12 @@ export function getMeshSurfaceY(x, z) {
    buildTerrainMesh — vertex-colored ground + water plane
    ═══════════════════════════════════════════ */
 
-export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, bounds) {
+export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, bounds, lodStep) {
   const group = new THREE.Group();
   group.name = "terrain";
 
   /* ── ground mesh ── */
-  const step = 1.0;
+  const step = lodStep || 1.0;
   const xMin = bounds ? bounds.xMin - step : (GX_MIN - 1) * TILE_S;
   const xMax = bounds ? bounds.xMax + step : (GX_MAX + 1) * TILE_S;
   const zMin = bounds ? bounds.zMin - step : (GZ_MIN - 1) * TILE_S;
@@ -273,7 +273,8 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   const showWater = !bounds || bounds.water !== false;
   if (showWater) {
     const ww = xMax - xMin + 2, wh = zMax - zMin + 2;
-    const waterGeo = new THREE.PlaneGeometry(ww, wh, 48, 48);
+    const wSegs = step <= 1 ? 48 : 16;
+    const waterGeo = new THREE.PlaneGeometry(ww, wh, wSegs, wSegs);
     waterGeo.rotateX(-Math.PI / 2);
     const waterMat = new THREE.MeshBasicMaterial({
       color: "#93d8f6", transparent: true, opacity: 0.62,

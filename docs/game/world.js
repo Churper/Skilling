@@ -566,7 +566,8 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
   const heightOffsets = data.heightOffsets || null;
   const colorOverrides = data.colorOverrides || null;
   const waterUniforms = { uTime: { value: 0 } };
-  const terrainGroup = buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b);
+  /* neighboring chunks use lower detail terrain (step=3 vs 1) */
+  const terrainGroup = buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b, 3);
   terrainGroup.name = `chunk_${cx}_${cz}`;
   ground.add(terrainGroup);
   /* place objects from chunk */

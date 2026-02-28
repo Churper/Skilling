@@ -28,6 +28,14 @@ import { createRemotePlayers } from "./game/systems/remotePlayers.js";
 import { createRealtimeClient, resolveOnlineConfig } from "./game/net/realtimeClient.js";
 
 const canvas = document.getElementById("game-canvas");
+/* WebGL check */
+try {
+  const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+  if (!gl) throw new Error("no webgl");
+} catch {
+  document.getElementById("webgl-fallback").style.display = "block";
+  throw new Error("WebGL not supported");
+}
 const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
 const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld, constructionSite, collisionObstacles = [], weaponModels } = await createWorld(scene);
 const { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor } = createPlayer(scene, addShadowBlob, weaponModels);
@@ -1637,9 +1645,20 @@ if (dprSelect) {
     composer.setSize(w, h);
   });
 }
+/* FPS cap */
+let fpsCap = 60;
+let lastFrameTime = 0;
+const fpsCapSelect = document.getElementById("setting-fps-cap");
+if (fpsCapSelect) {
+  fpsCapSelect.addEventListener("change", () => { fpsCap = parseInt(fpsCapSelect.value) || 0; });
+}
 /* bloom toggle */
 const bloomCheck = document.getElementById("setting-bloom");
 if (bloomCheck && composer.passes) {
+  /* start with bloom disabled */
+  for (const pass of composer.passes) {
+    if (pass.constructor.name === "UnrealBloomPass") pass.enabled = false;
+  }
   bloomCheck.addEventListener("change", () => {
     for (const pass of composer.passes) {
       if (pass.constructor.name === "UnrealBloomPass") pass.enabled = bloomCheck.checked;
@@ -1669,7 +1688,13 @@ function updateConnStatus() {
   connStatus.className = "ui-conn-status " + (on ? "connected" : "disconnected");
 }
 
-function animate() {
+function animate(now) {
+  requestAnimationFrame(animate);
+  if (fpsCap > 0) {
+    const minInterval = 1000 / fpsCap;
+    if (now - lastFrameTime < minInterval) return;
+    lastFrameTime = now - ((now - lastFrameTime) % minInterval);
+  }
   const dt = Math.min(0.033, clock.getDelta());
   const t = clock.elapsedTime;
   waterUniforms.uTime.value += dt;
@@ -1879,7 +1904,6 @@ function animate() {
   composer.render();
   updateDebugOverlay();
   updateConnStatus();
-  requestAnimationFrame(animate);
 }
 
-animate();
+requestAnimationFrame(animate);

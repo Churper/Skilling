@@ -12,6 +12,13 @@
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
+  <div id="webgl-fallback" style="display:none;position:fixed;inset:0;background:#1a1a2e;color:#e0e0e0;font-family:sans-serif;z-index:9999;padding:20vh 10vw;text-align:center">
+    <h1 style="color:#e8c44a;margin-bottom:16px">WebGL Not Supported</h1>
+    <p style="max-width:500px;margin:0 auto;line-height:1.6">Your browser or GPU can't run WebGL, which is required for this game. Try:<br><br>
+    1. Update your graphics drivers<br>
+    2. Try Chrome or Edge<br>
+    3. Enable hardware acceleration in browser settings</p>
+  </div>
   <div id="debug-overlay" aria-hidden="true"></div>
   <div id="ui-root">
     <div id="ui-coins-chip" aria-live="polite" aria-label="Gold coins">
@@ -316,8 +323,16 @@
         </select>
       </label>
       <label class="ui-settings-row">
+        <span>FPS Cap</span>
+        <select id="setting-fps-cap">
+          <option value="30">30 (Battery saver)</option>
+          <option value="60" selected>60 (Default)</option>
+          <option value="0">Uncapped</option>
+        </select>
+      </label>
+      <label class="ui-settings-row">
         <span>Bloom</span>
-        <input type="checkbox" id="setting-bloom" checked>
+        <input type="checkbox" id="setting-bloom">
       </label>
       <hr class="ui-settings-divider">
       <div class="ui-settings-row ui-hotkey-header"><span>Tab Hotkeys</span></div>
