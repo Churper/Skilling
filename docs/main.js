@@ -691,7 +691,14 @@ const _animalWanderDir = new THREE.Vector3();
 function updateAnimals(dt) {
   const hw = renderer.domElement.clientWidth * 0.5;
   const hh = renderer.domElement.clientHeight * 0.5;
+  const px = player.position.x, pz = player.position.z;
   for (const a of animals) {
+    /* only update animals within 50 units (same chunk) */
+    const adx = a.spawnPos.x - px, adz = a.spawnPos.z - pz;
+    if (adx * adx + adz * adz > 2500) {
+      a.hpBar.dataset.state = "hidden";
+      continue;
+    }
     if (!a.alive) {
       /* death shrink animation */
       if (a._deathAnim) {
