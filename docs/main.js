@@ -1479,7 +1479,8 @@ function performAttackHit(node) {
   }
 
   const label = animal ? animal.type : "Training Dummy";
-  const combatXp = 10 + damage;
+  const isDummy = !animal;
+  const combatXp = isDummy ? Math.max(1, Math.round((10 + damage) * 0.01)) : 10 + damage;
   const combatSkill = skills[combatStyle];
   if (combatSkill) {
     const prevLevel = combatSkill.level;
