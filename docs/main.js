@@ -74,6 +74,11 @@ const skills = {
 const inCave = false; /* cave system removed */
 const activePrayers = new Set();
 
+/* ground raycaster (declared early — needed by remotePlayers.getGroundY before full init) */
+const groundRaycaster = new THREE.Raycaster();
+const groundRayOrigin = new THREE.Vector3();
+const groundRayDir = new THREE.Vector3(0, -1, 0);
+
 /* ── Player HP ── */
 let playerHp = 100;
 const playerMaxHp = 100;
@@ -143,6 +148,18 @@ function registerAnimal(hsNode, parentModel) {
     aggro: false, aggroTarget: null, lastHitTime: 0, attackCooldown: 0,
   });
   console.log(`Registered animal: ${type} at pos(${spawnPos.x.toFixed(1)}, ${spawnPos.y.toFixed(1)}, ${spawnPos.z.toFixed(1)}) modelPos(${parentModel.position.x.toFixed(1)}, ${parentModel.position.z.toFixed(1)})`);
+}
+
+/* ── Audio context (declared early so saveGame/loadGame can reference volume) ── */
+const _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let _masterVolume = 0.5;
+const _masterGain = _audioCtx.createGain();
+_masterGain.gain.value = _masterVolume;
+_masterGain.connect(_audioCtx.destination);
+
+function setVolume(v) {
+  _masterVolume = Math.max(0, Math.min(1, v));
+  _masterGain.gain.value = _masterVolume;
 }
 
 /* ── Save / Load system ── */
@@ -1084,9 +1101,6 @@ const playerFootOffset = -player.geometry.boundingBox.min.y;
 const playerHeadOffset = player.geometry.boundingBox.max.y;
 const playerGroundSink = 0.0;
 const playerCollisionRadius = 0.48;
-const groundRaycaster = new THREE.Raycaster();
-const groundRayOrigin = new THREE.Vector3();
-const groundRayDir = new THREE.Vector3(0, -1, 0);
 
 function clampPointToPlayableRadius(point, margin = 0) {
   if (!point) return point;
@@ -1556,17 +1570,6 @@ function runServiceAction(node) {
 }
 
 /* ── Sound system ── */
-const _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let _masterVolume = 0.5;
-const _masterGain = _audioCtx.createGain();
-_masterGain.gain.value = _masterVolume;
-_masterGain.connect(_audioCtx.destination);
-
-function setVolume(v) {
-  _masterVolume = Math.max(0, Math.min(1, v));
-  _masterGain.gain.value = _masterVolume;
-}
-
 let _attackBuffer = null;
 fetch("./sounds/attack1.wav")
   .then(r => r.arrayBuffer())

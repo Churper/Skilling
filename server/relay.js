@@ -87,11 +87,13 @@ function sanitizeRoom(value) {
   return trimmed.slice(0, 32);
 }
 
+const VALID_PATTERNS = new Set(["fire","ice","galaxy","toxic","lava","ocean","rainbow","gold"]);
 function sanitizeColor(value) {
   if (typeof value !== "string") return "#58df78";
   const trimmed = value.trim();
-  if (!/^#[0-9a-fA-F]{6}$/.test(trimmed)) return "#58df78";
-  return trimmed;
+  if (/^#[0-9a-fA-F]{6}$/.test(trimmed)) return trimmed;
+  if (VALID_PATTERNS.has(trimmed)) return trimmed;
+  return "#58df78";
 }
 
 function sanitizeEmoji(value) {
