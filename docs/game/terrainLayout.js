@@ -280,7 +280,8 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   /* ── water plane (optional per chunk) ── */
   const showWater = !bounds || bounds.water !== false;
   if (showWater) {
-    const ww = xMax - xMin + 2, wh = zMax - zMin + 2;
+    /* use unpadded data bounds so neighbor water planes meet exactly (no overlap) */
+    const ww = dxMax - dxMin, wh = dzMax - dzMin;
     const wSegs = step <= 1 ? 48 : 16;
     const waterGeo = new THREE.PlaneGeometry(ww, wh, wSegs, wSegs);
     waterGeo.rotateX(-Math.PI / 2);
@@ -299,7 +300,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       );
     };
     const waterMesh = new THREE.Mesh(waterGeo, waterMat);
-    waterMesh.position.set((xMin + xMax) / 2, WATER_Y, (zMin + zMax) / 2);
+    waterMesh.position.set((dxMin + dxMax) / 2, WATER_Y, (dzMin + dzMax) / 2);
     waterMesh.userData.isWaterSurface = true;
     waterMesh.renderOrder = R_WATER;
     group.add(waterMesh);
