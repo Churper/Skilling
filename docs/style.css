@@ -210,90 +210,110 @@ body {
   margin-bottom: 6px;
 }
 
-/* â”€â”€ Bank â”€â”€ */
-.ui-bank-head {
-  margin-bottom: 6px;
-  color: var(--ui-ink-2);
-  font-size: 13px;
-  text-shadow: var(--ui-text-shadow);
-}
-
-.ui-bank-list {
-  display: grid;
-  gap: 6px;
-}
-
-.ui-bank-row {
-  display: grid;
-  grid-template-columns: 64px 52px 1fr;
-  gap: 6px;
-  align-items: center;
-  padding: 6px 8px;
-  border-radius: 10px;
-  background: var(--ui-btn-bg);
-}
-
-.ui-bank-item {
+/* â”€â”€ Bank overlay â”€â”€ */
+.ui-bank-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--ui-ink-1);
-  font-size: 14px;
-  text-shadow: var(--ui-text-shadow);
-}
-
-.ui-bank-item strong {
-  font-weight: 700;
-}
-
-.ui-bank-counts {
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  gap: 5px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+}
+.ui-bank-modal {
+  background: var(--ui-bg);
+  border: 2px solid var(--ui-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  width: min(520px, 92vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ui-bank-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--ui-border);
+}
+.ui-bank-modal-title {
+  font-family: var(--ui-font-heading);
+  font-size: 18px;
   color: var(--ui-ink-1);
-  font-size: 14px;
   text-shadow: var(--ui-text-shadow);
 }
-
-.ui-bank-counts small {
+.ui-bank-close-btn {
+  background: none;
+  border: none;
+  color: var(--ui-ink-2);
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+.ui-bank-close-btn:hover { color: var(--ui-ink-1); }
+.ui-bank-modal-body {
+  padding: 12px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ui-bank-col-label {
+  font-family: var(--ui-font-heading);
+  font-size: 13px;
+  color: var(--ui-ink-2);
+  margin: 0 0 6px;
+  text-shadow: var(--ui-text-shadow);
+}
+.ui-bank-col-label small {
+  font-family: var(--ui-font-body);
+  font-size: 11px;
   color: var(--ui-ink-3);
 }
-
-.ui-bank-actions {
+.ui-bank-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 4px;
 }
-
-.ui-bank-btn {
-  border: none;
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--ui-ink-1);
-  font-family: var(--ui-font-body);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 0;
+.ui-bank-slot {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--ui-btn-bg);
   cursor: pointer;
-  text-shadow: var(--ui-text-shadow);
+  position: relative;
+  transition: background 0.12s;
+  border: 2px solid transparent;
 }
-
-.ui-bank-btn:hover {
-  background: var(--ui-btn-bg-hover);
-}
-
-.ui-bank-btn[data-bank-action="deposit"] {
-  color: #a6f5cf;
-}
-
-.ui-bank-btn[data-bank-action="withdraw"] {
-  color: #b2e8ff;
-}
-
-.ui-bank-btn:disabled {
-  opacity: 0.35;
+.ui-bank-slot:hover { background: var(--ui-btn-bg-hover); }
+.ui-bank-slot.is-empty {
+  opacity: 0.3;
   cursor: default;
+}
+.ui-bank-slot-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.ui-bank-slot-count {
+  position: absolute;
+  bottom: 1px;
+  right: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ui-ink-1);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+.ui-bank-slot-empty {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
 }
 
 /* ── Settings panel ── */

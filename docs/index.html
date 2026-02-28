@@ -57,49 +57,27 @@
         <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
         <p id="ui-status-line" class="ui-status" data-tone="info"></p>
       </section>
-      <section class="ui-panel-section" data-tab-panel="bank" hidden>
-        <div class="ui-bank-head">
-          <span>Bag / Bank</span>
+      <section class="ui-panel-section" data-tab-panel="bank" hidden></section>
+
+    <!-- Bank overlay (centered modal) -->
+    <div id="ui-bank-overlay" class="ui-bank-overlay" hidden>
+      <div class="ui-bank-modal">
+        <div class="ui-bank-modal-header">
+          <span class="ui-bank-modal-title">Bank</span>
+          <button type="button" id="ui-bank-close" class="ui-bank-close-btn">&times;</button>
         </div>
-        <div class="ui-bank-list">
-          <div class="ui-bank-row">
-            <div class="ui-bank-item"><span>&#x1F41F;</span><strong>Fish</strong></div>
-            <div class="ui-bank-counts"><b data-bank-bag="fish">0</b><small>/</small><b data-bank-vault="fish">0</b></div>
-            <div class="ui-bank-actions">
-              <button type="button" class="ui-bank-btn" data-bank-action="deposit" data-bank-item="fish" data-bank-qty="1">D1</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="deposit" data-bank-item="fish" data-bank-qty="5">D5</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="deposit" data-bank-item="fish" data-bank-qty="all">DAll</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="fish" data-bank-qty="1">W1</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="fish" data-bank-qty="5">W5</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="fish" data-bank-qty="all">WAll</button>
-            </div>
+        <div class="ui-bank-modal-body">
+          <div class="ui-bank-col">
+            <h3 class="ui-bank-col-label">Bank Storage <small>(click to withdraw)</small></h3>
+            <div id="ui-bank-vault-grid" class="ui-bank-grid"></div>
           </div>
-          <div class="ui-bank-row">
-            <div class="ui-bank-item"><span>&#x1FAA8;</span><strong>Ore</strong></div>
-            <div class="ui-bank-counts"><b data-bank-bag="ore">0</b><small>/</small><b data-bank-vault="ore">0</b></div>
-            <div class="ui-bank-actions">
-              <button type="button" class="ui-bank-btn" data-bank-action="deposit" data-bank-item="ore" data-bank-qty="1">D1</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="deposit" data-bank-item="ore" data-bank-qty="5">D5</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="deposit" data-bank-item="ore" data-bank-qty="all">DAll</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="ore" data-bank-qty="1">W1</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="ore" data-bank-qty="5">W5</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="ore" data-bank-qty="all">WAll</button>
-            </div>
-          </div>
-          <div class="ui-bank-row">
-            <div class="ui-bank-item"><span>&#x1FAB5;</span><strong>Logs</strong></div>
-            <div class="ui-bank-counts"><b data-bank-bag="logs">0</b><small>/</small><b data-bank-vault="logs">0</b></div>
-            <div class="ui-bank-actions">
-              <button type="button" class="ui-bank-btn" data-bank-action="deposit" data-bank-item="logs" data-bank-qty="1">D1</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="deposit" data-bank-item="logs" data-bank-qty="5">D5</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="deposit" data-bank-item="logs" data-bank-qty="all">DAll</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="logs" data-bank-qty="1">W1</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="logs" data-bank-qty="5">W5</button>
-              <button type="button" class="ui-bank-btn" data-bank-action="withdraw" data-bank-item="logs" data-bank-qty="all">WAll</button>
-            </div>
+          <div class="ui-bank-col">
+            <h3 class="ui-bank-col-label">Inventory <small>(click to deposit)</small></h3>
+            <div id="ui-bank-inv-grid" class="ui-bank-grid"></div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
       <section class="ui-panel-section" data-tab-panel="blacksmith" hidden>
         <div class="ui-smith-list">
           <div class="ui-smith-row">

@@ -59,9 +59,10 @@ export function initializeUI(options = {}) {
   const storeSellButton = document.getElementById("ui-store-sell-btn");
   const dyeButtons = Array.from(document.querySelectorAll("[data-store-color]"));
   const dyeCostEls = Array.from(document.querySelectorAll("[data-store-cost]"));
-  const bankBagEls = Array.from(document.querySelectorAll("[data-bank-bag]"));
-  const bankVaultEls = Array.from(document.querySelectorAll("[data-bank-vault]"));
-  const bankActionButtons = Array.from(document.querySelectorAll("[data-bank-action]"));
+  const bankOverlay = document.getElementById("ui-bank-overlay");
+  const bankCloseBtn = document.getElementById("ui-bank-close");
+  const bankVaultGrid = document.getElementById("ui-bank-vault-grid");
+  const bankInvGrid = document.getElementById("ui-bank-inv-grid");
 
   const combatStyleButtons = Array.from(document.querySelectorAll("[data-combat-style]"));
   const attackButton = document.getElementById("ui-attack-btn");
@@ -253,40 +254,76 @@ export function initializeUI(options = {}) {
     }
   }
 
+  let _bankOpen = false;
+
+  function _renderBankSlot(container, itemType, count, onClick) {
+    const slot = document.createElement("div");
+    slot.className = itemType ? "ui-bank-slot" : "ui-bank-slot is-empty";
+    if (itemType && count > 0) {
+      slot.title = `${ITEM_LABEL[itemType] || itemType} (${count})`;
+      const icon = document.createElement("span");
+      icon.className = "ui-bank-slot-icon";
+      icon.textContent = ITEM_ICON[itemType] || "?";
+      slot.append(icon);
+      if (count > 1) {
+        const badge = document.createElement("span");
+        badge.className = "ui-bank-slot-count";
+        badge.textContent = String(count);
+        slot.append(badge);
+      }
+      slot.addEventListener("click", onClick);
+    } else {
+      const empty = document.createElement("span");
+      empty.className = "ui-bank-slot-empty";
+      slot.append(empty);
+    }
+    container.append(slot);
+  }
+
   function setBank(payload = {}) {
+    if (!bankVaultGrid || !bankInvGrid) return;
     const bag = payload.bag || {};
     const bank = payload.bank || {};
+    const slots = Array.isArray(payload.slots) ? payload.slots : [];
     const capacity = Math.max(0, Math.floor(Number(payload.capacity) || 0));
-    const used = Math.max(0, Math.floor(Number(payload.used) || 0));
-    const freeSlots = Math.max(0, capacity - used);
 
-    for (const el of bankBagEls) {
-      const key = el.dataset.bankBag;
-      el.textContent = String(Math.max(0, Math.floor(Number(bag[key]) || 0)));
+    /* Vault grid — one slot per item type that has count > 0 */
+    bankVaultGrid.innerHTML = "";
+    const bankItems = Object.keys(bank).filter(k => bank[k] > 0);
+    for (const key of bankItems) {
+      _renderBankSlot(bankVaultGrid, key, bank[key], () => {
+        if (typeof onBankTransfer === "function") onBankTransfer("withdraw", key, "1");
+      });
     }
-    for (const el of bankVaultEls) {
-      const key = el.dataset.bankVault;
-      el.textContent = String(Math.max(0, Math.floor(Number(bank[key]) || 0)));
+    if (bankItems.length === 0) {
+      const hint = document.createElement("div");
+      hint.style.cssText = "grid-column:1/-1;text-align:center;color:var(--ui-ink-3);font-size:12px;padding:8px 0";
+      hint.textContent = "Bank is empty";
+      bankVaultGrid.append(hint);
     }
 
-    for (const button of bankActionButtons) {
-      const dir = button.dataset.bankAction;
-      const key = button.dataset.bankItem;
-      const qtyRaw = button.dataset.bankQty;
-      const source = dir === "deposit" ? (bag[key] || 0) : (bank[key] || 0);
-      let qty = qtyRaw === "all" ? source : Math.max(0, Math.floor(Number(qtyRaw) || 0));
-      if (dir === "withdraw") qty = Math.min(qty, freeSlots);
-      button.disabled = qty <= 0;
-      button.title = qty <= 0 ? "Unavailable" : `${dir === "deposit" ? "Deposit" : "Withdraw"} ${qty} ${key}`;
+    /* Inventory grid — show actual bag slots */
+    bankInvGrid.innerHTML = "";
+    for (let i = 0; i < capacity; i++) {
+      const itemType = slots[i] || null;
+      _renderBankSlot(bankInvGrid, itemType, 1, () => {
+        if (itemType && typeof onBankTransfer === "function") onBankTransfer("deposit", itemType, "1");
+      });
     }
   }
 
   function openBank(payload = {}) {
     setBank(payload);
-    setPanelCollapsed(false);
-    setActive("bank");
-    if (mobileQuery.matches) setMobileMenuOpen(true);
+    _bankOpen = true;
+    if (bankOverlay) bankOverlay.hidden = false;
   }
+
+  function closeBank() {
+    _bankOpen = false;
+    if (bankOverlay) bankOverlay.hidden = true;
+  }
+
+  function isBankOpen() { return _bankOpen; }
 
   function openStore(payload = {}) {
     setStore(payload);
@@ -334,15 +371,11 @@ export function initializeUI(options = {}) {
       if (typeof onStoreSell === "function") onStoreSell();
     });
   }
-  for (const button of bankActionButtons) {
-    button.addEventListener("click", () => {
-      if (button.disabled) return;
-      const dir = button.dataset.bankAction;
-      const item = button.dataset.bankItem;
-      const qty = button.dataset.bankQty;
-      if (typeof onBankTransfer === "function") onBankTransfer(dir, item, qty);
-    });
-  }
+  /* Bank overlay close handlers */
+  if (bankCloseBtn) bankCloseBtn.addEventListener("click", closeBank);
+  if (bankOverlay) bankOverlay.addEventListener("click", (e) => {
+    if (e.target === bankOverlay) closeBank();
+  });
 
   for (const button of combatStyleButtons) {
     button.addEventListener("click", () => {
@@ -445,6 +478,8 @@ export function initializeUI(options = {}) {
   }
 
   window.addEventListener("keydown", (e) => {
+    /* close bank overlay on Escape */
+    if (_bankOpen && e.key === "Escape") { closeBank(); e.preventDefault(); return; }
     /* cancel hotkey listen on Escape */
     if (pendingHotkeyRow && e.key === "Escape") {
       pendingHotkeyRow.classList.remove("is-listening");
@@ -495,6 +530,8 @@ export function initializeUI(options = {}) {
     openStore,
     setBank,
     openBank,
+    closeBank,
+    isBankOpen,
     setPrayerActive,
   };
 }

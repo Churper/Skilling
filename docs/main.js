@@ -1013,6 +1013,7 @@ function getBankState() {
   return {
     bag: { ...inventory },
     bank: { ...bagSystem.bankStorage },
+    slots: [...bagSystem.slots],
     used: bagUsedCount(),
     capacity: BAG_CAPACITY,
   };
@@ -1025,7 +1026,7 @@ function transferBankItem(direction, itemKey, qtyRaw) {
     : Math.max(0, Math.floor(Number(bagSystem.bankStorage[itemKey]) || 0));
   if (sourceCount <= 0) {
     ui?.setStatus(`Bank: no ${itemKey} available to ${direction}.`, "warn");
-    ui?.setBank(getBankState());
+    if (ui?.isBankOpen?.()) ui.setBank(getBankState());
     return;
   }
 
@@ -1042,10 +1043,13 @@ function transferBankItem(direction, itemKey, qtyRaw) {
     } else {
       ui?.setStatus(`Bank: unable to ${direction} ${itemKey}.`, "warn");
     }
+    if (ui?.isBankOpen?.()) ui.setBank(getBankState());
     return;
   }
   const verb = direction === "deposit" ? "Deposited" : "Withdrew";
   ui?.setStatus(`${verb} ${moved} ${itemKey}.`, "success");
+  /* refresh the bank overlay so slots update instantly */
+  if (ui?.isBankOpen?.()) ui.setBank(getBankState());
 }
 
 function sellBagViaStoreUI() {
