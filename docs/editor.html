@@ -2050,18 +2050,7 @@ function animate(t) {
    Load existing map
    ═══════════════════════════════════════════ */
 async function loadExistingMap() {
-  /* try world.json first (single-file format) */
-  try {
-    const wResp = await fetch(`world.json?v=${Date.now()}`, { cache: "no-store" });
-    if (wResp.ok) {
-      const text = await wResp.text();
-      importJSON(text);
-      console.log("Auto-loaded world.json");
-      return;
-    }
-  } catch (e) { /* try next */ }
-
-  /* try chunks.json manifest + individual chunk files */
+  /* load chunks.json manifest + individual chunk files */
   try {
     const mResp = await fetch(`chunks.json?v=${Date.now()}`, { cache: "no-store" });
     if (mResp.ok) {

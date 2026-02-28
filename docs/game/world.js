@@ -509,7 +509,6 @@ function updateFishing(spots, t) {
 
 /* ── Chunk manifest + loading ── */
 let _chunkManifest = null;
-let _worldData = null;             // world.json all-in-one data
 const _loadedChunks = new Map();   // "cx,cz" → { group, data }
 let _chunkScene = null;            // scene ref for chunk add/remove
 let _chunkGround = null;           // ground group ref
@@ -517,16 +516,6 @@ let _chunkNodes = null;            // resourceNodes array ref
 let _chunkTileLib = null;          // tile lib ref
 
 async function loadChunkManifest() {
-  /* try world.json first (single file with all chunks) */
-  try {
-    const resp = await fetch(`world.json?v=${Date.now()}`, { cache: "no-store" });
-    if (resp.ok) {
-      _worldData = await resp.json();
-      _chunkManifest = { chunks: _worldData.chunks, spawn: _worldData.spawn || "0,0" };
-      return _chunkManifest;
-    }
-  } catch (e) { /* try chunks.json */ }
-  /* fallback: chunks.json manifest */
   try {
     const resp = await fetch(`chunks.json?v=${Date.now()}`, { cache: "no-store" });
     if (resp.ok) { _chunkManifest = await resp.json(); return _chunkManifest; }
@@ -535,12 +524,6 @@ async function loadChunkManifest() {
 }
 
 async function loadChunkData(cx, cz) {
-  /* if world.json was loaded, get data from there */
-  if (_worldData && _worldData.data) {
-    const key = `${cx},${cz}`;
-    if (_worldData.data[key]) return _worldData.data[key];
-  }
-  /* fallback: individual chunk file */
   const file = `chunks/chunk_${cx}_${cz}.json`;
   try {
     const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
