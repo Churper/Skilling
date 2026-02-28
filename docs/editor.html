@@ -700,7 +700,7 @@ function buildChunkMesh(cx, cz) {
   geo.setAttribute("color", new THREE.BufferAttribute(hc, 3));
   geo.setIndex(idx); geo.computeVertexNormals();
   const mesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
-  const wGeo = new THREE.PlaneGeometry(xMax-xMin+2, zMax-zMin+2, 1, 1);
+  const wGeo = new THREE.PlaneGeometry(xMax-xMin+6, zMax-zMin+6, 1, 1);
   wGeo.rotateX(-Math.PI / 2);
   const wMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
   wMesh.position.set((xMin+xMax)/2 + ox, WATER_Y, (zMin+zMax)/2 + oz);
@@ -1173,16 +1173,20 @@ function pPushUndo() { if (pUndoSnap !== null) { pUndoStack.push(pUndoSnap); if 
 function pUndo() { if (!pUndoStack.length) return; const snap = pUndoStack.pop(); for (const k in colorOverrides) delete colorOverrides[k]; Object.assign(colorOverrides, snap); rebuildAllVerts(); }
 
 /* Re-snap all non-structural objects to current terrain surface after height edits */
+const _snapRC = new THREE.Raycaster();
+const _snapOrigin = new THREE.Vector3();
+const _snapDir = new THREE.Vector3(0, -1, 0);
 function resnapObjects() {
-  const allMeshes = getAllGroundMeshes();
+  if (!groundMesh) return;
+  const mesh = [groundMesh]; // only resnap against active chunk
   for (const obj of objects) {
     if (STRUCTURAL_TYPES.has(obj.type)) continue;
-    const rc = new THREE.Raycaster(new THREE.Vector3(obj.x, 50, obj.z), new THREE.Vector3(0, -1, 0));
-    const hits = rc.intersectObjects(allMeshes);
+    _snapOrigin.set(obj.x, 50, obj.z);
+    _snapRC.set(_snapOrigin, _snapDir);
+    const hits = _snapRC.intersectObjects(mesh);
     if (hits.length) {
-      const newY = hits[0].point.y;
-      obj.y = newY;
-      obj.mesh.position.y = newY;
+      obj.y = hits[0].point.y;
+      obj.mesh.position.y = obj.y;
     }
   }
   if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
