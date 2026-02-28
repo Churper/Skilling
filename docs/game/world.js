@@ -968,9 +968,6 @@ export async function createWorld(scene) {
     scene.add(dock);
     dock.traverse(o => { if (o.name === "dock_deck") ground.add(o.clone()); });
 
-    /* fences */
-    scene.add(buildFences(tileLib));
-
     /* props — skip if editor tilemap has objects (editor is source of truth) */
     if (!hasEditorObjects) buildProps(tileLib, scene);
   }
