@@ -639,6 +639,7 @@ document.getElementById("minimap").addEventListener("click", e => {
   const cx = md.cxMin + col, cz = md.czMax - row;
   switchChunk(cx, cz);
   activateChunkForEditing(cx, cz);
+  moveChunkHighlight(cx, cz);
   updateMinimap();
 });
 
@@ -726,7 +727,9 @@ function activateChunkForEditing(cx, cz) {
   hCol = entry.hCol;
   activeBaseType = entry.baseType;
   activeEditChunk = [cx, cz];
-  /* move highlight outline to this chunk */
+}
+
+function moveChunkHighlight(cx, cz) {
   const ox = cx * CHUNK_SIZE + (xMin + xMax) / 2, oz = cz * CHUNK_SIZE + (zMin + zMax) / 2;
   _chunkHighlight.position.set(ox, GRASS_Y + 0.3, oz);
   if (!_chunkHighlight.parent) scene.add(_chunkHighlight);
@@ -1982,6 +1985,7 @@ await loadExistingMap();
 if (!chunkDataStore.has("0,0")) ensureChunkData(0, 0);
 ensureAllChunkMeshes();
 activateChunkForEditing(0, 0);
+moveChunkHighlight(0, 0);
 updateMinimap();
 animate();
 console.log("Map Editor ready.");
