@@ -89,6 +89,7 @@
   }
   .player-activity { font-size: 11px; color: #6ed998; margin-top: 3px; }
   .player-pos { font-size: 11px; color: #666; }
+  .player-skin { font-size: 10px; color: #ffd700; margin-left: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
   .no-players { color: #555; font-size: 13px; padding: 12px 0; text-align: center; }
 </style>
 </head>
@@ -185,12 +186,38 @@ keyInput.addEventListener("input", () => {
   }
 });
 
+const PATTERN_CSS = {
+  fire: "linear-gradient(135deg, #ff4500, #ff8c00, #ffd700)",
+  ice: "linear-gradient(135deg, #88cfff, #d0eaff, #b0d4f1)",
+  galaxy: "linear-gradient(135deg, #1a0533, #6b2fa0, #ff6ec7)",
+  toxic: "linear-gradient(135deg, #39ff14, #7fff00, #2e8b57)",
+  lava: "linear-gradient(135deg, #ff2200, #ff6600, #331100)",
+  ocean: "linear-gradient(135deg, #006994, #00b4d8, #90e0ef)",
+  rainbow: "linear-gradient(135deg, red, orange, yellow, green, blue, violet)",
+  gold: "linear-gradient(135deg, #ffd700, #ffed4a, #b8860b)",
+  stained: "conic-gradient(#d91e30, #2690e8, #f2c010, #35c759, #b32dc9, #fb7310, #1accc8, #e64099)",
+};
+
+function swatchStyle(color) {
+  if (PATTERN_CSS[color]) return `background:${PATTERN_CSS[color]}`;
+  return `background:${color || '#58df78'}`;
+}
+
 function getActivity(state) {
   if (!state) return "Idle";
-  if (state.attacking) return `Fighting (${state.combatStyle || "melee"})`;
-  if (state.gathering) return `Skilling (${state.tool || "?"})`;
-  if (state.moving) return "Walking";
-  return "Idle";
+  if (state.attacking) return `⚔️ Fighting (${state.combatStyle || "melee"})`;
+  if (state.gathering) return `⛏️ Skilling (${state.tool || "?"})`;
+  if (state.crouching) return "🦆 Crouching";
+  if (state.jumping) return "🦘 Jumping";
+  if (state.moving) return "🚶 Walking";
+  return "💤 Idle";
+}
+
+function getEquip(state) {
+  if (!state) return "";
+  const toolIcons = { fishing: "🎣", axe: "🪓", pickaxe: "⛏️", sword: "🗡️", bow: "🏹", staff: "🔮" };
+  const tool = state.tool || "fishing";
+  return `${toolIcons[tool] || "🔧"} ${tool}`;
 }
 
 function renderPlayers(players) {
@@ -207,14 +234,16 @@ function renderPlayers(players) {
     const sk = s.skills || {};
     const card = document.createElement("div");
     card.className = "player-card";
+    const hasCampfire = s.campfireX != null && s.campfireZ != null;
     card.innerHTML = `
-      <div class="player-swatch" style="background:${p.color || '#58df78'}"></div>
+      <div class="player-swatch" style="${swatchStyle(p.color)}"></div>
       <div class="player-info">
         <div>
           <span class="player-name">${esc(p.name)}</span>
           <span class="player-room">${esc(p.room)}</span>
+          <span class="player-skin">${PATTERN_CSS[p.color] ? p.color : ''}</span>
         </div>
-        <div class="player-meta">Total Lv ${s.totalLevel || 6}</div>
+        <div class="player-meta">Total Lv ${s.totalLevel || 6} · ${getEquip(s)}</div>
         <div class="player-skills">
           <span>🐟 Fish ${sk.fishing || 1}</span>
           <span>🪨 Mine ${sk.mining || 1}</span>
@@ -222,9 +251,10 @@ function renderPlayers(players) {
           <span>🗡 Melee ${sk.melee || 1}</span>
           <span>🏹 Range ${sk.bow || 1}</span>
           <span>🔥 Mage ${sk.mage || 1}</span>
+          <span>🍳 Cook ${sk.cooking || 1}</span>
         </div>
-        <div class="player-activity">${getActivity(s)}</div>
-        <div class="player-pos">Pos: (${(s.x||0).toFixed(0)}, ${(s.z||0).toFixed(0)})</div>
+        <div class="player-activity">${getActivity(s)}${hasCampfire ? ' · 🔥 Campfire' : ''}</div>
+        <div class="player-pos">Pos: (${(s.x||0).toFixed(0)}, ${(s.z||0).toFixed(0)})${s.y ? ` Y:${s.y.toFixed(1)}` : ''}</div>
       </div>`;
     playerListEl.appendChild(card);
   }
