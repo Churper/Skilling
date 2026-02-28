@@ -68,6 +68,53 @@ const skills = {
 };
 let inCave = false;
 const activePrayers = new Set();
+
+/* ── Save / Load system ── */
+const SAVE_KEY = "skilling_save";
+const SAVE_INTERVAL = 15_000; // auto-save every 15s
+let _lastSaveTime = 0;
+
+function saveGame() {
+  try {
+    const data = {
+      coins,
+      skills: {},
+      toolUpgrades: { ...toolUpgrades },
+      equippedTool,
+      combatStyle,
+      currentSlimeColorId,
+      unlockedSlimeColors: [...unlockedSlimeColors],
+      bag: bagSystem.serialize(),
+      constructionStock: constructionProgress.getStock(),
+      px: player.position.x,
+      pz: player.position.z,
+      v: 1,
+    };
+    for (const [k, s] of Object.entries(skills)) data.skills[k] = { xp: s.xp, level: s.level };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch { /* quota / private browsing */ }
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.coins != null) coins = d.coins;
+    if (d.skills) for (const [k, s] of Object.entries(d.skills)) {
+      if (skills[k]) { skills[k].xp = s.xp || 0; skills[k].level = s.level || 1; }
+    }
+    if (d.toolUpgrades) Object.assign(toolUpgrades, d.toolUpgrades);
+    if (d.equippedTool) equippedTool = d.equippedTool;
+    if (d.combatStyle) combatStyle = d.combatStyle;
+    if (d.currentSlimeColorId) currentSlimeColorId = d.currentSlimeColorId;
+    if (d.unlockedSlimeColors) { unlockedSlimeColors.clear(); for (const c of d.unlockedSlimeColors) unlockedSlimeColors.add(c); }
+    if (d.bag) bagSystem.deserialize(d.bag);
+    if (d.constructionStock) constructionProgress.deposit(d.constructionStock);
+    if (d.px != null) { player.position.x = d.px; player.position.z = d.pz; }
+  } catch (e) { console.warn("Load save failed:", e); }
+}
+
 const onlineConfig = resolveOnlineConfig();
 const remotePlayers = createRemotePlayers({
   scene,
@@ -319,9 +366,12 @@ if (netClient.isEnabled) {
   syncFriendsUI();
 }
 window.addEventListener("beforeunload", () => {
+  saveGame();
   netClient.disconnect();
 });
 
+/* restore saved progress */
+loadGame();
 equipTool(equippedTool, false);
 setSlimeColor(getCurrentSlimeColorHex());
 syncInventoryUI();
@@ -526,8 +576,9 @@ function updateFloatingDrops(dt) {
 }
 
 // ── Name tags above slimes ──
-const nameTags = new Map(); // key -> { el, anchor }
+const nameTags = new Map(); // key -> { el, anchor, sx, sy }
 const _tagProj = new THREE.Vector3();
+const TAG_LERP = 0.25; // smoothing factor per frame (0-1, lower = smoother)
 
 function getOrCreateNameTag(key) {
   let tag = nameTags.get(key);
@@ -542,7 +593,7 @@ function getOrCreateNameTag(key) {
   el.appendChild(document.createElement("br"));
   el.appendChild(levelSpan);
   getBubbleLayer().appendChild(el);
-  tag = { el, nameSpan, levelSpan, name: "", level: "" };
+  tag = { el, nameSpan, levelSpan, name: "", level: "", sx: -1, sy: -1 };
   nameTags.set(key, tag);
   return tag;
 }
@@ -565,23 +616,26 @@ function updateNameTags() {
   if (localTag.name !== localName) { localTag.nameSpan.textContent = localName; localTag.name = localName; }
   const lvlStr = `Lv ${totalLevel}`;
   if (localTag.level !== lvlStr) { localTag.levelSpan.textContent = lvlStr; localTag.level = lvlStr; }
-  _tagProj.set(player.position.x, player.position.y + playerHeadOffset - 0.55, player.position.z);
+  _tagProj.set(player.position.x, player.position.y + playerHeadOffset - 1.1, player.position.z);
   _tagProj.project(camera);
-  const lx = Math.round(_tagProj.x * hw + hw);
-  const ly = Math.round(-_tagProj.y * hh + hh);
-  localTag.el.style.transform = `translate(${lx}px, ${ly}px) translate(-50%, -50%)`;
+  const lxTarget = _tagProj.x * hw + hw;
+  const lyTarget = -_tagProj.y * hh + hh;
+  if (localTag.sx < 0) { localTag.sx = lxTarget; localTag.sy = lyTarget; }
+  else { localTag.sx += (lxTarget - localTag.sx) * TAG_LERP; localTag.sy += (lyTarget - localTag.sy) * TAG_LERP; }
+  localTag.el.style.transform = `translate(${localTag.sx.toFixed(1)}px, ${localTag.sy.toFixed(1)}px) translate(-50%, -50%)`;
 
   // Remote player tags
   for (const [key, tag] of nameTags) {
     if (key === "local") continue;
-    // Check if peer still exists
     const anchor = remotePlayers.getEmoteAnchor(key, _tagProj);
     if (!anchor) { removeNameTag(key); continue; }
-    anchor.y -= 0.75;
+    anchor.y -= 1.3;
     anchor.project(camera);
-    const rx = Math.round(anchor.x * hw + hw);
-    const ry = Math.round(-anchor.y * hh + hh);
-    tag.el.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+    const rxTarget = anchor.x * hw + hw;
+    const ryTarget = -anchor.y * hh + hh;
+    if (tag.sx < 0) { tag.sx = rxTarget; tag.sy = ryTarget; }
+    else { tag.sx += (rxTarget - tag.sx) * TAG_LERP; tag.sy += (ryTarget - tag.sy) * TAG_LERP; }
+    tag.el.style.transform = `translate(${tag.sx.toFixed(1)}px, ${tag.sy.toFixed(1)}px) translate(-50%, -50%)`;
   }
 }
 
@@ -1902,6 +1956,9 @@ function animate(now) {
     tool: equippedTool,
     overhead: getActiveOverhead() || "",
   });
+
+  /* auto-save periodically */
+  if (now - _lastSaveTime > SAVE_INTERVAL) { _lastSaveTime = now; saveGame(); }
 
   composer.render();
   updateDebugOverlay();

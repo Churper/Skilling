@@ -131,6 +131,20 @@ export function createBagSystem({ capacity, itemKeys }) {
     return { removed, total };
   }
 
+  function serialize() {
+    return { slots: [...slots], bank: { ...bankStorage } };
+  }
+
+  function deserialize(data) {
+    if (data.slots) {
+      for (let i = 0; i < capacity; i++) slots[i] = data.slots[i] || null;
+    }
+    if (data.bank) {
+      for (const key of itemKeys) bankStorage[key] = data.bank[key] || 0;
+    }
+    recount();
+  }
+
   return {
     capacity,
     slots,
@@ -146,5 +160,7 @@ export function createBagSystem({ capacity, itemKeys }) {
     withdrawItemFromBank,
     sellAll,
     consumeMatching,
+    serialize,
+    deserialize,
   };
 }

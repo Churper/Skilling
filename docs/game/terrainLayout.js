@@ -174,9 +174,9 @@ export function getMeshSurfaceY(x, z) {
     if (bridgeT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 2, bridgeT);
   }
   /* flatten terrain under dock */
-  if (x > 34 && x < 54 && Math.abs(z - (-16)) < 6) {
+  if (x > 34 && x < 54 && Math.abs(z - 4) < 6) {
     const dxT = 1 - sm(Math.max(34 - x, x - 54, 0), 0, 3);
-    const dzT = 1 - sm(Math.abs(z - (-16)), 3, 6);
+    const dzT = 1 - sm(Math.abs(z - 4), 3, 6);
     const dockT = dxT * dzT;
     if (dockT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 2, dockT);
   }
@@ -193,7 +193,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
 
   /* ── ground mesh ── */
   const step = lodStep || 1.0;
-  const MESH_PAD = 1; // extend mesh 1 unit past chunk edge to cover gaps
+  const MESH_PAD = Math.max(step + 1, 2); // extend mesh past chunk edge — scale with LOD step to cover gaps
   const dxMin = bounds ? bounds.xMin : (GX_MIN - 1) * TILE_S;
   const dxMax = bounds ? bounds.xMax : (GX_MAX + 1) * TILE_S;
   const dzMin = bounds ? bounds.zMin : (GZ_MIN - 1) * TILE_S;
@@ -239,7 +239,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         const key = `${lx},${lz}`;
         if (key in heightOffsets) y += heightOffsets[key];
       }
-      if (isPad) y -= 0.02; // nudge pad verts down to avoid z-fighting with neighbor
+      if (isPad) y -= 0.05; // nudge pad verts down to avoid z-fighting with neighbor
       const i3 = (iz * nx + ix) * 3;
 
       /* low-poly jitter (don't jitter edges) */
@@ -498,7 +498,7 @@ export function buildBridge(lib) {
 export function buildDock(lib) {
   const group = new THREE.Group();
   group.name = "dock";
-  const dx = 40, dz = -16, count = 4;
+  const dx = 40, dz = 4, count = 4;
   const deckY = WATER_Y + 0.15;
 
   /* entry steps at shore end — faces from shore out to water */
@@ -718,5 +718,5 @@ export const CLIFF_ROCK_SPOTS = [
 ];
 export const FISHING_SPOT_POSITIONS = [
   { x:-4, z:14, phase:0 },{ x:4, z:4, phase:1.2 },{ x:8, z:-4, phase:2.4 },
-  { x:42, z:-16, phase:3.6 },{ x:46, z:-18, phase:4.8 },
+  { x:42, z:4, phase:3.6 },{ x:46, z:2, phase:4.8 },
 ];

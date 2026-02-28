@@ -204,6 +204,7 @@ canvas{display:block}
     <button id="btn-export">Export</button>
     <button id="btn-import">Import</button>
     <button id="btn-clear">Clear</button>
+    <button id="btn-flatten">Flatten</button>
   </div>
   <div id="count">—</div>
 </div>
@@ -1838,6 +1839,28 @@ document.getElementById("btn-clear").addEventListener("click", () => {
   if (!confirm("Clear current chunk?")) return;
   heightOffsets.fill(0); for (const k in colorOverrides) delete colorOverrides[k]; rebuildAllVerts(); updateCount();
 });
+document.getElementById("btn-flatten").addEventListener("click", () => {
+  if (!confirm("Flatten & clear entire active chunk (heights, colors, and objects)?")) return;
+  /* reset heights + colors */
+  heightOffsets.fill(0);
+  for (const k in colorOverrides) delete colorOverrides[k];
+  rebuildAllVerts();
+  /* remove non-structural objects that belong to this chunk */
+  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+  const bx0 = chOx + xMin, bx1 = chOx + xMax, bz0 = chOz + zMin, bz1 = chOz + zMax;
+  for (let i = objects.length - 1; i >= 0; i--) {
+    const o = objects[i];
+    if (STRUCTURAL_TYPES.has(o.type)) continue;
+    if (o.x >= bx0 && o.x <= bx1 && o.z >= bz0 && o.z <= bz1) {
+      scene.remove(o.mesh); objects.splice(i, 1);
+    }
+  }
+  deselectInstance();
+  /* also reset chunk store data */
+  const cd = ensureChunkData(activeEditChunk[0], activeEditChunk[1]);
+  cd.heightData = {}; cd.colorData = {}; cd.objects = [];
+  updateCount();
+});
 
 /* ── Chunk navigation ── */
 document.getElementById("chunk-n").addEventListener("click", () => switchChunk(currentChunk[0], currentChunk[1] + 1));
@@ -1912,7 +1935,7 @@ function drawCompass() {
   /* get camera's forward projected onto XZ plane */
   camera.getWorldDirection(_cpDir);
   _cpDir.y = 0; _cpDir.normalize();
-  _cpRight.crossVectors(new THREE.Vector3(0, 1, 0), _cpDir).normalize();
+  _cpRight.crossVectors(_cpDir, new THREE.Vector3(0, 1, 0)).normalize();
 
   /* project world directions to screen-space compass
      North = +z, East = +x in world coords
