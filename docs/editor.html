@@ -523,7 +523,7 @@ const BASE_COLORS = {
   dark:  new THREE.Color("#3a3a42"),
 };
 const BRIDGE_X0 = -6, BRIDGE_X1 = 6, BRIDGE_Z = 8, BRIDGE_HW = 3;
-const colorOverrides = {};
+let colorOverrides = {};
 
 function computeColor(x, z, y) {
   const key = `${x},${z}`;
@@ -679,7 +679,7 @@ function buildChunkMesh(cx, cz) {
   geo.setAttribute("position", new THREE.BufferAttribute(hp, 3));
   geo.setAttribute("color", new THREE.BufferAttribute(hc, 3));
   geo.setIndex(idx); geo.computeVertexNormals();
-  const mesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD, flatShading: true }));
+  const mesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
   const wGeo = new THREE.PlaneGeometry(xMax-xMin, zMax-zMin, 1, 1);
   wGeo.rotateX(-Math.PI / 2);
   const wMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
