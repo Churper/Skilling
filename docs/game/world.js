@@ -617,6 +617,7 @@ export async function createWorld(scene) {
   /* load tilemap data early so height offsets can be applied to terrain */
   await loadTilemapData();
   const heightOffsets = _tilemapData && _tilemapData.heightOffsets ? _tilemapData.heightOffsets : null;
+  const colorOverrides = _tilemapData && _tilemapData.colorOverrides ? _tilemapData.colorOverrides : null;
 
   let tileLib = null;
   try { tileLib = await loadTiles(); } catch (e) { console.warn("Tile load failed:", e); }
@@ -624,7 +625,7 @@ export async function createWorld(scene) {
   /* ── terrain mesh (ground + water) ── */
   const ground = new THREE.Group();
   ground.name = "ground";
-  ground.add(buildTerrainMesh(waterUniforms, heightOffsets));
+  ground.add(buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides));
 
   const hasEditorObjects = _tilemapData && _tilemapData.objects && _tilemapData.objects.length > 0;
 

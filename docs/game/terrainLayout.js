@@ -187,7 +187,7 @@ export function getMeshSurfaceY(x, z) {
    buildTerrainMesh — vertex-colored ground + water plane
    ═══════════════════════════════════════════ */
 
-export function buildTerrainMesh(waterUniforms, heightOffsets) {
+export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides) {
   const group = new THREE.Group();
   group.name = "terrain";
 
@@ -274,6 +274,11 @@ export function buildTerrainMesh(waterUniforms, heightOffsets) {
       const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
       const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
       if ((underBridge || underDock) && y < WATER_Y + 0.1) c = cRiver;
+      /* editor color overrides */
+      if (colorOverrides) {
+        const key = `${x},${z}`;
+        if (key in colorOverrides) { const ov = colorOverrides[key]; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
+      }
       col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
 
       if (ix < nx - 1 && iz < nz - 1) {
