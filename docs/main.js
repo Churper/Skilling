@@ -692,6 +692,15 @@ function updateAnimals(dt) {
   const hw = renderer.domElement.clientWidth * 0.5;
   const hh = renderer.domElement.clientHeight * 0.5;
   const px = player.position.x, pz = player.position.z;
+  /* purge animals whose chunk was unloaded */
+  for (let i = animals.length - 1; i >= 0; i--) {
+    const a = animals[i];
+    if (!a.parentModel.parent) {
+      a.hpBar.remove();
+      _registeredAnimalNodes.delete(a.node);
+      animals.splice(i, 1);
+    }
+  }
   for (const a of animals) {
     /* only update animals within 50 units (same chunk) */
     const adx = a.spawnPos.x - px, adz = a.spawnPos.z - pz;
