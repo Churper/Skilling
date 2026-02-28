@@ -1511,6 +1511,11 @@ let _isJumping = false;
 const JUMP_FORCE = 6.0;
 const GRAVITY = -18.0;
 
+/* ── Crouch system ── */
+let _isCrouching = false;
+let _crouchT = 0; // 0 = standing, 1 = fully crouched
+const CROUCH_SPEED = 8.0;
+
 function runServiceAction(node) {
   const serviceType = node.userData.serviceType;
   if (!serviceType) return;
@@ -2126,6 +2131,9 @@ function animate(now) {
     _jumpVelocity = JUMP_FORCE;
   }
 
+  /* Crouch */
+  _isCrouching = input.keys.has("control") && !_isJumping;
+
   const keyboardMove = moveDir.lengthSq() > 0.0001;
   if (keyboardMove) {
     hasMoveTarget = false;
@@ -2150,7 +2158,8 @@ function animate(now) {
   }
 
   if (moveDir.lengthSq() > 0.0001 && !activeGather && !activeAttack) {
-    player.position.addScaledVector(moveDir, 7.0 * dt);
+    const moveSpeed = _isCrouching ? 3.5 : 7.0;
+    player.position.addScaledVector(moveDir, moveSpeed * dt);
     const targetYaw = Math.atan2(moveDir.x, moveDir.z);
     let delta = targetYaw - player.rotation.y;
     delta = Math.atan2(Math.sin(delta), Math.cos(delta));
@@ -2272,6 +2281,13 @@ function animate(now) {
   } else {
     player.position.y = standY;
   }
+  /* Crouch squish — lerp toward target */
+  const crouchTarget = _isCrouching ? 1 : 0;
+  _crouchT += (crouchTarget - _crouchT) * Math.min(1, dt * CROUCH_SPEED);
+  const squishY = 1 - _crouchT * 0.45;       // flatten to 55% height
+  const squishXZ = 1 + _crouchT * 0.25;       // widen to 125%
+  player.scale.set(squishXZ, squishY, squishXZ);
+
   playerBlob.position.set(player.position.x, groundY + 0.03, player.position.z);
   const isMovingNow = moveDir.lengthSq() > 0.0001 && !activeGather && !activeAttack;
   updateAnimation(dt, {

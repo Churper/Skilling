@@ -97,7 +97,7 @@ export function createInputController({ domElement, camera, ground, player, setM
 
   window.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
-    if (["w", "a", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright", " "].includes(key)) keys.add(key);
+    if (["w", "a", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright", " ", "control"].includes(key)) keys.add(key);
   });
   window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
 
