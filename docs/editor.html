@@ -14,14 +14,6 @@ canvas{display:block}
 #sidebar h1{padding:10px 12px;font-size:15px;font-weight:700;color:#e8c44a;
   border-bottom:1px solid #2a2a3e;letter-spacing:1px;text-align:center}
 
-/* tabs */
-#tabs{display:flex;border-bottom:1px solid #2a2a3e}
-.tab{flex:1;padding:8px 4px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;
-  color:#666;background:#0d0d18;border-right:1px solid #2a2a3e;transition:all .15s}
-.tab:last-child{border-right:none}
-.tab:hover{color:#aaa;background:#1a1a2e}
-.tab.active{color:#e8c44a;background:#1e1e32;border-bottom:2px solid #e8c44a}
-
 /* info bar */
 #info{padding:6px 10px;font-size:10px;color:#666;border-bottom:1px solid #1a1a2e;line-height:1.7}
 #info kbd{background:#2a2a3e;padding:1px 5px;border-radius:3px;color:#bbb;font-family:monospace;font-size:9px}
@@ -30,47 +22,28 @@ canvas{display:block}
 /* palette area */
 #palette-wrap{flex:1;overflow-y:auto;padding:6px 8px}
 .cat{color:#555;font-size:9px;text-transform:uppercase;padding:8px 2px 3px;letter-spacing:1.2px;font-weight:700}
-.tile-btn{padding:4px 8px;margin:1px 0;cursor:pointer;border-radius:4px;font-size:10px;
+.obj-btn{padding:4px 8px;margin:1px 0;cursor:pointer;border-radius:4px;font-size:10px;
   color:#999;transition:all .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tile-btn:hover{background:#252540;color:#ddd}
-.tile-btn.active{background:#2a2a50;color:#e8c44a;font-weight:600}
+.obj-btn:hover{background:#252540;color:#ddd}
+.obj-btn.active{background:#2a2a50;color:#e8c44a;font-weight:600}
 
-/* bottom controls */
-#controls{padding:8px 10px;border-top:1px solid #2a2a3e;display:flex;flex-direction:column;gap:6px}
-#controls .row{display:flex;gap:4px;align-items:center}
-#controls label{font-size:10px;color:#666;min-width:30px}
-#controls input[type=range]{flex:1;height:4px;accent-color:#e8c44a}
-#controls .val{font-size:10px;color:#e8c44a;min-width:32px;text-align:right;font-family:monospace}
+/* object controls */
+#obj-controls{padding:8px 10px;border-top:1px solid #2a2a3e;font-size:10px}
+#obj-controls .row{display:flex;gap:4px;align-items:center;margin-bottom:4px}
+#obj-controls label{color:#666;min-width:40px}
+#obj-controls input[type=range]{flex:1;height:4px;accent-color:#e8c44a}
+#obj-controls .val{font-size:10px;color:#e8c44a;min-width:32px;text-align:right;font-family:monospace}
 
 /* buttons */
 #btns{padding:8px 10px;border-top:1px solid #2a2a3e;display:flex;gap:4px;flex-wrap:wrap}
 #btns button{flex:1;min-width:60px;padding:6px;font-size:10px;cursor:pointer;
   background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:4px;font-family:inherit;transition:all .12s}
 #btns button:hover{background:#2a2a50;border-color:#555}
-#btns .accent{background:#264a32;border-color:#3a6a48}
-#btns .accent:hover{background:#2e5a3a}
 
 #count{padding:5px 10px;font-size:10px;color:#555;text-align:center;border-top:1px solid #1a1a2e;font-family:monospace}
 
 /* ── Canvas ── */
 #canvas-wrap{position:fixed;left:220px;top:0;right:0;bottom:0}
-
-/* ── Floating controls ── */
-.float-panel{position:fixed;background:rgba(18,18,31,0.92);padding:8px 12px;border-radius:8px;
-  border:1px solid #2a2a3e;z-index:10;font-size:11px;display:flex;gap:8px;align-items:center}
-.float-panel button{padding:3px 10px;cursor:pointer;background:#1e1e32;color:#ccc;
-  border:1px solid #333;border-radius:4px;font-family:inherit;font-size:11px}
-.float-panel button:hover{background:#2a2a50}
-#y-controls{right:12px;bottom:12px}
-#rot-display{right:12px;bottom:52px;color:#e8c44a}
-
-/* ── Object mode specific ── */
-.obj-selected{outline:2px solid #e8c44a;outline-offset:2px}
-#obj-props{padding:8px 10px;border-top:1px solid #2a2a3e;font-size:10px}
-#obj-props .row{display:flex;gap:4px;align-items:center;margin-bottom:4px}
-#obj-props label{color:#666;min-width:40px}
-#obj-props input{flex:1;background:#1a1a2e;border:1px solid #333;color:#ccc;padding:2px 6px;
-  border-radius:3px;font-size:10px;font-family:monospace}
 
 /* hidden */
 .hidden{display:none!important}
@@ -80,56 +53,35 @@ canvas{display:block}
 
 <div id="sidebar">
   <h1>MAP EDITOR</h1>
-  <div id="tabs">
-    <div class="tab active" data-tab="tiles">Tiles</div>
-    <div class="tab" data-tab="objects">Objects</div>
-  </div>
   <div id="info">
     <kbd>Click</kbd> place &nbsp; <kbd>RClick</kbd> remove<br>
-    <kbd>R</kbd> rotate 90° &nbsp; <kbd>G</kbd> toggle grid<br>
-    <kbd>Ctrl+S</kbd> export &nbsp; <kbd>Ctrl+Z</kbd> undo
+    <kbd>R</kbd> rotate 45° &nbsp; <kbd>G</kbd> toggle grid<br>
+    <kbd>Shift+Scroll</kbd> resize &nbsp; <kbd>Del</kbd> delete selected<br>
+    <kbd>Ctrl+S</kbd> export &nbsp; <kbd>Ctrl+Z</kbd> undo &nbsp; <kbd>Esc</kbd> deselect
   </div>
-  <div id="cell-display">Cell: —</div>
+  <div id="cell-display">—</div>
   <div id="palette-wrap"></div>
 
-  <!-- Tile mode controls -->
-  <div id="tile-controls" class="hidden">
-    <div id="controls">
-      <div class="row">
-        <label>Y</label>
-        <input type="range" id="y-slider" min="-2" max="4" step="0.1" value="0">
-        <span class="val" id="y-val">0.00</span>
-      </div>
+  <div id="obj-controls">
+    <div class="row"><label>Scale</label>
+      <input type="range" id="obj-scale" min="0.2" max="5" step="0.1" value="1.0">
+      <span class="val" id="obj-scale-val">1.00</span>
     </div>
-  </div>
-
-  <!-- Object mode controls -->
-  <div id="obj-controls" class="hidden">
-    <div id="obj-props">
-      <div class="row"><label>Scale</label>
-        <input type="range" id="obj-scale" min="0.2" max="5" step="0.1" value="1.0">
-        <span class="val" id="obj-scale-val">1.00</span>
-      </div>
-      <div class="row"><label>Rot</label>
-        <input type="range" id="obj-rot" min="0" max="6.28" step="0.05" value="0">
-        <span class="val" id="obj-rot-val">0°</span>
-      </div>
+    <div class="row"><label>Rot</label>
+      <input type="range" id="obj-rot" min="0" max="6.28" step="0.05" value="0">
+      <span class="val" id="obj-rot-val">0°</span>
     </div>
   </div>
 
   <div id="btns">
-    <!-- tile mode buttons -->
-    <button id="btn-fill" class="accent tile-only">Fill Base</button>
-    <button id="btn-validate" class="tile-only">Validate</button>
-    <button id="btn-export">Export</button>
-    <button id="btn-import">Import</button>
+    <button id="btn-export">Export JSON</button>
+    <button id="btn-import">Import JSON</button>
     <button id="btn-clear">Clear All</button>
   </div>
-  <div id="count">0 items</div>
+  <div id="count">0 objects</div>
 </div>
 
 <div id="canvas-wrap"></div>
-<div class="float-panel" id="rot-display">Rotation: 0°</div>
 <input type="file" id="file-input" accept=".json" style="display:none">
 
 <script type="importmap">
@@ -153,7 +105,7 @@ const TILE_DIR = "models/terrain/";
 const MODEL_DIR = "models/";
 
 /* ═══════════════════════════════════════════
-   Object catalogue (trees, rocks, bushes, etc.)
+   Object catalogue
    ═══════════════════════════════════════════ */
 const OBJ_CATEGORIES = [
   { name: "Trees", items: [
@@ -190,7 +142,7 @@ const OBJ_CATEGORIES = [
     { id: "Grass_1_A", file: "Grass_1_A_Color1.gltf", scale: 1.0 },
     { id: "Grass_2_A", file: "Grass_2_A_Color1.gltf", scale: 1.0 },
   ]},
-  { name: "Terrain Props", dir: TILE_DIR, glb: true, items: [
+  { name: "Terrain Props", dir: TILE_DIR, items: [
     { id: "Prop_Grass_Clump_1", file: "Prop_Grass_Clump_1.glb", scale: 1.0 },
     { id: "Prop_Grass_Clump_2", file: "Prop_Grass_Clump_2.glb", scale: 1.0 },
     { id: "Prop_Grass_Clump_3", file: "Prop_Grass_Clump_3.glb", scale: 1.0 },
@@ -225,7 +177,7 @@ const OBJ_CATEGORIES = [
     { id: "Prop_Starfish_2", file: "Prop_Starfish_2.glb", scale: 1.0 },
     { id: "Prop_Treasure_Chest", file: "Prop_Treasure_Chest.glb", scale: 1.0 },
   ]},
-  { name: "Palm Trees", dir: TILE_DIR, glb: true, items: [
+  { name: "Terrain Trees", dir: TILE_DIR, items: [
     { id: "Prop_Tree_Cedar_1", file: "Prop_Tree_Cedar_1.glb", scale: 1.0 },
     { id: "Prop_Tree_Cedar_2", file: "Prop_Tree_Cedar_2.glb", scale: 1.0 },
     { id: "Prop_Tree_Oak_1", file: "Prop_Tree_Oak_1.glb", scale: 1.0 },
@@ -238,7 +190,7 @@ const OBJ_CATEGORIES = [
     { id: "Prop_Tree_Pine_2", file: "Prop_Tree_Pine_2.glb", scale: 1.0 },
     { id: "Prop_Tree_Pine_3", file: "Prop_Tree_Pine_3.glb", scale: 1.0 },
   ]},
-  { name: "Fences", dir: TILE_DIR, glb: true, items: [
+  { name: "Fences", dir: TILE_DIR, items: [
     { id: "Prop_Fence_Boards_1", file: "Prop_Fence_Boards_1.glb", scale: 1.0 },
     { id: "Prop_Fence_Boards_2", file: "Prop_Fence_Boards_2.glb", scale: 1.0 },
     { id: "Prop_Fence_Boards_3", file: "Prop_Fence_Boards_3.glb", scale: 1.0 },
@@ -255,7 +207,7 @@ const OBJ_CATEGORIES = [
     { id: "Prop_Fence_Hill_Gentle", file: "Prop_Fence_Hill_Gentle.glb", scale: 1.0 },
     { id: "Prop_Fence_Hill_Sharp", file: "Prop_Fence_Hill_Sharp.glb", scale: 1.0 },
   ]},
-  { name: "Bridge", dir: TILE_DIR, glb: true, items: [
+  { name: "Bridge", dir: TILE_DIR, items: [
     { id: "Prop_Bridge_Log_End", file: "Prop_Bridge_Log_End.glb", scale: 1.0 },
     { id: "Prop_Bridge_Log_End_Edge", file: "Prop_Bridge_Log_End_Edge.glb", scale: 1.0 },
     { id: "Prop_Bridge_Log_Middle", file: "Prop_Bridge_Log_Middle.glb", scale: 1.0 },
@@ -266,46 +218,12 @@ const OBJ_CATEGORIES = [
     { id: "Prop_Bridge_Rope_Middle", file: "Prop_Bridge_Rope_Middle.glb", scale: 1.0 },
     { id: "Prop_Bridge_Rope_Rope_Support", file: "Prop_Bridge_Rope_Rope_Support.glb", scale: 1.0 },
   ]},
-  { name: "Dock", dir: TILE_DIR, glb: true, items: [
+  { name: "Dock", dir: TILE_DIR, items: [
     { id: "Prop_Docks_Straight", file: "Prop_Docks_Straight.glb", scale: 1.0 },
     { id: "Prop_Docks_Straight_Supports", file: "Prop_Docks_Straight_Supports.glb", scale: 1.0 },
     { id: "Prop_Docks_Steps", file: "Prop_Docks_Steps.glb", scale: 1.0 },
     { id: "Prop_Docks_Corner", file: "Prop_Docks_Corner.glb", scale: 1.0 },
     { id: "Prop_Docks_Corner_Supports", file: "Prop_Docks_Corner_Supports.glb", scale: 1.0 },
-  ]},
-];
-
-/* Tile categories (same as before) */
-const TILE_CATEGORIES = [
-  { name: "Ground", tiles: ["Grass_Flat"] },
-  { name: "Hills", tiles: [
-    "Hill_Side","Hill_Side_On_Side","Hill_Corner_Outer_2x2","Hill_Corner_Inner_2x2",
-    "Hill_Side_Transition_From_Gentle","Hill_Side_Transition_To_Gentle",
-  ]},
-  { name: "Water", tiles: [
-    "Water_Flat","Water_Slope","Water_Curve","Waterfall","Waterfall_Top",
-    "Waterfall_Water_Top","Waterfall_Water_Top_Edge","Waterfall_Water_Mid","Waterfall_Water_Mid_Edge",
-  ]},
-  { name: "Sand", tiles: [
-    "Sand_Flat","Sand_Side","Sand_Corner_Outer_3x3","Sand_Corner_Inner_3x3",
-    "Sand_Side_Overlap_Side","Sand_Side_Transition_From_Gentle","Sand_Side_Transition_To_Gentle",
-  ]},
-  { name: "Path", tiles: [
-    "Path_Center","Path_Side","Path_Corner_Inner_1x1","Path_Corner_Inner_2x2",
-    "Path_Corner_Outer_1x1","Path_Corner_Outer_2x2","Path_Corner_Outer_3x3",
-    "Path_Corner_Y_2x2","Path_Corner_Y_3x3","Path_Hill_Gentle_Center","Path_Hill_Gentle_Side",
-    "Path_Hill_Sharp_Center","Path_Hill_Sharp_Side","Path_Steps_Center","Path_Steps_Edge",
-    "Path_Steps_Grass_Edge","Path_Steps_Grass_Edge_Top",
-  ]},
-  { name: "Cliffs", tiles: [
-    "Cliff_Base_Corner_Inner_Lg","Cliff_Base_Corner_Inner_Sm","Cliff_Base_Corner_Outer_Lg",
-    "Cliff_Base_Corner_Outer_Sm","Cliff_Base_Hill_Gentle","Cliff_Base_Hill_Sharp",
-    "Cliff_Base_Straight","Cliff_Base_Top_Joined_Hill_Gentle","Cliff_Base_Top_Joined_Hill_Sharp",
-    "Cliff_Base_Waterfall","Cliff_Mid_Corner_Inner_Lg","Cliff_Mid_Corner_Inner_Sm",
-    "Cliff_Mid_Corner_Outer_Lg","Cliff_Mid_Corner_Outer_Sm","Cliff_Mid_Straight",
-    "Cliff_Mid_Waterfall","Cliff_Top_Corner_Inner_Lg","Cliff_Top_Corner_Inner_Sm",
-    "Cliff_Top_Corner_Outer_Lg","Cliff_Top_Corner_Outer_Sm","Cliff_Top_Hill_Gentle",
-    "Cliff_Top_Hill_Sharp","Cliff_Top_Straight","Cliff_Top_Waterfall",
   ]},
 ];
 
@@ -341,7 +259,7 @@ const fill = new THREE.DirectionalLight("#d8efff", 0.32);
 fill.position.set(-34, 26, -24); scene.add(fill);
 
 /* ═══════════════════════════════════════════
-   Grid
+   Grid + ground plane visual
    ═══════════════════════════════════════════ */
 const GRID_MIN = -25, GRID_MAX = 25;
 const gridGroup = new THREE.Group(); gridGroup.name = "grid";
@@ -368,6 +286,13 @@ function buildGrid() {
 }
 buildGrid();
 
+/* Flat green ground plane so you can see where you're placing */
+const groundGeo = new THREE.PlaneGeometry((GRID_MAX - GRID_MIN + 1) * TILE_S, (GRID_MAX - GRID_MIN + 1) * TILE_S);
+groundGeo.rotateX(-Math.PI / 2);
+const groundMesh = new THREE.Mesh(groundGeo, new THREE.MeshToonMaterial({ color: "#4dad38" }));
+groundMesh.position.set((GRID_MIN + GRID_MAX + 1) * TILE_S / 2, -0.01, (GRID_MIN + GRID_MAX + 1) * TILE_S / 2);
+scene.add(groundMesh);
+
 /* Hover highlight */
 const hoverGeo = new THREE.PlaneGeometry(TILE_S, TILE_S);
 const hoverMat = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthTest: false });
@@ -380,18 +305,12 @@ scene.add(hoverMesh);
    ═══════════════════════════════════════════ */
 THREE.Cache.enabled = true;
 const loader = new GLTFLoader();
-
-/* Tile model lib (terrain tiles: Grass_Flat, Hill_Side, etc.) */
-const tileLib = {};
-const allTileNames = TILE_CATEGORIES.flatMap(c => c.tiles);
-
-/* Object model lib (trees, rocks, etc.) */
 const objLib = {};
 const allObjItems = OBJ_CATEGORIES.flatMap(c => c.items.map(it => ({ ...it, dir: c.dir || MODEL_DIR })));
 
 async function loadAllModels() {
   const status = document.getElementById("count");
-  const total = allTileNames.length + allObjItems.length;
+  const total = allObjItems.length;
   let loaded = 0;
   status.textContent = `Loading 0/${total}...`;
 
@@ -399,86 +318,43 @@ async function loadAllModels() {
     loader.load(url, gltf => res(gltf.scene), undefined, () => res(null));
   });
 
-  /* tiles */
-  const tilePromises = allTileNames.map(async name => {
-    const s = await loadOne(TILE_DIR + name + ".glb");
-    if (s) tileLib[name] = s;
-    status.textContent = `Loading ${++loaded}/${total}...`;
-  });
-
-  /* objects */
-  const objPromises = allObjItems.map(async item => {
+  await Promise.all(allObjItems.map(async item => {
     const s = await loadOne(item.dir + item.file);
     if (s) objLib[item.id] = s;
     status.textContent = `Loading ${++loaded}/${total}...`;
-  });
+  }));
 
-  await Promise.all([...tilePromises, ...objPromises]);
-  const msg = `Loaded ${Object.keys(tileLib).length} tiles + ${Object.keys(objLib).length} objects`;
+  const msg = `Loaded ${Object.keys(objLib).length}/${total} models`;
   status.textContent = msg;
   status.style.color = "#4a4";
   console.log(msg);
 }
 
 /* ═══════════════════════════════════════════
-   Editor State
+   State
    ═══════════════════════════════════════════ */
-let mode = "tiles"; // "tiles" | "objects"
-let selectedTile = "Grass_Flat";
-let selectedObj = null; // obj category item id
-let rotation = 0;
-let tileY = 0;
+let selectedObj = null;
 let objScale = 1.0;
 let objRot = 0;
 let hoverCell = null;
 
-/* Tile state */
-const tilemap = new Map();    // "gx,gz" -> { tile, rot, y }
-const tileObjs = new Map();   // "gx,gz" -> THREE.Object3D
-const underlays = new Map();
-const underlayObjs = new Map();
-const FLAT_TILES = new Set(["Grass_Flat", "Sand_Flat", "Path_Center", "Water_Flat"]);
-
-/* Object state */
 let nextObjId = 1;
-const objects = [];           // { id, type, x, z, y, scale, rot, mesh }
-let selectedObjInstance = null; // currently selected placed object
+const objects = [];
+let selectedInstance = null;
 let highlightRing = null;
 
-/* Undo stack */
+/* Undo */
 const undoStack = [];
 const MAX_UNDO = 100;
-
-function pushUndo(action) {
-  undoStack.push(action);
-  if (undoStack.length > MAX_UNDO) undoStack.shift();
-}
+function pushUndo(action) { undoStack.push(action); if (undoStack.length > MAX_UNDO) undoStack.shift(); }
 
 function undo() {
   const action = undoStack.pop();
   if (!action) return;
-  if (action.type === "place_tile") {
-    const { key, prev } = action;
-    removeTileByKey(key);
-    if (prev) {
-      const [gx, gz] = key.split(",").map(Number);
-      tilemap.set(key, prev);
-      const obj = spawnTileObject(prev.tile, gx, gz, prev.rot || 0, prev.y || 0);
-      if (obj) tileObjs.set(key, obj);
-    }
-  } else if (action.type === "remove_tile") {
-    const { key, data } = action;
-    const [gx, gz] = key.split(",").map(Number);
-    tilemap.set(key, data);
-    const obj = spawnTileObject(data.tile, gx, gz, data.rot || 0, data.y || 0);
-    if (obj) tileObjs.set(key, obj);
-  } else if (action.type === "place_obj") {
+  if (action.type === "place") {
     const idx = objects.findIndex(o => o.id === action.objId);
-    if (idx >= 0) {
-      scene.remove(objects[idx].mesh);
-      objects.splice(idx, 1);
-    }
-  } else if (action.type === "remove_obj") {
+    if (idx >= 0) { scene.remove(objects[idx].mesh); objects.splice(idx, 1); }
+  } else if (action.type === "remove") {
     const { data } = action;
     const tmpl = objLib[data.type];
     if (tmpl) {
@@ -493,231 +369,101 @@ function undo() {
   updateCount();
 }
 
-/* Tile rules (for validation) */
-let tileRules = { tiles: {} };
-async function loadTileRules() {
-  try {
-    const resp = await fetch(`game/tilesetRules.json?v=${Date.now()}`, { cache: "no-store" });
-    if (resp.ok) tileRules = await resp.json();
-  } catch (e) { /* ignore */ }
-}
-
 /* ═══════════════════════════════════════════
-   Tile helpers (from original editor)
+   Preview ghost
    ═══════════════════════════════════════════ */
-function rotQuarterTurn(rot) {
-  return ((Math.round((rot || 0) / (Math.PI / 2)) % 4) + 4) % 4;
-}
-
-function getTileExtensions(gx, gz, tile, rot, footprint) {
-  const r = rotQuarterTurn(rot);
-  if (footprint === "hill_side") {
-    if (r === 0) return [[gx, gz - 1]]; if (r === 1) return [[gx - 1, gz]];
-    if (r === 2) return [[gx, gz + 1]]; return [[gx + 1, gz]];
-  }
-  if (footprint === "hill_corner_outer_2x2") {
-    if (r === 0) return [[gx + 1, gz], [gx, gz - 1], [gx + 1, gz - 1]];
-    if (r === 1) return [[gx - 1, gz], [gx, gz - 1], [gx - 1, gz - 1]];
-    if (r === 2) return [[gx - 1, gz], [gx, gz + 1], [gx - 1, gz + 1]];
-    return [[gx + 1, gz], [gx, gz + 1], [gx + 1, gz + 1]];
-  }
-  if (footprint === "hill_corner_inner_2x2") {
-    if (r === 0) return [[gx - 1, gz], [gx, gz + 1], [gx - 1, gz + 1]];
-    if (r === 1) return [[gx, gz - 1], [gx - 1, gz], [gx - 1, gz - 1]];
-    if (r === 2) return [[gx + 1, gz], [gx, gz - 1], [gx + 1, gz - 1]];
-    return [[gx, gz + 1], [gx + 1, gz], [gx + 1, gz + 1]];
-  }
-  return [];
-}
-
-function validatePlacement(gx, gz, tile, rot) {
-  const rule = tileRules.tiles?.[tile];
-  if (!rule) return { ok: true };
-  const ext = getTileExtensions(gx, gz, tile, rot, rule.footprint);
-  for (const [cx, cz] of ext) {
-    const cur = tilemap.get(`${cx},${cz}`);
-    if (cur && !FLAT_TILES.has(cur.tile)) return { ok: false, message: `Blocked by ${cur.tile} at ${cx},${cz}` };
-  }
-  return { ok: true };
-}
-
-/* Preview ghost */
 let previewObj = null;
 function updatePreview() {
   if (previewObj) { scene.remove(previewObj); previewObj = null; }
-  if (!hoverCell) return;
-
-  if (mode === "tiles") {
-    const tmpl = tileLib[selectedTile];
-    if (!tmpl) return;
-    const obj = tmpl.clone();
-    obj.scale.setScalar(TILE_S);
-    obj.position.set(hoverCell.gx * TILE_S, tileY + 0.02, hoverCell.gz * TILE_S);
-    obj.rotation.y = rotation;
-    obj.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.35; c.material.depthWrite = false; } });
-    obj.renderOrder = 998; previewObj = obj; scene.add(obj);
-  } else if (mode === "objects" && selectedObj) {
-    const tmpl = objLib[selectedObj];
-    if (!tmpl) return;
-    const obj = tmpl.clone();
-    obj.scale.setScalar(objScale);
-    obj.position.set(hoverCell.gx * TILE_S + TILE_S / 2, 0.02, hoverCell.gz * TILE_S + TILE_S / 2);
-    obj.rotation.y = objRot;
-    obj.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.35; c.material.depthWrite = false; } });
-    obj.renderOrder = 998; previewObj = obj; scene.add(obj);
-  }
-}
-
-function spawnTileObject(tileName, gx, gz, rot, y) {
-  const tmpl = tileLib[tileName];
-  if (!tmpl) return null;
+  if (!hoverCell || !selectedObj) return;
+  const tmpl = objLib[selectedObj];
+  if (!tmpl) return;
   const obj = tmpl.clone();
-  obj.scale.setScalar(TILE_S);
-  obj.position.set(gx * TILE_S, y, gz * TILE_S);
-  obj.rotation.y = rot || 0;
-  scene.add(obj);
-  return obj;
-}
-
-function removeTileByKey(key) {
-  if (tileObjs.has(key)) { scene.remove(tileObjs.get(key)); tileObjs.delete(key); }
-  tilemap.delete(key);
-}
-
-function canPlaceWaterAsUnderlay(tileName) {
-  return !!tileName && !FLAT_TILES.has(tileName);
-}
-
-function setUnderlay(gx, gz, entry) {
-  const key = `${gx},${gz}`;
-  if (underlayObjs.has(key)) { scene.remove(underlayObjs.get(key)); underlayObjs.delete(key); }
-  underlays.set(key, entry);
-  const obj = spawnTileObject(entry.tile, gx, gz, entry.rot || 0, (entry.y || 0) - 0.01);
-  if (obj) { obj.renderOrder = -1; underlayObjs.set(key, obj); }
+  obj.scale.setScalar(objScale);
+  obj.position.set(hoverCell.wx, 0.02, hoverCell.wz);
+  obj.rotation.y = objRot;
+  obj.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.35; c.material.depthWrite = false; } });
+  obj.renderOrder = 998; previewObj = obj; scene.add(obj);
 }
 
 /* ═══════════════════════════════════════════
-   Place / Remove — Tiles
+   Place / Remove Objects
    ═══════════════════════════════════════════ */
-function placeTile(gx, gz) {
-  const key = `${gx},${gz}`;
-  const existing = tilemap.get(key);
-  const placingWater = selectedTile === "Water_Flat";
-
-  if (placingWater && existing && canPlaceWaterAsUnderlay(existing.tile)) {
-    setUnderlay(gx, gz, { tile: selectedTile, rot: rotation, y: tileY });
-    updateCount(); return;
-  }
-
-  const v = validatePlacement(gx, gz, selectedTile, rotation);
-  if (!v.ok) { document.getElementById("cell-display").textContent = `Cell: ${gx}, ${gz} [${v.message}]`; return; }
-
-  pushUndo({ type: "place_tile", key, prev: existing ? { ...existing } : null });
-
-  if (tileObjs.has(key)) { scene.remove(tileObjs.get(key)); tileObjs.delete(key); }
-  tilemap.delete(key);
-  if (!placingWater && underlayObjs.has(key)) {
-    scene.remove(underlayObjs.get(key)); underlayObjs.delete(key); underlays.delete(key);
-  }
-
-  tilemap.set(key, { tile: selectedTile, rot: rotation, y: tileY });
-  const obj = spawnTileObject(selectedTile, gx, gz, rotation, tileY);
-  if (obj) tileObjs.set(key, obj);
-  updateCount();
-}
-
-function removeTile(gx, gz) {
-  const key = `${gx},${gz}`;
-  const data = tilemap.get(key);
-  if (data) { pushUndo({ type: "remove_tile", key, data: { ...data } }); }
-  if (tileObjs.has(key)) { scene.remove(tileObjs.get(key)); tileObjs.delete(key); tilemap.delete(key); updateCount(); return; }
-  if (underlayObjs.has(key)) { scene.remove(underlayObjs.get(key)); underlayObjs.delete(key); underlays.delete(key); updateCount(); return; }
-  tilemap.delete(key);
-  updateCount();
-}
-
-/* ═══════════════════════════════════════════
-   Place / Remove — Objects
-   ═══════════════════════════════════════════ */
-function placeObject(gx, gz) {
+function placeObject(wx, wz) {
   if (!selectedObj) return;
   const tmpl = objLib[selectedObj];
   if (!tmpl) return;
-
-  const x = gx * TILE_S + TILE_S / 2;
-  const z = gz * TILE_S + TILE_S / 2;
   const mesh = tmpl.clone();
   mesh.scale.setScalar(objScale);
-  mesh.position.set(x, 0, z);
+  mesh.position.set(wx, 0, wz);
   mesh.rotation.y = objRot;
   scene.add(mesh);
-
   const id = nextObjId++;
-  const entry = { id, type: selectedObj, x, z, y: 0, scale: objScale, rot: objRot, mesh };
+  const entry = { id, type: selectedObj, x: wx, z: wz, y: 0, scale: objScale, rot: objRot, mesh };
   objects.push(entry);
-  pushUndo({ type: "place_obj", objId: id });
-  selectObjectInstance(entry);
+  pushUndo({ type: "place", objId: id });
+  selectInstance(entry);
   updateCount();
 }
 
-function removeObject(gx, gz) {
-  /* find closest object near this cell */
-  const cx = gx * TILE_S + TILE_S / 2;
-  const cz = gz * TILE_S + TILE_S / 2;
+function removeObjectAt(wx, wz) {
   let best = null, bestDist = TILE_S * 1.5;
   for (const obj of objects) {
-    const d = Math.hypot(obj.x - cx, obj.z - cz);
+    const d = Math.hypot(obj.x - wx, obj.z - wz);
     if (d < bestDist) { bestDist = d; best = obj; }
   }
   if (!best) return;
-  pushUndo({ type: "remove_obj", data: { id: best.id, type: best.type, x: best.x, z: best.z, y: best.y, scale: best.scale, rot: best.rot } });
+  pushUndo({ type: "remove", data: { id: best.id, type: best.type, x: best.x, z: best.z, y: best.y, scale: best.scale, rot: best.rot } });
   scene.remove(best.mesh);
-  const idx = objects.indexOf(best);
-  if (idx >= 0) objects.splice(idx, 1);
-  if (selectedObjInstance === best) deselectObject();
+  objects.splice(objects.indexOf(best), 1);
+  if (selectedInstance === best) deselectInstance();
   updateCount();
 }
 
-/* Selection ring for objects */
+function findObjectAt(wx, wz) {
+  let best = null, bestDist = TILE_S * 1.2;
+  for (const obj of objects) {
+    const d = Math.hypot(obj.x - wx, obj.z - wz);
+    if (d < bestDist) { bestDist = d; best = obj; }
+  }
+  return best;
+}
+
+/* Selection ring */
 function createHighlightRing() {
   const geo = new THREE.RingGeometry(0.8, 1.0, 24);
   const mat = new THREE.MeshBasicMaterial({ color: 0xe8c44a, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthTest: false });
   const mesh = new THREE.Mesh(geo, mat);
-  mesh.rotation.x = -Math.PI / 2;
-  mesh.renderOrder = 1000;
-  mesh.visible = false;
-  scene.add(mesh);
-  return mesh;
+  mesh.rotation.x = -Math.PI / 2; mesh.renderOrder = 1000; mesh.visible = false;
+  scene.add(mesh); return mesh;
 }
 
-function selectObjectInstance(obj) {
-  selectedObjInstance = obj;
+function selectInstance(obj) {
+  selectedInstance = obj;
   if (!highlightRing) highlightRing = createHighlightRing();
   highlightRing.visible = true;
   highlightRing.position.set(obj.x, obj.y + 0.05, obj.z);
   highlightRing.scale.setScalar(obj.scale);
-  /* update sliders to match */
   document.getElementById("obj-scale").value = obj.scale;
   document.getElementById("obj-scale-val").textContent = obj.scale.toFixed(2);
   document.getElementById("obj-rot").value = obj.rot;
   document.getElementById("obj-rot-val").textContent = Math.round(obj.rot * 180 / Math.PI) + "°";
-  objScale = obj.scale;
-  objRot = obj.rot;
+  objScale = obj.scale; objRot = obj.rot;
 }
 
-function deselectObject() {
-  selectedObjInstance = null;
+function deselectInstance() {
+  selectedInstance = null;
   if (highlightRing) highlightRing.visible = false;
 }
 
-function updateSelectedObject() {
-  if (!selectedObjInstance) return;
-  selectedObjInstance.scale = objScale;
-  selectedObjInstance.rot = objRot;
-  selectedObjInstance.mesh.scale.setScalar(objScale);
-  selectedObjInstance.mesh.rotation.y = objRot;
+function updateSelectedInstance() {
+  if (!selectedInstance) return;
+  selectedInstance.scale = objScale;
+  selectedInstance.rot = objRot;
+  selectedInstance.mesh.scale.setScalar(objScale);
+  selectedInstance.mesh.rotation.y = objRot;
   if (highlightRing) {
-    highlightRing.position.set(selectedObjInstance.x, selectedObjInstance.y + 0.05, selectedObjInstance.z);
+    highlightRing.position.set(selectedInstance.x, selectedInstance.y + 0.05, selectedInstance.z);
     highlightRing.scale.setScalar(objScale);
   }
 }
@@ -729,7 +475,7 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-function screenToGrid(e) {
+function screenToWorld(e) {
   const rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -739,78 +485,42 @@ function screenToGrid(e) {
   return { gx: Math.floor(target.x / TILE_S), gz: Math.floor(target.z / TILE_S), wx: target.x, wz: target.z };
 }
 
-/* Click to find nearest placed object */
-function findObjectAt(wx, wz) {
-  let best = null, bestDist = TILE_S * 1.2;
-  for (const obj of objects) {
-    const d = Math.hypot(obj.x - wx, obj.z - wz);
-    if (d < bestDist) { bestDist = d; best = obj; }
-  }
-  return best;
-}
-
 /* ═══════════════════════════════════════════
    Input
    ═══════════════════════════════════════════ */
 let mouseDownPos = null;
-let isDragging = false;
 
 renderer.domElement.addEventListener("mousedown", e => {
   mouseDownPos = { x: e.clientX, y: e.clientY };
-  isDragging = false;
 });
 
 renderer.domElement.addEventListener("mouseup", e => {
   if (!mouseDownPos) return;
-  const dx = Math.abs(e.clientX - mouseDownPos.x);
-  const dy = Math.abs(e.clientY - mouseDownPos.y);
-  if (dx > 4 || dy > 4) return;
+  if (Math.abs(e.clientX - mouseDownPos.x) > 4 || Math.abs(e.clientY - mouseDownPos.y) > 4) return;
+  const hit = screenToWorld(e);
+  if (!hit) return;
 
-  const cell = screenToGrid(e);
-  if (!cell) return;
-
-  if (mode === "tiles") {
-    if (e.button === 0) placeTile(cell.gx, cell.gz);
-    if (e.button === 2) removeTile(cell.gx, cell.gz);
-  } else {
-    if (e.button === 0) {
-      /* If clicking near an existing object, select it; otherwise place new */
-      const existing = findObjectAt(cell.wx, cell.wz);
-      if (existing && !selectedObj) {
-        selectObjectInstance(existing);
-      } else if (selectedObj) {
-        placeObject(cell.gx, cell.gz);
-      } else if (existing) {
-        selectObjectInstance(existing);
-      }
-    }
-    if (e.button === 2) {
-      removeObject(cell.gx, cell.gz);
-    }
+  if (e.button === 0) {
+    const existing = findObjectAt(hit.wx, hit.wz);
+    if (existing && !selectedObj) { selectInstance(existing); }
+    else if (selectedObj) { placeObject(hit.wx, hit.wz); }
+    else if (existing) { selectInstance(existing); }
   }
+  if (e.button === 2) removeObjectAt(hit.wx, hit.wz);
 });
 
 renderer.domElement.addEventListener("contextmenu", e => e.preventDefault());
 
 renderer.domElement.addEventListener("mousemove", e => {
-  const cell = screenToGrid(e);
-  hoverCell = cell;
-  if (cell) {
-    hoverMesh.position.x = cell.gx * TILE_S + TILE_S / 2;
-    hoverMesh.position.z = cell.gz * TILE_S + TILE_S / 2;
+  const hit = screenToWorld(e);
+  hoverCell = hit;
+  if (hit) {
+    hoverMesh.position.x = hit.gx * TILE_S + TILE_S / 2;
+    hoverMesh.position.z = hit.gz * TILE_S + TILE_S / 2;
     hoverMesh.visible = true;
-
-    let label = `Cell: ${cell.gx}, ${cell.gz}`;
-    if (mode === "tiles") {
-      const key = `${cell.gx},${cell.gz}`;
-      const top = tilemap.get(key)?.tile;
-      const under = underlays.get(key)?.tile;
-      if (top) label += ` [${top}]`;
-      if (under) label += ` {${under}}`;
-    } else {
-      const near = findObjectAt(cell.wx, cell.wz);
-      if (near) label += ` [${near.type}]`;
-    }
+    let label = `${hit.wx.toFixed(1)}, ${hit.wz.toFixed(1)}`;
+    const near = findObjectAt(hit.wx, hit.wz);
+    if (near) label += ` [${near.type}]`;
     document.getElementById("cell-display").textContent = label;
   } else {
     hoverMesh.visible = false;
@@ -820,327 +530,123 @@ renderer.domElement.addEventListener("mousemove", e => {
 
 window.addEventListener("keydown", e => {
   if (e.key === "r" || e.key === "R") {
-    if (mode === "tiles") {
-      rotation = (rotation + Math.PI / 2) % (Math.PI * 2);
-      document.getElementById("rot-display").textContent = `Rotation: ${Math.round(rotation * 180 / Math.PI)}°`;
-    } else {
-      objRot = (objRot + Math.PI / 4) % (Math.PI * 2);
-      document.getElementById("obj-rot").value = objRot;
-      document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°";
-      updateSelectedObject();
-    }
-    updatePreview();
+    objRot = (objRot + Math.PI / 4) % (Math.PI * 2);
+    document.getElementById("obj-rot").value = objRot;
+    document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°";
+    updateSelectedInstance(); updatePreview();
   }
   if (e.key === "g" || e.key === "G") gridGroup.visible = !gridGroup.visible;
   if (e.key === "s" && e.ctrlKey) { e.preventDefault(); exportJSON(); }
   if (e.key === "z" && e.ctrlKey) { e.preventDefault(); undo(); }
-  if (e.key === "Escape") deselectObject();
-  if (e.key === "Delete" && selectedObjInstance) {
-    const obj = selectedObjInstance;
-    pushUndo({ type: "remove_obj", data: { id: obj.id, type: obj.type, x: obj.x, z: obj.z, y: obj.y, scale: obj.scale, rot: obj.rot } });
-    scene.remove(obj.mesh);
-    objects.splice(objects.indexOf(obj), 1);
-    deselectObject();
-    updateCount();
-  }
-
-  /* Quick category */
-  const num = parseInt(e.key);
-  if (mode === "tiles" && num >= 1 && num <= TILE_CATEGORIES.length) {
-    selectedTile = TILE_CATEGORIES[num - 1].tiles[0];
-    buildPalette(); updatePreview();
+  if (e.key === "Escape") { deselectInstance(); selectedObj = null; updatePaletteSelection(); updatePreview(); }
+  if (e.key === "Delete" && selectedInstance) {
+    const obj = selectedInstance;
+    pushUndo({ type: "remove", data: { id: obj.id, type: obj.type, x: obj.x, z: obj.z, y: obj.y, scale: obj.scale, rot: obj.rot } });
+    scene.remove(obj.mesh); objects.splice(objects.indexOf(obj), 1); deselectInstance(); updateCount();
   }
 });
 
-/* Scroll to resize selected object or change scale for placement */
 renderer.domElement.addEventListener("wheel", e => {
-  if (mode !== "objects") return;
-  if (!e.shiftKey) return; // only when shift held, otherwise orbit zoom
+  if (!e.shiftKey) return;
   e.preventDefault();
   const delta = e.deltaY > 0 ? -0.1 : 0.1;
   objScale = Math.max(0.2, Math.min(5, objScale + delta));
   document.getElementById("obj-scale").value = objScale;
   document.getElementById("obj-scale-val").textContent = objScale.toFixed(2);
-  updateSelectedObject();
-  updatePreview();
+  updateSelectedInstance(); updatePreview();
 }, { passive: false });
 
 /* ═══════════════════════════════════════════
-   Tab Switching
-   ═══════════════════════════════════════════ */
-function setMode(newMode) {
-  mode = newMode;
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === mode));
-  document.getElementById("tile-controls").classList.toggle("hidden", mode !== "tiles");
-  document.getElementById("obj-controls").classList.toggle("hidden", mode !== "objects");
-  document.querySelectorAll(".tile-only").forEach(el => el.classList.toggle("hidden", mode !== "tiles"));
-  document.getElementById("rot-display").classList.toggle("hidden", mode !== "tiles");
-  if (mode === "objects") deselectObject();
-  buildPalette();
-  updatePreview();
-}
-
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", () => setMode(tab.dataset.tab));
-});
-
-/* ═══════════════════════════════════════════
-   Palette Building
+   Palette
    ═══════════════════════════════════════════ */
 function buildPalette() {
   const pal = document.getElementById("palette-wrap");
   pal.innerHTML = "";
-
-  if (mode === "tiles") {
-    for (const cat of TILE_CATEGORIES) {
-      const h = document.createElement("div"); h.className = "cat"; h.textContent = cat.name; pal.appendChild(h);
-      for (const tile of cat.tiles) {
-        const d = document.createElement("div");
-        d.className = "tile-btn" + (tile === selectedTile ? " active" : "");
-        d.textContent = tile.replace(/_/g, " ");
-        d.dataset.tile = tile;
-        d.addEventListener("click", () => { selectedTile = tile; updatePaletteSelection(); updatePreview(); });
-        pal.appendChild(d);
-      }
-    }
-  } else {
-    for (const cat of OBJ_CATEGORIES) {
-      const h = document.createElement("div"); h.className = "cat"; h.textContent = cat.name; pal.appendChild(h);
-      for (const item of cat.items) {
-        const d = document.createElement("div");
-        d.className = "tile-btn" + (item.id === selectedObj ? " active" : "");
-        d.textContent = item.id.replace(/_/g, " ").replace("Color1", "");
-        d.dataset.obj = item.id;
-        d.addEventListener("click", () => {
-          if (selectedObj === item.id) { selectedObj = null; deselectObject(); }
-          else { selectedObj = item.id; objScale = item.scale; document.getElementById("obj-scale").value = objScale; document.getElementById("obj-scale-val").textContent = objScale.toFixed(2); }
-          updatePaletteSelection();
-          updatePreview();
-        });
-        pal.appendChild(d);
-      }
+  for (const cat of OBJ_CATEGORIES) {
+    const h = document.createElement("div"); h.className = "cat"; h.textContent = cat.name; pal.appendChild(h);
+    for (const item of cat.items) {
+      const d = document.createElement("div");
+      d.className = "obj-btn" + (item.id === selectedObj ? " active" : "");
+      d.textContent = item.id.replace(/_/g, " ");
+      d.dataset.obj = item.id;
+      d.addEventListener("click", () => {
+        if (selectedObj === item.id) { selectedObj = null; }
+        else { selectedObj = item.id; objScale = item.scale; document.getElementById("obj-scale").value = objScale; document.getElementById("obj-scale-val").textContent = objScale.toFixed(2); }
+        deselectInstance(); updatePaletteSelection(); updatePreview();
+      });
+      pal.appendChild(d);
     }
   }
 }
 
 function updatePaletteSelection() {
-  document.querySelectorAll(".tile-btn").forEach(d => {
-    if (mode === "tiles") d.classList.toggle("active", d.dataset.tile === selectedTile);
-    else d.classList.toggle("active", d.dataset.obj === selectedObj);
-  });
+  document.querySelectorAll(".obj-btn").forEach(d => d.classList.toggle("active", d.dataset.obj === selectedObj));
 }
 
 function updateCount() {
-  const el = document.getElementById("count");
-  el.textContent = `${tilemap.size} tiles, ${objects.length} objects`;
-  el.style.color = "#555";
+  document.getElementById("count").textContent = `${objects.length} objects`;
+  document.getElementById("count").style.color = "#555";
 }
 
 /* ═══════════════════════════════════════════
-   Object controls (scale/rot sliders)
+   Controls (scale/rot sliders)
    ═══════════════════════════════════════════ */
 document.getElementById("obj-scale").addEventListener("input", e => {
   objScale = parseFloat(e.target.value);
   document.getElementById("obj-scale-val").textContent = objScale.toFixed(2);
-  updateSelectedObject();
-  updatePreview();
+  updateSelectedInstance(); updatePreview();
 });
-
 document.getElementById("obj-rot").addEventListener("input", e => {
   objRot = parseFloat(e.target.value);
   document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°";
-  updateSelectedObject();
-  updatePreview();
-});
-
-/* Tile Y slider */
-document.getElementById("y-slider").addEventListener("input", e => {
-  tileY = parseFloat(e.target.value);
-  document.getElementById("y-val").textContent = tileY.toFixed(2);
-  updatePreview();
+  updateSelectedInstance(); updatePreview();
 });
 
 /* ═══════════════════════════════════════════
    Export / Import
    ═══════════════════════════════════════════ */
 function exportJSON() {
-  const tileData = {};
-  for (const [key, val] of tilemap) tileData[key] = val;
-  const underData = {};
-  for (const [key, val] of underlays) underData[key] = val;
-  const objData = objects.map(o => ({ type: o.type, x: o.x, z: o.z, y: o.y, scale: o.scale, rot: o.rot }));
-
-  const payload = { version: 2, tileSize: TILE_S, tiles: tileData };
-  if (underlays.size) payload.underlays = underData;
-  if (objects.length) payload.objects = objData;
-
+  const objData = objects.map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: o.y, scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+  const payload = { version: 2, tileSize: TILE_S, objects: objData };
   const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download = "tilemap.json"; a.click();
+  const a = document.createElement("a"); a.href = url; a.download = "objectmap.json"; a.click();
   URL.revokeObjectURL(url);
-  console.log(`Exported ${tilemap.size} tiles + ${objects.length} objects`);
+  console.log(`Exported ${objects.length} objects`);
 }
 
 function importJSON(json) {
   try {
     const data = JSON.parse(json);
-    const { tiles, underlays: importedUnderlays, objects: importedObjects } = data;
+    const importedObjects = data.objects;
+    if (!importedObjects) { alert("No objects array found in JSON"); return; }
 
-    /* Clear tiles */
-    for (const obj of tileObjs.values()) scene.remove(obj);
-    tileObjs.clear(); tilemap.clear();
-    for (const obj of underlayObjs.values()) scene.remove(obj);
-    underlayObjs.clear(); underlays.clear();
-
-    /* Clear objects */
+    /* Clear */
     for (const obj of objects) scene.remove(obj.mesh);
-    objects.length = 0;
-    deselectObject();
+    objects.length = 0; deselectInstance();
 
-    /* Load tiles */
-    if (tiles) {
-      for (const [key, val] of Object.entries(tiles)) {
-        tilemap.set(key, val);
-        const [gx, gz] = key.split(",").map(Number);
-        const obj = spawnTileObject(val.tile, gx, gz, val.rot || 0, val.y || 0);
-        if (obj) tileObjs.set(key, obj);
-      }
+    for (const entry of importedObjects) {
+      const tmpl = objLib[entry.type];
+      if (!tmpl) { console.warn("Unknown object:", entry.type); continue; }
+      const mesh = tmpl.clone();
+      mesh.scale.setScalar(entry.scale || 1);
+      mesh.position.set(entry.x, entry.y || 0, entry.z);
+      mesh.rotation.y = entry.rot || 0;
+      scene.add(mesh);
+      objects.push({ id: nextObjId++, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
     }
-    if (importedUnderlays) {
-      for (const [key, val] of Object.entries(importedUnderlays)) {
-        const [gx, gz] = key.split(",").map(Number);
-        setUnderlay(gx, gz, val);
-      }
-    }
-
-    /* Load objects */
-    if (importedObjects) {
-      for (const entry of importedObjects) {
-        const tmpl = objLib[entry.type];
-        if (!tmpl) { console.warn("Unknown object type:", entry.type); continue; }
-        const mesh = tmpl.clone();
-        mesh.scale.setScalar(entry.scale || 1);
-        mesh.position.set(entry.x, entry.y || 0, entry.z);
-        mesh.rotation.y = entry.rot || 0;
-        scene.add(mesh);
-        const id = nextObjId++;
-        objects.push({ id, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
-      }
-    }
-
     updateCount();
-    console.log(`Imported ${tilemap.size} tiles + ${objects.length} objects`);
+    console.log(`Imported ${objects.length} objects`);
   } catch (e) {
     alert("Invalid JSON: " + e.message);
   }
 }
 
 /* ═══════════════════════════════════════════
-   Validation (tiles only)
-   ═══════════════════════════════════════════ */
-function runValidation() {
-  const rules = tileRules.tiles || {};
-  const warnings = [], errors = [];
-  const coverage = new Set();
-  const card = [[0,1],[1,0],[0,-1],[-1,0]];
-  const key = (x, z) => `${x},${z}`;
-  function addCoverage(gx, gz) { coverage.add(key(gx, gz)); }
-
-  for (const [k, v] of tilemap) {
-    const [gx, gz] = k.split(",").map(Number);
-    const rule = rules[v.tile];
-    if (!rule) { errors.push(`Unknown tile "${v.tile}" at ${k}`); continue; }
-    addCoverage(gx, gz);
-    const exts = getTileExtensions(gx, gz, v.tile, v.rot || 0, rule.footprint);
-    for (const [ex, ez] of exts) addCoverage(ex, ez);
-  }
-  for (const [k, v] of tilemap) {
-    if (!FLAT_TILES.has(v.tile) || v.tile === "Water_Flat") continue;
-    const [gx, gz] = k.split(",").map(Number);
-    for (const [dx, dz] of card) if (tilemap.get(key(gx + dx, gz + dz))?.tile === "Water_Flat") warnings.push(`Flat shoreline: ${k}`);
-  }
-  const summary = `${errors.length} error(s), ${warnings.length} warning(s)`;
-  document.getElementById("count").textContent = summary;
-  document.getElementById("count").style.color = errors.length ? "#f66" : (warnings.length ? "#fc6" : "#6d8");
-  if (!errors.length && !warnings.length) alert("Validation passed!");
-}
-
-/* ═══════════════════════════════════════════
-   Zone helpers (for auto-fill)
-   ═══════════════════════════════════════════ */
-const WATER_Y = 0.00, GRASS_Y = 0.40;
-const RP = [
-  [0,40,2.5],[0,34,2.5],[0,26,2.8],[0,18,3.0],[0,12,3.2],[0,6,3.5],
-  [2,2,3.5],[6,-2,4.0],[12,-6,4.5],[20,-10,5.0],[28,-14,5.5],[36,-14,6.5],[48,-14,8.0],
-];
-function riverQuery(px, pz) {
-  let best = { dist: 1e9, width: 3 };
-  for (let i = 0; i < RP.length - 1; i++) {
-    const [ax,az,aw] = RP[i], [bx,bz,bw] = RP[i+1];
-    const dx = bx-ax, dz = bz-az, len2 = dx*dx+dz*dz;
-    const t = len2 > 0 ? Math.max(0, Math.min(1, ((px-ax)*dx+(pz-az)*dz)/len2)) : 0;
-    const d = Math.hypot(px-(ax+t*dx), pz-(az+t*dz));
-    if (d < best.dist) best = { dist: d, width: aw+(bw-aw)*t };
-  }
-  return best;
-}
-function isInRiver(x, z) { const q = riverQuery(x, z); return q.dist < q.width; }
-function isBeach(x, z) { return x > 30 && z < 4; }
-function smoothstep(x, min, max) { const t = Math.max(0, Math.min(1, (x - min) / (max - min))); return t * t * (3 - 2 * t); }
-function terrainH(x, z) {
-  const rq = riverQuery(x, z); let h = GRASS_Y;
-  if (isBeach(x, z)) h -= smoothstep(x, 30, 48) * 1.0;
-  const bankHi = rq.width + TILE_S;
-  if (rq.dist < bankHi) { const center = 1 - smoothstep(rq.dist, 0, rq.width); const bank = 1 - smoothstep(rq.dist, rq.width, bankHi); const bed = WATER_Y - 0.72 - 0.48 * center; h = h + (Math.max(center, bank * 0.45)) * (bed - h); }
-  return h;
-}
-function isOceanCell(wx, wz) { return wx > 34 && terrainH(wx, wz) < WATER_Y + 0.08; }
-function isWater(wx, wz) { return isInRiver(wx, wz) || isOceanCell(wx, wz); }
-const PATH_CLS = [[[0,-28],[0,-16],[0,-4],[0,8],[0,12]],[[10,-30],[20,-26],[30,-22],[40,-18],[46,-16]],[[0,14],[0,22],[0,34],[0,40]]];
-function distToPath(x, z) {
-  let md = 1e9;
-  for (const pts of PATH_CLS) for (let i = 0; i < pts.length - 1; i++) {
-    const [ax,az] = pts[i], [bx,bz] = pts[i+1]; const dx = bx-ax, dz = bz-az, l2 = dx*dx+dz*dz;
-    const t = l2 > 0 ? Math.max(0, Math.min(1, ((x-ax)*dx+(z-az)*dz)/l2)) : 0;
-    md = Math.min(md, Math.hypot(x-(ax+t*dx), z-(az+t*dz)));
-  }
-  return md;
-}
-function isOnPath(x, z) { return distToPath(x, z) < 3.0; }
-function isPlayable(gx, gz) { return !(gz > 19 || gx < -19 || gz < -18); }
-
-function fillBaseLayout() {
-  for (const obj of tileObjs.values()) scene.remove(obj);
-  tileObjs.clear(); tilemap.clear();
-  for (const obj of underlayObjs.values()) scene.remove(obj);
-  underlayObjs.clear(); underlays.clear();
-  let count = 0;
-  for (let gx = -19; gx <= 24; gx++) {
-    for (let gz = -18; gz <= 19; gz++) {
-      if (!isPlayable(gx, gz)) continue;
-      const wx = gx * TILE_S, wz = gz * TILE_S;
-      let tile;
-      if (isWater(wx, wz)) tile = "Water_Flat";
-      else if (isBeach(wx, wz)) tile = "Sand_Flat";
-      else if (isOnPath(wx, wz)) tile = "Path_Center";
-      else tile = "Grass_Flat";
-      const key = `${gx},${gz}`;
-      tilemap.set(key, { tile, rot: 0, y: 0 });
-      const obj = spawnTileObject(tile, gx, gz, 0, 0);
-      if (obj) tileObjs.set(key, obj);
-      count++;
-    }
-  }
-  updateCount();
-  console.log(`Filled ${count} base tiles`);
-}
-
-/* ═══════════════════════════════════════════
    Button wiring
    ═══════════════════════════════════════════ */
 document.getElementById("btn-export").addEventListener("click", exportJSON);
-document.getElementById("btn-validate").addEventListener("click", runValidation);
 document.getElementById("btn-import").addEventListener("click", () => document.getElementById("file-input").click());
 document.getElementById("file-input").addEventListener("change", e => {
   const file = e.target.files[0]; if (!file) return;
@@ -1149,15 +655,9 @@ document.getElementById("file-input").addEventListener("change", e => {
   reader.readAsText(file); e.target.value = "";
 });
 document.getElementById("btn-clear").addEventListener("click", () => {
-  if (!confirm("Clear all?")) return;
-  for (const obj of tileObjs.values()) scene.remove(obj); tileObjs.clear(); tilemap.clear();
-  for (const obj of underlayObjs.values()) scene.remove(obj); underlayObjs.clear(); underlays.clear();
-  for (const obj of objects) scene.remove(obj.mesh); objects.length = 0; deselectObject();
-  updateCount();
-});
-document.getElementById("btn-fill").addEventListener("click", () => {
-  if (tilemap.size > 0 && !confirm("Replace all tiles with base layout?")) return;
-  fillBaseLayout();
+  if (!confirm("Clear all objects?")) return;
+  for (const obj of objects) scene.remove(obj.mesh);
+  objects.length = 0; deselectInstance(); updateCount();
 });
 
 /* ═══════════════════════════════════════════
@@ -1175,32 +675,82 @@ function animate() {
 }
 
 /* ═══════════════════════════════════════════
-   Load existing tilemap.json
+   Load existing objectmap.json on startup
    ═══════════════════════════════════════════ */
-async function loadTilemapJSON() {
-  try {
-    const resp = await fetch(`tilemap.json?v=${Date.now()}`, { cache: "no-store" });
-    if (!resp.ok) throw new Error(resp.status);
-    importJSON(await resp.text());
-    console.log("Auto-loaded tilemap.json");
-    return true;
-  } catch (e) {
-    console.log("No tilemap.json found:", e.message);
-    return false;
+async function loadExistingMap() {
+  /* Try objectmap.json first, fallback to tilemap.json objects */
+  for (const file of ["objectmap.json", "tilemap.json"]) {
+    try {
+      const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (data.objects && data.objects.length) {
+        importJSON(JSON.stringify(data));
+        console.log(`Auto-loaded objects from ${file}`);
+        return;
+      }
+    } catch (e) { /* try next */ }
   }
+  console.log("No existing object map found");
+}
+
+/* ═══════════════════════════════════════════
+   Show existing hard-coded game objects as ghosts
+   ═══════════════════════════════════════════ */
+async function loadExistingGameObjects() {
+  /* These match the spots defined in world.js / terrainLayout.js */
+  const TREE_SPOTS = [
+    [20,18,2.2,1.8],[28,28,2.4,3.6],[18,28,2.1,0.9],[32,20,1.9,2.4],[24,32,2.3,4.2],
+    [-22,18,2.0,1.0],[-30,24,1.9,5.2],[-20,26,2.2,4.5],[-16,-18,1.7,2.1],[14,-18,1.6,0.7],[-8,-42,2.4,3.3],
+    [10,30,1.8,0.5],[-10,22,2.0,3.1],[36,28,1.7,4.4],[-34,16,1.9,1.6],[-26,8,1.8,5.7],
+    [6,24,1.6,2.3],[-6,16,1.7,0.2],[16,10,1.5,4.0],[-12,32,2.1,2.9],[26,14,1.8,5.1],
+    [-28,-8,1.6,3.7],[22,-8,1.5,1.3],[-4,28,1.9,4.6],[30,8,1.7,0.8],[-18,4,1.6,2.5],
+  ];
+  const ROCK_SPOTS = [
+    [-28,26,1.6,1.4],[-14,8,1.45,2.1],[-20,-6,1.4,0.9],
+    [22,34,1.04,3.2],[-26,30,1.0,4.1],[34,22,0.98,5.0],[-32,18,0.95,2.6],
+    [-10,14,0.95,1.7],[-16,10,1.0,5.3],[8,20,0.9,0.5],[14,12,1.05,3.9],
+    [-22,-2,0.92,2.4],[-18,-10,0.98,4.6],[6,8,0.88,1.2],[-8,4,1.02,3.5],
+    [12,24,0.96,5.8],[-24,16,0.94,0.3],
+  ];
+  const BUSH_SPOTS = [
+    [-12,-28,1.1,0.4],[12,-28,1.12,2.8],[20,-10,1.1,1.9],[-18,-12,1.08,5.0],[8,-38,1.0,3.8],
+  ];
+
+  const treeModels = ["Tree_1_A","Tree_2_A","Tree_2_C","Tree_3_A","Tree_4_A"].filter(k => objLib[k]);
+  const rockModels = ["Rock_1_J","Rock_1_K","Rock_3_A","Rock_3_C","Rock_3_E","Rock_3_G"].filter(k => objLib[k]);
+  const bushModels = ["Bush_1_A","Bush_2_A"].filter(k => objLib[k]);
+
+  const ghostGroup = new THREE.Group();
+  ghostGroup.name = "existing_objects";
+
+  function placeGhost(tmpl, x, z, s, r) {
+    const m = tmpl.clone();
+    m.scale.setScalar(s);
+    m.position.set(x, 0, z);
+    m.rotation.y = r;
+    /* Make semi-transparent so they're clearly "reference" */
+    m.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.4; c.material.depthWrite = false; } });
+    ghostGroup.add(m);
+  }
+
+  if (treeModels.length) TREE_SPOTS.forEach(([x,z,s,r], i) => placeGhost(objLib[treeModels[i % treeModels.length]], x, z, s, r));
+  if (rockModels.length) ROCK_SPOTS.forEach(([x,z,s,r], i) => placeGhost(objLib[rockModels[i % rockModels.length]], x, z, s, r));
+  if (bushModels.length) BUSH_SPOTS.forEach(([x,z,s,r], i) => placeGhost(objLib[bushModels[i % bushModels.length]], x, z, s, r));
+
+  scene.add(ghostGroup);
+  console.log(`Showing ${TREE_SPOTS.length + ROCK_SPOTS.length + BUSH_SPOTS.length} existing game objects as ghosts`);
 }
 
 /* ═══════════════════════════════════════════
    Init
    ═══════════════════════════════════════════ */
 buildPalette();
-setMode("tiles");
-await loadTileRules();
 await loadAllModels();
-const loaded = await loadTilemapJSON();
-if (!loaded && Object.keys(tileLib).length > 0) fillBaseLayout();
+await loadExistingGameObjects();
+await loadExistingMap();
 animate();
-console.log("Map Editor ready.");
+console.log("Map Editor ready — place objects on the map.");
 </script>
 </body>
 </html>

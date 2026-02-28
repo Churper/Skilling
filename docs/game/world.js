@@ -490,12 +490,17 @@ function updateFishing(spots, t) {
   }
 }
 
-/* ── Load editor-placed objects from tilemap.json ── */
+/* ── Load editor-placed objects from objectmap.json ── */
 async function loadMapObjects(scene) {
   try {
-    const resp = await fetch(`tilemap.json?v=${Date.now()}`, { cache: "no-store" });
-    if (!resp.ok) return;
-    const data = await resp.json();
+    let data;
+    for (const file of ["objectmap.json", "tilemap.json"]) {
+      try {
+        const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
+        if (resp.ok) { data = await resp.json(); if (data.objects) break; }
+      } catch (e) { /* try next */ }
+    }
+    if (!data) return;
     const objs = data.objects;
     if (!objs || !objs.length) return;
     const loader = new GLTFLoader();
