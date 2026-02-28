@@ -498,7 +498,7 @@ async function loadTilemapData() {
       const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
       if (resp.ok) {
         const data = await resp.json();
-        if (data.objects || data.heightOffsets) { _tilemapData = data; return data; }
+        if (data.objects || data.heightOffsets || data.colorOverrides) { _tilemapData = data; return data; }
       }
     } catch (e) { /* try next */ }
   }
