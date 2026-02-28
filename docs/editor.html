@@ -2063,7 +2063,10 @@ async function loadExistingMap() {
             if (cResp.ok) {
               const cData = await cResp.json();
               importChunkData(cData, cx, cz);
-              console.log(`Loaded chunk ${cx},${cz} into store`);
+              const hc = Object.keys(cData.heightOffsets || {}).length;
+              const cc = Object.keys(cData.colorOverrides || {}).length;
+              const oc = (cData.objects || []).length;
+              console.log(`Loaded chunk ${cx},${cz} — hOff:${hc} colors:${cc} objs:${oc}`);
             }
           } catch (e) { /* skip */ }
         }
