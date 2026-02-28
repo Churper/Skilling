@@ -977,7 +977,7 @@ function exportJSON() {
   if (Object.keys(hData).length) payload.heightOffsets = hData;
   const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: "application/json" });
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "objectmap.json"; a.click();
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "tilemap.json"; a.click();
   URL.revokeObjectURL(a.href);
   console.log(`Exported ${objData.length} objects + ${Object.keys(hData).length} height offsets`);
 }
