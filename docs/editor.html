@@ -62,6 +62,8 @@ canvas{display:block}
   background:#1e1e32;color:#999;border:1px solid #333;border-radius:4px;font-family:inherit}
 #height-modes button.active{background:#2a2a50;color:#e8c44a;border-color:#e8c44a}
 #height-modes button:hover{background:#252540}
+.flat-preset{padding:2px 6px;font-size:9px;cursor:pointer;background:#1e1e32;color:#aaa;border:1px solid #333;border-radius:3px;margin-left:2px;font-family:inherit}
+.flat-preset:hover{background:#252540;color:#e8c44a}
 
 /* buttons */
 #btns{padding:8px 10px;border-top:1px solid #2a2a3e;display:flex;gap:4px;flex-wrap:wrap}
@@ -168,6 +170,8 @@ canvas{display:block}
       <div class="row"><label>Flat Y</label>
         <input type="range" id="h-flat" min="-1.0" max="5.0" value="0.40" step="0.1">
         <span class="val" id="h-flat-val">0.40</span>
+        <button class="flat-preset" data-y="0.00" title="Water level">Water</button>
+        <button class="flat-preset" data-y="0.40" title="Grass level">Land</button>
       </div>
     </div>
   </div>
@@ -1657,6 +1661,14 @@ document.getElementById("obj-rot").addEventListener("input", e => { objRot = par
 document.getElementById("h-size").addEventListener("input", e => { brushRadius = +e.target.value; document.getElementById("h-size-val").textContent = e.target.value; document.getElementById("p-size").value = brushRadius; document.getElementById("p-size-val").textContent = brushRadius; updateBrushGeo(); });
 document.getElementById("h-str").addEventListener("input", e => { brushStrength = +e.target.value; document.getElementById("h-str-val").textContent = (+e.target.value).toFixed(2); });
 document.getElementById("h-flat").addEventListener("input", e => { flattenY = +e.target.value; document.getElementById("h-flat-val").textContent = (+e.target.value).toFixed(1); });
+for (const btn of document.querySelectorAll(".flat-preset")) {
+  btn.addEventListener("click", () => {
+    flattenY = +btn.dataset.y;
+    document.getElementById("h-flat").value = flattenY;
+    document.getElementById("h-flat-val").textContent = flattenY.toFixed(1);
+    setHeightMode("flatten");
+  });
+}
 document.getElementById("p-size").addEventListener("input", e => { brushRadius = +e.target.value; document.getElementById("p-size-val").textContent = e.target.value; document.getElementById("h-size").value = brushRadius; document.getElementById("h-size-val").textContent = brushRadius; updateBrushGeo(); });
 document.getElementById("p-str").addEventListener("input", e => { paintStrength = +e.target.value; document.getElementById("p-str-val").textContent = (+e.target.value).toFixed(2); });
 
