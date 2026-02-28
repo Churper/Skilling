@@ -1563,7 +1563,7 @@ function performAttackHit(node) {
   spawnFloatingDrop(dummyPos.x, dummyPos.z, `Hit ${damage}`, "combat");
 
   /* check if this is an animal */
-  const animal = animals.find(a => a.node === node);
+  const animal = animals.find(a => a.node === node || a.parentModel === node);
   if (animal && animal.alive) {
     animal.hp = Math.max(0, animal.hp - damage);
     animal.hpBar.dataset.state = "";
@@ -1672,11 +1672,10 @@ function onInteractNode(node, hitPoint) {
   }
 
   // Animal: walk to it and auto-attack (like dummy but with HP)
-  if (node.userData?.serviceType === "animal" || node.parent?.userData?.serviceType === "animal") {
-    const animalHS = node.userData?.serviceType === "animal" ? node : node.parent;
-    const a = animals.find(a => a.node === animalHS || a.parentModel === animalHS);
+  if (node.userData?.serviceType === "animal") {
+    const a = animals.find(a => a.parentModel === node);
     if (!a || !a.alive) return;
-    if (activeAttack && activeAttack.node === a.node) return;
+    if (activeAttack && activeAttack.node === node) return;
     const aPos = interactPos;
     a.parentModel.getWorldPosition(aPos);
     spawnClickEffect(aPos.x, aPos.z, "neutral");
@@ -1686,14 +1685,14 @@ function onInteractNode(node, hitPoint) {
       pendingResource = null;
       activeGather = null;
       activeAttack = null;
-      pendingService = a.node;
+      pendingService = node;
       pendingServicePos.copy(aPos);
       pendingServicePos.y = getPlayerGroundY(aPos.x, aPos.z);
       setMoveTarget(pendingServicePos, true);
       ui?.setStatus(`Walking to ${a.type}...`, "info");
       return;
     }
-    startActiveAttack(a.node);
+    startActiveAttack(node);
     return;
   }
 
@@ -2017,7 +2016,7 @@ function animate(now) {
     const arrivalDist = isAttackable ? getAttackRange() : 2.7;
     if (serviceDistance <= arrivalDist) {
       if (isAttackable) {
-        const a = svcType === "animal" ? animals.find(a => a.node === pendingService) : null;
+        const a = svcType === "animal" ? animals.find(a => a.parentModel === pendingService) : null;
         if (a && !a.alive) { pendingService = null; }
         else startActiveAttack(pendingService);
       } else {
@@ -2061,7 +2060,7 @@ function animate(now) {
       activeAttack = null;
     }
     /* stop attacking dead animals */
-    const atkAnimal = activeAttack ? animals.find(a => a.node === activeAttack.node) : null;
+    const atkAnimal = activeAttack ? animals.find(a => a.node === activeAttack.node || a.parentModel === activeAttack.node) : null;
     if (atkAnimal && !atkAnimal.alive) activeAttack = null;
   }
 
