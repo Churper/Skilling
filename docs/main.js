@@ -98,7 +98,7 @@ function registerAnimal(hsNode, parentModel) {
     wanderTarget: null, hpBar, hpFill, respawnTimer: 0,
     origScale: parentModel.scale.x,
   });
-  console.log(`Registered animal: ${type} at (${spawnPos.x.toFixed(1)}, ${spawnPos.z.toFixed(1)})`);
+  console.log(`Registered animal: ${type} at pos(${spawnPos.x.toFixed(1)}, ${spawnPos.y.toFixed(1)}, ${spawnPos.z.toFixed(1)}) modelPos(${parentModel.position.x.toFixed(1)}, ${parentModel.position.z.toFixed(1)})`);
 }
 
 /* ── Save / Load system ── */
@@ -657,17 +657,15 @@ function updateNameTags() {
   else { localTag.sx += (lxTarget - localTag.sx) * TAG_LERP; localTag.sy += (lyTarget - localTag.sy) * TAG_LERP; }
   localTag.el.style.transform = `translate(${localTag.sx.toFixed(1)}px, ${localTag.sy.toFixed(1)}px) translate(-50%, -50%)`;
 
-  // Remote player tags
+  // Remote player tags — snap to position (no lerp lag)
   for (const [key, tag] of nameTags) {
     if (key === "local") continue;
     const anchor = remotePlayers.getEmoteAnchor(key, _tagProj);
     if (!anchor) { removeNameTag(key); continue; }
     anchor.y -= 1.3;
     anchor.project(camera);
-    const rxTarget = anchor.x * hw + hw;
-    const ryTarget = -anchor.y * hh + hh;
-    if (tag.sx < 0) { tag.sx = rxTarget; tag.sy = ryTarget; }
-    else { tag.sx += (rxTarget - tag.sx) * TAG_LERP; tag.sy += (ryTarget - tag.sy) * TAG_LERP; }
+    tag.sx = anchor.x * hw + hw;
+    tag.sy = -anchor.y * hh + hh;
     tag.el.style.transform = `translate(${tag.sx.toFixed(1)}px, ${tag.sy.toFixed(1)}px) translate(-50%, -50%)`;
   }
 }
