@@ -1812,72 +1812,49 @@ function playFishSound() {
 function playJumpLandSound(volumeScale = 1) {
   if (_audioCtx.state === "suspended") _audioCtx.resume();
   const t = _audioCtx.currentTime;
-  const p = 0.9 + Math.random() * 0.2;
+  const p = 0.95 + Math.random() * 0.1;
   const v = volumeScale;
 
-  /* layer 1: big fat plop — sine drops low fast like a water droplet */
-  const osc1 = _audioCtx.createOscillator();
-  osc1.type = "sine";
-  osc1.frequency.setValueAtTime(520 * p, t);
-  osc1.frequency.exponentialRampToValueAtTime(60 * p, t + 0.18);
-  const g1 = _audioCtx.createGain();
-  g1.gain.setValueAtTime(0.35 * v, t);
-  g1.gain.setValueAtTime(0.38 * v, t + 0.015); // slight attack bump
-  g1.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
-  osc1.connect(g1); g1.connect(_masterGain);
-  osc1.start(); osc1.stop(t + 0.25);
+  /* gentle bubble pop — short sine that drops quickly, like a soap bubble */
+  const pop = _audioCtx.createOscillator();
+  pop.type = "sine";
+  pop.frequency.setValueAtTime(280 * p, t);
+  pop.frequency.exponentialRampToValueAtTime(160 * p, t + 0.06);
+  const pg = _audioCtx.createGain();
+  pg.gain.setValueAtTime(0.2 * v, t);
+  pg.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+  pop.connect(pg); pg.connect(_masterGain);
+  pop.start(); pop.stop(t + 0.11);
 
-  /* layer 2: squelchy overtone — triangle wobbles for that jelly feel */
-  const osc2 = _audioCtx.createOscillator();
-  osc2.type = "triangle";
-  osc2.frequency.setValueAtTime(880 * p, t);
-  osc2.frequency.exponentialRampToValueAtTime(120 * p, t + 0.12);
-  const g2 = _audioCtx.createGain();
-  g2.gain.setValueAtTime(0.2 * v, t);
-  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-  osc2.connect(g2); g2.connect(_masterGain);
-  osc2.start(); osc2.stop(t + 0.16);
-
-  /* layer 3: sub thump — you feel this one */
-  const osc3 = _audioCtx.createOscillator();
-  osc3.type = "sine";
-  osc3.frequency.setValueAtTime(95 * p, t);
-  osc3.frequency.exponentialRampToValueAtTime(40 * p, t + 0.1);
-  const g3 = _audioCtx.createGain();
-  g3.gain.setValueAtTime(0.3 * v, t);
-  g3.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-  osc3.connect(g3); g3.connect(_masterGain);
-  osc3.start(); osc3.stop(t + 0.18);
-
-  /* layer 4: wet splat noise — filtered burst for sliminess */
-  const bufLen = Math.floor(_audioCtx.sampleRate * 0.1);
+  /* soft airy puff — very gentle lowpass noise, like landing on a pillow */
+  const bufLen = Math.floor(_audioCtx.sampleRate * 0.08);
   const buf = _audioCtx.createBuffer(1, bufLen, _audioCtx.sampleRate);
   const d = buf.getChannelData(0);
   for (let i = 0; i < bufLen; i++) {
-    const env = Math.pow(1 - i / bufLen, 3);
-    d[i] = (Math.random() * 2 - 1) * env * 0.5;
+    const env = Math.exp(-i / (bufLen * 0.2));
+    d[i] = (Math.random() * 2 - 1) * env * 0.25;
   }
   const src = _audioCtx.createBufferSource();
-  src.buffer = buf; src.playbackRate.value = p * 0.8;
+  src.buffer = buf; src.playbackRate.value = p * 1.4;
   const filt = _audioCtx.createBiquadFilter();
-  filt.type = "bandpass"; filt.frequency.value = 350 * p; filt.Q.value = 2.5;
-  const g4 = _audioCtx.createGain();
-  g4.gain.setValueAtTime(0.35 * v, t);
-  g4.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-  src.connect(filt); filt.connect(g4); g4.connect(_masterGain);
-  src.start(); src.stop(t + 0.14);
+  filt.type = "lowpass"; filt.frequency.value = 600; filt.Q.value = 0.5;
+  const ng = _audioCtx.createGain();
+  ng.gain.setValueAtTime(0.18 * v, t);
+  ng.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+  src.connect(filt); filt.connect(ng); ng.connect(_masterGain);
+  src.start(); src.stop(t + 0.12);
 
-  /* layer 5: tiny bounce — delayed mini-plop for cartoon bounce-back */
-  const osc5 = _audioCtx.createOscillator();
-  osc5.type = "sine";
-  osc5.frequency.setValueAtTime(400 * p, t + 0.08);
-  osc5.frequency.exponentialRampToValueAtTime(100 * p, t + 0.14);
-  const g5 = _audioCtx.createGain();
-  g5.gain.setValueAtTime(0.001, t);
-  g5.gain.setValueAtTime(0.15 * v, t + 0.08);
-  g5.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
-  osc5.connect(g5); g5.connect(_masterGain);
-  osc5.start(); osc5.stop(t + 0.18);
+  /* tiny happy bounce — delayed higher-pitched mini blip */
+  const bounce = _audioCtx.createOscillator();
+  bounce.type = "sine";
+  bounce.frequency.setValueAtTime(420 * p, t + 0.06);
+  bounce.frequency.exponentialRampToValueAtTime(260 * p, t + 0.1);
+  const bg = _audioCtx.createGain();
+  bg.gain.setValueAtTime(0.001, t);
+  bg.gain.setValueAtTime(0.1 * v, t + 0.06);
+  bg.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+  bounce.connect(bg); bg.connect(_masterGain);
+  bounce.start(); bounce.stop(t + 0.14);
 }
 
 function playGatherSound(resourceType) {
