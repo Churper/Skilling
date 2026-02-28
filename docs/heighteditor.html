@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Height Editor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:monospace}
+canvas{display:block}
+#ui{position:fixed;left:0;top:0;bottom:0;width:200px;background:rgba(0,0,0,0.92);color:#ccc;
+  display:flex;flex-direction:column;border-right:1px solid #333;z-index:10;user-select:none}
+#ui h2{padding:8px;text-align:center;color:#ff0;font-size:14px;border-bottom:1px solid #333}
+#info{padding:8px;font-size:10px;color:#888;line-height:1.8;border-bottom:1px solid #222}
+#info kbd{background:#333;padding:1px 4px;border-radius:2px;color:#ddd}
+#controls{padding:10px;border-bottom:1px solid #222}
+#controls label{display:block;font-size:11px;color:#aaa;margin-bottom:6px}
+#controls input[type=range]{width:100%;margin:2px 0 8px}
+.val{color:#ff0;float:right}
+#mode-btns{padding:8px;display:flex;gap:4px;border-bottom:1px solid #222}
+#mode-btns button{flex:1;padding:6px;font-size:11px;cursor:pointer;
+  background:#333;color:#ccc;border:1px solid #555;border-radius:3px;font-family:monospace}
+#mode-btns button.active{background:#446;color:#ff0;border-color:#88a}
+#mode-btns button:hover{background:#444}
+#cell-info{padding:8px;font-size:10px;color:#aaa;border-bottom:1px solid #222;min-height:40px}
+#btns{padding:8px;display:flex;gap:4px;flex-wrap:wrap;margin-top:auto;border-top:1px solid #333}
+#btns button{flex:1;min-width:80px;padding:6px;font-size:10px;cursor:pointer;
+  background:#333;color:#fff;border:1px solid #555;border-radius:3px;font-family:monospace}
+#btns button:hover{background:#555}
+#btns button.save{background:#264}
+#btns button.load{background:#356}
+#btns button.reset{background:#622}
+#canvas-wrap{position:fixed;left:200px;top:0;right:0;bottom:0}
+#crosshair{position:fixed;pointer-events:none;z-index:5;
+  width:12px;height:12px;border:2px solid #ff0;border-radius:50%;
+  transform:translate(-50%,-50%);display:none}
+</style>
+</head>
+<body>
+<div id="ui">
+  <h2>HEIGHT EDITOR</h2>
+  <div id="info">
+    <kbd>Left-drag</kbd> raise terrain<br>
+    <kbd>Right-drag</kbd> lower terrain<br>
+    <kbd>Middle</kbd> pan &nbsp; <kbd>Scroll</kbd> zoom<br>
+    <kbd>Shift+Scroll</kbd> brush size<br>
+    <kbd>F</kbd> flatten brush<br>
+    <kbd>S</kbd> smooth brush<br>
+    <kbd>Ctrl+Z</kbd> undo &nbsp; <kbd>Ctrl+S</kbd> save
+  </div>
+  <div id="mode-btns">
+    <button id="btn-raise" class="active">Raise/Lower</button>
+    <button id="btn-flatten">Flatten</button>
+    <button id="btn-smooth">Smooth</button>
+  </div>
+  <div id="controls">
+    <label>Brush Size <span class="val" id="v-size">4</span></label>
+    <input type="range" id="r-size" min="1" max="20" value="4" step="1">
+    <label>Strength <span class="val" id="v-str">0.30</span></label>
+    <input type="range" id="r-str" min="0.05" max="1.0" value="0.30" step="0.05">
+    <label>Flatten Target Y <span class="val" id="v-flat">0.40</span></label>
+    <input type="range" id="r-flat" min="-1.0" max="5.0" value="0.40" step="0.1">
+  </div>
+  <div id="cell-info">Hover over terrain...</div>
+  <div id="btns">
+    <button class="save" id="btn-save">Save Heightmap</button>
+    <button class="load" id="btn-load">Load Heightmap</button>
+    <button class="reset" id="btn-reset">Reset to Default</button>
+  </div>
+</div>
+<div id="canvas-wrap"></div>
+<div id="crosshair"></div>
+<input type="file" id="file-input" accept=".json" style="display:none">
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import {
+  TILE_S, WATER_Y, GRASS_Y, HILL_Y,
+  GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
+  isInRiver, isBeach, isOnPath,
+  riverQuery, distToPath, terrainH,
+} from "./game/terrainHeight.js";
+import { getMeshSurfaceY } from "./game/terrainLayout.js";
+
+/* ═══ Toon gradient (matches game) ═══ */
+const TOON_GRAD = (() => {
+  const c = document.createElement("canvas"); c.width = 4; c.height = 1;
+  const ctx = c.getContext("2d");
+  [25, 95, 185, 255].forEach((v, i) => {
+    ctx.fillStyle = `rgb(${v},${v},${v})`; ctx.fillRect(i, 0, 1, 1);
+  });
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.NoColorSpace;
+  t.minFilter = t.magFilter = THREE.NearestFilter;
+  t.generateMipmaps = false;
+  return t;
+})();
+
+/* ═══ Grid setup ═══ */
+const step = 1.0;
+const xMin = (GX_MIN - 1) * TILE_S, xMax = (GX_MAX + 1) * TILE_S;
+const zMin = (GZ_MIN - 1) * TILE_S, zMax = (GZ_MAX + 1) * TILE_S;
+const nx = Math.ceil((xMax - xMin) / step) + 1;
+const nz = Math.ceil((zMax - zMin) / step) + 1;
+
+/* Height offset map — keyed by vertex index, stores delta from base height */
+const heightOffsets = new Float32Array(nx * nz);
+const undoStack = [];
+let undoSnapshot = null;
+
+function vertexIndex(ix, iz) { return iz * nx + ix; }
+function worldToGrid(wx, wz) {
+  return [
+    Math.round((wx - xMin) / step),
+    Math.round((wz - zMin) / step),
+  ];
+}
+
+/* ═══ Palette (same as game) ═══ */
+const cGrass = new THREE.Color("#4dad38");
+const cPath  = new THREE.Color("#c4a060");
+const cSand  = new THREE.Color("#e2d098");
+const cHill  = new THREE.Color("#3d8a2e");
+const cBank  = new THREE.Color("#6d8854");
+const cRiver = new THREE.Color("#5a7454");
+const cCliff = new THREE.Color("#8a8a7a");
+const tmpC   = new THREE.Color();
+const sm = THREE.MathUtils.smoothstep;
+
+/* beach constants (same as terrainLayout) */
+const beachCX = 38, beachCZ = -6, beachR = 26;
+const BRIDGE_X0 = -6, BRIDGE_X1 = 6, BRIDGE_Z = 8, BRIDGE_HW = 3;
+
+function computeColor(x, z, y) {
+  const rq = riverQuery(x, z);
+  const beachDist = Math.hypot(x - beachCX, z - beachCZ);
+  const beachT = 1 - sm(beachDist, beachR - 6, beachR);
+  const lowSandT = 1 - sm(y, WATER_Y - 0.1, WATER_Y + 0.25);
+  const nearCoast = sm(x, 14, 24) * (1 - sm(z, -6, 8));
+  const sandiness = Math.max(lowSandT, beachT, nearCoast);
+  if (sandiness > 0.8) return cSand;
+  if (sandiness > 0.01) { tmpC.copy(cGrass).lerp(cSand, sandiness); return tmpC; }
+  if (isInRiver(x, z)) return cRiver;
+  if (rq.dist < rq.width + 2.5) {
+    const t = Math.max(0, (rq.dist - rq.width) / 2.5);
+    tmpC.copy(cBank).lerp(cGrass, t); return tmpC;
+  }
+  if (isOnPath(x, z)) {
+    const pd = distToPath(x, z);
+    const edge = sm(pd, 0, 2.5);
+    tmpC.copy(cPath).lerp(cGrass, edge); return tmpC;
+  }
+  if (y > GRASS_Y + 3) return cCliff;
+  if (y > GRASS_Y + 0.5) {
+    const ht = sm(y, GRASS_Y + 0.5, HILL_Y);
+    tmpC.copy(cHill).lerp(cGrass, 1 - ht); return tmpC;
+  }
+  return cGrass;
+}
+
+/* ═══ Build terrain mesh ═══ */
+let pos, col, groundMesh, groundGeo;
+
+function buildMesh() {
+  pos = new Float32Array(nx * nz * 3);
+  col = new Float32Array(nx * nz * 3);
+  const idx = [];
+
+  for (let iz = 0; iz < nz; iz++) {
+    for (let ix = 0; ix < nx; ix++) {
+      const x = xMin + ix * step, z = zMin + iz * step;
+      const vi = vertexIndex(ix, iz);
+      const baseY = getMeshSurfaceY(x, z);
+      const y = baseY + heightOffsets[vi];
+      const i3 = vi * 3;
+      pos[i3] = x;
+      pos[i3 + 1] = y;
+      pos[i3 + 2] = z;
+      const c = computeColor(x, z, y);
+      const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
+      const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
+      const fc = (underBridge || underDock) && y < WATER_Y + 0.1 ? cRiver : c;
+      col[i3] = fc.r; col[i3 + 1] = fc.g; col[i3 + 2] = fc.b;
+      if (ix < nx - 1 && iz < nz - 1) {
+        const a = vi, b = a + 1, d = a + nx, e = d + 1;
+        idx.push(a, d, b, b, d, e);
+      }
+    }
+  }
+
+  groundGeo = new THREE.BufferGeometry();
+  groundGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  groundGeo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  groundGeo.setIndex(idx);
+  groundGeo.computeVertexNormals();
+  groundMesh = new THREE.Mesh(groundGeo, new THREE.MeshToonMaterial({
+    vertexColors: true, gradientMap: TOON_GRAD, flatShading: true,
+  }));
+  return groundMesh;
+}
+
+/* Update mesh vertices after painting */
+function updateMeshRegion(cxGrid, czGrid, radius) {
+  const r = Math.ceil(radius / step) + 2;
+  const ixMin = Math.max(0, cxGrid - r), ixMax = Math.min(nx - 1, cxGrid + r);
+  const izMin = Math.max(0, czGrid - r), izMax = Math.min(nz - 1, czGrid + r);
+
+  for (let iz = izMin; iz <= izMax; iz++) {
+    for (let ix = ixMin; ix <= ixMax; ix++) {
+      const vi = vertexIndex(ix, iz);
+      const i3 = vi * 3;
+      const x = xMin + ix * step, z = zMin + iz * step;
+      const baseY = getMeshSurfaceY(x, z);
+      const y = baseY + heightOffsets[vi];
+      pos[i3 + 1] = y;
+      const c = computeColor(x, z, y);
+      const underBridge = x > BRIDGE_X0 - 1 && x < BRIDGE_X1 + 1 && Math.abs(z - BRIDGE_Z) < BRIDGE_HW + 1;
+      const underDock = x > 36 && x < 52 && Math.abs(z - (-16)) < 3;
+      const fc = (underBridge || underDock) && y < WATER_Y + 0.1 ? cRiver : c;
+      col[i3] = fc.r; col[i3 + 1] = fc.g; col[i3 + 2] = fc.b;
+    }
+  }
+  groundGeo.attributes.position.needsUpdate = true;
+  groundGeo.attributes.color.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+}
+
+/* ═══ Scene ═══ */
+const wrap = document.getElementById("canvas-wrap");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth - 200, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x1a1a2e);
+wrap.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x7ec8e3, 80, 180);
+const camera = new THREE.PerspectiveCamera(50, (window.innerWidth - 200) / window.innerHeight, 0.5, 300);
+camera.position.set(0, 50, 50);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 8;
+controls.maxDistance = 120;
+controls.maxPolarAngle = Math.PI / 2.2;
+controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.ROTATE, RIGHT: null };
+controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+controls.update();
+
+/* lighting */
+scene.add(new THREE.HemisphereLight(0x9be2fe, 0x3a6b35, 0.9));
+const sun = new THREE.DirectionalLight(0xfff4d6, 1.2);
+sun.position.set(30, 50, 20);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xc8e0ff, 0.3);
+fill.position.set(-20, 30, -10);
+scene.add(fill);
+
+/* terrain */
+const terrain = buildMesh();
+scene.add(terrain);
+
+/* water */
+const ww = xMax - xMin + 20, wh = zMax - zMin + 20;
+const waterGeo = new THREE.PlaneGeometry(ww, wh, 1, 1);
+waterGeo.rotateX(-Math.PI / 2);
+const waterMesh = new THREE.Mesh(waterGeo, new THREE.MeshBasicMaterial({
+  color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false,
+}));
+waterMesh.position.set((xMin + xMax) / 2, WATER_Y, (zMin + zMax) / 2);
+waterMesh.renderOrder = 2;
+scene.add(waterMesh);
+
+/* brush circle indicator */
+const brushGeo = new THREE.RingGeometry(0.9, 1.0, 48);
+brushGeo.rotateX(-Math.PI / 2);
+const brushMat = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.6, depthTest: false });
+const brushCircle = new THREE.Mesh(brushGeo, brushMat);
+brushCircle.renderOrder = 100;
+brushCircle.visible = false;
+scene.add(brushCircle);
+
+function updateBrushCircle(radius) {
+  brushCircle.geometry.dispose();
+  brushCircle.geometry = new THREE.RingGeometry(radius - 0.15, radius + 0.15, 48);
+  brushCircle.geometry.rotateX(-Math.PI / 2);
+}
+
+/* ═══ Raycasting ═══ */
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+function raycastTerrain(event) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObject(groundMesh);
+  return hits.length > 0 ? hits[0].point : null;
+}
+
+/* ═══ Brush state ═══ */
+let brushMode = "raise";  // raise | flatten | smooth
+let brushRadius = 4;
+let brushStrength = 0.30;
+let flattenY = GRASS_Y;
+let painting = false;
+let paintSign = 1;       // +1 raise, -1 lower
+
+/* UI bindings */
+const rSize = document.getElementById("r-size");
+const rStr  = document.getElementById("r-str");
+const rFlat = document.getElementById("r-flat");
+const vSize = document.getElementById("v-size");
+const vStr  = document.getElementById("v-str");
+const vFlat = document.getElementById("v-flat");
+const cellInfo = document.getElementById("cell-info");
+
+rSize.oninput = () => { brushRadius = +rSize.value; vSize.textContent = rSize.value; updateBrushCircle(brushRadius); };
+rStr.oninput  = () => { brushStrength = +rStr.value; vStr.textContent = (+rStr.value).toFixed(2); };
+rFlat.oninput = () => { flattenY = +rFlat.value; vFlat.textContent = (+rFlat.value).toFixed(1); };
+
+updateBrushCircle(brushRadius);
+
+/* mode buttons */
+const btnRaise   = document.getElementById("btn-raise");
+const btnFlatten = document.getElementById("btn-flatten");
+const btnSmooth  = document.getElementById("btn-smooth");
+function setMode(m) {
+  brushMode = m;
+  btnRaise.classList.toggle("active", m === "raise");
+  btnFlatten.classList.toggle("active", m === "flatten");
+  btnSmooth.classList.toggle("active", m === "smooth");
+}
+btnRaise.onclick   = () => setMode("raise");
+btnFlatten.onclick = () => setMode("flatten");
+btnSmooth.onclick  = () => setMode("smooth");
+
+/* ═══ Paint logic ═══ */
+function paintAt(worldX, worldZ, dt) {
+  const [cx, cz] = worldToGrid(worldX, worldZ);
+  const r = Math.ceil(brushRadius / step);
+
+  for (let dz = -r; dz <= r; dz++) {
+    for (let dx = -r; dx <= r; dx++) {
+      const ix = cx + dx, iz = cz + dz;
+      if (ix < 0 || ix >= nx || iz < 0 || iz >= nz) continue;
+      const wx = xMin + ix * step, wz = zMin + iz * step;
+      const dist = Math.hypot(wx - worldX, wz - worldZ);
+      if (dist > brushRadius) continue;
+
+      const falloff = 1 - sm(dist, 0, brushRadius);
+      const vi = vertexIndex(ix, iz);
+      const baseY = getMeshSurfaceY(wx, wz);
+      const curY = baseY + heightOffsets[vi];
+
+      if (brushMode === "raise") {
+        heightOffsets[vi] += paintSign * brushStrength * falloff * dt * 8;
+      } else if (brushMode === "flatten") {
+        const diff = flattenY - curY;
+        heightOffsets[vi] += diff * brushStrength * falloff * dt * 4;
+      } else if (brushMode === "smooth") {
+        /* average neighbors */
+        let sum = 0, cnt = 0;
+        for (const [ox, oz] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+          const ni = ix + ox, nj = iz + oz;
+          if (ni >= 0 && ni < nx && nj >= 0 && nj < nz) {
+            const nvi = vertexIndex(ni, nj);
+            const nwx = xMin + ni * step, nwz = zMin + nj * step;
+            sum += getMeshSurfaceY(nwx, nwz) + heightOffsets[nvi];
+            cnt++;
+          }
+        }
+        if (cnt > 0) {
+          const avg = sum / cnt;
+          heightOffsets[vi] += (avg - curY) * brushStrength * falloff * dt * 4;
+        }
+      }
+    }
+  }
+  updateMeshRegion(cx, cz, brushRadius);
+}
+
+/* ═══ Undo ═══ */
+function saveUndo() {
+  undoSnapshot = new Float32Array(heightOffsets);
+}
+function pushUndo() {
+  if (undoSnapshot) {
+    undoStack.push(undoSnapshot);
+    if (undoStack.length > 50) undoStack.shift();
+    undoSnapshot = null;
+  }
+}
+function undo() {
+  if (undoStack.length === 0) return;
+  const prev = undoStack.pop();
+  heightOffsets.set(prev);
+  /* full rebuild */
+  for (let iz = 0; iz < nz; iz++) {
+    for (let ix = 0; ix < nx; ix++) {
+      const vi = vertexIndex(ix, iz);
+      const i3 = vi * 3;
+      const x = xMin + ix * step, z = zMin + iz * step;
+      const y = getMeshSurfaceY(x, z) + heightOffsets[vi];
+      pos[i3 + 1] = y;
+      const c = computeColor(x, z, y);
+      col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
+    }
+  }
+  groundGeo.attributes.position.needsUpdate = true;
+  groundGeo.attributes.color.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+}
+
+/* ═══ Save / Load ═══ */
+function saveHeightmap() {
+  /* only store non-zero offsets as sparse map */
+  const data = {};
+  for (let iz = 0; iz < nz; iz++) {
+    for (let ix = 0; ix < nx; ix++) {
+      const vi = vertexIndex(ix, iz);
+      if (Math.abs(heightOffsets[vi]) > 0.001) {
+        const x = xMin + ix * step, z = zMin + iz * step;
+        data[`${x},${z}`] = +heightOffsets[vi].toFixed(3);
+      }
+    }
+  }
+  const json = JSON.stringify({ version: 1, step, xMin, zMin, nx, nz, offsets: data }, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "heightmap.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function loadHeightmap(json) {
+  const d = JSON.parse(json);
+  heightOffsets.fill(0);
+  if (d.offsets) {
+    for (const [key, val] of Object.entries(d.offsets)) {
+      const [wx, wz] = key.split(",").map(Number);
+      const [ix, iz] = worldToGrid(wx, wz);
+      if (ix >= 0 && ix < nx && iz >= 0 && iz < nz) {
+        heightOffsets[vertexIndex(ix, iz)] = val;
+      }
+    }
+  }
+  /* full rebuild */
+  for (let iz = 0; iz < nz; iz++) {
+    for (let ix = 0; ix < nx; ix++) {
+      const vi = vertexIndex(ix, iz);
+      const i3 = vi * 3;
+      const x = xMin + ix * step, z = zMin + iz * step;
+      const y = getMeshSurfaceY(x, z) + heightOffsets[vi];
+      pos[i3 + 1] = y;
+      const c = computeColor(x, z, y);
+      col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
+    }
+  }
+  groundGeo.attributes.position.needsUpdate = true;
+  groundGeo.attributes.color.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+}
+
+document.getElementById("btn-save").onclick = saveHeightmap;
+document.getElementById("btn-load").onclick = () => document.getElementById("file-input").click();
+document.getElementById("file-input").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { loadHeightmap(r.result); };
+  r.readAsText(f);
+};
+document.getElementById("btn-reset").onclick = () => {
+  if (!confirm("Reset all height edits?")) return;
+  saveUndo(); pushUndo();
+  heightOffsets.fill(0);
+  for (let iz = 0; iz < nz; iz++) {
+    for (let ix = 0; ix < nx; ix++) {
+      const vi = vertexIndex(ix, iz);
+      const i3 = vi * 3;
+      const x = xMin + ix * step, z = zMin + iz * step;
+      pos[i3 + 1] = getMeshSurfaceY(x, z);
+      const c = computeColor(x, z, pos[i3 + 1]);
+      col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
+    }
+  }
+  groundGeo.attributes.position.needsUpdate = true;
+  groundGeo.attributes.color.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+};
+
+/* ═══ Input events ═══ */
+const canvas = renderer.domElement;
+let lastPaintTime = 0;
+
+canvas.addEventListener("mousedown", e => {
+  if (e.button === 0 || e.button === 2) {
+    painting = true;
+    paintSign = e.button === 0 ? 1 : -1;
+    saveUndo();
+    lastPaintTime = performance.now();
+    const pt = raycastTerrain(e);
+    if (pt) paintAt(pt.x, pt.z, 0.016);
+  }
+});
+
+canvas.addEventListener("mousemove", e => {
+  const pt = raycastTerrain(e);
+  if (pt) {
+    brushCircle.visible = true;
+    brushCircle.position.set(pt.x, pt.y + 0.2, pt.z);
+    const [gx, gz] = worldToGrid(pt.x, pt.z);
+    const vi = (gx >= 0 && gx < nx && gz >= 0 && gz < nz) ? vertexIndex(gx, gz) : -1;
+    const baseY = getMeshSurfaceY(pt.x, pt.z).toFixed(2);
+    const offset = vi >= 0 ? heightOffsets[vi].toFixed(2) : "—";
+    cellInfo.textContent = `World: ${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}\nBase Y: ${baseY}  Offset: ${offset}`;
+
+    if (painting) {
+      const now = performance.now();
+      const dt = Math.min((now - lastPaintTime) / 1000, 0.05);
+      lastPaintTime = now;
+      paintAt(pt.x, pt.z, dt);
+    }
+  } else {
+    brushCircle.visible = false;
+  }
+});
+
+canvas.addEventListener("mouseup", () => {
+  if (painting) { painting = false; pushUndo(); }
+});
+canvas.addEventListener("mouseleave", () => {
+  if (painting) { painting = false; pushUndo(); }
+  brushCircle.visible = false;
+});
+
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+canvas.addEventListener("wheel", e => {
+  if (e.shiftKey) {
+    e.preventDefault();
+    const d = e.deltaY > 0 ? -1 : 1;
+    rSize.value = Math.max(1, Math.min(20, +rSize.value + d));
+    rSize.oninput();
+  }
+}, { passive: false });
+
+/* keyboard */
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey && e.key === "z") { e.preventDefault(); undo(); }
+  if (e.ctrlKey && e.key === "s") { e.preventDefault(); saveHeightmap(); }
+  if (e.key === "f" || e.key === "F") setMode("flatten");
+  if (e.key === "s" && !e.ctrlKey) setMode("smooth");
+  if (e.key === "r" || e.key === "R") setMode("raise");
+});
+
+/* resize */
+window.addEventListener("resize", () => {
+  const w = window.innerWidth - 200, h = window.innerHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+});
+
+/* ═══ Render loop ═══ */
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+/* try to auto-load heightmap.json if it exists */
+fetch("heightmap.json").then(r => r.ok ? r.text() : null).then(t => {
+  if (t) { loadHeightmap(t); console.log("Loaded heightmap.json"); }
+}).catch(() => {});
+
+</script>
+</body>
+</html>
