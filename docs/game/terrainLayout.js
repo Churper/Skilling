@@ -187,7 +187,7 @@ export function getMeshSurfaceY(x, z) {
    buildTerrainMesh — vertex-colored ground + water plane
    ═══════════════════════════════════════════ */
 
-export function buildTerrainMesh(waterUniforms) {
+export function buildTerrainMesh(waterUniforms, heightOffsets) {
   const group = new THREE.Group();
   group.name = "terrain";
 
@@ -216,6 +216,11 @@ export function buildTerrainMesh(waterUniforms) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
       let y = getMeshSurfaceY(x, z);
+      /* apply editor height offsets */
+      if (heightOffsets) {
+        const key = `${x},${z}`;
+        if (key in heightOffsets) y += heightOffsets[key];
+      }
       const i3 = (iz * nx + ix) * 3;
       const rq = riverQuery(x, z);
 

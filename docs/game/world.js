@@ -490,19 +490,35 @@ function updateFishing(spots, t) {
   }
 }
 
-/* ── Load editor-placed objects from objectmap.json ── */
+/* ── Load tilemap.json data (objects + height offsets) ── */
+let _tilemapData = null;
+async function loadTilemapData() {
+  for (const file of ["objectmap.json", "tilemap.json"]) {
+    try {
+      const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.objects || data.heightOffsets) { _tilemapData = data; return data; }
+      }
+    } catch (e) { /* try next */ }
+  }
+  return null;
+}
+
+/* Structural types built by the game already — skip these in object loading */
+const STRUCTURAL_TYPES = new Set(["bridge", "dock", "fence", "stepping_stones", "bridge_piece", "dock_piece", "fence_piece"]);
+
 async function loadMapObjects(scene) {
   try {
-    let data;
-    for (const file of ["objectmap.json", "tilemap.json"]) {
-      try {
-        const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
-        if (resp.ok) { data = await resp.json(); if (data.objects) break; }
-      } catch (e) { /* try next */ }
-    }
+    const data = _tilemapData;
     if (!data) return;
     const objs = data.objects;
     if (!objs || !objs.length) return;
+
+    /* Filter out structural types (game builds bridge/dock/fences already) */
+    const placeableObjs = objs.filter(o => !STRUCTURAL_TYPES.has(o.type));
+    if (!placeableObjs.length) return;
+
     const loader = new GLTFLoader();
     const load = url => new Promise((res, rej) => loader.load(url, g => res(g.scene), undefined, rej));
 
@@ -510,7 +526,6 @@ async function loadMapObjects(scene) {
     const MODEL_DIR = "models/";
     const TILE_DIR = "models/terrain/";
     const fileLookup = {};
-    /* gltf models (trees, rocks, bushes) */
     const gltfTypes = [
       "Tree_1_A","Tree_1_B","Tree_1_C","Tree_2_A","Tree_2_B","Tree_2_C",
       "Tree_3_A","Tree_3_B","Tree_4_A","Tree_4_B",
@@ -521,7 +536,6 @@ async function loadMapObjects(scene) {
       "Grass_1_A","Grass_2_A",
     ];
     for (const t of gltfTypes) fileLookup[t] = MODEL_DIR + t + "_Color1.gltf";
-    /* glb terrain props — anything starting with Prop_ */
     const glbProps = [
       "Prop_Grass_Clump_1","Prop_Grass_Clump_2","Prop_Grass_Clump_3","Prop_Grass_Clump_4",
       "Prop_Flower_Daisy","Prop_Flower_Rose","Prop_Flower_Sunflower","Prop_Flower_Tulip",
@@ -549,8 +563,7 @@ async function loadMapObjects(scene) {
     ];
     for (const t of glbProps) fileLookup[t] = TILE_DIR + t + ".glb";
 
-    /* Dedupe: only load each unique type once */
-    const types = [...new Set(objs.map(o => o.type))];
+    const types = [...new Set(placeableObjs.map(o => o.type))];
     const templates = {};
     await Promise.all(types.map(async t => {
       const path = fileLookup[t];
@@ -561,21 +574,20 @@ async function loadMapObjects(scene) {
 
     const group = new THREE.Group();
     group.name = "map_objects";
-    for (const entry of objs) {
+    for (const entry of placeableObjs) {
       const tmpl = templates[entry.type];
       if (!tmpl) continue;
       const m = tmpl.clone();
       m.scale.setScalar(entry.scale || 1);
-      /* snap to terrain surface height */
-      const y = getMeshSurfaceY(entry.x, entry.z);
-      m.position.set(entry.x, y, entry.z);
+      /* use editor Y directly */
+      m.position.set(entry.x, entry.y, entry.z);
       m.rotation.y = entry.rot || 0;
       group.add(m);
     }
     scene.add(group);
-    console.log(`Loaded ${objs.length} map objects from tilemap.json`);
+    console.log(`Loaded ${placeableObjs.length} map objects from tilemap`);
   } catch (e) {
-    /* tilemap.json not found or no objects — that's fine */
+    /* tilemap not found or no objects — that's fine */
   }
 }
 
@@ -592,13 +604,17 @@ export async function createWorld(scene) {
   const waterUniforms = { uTime: { value: 0 } };
 
   /* ── load tile models (bridge, dock, fences, props) ── */
+  /* load tilemap data early so height offsets can be applied to terrain */
+  await loadTilemapData();
+  const heightOffsets = _tilemapData && _tilemapData.heightOffsets ? _tilemapData.heightOffsets : null;
+
   let tileLib = null;
   try { tileLib = await loadTiles(); } catch (e) { console.warn("Tile load failed:", e); }
 
   /* ── terrain mesh (ground + water) ── */
   const ground = new THREE.Group();
   ground.name = "ground";
-  ground.add(buildTerrainMesh(waterUniforms));
+  ground.add(buildTerrainMesh(waterUniforms, heightOffsets));
 
   if (tileLib) {
     /* bridge */
