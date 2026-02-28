@@ -451,10 +451,14 @@ function switchChunk(cx, cz) {
   prevCd.baseType = document.getElementById("chunk-base").value;
   const prevWm = waterMeshes.get(chunkKey(currentChunk[0], currentChunk[1]));
   if (prevWm) prevWm.visible = prevCd.water;
+  /* save unified edits back to per-chunk store before switching */
+  saveAllChunksToStore();
   /* switch to new chunk */
   currentChunk = [cx, cz];
   document.getElementById("chunk-id").textContent = `${cx},${cz}`;
   const cd = ensureChunkData(cx, cz);
+  /* rebuild unified mesh around new center */
+  rebuildUnifiedMesh();
   /* update UI for new selected chunk */
   document.getElementById("chunk-water").checked = cd.water;
   document.getElementById("edge-n").classList.toggle("on", !!cd.edges.north);
@@ -647,10 +651,57 @@ function moveChunkHighlight(cx, cz) {
 }
 
 /** Build ONE unified mesh covering all chunks */
+/* ghost meshes for distant (non-editable) chunks */
+const ghostMeshes = new Map(); // "cx,cz" → THREE.Mesh
+const GHOST_STEP = 4; // low-res step for distant chunks
+
+function buildGhostMesh(cx, cz, cd) {
+  const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
+  const lx0 = CL_XMIN, lx1 = CL_XMAX, lz0 = CL_ZMIN, lz1 = CL_ZMAX;
+  const gnx = Math.ceil((lx1 - lx0) / GHOST_STEP) + 1;
+  const gnz = Math.ceil((lz1 - lz0) / GHOST_STEP) + 1;
+  const gp = new Float32Array(gnx * gnz * 3);
+  const gc = new Float32Array(gnx * gnz * 3);
+  const numQ = (gnx - 1) * (gnz - 1);
+  const gi = new Uint32Array(numQ * 6);
+  let ii = 0;
+  for (let iz = 0; iz < gnz; iz++) {
+    for (let ix = 0; ix < gnx; ix++) {
+      const lx = lx0 + ix * GHOST_STEP, lz = lz0 + iz * GHOST_STEP;
+      const vi = iz * gnx + ix, i3 = vi * 3;
+      const h = cd.heightData[`${lx},${lz}`] || 0;
+      const y = GRASS_Y + h;
+      gp[i3] = lx + ox; gp[i3+1] = y; gp[i3+2] = lz + oz;
+      const bt = cd.baseType || "grass";
+      const bc = BASE_COLORS[bt] || cGrass;
+      const co = cd.colorData[`${lx},${lz}`];
+      if (co) { gc[i3] = co[0]; gc[i3+1] = co[1]; gc[i3+2] = co[2]; }
+      else if (y > GRASS_Y + 3) { gc[i3] = cCliff.r; gc[i3+1] = cCliff.g; gc[i3+2] = cCliff.b; }
+      else { gc[i3] = bc.r; gc[i3+1] = bc.g; gc[i3+2] = bc.b; }
+      if (ix < gnx-1 && iz < gnz-1) {
+        gi[ii++] = vi; gi[ii++] = vi+gnx; gi[ii++] = vi+1;
+        gi[ii++] = vi+1; gi[ii++] = vi+gnx; gi[ii++] = vi+gnx+1;
+      }
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(gp, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(gc, 3));
+  geo.setIndex(new THREE.BufferAttribute(gi, 1)); geo.computeVertexNormals();
+  return new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
+}
+
 function rebuildUnifiedMesh() {
-  /* compute bounds from all chunks */
-  let cxMin = 0, cxMax = 0, czMin = 0, czMax = 0;
-  for (const key of chunkDataStore.keys()) {
+  const [pcx, pcz] = currentChunk;
+  /* determine which chunks are "near" (3x3 around current) — unified editable mesh */
+  const nearKeys = new Set();
+  for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) {
+    const k = chunkKey(pcx + dx, pcz + dz);
+    if (chunkDataStore.has(k)) nearKeys.add(k);
+  }
+  /* compute bounds from near chunks only */
+  let cxMin = pcx, cxMax = pcx, czMin = pcz, czMax = pcz;
+  for (const key of nearKeys) {
     const [cx, cz] = key.split(",").map(Number);
     cxMin = Math.min(cxMin, cx); cxMax = Math.max(cxMax, cx);
     czMin = Math.min(czMin, cz); czMax = Math.max(czMax, cz);
@@ -663,10 +714,11 @@ function rebuildUnifiedMesh() {
   hnx = Math.ceil((xMax - xMin) / hStep) + 1;
   hnz = Math.ceil((zMax - zMin) / hStep) + 1;
 
-  /* populate unified heightOffsets + colorOverrides from all chunk data */
+  /* populate unified heightOffsets + colorOverrides from near chunks */
   heightOffsets = new Float32Array(hnx * hnz);
   colorOverrides = {};
-  for (const [key, cd] of chunkDataStore) {
+  for (const key of nearKeys) {
+    const cd = chunkDataStore.get(key);
     const [cx, cz] = key.split(",").map(Number);
     const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
     for (const [hk, hv] of Object.entries(cd.heightData)) {
@@ -684,28 +736,43 @@ function rebuildUnifiedMesh() {
   /* build geometry */
   const hp = new Float32Array(hnx * hnz * 3);
   const hc = new Float32Array(hnx * hnz * 3);
-  const idx = [];
+  const numQuads = (hnx - 1) * (hnz - 1);
+  const idx = new Uint32Array(numQuads * 6);
+  let ii = 0;
   for (let iz = 0; iz < hnz; iz++) {
     for (let ix = 0; ix < hnx; ix++) {
-      const wx = xMin + ix * hStep, wz = zMin + iz * hStep;
-      const vi = hvi(ix, iz), i3 = vi * 3;
+      const vi = iz * hnx + ix, i3 = vi * 3;
       const y = GRASS_Y + heightOffsets[vi];
-      hp[i3] = wx; hp[i3+1] = y; hp[i3+2] = wz;
-      const fc = vertColor(wx, wz, y);
+      hp[i3] = xMin + ix * hStep; hp[i3+1] = y; hp[i3+2] = zMin + iz * hStep;
+      const fc = vertColor(hp[i3], hp[i3+2], y);
       hc[i3] = fc.r; hc[i3+1] = fc.g; hc[i3+2] = fc.b;
-      if (ix < hnx-1 && iz < hnz-1) idx.push(vi, vi+hnx, vi+1, vi+1, vi+hnx, vi+hnx+1);
+      if (ix < hnx-1 && iz < hnz-1) {
+        idx[ii++] = vi; idx[ii++] = vi+hnx; idx[ii++] = vi+1;
+        idx[ii++] = vi+1; idx[ii++] = vi+hnx; idx[ii++] = vi+hnx+1;
+      }
     }
   }
 
-  /* dispose old mesh */
+  /* dispose old editable mesh */
   if (groundMesh) { scene.remove(groundMesh); groundGeo.dispose(); }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(hp, 3));
   geo.setAttribute("color", new THREE.BufferAttribute(hc, 3));
-  geo.setIndex(idx); geo.computeVertexNormals();
+  geo.setIndex(new THREE.BufferAttribute(idx, 1)); geo.computeVertexNormals();
   groundMesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
   groundGeo = geo; hPos = hp; hCol = hc;
   scene.add(groundMesh);
+
+  /* rebuild ghost meshes for distant chunks */
+  for (const [, gm] of ghostMeshes) { scene.remove(gm); gm.geometry.dispose(); }
+  ghostMeshes.clear();
+  for (const [key, cd] of chunkDataStore) {
+    if (nearKeys.has(key)) continue; // already in unified mesh
+    const [cx, cz] = key.split(",").map(Number);
+    const gm = buildGhostMesh(cx, cz, cd);
+    scene.add(gm);
+    ghostMeshes.set(key, gm);
+  }
 
   /* rebuild per-chunk water planes */
   for (const [, wm] of waterMeshes) { scene.remove(wm); wm.geometry.dispose(); }
@@ -725,8 +792,14 @@ function rebuildUnifiedMesh() {
 
 /** Save unified heightOffsets + colorOverrides back into per-chunk data */
 function saveAllChunksToStore() {
-  /* clear existing data */
-  for (const cd of chunkDataStore.values()) { cd.heightData = {}; cd.colorData = {}; }
+  /* only clear near chunks (the ones in the unified mesh) */
+  const [pcx, pcz] = currentChunk;
+  const nearKeys = new Set();
+  for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) {
+    const k = chunkKey(pcx + dx, pcz + dz);
+    if (chunkDataStore.has(k)) nearKeys.add(k);
+  }
+  for (const k of nearKeys) { const cd = chunkDataStore.get(k); cd.heightData = {}; cd.colorData = {}; }
   /* split unified heightOffsets per chunk */
   for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
     const vi = hvi(ix, iz);
