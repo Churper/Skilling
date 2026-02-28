@@ -157,10 +157,10 @@ const _masterGain = _audioCtx.createGain();
 _masterGain.gain.value = _masterVolume;
 _masterGain.connect(_audioCtx.destination);
 
-/* Separate gain for music so SFX and music can be independently balanced */
+/* Separate gain for music — connects to destination directly, not through _masterGain */
 const _musicGain = _audioCtx.createGain();
-_musicGain.gain.value = 0.35; // music softer than SFX
-_musicGain.connect(_masterGain);
+_musicGain.gain.value = 0.35;
+_musicGain.connect(_audioCtx.destination);
 let _bgmElement = null;
 let _bgmSource = null;
 let _musicMuted = false;
@@ -174,10 +174,17 @@ function initBGM() {
   if (_bgmElement) return;
   _bgmElement = new Audio("./sounds/churpa1_3.mp3");
   _bgmElement.loop = true;
-  _bgmElement.volume = 1; // volume controlled via gain node
+  _bgmElement.crossOrigin = "anonymous";
   _bgmSource = _audioCtx.createMediaElementSource(_bgmElement);
   _bgmSource.connect(_musicGain);
-  _bgmElement.play().catch(() => {}); // may fail until user gesture
+  _bgmElement.play().catch(() => {
+    /* retry on next click if autoplay blocked */
+    const retry = () => {
+      _bgmElement.play().catch(() => {});
+      window.removeEventListener("pointerdown", retry);
+    };
+    window.addEventListener("pointerdown", retry);
+  });
 }
 
 
