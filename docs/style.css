@@ -228,9 +228,10 @@ body {
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   width: min(520px, 92vw);
-  max-height: 85vh;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .ui-bank-modal-header {
   display: flex;
@@ -238,6 +239,7 @@ body {
   justify-content: space-between;
   padding: 10px 16px;
   border-bottom: 1px solid var(--ui-border);
+  flex-shrink: 0;
 }
 .ui-bank-modal-title {
   font-family: var(--ui-font-heading);
@@ -260,6 +262,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
+  flex-shrink: 0;
   border-bottom: 1px solid var(--ui-border);
 }
 .ui-bank-qty-label {
