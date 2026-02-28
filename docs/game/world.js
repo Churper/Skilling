@@ -566,7 +566,9 @@ async function loadMapObjects(scene) {
       if (!tmpl) continue;
       const m = tmpl.clone();
       m.scale.setScalar(entry.scale || 1);
-      m.position.set(entry.x, entry.y || 0, entry.z);
+      /* snap to terrain surface height */
+      const y = getMeshSurfaceY(entry.x, entry.z);
+      m.position.set(entry.x, y, entry.z);
       m.rotation.y = entry.rot || 0;
       group.add(m);
     }
