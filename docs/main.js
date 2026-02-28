@@ -94,10 +94,11 @@ function registerAnimal(hsNode, parentModel) {
   animals.push({
     node: hsNode, parentModel, type, hp: maxHp, maxHp,
     spawnPos: spawnPos.clone(), alive: true,
-    wanderTimer: 3 + Math.random() * 5,
+    wanderTimer: 1 + Math.random() * 3,
     wanderTarget: null, hpBar, hpFill, respawnTimer: 0,
     origScale: parentModel.scale.x,
   });
+  console.log(`Registered animal: ${type} at (${spawnPos.x.toFixed(1)}, ${spawnPos.z.toFixed(1)})`);
 }
 
 /* ── Save / Load system ── */
@@ -703,33 +704,35 @@ function updateAnimals(dt) {
     a.wanderTimer -= dt;
     if (a.wanderTimer <= 0) {
       const angle = Math.random() * Math.PI * 2;
-      const dist = 1 + Math.random() * 2;
+      const dist = 1.5 + Math.random() * 2.5;
       a.wanderTarget = new THREE.Vector3(
         a.spawnPos.x + Math.cos(angle) * dist,
         0,
         a.spawnPos.z + Math.sin(angle) * dist,
       );
       a.wanderTarget.y = getPlayerGroundY(a.wanderTarget.x, a.wanderTarget.z);
-      a.wanderTimer = 3 + Math.random() * 5;
+      a.wanderTimer = 2 + Math.random() * 3;
     }
     if (a.wanderTarget) {
-      _animalWanderDir.subVectors(a.wanderTarget, a.parentModel.position);
-      _animalWanderDir.y = 0;
-      const dist = _animalWanderDir.length();
+      const wx = a.parentModel.position.x;
+      const wz = a.parentModel.position.z;
+      const ddx = a.wanderTarget.x - wx;
+      const ddz = a.wanderTarget.z - wz;
+      const dist = Math.sqrt(ddx * ddx + ddz * ddz);
       if (dist > 0.15) {
-        _animalWanderDir.divideScalar(dist);
-        const step = Math.min(dt * 1.0, dist);
-        a.parentModel.position.x += _animalWanderDir.x * step;
-        a.parentModel.position.z += _animalWanderDir.z * step;
+        const nx = ddx / dist, nz = ddz / dist;
+        const step = Math.min(dt * 2.0, dist);
+        a.parentModel.position.x += nx * step;
+        a.parentModel.position.z += nz * step;
         a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
         /* face walk direction */
-        a.parentModel.rotation.y = Math.atan2(_animalWanderDir.x, _animalWanderDir.z);
+        a.parentModel.rotation.y = Math.atan2(nx, nz);
       } else {
         a.wanderTarget = null;
       }
     }
     /* subtle bob */
-    a.parentModel.position.y += Math.sin(Date.now() * 0.003 + a.spawnPos.x * 7) * 0.003;
+    a.parentModel.position.y += Math.sin(Date.now() * 0.003 + a.spawnPos.x * 7) * 0.01;
 
     /* update HP bar screen position */
     if (a.hpBar.dataset.state !== "hidden") {
@@ -2159,8 +2162,10 @@ function animate(now) {
 }
 
 /* scan resource nodes for placed animals and register them */
+console.log(`Scanning ${resourceNodes.length} resource nodes for animals...`);
 for (const n of resourceNodes) {
   if (n.userData?.serviceType === "animal") registerAnimal(n, n);
 }
+console.log(`Registered ${animals.length} animals total`);
 
 requestAnimationFrame(animate);
