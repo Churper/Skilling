@@ -161,7 +161,7 @@ body {
   transform: translateY(1px);
 }
 
-/* ── Panel — no background, just floating content ── */
+/* ── Panel ── */
 #ui-panel {
   position: fixed;
   top: calc(16px + env(safe-area-inset-top));
@@ -170,10 +170,11 @@ body {
   max-height: min(60vh, 540px);
   overflow-y: auto;
   scrollbar-width: thin;
-  border: none;
-  border-radius: 0;
-  background: none;
-  padding: 4px 8px 6px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  background: rgba(10, 14, 24, 0.82);
+  backdrop-filter: blur(10px);
+  padding: 10px 12px 12px;
   pointer-events: auto;
   transform: translateY(0);
   transition: opacity 180ms ease, transform 180ms ease;
@@ -1782,21 +1783,21 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 2px dashed rgba(255,255,255,0.18);
-  background: var(--ui-btn-bg);
+  border: 2px dashed rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.35);
   cursor: pointer;
   position: relative;
   transition: background 0.12s, border-color 0.12s;
   gap: 2px;
 }
 .ui-worn-slot:hover {
-  background: var(--ui-btn-bg-hover);
+  background: rgba(255,255,255,0.08);
   border-color: rgba(255,255,255,0.3);
 }
 .ui-worn-slot.is-equipped {
   border-style: solid;
   border-color: var(--eq-color, rgba(24,184,154,0.5));
-  background: rgba(24,184,154,0.12);
+  background: rgba(24,184,154,0.15);
 }
 .ui-worn-label {
   font-size: 9px;
@@ -1824,7 +1825,9 @@ body {
   align-items: center;
   justify-content: center;
   gap: 14px;
-  padding: 6px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.3);
 }
 .ui-worn-stat {
   font-size: 13px;
@@ -1866,7 +1869,7 @@ body {
   padding: 5px 4px;
   border-radius: 8px;
   border: 2px solid transparent;
-  background: var(--ui-btn-bg);
+  background: rgba(0,0,0,0.3);
   color: var(--ui-ink-2);
   font-family: var(--ui-font-body);
   font-size: 11px;
@@ -1876,7 +1879,7 @@ body {
   transition: background 0.12s, border-color 0.12s;
 }
 .ui-worn-skin-btn:hover {
-  background: var(--ui-btn-bg-hover);
+  background: rgba(255,255,255,0.1);
 }
 .ui-worn-skin-btn.is-active {
   border-color: rgba(24,184,154,0.5);
