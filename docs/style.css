@@ -1528,9 +1528,7 @@ body {
 }
 
 #ui-root.panel-collapsed #ui-panel {
-  opacity: 0 !important;
-  transform: translateY(-12px) !important;
-  pointer-events: none !important;
+  display: none !important;
 }
 
 /* ── Settings gear button ── */
