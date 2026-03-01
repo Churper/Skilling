@@ -1829,8 +1829,8 @@ function updateAnimals(dt) {
     }
     a.parentModel.visible = true;
     a.parentModel.traverse(c => { c.visible = true; });
-    /* snap to ground when becoming visible */
-    a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
+    /* snap to ground when becoming visible (skip boss — controlled by updateSnakeBoss) */
+    if (!isBoss) a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
     if (!a.alive) {
       /* death shrink animation */
       if (a._deathAnim) {
@@ -1851,8 +1851,9 @@ function updateAnimals(dt) {
       continue;
     }
 
-    /* aggro chase + attack */
-    if (a.aggro && a.aggroTarget) {
+    /* aggro chase + attack (boss doesn't move — it attacks via projectiles) */
+    if (isBoss) { /* boss never chases or wanders */ }
+    else if (a.aggro && a.aggroTarget) {
       const elapsed = clock.elapsedTime;
       const adx = px - a.parentModel.position.x;
       const adz = pz - a.parentModel.position.z;
