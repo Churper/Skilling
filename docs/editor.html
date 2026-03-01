@@ -1446,6 +1446,7 @@ function pushObjUndo(a) { objUndoStack.push(a); if (objUndoStack.length > 100) o
    Height painting
    ═══════════════════════════════════════════ */
 function paintAt(wx, wz, dt) {
+  _lastBrushWX = wx; _lastBrushWZ = wz; _lastBrushR = brushRadius;
   /* convert world coords to local (chunk-relative) coords */
   const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
   const lx = wx - chOx, lz = wz - chOz;
@@ -1486,7 +1487,7 @@ function paintAt(wx, wz, dt) {
 }
 
 function hSaveUndo() { hUndoSnap = new Float32Array(heightOffsets); }
-function hPushUndo() { if (hUndoSnap) { hUndoStack.push(hUndoSnap); if (hUndoStack.length > 50) hUndoStack.shift(); hUndoSnap = null; } resnapObjects(); }
+function hPushUndo() { if (hUndoSnap) { hUndoStack.push(hUndoSnap); if (hUndoStack.length > 50) hUndoStack.shift(); hUndoSnap = null; } resnapObjectsNearBrush(); }
 function hUndo() { if (!hUndoStack.length) return; heightOffsets.set(hUndoStack.pop()); rebuildAllVerts(); resnapObjects(); }
 
 /* ── Color painting ── */
@@ -1528,24 +1529,36 @@ function pSaveUndo() { pUndoSnap = JSON.parse(JSON.stringify(colorOverrides)); }
 function pPushUndo() { if (pUndoSnap !== null) { pUndoStack.push(pUndoSnap); if (pUndoStack.length > 50) pUndoStack.shift(); pUndoSnap = null; } }
 function pUndo() { if (!pUndoStack.length) return; const snap = pUndoStack.pop(); for (const k in colorOverrides) delete colorOverrides[k]; Object.assign(colorOverrides, snap); rebuildAllVerts(); }
 
-/* Re-snap all non-structural objects to current terrain surface after height edits */
-const _snapRC = new THREE.Raycaster();
-const _snapOrigin = new THREE.Vector3();
-const _snapDir = new THREE.Vector3(0, -1, 0);
-let _resnapId = 0;
+/* Re-snap objects to terrain — just read heightOffset directly, no raycasting */
+let _lastBrushWX = 0, _lastBrushWZ = 0, _lastBrushR = 0;
+
 function resnapObjects() {
-  if (!groundMesh) return;
-  const mesh = [groundMesh];
-  const id = ++_resnapId;
-  for (let i = 0; i < objects.length; i++) {
-    if (id !== _resnapId) return;
-    const obj = objects[i];
+  /* snap ALL objects (used for undo / full rebuild) */
+  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+  for (const obj of objects) {
     if (STRUCTURAL_TYPES.has(obj.type)) continue;
-    _snapOrigin.set(obj.x, 50, obj.z);
-    _snapRC.set(_snapOrigin, _snapDir);
-    const hits = _snapRC.intersectObjects(mesh);
-    if (hits.length) {
-      obj.y = hits[0].point.y;
+    const lx = obj.x - chOx, lz = obj.z - chOz;
+    const [ix, iz] = worldToHGrid(lx, lz);
+    if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) {
+      obj.y = getBaseY(lx, lz) + heightOffsets[hvi(ix, iz)];
+      obj.mesh.position.y = obj.y;
+    }
+  }
+  if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
+}
+
+function resnapObjectsNearBrush() {
+  /* only snap objects within brush radius — fast */
+  const r = _lastBrushR + 2;
+  const wx = _lastBrushWX, wz = _lastBrushWZ;
+  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+  for (const obj of objects) {
+    if (STRUCTURAL_TYPES.has(obj.type)) continue;
+    if (Math.abs(obj.x - wx) > r || Math.abs(obj.z - wz) > r) continue;
+    const lx = obj.x - chOx, lz = obj.z - chOz;
+    const [ix, iz] = worldToHGrid(lx, lz);
+    if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) {
+      obj.y = getBaseY(lx, lz) + heightOffsets[hvi(ix, iz)];
       obj.mesh.position.y = obj.y;
     }
   }
