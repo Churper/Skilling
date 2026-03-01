@@ -797,6 +797,7 @@ async function loadInstanceData(name) {
 }
 
 let _hiddenWorldObjects = [];
+let _stashedNodes = [];
 
 async function enterInstance(name, scene, ground, nodes, keepVisible) {
   if (_activeInstance) return;
@@ -839,6 +840,8 @@ async function enterInstance(name, scene, ground, nodes, keepVisible) {
   if (data.type === "boss") {
     bossGroup = _buildSnakeBoss(scene, nodes);
   }
+  /* stash world resource nodes and clear — only boss hitspot stays */
+  _stashedNodes = nodes.splice(0, nodes.length);
   _activeInstance = { name, groundGroup, terrainGroup, data, waterUniforms, heightOffsets, bossGroup };
 }
 
@@ -877,6 +880,8 @@ function leaveInstance(scene, ground, nodes) {
   /* restore hidden world objects */
   for (const obj of _hiddenWorldObjects) obj.visible = true;
   _hiddenWorldObjects = [];
+  /* restore world resource nodes */
+  if (_stashedNodes.length) { nodes.push(..._stashedNodes); _stashedNodes = []; }
   _hiddenWorldChunks = [];
   _activeInstance = null;
 }
