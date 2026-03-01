@@ -818,7 +818,9 @@ function enterInstance(name) {
   activeInstance = name;
   const inst = instanceStore.get(name);
   /* hide all world chunk meshes */
-  for (const [, entry] of chunkMeshes) entry.mesh.visible = false;
+  for (const [key, entry] of chunkMeshes) {
+    if (!key.startsWith("inst:")) entry.mesh.visible = false;
+  }
   /* clear non-structural objects from scene */
   for (let i = objects.length - 1; i >= 0; i--) {
     if (!STRUCTURAL_TYPES.has(objects[i].type)) { scene.remove(objects[i].mesh); objects.splice(i, 1); }
@@ -826,17 +828,30 @@ function enterInstance(name) {
   /* build instance chunk at origin if not already built */
   const instKey = "inst:" + name;
   if (!chunkMeshes.has(instKey)) {
-    const cd = ensureChunkData(0, 0);
-    cd.heightData = inst.heightData || {};
-    cd.colorData = inst.colorData || {};
-    cd.baseType = inst.baseType || "dark";
-    cd.water = inst.water || false;
+    /* temporarily inject instance data into chunk 0,0 data store, build mesh, then move it */
+    const savedCd = chunkDataStore.get("0,0");
+    const tmpCd = { heightData: inst.heightData || {}, colorData: inst.colorData || {}, baseType: inst.baseType || "dark", water: inst.water || false, objects: [], edges: {} };
+    chunkDataStore.set("0,0", tmpCd);
     buildChunkMesh(0, 0);
     const entry = chunkMeshes.get("0,0");
     if (entry) { chunkMeshes.set(instKey, entry); chunkMeshes.delete("0,0"); }
+    /* restore original 0,0 data */
+    if (savedCd) chunkDataStore.set("0,0", savedCd);
+    else chunkDataStore.delete("0,0");
   }
   const instEntry = chunkMeshes.get(instKey);
-  if (instEntry) instEntry.mesh.visible = true;
+  if (instEntry) {
+    instEntry.mesh.visible = true;
+    /* activate instance mesh for editing directly */
+    heightOffsets = instEntry.heightOffsets;
+    colorOverrides = instEntry.colorOverrides;
+    groundMesh = instEntry.mesh;
+    groundGeo = instEntry.geo;
+    hPos = instEntry.hPos;
+    hCol = instEntry.hCol;
+    activeBaseType = instEntry.baseType;
+    activeEditChunk = [0, 0];
+  }
   /* load instance objects */
   for (const entry of inst.objects || []) {
     const tmpl = objLib[entry.type]; if (!tmpl) continue;
@@ -848,7 +863,6 @@ function enterInstance(name) {
     objects.push({ id: nextObjId++, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
   }
   currentChunk = [0, 0];
-  activateChunkForEditing(0, 0);
   teleportCameraToChunk(0, 0);
   document.getElementById("chunk-id").textContent = name;
   _updateInstanceBanner();
@@ -873,16 +887,29 @@ function _updateInstanceBanner() {
 
 function leaveInstance() {
   if (!activeInstance) return;
-  /* save instance objects */
+  /* save instance objects + terrain data */
   const inst = instanceStore.get(activeInstance);
+  const instKey = "inst:" + activeInstance;
+  const instEntry = chunkMeshes.get(instKey);
   if (inst) {
     inst.objects = objects
       .filter(o => !STRUCTURAL_TYPES.has(o.type))
       .map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+    /* save height + color data from the mesh back to the instance */
+    if (instEntry) {
+      inst.heightData = {};
+      for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+        const vi = hvi(ix, iz);
+        if (Math.abs(instEntry.heightOffsets[vi]) > 0.001)
+          inst.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +instEntry.heightOffsets[vi].toFixed(3);
+      }
+      inst.colorData = {};
+      for (const [ck, cv] of Object.entries(instEntry.colorOverrides))
+        inst.colorData[ck] = [+cv[0].toFixed(4), +cv[1].toFixed(4), +cv[2].toFixed(4)];
+      inst.baseType = instEntry.baseType;
+    }
   }
   /* remove instance mesh */
-  const instKey = "inst:" + activeInstance;
-  const instEntry = chunkMeshes.get(instKey);
   if (instEntry) { scene.remove(instEntry.mesh); instEntry.geo.dispose(); chunkMeshes.delete(instKey); }
   /* clear instance objects from scene */
   for (let i = objects.length - 1; i >= 0; i--) {
@@ -2097,12 +2124,25 @@ function exportJSON() {
   saveCurrentChunkToStore();
   const allChunks = [...chunkDataStore.keys()];
   /* always export as single world.json — contains manifest + all chunk data */
-  /* save active instance objects before export */
+  /* save active instance objects + terrain before export */
   if (activeInstance && instanceStore.has(activeInstance)) {
     const inst = instanceStore.get(activeInstance);
     inst.objects = objects
       .filter(o => !STRUCTURAL_TYPES.has(o.type))
       .map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+    const instEntry = chunkMeshes.get("inst:" + activeInstance);
+    if (instEntry) {
+      inst.heightData = {};
+      for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+        const vi = hvi(ix, iz);
+        if (Math.abs(instEntry.heightOffsets[vi]) > 0.001)
+          inst.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +instEntry.heightOffsets[vi].toFixed(3);
+      }
+      inst.colorData = {};
+      for (const [ck, cv] of Object.entries(instEntry.colorOverrides))
+        inst.colorData[ck] = [+cv[0].toFixed(4), +cv[1].toFixed(4), +cv[2].toFixed(4)];
+      inst.baseType = instEntry.baseType;
+    }
   }
   const world = {
     chunks: allChunks,
