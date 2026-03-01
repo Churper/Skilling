@@ -179,6 +179,7 @@ export const MONSTER_EQUIPMENT_DROPS = {
   Pug:   { chance: 0.12, items: ["bronze_ring"] },
   Sheep: { chance: 0.08, items: ["wool_cape", "bone_amulet"] },
   Zebra: { chance: 0.05, items: ["hide_amulet", "iron_ring", "iron_ring"] },
+  "Snake Boss": { chance: 0.35, items: ["mithril_sword", "mithril_bow", "mithril_staff", "mithril_body", "mithril_shield", "adamant_sword", "adamant_bow", "adamant_body"] },
 };
 
 /* Equipment items sold in the general store (id → buy cost) */
@@ -198,13 +199,14 @@ export const SHOP_EQUIPMENT = [
   { id: "iron_ring",    cost: 50 },
 ];
 
-export const BAG_ITEM_KEYS = ["fish", "ore", "logs", "Raw Beef", "Raw Pork", "Wool", "Horse Hide", "Llama Wool", "Bone", "Striped Hide", "Health Potion", "Mana Potion", "Cooked Fish", "Cooked Beef", "Cooked Pork", "Burnt Food",
+export const BAG_ITEM_KEYS = ["fish", "ore", "logs", "Raw Beef", "Raw Pork", "Wool", "Horse Hide", "Llama Wool", "Bone", "Striped Hide", "Snake Scale", "Health Potion", "Mana Potion", "Cooked Fish", "Cooked Beef", "Cooked Pork", "Burnt Food",
   "Bird Nest", "Uncut Gem", "Golden Fish",
   ...Object.keys(EQUIPMENT_ITEMS)];
 
 export const SELL_PRICE_BY_ITEM = {
   fish: 4, ore: 7, logs: 5, "Raw Beef": 8, "Raw Pork": 6,
   "Wool": 5, "Horse Hide": 10, "Llama Wool": 7, "Bone": 3, "Striped Hide": 12,
+  "Snake Scale": 50,
   "Cooked Fish": 8, "Cooked Beef": 14, "Cooked Pork": 10, "Burnt Food": 1,
   "Bird Nest": 25, "Uncut Gem": 30, "Golden Fish": 35,
   ...Object.fromEntries(Object.entries(EQUIPMENT_ITEMS).map(([id, item]) => {
@@ -225,6 +227,7 @@ export const ITEM_RARITY = {
   "Llama Wool":   { rarity: "uncommon", tint: "rgba(100,200,100,0.10)", color: "#6ec86e" },
   "Bone":         { rarity: "common",   tint: "rgba(180,180,180,0.08)", color: "#b0b0b0" },
   "Striped Hide": { rarity: "rare",     tint: "rgba(70,130,255,0.12)",  color: "#5ea0ff" },
+  "Snake Scale":  { rarity: "epic",     tint: "rgba(180,80,255,0.16)",  color: "#b050ff" },
   "Health Potion": { rarity: "uncommon", tint: "rgba(255,100,100,0.10)", color: "#ff6b6b" },
   "Mana Potion":  { rarity: "uncommon", tint: "rgba(100,150,255,0.10)", color: "#6b9fff" },
   "Cooked Fish":  { rarity: "uncommon", tint: "rgba(100,200,100,0.10)", color: "#6ec86e" },

@@ -462,7 +462,7 @@ const _bossProjectiles = [];
 const _projGeo = new THREE.SphereGeometry(0.7, 10, 8);
 const BOSS_PROJECTILE_MIN_SPEED = 8;
 const BOSS_PROJECTILE_ARRIVAL = 1.2; // seconds to reach player
-const BOSS_PROJECTILE_DMG = 25;
+const BOSS_PROJECTILE_DMG = 10;
 
 function spawnBossProjectile(x, y, z, color, type) {
   const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9 });
@@ -501,7 +501,7 @@ function updateBossProjectiles(dt) {
       if (activePrayers.has(protectedBy)) {
         spawnFloatingDrop(player.position.x, player.position.z, "Blocked!", "info");
       } else {
-        const dmg = BOSS_PROJECTILE_DMG + Math.floor(Math.random() * 15);
+        const dmg = BOSS_PROJECTILE_DMG + Math.floor(Math.random() * 6);
         damagePlayer(dmg);
       }
       p.alive = false;
@@ -3596,6 +3596,11 @@ function onInteractNode(node, hitPoint) {
     /* snake boss: check if attackable (above ground) */
     if (a.type === "Snake Boss" && _snakeBossGroup && !_snakeBossGroup.userData.attackable) {
       ui?.setStatus("The Snake Boss is underground...", "info");
+      return;
+    }
+    /* boss: always in range for bow/mage — just attack, no walking */
+    if (a.type === "Snake Boss" && (combatStyle === "bow" || combatStyle === "mage")) {
+      startActiveAttack(node);
       return;
     }
     const distance = aPos.distanceTo(player.position);
