@@ -49,7 +49,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel, onDropItem, onTaskAccept, onTaskTurnIn, onTaskAbandon, onSwapSlots } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel, onDropItem, onTaskAccept, onTaskTurnIn, onTaskAbandon, onBossEnter, onBossLeave, onSwapSlots } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -991,6 +991,7 @@ export function initializeUI(options = {}) {
   const taskListEl = document.getElementById("ui-task-list");
   const taskActiveEl = document.getElementById("ui-task-active");
   const taskActiveContent = document.getElementById("ui-task-active-content");
+  const bossListEl = document.getElementById("ui-boss-list");
   let _taskOpen = false;
 
   function openTaskBoard(state = {}) {
@@ -1074,6 +1075,40 @@ export function initializeUI(options = {}) {
       if (!activeTask) btn.addEventListener("click", () => { if (typeof onTaskAccept === "function") onTaskAccept(t.id); });
       row.appendChild(btn);
       taskListEl.appendChild(row);
+    }
+
+    /* boss encounters */
+    if (bossListEl) {
+      bossListEl.innerHTML = "";
+      const bosses = state.bosses || [];
+      const inInstance = state.inInstance || null;
+      if (bosses.length === 0) {
+        const empty = document.createElement("div");
+        empty.style.cssText = "color:#666;font-size:11px;padding:4px 0";
+        empty.textContent = "No boss encounters available";
+        bossListEl.appendChild(empty);
+      }
+      for (const b of bosses) {
+        const row = document.createElement("div");
+        row.className = "ui-task-row";
+        const label = document.createElement("span");
+        label.className = "ui-task-row-label";
+        label.textContent = b.charAt(0).toUpperCase() + b.slice(1) + " Boss";
+        row.appendChild(label);
+        const btn = document.createElement("button");
+        btn.className = "ui-task-row-btn";
+        if (inInstance === b) {
+          btn.textContent = "Leave";
+          btn.style.background = "#5a2020";
+          btn.style.color = "#ff8888";
+          btn.addEventListener("click", () => { if (typeof onBossLeave === "function") onBossLeave(); });
+        } else {
+          btn.textContent = "Enter";
+          btn.addEventListener("click", () => { if (typeof onBossEnter === "function") onBossEnter(b); });
+        }
+        row.appendChild(btn);
+        bossListEl.appendChild(row);
+      }
     }
   }
 

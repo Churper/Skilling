@@ -21,7 +21,7 @@ import {
 /* ── re-export height API (keeps import contract for main.js) ── */
 export function getWorldSurfaceHeight(x, z) { return _getWSH(x, z); }
 export function getWaterSurfaceHeight(x, z, time = 0) { return _getWaSH(x, z, time); }
-export { CHUNK_SIZE };
+export { CHUNK_SIZE, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances };
 
 /* height with chunk heightOffsets baked in (for placing buildings on edited terrain) */
 function _groundY(x, z) {
@@ -787,6 +787,84 @@ function updateChunks(px, pz) {
   }
 }
 
+/* ── Boss instances ── */
+let _activeInstance = null; // { name, group, groundGroup, data, waterUniforms }
+let _hiddenWorldChunks = [];
+
+async function loadInstanceData(name) {
+  try {
+    const resp = await fetch(`instances/${name}.json?v=${Date.now()}`, { cache: "no-store" });
+    if (resp.ok) return await resp.json();
+  } catch (e) { /* not found */ }
+  return null;
+}
+
+async function enterInstance(name, scene, ground, nodes) {
+  if (_activeInstance) return;
+  const data = await loadInstanceData(name);
+  if (!data) return;
+  /* hide all world chunks */
+  _hiddenWorldChunks = [];
+  for (const [key, chunk] of _loadedChunks) {
+    chunk.terrainGroup.visible = false;
+    if (chunk.objGroup) chunk.objGroup.visible = false;
+    _hiddenWorldChunks.push(key);
+  }
+  /* hide world structural objects (bridge, dock, etc.) */
+  scene.traverse(o => {
+    if (o.userData._worldStructural) o.visible = false;
+  });
+  /* build instance terrain at origin */
+  const b = chunkBounds(0, 0);
+  b.water = data.water !== false;
+  b.edges = data.edges || {};
+  b.baseType = data.baseType || "dark";
+  b.localOffsetX = 0;
+  b.localOffsetZ = 0;
+  const heightOffsets = data.heightData || data.heightOffsets || null;
+  const colorOverrides = data.colorData || data.colorOverrides || null;
+  const waterUniforms = { uTime: { value: 0 } };
+  const terrainGroup = buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b, 1);
+  terrainGroup.name = `instance_${name}`;
+  const groundGroup = new THREE.Group();
+  groundGroup.name = `instance_ground_${name}`;
+  groundGroup.add(terrainGroup);
+  ground.add(groundGroup);
+  _activeInstance = { name, groundGroup, terrainGroup, data, waterUniforms, heightOffsets };
+}
+
+function leaveInstance(scene, ground) {
+  if (!_activeInstance) return;
+  /* remove instance terrain */
+  _activeInstance.terrainGroup.traverse(o => {
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) {
+      if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
+      else o.material.dispose();
+    }
+  });
+  ground.remove(_activeInstance.groundGroup);
+  /* restore world chunks */
+  for (const key of _hiddenWorldChunks) {
+    const chunk = _loadedChunks.get(key);
+    if (chunk) {
+      chunk.terrainGroup.visible = true;
+      if (chunk.objGroup) chunk.objGroup.visible = true;
+    }
+  }
+  scene.traverse(o => {
+    if (o.userData._worldStructural) o.visible = true;
+  });
+  _hiddenWorldChunks = [];
+  _activeInstance = null;
+}
+
+function getActiveInstance() { return _activeInstance ? _activeInstance.name : null; }
+
+function getAvailableInstances() {
+  return _chunkManifest?.instances || [];
+}
+
 /* ── Load tilemap.json data (objects + height offsets) — legacy fallback ── */
 let _tilemapData = null;
 async function loadTilemapData() {
@@ -1104,10 +1182,11 @@ export async function createWorld(scene) {
       cave.update(t);
       /* update loaded chunks based on player position */
       if (px !== undefined) updateChunks(px, pz);
-      /* sync water time for all loaded chunks */
+      /* sync water time for all loaded chunks + active instance */
       for (const [, c] of _loadedChunks) {
         if (c.waterUniforms) c.waterUniforms.uTime.value = t;
       }
+      if (_activeInstance?.waterUniforms) _activeInstance.waterUniforms.uTime.value = t;
     },
     constructionSite,
     collisionObstacles: obstacles,

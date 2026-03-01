@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { createSceneContext } from "./game/scene.js";
-import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE, createCampfire } from "./game/world.js";
+import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE, createCampfire, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances } from "./game/world.js";
 import { createPlayer, createMoveMarker, createCombatEffects } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
@@ -310,7 +310,7 @@ function getTaskBoardState() {
   for (const slot of bagSystem.slots) {
     if (slot) bagCounts[slot] = (bagCounts[slot] || 0) + 1;
   }
-  return { tasks: TASK_BOARD_TASKS, activeTask, bagCounts };
+  return { tasks: TASK_BOARD_TASKS, activeTask, bagCounts, bosses: getAvailableInstances(), inInstance: getActiveInstance() };
 }
 
 function acceptTask(taskId) {
@@ -364,6 +364,33 @@ function abandonTask() {
   activeTask = null;
   ui?.openTaskBoard(getTaskBoardState());
   saveGame();
+}
+
+let _preInstancePos = null; // saved player position before entering instance
+
+async function doBossEnter(name) {
+  if (getActiveInstance()) return;
+  _preInstancePos = { x: player.position.x, z: player.position.z };
+  await enterInstance(name, scene, ground, resourceNodes);
+  // teleport player to instance center
+  player.position.set(0, 0, 0);
+  const gy = getPlayerGroundY(0, 0);
+  player.position.y = gy;
+  ui?.closeTaskBoard();
+  ui?.setStatus(`Entered ${name} boss arena!`, "info");
+}
+
+function doBossLeave() {
+  if (!getActiveInstance()) return;
+  leaveInstance(scene, ground);
+  // teleport back to saved position
+  if (_preInstancePos) {
+    player.position.set(_preInstancePos.x, 0, _preInstancePos.z);
+    player.position.y = getPlayerGroundY(_preInstancePos.x, _preInstancePos.z);
+    _preInstancePos = null;
+  }
+  ui?.closeTaskBoard();
+  ui?.setStatus("Left boss arena", "info");
 }
 
 const onlineConfig = resolveOnlineConfig();
@@ -479,6 +506,8 @@ const ui = initializeUI({
   onTaskAccept: (taskId) => acceptTask(taskId),
   onTaskTurnIn: () => turnInTask(),
   onTaskAbandon: () => abandonTask(),
+  onBossEnter: (name) => doBossEnter(name),
+  onBossLeave: () => doBossLeave(),
 });
 
 function getCombatToolForStyle(style) {

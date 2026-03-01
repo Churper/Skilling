@@ -1,1 +1,1 @@
-{"version":2,"chunk":[-1,-1],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[{"type":"Prop_Treasure_Chest","x":30.12,"z":37.86,"y":0.4,"scale":1.9,"rot":4.435}]}
+{"version":2,"chunk":[-1,-1],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass"}
