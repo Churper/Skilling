@@ -30,7 +30,7 @@ import {
   MONSTER_EQUIPMENT_DROPS,
   TASK_BOARD_TASKS,
   STAR_MAX,
-  STAR_COSTS,
+  STAR_COSTS, STAR_TIER_MULT,
   STAR_SUCCESS,
   STAR_DESTROY,
   STAR_DOWNGRADE,
@@ -950,7 +950,10 @@ function starEnhanceSlot(slot, timingBonus) {
     ui?.showStarResult("maxed", currentStars);
     return;
   }
-  const cost = STAR_COSTS[currentStars];
+  const base = baseItemId(itemId);
+  const eqItem = EQUIPMENT_ITEMS[base];
+  const tierMult = (eqItem && STAR_TIER_MULT[eqItem.tier]) || 1;
+  const cost = Math.ceil(STAR_COSTS[currentStars] * tierMult);
   if (coins < cost) {
     ui?.showStarResult("broke", currentStars);
     return;

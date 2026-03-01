@@ -1,6 +1,12 @@
-import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP, STAR_MAX, STAR_COSTS, STAR_SUCCESS, STAR_DESTROY, STAR_DOWNGRADE, STAR_ATK_PER, STAR_DEF_PER, STAR_TIMING_BONUS, ITEM_RARITY } from "./config.js";
+import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP, STAR_MAX, STAR_COSTS, STAR_TIER_MULT, STAR_SUCCESS, STAR_DESTROY, STAR_DOWNGRADE, STAR_ATK_PER, STAR_DEF_PER, STAR_TIMING_BONUS, ITEM_RARITY } from "./config.js";
 
 function baseItemId(id) { return id ? id.split("#")[0] : id; }
+function _starTierCost(itemId, starLevel) {
+  const base = STAR_COSTS[starLevel] || 0;
+  const eqItem = EQUIPMENT_ITEMS[baseItemId(itemId)];
+  const mult = (eqItem && STAR_TIER_MULT[eqItem.tier]) || 1;
+  return Math.ceil(base * mult);
+}
 function isNote(id) { return typeof id === "string" && id.startsWith("note:"); }
 function parseNote(id) {
   if (!isNote(id)) return null;
@@ -1637,7 +1643,7 @@ export function initializeUI(options = {}) {
     if (starAtkEl) starAtkEl.textContent = `+${bonuses.atk}`;
     if (starDefEl) starDefEl.textContent = `+${bonuses.def}`;
     const isMax = _starLevel >= STAR_MAX;
-    const cost = isMax ? 0 : STAR_COSTS[_starLevel];
+    const cost = isMax ? 0 : _starTierCost(_starItemId, _starLevel);
     const canAfford = _currentCoins >= cost;
     if (starCostEl) {
       starCostEl.textContent = isMax ? "MAX" : `${cost}c`;
@@ -1841,7 +1847,7 @@ export function initializeUI(options = {}) {
   if (starOverlay) starOverlay.addEventListener("click", (e) => { if (e.target === starOverlay) closeStarEnhance(); });
   if (starEnhanceBtn) starEnhanceBtn.addEventListener("click", () => {
     if (_starLevel >= STAR_MAX) return;
-    const cost = STAR_COSTS[_starLevel] || 0;
+    const cost = _starTierCost(_starItemId, _starLevel);
     if (_currentCoins < cost) {
       if (starResultEl) { starResultEl.textContent = "Not enough coins!"; starResultEl.className = "ui-star-result fail"; }
       return;

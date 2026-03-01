@@ -64,7 +64,7 @@ export const PRAYERS = {
 
 export const ANIMAL_DAMAGE = {
   Pig: [2, 4], Cow: [3, 6], Sheep: [2, 5], Llama: [3, 6],
-  Horse: [4, 8], Zebra: [5, 10], Pug: [1, 3],
+  Horse: [4, 8], Zebra: [5, 10], Pug: [1, 3], "Baby Snake": [3, 6],
 };
 
 export const POTION_SHOP = [
@@ -163,6 +163,7 @@ EQUIPMENT_RECIPES["jewel_amulet"] = { materials: { "Bone": 3, ore: 8 }, level: 1
 // Star enhancement system (MapleStory-style)
 export const STAR_MAX = 10;
 export const STAR_COSTS =       [15, 30, 50, 80, 120, 200, 350, 600, 1000, 1800];
+export const STAR_TIER_MULT = { bronze: 0.3, iron: 0.5, steel: 0.7, mithril: 1.0, adamant: 1.4, rune: 2.0 };
 export const STAR_SUCCESS =     [95, 90, 85, 75,  65,  55,  45,  35,   25,   18]; // base %
 export const STAR_DESTROY =     [0,  0,  0,  0,    3,   6,  10,  18,   25,   35]; // destroy %
 export const STAR_DOWNGRADE =   [0,  0,  0,  0,   0,   0,   0,   40,   50,   60]; // % chance to lose 1 star on fail (not destroy)
