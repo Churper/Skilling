@@ -889,7 +889,9 @@ function leaveInstance(scene, ground, nodes) {
 function getActiveInstance() { return _activeInstance ? _activeInstance.name : null; }
 
 function getAvailableInstances() {
-  return _chunkManifest?.instances || [];
+  const inst = _chunkManifest?.instances;
+  if (!inst) return [];
+  return Array.isArray(inst) ? inst : Object.keys(inst);
 }
 
 /* ── Snake Boss builder ── */
