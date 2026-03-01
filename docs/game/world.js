@@ -21,7 +21,7 @@ import {
 /* ── re-export height API (keeps import contract for main.js) ── */
 export function getWorldSurfaceHeight(x, z) { return _getWSH(x, z); }
 export function getWaterSurfaceHeight(x, z, time = 0) { return _getWaSH(x, z, time); }
-export { CHUNK_SIZE, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances };
+export { CHUNK_SIZE, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances, updateSnakeBoss };
 
 /* height with chunk heightOffsets baked in (for placing buildings on edited terrain) */
 function _groundY(x, z) {
@@ -809,10 +809,13 @@ async function enterInstance(name, scene, ground, nodes) {
     if (chunk.objGroup) chunk.objGroup.visible = false;
     _hiddenWorldChunks.push(key);
   }
-  /* hide ALL world scene children (map_objects, animals, structural, etc.) */
+  /* hide world object groups by name (not player, lights, camera, etc.) */
   _hiddenWorldObjects = [];
+  const WORLD_GROUP_NAMES = ["map_objects", "chunk_animals_0_0", "bridge_group", "dock_group", "stepping_stones", "fences"];
   for (const child of scene.children) {
-    if (child.visible && child !== ground) {
+    if (!child.visible) continue;
+    const n = child.name || "";
+    if (n.startsWith("chunk_obj_") || n.startsWith("chunk_animals_") || WORLD_GROUP_NAMES.includes(n)) {
       child.visible = false;
       _hiddenWorldObjects.push(child);
     }
@@ -833,11 +836,29 @@ async function enterInstance(name, scene, ground, nodes) {
   groundGroup.name = `instance_ground_${name}`;
   groundGroup.add(terrainGroup);
   ground.add(groundGroup);
-  _activeInstance = { name, groundGroup, terrainGroup, data, waterUniforms, heightOffsets };
+  /* spawn boss if this is a boss instance */
+  let bossGroup = null;
+  if (data.type === "boss") {
+    bossGroup = _buildSnakeBoss(scene, nodes);
+  }
+  _activeInstance = { name, groundGroup, terrainGroup, data, waterUniforms, heightOffsets, bossGroup };
 }
 
-function leaveInstance(scene, ground) {
+function leaveInstance(scene, ground, nodes) {
   if (!_activeInstance) return;
+  /* remove boss group */
+  if (_activeInstance.bossGroup) {
+    const hs = _activeInstance.bossGroup.userData.hsNode;
+    if (hs) { const idx = nodes.indexOf(hs); if (idx >= 0) nodes.splice(idx, 1); }
+    _activeInstance.bossGroup.traverse(o => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) {
+        if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
+        else o.material.dispose();
+      }
+    });
+    scene.remove(_activeInstance.bossGroup);
+  }
   /* remove instance terrain */
   _activeInstance.terrainGroup.traverse(o => {
     if (o.geometry) o.geometry.dispose();
@@ -866,6 +887,93 @@ function getActiveInstance() { return _activeInstance ? _activeInstance.name : n
 
 function getAvailableInstances() {
   return _chunkManifest?.instances || [];
+}
+
+/* ── Snake Boss builder ── */
+const SNAKE_COLORS = [
+  "#44aa44", "#aa4444", "#4444cc", "#cc44cc", "#ccaa22", "#22cccc", "#cc6622",
+];
+const SNAKE_SEGMENTS = 12;
+const SNAKE_SEG_SIZE = 1.2;
+
+function _buildSnakeBoss(scene, nodes) {
+  const group = new THREE.Group();
+  group.name = "snake_boss";
+  group.position.set(0, GRASS_Y, 0);
+
+  const segments = [];
+  const mat = toonMat(SNAKE_COLORS[0]);
+  /* head — larger sphere */
+  const headGeo = new THREE.SphereGeometry(1.0, 12, 8);
+  const head = new THREE.Mesh(headGeo, toonMat("#44aa44"));
+  group.add(head);
+  segments.push(head);
+  /* eyes */
+  const eyeGeo = new THREE.SphereGeometry(0.22, 6, 6);
+  const eyeMat = new THREE.MeshBasicMaterial({ color: "#ff2222" });
+  const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+  eyeL.position.set(-0.4, 0.3, 0.7);
+  head.add(eyeL);
+  const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+  eyeR.position.set(0.4, 0.3, 0.7);
+  head.add(eyeR);
+  /* body segments */
+  for (let i = 1; i < SNAKE_SEGMENTS; i++) {
+    const r = SNAKE_SEG_SIZE * (1 - i * 0.05);
+    const geo = new THREE.SphereGeometry(r, 10, 6);
+    const seg = new THREE.Mesh(geo, mat.clone());
+    group.add(seg);
+    segments.push(seg);
+  }
+  /* tail */
+  const tailGeo = new THREE.ConeGeometry(0.4, 1.5, 8);
+  tailGeo.rotateX(Math.PI / 2);
+  const tail = new THREE.Mesh(tailGeo, mat.clone());
+  group.add(tail);
+  segments.push(tail);
+
+  /* hitbox sphere for clicking */
+  const hs = addHS(head, 0, 0.5, 0.3);
+  setSvc(hs, "animal", "Snake Boss");
+  hs.userData.animalType = "Snake Boss";
+  head.userData.animalType = "Snake Boss";
+  nodes.push(hs);
+
+  scene.add(group);
+
+  /* store update data on the group */
+  group.userData.segments = segments;
+  group.userData.mat = mat;
+  group.userData.colorIndex = 0;
+  group.userData.colorTimer = 0;
+  group.userData.hsNode = hs;
+  group.userData.headMesh = head;
+  return group;
+}
+
+function updateSnakeBoss(group, t) {
+  if (!group || !group.visible) return;
+  const segs = group.userData.segments;
+  if (!segs) return;
+  /* slither in a figure-8 pattern, dipping below ground */
+  for (let i = 0; i < segs.length; i++) {
+    const phase = t * 1.2 - i * 0.5;
+    const x = Math.sin(phase) * 6;
+    const z = Math.cos(phase * 0.5) * 8;
+    const dip = Math.sin(phase * 0.8 + i * 0.3);
+    const y = dip * 3 + 1.5;
+    segs[i].position.set(x, y, z);
+  }
+  /* color cycling */
+  group.userData.colorTimer += 0.016;
+  if (group.userData.colorTimer > 3) {
+    group.userData.colorTimer = 0;
+    group.userData.colorIndex = (group.userData.colorIndex + 1) % SNAKE_COLORS.length;
+    const c = SNAKE_COLORS[group.userData.colorIndex];
+    for (let i = 1; i < segs.length; i++) {
+      segs[i].material.color.set(c);
+    }
+  }
 }
 
 /* ── Load tilemap.json data (objects + height offsets) — legacy fallback ── */

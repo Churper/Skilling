@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { createSceneContext } from "./game/scene.js";
-import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE, createCampfire, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances } from "./game/world.js";
+import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE, createCampfire, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances, updateSnakeBoss } from "./game/world.js";
 import { createPlayer, createMoveMarker, createCombatEffects } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
@@ -159,7 +159,7 @@ function playerDeath() {
 }
 
 /* ── Animals ── */
-const ANIMAL_HP = { Cow: 50, Horse: 60, Llama: 40, Pig: 30, Pug: 20, Sheep: 35, Zebra: 70 };
+const ANIMAL_HP = { Cow: 50, Horse: 60, Llama: 40, Pig: 30, Pug: 20, Sheep: 35, Zebra: 70, "Snake Boss": 1000 };
 const ANIMAL_LOOT = {
   Cow: "Raw Beef", Horse: "Horse Hide", Llama: "Llama Wool",
   Pig: "Raw Pork", Pug: "Bone", Sheep: "Wool", Zebra: "Striped Hide",
@@ -369,6 +369,7 @@ function abandonTask() {
 let _preInstancePos = null; // saved player position before entering instance
 
 const _instanceBanner = document.getElementById("ui-instance-banner");
+let _snakeBossGroup = null;
 
 async function doBossEnter(name) {
   if (getActiveInstance()) return;
@@ -380,11 +381,13 @@ async function doBossEnter(name) {
   ui?.closeTaskBoard();
   ui?.setStatus(`Entered ${name} boss arena!`, "info");
   if (_instanceBanner) _instanceBanner.hidden = false;
+  /* store boss group ref for animation updates */
+  _snakeBossGroup = scene.getObjectByName("snake_boss") || null;
 }
 
 function doBossLeave() {
   if (!getActiveInstance()) return;
-  leaveInstance(scene, ground);
+  leaveInstance(scene, ground, resourceNodes);
   if (_preInstancePos) {
     player.position.set(_preInstancePos.x, 0, _preInstancePos.z);
     player.position.y = getPlayerGroundY(_preInstancePos.x, _preInstancePos.z);
@@ -393,6 +396,7 @@ function doBossLeave() {
   ui?.closeTaskBoard();
   ui?.setStatus("Left boss arena", "info");
   if (_instanceBanner) _instanceBanner.hidden = true;
+  _snakeBossGroup = null;
 }
 
 if (_instanceBanner) _instanceBanner.addEventListener("click", () => doBossLeave());
@@ -3599,6 +3603,7 @@ function animate(now) {
   if (causticMap) { causticMap.offset.x = t * 0.0034; causticMap.offset.y = -t * 0.0026; }
   skyMat.uniforms.uTime.value = t;
   updateWorld?.(t, player.position.x, player.position.z);
+  if (_snakeBossGroup) updateSnakeBoss(_snakeBossGroup, t);
 
   moveDir.set(0, 0, 0);
   camera.getWorldDirection(camForward);
