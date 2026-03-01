@@ -480,6 +480,7 @@ function craftEquipment(itemId) {
 
 function syncWornUI() {
   ui?.setWorn({ slots: { ...wornEquipment } });
+  ui?.setWornSkins?.({ unlocked: [...unlockedSlimeColors], selected: currentSlimeColorId });
   ui?.setBlacksmithCrafting({
     bagCounts: { ...inventory },
     combatLevel: getCombatLevel(),
@@ -1565,6 +1566,7 @@ function buyOrEquipSlimeColor(colorId) {
   setSlimeColor(nextColor);
   netClient.updateProfile({ color: nextColor });
   syncInventoryUI();
+  syncWornUI();
   ui?.setStatus(`Slime color equipped: ${entry.label}.`, "success");
   saveGame();
 }

@@ -1,4 +1,4 @@
-import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM } from "./config.js";
+import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP } from "./config.js";
 
 const TOOL_LABEL = {
   axe: "Axe",
@@ -43,6 +43,59 @@ export function initializeUI(options = {}) {
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
   if (!buttons.length || !panels.length || !title) return null;
+
+  function _buildEqTooltip(item, action, sellPrice, stars) {
+    const tip = document.createElement("div");
+    tip.className = "ui-eq-tooltip";
+    const name = document.createElement("div");
+    name.className = "ui-eq-tooltip-name";
+    name.textContent = item.label;
+    name.style.color = item.color;
+    tip.appendChild(name);
+    if (stars != null && stars > 0) {
+      const starsEl = document.createElement("div");
+      starsEl.className = "ui-eq-tooltip-stars";
+      starsEl.textContent = "\u2605".repeat(stars) + "\u2606".repeat(Math.max(0, 10 - stars));
+      tip.appendChild(starsEl);
+    }
+    const div1 = document.createElement("div");
+    div1.className = "ui-eq-tooltip-divider";
+    tip.appendChild(div1);
+    // Stats
+    for (const [label, val] of [["Attack", item.atk], ["Defense", item.def]]) {
+      const row = document.createElement("div");
+      row.className = "ui-eq-tooltip-stat";
+      const lbl = document.createElement("span");
+      lbl.className = "ui-eq-tooltip-stat-label";
+      lbl.textContent = label;
+      row.appendChild(lbl);
+      const v = document.createElement("span");
+      v.className = "ui-eq-tooltip-stat-val " + (val > 0 ? "pos" : "zero");
+      v.textContent = val > 0 ? `+${val}` : "0";
+      row.appendChild(v);
+      tip.appendChild(row);
+    }
+    // Level req
+    const req = document.createElement("div");
+    req.className = "ui-eq-tooltip-req";
+    req.textContent = `Requires Lv ${item.level}`;
+    tip.appendChild(req);
+    // Sell price
+    if (sellPrice) {
+      const sell = document.createElement("div");
+      sell.className = "ui-eq-tooltip-sell";
+      sell.textContent = `Sell: ${sellPrice}c`;
+      tip.appendChild(sell);
+    }
+    // Action hint
+    if (action) {
+      const act = document.createElement("div");
+      act.className = "ui-eq-tooltip-action";
+      act.textContent = action;
+      tip.appendChild(act);
+    }
+    return tip;
+  }
 
   const toolButtons = Array.from(document.querySelectorAll(".ui-tool-btn"));
   const uiRoot = document.getElementById("ui-root");
@@ -181,7 +234,10 @@ export function initializeUI(options = {}) {
         } else if (EQUIPMENT_ITEMS[itemType]) {
           const eqInfo = EQUIPMENT_ITEMS[itemType];
           slot.classList.add("is-equipment");
-          tip.textContent += `\nAtk: +${eqInfo.atk}  Def: +${eqInfo.def}\nLv ${eqInfo.level} required\nClick to equip`;
+          // Replace simple tooltip with rich one
+          tip.remove();
+          const eqTip = _buildEqTooltip(eqInfo, "Click to equip", sellVal, 0);
+          slot.appendChild(eqTip);
           slot.addEventListener("click", () => {
             if (typeof onEquipFromBag === "function") onEquipFromBag(i);
           });
@@ -702,11 +758,9 @@ export function initializeUI(options = {}) {
         name.textContent = item.label;
         name.style.color = item.color;
         slotEl.appendChild(name);
-        /* tooltip */
-        const tip = document.createElement("div");
-        tip.className = "ui-slot-tooltip";
-        tip.textContent = `${item.label}\nAtk: +${item.atk}  Def: +${item.def}\nLv ${item.level}\nClick to unequip`;
-        slotEl.appendChild(tip);
+        /* rich tooltip */
+        const eqTip = _buildEqTooltip(item, "Click to unequip", null, 0);
+        slotEl.appendChild(eqTip);
         totalAtk += item.atk;
         totalDef += item.def;
       } else {
@@ -716,6 +770,46 @@ export function initializeUI(options = {}) {
     }
     if (wornAtkEl) wornAtkEl.textContent = String(totalAtk);
     if (wornDefEl) wornDefEl.textContent = String(totalDef);
+  }
+
+  /* ── Worn tab: Skin selector ── */
+  const wornSkinGrid = document.getElementById("ui-worn-skin-grid");
+
+  function setWornSkins(payload = {}) {
+    if (!wornSkinGrid) return;
+    wornSkinGrid.innerHTML = "";
+    const unlocked = new Set(payload.unlocked || ["lime"]);
+    const selected = payload.selected || "lime";
+    for (const skin of SLIME_COLOR_SHOP) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "ui-worn-skin-btn";
+      const owned = unlocked.has(skin.id);
+      if (!owned) btn.classList.add("is-locked");
+      if (skin.id === selected) btn.classList.add("is-active");
+      const swatch = document.createElement("span");
+      swatch.className = "ui-worn-skin-swatch";
+      if (skin.pattern) {
+        swatch.classList.add("ui-dye-pattern");
+        // reuse the inline gradient from store buttons
+        const storeBtn = document.querySelector(`.ui-dye-btn[data-store-color="${skin.id}"] .ui-dye-swatch`);
+        if (storeBtn) swatch.style.background = getComputedStyle(storeBtn).background;
+        else swatch.style.background = skin.color;
+      } else {
+        swatch.style.background = skin.color;
+      }
+      btn.appendChild(swatch);
+      const label = document.createElement("span");
+      label.textContent = skin.label;
+      btn.appendChild(label);
+      if (owned) {
+        btn.addEventListener("click", () => {
+          if (typeof options.onStoreColor === "function") options.onStoreColor(skin.id);
+        });
+      }
+      btn.title = owned ? (skin.id === selected ? "Equipped" : "Click to equip") : `Locked (${skin.cost}c at Store)`;
+      wornSkinGrid.appendChild(btn);
+    }
   }
 
   /* ── Blacksmith Equipment Crafting ── */
@@ -781,6 +875,7 @@ export function initializeUI(options = {}) {
     setVolumeSlider,
     setMusicSlider,
     setWorn,
+    setWornSkins,
     setBlacksmithCrafting,
   };
 }

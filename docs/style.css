@@ -167,8 +167,9 @@ body {
   top: calc(16px + env(safe-area-inset-top));
   right: calc(16px + env(safe-area-inset-right));
   width: min(300px, calc(100vw - 32px));
-  max-height: min(44vh, 420px);
-  overflow: hidden;
+  max-height: min(60vh, 540px);
+  overflow-y: auto;
+  scrollbar-width: thin;
   border: none;
   border-radius: 0;
   background: none;
@@ -282,12 +283,13 @@ body {
 }
 .ui-bank-overlay[hidden] { display: none; }
 .ui-bank-modal {
-  background: var(--ui-bg);
-  border: 2px solid var(--ui-border);
+  background: rgba(12, 18, 28, 0.95);
+  border: 2px solid rgba(255,255,255,0.12);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
   width: min(520px, 92vw);
-  max-height: min(480px, 80vh);
+  max-height: min(520px, 85vh);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -297,7 +299,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
 }
 .ui-bank-modal-title {
@@ -322,7 +324,7 @@ body {
   gap: 6px;
   padding: 8px 16px;
   flex-shrink: 0;
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .ui-bank-qty-label {
   font-family: var(--ui-font-body);
@@ -976,8 +978,10 @@ body {
 
 
 /* ── Emotes ── */
-[data-tab-panel="emotes"] {
-  max-height: min(38vh, 360px);
+[data-tab-panel="emotes"],
+[data-tab-panel="skills"],
+[data-tab-panel="worn"] {
+  max-height: min(50vh, 460px);
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -1394,7 +1398,7 @@ body {
     right: calc(10px + env(safe-area-inset-right));
     top: calc(116px + env(safe-area-inset-top));
     width: auto;
-    max-height: min(50vh, 400px);
+    max-height: min(55vh, 460px);
     padding: 4px 6px 5px;
     transition: opacity 160ms ease, transform 160ms ease;
   }
@@ -1835,6 +1839,62 @@ body {
   display: block;
 }
 
+/* ── Worn tab skin section ── */
+.ui-worn-skin-section {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.ui-worn-skin-heading {
+  margin: 0 0 6px !important;
+  font-size: 13px !important;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ui-accent-1) !important;
+}
+.ui-worn-skin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.ui-worn-skin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 4px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: var(--ui-btn-bg);
+  color: var(--ui-ink-2);
+  font-family: var(--ui-font-body);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-shadow: var(--ui-text-shadow);
+  transition: background 0.12s, border-color 0.12s;
+}
+.ui-worn-skin-btn:hover {
+  background: var(--ui-btn-bg-hover);
+}
+.ui-worn-skin-btn.is-active {
+  border-color: rgba(24,184,154,0.5);
+  background: var(--ui-btn-bg-active);
+  color: var(--ui-ink-1);
+}
+.ui-worn-skin-btn.is-locked {
+  opacity: 0.35;
+  cursor: default;
+}
+.ui-worn-skin-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
 /* ── Blacksmith crafting divider ── */
 .ui-smith-craft-divider {
   margin: 10px 0 6px;
@@ -1853,4 +1913,76 @@ body {
 }
 .ui-bag-slot.is-equipment:hover {
   background: rgba(64,224,208,0.15);
+}
+
+/* ── Rich equipment tooltip ── */
+.ui-eq-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(8, 12, 24, 0.95);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f0f0f0;
+  font-family: var(--ui-font-body);
+  font-size: 11px;
+  line-height: 1.5;
+  pointer-events: none;
+  z-index: 300;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  min-width: 120px;
+  white-space: nowrap;
+}
+.ui-bag-slot:hover .ui-eq-tooltip,
+.ui-worn-slot:hover .ui-eq-tooltip {
+  display: block;
+}
+.ui-eq-tooltip-name {
+  font-weight: 700;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.ui-eq-tooltip-stars {
+  font-size: 10px;
+  color: #ffe680;
+  letter-spacing: 1px;
+  margin-bottom: 3px;
+}
+.ui-eq-tooltip-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 4px 0;
+}
+.ui-eq-tooltip-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ui-eq-tooltip-stat-label {
+  color: rgba(255,255,255,0.55);
+}
+.ui-eq-tooltip-stat-val {
+  font-weight: 700;
+}
+.ui-eq-tooltip-stat-val.pos { color: #5cff8a; }
+.ui-eq-tooltip-stat-val.zero { color: rgba(255,255,255,0.3); }
+.ui-eq-tooltip-req {
+  margin-top: 3px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+}
+.ui-eq-tooltip-req.met { color: rgba(92,255,138,0.6); }
+.ui-eq-tooltip-req.unmet { color: #ff6b6b; }
+.ui-eq-tooltip-action {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--ui-accent-1);
+  text-align: center;
+}
+.ui-eq-tooltip-sell {
+  font-size: 10px;
+  color: #ffe680;
 }

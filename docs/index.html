@@ -66,32 +66,6 @@
         <p id="ui-status-line" class="ui-status" data-tone="info"></p>
       </section>
       <section class="ui-panel-section" data-tab-panel="bank" hidden></section>
-
-    <!-- Bank overlay (centered modal) -->
-    <div id="ui-bank-overlay" class="ui-bank-overlay" hidden>
-      <div class="ui-bank-modal">
-        <div class="ui-bank-modal-header">
-          <span class="ui-bank-modal-title">&#x1F4E6; Bank</span>
-          <button type="button" id="ui-bank-close" class="ui-bank-close-btn">&times;</button>
-        </div>
-        <div class="ui-bank-qty-bar">
-          <span class="ui-bank-qty-label">Amount:</span>
-          <button type="button" class="ui-bank-qty-btn is-active" data-bank-qty="1">1</button>
-          <button type="button" class="ui-bank-qty-btn" data-bank-qty="5">5</button>
-          <button type="button" class="ui-bank-qty-btn" data-bank-qty="all">All</button>
-        </div>
-        <div class="ui-bank-modal-body">
-          <div class="ui-bank-col">
-            <h3 class="ui-bank-col-label">Bank Storage <small>(click to withdraw)</small></h3>
-            <div id="ui-bank-vault-grid" class="ui-bank-grid"></div>
-          </div>
-          <div class="ui-bank-col">
-            <h3 class="ui-bank-col-label">Inventory <small>(click to deposit)</small></h3>
-            <div id="ui-bank-inv-grid" class="ui-bank-grid"></div>
-          </div>
-        </div>
-      </div>
-    </div>
       <section class="ui-panel-section" data-tab-panel="blacksmith" hidden>
         <div class="ui-smith-list">
           <div class="ui-smith-row">
@@ -327,6 +301,10 @@
             <span class="ui-worn-stat">Def: <b id="ui-worn-def">0</b></span>
           </div>
         </div>
+        <div class="ui-worn-skin-section">
+          <p class="ui-worn-skin-heading">Skin</p>
+          <div id="ui-worn-skin-grid" class="ui-worn-skin-grid"></div>
+        </div>
       </section>
     </aside>
   </div>
@@ -428,6 +406,32 @@
         <span>Worn</span>
         <button type="button" class="ui-hotkey-set-btn">Set</button>
         <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+    </div>
+  </div>
+  <!-- Bank overlay (outside ui-root so it's not clipped) -->
+  <div id="ui-bank-overlay" class="ui-bank-overlay" hidden>
+    <div class="ui-bank-modal">
+      <div class="ui-bank-modal-header">
+        <span class="ui-bank-modal-title">&#x1F4E6; Bank</span>
+        <button type="button" id="ui-bank-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-bank-qty-bar">
+        <span class="ui-bank-qty-label">Amount:</span>
+        <button type="button" class="ui-bank-qty-btn is-active" data-bank-qty="1">1</button>
+        <button type="button" class="ui-bank-qty-btn" data-bank-qty="5">5</button>
+        <button type="button" class="ui-bank-qty-btn" data-bank-qty="10">10</button>
+        <button type="button" class="ui-bank-qty-btn" data-bank-qty="all">All</button>
+      </div>
+      <div class="ui-bank-modal-body">
+        <div class="ui-bank-col">
+          <h3 class="ui-bank-col-label">Bank Storage <small>(click to withdraw)</small></h3>
+          <div id="ui-bank-vault-grid" class="ui-bank-grid"></div>
+        </div>
+        <div class="ui-bank-col">
+          <h3 class="ui-bank-col-label">Inventory <small>(click to deposit)</small></h3>
+          <div id="ui-bank-inv-grid" class="ui-bank-grid"></div>
+        </div>
       </div>
     </div>
   </div>
