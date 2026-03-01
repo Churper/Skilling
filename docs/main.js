@@ -199,6 +199,9 @@ function registerAnimal(hsNode, parentModel) {
     wanderTarget: null, hpBar, hpFill, respawnTimer: 0,
     origScale: parentModel.scale.x,
     aggro: false, aggroTarget: null, lastHitTime: 0, attackCooldown: 0,
+    chunkX: Math.round(spawnPos.x / CHUNK_SIZE),
+    chunkZ: Math.round(spawnPos.z / CHUNK_SIZE),
+    _hidden: false,
   });
   console.log(`Registered animal: ${type} at pos(${spawnPos.x.toFixed(1)}, ${spawnPos.y.toFixed(1)}, ${spawnPos.z.toFixed(1)}) modelPos(${parentModel.position.x.toFixed(1)}, ${parentModel.position.z.toFixed(1)})`);
 }
@@ -1829,18 +1832,22 @@ function updateAnimals(dt) {
     if (!inInstance && isBoss) continue;
     /* only update animals in player's exact chunk (skip for boss) */
     if (!isBoss) {
-      const acx = Math.round(a.spawnPos.x / CHUNK_SIZE), acz = Math.round(a.spawnPos.z / CHUNK_SIZE);
-      if (acx !== playerCX || acz !== playerCZ) {
-        a.parentModel.visible = false;
-        a.parentModel.traverse(c => { c.visible = false; });
-        a.hpBar.dataset.state = "hidden";
+      if (a.chunkX !== playerCX || a.chunkZ !== playerCZ) {
+        if (!a._hidden) {
+          a._hidden = true;
+          a.parentModel.visible = false;
+          a.parentModel.traverse(c => { c.visible = false; });
+          a.hpBar.dataset.state = "hidden";
+        }
         continue;
       }
+      if (a._hidden) {
+        a._hidden = false;
+        a.parentModel.visible = true;
+        a.parentModel.traverse(c => { c.visible = true; });
+        a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
+      }
     }
-    a.parentModel.visible = true;
-    a.parentModel.traverse(c => { c.visible = true; });
-    /* snap to ground when becoming visible (skip boss — controlled by updateSnakeBoss) */
-    if (!isBoss) a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
     if (!a.alive) {
       /* death shrink animation */
       if (a._deathAnim) {
