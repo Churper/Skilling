@@ -199,12 +199,14 @@ export const SHOP_EQUIPMENT = [
 ];
 
 export const BAG_ITEM_KEYS = ["fish", "ore", "logs", "Raw Beef", "Raw Pork", "Wool", "Horse Hide", "Llama Wool", "Bone", "Striped Hide", "Health Potion", "Mana Potion", "Cooked Fish", "Cooked Beef", "Cooked Pork", "Burnt Food",
+  "Bird Nest", "Uncut Gem", "Golden Fish",
   ...Object.keys(EQUIPMENT_ITEMS)];
 
 export const SELL_PRICE_BY_ITEM = {
   fish: 4, ore: 7, logs: 5, "Raw Beef": 8, "Raw Pork": 6,
   "Wool": 5, "Horse Hide": 10, "Llama Wool": 7, "Bone": 3, "Striped Hide": 12,
   "Cooked Fish": 8, "Cooked Beef": 14, "Cooked Pork": 10, "Burnt Food": 1,
+  "Bird Nest": 25, "Uncut Gem": 30, "Golden Fish": 35,
   ...Object.fromEntries(Object.entries(EQUIPMENT_ITEMS).map(([id, item]) => {
     const tierIdx = ["bronze","iron","steel","mithril","adamant","rune"].indexOf(item.tier);
     return [id, Math.max(3, 5 + tierIdx * 8 + (item.atk + item.def))];
@@ -229,6 +231,16 @@ export const ITEM_RARITY = {
   "Cooked Beef":  { rarity: "rare",     tint: "rgba(70,130,255,0.12)",  color: "#5ea0ff" },
   "Cooked Pork":  { rarity: "uncommon", tint: "rgba(100,200,100,0.10)", color: "#6ec86e" },
   "Burnt Food":   { rarity: "common",   tint: "rgba(100,100,100,0.06)", color: "#888" },
+  "Bird Nest":    { rarity: "rare",     tint: "rgba(70,130,255,0.12)",  color: "#5ea0ff" },
+  "Uncut Gem":    { rarity: "rare",     tint: "rgba(180,80,255,0.14)",  color: "#b050ff" },
+  "Golden Fish":  { rarity: "rare",     tint: "rgba(255,200,50,0.14)",  color: "#ffcc33" },
+};
+
+/* ── Rare bonus drops from gathering (pop out onto ground) ── */
+export const RARE_GATHER_DROPS = {
+  woodcutting: { item: "Bird Nest",   chance: 0.04 },
+  mining:      { item: "Uncut Gem",   chance: 0.035 },
+  fishing:     { item: "Golden Fish", chance: 0.03 },
 };
 
 export const SLIME_COLOR_SHOP = [

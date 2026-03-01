@@ -34,6 +34,9 @@ const ITEM_ICON = {
   "Cooked Beef": "\u{1F356}",
   "Cooked Pork": "\u{1F969}",
   "Burnt Food": "\u{1F4A8}",
+  "Bird Nest": "\u{1FAA8}",
+  "Uncut Gem": "\u{1F48E}",
+  "Golden Fish": "\u{1F420}",
 };
 
 const ITEM_LABEL = {
@@ -46,7 +49,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel, onDropItem } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -357,6 +360,13 @@ export function initializeUI(options = {}) {
         const empty = document.createElement("span");
         empty.className = "ui-bag-slot-empty";
         slot.append(empty);
+      }
+      /* Right-click to drop item */
+      if (itemType) {
+        slot.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          if (typeof onDropItem === "function") onDropItem(i);
+        });
       }
       inventoryGridEl.append(slot);
     }

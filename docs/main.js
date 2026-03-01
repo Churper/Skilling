@@ -37,6 +37,8 @@ import {
   STAR_ATK_PER,
   STAR_DEF_PER,
   SHOP_EQUIPMENT,
+  RARE_GATHER_DROPS,
+  ITEM_RARITY,
 } from "./game/config.js";
 import { createBagSystem } from "./game/systems/bagSystem.js";
 import { createConstructionProgress } from "./game/systems/constructionProgress.js";
@@ -399,6 +401,7 @@ const ui = initializeUI({
   onTradeRemoveItem: (offerIdx) => tradeRemoveItem(offerIdx),
   onTradeAccept: () => tradeAccept(),
   onTradeCancel: () => tradeCancel(),
+  onDropItem: (slotIndex) => dropFromInventory(slotIndex),
 });
 
 function getCombatToolForStyle(style) {
@@ -952,6 +955,11 @@ netClient = createRealtimeClient({
     removeOverheadIcon(id);
     removeRemoteCampfire(id);
     _peerWasJumping.delete(id);
+    /* cleanup peer drops */
+    const peerPrefix = `peer:${id}:`;
+    for (const [did] of worldDrops) {
+      if (did.startsWith(peerPrefix)) removeWorldDrop(did);
+    }
     if (tradePartnerId === id) {
       resetTrade();
       ui?.closeTrade?.();
@@ -992,6 +1000,30 @@ netClient = createRealtimeClient({
         if (dist < 30) {
           const vol = Math.max(0.05, 1 - dist / 30);
           playJumpLandSound(vol);
+        }
+      }
+      /* sync peer drops — spawn/remove as needed */
+      const peerDrops = Array.isArray(msg.state.drops) ? msg.state.drops : [];
+      const peerKey = `peer:${msg.id}:`;
+      const peerDropIds = new Set(peerDrops.map(d => peerKey + d.id));
+      // remove drops that peer no longer has
+      for (const [id] of worldDrops) {
+        if (id.startsWith(peerKey) && !peerDropIds.has(id)) removeWorldDrop(id);
+      }
+      // add new drops
+      for (const d of peerDrops) {
+        const fullId = peerKey + d.id;
+        if (!worldDrops.has(fullId)) {
+          const did = spawnWorldDrop(d.item, d.x, d.z);
+          const drop = worldDrops.get(did);
+          if (drop) {
+            worldDrops.delete(did);
+            drop.id = fullId;
+            // peer drops are view-only, remove hitspot from interactables
+            const hsIdx = resourceNodes.indexOf(drop.hs);
+            if (hsIdx >= 0) resourceNodes.splice(hsIdx, 1);
+            worldDrops.set(fullId, drop);
+          }
         }
       }
     }
@@ -1767,6 +1799,14 @@ function tryGather(node) {
     spawnFloatingDrop(successPos.x - 0.14, successPos.z + 0.1, `${skillKey} Lv ${skills[skillKey].level}!`, "level");
     celebrateLevelUp(successPos.x, successPos.z);
   }
+  /* rare bonus drop — pops out onto the ground */
+  const rareDrop = RARE_GATHER_DROPS[resourceType];
+  if (rareDrop && Math.random() < rareDrop.chance) {
+    const rx = successPos.x + (Math.random() - 0.5) * 2;
+    const rz = successPos.z + (Math.random() - 0.5) * 2;
+    spawnWorldDrop(rareDrop.item, rx, rz);
+    spawnFloatingDrop(rx, rz, `Rare: ${rareDrop.item}!`, "level");
+  }
 }
 
 function startGather(node) {
@@ -2258,11 +2298,127 @@ const CROUCH_UP_SPEED = 2.5;   // slow uncrouch — hides keyrepeat flicker
 let _crouchHoldTimer = 0; // debounce: prevent flicker from Ctrl key quirks
 let _smoothGroundY = null; // smoothed ground Y to prevent micro-terrain jitter
 
+/* ── World Item Drops ── */
+const worldDrops = new Map(); // dropId → { id, itemKey, x, z, group, hs, orb, expireAt, stars }
+const DROP_LIFETIME = 120000; // 2 minutes
+const _dropOrbGeo = new THREE.SphereGeometry(0.18, 12, 8);
+const _dropRingGeo = new THREE.RingGeometry(0.15, 0.35, 16);
+const _dropHsGeo = new THREE.CylinderGeometry(0.6, 0.6, 1.2, 8);
+const _dropHsMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, depthTest: false });
+
+const _dropRarityColor = { common: "#c0c0c0", uncommon: "#6ec86e", rare: "#5ea0ff", equipment: "#ffcc44" };
+function _getDropColor(itemKey) {
+  const base = baseItemId(itemKey);
+  if (EQUIPMENT_ITEMS[base]) return _dropRarityColor.equipment;
+  const ir = ITEM_RARITY[base] || ITEM_RARITY[itemKey];
+  if (ir) return _dropRarityColor[ir.rarity] || _dropRarityColor.common;
+  return _dropRarityColor.common;
+}
+
+function spawnWorldDrop(itemKey, x, z, stars) {
+  const dropId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const group = new THREE.Group();
+  const groundY = getPlayerGroundY(x, z);
+  group.position.set(x, groundY, z);
+
+  const color = _getDropColor(itemKey);
+
+  // Glowing orb
+  const orbMat = new THREE.MeshToonMaterial({ color, emissive: color, emissiveIntensity: 0.5 });
+  const orb = new THREE.Mesh(_dropOrbGeo, orbMat);
+  orb.position.y = 0.5;
+  group.add(orb);
+
+  // Ground glow ring
+  const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide });
+  const ring = new THREE.Mesh(_dropRingGeo, ringMat);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.y = 0.05;
+  group.add(ring);
+
+  // Invisible hitspot for click detection
+  const hs = new THREE.Mesh(_dropHsGeo, _dropHsMat);
+  hs.position.y = 0.5;
+  hs.userData.serviceType = "world_drop";
+  hs.userData.dropId = dropId;
+  const eqData = EQUIPMENT_ITEMS[baseItemId(itemKey)];
+  hs.userData.resourceLabel = eqData ? eqData.label : itemKey;
+  group.add(hs);
+
+  scene.add(group);
+  resourceNodes.push(hs);
+
+  worldDrops.set(dropId, { id: dropId, itemKey, x, z, group, hs, orb, ring, ringMat, orbMat, expireAt: Date.now() + DROP_LIFETIME, stars: stars || 0 });
+  return dropId;
+}
+
+function removeWorldDrop(dropId) {
+  const drop = worldDrops.get(dropId);
+  if (!drop) return;
+  scene.remove(drop.group);
+  const idx = resourceNodes.indexOf(drop.hs);
+  if (idx >= 0) resourceNodes.splice(idx, 1);
+  drop.orbMat.dispose();
+  drop.ringMat.dispose();
+  worldDrops.delete(dropId);
+}
+
+function pickupWorldDrop(dropId) {
+  const drop = worldDrops.get(dropId);
+  if (!drop) return false;
+  if (bagIsFull()) {
+    ui?.setStatus("Bag full!", "warn");
+    spawnFloatingDrop(drop.x, drop.z, "Bag full!", "warn");
+    return false;
+  }
+  if (!bagSystem.addItem(drop.itemKey)) return false;
+  if (drop.stars > 0 && isEquipmentInstance(drop.itemKey)) itemStars[drop.itemKey] = drop.stars;
+  syncInventoryUI();
+  const eqData = EQUIPMENT_ITEMS[baseItemId(drop.itemKey)];
+  const label = eqData ? eqData.label : drop.itemKey;
+  spawnFloatingDrop(player.position.x, player.position.z, `+1 ${label}`, "item");
+  removeWorldDrop(dropId);
+  return true;
+}
+
+function dropFromInventory(slotIndex) {
+  const itemKey = bagSlots[slotIndex];
+  if (!itemKey) return;
+  const stars = isEquipmentInstance(itemKey) ? (itemStars[itemKey] || 0) : 0;
+  bagSlots[slotIndex] = null;
+  bagSystem.recount();
+  if (stars > 0) delete itemStars[itemKey];
+  syncInventoryUI();
+  const ox = (Math.random() - 0.5) * 1.5;
+  const oz = (Math.random() - 0.5) * 1.5;
+  spawnWorldDrop(itemKey, player.position.x + ox, player.position.z + oz, stars);
+}
+
+function cleanupExpiredDrops() {
+  const now = Date.now();
+  for (const [id, drop] of worldDrops) {
+    if (now >= drop.expireAt) removeWorldDrop(id);
+  }
+}
+
+function updateWorldDrops(dt, t) {
+  for (const drop of worldDrops.values()) {
+    drop.orb.position.y = 0.5 + Math.sin(t * 2.0) * 0.12;
+    drop.orb.rotation.y += dt * 1.5;
+  }
+}
+
 function runServiceAction(node) {
   const serviceType = node.userData.serviceType;
   if (!serviceType) return;
 
   if (serviceType === "cave" || serviceType === "cave_exit") return;
+
+  if (serviceType === "world_drop") {
+    const dropId = node.userData.dropId;
+    pickupWorldDrop(dropId);
+    return;
+  }
 
   if (serviceType === "campfire") {
     startCooking();
@@ -2810,32 +2966,20 @@ function killAnimal(a) {
   a.hpBar.dataset.state = "hidden";
   a.aggro = false;
   a.aggroTarget = null;
-  /* loot drop */
+  /* loot drops on ground */
   const lootName = ANIMAL_LOOT[a.type];
+  const p = new THREE.Vector3();
+  a.parentModel.getWorldPosition(p);
   if (lootName) {
-    const added = bagSystem.addItem(lootName);
-    if (added) {
-      syncInventoryUI();
-      const p = new THREE.Vector3();
-      a.parentModel.getWorldPosition(p);
-      spawnFloatingDrop(p.x, p.z, `+1 ${lootName}`, "item");
-    } else {
-      const p = new THREE.Vector3();
-      a.parentModel.getWorldPosition(p);
-      spawnFloatingDrop(p.x, p.z, "Bag full!", "warn");
-    }
+    spawnWorldDrop(lootName, p.x + (Math.random() - 0.5), p.z + (Math.random() - 0.5));
   }
   /* equipment drop chance */
   const dropTable = MONSTER_EQUIPMENT_DROPS[a.type];
   if (dropTable && Math.random() < dropTable.chance) {
-    const dropId = dropTable.items[Math.floor(Math.random() * dropTable.items.length)];
-    const dropItem = EQUIPMENT_ITEMS[dropId];
-    if (dropItem && !bagSystem.isFull()) {
-      bagSystem.addItem(mintEquipId(dropId));
-      syncInventoryUI();
-      const p2 = new THREE.Vector3();
-      a.parentModel.getWorldPosition(p2);
-      spawnFloatingDrop(p2.x + 0.2, p2.z - 0.2, `+1 ${dropItem.label}`, "item");
+    const eqBaseId = dropTable.items[Math.floor(Math.random() * dropTable.items.length)];
+    const dropItem = EQUIPMENT_ITEMS[eqBaseId];
+    if (dropItem) {
+      spawnWorldDrop(mintEquipId(eqBaseId), p.x + (Math.random() - 0.5) * 0.8, p.z + (Math.random() - 0.5) * 0.8);
     }
   }
   /* death animation — shrink to 0 */
@@ -2894,6 +3038,29 @@ function onInteractNode(node, hitPoint) {
       return;
     }
     startActiveAttack(node);
+    return;
+  }
+
+  // World drop: walk to it and pick up
+  if (node.userData?.serviceType === "world_drop") {
+    const dropId = node.userData.dropId;
+    const drop = worldDrops.get(dropId);
+    if (!drop) return;
+    const dPos = interactPos;
+    node.getWorldPosition(dPos);
+    spawnClickEffect(dPos.x, dPos.z, "neutral");
+    const distance = dPos.distanceTo(player.position);
+    if (distance > 2.2) {
+      pendingResource = null;
+      activeGather = null;
+      activeAttack = null;
+      pendingService = node;
+      pendingServicePos.set(drop.x, getPlayerGroundY(drop.x, drop.z), drop.z);
+      setMoveTarget(pendingServicePos, true);
+      ui?.setStatus(`Walking to ${node.userData.resourceLabel}...`, "info");
+      return;
+    }
+    pickupWorldDrop(dropId);
     return;
   }
 
@@ -3021,6 +3188,10 @@ function getTooltipText(node) {
     const a = animals.find(a => a.parentModel === node);
     if (a && a.alive) return `${a.type}\nHP ${a.hp}/${a.maxHp}`;
     return null;
+  }
+  /* world drops */
+  if (ud.serviceType === "world_drop") {
+    return `${ud.resourceLabel}\nClick to pick up`;
   }
   /* dummies */
   if (ud.serviceType === "dummy") return "Training Dummy\nAttack to train combat";
@@ -3290,14 +3461,14 @@ function animate(now) {
     _jumpVelocity = JUMP_FORCE;
   }
 
-  /* Crouch (debounced — Ctrl key can flicker on Windows) */
+  /* Crouch — debounce with generous window to handle Ctrl key repeat quirks on Windows */
   const wantCrouch = input.keys.has("control") && !_isJumping;
   if (wantCrouch) {
     _isCrouching = true;
     _crouchHoldTimer = 0;
   } else {
     _crouchHoldTimer += dt;
-    if (_crouchHoldTimer > 0.06) _isCrouching = false;
+    if (_crouchHoldTimer > 0.25) _isCrouching = false;
   }
 
   const keyboardMove = moveDir.lengthSq() > 0.0001;
@@ -3487,6 +3658,8 @@ function animate(now) {
   updateNameTags();
   updateOverheadIcons();
   updateFloatingDrops(dt);
+  updateWorldDrops(dt, t);
+  cleanupExpiredDrops();
   /* lazy-register animals from async-loaded chunks (check every ~2s) */
   if (Math.random() < dt * 0.5) scanForNewAnimals();
   updateAnimals(dt);
@@ -3551,6 +3724,7 @@ function animate(now) {
       mage: skills.mage.level,
       cooking: skills.cooking.level,
     },
+    drops: Array.from(worldDrops.values()).map(d => ({ id: d.id, item: d.itemKey, x: d.x, z: d.z })),
   });
 
   /* auto-save periodically */

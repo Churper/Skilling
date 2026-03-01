@@ -191,6 +191,12 @@ wss.on("connection", (ws) => {
         campfireZ: state.campfireZ != null ? Number(state.campfireZ) : null,
         combatStyle: typeof state.combatStyle === "string" ? state.combatStyle : "melee",
         tool: typeof state.tool === "string" ? state.tool : "fishing",
+        drops: Array.isArray(state.drops) ? state.drops.slice(0, 30).map(d => ({
+          id: typeof d.id === "string" ? d.id.slice(0, 20) : "",
+          item: typeof d.item === "string" ? d.item.slice(0, 40) : "",
+          x: Number(d.x) || 0,
+          z: Number(d.z) || 0,
+        })) : [],
         totalLevel: Number(state.totalLevel) || 6,
         skills: state.skills && typeof state.skills === "object" ? {
           fishing: Number(state.skills.fishing) || 1,
