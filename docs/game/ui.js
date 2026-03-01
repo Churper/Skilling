@@ -1,4 +1,4 @@
-import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP, STAR_MAX, STAR_COSTS, STAR_SUCCESS, STAR_DESTROY, STAR_DOWNGRADE, STAR_ATK_PER, STAR_DEF_PER, STAR_TIMING_BONUS } from "./config.js";
+import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP, STAR_MAX, STAR_COSTS, STAR_SUCCESS, STAR_DESTROY, STAR_DOWNGRADE, STAR_ATK_PER, STAR_DEF_PER, STAR_TIMING_BONUS, ITEM_RARITY } from "./config.js";
 
 function baseItemId(id) { return id ? id.split("#")[0] : id; }
 function isNote(id) { return typeof id === "string" && id.startsWith("note:"); }
@@ -278,6 +278,11 @@ export function initializeUI(options = {}) {
         icon.className = "ui-bag-slot-icon";
         icon.textContent = iconChar;
         slot.append(icon);
+        /* rarity tint for all items */
+        if (!eqData) {
+          const ir = ITEM_RARITY[itemType];
+          if (ir?.tint) slot.style.background = ir.tint;
+        }
         /* styled tooltip */
         const tip = document.createElement("div");
         tip.className = "ui-slot-tooltip";
@@ -494,6 +499,9 @@ export function initializeUI(options = {}) {
       if (eqB?.tier) {
         const td = EQUIPMENT_TIERS[eqB.tier];
         if (td?.tint) slot.style.background = td.tint;
+      } else {
+        const ir = ITEM_RARITY[itemType];
+        if (ir?.tint) slot.style.background = ir.tint;
       }
       slot.addEventListener("click", onClick);
     } else {

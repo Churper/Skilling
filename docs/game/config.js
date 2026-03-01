@@ -194,6 +194,26 @@ export const SELL_PRICE_BY_ITEM = {
   })),
 };
 
+/* ── Item rarity for non-equipment items ── */
+export const ITEM_RARITY = {
+  fish:           { rarity: "common",   tint: "rgba(180,180,180,0.08)", color: "#b0b0b0" },
+  ore:            { rarity: "common",   tint: "rgba(180,180,180,0.08)", color: "#b0b0b0" },
+  logs:           { rarity: "common",   tint: "rgba(180,180,180,0.08)", color: "#b0b0b0" },
+  "Raw Beef":     { rarity: "uncommon", tint: "rgba(100,200,100,0.10)", color: "#6ec86e" },
+  "Raw Pork":     { rarity: "uncommon", tint: "rgba(100,200,100,0.10)", color: "#6ec86e" },
+  "Wool":         { rarity: "common",   tint: "rgba(180,180,180,0.08)", color: "#b0b0b0" },
+  "Horse Hide":   { rarity: "uncommon", tint: "rgba(100,200,100,0.10)", color: "#6ec86e" },
+  "Llama Wool":   { rarity: "uncommon", tint: "rgba(100,200,100,0.10)", color: "#6ec86e" },
+  "Bone":         { rarity: "common",   tint: "rgba(180,180,180,0.08)", color: "#b0b0b0" },
+  "Striped Hide": { rarity: "rare",     tint: "rgba(70,130,255,0.12)",  color: "#5ea0ff" },
+  "Health Potion": { rarity: "uncommon", tint: "rgba(255,100,100,0.10)", color: "#ff6b6b" },
+  "Mana Potion":  { rarity: "uncommon", tint: "rgba(100,150,255,0.10)", color: "#6b9fff" },
+  "Cooked Fish":  { rarity: "uncommon", tint: "rgba(100,200,100,0.10)", color: "#6ec86e" },
+  "Cooked Beef":  { rarity: "rare",     tint: "rgba(70,130,255,0.12)",  color: "#5ea0ff" },
+  "Cooked Pork":  { rarity: "uncommon", tint: "rgba(100,200,100,0.10)", color: "#6ec86e" },
+  "Burnt Food":   { rarity: "common",   tint: "rgba(100,100,100,0.06)", color: "#888" },
+};
+
 export const SLIME_COLOR_SHOP = [
   { id: "lime", label: "Lime", color: "#58df78", cost: 0 },
   { id: "mint", label: "Mint", color: "#79f0b2", cost: 40 },
