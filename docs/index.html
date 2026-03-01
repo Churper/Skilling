@@ -460,6 +460,23 @@
       </div>
     </div>
   </div>
+  <!-- Task Board overlay -->
+  <div id="ui-task-overlay" class="ui-task-overlay" hidden>
+    <div class="ui-task-modal">
+      <div class="ui-task-modal-header">
+        <span class="ui-task-modal-title">&#x1F4CB; Task Board</span>
+        <button type="button" id="ui-task-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-task-modal-body">
+        <div id="ui-task-active" class="ui-task-active" hidden>
+          <h3 class="ui-task-section-label">Active Task</h3>
+          <div id="ui-task-active-content"></div>
+        </div>
+        <h3 class="ui-task-section-label">Available Tasks</h3>
+        <div id="ui-task-list" class="ui-task-list"></div>
+      </div>
+    </div>
+  </div>
   <!-- Blacksmith overlay -->
   <div id="ui-smith-overlay" class="ui-smith-overlay" hidden>
     <div class="ui-smith-modal">

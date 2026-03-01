@@ -878,11 +878,13 @@ const SERVICE_TAG = {
   "Prop_Treasure_Chest": { service: "bank", label: "Bank Chest" },
   "Market_Stalls": { service: "store", label: "General Store" },
   "Svc_Blacksmith": { service: "blacksmith", label: "Blacksmith Forge" },
+  "Svc_TaskBoard": { service: "taskboard", label: "Task Board" },
 };
 /* Register Svc_Bank in file lookup so it loads the chest model */
 _fileLookup["Svc_Bank"] = "models/terrain/Prop_Treasure_Chest.glb";
 _fileLookup["Market_Stalls"] = "models/terrain/Market_Stalls.glb";
 _fileLookup["Svc_Blacksmith"] = "models/terrain/Workbench.glb";
+_fileLookup["Svc_TaskBoard"] = "models/terrain/Market_Stalls.glb";
 _fileLookup["Farm"] = "models/terrain/Farm.glb";
 for (const a of ["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra"])
   _fileLookup[a] = "models/terrain/" + a + ".glb";

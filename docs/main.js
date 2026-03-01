@@ -28,6 +28,7 @@ import {
   EQUIPMENT_RECIPES,
   EQUIPMENT_TIERS,
   MONSTER_EQUIPMENT_DROPS,
+  TASK_BOARD_TASKS,
   STAR_MAX,
   STAR_COSTS,
   STAR_SUCCESS,
@@ -253,6 +254,7 @@ function saveGame() {
       pz: player.position.z,
       volume: _masterVolume,
       musicVolume: _musicGain.gain.value,
+      activeTask,
       v: 1,
     };
     for (const [k, s] of Object.entries(skills)) data.skills[k] = { xp: s.xp, level: s.level };
@@ -295,7 +297,73 @@ function loadGame() {
     if (d.px != null) { player.position.x = d.px; player.position.z = d.pz; }
     if (d.volume != null) { setVolume(d.volume); }
     if (d.musicVolume != null) { _musicGain.gain.value = d.musicVolume; _musicMuted = d.musicVolume === 0; }
+    if (d.activeTask) activeTask = d.activeTask;
   } catch (e) { console.warn("Load save failed:", e); }
+}
+
+/* ── Task Board state ── */
+let activeTask = null;    // { ...taskDef, progress: 0 }
+let completedTasks = new Set(); // not used for blocking — tasks are repeatable
+
+function getTaskBoardState() {
+  const bagCounts = {};
+  for (const slot of bagSystem.slots) {
+    if (slot) bagCounts[slot] = (bagCounts[slot] || 0) + 1;
+  }
+  return { tasks: TASK_BOARD_TASKS, activeTask, bagCounts };
+}
+
+function acceptTask(taskId) {
+  if (activeTask) return;
+  const def = TASK_BOARD_TASKS.find(t => t.id === taskId);
+  if (!def) return;
+  activeTask = { ...def, progress: 0 };
+  ui?.setStatus(`Task accepted: ${def.label}`, "info");
+  ui?.openTaskBoard(getTaskBoardState());
+  saveGame();
+}
+
+function turnInTask() {
+  if (!activeTask) return;
+  const req = activeTask.require;
+  if (req.kill) {
+    if ((activeTask.progress || 0) < req.qty) { ui?.setStatus("Task not complete yet!", "warn"); return; }
+  } else if (req.item) {
+    const have = bagSystem.slots.filter(s => s === req.item).length;
+    if (have < req.qty) { ui?.setStatus(`Need ${req.qty} ${req.item} (have ${have})`, "warn"); return; }
+    // consume items
+    let toRemove = req.qty;
+    for (let i = 0; i < bagSystem.slots.length && toRemove > 0; i++) {
+      if (bagSystem.slots[i] === req.item) { bagSystem.slots[i] = null; toRemove--; }
+    }
+    bagSystem.recount();
+  }
+  // award rewards
+  const reward = activeTask.reward;
+  if (reward.coins) coins += reward.coins;
+  if (reward.xp) {
+    for (const [skill, amount] of Object.entries(reward.xp)) {
+      if (skills[skill]) {
+        skills[skill].xp += amount;
+        skills[skill].level = xpToLevel(skills[skill].xp);
+      }
+    }
+  }
+  const label = activeTask.label;
+  completedTasks.add(activeTask.id);
+  activeTask = null;
+  syncInventoryUI();
+  ui?.setStatus(`Task complete: ${label}! Rewards granted.`, "success");
+  ui?.openTaskBoard(getTaskBoardState());
+  saveGame();
+}
+
+function abandonTask() {
+  if (!activeTask) return;
+  ui?.setStatus(`Abandoned task: ${activeTask.label}`, "warn");
+  activeTask = null;
+  ui?.openTaskBoard(getTaskBoardState());
+  saveGame();
 }
 
 const onlineConfig = resolveOnlineConfig();
@@ -402,6 +470,9 @@ const ui = initializeUI({
   onTradeAccept: () => tradeAccept(),
   onTradeCancel: () => tradeCancel(),
   onDropItem: (slotIndex) => dropFromInventory(slotIndex),
+  onTaskAccept: (taskId) => acceptTask(taskId),
+  onTaskTurnIn: () => turnInTask(),
+  onTaskAbandon: () => abandonTask(),
 });
 
 function getCombatToolForStyle(style) {
@@ -1737,6 +1808,7 @@ function setMoveTarget(point, preservePending = false) {
   hasMoveTarget = true;
   if (ui?.isBankOpen?.()) ui.closeBank();
   if (ui?.isBlacksmithOpen?.()) ui.closeBlacksmith();
+  if (ui?.isTaskBoardOpen?.()) ui.closeTaskBoard();
   marker.visible = true;
   const waterY = getWaterSurfaceHeight(markerTarget.x, markerTarget.z, waterUniforms.uTime.value);
   markerOnWater = Number.isFinite(waterY);
@@ -2472,6 +2544,11 @@ function runServiceAction(node) {
     return;
   }
 
+  if (serviceType === "taskboard") {
+    ui?.openTaskBoard(getTaskBoardState());
+    return;
+  }
+
   if (serviceType === "construction") {
     const deposited = consumeBuildMaterialsFromBag();
     if (deposited.total <= 0) {
@@ -3011,6 +3088,12 @@ function killAnimal(a) {
       spawnWorldDrop(mintEquipId(eqBaseId), p.x + (Math.random() - 0.5) * 0.8, p.z + (Math.random() - 0.5) * 0.8);
     }
   }
+  /* task board kill tracking */
+  if (activeTask && activeTask.require.kill === a.type) {
+    activeTask.progress = (activeTask.progress || 0) + 1;
+    const req = activeTask.require;
+    ui?.setStatus(`Task progress: ${activeTask.progress}/${req.qty} ${req.kill}`, "info");
+  }
   /* death animation — shrink to 0 */
   a._deathAnim = { elapsed: 0, duration: 0.5 };
 }
@@ -3229,6 +3312,7 @@ function getTooltipText(node) {
   if (ud.serviceType === "store") return "General Store\nBuy & sell items";
   if (ud.serviceType === "blacksmith") return "Blacksmith\nUpgrade tools";
   if (ud.serviceType === "construction") return "Construction Site\nBuild your house";
+  if (ud.serviceType === "taskboard") return "Task Board\nClick for quests";
   if (ud.serviceType === "campfire") return "Campfire\nClick to cook";
   if (ud.resourceLabel) return ud.resourceLabel;
   return null;
@@ -3502,6 +3586,7 @@ function animate(now) {
     activeAttack = null;
     if (ui?.isBankOpen?.()) ui.closeBank();
     if (ui?.isBlacksmithOpen?.()) ui.closeBlacksmith();
+    if (ui?.isTaskBoardOpen?.()) ui.closeTaskBoard();
     moveDir.normalize();
   } else if (hasMoveTarget) {
     moveDir.subVectors(moveTarget, player.position);

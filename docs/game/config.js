@@ -243,6 +243,19 @@ export const RARE_GATHER_DROPS = {
   fishing:     { item: "Golden Fish", chance: 0.03 },
 };
 
+export const TASK_BOARD_TASKS = [
+  { id: "logs_10",      label: "Collect 10 Logs",     require: { item: "logs", qty: 10 },    reward: { xp: { woodcutting: 200 }, coins: 50 } },
+  { id: "ore_10",       label: "Collect 10 Ore",      require: { item: "ore", qty: 10 },     reward: { xp: { mining: 200 }, coins: 50 } },
+  { id: "fish_10",      label: "Collect 10 Fish",     require: { item: "fish", qty: 10 },    reward: { xp: { fishing: 200 }, coins: 50 } },
+  { id: "beef_5",       label: "Collect 5 Raw Beef",  require: { item: "Raw Beef", qty: 5 }, reward: { xp: { combat: 150 }, coins: 40 } },
+  { id: "kill_cow_3",   label: "Kill 3 Cows",         require: { kill: "Cow", qty: 3 },      reward: { xp: { combat: 250 }, coins: 60 } },
+  { id: "kill_pig_5",   label: "Kill 5 Pigs",         require: { kill: "Pig", qty: 5 },      reward: { xp: { combat: 200 }, coins: 45 } },
+  { id: "kill_horse_2", label: "Kill 2 Horses",       require: { kill: "Horse", qty: 2 },    reward: { xp: { combat: 300 }, coins: 75 } },
+  { id: "kill_zebra_3", label: "Kill 3 Zebras",       require: { kill: "Zebra", qty: 3 },    reward: { xp: { combat: 400 }, coins: 100 } },
+  { id: "logs_25",      label: "Collect 25 Logs",     require: { item: "logs", qty: 25 },    reward: { xp: { woodcutting: 500 }, coins: 120 } },
+  { id: "ore_25",       label: "Collect 25 Ore",      require: { item: "ore", qty: 25 },     reward: { xp: { mining: 500 }, coins: 120 } },
+];
+
 export const SLIME_COLOR_SHOP = [
   { id: "lime", label: "Lime", color: "#58df78", cost: 0 },
   { id: "mint", label: "Mint", color: "#79f0b2", cost: 40 },

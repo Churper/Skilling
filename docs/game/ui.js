@@ -49,7 +49,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel, onDropItem } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel, onDropItem, onTaskAccept, onTaskTurnIn, onTaskAbandon } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -923,6 +923,103 @@ export function initializeUI(options = {}) {
     if (e.target === bankOverlay) closeBank();
   });
 
+  /* ── Task Board overlay ── */
+  const taskOverlay = document.getElementById("ui-task-overlay");
+  const taskCloseBtn = document.getElementById("ui-task-close");
+  const taskListEl = document.getElementById("ui-task-list");
+  const taskActiveEl = document.getElementById("ui-task-active");
+  const taskActiveContent = document.getElementById("ui-task-active-content");
+  let _taskOpen = false;
+
+  function openTaskBoard(state = {}) {
+    _renderTaskBoard(state);
+    _taskOpen = true;
+    if (taskOverlay) taskOverlay.hidden = false;
+  }
+  function closeTaskBoard() {
+    _taskOpen = false;
+    if (taskOverlay) taskOverlay.hidden = true;
+  }
+  function isTaskBoardOpen() { return _taskOpen; }
+
+  function _renderTaskBoard(state) {
+    const { tasks = [], activeTask = null, bagCounts = {} } = state;
+    if (!taskListEl) return;
+    taskListEl.innerHTML = "";
+
+    /* active task */
+    if (activeTask && taskActiveEl && taskActiveContent) {
+      taskActiveEl.hidden = false;
+      taskActiveContent.innerHTML = "";
+      const row = document.createElement("div");
+      row.className = "ui-task-row";
+      const label = document.createElement("span");
+      label.className = "ui-task-row-label";
+      label.textContent = activeTask.label;
+      row.appendChild(label);
+
+      const req = activeTask.require;
+      let progText = "";
+      let canTurnIn = false;
+      if (req.kill) {
+        progText = `${activeTask.progress || 0} / ${req.qty}`;
+        canTurnIn = (activeTask.progress || 0) >= req.qty;
+      } else if (req.item) {
+        const have = bagCounts[req.item] || 0;
+        progText = `${have} / ${req.qty}`;
+        canTurnIn = have >= req.qty;
+      }
+      const prog = document.createElement("span");
+      prog.className = "ui-task-progress";
+      prog.textContent = progText;
+      row.appendChild(prog);
+
+      if (canTurnIn) {
+        const btn = document.createElement("button");
+        btn.className = "ui-task-row-btn turn-in";
+        btn.textContent = "Turn In";
+        btn.addEventListener("click", () => { if (typeof onTaskTurnIn === "function") onTaskTurnIn(); });
+        row.appendChild(btn);
+      }
+      const abandon = document.createElement("button");
+      abandon.className = "ui-task-row-btn abandon";
+      abandon.textContent = "Abandon";
+      abandon.addEventListener("click", () => { if (typeof onTaskAbandon === "function") onTaskAbandon(); });
+      row.appendChild(abandon);
+
+      taskActiveContent.appendChild(row);
+    } else if (taskActiveEl) {
+      taskActiveEl.hidden = true;
+    }
+
+    /* available tasks */
+    for (const t of tasks) {
+      const row = document.createElement("div");
+      row.className = "ui-task-row";
+      const label = document.createElement("span");
+      label.className = "ui-task-row-label";
+      label.textContent = t.label;
+      row.appendChild(label);
+      const reward = document.createElement("span");
+      reward.className = "ui-task-row-reward";
+      const xpParts = Object.entries(t.reward.xp).map(([s, v]) => `${v} ${s} XP`);
+      reward.textContent = `${xpParts.join(", ")} + ${t.reward.coins}c`;
+      row.appendChild(reward);
+      const btn = document.createElement("button");
+      btn.className = "ui-task-row-btn";
+      btn.textContent = activeTask ? "—" : "Accept";
+      btn.disabled = !!activeTask;
+      if (!activeTask) btn.addEventListener("click", () => { if (typeof onTaskAccept === "function") onTaskAccept(t.id); });
+      row.appendChild(btn);
+      taskListEl.appendChild(row);
+    }
+  }
+
+  if (taskCloseBtn) taskCloseBtn.addEventListener("click", closeTaskBoard);
+  if (taskOverlay) taskOverlay.addEventListener("click", (e) => {
+    if (e.target === taskOverlay) closeTaskBoard();
+  });
+
   for (const button of combatStyleButtons) {
     button.addEventListener("click", () => {
       if (!button.dataset.combatStyle) return;
@@ -1028,6 +1125,7 @@ export function initializeUI(options = {}) {
     if (_storeOpen && e.key === "Escape") { closeStoreOverlay(); e.preventDefault(); return; }
     if (_bankOpen && e.key === "Escape") { closeBank(); e.preventDefault(); return; }
     if (_smithOpen && e.key === "Escape") { closeBlacksmith(); e.preventDefault(); return; }
+    if (_taskOpen && e.key === "Escape") { closeTaskBoard(); e.preventDefault(); return; }
     /* cancel hotkey listen on Escape */
     if (pendingHotkeyRow && e.key === "Escape") {
       pendingHotkeyRow.classList.remove("is-listening");
@@ -1208,6 +1306,7 @@ export function initializeUI(options = {}) {
         slotEl.style.removeProperty("background");
         slotEl.onmouseenter = null;
         slotEl.onmouseleave = null;
+        _hideEqTooltip();
       }
     }
     if (wornAtkEl) wornAtkEl.textContent = String(totalAtk);
@@ -1845,5 +1944,8 @@ export function initializeUI(options = {}) {
     isTradeOpen,
     showTradeRequest,
     hideTradeRequest,
+    openTaskBoard,
+    closeTaskBoard,
+    isTaskBoardOpen,
   };
 }
