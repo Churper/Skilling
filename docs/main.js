@@ -150,8 +150,11 @@ function playerDeath() {
   /* red flash overlay */
   deathOverlay.classList.add("active");
   setTimeout(() => deathOverlay.classList.remove("active"), 800);
-  /* leave boss instance if in one */
-  if (getActiveInstance()) doBossLeave();
+  /* leave boss instance if in one — lockout prevents rejoin */
+  if (getActiveInstance()) {
+    _bossLockoutUntil = Date.now() + BOSS_LOCKOUT_MS;
+    doBossLeave();
+  }
   /* respawn at village */
   player.position.set(0, 0, -32);
   player.position.y = getPlayerGroundY(0, -32);
@@ -389,8 +392,16 @@ const _bossHpFill = document.getElementById("ui-boss-hp-fill");
 const _bossHpText = document.getElementById("ui-boss-hp-text");
 let _snakeBossGroup = null;
 
+let _bossLockoutUntil = 0; // timestamp — can't re-enter boss until this time
+const BOSS_LOCKOUT_MS = 60000; // 60s lockout after dying or leaving mid-fight
+
 async function doBossEnter(name) {
   if (getActiveInstance()) return;
+  if (Date.now() < _bossLockoutUntil) {
+    const secs = Math.ceil((_bossLockoutUntil - Date.now()) / 1000);
+    ui?.setStatus(`Boss locked out for ${secs}s — can't rejoin mid-fight.`, "warn");
+    return;
+  }
   _preInstancePos = { x: player.position.x, z: player.position.z };
   await enterInstance(name, scene, ground, resourceNodes, [player, playerBlob]);
   player.position.set(0, 0, 0);
@@ -434,6 +445,9 @@ async function doBossEnter(name) {
 
 function doBossLeave() {
   if (!getActiveInstance()) return;
+  /* lockout if boss is still alive (leaving mid-fight) */
+  const bossAlive = animals.some(a => a.type === "Snake Boss" && a.alive);
+  if (bossAlive) _bossLockoutUntil = Date.now() + BOSS_LOCKOUT_MS;
   /* party: leader notifies members */
   if (party && partyRole === "leader") broadcastToParty({ type: "boss_leave" });
   if (_bossStateInterval) { clearInterval(_bossStateInterval); _bossStateInterval = null; }
@@ -1397,6 +1411,7 @@ netClient = createRealtimeClient({
     removeOverheadIcon(id);
     removeRemoteCampfire(id);
     _peerWasJumping.delete(id);
+    _peerHitSeq.delete(id);
     /* cleanup peer drops */
     const peerPrefix = `peer:${id}:`;
     for (const [did] of worldDrops) {
@@ -1445,6 +1460,17 @@ netClient = createRealtimeClient({
     }
     if (msg.id && msg.state) {
       setRemoteOverhead(msg.id, msg.state.overhead || null);
+      /* remote hit splats */
+      if (msg.state.hitSeq && msg.state.hitDmg) {
+        const prevSeq = _peerHitSeq.get(msg.id) || 0;
+        if (msg.state.hitSeq > prevSeq) {
+          _peerHitSeq.set(msg.id, msg.state.hitSeq);
+          const px = msg.state.x, pz = msg.state.z;
+          if (px != null && pz != null) {
+            spawnFloatingDrop(px, pz, `Hit ${msg.state.hitDmg}`, "combat");
+          }
+        }
+      }
       syncRemoteCampfire(msg.id, msg.state.campfireX, msg.state.campfireZ);
       /* directional jump land plop */
       const wasJumping = _peerWasJumping.get(msg.id) || false;
@@ -2643,6 +2669,7 @@ let activeCampfire = null; // { group, timer, node }
 let activeCook = null; // { elapsed, duration }
 const remoteCampfires = new Map(); // peerId -> { group, light }
 const _peerWasJumping = new Map(); // peerId -> bool (for jump land sound)
+const _peerHitSeq = new Map(); // peerId -> last hitSeq (for remote hit splats)
 
 function syncRemoteCampfire(peerId, cfX, cfZ) {
   const existing = remoteCampfires.get(peerId);
@@ -3463,6 +3490,7 @@ function celebrateLevelUp(worldX, worldZ) {
   setTimeout(() => spawnFireworks(worldX + (Math.random() - 0.5) * 1.5, worldZ + (Math.random() - 0.5) * 1.5), 200);
 }
 
+let _lastHitDmg = 0, _lastHitSeq = 0; // broadcast to peers for remote hit splats
 function performAttackHit(node) {
   if (combatStyle === "mage") playMageSound();
   else if (combatStyle === "bow") playBowSound();
@@ -3478,6 +3506,7 @@ function performAttackHit(node) {
   const minDmg = 1, maxDmg = 15 + Math.floor(atkBonus * 0.5);
   const damage = Math.floor(Math.random() * (maxDmg - minDmg + 1)) + minDmg;
   spawnFloatingDrop(dummyPos.x, dummyPos.z, `Hit ${damage}`, "combat");
+  _lastHitDmg = damage; _lastHitSeq++;
 
   /* check if this is an animal */
   const animal = animals.find(a => a.node === node || a.parentModel === node);
@@ -4348,6 +4377,8 @@ function animate(now) {
     combatStyle,
     tool: equippedTool,
     overhead: getActiveOverhead() || "",
+    hitDmg: _lastHitDmg,
+    hitSeq: _lastHitSeq,
     totalLevel: Object.values(skills).reduce((s, sk) => s + sk.level, 0),
     skills: {
       fishing: skills.fishing.level,

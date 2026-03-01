@@ -197,6 +197,9 @@ wss.on("connection", (ws) => {
           x: Number(d.x) || 0,
           z: Number(d.z) || 0,
         })) : [],
+        overhead: typeof state.overhead === "string" ? state.overhead.slice(0, 32) : "",
+        hitDmg: Math.max(0, Math.min(9999, Math.floor(Number(state.hitDmg)) || 0)),
+        hitSeq: Math.max(0, Math.min(999999, Math.floor(Number(state.hitSeq)) || 0)),
         instance: typeof state.instance === "string" ? state.instance.slice(0, 32) : "",
         totalLevel: Number(state.totalLevel) || 6,
         skills: state.skills && typeof state.skills === "object" ? {
