@@ -1528,9 +1528,9 @@ const CLICK_TONE_BY_RESOURCE = Object.freeze({ woodcutting: "tree", mining: "roc
 const HOVER_COLOR_BY_RESOURCE = Object.freeze({ woodcutting: "#7dff7d", mining: "#ffcc66", fishing: "#66ccff" });
 
 function getAttackRange() {
-  if (combatStyle === "bow") return 14.0;
-  if (combatStyle === "mage") return 14.0;
-  return 3.5;
+  if (combatStyle === "bow") return 16.0;
+  if (combatStyle === "mage") return 16.0;
+  return 5.0;
 }
 
 function getAttackInterval() {

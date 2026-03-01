@@ -942,18 +942,13 @@ function _buildSnakeBoss(scene, nodes) {
   tongue.position.set(0, -0.6, 2.2);
   head.add(tongue);
 
-  /* hitbox — fixed at surface level so player can always click to walk to boss */
-  const bossHsGeo = new THREE.CylinderGeometry(3.5, 3.5, 6, 12);
-  const hs = new THREE.Mesh(bossHsGeo, HS_MAT);
-  hs.position.set(0, 3, 0); hs.renderOrder = R_DECOR + 10; group.add(hs);
-  setSvc(hs, "animal", "Snake Boss");
-  hs.userData.animalType = "Snake Boss";
-  body.userData.animalType = "Snake Boss";
-  nodes.push(hs);
+  /* use the group itself as the clickable hitspot (body+head are children) */
+  setSvc(group, "animal", "Snake Boss");
+  group.userData.animalType = "Snake Boss";
+  nodes.push(group);
 
   scene.add(group);
 
-  group.userData.hsNode = hs;
   group.userData.body = body;
   group.userData.head = head;
   group.userData.bodyMat = bodyMat;
@@ -963,7 +958,6 @@ function _buildSnakeBoss(scene, nodes) {
   group.userData.colorTimer = 0;
   group.userData.phase = "up"; // up, hold, down, hidden
   group.userData.phaseTimer = 0;
-  group.userData.hsNode = hs;
   return group;
 }
 
@@ -972,7 +966,7 @@ function updateSnakeBoss(group, t) {
   const ud = group.userData;
   ud.phaseTimer += 0.016;
 
-  /* bob cycle: rise up (1s) → hold (3s) → sink down (1s) → hidden (2s) → change color → repeat */
+  /* bob cycle: rise up (1s) → hold (6s) → sink down (1s) → hidden (2s) → change color → repeat */
   let y = -10; // default hidden below ground
   if (ud.phase === "up") {
     const p = Math.min(ud.phaseTimer / 1.0, 1);
@@ -982,7 +976,7 @@ function updateSnakeBoss(group, t) {
     y = 0;
     /* slight sway */
     y += Math.sin(t * 2) * 0.3;
-    if (ud.phaseTimer > 3) { ud.phase = "down"; ud.phaseTimer = 0; }
+    if (ud.phaseTimer > 6) { ud.phase = "down"; ud.phaseTimer = 0; }
   } else if (ud.phase === "down") {
     const p = Math.min(ud.phaseTimer / 1.0, 1);
     y = 0 - p * 10;
