@@ -720,8 +720,9 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         const svcTag = SERVICE_TAG[entry.type];
         if (svcTag) {
           setSvc(m, svcTag.service, svcTag.label);
+          nodes.push(m); /* model itself is clickable */
           const hs = svcTag.hs || [0, 0.95, 0, 0.9, 1.6];
-          nodes.push(addHS(m, hs[0], hs[1], hs[2], hs[3], hs[4]));
+          nodes.push(addHS(m, hs[0], hs[1], hs[2], hs[3], hs[4])); /* extended clickzone */
           if (entry.type === "Market_Stalls") {
             spawnShopkeeper(objGroup, wx + 1.2, y, wz + 0.8);
           }
@@ -1186,6 +1187,7 @@ async function loadMapObjects(scene, nodes) {
           nodes.push(keeper);
         } else {
           setSvc(m, svcTag.service, svcTag.label);
+          nodes.push(m);
           const hs = svcTag.hs || [0, 0.95, 0, 0.9, 1.6];
           nodes.push(addHS(m, hs[0], hs[1], hs[2], hs[3], hs[4]));
         }
