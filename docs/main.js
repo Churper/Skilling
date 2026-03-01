@@ -1971,7 +1971,7 @@ function updateAnimals(dt) {
 /* ── Overhead prayer icons ── */
 const OVERHEAD_ICON_MAP = {
   protect_melee: '<span class="pray-block pray-block--melee">\u2694\uFE0F</span>',
-  protect_range: '<span class="pray-block pray-block--range">\uD83D\uDE4F</span>',
+  protect_range: '<span class="pray-block pray-block--range">\u27B3</span>',
   protect_mage:  '<span class="pray-block pray-block--mage">\uD83C\uDF00</span>',
 };
 const overheadIcons = new Map(); // key -> { el, prayerId }

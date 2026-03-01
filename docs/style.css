@@ -1213,7 +1213,7 @@ body {
   background-size: 100% 100%;
 }
 .pray-block--melee { filter: hue-rotate(0deg); }
-.pray-block--range { filter: sepia(0.3) saturate(1.2); }
+.pray-block--range { /* arrow icon — no extra filter needed */ }
 .pray-block--mage { filter: hue-rotate(180deg) saturate(1.5) brightness(1.2); }
 
 /* overhead prayer icon above player */
