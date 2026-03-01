@@ -1878,8 +1878,8 @@ function tryGather(node) {
     let dz = player.position.z - successPos.z;
     const len = Math.sqrt(dx * dx + dz * dz) || 1;
     dx /= len; dz /= len;
-    const rx = successPos.x + dx * 3 + (Math.random() - 0.5);
-    const rz = successPos.z + dz * 3 + (Math.random() - 0.5);
+    const rx = player.position.x + dx * 0.5 + (Math.random() - 0.5) * 0.5;
+    const rz = player.position.z + dz * 0.5 + (Math.random() - 0.5) * 0.5;
     spawnWorldDrop(rareDrop.item, rx, rz);
     spawnFloatingDrop(rx, rz, `Rare: ${rareDrop.item}!`, "level");
   }
@@ -3076,16 +3076,12 @@ function killAnimal(a) {
   a.hpBar.dataset.state = "hidden";
   a.aggro = false;
   a.aggroTarget = null;
-  /* loot drops on ground — push toward the player so they're visible */
+  /* loot drops on ground — spawn at player's feet so they're visible */
   const lootName = ANIMAL_LOOT[a.type];
   const p = new THREE.Vector3();
   a.parentModel.getWorldPosition(p);
-  let _ldx = player.position.x - p.x;
-  let _ldz = player.position.z - p.z;
-  const _llen = Math.sqrt(_ldx * _ldx + _ldz * _ldz) || 1;
-  _ldx /= _llen; _ldz /= _llen;
   if (lootName) {
-    spawnWorldDrop(lootName, p.x + _ldx * 2 + (Math.random() - 0.5) * 0.5, p.z + _ldz * 2 + (Math.random() - 0.5) * 0.5);
+    spawnWorldDrop(lootName, player.position.x + (Math.random() - 0.5), player.position.z + (Math.random() - 0.5));
   }
   /* equipment drop chance */
   const dropTable = MONSTER_EQUIPMENT_DROPS[a.type];
@@ -3093,7 +3089,7 @@ function killAnimal(a) {
     const eqBaseId = dropTable.items[Math.floor(Math.random() * dropTable.items.length)];
     const dropItem = EQUIPMENT_ITEMS[eqBaseId];
     if (dropItem) {
-      spawnWorldDrop(mintEquipId(eqBaseId), p.x + _ldx * 2.5 + (Math.random() - 0.5) * 0.5, p.z + _ldz * 2.5 + (Math.random() - 0.5) * 0.5);
+      spawnWorldDrop(mintEquipId(eqBaseId), player.position.x + (Math.random() - 0.5) * 0.8, player.position.z + (Math.random() - 0.5) * 0.8);
     }
   }
   /* task board kill tracking */

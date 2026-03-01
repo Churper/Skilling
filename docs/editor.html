@@ -851,7 +851,24 @@ function enterInstance(name) {
   activateChunkForEditing(0, 0);
   teleportCameraToChunk(0, 0);
   document.getElementById("chunk-id").textContent = name;
+  _updateInstanceBanner();
   updateChunkList();
+}
+
+function _updateInstanceBanner() {
+  let banner = document.getElementById("instance-banner");
+  if (activeInstance) {
+    if (!banner) {
+      banner = document.createElement("div");
+      banner.id = "instance-banner";
+      banner.style.cssText = "position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:999;background:#e8c44a;color:#1a1a2e;font-size:12px;font-weight:700;padding:4px 16px;border-radius:0 0 6px 6px;font-family:inherit;pointer-events:none;text-align:center";
+      document.body.appendChild(banner);
+    }
+    banner.textContent = `INSTANCE: ${activeInstance}`;
+    banner.style.display = "block";
+  } else if (banner) {
+    banner.style.display = "none";
+  }
 }
 
 function leaveInstance() {
@@ -872,6 +889,7 @@ function leaveInstance() {
     if (!STRUCTURAL_TYPES.has(objects[i].type)) { scene.remove(objects[i].mesh); objects.splice(i, 1); }
   }
   activeInstance = null;
+  _updateInstanceBanner();
   /* restore world chunks */
   for (const [, entry] of chunkMeshes) entry.mesh.visible = true;
   switchChunk(0, 0);
@@ -886,6 +904,7 @@ document.getElementById("inst-create").addEventListener("click", () => {
   if (!name) { alert("Enter an instance name"); return; }
   if (instanceStore.has(name)) { alert("Instance already exists"); return; }
   instanceStore.set(name, { type: typeEl.value, objects: [], heightData: {}, colorData: {}, baseType: "dark", water: false });
+  setMode("chunks");
   enterInstance(name);
   nameEl.value = "";
 });
@@ -1518,25 +1537,19 @@ function resnapObjects() {
   if (!groundMesh) return;
   const mesh = [groundMesh];
   const id = ++_resnapId;
-  let i = 0;
-  function batch() {
-    if (id !== _resnapId) return; // newer resnap superseded this one
-    const end = Math.min(i + 30, objects.length);
-    for (; i < end; i++) {
-      const obj = objects[i];
-      if (STRUCTURAL_TYPES.has(obj.type)) continue;
-      _snapOrigin.set(obj.x, 50, obj.z);
-      _snapRC.set(_snapOrigin, _snapDir);
-      const hits = _snapRC.intersectObjects(mesh);
-      if (hits.length) {
-        obj.y = hits[0].point.y;
-        obj.mesh.position.y = obj.y;
-      }
+  for (let i = 0; i < objects.length; i++) {
+    if (id !== _resnapId) return;
+    const obj = objects[i];
+    if (STRUCTURAL_TYPES.has(obj.type)) continue;
+    _snapOrigin.set(obj.x, 50, obj.z);
+    _snapRC.set(_snapOrigin, _snapDir);
+    const hits = _snapRC.intersectObjects(mesh);
+    if (hits.length) {
+      obj.y = hits[0].point.y;
+      obj.mesh.position.y = obj.y;
     }
-    if (i < objects.length) requestAnimationFrame(batch);
-    else if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
   }
-  requestAnimationFrame(batch);
+  if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
 }
 
 /* ═══════════════════════════════════════════
