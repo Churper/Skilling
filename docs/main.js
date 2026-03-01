@@ -24,6 +24,10 @@ import {
   POTION_SHOP,
   CAMPFIRE_LOG_COST,
   COOKING_RECIPES,
+  EQUIPMENT_ITEMS,
+  EQUIPMENT_RECIPES,
+  EQUIPMENT_TIERS,
+  MONSTER_EQUIPMENT_DROPS,
 } from "./game/config.js";
 import { createBagSystem } from "./game/systems/bagSystem.js";
 import { createConstructionProgress } from "./game/systems/constructionProgress.js";
@@ -73,6 +77,7 @@ const skills = {
 };
 const inCave = false; /* cave system removed */
 const activePrayers = new Set();
+const wornEquipment = { body: null, cape: null, ring: null, amulet: null, shield: null, bow: null, staff: null, sword: null };
 
 /* ground raycaster (declared early — needed by remotePlayers.getGroundY before full init) */
 const groundRaycaster = new THREE.Raycaster();
@@ -91,12 +96,14 @@ const deathOverlay = (() => {
 
 function damagePlayer(amount) {
   if (playerHp <= 0) return;
-  playerHp = Math.max(0, playerHp - amount);
+  const defBonus = getEquipmentDefenseBonus();
+  const reduced = Math.max(1, amount - Math.floor(defBonus * 0.15));
+  playerHp = Math.max(0, playerHp - reduced);
   ui?.setHp(playerHp, playerMaxHp);
   /* flash HP bar */
   if (hpBarEl) { hpBarEl.classList.remove("damage-flash"); void hpBarEl.offsetWidth; hpBarEl.classList.add("damage-flash"); }
   /* floating damage on player */
-  spawnFloatingDrop(player.position.x, player.position.z, `-${amount}`, "warn");
+  spawnFloatingDrop(player.position.x, player.position.z, `-${reduced}`, "warn");
   if (playerHp <= 0) playerDeath();
 }
 
@@ -203,6 +210,7 @@ function saveGame() {
       combatStyle,
       currentSlimeColorId,
       unlockedSlimeColors: [...unlockedSlimeColors],
+      wornEquipment: { ...wornEquipment },
       bag: bagSystem.serialize(),
       constructionStock: constructionProgress.getStock(),
       px: player.position.x,
@@ -230,6 +238,11 @@ function loadGame() {
     if (d.combatStyle) combatStyle = d.combatStyle;
     if (d.currentSlimeColorId) currentSlimeColorId = d.currentSlimeColorId;
     if (d.unlockedSlimeColors) { unlockedSlimeColors.clear(); for (const c of d.unlockedSlimeColors) unlockedSlimeColors.add(c); }
+    if (d.wornEquipment) {
+      for (const slot of Object.keys(wornEquipment)) {
+        wornEquipment[slot] = d.wornEquipment[slot] || null;
+      }
+    }
     if (d.bag) bagSystem.deserialize(d.bag);
     if (d.constructionStock) constructionProgress.deposit(d.constructionStock);
     if (d.px != null) { player.position.x = d.px; player.position.z = d.pz; }
@@ -316,6 +329,15 @@ const ui = initializeUI({
     _musicMuted = v === 0;
     saveGame();
   },
+  onEquipFromBag: (slotIndex) => {
+    equipItem(slotIndex);
+  },
+  onUnequipSlot: (slotName) => {
+    unequipItem(slotName);
+  },
+  onCraftEquipment: (itemId) => {
+    craftEquipment(itemId);
+  },
 });
 
 function getCombatToolForStyle(style) {
@@ -362,6 +384,108 @@ function getActiveOverhead() {
   return null;
 }
 
+/* ── Equipment helpers ── */
+function getCombatLevel() {
+  return Math.max(skills.melee.level, skills.bow.level, skills.mage.level);
+}
+
+function getEquipmentAttackBonus() {
+  let total = 0;
+  for (const itemId of Object.values(wornEquipment)) {
+    if (itemId && EQUIPMENT_ITEMS[itemId]) total += EQUIPMENT_ITEMS[itemId].atk;
+  }
+  return total;
+}
+
+function getEquipmentDefenseBonus() {
+  let total = 0;
+  for (const itemId of Object.values(wornEquipment)) {
+    if (itemId && EQUIPMENT_ITEMS[itemId]) total += EQUIPMENT_ITEMS[itemId].def;
+  }
+  return total;
+}
+
+function equipItem(bagSlotIndex) {
+  const itemId = bagSlots[bagSlotIndex];
+  if (!itemId || !EQUIPMENT_ITEMS[itemId]) return;
+  const item = EQUIPMENT_ITEMS[itemId];
+  const combatLvl = getCombatLevel();
+  if (combatLvl < item.level) {
+    ui?.setStatus(`Need combat level ${item.level} to equip ${item.label}!`, "warn");
+    return;
+  }
+  const slotName = item.slot;
+  const currentlyWorn = wornEquipment[slotName];
+  // Remove from bag
+  bagSlots[bagSlotIndex] = null;
+  // If something is already equipped, put it in the bag slot we just freed
+  if (currentlyWorn) {
+    bagSlots[bagSlotIndex] = currentlyWorn;
+  }
+  wornEquipment[slotName] = itemId;
+  bagSystem.recount();
+  syncInventoryUI();
+  syncWornUI();
+  ui?.setStatus(`Equipped ${item.label}!`, "success");
+  saveGame();
+}
+
+function unequipItem(slotName) {
+  const itemId = wornEquipment[slotName];
+  if (!itemId) return;
+  if (bagSystem.isFull()) {
+    ui?.setStatus("Bag is full! Can't unequip.", "warn");
+    return;
+  }
+  wornEquipment[slotName] = null;
+  bagSystem.addItem(itemId);
+  syncInventoryUI();
+  syncWornUI();
+  const item = EQUIPMENT_ITEMS[itemId];
+  ui?.setStatus(`Unequipped ${item ? item.label : itemId}.`, "info");
+  saveGame();
+}
+
+function craftEquipment(itemId) {
+  const recipe = EQUIPMENT_RECIPES[itemId];
+  const item = EQUIPMENT_ITEMS[itemId];
+  if (!recipe || !item) return;
+  const combatLvl = getCombatLevel();
+  if (combatLvl < recipe.level) {
+    ui?.setStatus(`Need combat level ${recipe.level} to craft ${item.label}!`, "warn");
+    return;
+  }
+  // Check materials
+  for (const [matKey, matQty] of Object.entries(recipe.materials)) {
+    if ((inventory[matKey] || 0) < matQty) {
+      ui?.setStatus(`Not enough materials for ${item.label}!`, "warn");
+      return;
+    }
+  }
+  if (bagSystem.isFull()) {
+    ui?.setStatus("Bag is full!", "warn");
+    return;
+  }
+  // Consume materials
+  for (const [matKey, matQty] of Object.entries(recipe.materials)) {
+    bagSystem.removeItems(matKey, matQty);
+  }
+  bagSystem.addItem(itemId);
+  syncInventoryUI();
+  syncWornUI();
+  spawnFloatingDrop(player.position.x, player.position.z, `+1 ${item.label}`, "item");
+  ui?.setStatus(`Crafted ${item.label}!`, "success");
+  saveGame();
+}
+
+function syncWornUI() {
+  ui?.setWorn({ slots: { ...wornEquipment } });
+  ui?.setBlacksmithCrafting({
+    bagCounts: { ...inventory },
+    combatLevel: getCombatLevel(),
+  });
+}
+
 function bagUsedCount() {
   return bagSystem.usedCount();
 }
@@ -384,6 +508,7 @@ function syncInventoryUI() {
   });
   ui?.setCoins(coins);
   ui?.setBlacksmith(getBlacksmithState());
+  ui?.setBlacksmithCrafting({ bagCounts: { ...inventory }, combatLevel: getCombatLevel() });
   ui?.setStore(getStoreState());
   ui?.setBank(getBankState());
 }
@@ -572,6 +697,7 @@ loadGame();
 equipTool(equippedTool, false);
 setSlimeColor(getCurrentSlimeColorHex());
 syncInventoryUI();
+syncWornUI();
 syncHouseBuildVisual();
 syncSkillsUI();
 ui?.setHp(playerHp, playerMaxHp);
@@ -1642,7 +1768,8 @@ function runServiceAction(node) {
 
   if (serviceType === "blacksmith") {
     ui?.openBlacksmith(getBlacksmithState());
-    ui?.setStatus("Blacksmith open. Buy tool upgrades with coins.", "info");
+    syncWornUI();
+    ui?.setStatus("Blacksmith open. Buy tool upgrades or craft equipment.", "info");
     return;
   }
 
@@ -1990,7 +2117,8 @@ function performAttackHit(node) {
   const yaw = Math.atan2(dx, dz);
   player.rotation.y = yaw;
   combatEffects.attack(combatStyle, player.position, yaw, 0.5, dummyPos);
-  const minDmg = 1, maxDmg = 15;
+  const atkBonus = getEquipmentAttackBonus();
+  const minDmg = 1, maxDmg = 15 + Math.floor(atkBonus * 0.5);
   const damage = Math.floor(Math.random() * (maxDmg - minDmg + 1)) + minDmg;
   spawnFloatingDrop(dummyPos.x, dummyPos.z, `Hit ${damage}`, "combat");
 
@@ -2059,6 +2187,19 @@ function killAnimal(a) {
       const p = new THREE.Vector3();
       a.parentModel.getWorldPosition(p);
       spawnFloatingDrop(p.x, p.z, "Bag full!", "warn");
+    }
+  }
+  /* equipment drop chance */
+  const dropTable = MONSTER_EQUIPMENT_DROPS[a.type];
+  if (dropTable && Math.random() < dropTable.chance) {
+    const dropId = dropTable.items[Math.floor(Math.random() * dropTable.items.length)];
+    const dropItem = EQUIPMENT_ITEMS[dropId];
+    if (dropItem && !bagSystem.isFull()) {
+      bagSystem.addItem(dropId);
+      syncInventoryUI();
+      const p2 = new THREE.Vector3();
+      a.parentModel.getWorldPosition(p2);
+      spawnFloatingDrop(p2.x + 0.2, p2.z - 0.2, `+1 ${dropItem.label}`, "item");
     }
   }
   /* death animation — shrink to 0 */

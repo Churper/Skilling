@@ -54,6 +54,10 @@
         <span class="ui-tab-icon" aria-hidden="true">&#x271D;</span>
         <span class="ui-tab-label">Prayer</span>
       </button>
+      <button type="button" class="ui-tab-btn" data-tab="worn">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F6E1;</span>
+        <span class="ui-tab-label">Worn</span>
+      </button>
     </nav>
     <aside id="ui-panel" aria-live="polite">
       <h2 id="ui-panel-title">Inventory</h2>
@@ -118,6 +122,8 @@
             </button>
           </div>
         </div>
+        <div class="ui-smith-craft-divider">Equipment Crafting</div>
+        <div id="ui-smith-craft-list" class="ui-smith-list"></div>
       </section>
       <section class="ui-panel-section" data-tab-panel="store" hidden>
         <div class="ui-store-actions">
@@ -306,6 +312,22 @@
           <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_mage" title="Protect from Magic">&#x1F525;<span>Magic</span></button>
         </div>
       </section>
+      <section class="ui-panel-section" data-tab-panel="worn" hidden>
+        <div class="ui-worn-grid">
+          <div class="ui-worn-slot" data-worn-slot="amulet"><span class="ui-worn-label">Amulet</span></div>
+          <div class="ui-worn-slot" data-worn-slot="body"><span class="ui-worn-label">Body</span></div>
+          <div class="ui-worn-slot" data-worn-slot="cape"><span class="ui-worn-label">Cape</span></div>
+          <div class="ui-worn-slot" data-worn-slot="sword"><span class="ui-worn-label">Sword</span></div>
+          <div class="ui-worn-slot" data-worn-slot="shield"><span class="ui-worn-label">Shield</span></div>
+          <div class="ui-worn-slot" data-worn-slot="ring"><span class="ui-worn-label">Ring</span></div>
+          <div class="ui-worn-slot" data-worn-slot="bow"><span class="ui-worn-label">Bow</span></div>
+          <div class="ui-worn-slot" data-worn-slot="staff"><span class="ui-worn-label">Staff</span></div>
+          <div class="ui-worn-stats" id="ui-worn-stats">
+            <span class="ui-worn-stat">Atk: <b id="ui-worn-atk">0</b></span>
+            <span class="ui-worn-stat">Def: <b id="ui-worn-def">0</b></span>
+          </div>
+        </div>
+      </section>
     </aside>
   </div>
   <div id="ui-settings-overlay" class="ui-settings-overlay" hidden>
@@ -399,6 +421,11 @@
       </div>
       <div class="ui-hotkey-row" data-hotkey-tab="skills">
         <span>Skills</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="worn">
+        <span>Worn</span>
         <button type="button" class="ui-hotkey-set-btn">Set</button>
         <kbd class="ui-hotkey-display">—</kbd>
       </div>

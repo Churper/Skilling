@@ -1,3 +1,5 @@
+import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM } from "./config.js";
+
 const TOOL_LABEL = {
   axe: "Axe",
   pickaxe: "Pickaxe",
@@ -31,16 +33,12 @@ const ITEM_LABEL = {
   ore: "Ore",
   logs: "Logs",
 };
-const SELL_PRICE = {
-  fish: 4, ore: 7, logs: 5, "Raw Beef": 8, "Raw Pork": 6,
-  "Wool": 5, "Horse Hide": 10, "Llama Wool": 7, "Bone": 3, "Striped Hide": 12,
-  "Cooked Fish": 8, "Cooked Beef": 14, "Cooked Pork": 10, "Burnt Food": 1,
-};
+const SELL_PRICE = SELL_PRICE_BY_ITEM;
 const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -99,6 +97,7 @@ export function initializeUI(options = {}) {
     skills: "Skills",
     combat: "Combat",
     prayer: "Prayer",
+    worn: "Worn Equipment",
     emotes: "Emotes",
   };
 
@@ -156,9 +155,10 @@ export function initializeUI(options = {}) {
       const slot = document.createElement("div");
       slot.className = itemType ? "ui-bag-slot" : "ui-bag-slot is-empty";
       if (itemType) {
-        const displayName = ITEM_LABEL[itemType] || itemType;
+        const eqData = EQUIPMENT_ITEMS[itemType];
+        const displayName = eqData ? eqData.label : (ITEM_LABEL[itemType] || itemType);
         const sellVal = SELL_PRICE[itemType];
-        const iconChar = ITEM_ICON[itemType] || "?";
+        const iconChar = eqData ? eqData.icon : (ITEM_ICON[itemType] || "?");
         const icon = document.createElement("span");
         icon.className = "ui-bag-slot-icon";
         icon.textContent = iconChar;
@@ -177,6 +177,13 @@ export function initializeUI(options = {}) {
           slot.classList.add("is-usable");
           slot.addEventListener("click", () => {
             if (typeof onUseItem === "function") onUseItem(itemType, i);
+          });
+        } else if (EQUIPMENT_ITEMS[itemType]) {
+          const eqInfo = EQUIPMENT_ITEMS[itemType];
+          slot.classList.add("is-equipment");
+          tip.textContent += `\nAtk: +${eqInfo.atk}  Def: +${eqInfo.def}\nLv ${eqInfo.level} required\nClick to equip`;
+          slot.addEventListener("click", () => {
+            if (typeof onEquipFromBag === "function") onEquipFromBag(i);
           });
         }
       } else {
@@ -329,10 +336,11 @@ export function initializeUI(options = {}) {
     const slot = document.createElement("div");
     slot.className = itemType ? "ui-bank-slot" : "ui-bank-slot is-empty";
     if (itemType && count > 0) {
-      const displayName = ITEM_LABEL[itemType] || itemType;
+      const eqB = EQUIPMENT_ITEMS[itemType];
+      const displayName = eqB ? eqB.label : (ITEM_LABEL[itemType] || itemType);
       const icon = document.createElement("span");
       icon.className = "ui-bank-slot-icon";
-      icon.textContent = ITEM_ICON[itemType] || "?";
+      icon.textContent = eqB ? eqB.icon : (ITEM_ICON[itemType] || "?");
       slot.append(icon);
       const tip = document.createElement("div");
       tip.className = "ui-slot-tooltip";
@@ -656,6 +664,102 @@ export function initializeUI(options = {}) {
     if (musicMuteBtn) musicMuteBtn.textContent = v === 0 ? "\u{1F507}" : "\u{1F3B5}";
   }
 
+  /* ── Worn Equipment ── */
+  const wornSlotEls = Array.from(document.querySelectorAll("[data-worn-slot]"));
+  const wornAtkEl = document.getElementById("ui-worn-atk");
+  const wornDefEl = document.getElementById("ui-worn-def");
+
+  for (const slotEl of wornSlotEls) {
+    slotEl.addEventListener("click", () => {
+      const slot = slotEl.dataset.wornSlot;
+      if (slotEl.classList.contains("is-equipped")) {
+        if (typeof onUnequipSlot === "function") onUnequipSlot(slot);
+      }
+    });
+  }
+
+  function setWorn(payload = {}) {
+    const slots = payload.slots || {};
+    let totalAtk = 0, totalDef = 0;
+    for (const slotEl of wornSlotEls) {
+      const slotName = slotEl.dataset.wornSlot;
+      const itemId = slots[slotName] || null;
+      const item = itemId ? EQUIPMENT_ITEMS[itemId] : null;
+      /* clear existing content except label */
+      const label = slotEl.querySelector(".ui-worn-label");
+      slotEl.innerHTML = "";
+      if (label) slotEl.appendChild(label);
+
+      if (item) {
+        slotEl.classList.add("is-equipped");
+        slotEl.style.setProperty("--eq-color", item.color + "88");
+        const icon = document.createElement("span");
+        icon.className = "ui-worn-slot-icon";
+        icon.textContent = item.icon;
+        slotEl.appendChild(icon);
+        const name = document.createElement("span");
+        name.className = "ui-worn-slot-name";
+        name.textContent = item.label;
+        name.style.color = item.color;
+        slotEl.appendChild(name);
+        /* tooltip */
+        const tip = document.createElement("div");
+        tip.className = "ui-slot-tooltip";
+        tip.textContent = `${item.label}\nAtk: +${item.atk}  Def: +${item.def}\nLv ${item.level}\nClick to unequip`;
+        slotEl.appendChild(tip);
+        totalAtk += item.atk;
+        totalDef += item.def;
+      } else {
+        slotEl.classList.remove("is-equipped");
+        slotEl.style.removeProperty("--eq-color");
+      }
+    }
+    if (wornAtkEl) wornAtkEl.textContent = String(totalAtk);
+    if (wornDefEl) wornDefEl.textContent = String(totalDef);
+  }
+
+  /* ── Blacksmith Equipment Crafting ── */
+  const smithCraftListEl = document.getElementById("ui-smith-craft-list");
+
+  function setBlacksmithCrafting(payload = {}) {
+    if (!smithCraftListEl) return;
+    smithCraftListEl.innerHTML = "";
+    const bagCounts = payload.bagCounts || {};
+    const combatLevel = payload.combatLevel || 1;
+    const recipes = Object.entries(EQUIPMENT_RECIPES);
+    for (const [itemId, recipe] of recipes) {
+      const item = EQUIPMENT_ITEMS[itemId];
+      if (!item) continue;
+      const row = document.createElement("div");
+      row.className = "ui-smith-row";
+      const meta = document.createElement("div");
+      meta.className = "ui-smith-meta";
+      const nameEl = document.createElement("strong");
+      nameEl.textContent = item.icon + " " + item.label;
+      nameEl.style.color = item.color;
+      meta.appendChild(nameEl);
+      const matLines = Object.entries(recipe.materials).map(([k, v]) => {
+        const have = bagCounts[k] || 0;
+        return `${ITEM_LABEL[k] || k}: ${have}/${v}`;
+      }).join(", ");
+      const info = document.createElement("span");
+      info.textContent = `Lv ${recipe.level} | ${matLines}`;
+      meta.appendChild(info);
+      row.appendChild(meta);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "ui-smith-buy-btn";
+      btn.textContent = "Craft";
+      const canCraft = combatLevel >= recipe.level && Object.entries(recipe.materials).every(([k, v]) => (bagCounts[k] || 0) >= v);
+      if (!canCraft) btn.classList.add("is-unaffordable");
+      btn.addEventListener("click", () => {
+        if (typeof onCraftEquipment === "function") onCraftEquipment(itemId);
+      });
+      row.appendChild(btn);
+      smithCraftListEl.appendChild(row);
+    }
+  }
+
   return {
     setActiveTool,
     setActive,
@@ -676,5 +780,7 @@ export function initializeUI(options = {}) {
     setHp,
     setVolumeSlider,
     setMusicSlider,
+    setWorn,
+    setBlacksmithCrafting,
   };
 }

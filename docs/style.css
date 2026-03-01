@@ -613,6 +613,11 @@ body {
 }
 
 /* ── Blacksmith ── */
+[data-tab-panel="blacksmith"] {
+  max-height: min(38vh, 360px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
 .ui-smith-list {
   display: grid;
   gap: 5px;
@@ -1757,4 +1762,95 @@ body {
 }
 .ui-bag-slot.is-usable:hover {
   background: rgba(74, 222, 128, 0.15);
+}
+
+/* ── Worn Equipment ── */
+.ui-worn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.ui-worn-slot {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 2px dashed rgba(255,255,255,0.18);
+  background: var(--ui-btn-bg);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.12s, border-color 0.12s;
+  gap: 2px;
+}
+.ui-worn-slot:hover {
+  background: var(--ui-btn-bg-hover);
+  border-color: rgba(255,255,255,0.3);
+}
+.ui-worn-slot.is-equipped {
+  border-style: solid;
+  border-color: var(--eq-color, rgba(24,184,154,0.5));
+  background: rgba(24,184,154,0.12);
+}
+.ui-worn-label {
+  font-size: 9px;
+  color: var(--ui-ink-3);
+  text-shadow: var(--ui-text-shadow);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.ui-worn-slot-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.ui-worn-slot-name {
+  font-size: 10px;
+  color: var(--ui-ink-1);
+  text-shadow: var(--ui-text-shadow);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-align: center;
+}
+.ui-worn-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 6px;
+}
+.ui-worn-stat {
+  font-size: 13px;
+  color: var(--ui-ink-2);
+  text-shadow: var(--ui-text-shadow);
+}
+.ui-worn-stat b {
+  color: var(--ui-ink-1);
+  font-family: var(--ui-font-heading);
+}
+.ui-worn-slot:hover .ui-slot-tooltip {
+  display: block;
+}
+
+/* ── Blacksmith crafting divider ── */
+.ui-smith-craft-divider {
+  margin: 10px 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ui-accent-1);
+  text-shadow: var(--ui-text-shadow);
+}
+
+/* Equipment in bag highlight */
+.ui-bag-slot.is-equipment {
+  cursor: pointer;
+  border: 1px solid rgba(64,224,208,0.4);
+}
+.ui-bag-slot.is-equipment:hover {
+  background: rgba(64,224,208,0.15);
 }

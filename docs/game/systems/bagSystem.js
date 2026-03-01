@@ -117,6 +117,15 @@ export function createBagSystem({ capacity, itemKeys }) {
     return { sold, coinsGained };
   }
 
+  function removeItems(itemKey, qty = 1) {
+    let removed = 0;
+    for (let i = 0; i < slots.length && removed < qty; i++) {
+      if (slots[i] === itemKey) { slots[i] = null; removed++; }
+    }
+    recount();
+    return removed;
+  }
+
   function consumeMatching(predicate) {
     const removed = createCountMap(itemKeys);
     let total = 0;
@@ -159,6 +168,7 @@ export function createBagSystem({ capacity, itemKeys }) {
     withdrawFromBank,
     withdrawItemFromBank,
     sellAll,
+    removeItems,
     consumeMatching,
     serialize,
     deserialize,
