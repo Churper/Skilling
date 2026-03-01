@@ -232,9 +232,10 @@ export function initializeUI(options = {}) {
     title.textContent = labelByTab[tab] || "Panel";
   }
 
-  /* F-key bindings — double-press same key toggles panel closed */
-  const _fkeyTabs = { F1: "inventory", F2: "worn", F3: "prayer", F4: "combat", F5: "emotes", F6: "skills" };
+  /* F-key bindings — same key closes panel, different key switches & opens */
+  const _fkeyTabs = { F1: "inventory", F2: "worn", F3: "prayer", F4: "combat", F5: "skills", F6: "emotes" };
   window.addEventListener("keydown", (e) => {
+    if (e.repeat) return; /* ignore held-key repeats */
     const tab = _fkeyTabs[e.key];
     if (tab) {
       e.preventDefault();
@@ -244,6 +245,7 @@ export function initializeUI(options = {}) {
         setActive(tab);
         setPanelCollapsed(false);
       }
+      e.stopImmediatePropagation();
     }
     if (e.key === "Escape") {
       setPanelCollapsed(true);
@@ -626,12 +628,14 @@ export function initializeUI(options = {}) {
   for (const button of buttons) {
     button.addEventListener("click", () => {
       const tab = button.dataset.tab;
-      if (tab === activeTab) {
-        setPanelCollapsed(!panelCollapsed);
+      if (tab === activeTab && !panelCollapsed) {
+        /* Same tab while open — close it */
+        setPanelCollapsed(true);
         return;
       }
-      setPanelCollapsed(false);
+      /* Different tab, or same tab while closed — switch and open */
       setActive(tab);
+      setPanelCollapsed(false);
     });
   }
 
@@ -932,14 +936,19 @@ export function initializeUI(options = {}) {
       e.preventDefault();
       return;
     }
-    /* activate tab via hotkey (skip if typing in input) */
+    /* activate tab via hotkey (skip if typing in input or key repeat) */
+    if (e.repeat) return;
     const tag = document.activeElement?.tagName;
     if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
     const pressed = e.key.length === 1 ? e.key.toUpperCase() : e.key;
     for (const [tab, key] of Object.entries(hotkeys)) {
       if (key === pressed) {
-        setPanelCollapsed(false);
-        setActive(tab);
+        if (activeTab === tab && !panelCollapsed) {
+          setPanelCollapsed(true);
+        } else {
+          setActive(tab);
+          setPanelCollapsed(false);
+        }
         e.preventDefault();
         return;
       }

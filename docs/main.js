@@ -3296,7 +3296,7 @@ function animate(now) {
     _crouchHoldTimer = 0;
   } else {
     _crouchHoldTimer += dt;
-    if (_crouchHoldTimer > 0.06) _isCrouching = false;
+    if (_crouchHoldTimer > 0.15) _isCrouching = false;
   }
 
   const keyboardMove = moveDir.lengthSq() > 0.0001;
