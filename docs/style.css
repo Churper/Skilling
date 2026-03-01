@@ -1193,11 +1193,16 @@ body {
 .pray-block {
   position: relative;
   display: inline-block;
+  font-size: 26px;
+  line-height: 1;
+  width: 1.1em;
+  height: 1.1em;
+  text-align: center;
 }
 .pray-block::after {
   content: "";
   position: absolute;
-  inset: -2px;
+  inset: -3px;
   border: 2.5px solid rgba(220, 40, 40, 0.9);
   border-radius: 50%;
   opacity: 0.7;
