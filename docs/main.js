@@ -180,6 +180,9 @@ function registerAnimal(hsNode, parentModel) {
   const maxHp = ANIMAL_HP[type] || 10;
   /* use local position directly — map_objects group is always at origin */
   const spawnPos = parentModel.position.clone();
+  /* snap to ground immediately so animals don't appear floating */
+  spawnPos.y = getPlayerGroundY(spawnPos.x, spawnPos.z);
+  parentModel.position.y = spawnPos.y;
 
   const hpBar = document.createElement("div");
   hpBar.className = "animal-hp-bar";
@@ -1824,6 +1827,8 @@ function updateAnimals(dt) {
     }
     a.parentModel.visible = true;
     a.parentModel.traverse(c => { c.visible = true; });
+    /* snap to ground when becoming visible */
+    a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
     if (!a.alive) {
       /* death shrink animation */
       if (a._deathAnim) {
