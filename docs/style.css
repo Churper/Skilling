@@ -1776,6 +1776,7 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
   margin-bottom: 6px;
+  overflow: visible;
 }
 .ui-worn-slot {
   min-height: 56px;
@@ -1791,7 +1792,6 @@ body {
   position: relative;
   transition: background 0.12s, border-color 0.12s;
   gap: 2px;
-  overflow: hidden;
 }
 .ui-worn-slot:hover {
   background: rgba(255,255,255,0.08);
@@ -1842,17 +1842,8 @@ body {
   color: var(--ui-ink-1);
   font-family: var(--ui-font-heading);
 }
-.ui-worn-slot:hover .ui-slot-tooltip,
-.ui-worn-slot:hover .ui-eq-tooltip {
+.ui-worn-slot:hover .ui-slot-tooltip {
   display: block;
-}
-/* Keep worn tooltips inside panel — anchor to slot center */
-.ui-worn-slot .ui-eq-tooltip {
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(100% + 4px);
-  right: auto;
-  min-width: 130px;
 }
 
 /* ── Worn tab skin section ── */
@@ -1931,30 +1922,24 @@ body {
   background: rgba(64,224,208,0.15);
 }
 
-/* ── Rich equipment tooltip ── */
+/* ── Rich equipment tooltip (fixed, positioned by JS) ── */
 .ui-eq-tooltip {
   display: none;
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
   padding: 8px 10px;
   border-radius: 8px;
-  background: rgba(8, 12, 24, 0.95);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(8, 12, 24, 0.96);
+  border: 1px solid rgba(255,255,255,0.15);
   color: #f0f0f0;
   font-family: var(--ui-font-body);
   font-size: 11px;
   line-height: 1.5;
   pointer-events: none;
-  z-index: 300;
+  z-index: 1000;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  min-width: 120px;
+  min-width: 130px;
   white-space: nowrap;
-}
-.ui-bag-slot:hover .ui-eq-tooltip,
-.ui-worn-slot:hover .ui-eq-tooltip {
-  display: block;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
 .ui-eq-tooltip-name {
   font-weight: 700;

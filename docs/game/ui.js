@@ -44,24 +44,27 @@ export function initializeUI(options = {}) {
   const title = document.getElementById("ui-panel-title");
   if (!buttons.length || !panels.length || !title) return null;
 
-  function _buildEqTooltip(item, action, sellPrice, stars) {
-    const tip = document.createElement("div");
-    tip.className = "ui-eq-tooltip";
+  /* Shared fixed tooltip element — reused for all equipment hovers */
+  const _eqTip = document.createElement("div");
+  _eqTip.className = "ui-eq-tooltip";
+  document.body.appendChild(_eqTip);
+
+  function _showEqTooltip(hostEl, item, action, sellPrice, stars) {
+    _eqTip.innerHTML = "";
     const name = document.createElement("div");
     name.className = "ui-eq-tooltip-name";
     name.textContent = item.label;
     name.style.color = item.color;
-    tip.appendChild(name);
+    _eqTip.appendChild(name);
     if (stars != null && stars > 0) {
       const starsEl = document.createElement("div");
       starsEl.className = "ui-eq-tooltip-stars";
       starsEl.textContent = "\u2605".repeat(stars) + "\u2606".repeat(Math.max(0, 10 - stars));
-      tip.appendChild(starsEl);
+      _eqTip.appendChild(starsEl);
     }
     const div1 = document.createElement("div");
     div1.className = "ui-eq-tooltip-divider";
-    tip.appendChild(div1);
-    // Stats
+    _eqTip.appendChild(div1);
     for (const [label, val] of [["Attack", item.atk], ["Defense", item.def]]) {
       const row = document.createElement("div");
       row.className = "ui-eq-tooltip-stat";
@@ -73,28 +76,44 @@ export function initializeUI(options = {}) {
       v.className = "ui-eq-tooltip-stat-val " + (val > 0 ? "pos" : "zero");
       v.textContent = val > 0 ? `+${val}` : "0";
       row.appendChild(v);
-      tip.appendChild(row);
+      _eqTip.appendChild(row);
     }
-    // Level req
     const req = document.createElement("div");
     req.className = "ui-eq-tooltip-req";
     req.textContent = `Requires Lv ${item.level}`;
-    tip.appendChild(req);
-    // Sell price
+    _eqTip.appendChild(req);
     if (sellPrice) {
       const sell = document.createElement("div");
       sell.className = "ui-eq-tooltip-sell";
       sell.textContent = `Sell: ${sellPrice}c`;
-      tip.appendChild(sell);
+      _eqTip.appendChild(sell);
     }
-    // Action hint
     if (action) {
       const act = document.createElement("div");
       act.className = "ui-eq-tooltip-action";
       act.textContent = action;
-      tip.appendChild(act);
+      _eqTip.appendChild(act);
     }
-    return tip;
+    // Position above the host element
+    const rect = hostEl.getBoundingClientRect();
+    _eqTip.style.display = "block";
+    const tipRect = _eqTip.getBoundingClientRect();
+    let left = rect.left + rect.width / 2 - tipRect.width / 2;
+    let top = rect.top - tipRect.height - 6;
+    if (top < 4) top = rect.bottom + 6; // flip below if no room above
+    if (left < 4) left = 4;
+    if (left + tipRect.width > window.innerWidth - 4) left = window.innerWidth - tipRect.width - 4;
+    _eqTip.style.left = left + "px";
+    _eqTip.style.top = top + "px";
+  }
+
+  function _hideEqTooltip() {
+    _eqTip.style.display = "none";
+  }
+
+  function _attachEqTooltip(hostEl, item, action, sellPrice, stars) {
+    hostEl.onmouseenter = () => _showEqTooltip(hostEl, item, action, sellPrice, stars);
+    hostEl.onmouseleave = _hideEqTooltip;
   }
 
   const toolButtons = Array.from(document.querySelectorAll(".ui-tool-btn"));
@@ -234,10 +253,8 @@ export function initializeUI(options = {}) {
         } else if (EQUIPMENT_ITEMS[itemType]) {
           const eqInfo = EQUIPMENT_ITEMS[itemType];
           slot.classList.add("is-equipment");
-          // Replace simple tooltip with rich one
           tip.remove();
-          const eqTip = _buildEqTooltip(eqInfo, "Click to equip", sellVal, 0);
-          slot.appendChild(eqTip);
+          _attachEqTooltip(slot, eqInfo, "Click to equip", sellVal, 0);
           slot.addEventListener("click", () => {
             if (typeof onEquipFromBag === "function") onEquipFromBag(i);
           });
@@ -758,14 +775,15 @@ export function initializeUI(options = {}) {
         name.textContent = item.label;
         name.style.color = item.color;
         slotEl.appendChild(name);
-        /* rich tooltip */
-        const eqTip = _buildEqTooltip(item, "Click to unequip", null, 0);
-        slotEl.appendChild(eqTip);
+        /* rich tooltip via fixed overlay */
+        _attachEqTooltip(slotEl, item, "Click to unequip", null, 0);
         totalAtk += item.atk;
         totalDef += item.def;
       } else {
         slotEl.classList.remove("is-equipped");
         slotEl.style.removeProperty("--eq-color");
+        slotEl.onmouseenter = null;
+        slotEl.onmouseleave = null;
       }
     }
     if (wornAtkEl) wornAtkEl.textContent = String(totalAtk);
