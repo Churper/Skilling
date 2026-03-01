@@ -397,6 +397,8 @@ const _bossHpText = document.getElementById("ui-boss-hp-text");
 let _snakeBossGroup = null;
 
 let _bossLockoutUntil = 0; // timestamp — can't re-enter boss until this time
+let _currentInstanceId = ""; // unique per-entry instance ID for multiplayer isolation
+let _pendingPartyInstanceId = null; // set temporarily when leader pulls member in
 const BOSS_LOCKOUT_MS = 60000; // 60s lockout after dying or leaving mid-fight
 
 async function doBossEnter(name) {
@@ -416,7 +418,11 @@ async function doBossEnter(name) {
   player.position.set(0, 0, 0);
   const gy = getPlayerGroundY(0, 0);
   player.position.y = gy;
-  remotePlayers.setLocalInstance(name);
+  /* unique instance ID so solo players don't see each other; party uses leader's ID */
+  const instanceId = _pendingPartyInstanceId
+    || `${name}_${netClient?.getLocalId?.() || Math.random().toString(36).slice(2)}`;
+  _currentInstanceId = instanceId;
+  remotePlayers.setLocalInstance(instanceId);
   ui?.closeTaskBoard();
   ui?.setStatus(`Entered ${name} boss arena!`, "info");
   if (_instanceBanner) _instanceBanner.hidden = false;
@@ -436,7 +442,7 @@ async function doBossEnter(name) {
   scanForNewAnimals();
   /* party: leader pulls members in + starts state broadcast */
   if (party && partyRole === "leader") {
-    broadcastToParty({ type: "boss_enter", name });
+    broadcastToParty({ type: "boss_enter", name, instanceId });
     if (_bossStateInterval) clearInterval(_bossStateInterval);
     _bossStateInterval = setInterval(() => {
       const boss = animals.find(a => a.type === "Snake Boss" && a.alive);
@@ -461,6 +467,7 @@ function doBossLeave() {
   if (party && partyRole === "leader") broadcastToParty({ type: "boss_leave" });
   if (_bossStateInterval) { clearInterval(_bossStateInterval); _bossStateInterval = null; }
   leaveInstance(scene, ground, resourceNodes);
+  _currentInstanceId = "";
   remotePlayers.setLocalInstance("");
   if (_preInstancePos) {
     player.position.set(_preInstancePos.x, 0, _preInstancePos.z);
@@ -1392,7 +1399,10 @@ function handleBossSync(msg) {
   if (payload.type === "boss_enter") {
     // Leader is pulling us into the boss arena
     if (!party || partyRole !== "member") return true;
+    /* override instance ID to match leader's */
+    _pendingPartyInstanceId = payload.instanceId || null;
     doBossEnter(payload.name);
+    _pendingPartyInstanceId = null;
     ui?.setStatus(`Entering ${payload.name} boss with party!`, "info");
     return true;
   }
@@ -2018,8 +2028,8 @@ function updateAnimals(dt) {
       const adx = px - a.parentModel.position.x;
       const adz = pz - a.parentModel.position.z;
       const adist = Math.sqrt(adx * adx + adz * adz);
-      /* de-aggro: too far away or 8s without being hit */
-      if (adist > 15 || (elapsed - a.lastHitTime) > 8) {
+      /* de-aggro: too far away or 8s without being hit (baby snakes never de-aggro) */
+      if (!isBabySnake && (adist > 15 || (elapsed - a.lastHitTime) > 8)) {
         a.aggro = false;
         a.aggroTarget = null;
         a.wanderTimer = 1 + Math.random() * 2;
@@ -4508,7 +4518,7 @@ function animate(now) {
       cooking: skills.cooking.level,
     },
     drops: Array.from(worldDrops.values()).filter(d => !d.peerOwner).map(d => ({ id: d.id, item: d.itemKey, x: d.x, z: d.z })),
-    instance: getActiveInstance() || "",
+    instance: _currentInstanceId || "",
   });
 
   /* auto-save periodically */
