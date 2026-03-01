@@ -95,26 +95,11 @@ export function createInputController({ domElement, camera, ground, player, setM
   domElement.addEventListener("pointerup", onPointerRelease);
   domElement.addEventListener("pointercancel", onPointerRelease);
 
-  /* Track crouch (Ctrl) separately — Windows fires spurious keyup gaps when
-     holding Ctrl, so we use a timestamp to ignore brief releases. */
-  let _ctrlLastDown = 0;
-  const CTRL_HOLD_GRACE = 200; // ms — ignore keyup gaps shorter than this
-
   window.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
-    if (["w", "a", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright", " "].includes(key)) keys.add(key);
-    if (key === "control") _ctrlLastDown = performance.now();
+    if (["w", "a", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright", " ", "control"].includes(key)) keys.add(key);
   });
-  window.addEventListener("keyup", (event) => {
-    const key = event.key.toLowerCase();
-    if (key !== "control") keys.delete(key);
-    // Ctrl keyup handled by isCrouchHeld() grace period
-  });
-  window.addEventListener("blur", () => { keys.clear(); _ctrlLastDown = 0; });
+  window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
 
-  function isCrouchHeld() {
-    return (performance.now() - _ctrlLastDown) < CTRL_HOLD_GRACE;
-  }
-
-  return { keys, getHovered: () => hoveredRoot, isCrouchHeld };
+  return { keys, getHovered: () => hoveredRoot };
 }
