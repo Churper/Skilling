@@ -1107,7 +1107,7 @@ const SERVICE_TAG = {
 _fileLookup["Svc_Bank"] = "models/terrain/Prop_Treasure_Chest.glb";
 _fileLookup["Market_Stalls"] = "models/terrain/Market_Stalls.glb";
 _fileLookup["Svc_Blacksmith"] = "models/terrain/Workbench.glb";
-_fileLookup["Svc_TaskBoard"] = "models/terrain/Market_Stalls.glb";
+_fileLookup["Svc_TaskBoard"] = "models/terrain/Wooden_Sign.glb";
 _fileLookup["Farm"] = "models/terrain/Farm.glb";
 for (const a of ["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra"])
   _fileLookup[a] = "models/terrain/" + a + ".glb";
