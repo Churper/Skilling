@@ -934,9 +934,12 @@ async function loadMapObjects(scene, nodes) {
       if (svcTag) {
         setSvc(m, svcTag.service, svcTag.label);
         if (entry.type === "Market_Stalls") {
-          /* Hitbox in front of the counter, not at model origin */
+          /* Hitbox on stall */
           nodes.push(addHS(m, 0, 0.3, 0.4));
-          spawnShopkeeper(group, entry.x + 1.2, y, entry.z + 0.8);
+          /* Shopkeeper slime — also clickable as store */
+          const keeper = spawnShopkeeper(group, entry.x + 1.2, y, entry.z + 0.8);
+          setSvc(keeper, "store", "General Store");
+          nodes.push(keeper);
         } else {
           nodes.push(addHS(m, 0, 0.95, 0.55));
         }
