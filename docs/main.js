@@ -1526,8 +1526,8 @@ const HOVER_COLOR_BY_RESOURCE = Object.freeze({ woodcutting: "#7dff7d", mining: 
 
 function getAttackRange() {
   if (combatStyle === "bow") return 14.0;
-  if (combatStyle === "mage") return 12.0;
-  return 2.7;
+  if (combatStyle === "mage") return 14.0;
+  return 3.5;
 }
 
 function getAttackInterval() {
@@ -3397,6 +3397,12 @@ function performAttackHit(node) {
 
   /* check if this is an animal */
   const animal = animals.find(a => a.node === node || a.parentModel === node);
+  /* snake boss: cancel attack if it went underground */
+  if (animal && animal.type === "Snake Boss" && _snakeBossGroup && !_snakeBossGroup.userData.attackable) {
+    activeAttack = null;
+    ui?.setStatus("The Snake Boss retreated underground!", "info");
+    return;
+  }
   if (animal && animal.alive) {
     /* party member hitting boss → send damage to host, don't apply locally */
     const isBoss = animal.type === "Snake Boss";
@@ -3579,6 +3585,11 @@ function onInteractNode(node, hitPoint) {
     const aPos = interactPos;
     a.parentModel.getWorldPosition(aPos);
     spawnClickEffect(aPos.x, aPos.z, "neutral");
+    /* snake boss: check if attackable (above ground) */
+    if (a.type === "Snake Boss" && _snakeBossGroup && !_snakeBossGroup.userData.attackable) {
+      ui?.setStatus("The Snake Boss is underground...", "info");
+      return;
+    }
     const distance = aPos.distanceTo(player.position);
     const range = getAttackRange();
     if (distance > range) {

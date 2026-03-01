@@ -940,10 +940,10 @@ function _buildSnakeBoss(scene, nodes) {
   tongue.position.set(0, -0.6, 2.2);
   head.add(tongue);
 
-  /* hitbox — big cylinder covering whole boss body+head */
-  const bossHsGeo = new THREE.CylinderGeometry(3.5, 3.5, 12, 12);
+  /* hitbox — fixed at surface level so player can always click to walk to boss */
+  const bossHsGeo = new THREE.CylinderGeometry(3.5, 3.5, 6, 12);
   const hs = new THREE.Mesh(bossHsGeo, HS_MAT);
-  hs.position.set(0, 4, 0); hs.renderOrder = R_DECOR + 10; body.add(hs);
+  hs.position.set(0, 3, 0); hs.renderOrder = R_DECOR + 10; group.add(hs);
   setSvc(hs, "animal", "Snake Boss");
   hs.userData.animalType = "Snake Boss";
   body.userData.animalType = "Snake Boss";
@@ -999,10 +999,8 @@ function updateSnakeBoss(group, t) {
   }
   group.position.y = GRASS_Y + y;
 
-  /* disable hitbox when underground so players can't click invisible boss */
-  if (ud.hsNode) {
-    ud.hsNode.visible = (ud.phase === "hold" || ud.phase === "up");
-  }
+  /* track whether boss is attackable (above ground) */
+  ud.attackable = (ud.phase === "hold" || ud.phase === "up");
 
   /* tongue flick */
   if (ud.tongue) {
