@@ -798,7 +798,7 @@ async function loadInstanceData(name) {
 
 let _hiddenWorldObjects = [];
 
-async function enterInstance(name, scene, ground, nodes) {
+async function enterInstance(name, scene, ground, nodes, keepVisible) {
   if (_activeInstance) return;
   const data = await loadInstanceData(name);
   if (!data) return;
@@ -809,16 +809,14 @@ async function enterInstance(name, scene, ground, nodes) {
     if (chunk.objGroup) chunk.objGroup.visible = false;
     _hiddenWorldChunks.push(key);
   }
-  /* hide world object groups by name (not player, lights, camera, etc.) */
+  /* hide all visible scene children except ground, lights, camera, and keepVisible set */
+  const _keep = new Set(keepVisible || []);
+  _keep.add(ground);
   _hiddenWorldObjects = [];
-  const WORLD_GROUP_NAMES = ["map_objects", "chunk_animals_0_0", "bridge_group", "dock_group", "stepping_stones", "fences"];
   for (const child of scene.children) {
-    if (!child.visible) continue;
-    const n = child.name || "";
-    if (n.startsWith("chunk_obj_") || n.startsWith("chunk_animals_") || WORLD_GROUP_NAMES.includes(n)) {
-      child.visible = false;
-      _hiddenWorldObjects.push(child);
-    }
+    if (!child.visible || _keep.has(child) || child.isLight || child.isCamera) continue;
+    child.visible = false;
+    _hiddenWorldObjects.push(child);
   }
   /* build instance terrain at origin */
   const b = chunkBounds(0, 0);

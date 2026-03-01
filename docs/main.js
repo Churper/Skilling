@@ -163,6 +163,7 @@ const ANIMAL_HP = { Cow: 50, Horse: 60, Llama: 40, Pig: 30, Pug: 20, Sheep: 35, 
 const ANIMAL_LOOT = {
   Cow: "Raw Beef", Horse: "Horse Hide", Llama: "Llama Wool",
   Pig: "Raw Pork", Pug: "Bone", Sheep: "Wool", Zebra: "Striped Hide",
+  "Snake Boss": "Snake Scale",
 };
 const animals = [];  // { node, hp, maxHp, spawnPos, alive, wanderTimer, wanderTarget, hpBar, hpFill, respawnTimer, parentModel }
 
@@ -374,7 +375,7 @@ let _snakeBossGroup = null;
 async function doBossEnter(name) {
   if (getActiveInstance()) return;
   _preInstancePos = { x: player.position.x, z: player.position.z };
-  await enterInstance(name, scene, ground, resourceNodes);
+  await enterInstance(name, scene, ground, resourceNodes, [player, playerBlob]);
   player.position.set(0, 0, 0);
   const gy = getPlayerGroundY(0, 0);
   player.position.y = gy;
