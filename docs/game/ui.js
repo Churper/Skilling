@@ -49,7 +49,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel, onDropItem, onTaskAccept, onTaskTurnIn, onTaskAbandon, onBossEnter, onBossLeave, onSwapSlots } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel, onDropItem, onTaskAccept, onTaskTurnIn, onTaskAbandon, onBossEnter, onBossLeave, onSwapSlots, onPartyLeave } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -1082,6 +1082,7 @@ export function initializeUI(options = {}) {
       bossListEl.innerHTML = "";
       const bosses = state.bosses || [];
       const inInstance = state.inInstance || null;
+      const pRole = state.partyRole || null;
       if (bosses.length === 0) {
         const empty = document.createElement("div");
         empty.style.cssText = "color:#666;font-size:11px;padding:4px 0";
@@ -1102,6 +1103,10 @@ export function initializeUI(options = {}) {
           btn.style.background = "#5a2020";
           btn.style.color = "#ff8888";
           btn.addEventListener("click", () => { if (typeof onBossLeave === "function") onBossLeave(); });
+        } else if (pRole === "member") {
+          btn.textContent = "Enter";
+          btn.disabled = true;
+          btn.title = "Only the party leader can start the fight";
         } else {
           btn.textContent = "Enter";
           btn.addEventListener("click", () => { if (typeof onBossEnter === "function") onBossEnter(b); });
@@ -2003,6 +2008,65 @@ export function initializeUI(options = {}) {
     }
   });
 
+  /* ── Party UI ── */
+  const partyRequestEl = document.getElementById("ui-party-request");
+  const partyRequestText = document.getElementById("ui-party-request-text");
+  const partyRequestAccept = document.getElementById("ui-party-request-accept");
+  const partyRequestDecline = document.getElementById("ui-party-request-decline");
+  const partyPanel = document.getElementById("ui-party-panel");
+  const partyMembersEl = document.getElementById("ui-party-members");
+  const partyLeaveBtn = document.getElementById("ui-party-leave");
+
+  function showPartyRequest(name, onAccept, onDecline) {
+    if (!partyRequestEl) return;
+    if (partyRequestText) partyRequestText.textContent = `${name} invites you to a party!`;
+    partyRequestEl.hidden = false;
+    const _accept = () => { partyRequestEl.hidden = true; cleanup(); onAccept(); };
+    const _decline = () => { partyRequestEl.hidden = true; cleanup(); onDecline(); };
+    function cleanup() {
+      partyRequestAccept?.removeEventListener("click", _accept);
+      partyRequestDecline?.removeEventListener("click", _decline);
+    }
+    partyRequestAccept?.addEventListener("click", _accept);
+    partyRequestDecline?.addEventListener("click", _decline);
+    setTimeout(() => {
+      if (!partyRequestEl.hidden) { partyRequestEl.hidden = true; cleanup(); onDecline(); }
+    }, 15000);
+  }
+
+  function hidePartyRequest() {
+    if (partyRequestEl) partyRequestEl.hidden = true;
+  }
+
+  function setPartyPanel(party) {
+    if (!partyPanel) return;
+    if (!party) { partyPanel.hidden = true; return; }
+    partyPanel.hidden = false;
+    if (partyMembersEl) {
+      partyMembersEl.innerHTML = "";
+      for (const m of party.members) {
+        const row = document.createElement("div");
+        row.className = "ui-party-member";
+        const isLeader = m.id === party.leader;
+        if (isLeader) {
+          const crown = document.createElement("span");
+          crown.className = "ui-party-crown";
+          crown.textContent = "\u{1F451}";
+          row.appendChild(crown);
+        }
+        const nameEl = document.createElement("span");
+        nameEl.className = "ui-party-name" + (isLeader ? " is-leader" : "");
+        nameEl.textContent = m.name;
+        row.appendChild(nameEl);
+        partyMembersEl.appendChild(row);
+      }
+    }
+  }
+
+  if (partyLeaveBtn) partyLeaveBtn.addEventListener("click", () => {
+    if (typeof onPartyLeave === "function") onPartyLeave();
+  });
+
   return {
     setActiveTool,
     setActive,
@@ -2044,5 +2108,8 @@ export function initializeUI(options = {}) {
     openTaskBoard,
     closeTaskBoard,
     isTaskBoardOpen,
+    showPartyRequest,
+    hidePartyRequest,
+    setPartyPanel,
   };
 }

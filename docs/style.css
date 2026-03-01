@@ -2677,6 +2677,38 @@ body {
 }
 .ui-trade-req-btn.accept { background: #2d9c5e; }
 .ui-trade-req-btn.decline { background: #9c2d2d; }
+/* ── Party panel ── */
+.ui-party-panel {
+  position: fixed; top: 80px; left: 12px; z-index: 500;
+  background: rgba(20,16,32,0.92); border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 8px 12px; min-width: 120px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  font-family: var(--ui-font-body); color: #e0e0e0; font-size: 12px;
+}
+.ui-party-panel[hidden] { display: none; }
+.ui-party-header {
+  font-family: var(--ui-font-heading); font-size: 13px; color: #e8c44a;
+  margin-bottom: 4px;
+}
+.ui-party-member {
+  display: flex; align-items: center; gap: 6px; padding: 2px 0;
+}
+.ui-party-crown { font-size: 11px; }
+.ui-party-name { color: #ccc; }
+.ui-party-name.is-leader { color: #e8c44a; font-weight: 700; }
+.ui-party-leave-btn {
+  display: block; width: 100%; margin-top: 6px; padding: 4px 0;
+  border-radius: 5px; border: none; background: #9c2d2d; color: #fff;
+  font-weight: 700; font-size: 11px; cursor: pointer;
+}
+.ui-party-leave-btn:hover { background: #b83737; }
+.inspect-party-btn {
+  display: block; width: 100%; margin-top: 4px; padding: 5px 0;
+  border-radius: 6px; border: none; background: #2d6b9c; color: #fff;
+  font-weight: 700; font-size: 12px; cursor: pointer;
+}
+.inspect-party-btn:hover { background: #3780b8; }
 /* ── Bank notes ── */
 .ui-bag-slot.is-note, .ui-bank-slot.is-note, .ui-store-slot.is-note {
   position: relative;

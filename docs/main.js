@@ -113,6 +113,11 @@ function parseNote(id) {
 }
 function makeNote(baseItem, qty) { return `note:${baseItem}:${qty}`; }
 
+/* ── Party state ── */
+let party = null;    // { leader: peerId, members: [{ id, name }] }
+let partyRole = null; // "leader" | "member" | null
+let _bossStateInterval = null;
+
 /* ground raycaster (declared early — needed by remotePlayers.getGroundY before full init) */
 const groundRaycaster = new THREE.Raycaster();
 const groundRayOrigin = new THREE.Vector3();
@@ -314,7 +319,7 @@ function getTaskBoardState() {
   for (const slot of bagSystem.slots) {
     if (slot) bagCounts[slot] = (bagCounts[slot] || 0) + 1;
   }
-  return { tasks: TASK_BOARD_TASKS, activeTask, bagCounts, bosses: getAvailableInstances(), inInstance: getActiveInstance() };
+  return { tasks: TASK_BOARD_TASKS, activeTask, bagCounts, bosses: getAvailableInstances(), inInstance: getActiveInstance(), partyRole };
 }
 
 function acceptTask(taskId) {
@@ -390,14 +395,37 @@ async function doBossEnter(name) {
   if (_snakeBossGroup) {
     _snakeBossGroup.userData.onAttack = (x, y, z, color, type) => {
       spawnBossProjectile(x, y, z, color, type);
+      /* broadcast projectile to party members */
+      if (party && partyRole === "leader") {
+        broadcastToParty({ type: "boss_projectile", x, y, z, color, projType: type });
+      }
     };
   }
   /* immediately register boss as animal so it's attackable */
   scanForNewAnimals();
+  /* party: leader pulls members in + starts state broadcast */
+  if (party && partyRole === "leader") {
+    broadcastToParty({ type: "boss_enter", name });
+    if (_bossStateInterval) clearInterval(_bossStateInterval);
+    _bossStateInterval = setInterval(() => {
+      const boss = animals.find(a => a.type === "Snake Boss" && a.alive);
+      if (!boss) return;
+      broadcastToParty({
+        type: "boss_state",
+        hp: boss.hp, maxHp: boss.maxHp,
+        phase: _snakeBossGroup?.userData?.phase ?? 0,
+        colorIndex: _snakeBossGroup?.userData?.colorIndex ?? 0,
+        y: boss.parentModel?.position?.y ?? 0,
+      });
+    }, 100);
+  }
 }
 
 function doBossLeave() {
   if (!getActiveInstance()) return;
+  /* party: leader notifies members */
+  if (party && partyRole === "leader") broadcastToParty({ type: "boss_leave" });
+  if (_bossStateInterval) { clearInterval(_bossStateInterval); _bossStateInterval = null; }
   leaveInstance(scene, ground, resourceNodes);
   if (_preInstancePos) {
     player.position.set(_preInstancePos.x, 0, _preInstancePos.z);
@@ -598,6 +626,7 @@ const ui = initializeUI({
   onTaskAbandon: () => abandonTask(),
   onBossEnter: (name) => doBossEnter(name),
   onBossLeave: () => doBossLeave(),
+  onPartyLeave: () => leaveParty(),
 });
 
 function getCombatToolForStyle(style) {
@@ -1109,6 +1138,183 @@ function handleTradeMessage(msg) {
   }
 }
 
+/* ── Party helpers ── */
+function broadcastToParty(payload) {
+  if (!party) return;
+  for (const m of party.members) {
+    if (m.id !== netClient?.getLocalId()) netClient.sendDM(m.id, payload);
+  }
+}
+
+function syncPartyUI() {
+  ui?.setPartyPanel?.(party);
+}
+
+function disbandParty() {
+  if (party && partyRole === "leader") broadcastToParty({ type: "party_disband" });
+  if (_bossStateInterval) { clearInterval(_bossStateInterval); _bossStateInterval = null; }
+  party = null;
+  partyRole = null;
+  syncPartyUI();
+}
+
+function leaveParty() {
+  if (!party) return;
+  if (partyRole === "leader") { disbandParty(); return; }
+  netClient.sendDM(party.leader, { type: "party_leave" });
+  if (getActiveInstance()) doBossLeave();
+  party = null;
+  partyRole = null;
+  syncPartyUI();
+  ui?.setStatus("Left party.", "info");
+}
+
+function requestPartyInvite(peerId, peerName) {
+  if (party && partyRole !== "leader") { ui?.setStatus("Only the leader can invite.", "warn"); return; }
+  if (getActiveInstance()) { ui?.setStatus("Can't invite during a boss fight.", "warn"); return; }
+  if (party && party.members.length >= 4) { ui?.setStatus("Party is full (max 4).", "warn"); return; }
+  netClient.sendDM(peerId, { type: "party_invite", name: onlineConfig.name, leaderId: netClient.getLocalId() });
+  ui?.setStatus(`Party invite sent to ${peerName}.`, "info");
+}
+
+function handlePartyMessage(msg) {
+  const payload = msg.payload;
+  if (!payload || !payload.type) return false;
+
+  if (payload.type === "party_invite") {
+    if (party) { netClient.sendDM(msg.from, { type: "party_decline", reason: "in_party" }); return true; }
+    if (getActiveInstance()) { netClient.sendDM(msg.from, { type: "party_decline", reason: "busy" }); return true; }
+    ui?.showPartyRequest?.(payload.name || "Player",
+      () => {
+        netClient.sendDM(msg.from, { type: "party_accept", name: onlineConfig.name });
+        ui?.setStatus(`Joined ${payload.name}'s party!`, "success");
+      },
+      () => { netClient.sendDM(msg.from, { type: "party_decline" }); }
+    );
+    return true;
+  }
+
+  if (payload.type === "party_accept") {
+    // They accepted our invite — form or grow party
+    if (!party) {
+      party = { leader: netClient.getLocalId(), members: [{ id: netClient.getLocalId(), name: onlineConfig.name }] };
+      partyRole = "leader";
+    }
+    party.members.push({ id: msg.from, name: payload.name || "Player" });
+    broadcastToParty({ type: "party_sync", party });
+    syncPartyUI();
+    ui?.setStatus(`${payload.name || "Player"} joined the party!`, "success");
+    return true;
+  }
+
+  if (payload.type === "party_decline") {
+    ui?.setStatus("Party invite declined.", "info");
+    ui?.hidePartyRequest?.();
+    return true;
+  }
+
+  if (payload.type === "party_sync") {
+    party = payload.party;
+    partyRole = party.leader === netClient.getLocalId() ? "leader" : "member";
+    syncPartyUI();
+    return true;
+  }
+
+  if (payload.type === "party_leave") {
+    if (!party || partyRole !== "leader") return true;
+    party.members = party.members.filter(m => m.id !== msg.from);
+    if (party.members.length <= 1) { disbandParty(); ui?.setStatus("Party disbanded.", "info"); }
+    else { broadcastToParty({ type: "party_sync", party }); syncPartyUI(); }
+    return true;
+  }
+
+  if (payload.type === "party_disband") {
+    if (getActiveInstance()) doBossLeave();
+    party = null;
+    partyRole = null;
+    syncPartyUI();
+    ui?.setStatus("Party disbanded by leader.", "info");
+    return true;
+  }
+
+  return false;
+}
+
+/* ── Boss sync messages ── */
+function handleBossSync(msg) {
+  const payload = msg.payload;
+  if (!payload || !payload.type) return false;
+
+  if (payload.type === "boss_enter") {
+    // Leader is pulling us into the boss arena
+    if (!party || partyRole !== "member") return true;
+    doBossEnter(payload.name);
+    ui?.setStatus(`Entering ${payload.name} boss with party!`, "info");
+    return true;
+  }
+
+  if (payload.type === "boss_state") {
+    // Update boss HP/phase/color from host
+    if (!getActiveInstance() || partyRole !== "member") return true;
+    const boss = animals.find(a => a.type === "Snake Boss");
+    if (boss) {
+      boss.hp = payload.hp;
+      boss.maxHp = payload.maxHp;
+      boss.hpFill.style.width = ((boss.hp / boss.maxHp) * 100) + "%";
+      const pct = boss.hp / boss.maxHp;
+      boss.hpFill.style.background = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
+      boss.hpBar.dataset.state = "";
+      if (_snakeBossGroup) {
+        if (typeof payload.colorIndex === "number") _snakeBossGroup.userData.colorIndex = payload.colorIndex;
+        if (typeof payload.phase === "number") _snakeBossGroup.userData.phase = payload.phase;
+      }
+    }
+    return true;
+  }
+
+  if (payload.type === "boss_projectile") {
+    // Host spawned a projectile — render it locally
+    if (!getActiveInstance()) return true;
+    spawnBossProjectile(payload.x, payload.y, payload.z, payload.color, payload.projType);
+    return true;
+  }
+
+  if (payload.type === "boss_damage") {
+    // Member dealt damage — apply to local boss (host only)
+    if (partyRole !== "leader") return true;
+    const boss = animals.find(a => a.type === "Snake Boss" && a.alive);
+    if (boss) {
+      boss.hp = Math.max(0, boss.hp - (payload.amount || 0));
+      boss.hpBar.dataset.state = "";
+      boss.hpFill.style.width = ((boss.hp / boss.maxHp) * 100) + "%";
+      const pct = boss.hp / boss.maxHp;
+      boss.hpFill.style.background = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
+      if (boss.hp <= 0) killAnimal(boss);
+    }
+    return true;
+  }
+
+  if (payload.type === "boss_death") {
+    // Boss died — all members get loot + leave
+    if (!getActiveInstance() || partyRole !== "member") return true;
+    if (Array.isArray(payload.loot)) {
+      for (const item of payload.loot) spawnWorldDrop(item, player.position.x + (Math.random() - 0.5) * 2, player.position.z + (Math.random() - 0.5) * 2);
+    }
+    ui?.setStatus("Boss defeated!", "success");
+    setTimeout(() => doBossLeave(), 3000);
+    return true;
+  }
+
+  if (payload.type === "boss_leave") {
+    // Host left/died — everyone leaves
+    if (getActiveInstance()) doBossLeave();
+    ui?.setStatus("Party leader left the boss fight.", "warn");
+    return true;
+  }
+
+  return false;
+}
+
 let onlineConnected = false;
 function syncFriendsUI() {
   ui?.setFriendsState?.({ connected: onlineConnected, peers: remotePlayers.count() });
@@ -1128,6 +1334,8 @@ netClient = createRealtimeClient({
     onlineConnected = false;
     remotePlayers.clear();
     syncFriendsUI();
+    /* clear party on disconnect */
+    if (party) { party = null; partyRole = null; if (_bossStateInterval) { clearInterval(_bossStateInterval); _bossStateInterval = null; } syncPartyUI(); }
     if (reconnecting) ui?.setStatus("Online disconnected. Reconnecting...", "warn");
   },
   onWelcome: (msg) => {
@@ -1164,6 +1372,18 @@ netClient = createRealtimeClient({
       ui?.closeTrade?.();
       ui?.hideTradeRequest?.();
       ui?.setStatus("Trade partner disconnected.", "warn");
+    }
+    /* party: if leader left, disband; if member left, remove them */
+    if (party) {
+      if (id === party.leader && partyRole === "member") {
+        if (getActiveInstance()) doBossLeave();
+        party = null; partyRole = null; syncPartyUI();
+        ui?.setStatus("Party leader disconnected. Party disbanded.", "warn");
+      } else if (partyRole === "leader") {
+        party.members = party.members.filter(m => m.id !== id);
+        if (party.members.length <= 1) { disbandParty(); }
+        else { broadcastToParty({ type: "party_sync", party }); syncPartyUI(); }
+      }
     }
     syncFriendsUI();
   },
@@ -1241,11 +1461,12 @@ netClient = createRealtimeClient({
   },
   onDM: (msg) => {
     if (msg.payload?.type === "drop_picked") {
-      /* someone picked up one of our drops */
       const did = msg.payload.dropId;
       if (did && worldDrops.has(did)) removeWorldDrop(did);
       return;
     }
+    if (handlePartyMessage(msg)) return;
+    if (handleBossSync(msg)) return;
     handleTradeMessage(msg);
   },
 });
@@ -3175,11 +3396,22 @@ function performAttackHit(node) {
   /* check if this is an animal */
   const animal = animals.find(a => a.node === node || a.parentModel === node);
   if (animal && animal.alive) {
-    animal.hp = Math.max(0, animal.hp - damage);
-    animal.hpBar.dataset.state = "";
-    animal.hpFill.style.width = ((animal.hp / animal.maxHp) * 100) + "%";
-    const pct = animal.hp / animal.maxHp;
-    animal.hpFill.style.background = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
+    /* party member hitting boss → send damage to host, don't apply locally */
+    const isBoss = animal.type === "Snake Boss";
+    if (isBoss && party && partyRole === "member") {
+      netClient.sendDM(party.leader, { type: "boss_damage", amount: damage, style: combatStyle });
+      /* still show local hit effect but don't change HP (host will sync it) */
+    } else {
+      animal.hp = Math.max(0, animal.hp - damage);
+      animal.hpBar.dataset.state = "";
+      animal.hpFill.style.width = ((animal.hp / animal.maxHp) * 100) + "%";
+      const pct = animal.hp / animal.maxHp;
+      animal.hpFill.style.background = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
+      if (animal.hp <= 0) {
+        killAnimal(animal);
+        activeAttack = null;
+      }
+    }
     /* aggro — animal fights back */
     animal.aggro = true;
     animal.aggroTarget = player;
@@ -3190,10 +3422,6 @@ function performAttackHit(node) {
     animal.parentModel.rotation.y = Math.atan2(dx, dz);
     animal.wanderTarget = null;
     animal.wanderTimer = 1.5;
-    if (animal.hp <= 0) {
-      killAnimal(animal);
-      activeAttack = null;
-    }
   }
 
   const label = animal ? animal.type : "Training Dummy";
@@ -3235,12 +3463,23 @@ function killAnimal(a) {
   }
   /* equipment drop chance */
   const dropTable = MONSTER_EQUIPMENT_DROPS[a.type];
+  let eqDropItem = null;
   if (dropTable && Math.random() < dropTable.chance) {
     const eqBaseId = dropTable.items[Math.floor(Math.random() * dropTable.items.length)];
     const dropItem = EQUIPMENT_ITEMS[eqBaseId];
     if (dropItem) {
-      spawnWorldDrop(mintEquipId(eqBaseId), p.x + (Math.random() - 0.5) * 0.8, p.z + (Math.random() - 0.5) * 0.8);
+      eqDropItem = mintEquipId(eqBaseId);
+      spawnWorldDrop(eqDropItem, p.x + (Math.random() - 0.5) * 0.8, p.z + (Math.random() - 0.5) * 0.8);
     }
+  }
+  /* party boss: leader broadcasts death + loot so members get drops too */
+  const isBoss = a.type === "Snake Boss";
+  if (isBoss && party && partyRole === "leader") {
+    const loot = [];
+    if (lootName) loot.push(lootName);
+    if (eqDropItem) loot.push(eqDropItem);
+    broadcastToParty({ type: "boss_death", loot });
+    if (_bossStateInterval) { clearInterval(_bossStateInterval); _bossStateInterval = null; }
   }
   /* task board kill tracking */
   if (activeTask && activeTask.require.kill === a.type) {
@@ -3556,7 +3795,7 @@ renderer.domElement.addEventListener("contextmenu", (e) => {
     + `<span>\u{1F525} Mage ${sk.mage}</span>`
     + `<span>\u{1F373} Cook ${sk.cooking || 1}</span>`
     + `</div>` : "";
-  popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Total Lv ${hit.totalLevel}</div>${skillsHtml}<div class="inspect-activity">${activity}</div><button class="inspect-trade-btn">Trade</button>`;
+  popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Total Lv ${hit.totalLevel}</div>${skillsHtml}<div class="inspect-activity">${activity}</div><button class="inspect-trade-btn">Trade</button><button class="inspect-party-btn">Invite to Party</button>`;
   popup.style.left = Math.min(e.clientX, window.innerWidth - 220) + "px";
   popup.style.top = Math.min(e.clientY, window.innerHeight - 180) + "px";
   document.body.appendChild(popup);
@@ -3566,6 +3805,14 @@ renderer.domElement.addEventListener("contextmenu", (e) => {
       ev.stopPropagation();
       closeInspectPopup();
       requestTrade(hit.id, hit.name);
+    });
+  }
+  const partyBtn = popup.querySelector(".inspect-party-btn");
+  if (partyBtn) {
+    partyBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      closeInspectPopup();
+      requestPartyInvite(hit.id, hit.name);
     });
   }
   _inspectPopup = popup;
