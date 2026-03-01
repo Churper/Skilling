@@ -873,6 +873,7 @@ function enterInstance(name) {
   currentChunk = [0, 0];
   teleportCameraToChunk(0, 0);
   document.getElementById("chunk-id").textContent = name;
+  document.getElementById("chunk-water").checked = inst.water || false;
   _updateInstanceBanner();
   rebuildWaterPlane();
   updateChunkList();
@@ -2307,8 +2308,14 @@ document.getElementById("chunk-new").addEventListener("click", () => {
 
 /* water toggle — toggle selected chunk's water mesh */
 document.getElementById("chunk-water").addEventListener("change", () => {
-  const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
-  cd.water = document.getElementById("chunk-water").checked;
+  const checked = document.getElementById("chunk-water").checked;
+  if (activeInstance) {
+    const inst = instanceStore.get(activeInstance);
+    if (inst) inst.water = checked;
+  } else {
+    const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
+    cd.water = checked;
+  }
   rebuildWaterPlane();
 });
 /* edge toggle buttons */
