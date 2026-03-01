@@ -229,7 +229,9 @@ canvas{display:block}
   <div id="count">—</div>
 </div>
 
-<div id="canvas-wrap"><canvas id="compass" width="160" height="160"></canvas></div>
+<div id="canvas-wrap"><canvas id="compass" width="160" height="160"></canvas>
+<button id="btn-select-mode" title="Select/Move objects (Esc)" style="position:absolute;top:10px;left:10px;z-index:10;padding:4px 10px;font-size:11px;cursor:pointer;background:#1e1e32;color:#e8c44a;border:1px solid #e8c44a;border-radius:4px;font-weight:700">Select</button>
+</div>
 <input type="file" id="file-input" accept=".json" style="display:none">
 
 <script type="importmap">
@@ -2088,7 +2090,8 @@ function buildPalette() {
     }
   }
 }
-function updatePaletteSelection() { document.querySelectorAll(".obj-btn").forEach(d => d.classList.toggle("active", d.dataset.obj === selectedObj)); }
+function updatePaletteSelection() { document.querySelectorAll(".obj-btn").forEach(d => d.classList.toggle("active", d.dataset.obj === selectedObj)); document.getElementById("btn-select-mode").style.background = selectedObj ? "#1e1e32" : "#2a2a50"; }
+document.getElementById("btn-select-mode").addEventListener("click", () => { selectedObj = null; deselectInstance(); updatePaletteSelection(); updatePreview(); });
 function updateCount() { document.getElementById("count").textContent = `${objects.length} objects`; document.getElementById("count").style.color = "#555"; }
 
 /* sliders */

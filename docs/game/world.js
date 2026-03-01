@@ -796,6 +796,8 @@ async function loadInstanceData(name) {
   return null;
 }
 
+let _hiddenWorldObjects = [];
+
 async function enterInstance(name, scene, ground, nodes) {
   if (_activeInstance) return;
   const data = await loadInstanceData(name);
@@ -807,10 +809,14 @@ async function enterInstance(name, scene, ground, nodes) {
     if (chunk.objGroup) chunk.objGroup.visible = false;
     _hiddenWorldChunks.push(key);
   }
-  /* hide world structural objects (bridge, dock, etc.) */
-  scene.traverse(o => {
-    if (o.userData._worldStructural) o.visible = false;
-  });
+  /* hide ALL world scene children (map_objects, animals, structural, etc.) */
+  _hiddenWorldObjects = [];
+  for (const child of scene.children) {
+    if (child.visible && child !== ground) {
+      child.visible = false;
+      _hiddenWorldObjects.push(child);
+    }
+  }
   /* build instance terrain at origin */
   const b = chunkBounds(0, 0);
   b.water = data.water !== false;
@@ -849,9 +855,9 @@ function leaveInstance(scene, ground) {
       if (chunk.objGroup) chunk.objGroup.visible = true;
     }
   }
-  scene.traverse(o => {
-    if (o.userData._worldStructural) o.visible = true;
-  });
+  /* restore hidden world objects */
+  for (const obj of _hiddenWorldObjects) obj.visible = true;
+  _hiddenWorldObjects = [];
   _hiddenWorldChunks = [];
   _activeInstance = null;
 }

@@ -368,22 +368,23 @@ function abandonTask() {
 
 let _preInstancePos = null; // saved player position before entering instance
 
+const _instanceBanner = document.getElementById("ui-instance-banner");
+
 async function doBossEnter(name) {
   if (getActiveInstance()) return;
   _preInstancePos = { x: player.position.x, z: player.position.z };
   await enterInstance(name, scene, ground, resourceNodes);
-  // teleport player to instance center
   player.position.set(0, 0, 0);
   const gy = getPlayerGroundY(0, 0);
   player.position.y = gy;
   ui?.closeTaskBoard();
   ui?.setStatus(`Entered ${name} boss arena!`, "info");
+  if (_instanceBanner) _instanceBanner.hidden = false;
 }
 
 function doBossLeave() {
   if (!getActiveInstance()) return;
   leaveInstance(scene, ground);
-  // teleport back to saved position
   if (_preInstancePos) {
     player.position.set(_preInstancePos.x, 0, _preInstancePos.z);
     player.position.y = getPlayerGroundY(_preInstancePos.x, _preInstancePos.z);
@@ -391,7 +392,10 @@ function doBossLeave() {
   }
   ui?.closeTaskBoard();
   ui?.setStatus("Left boss arena", "info");
+  if (_instanceBanner) _instanceBanner.hidden = true;
 }
+
+if (_instanceBanner) _instanceBanner.addEventListener("click", () => doBossLeave());
 
 const onlineConfig = resolveOnlineConfig();
 const remotePlayers = createRemotePlayers({
