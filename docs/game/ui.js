@@ -194,6 +194,12 @@ export function initializeUI(options = {}) {
   function setPanelCollapsed(collapsed) {
     panelCollapsed = !!collapsed;
     if (uiRoot) uiRoot.classList.toggle("panel-collapsed", panelCollapsed);
+    /* Clear button highlights when collapsed so no tab looks "active" */
+    if (panelCollapsed) {
+      for (const button of buttons) button.classList.remove("is-active");
+    } else {
+      for (const button of buttons) button.classList.toggle("is-active", button.dataset.tab === activeTab);
+    }
   }
 
   function setMobileMenuOpen(open) {
@@ -294,15 +300,31 @@ export function initializeUI(options = {}) {
           const ir = ITEM_RARITY[itemType];
           if (ir?.tint) slot.style.background = ir.tint;
         }
-        /* styled tooltip */
+        /* styled tooltip with rarity */
         const tip = document.createElement("div");
         tip.className = "ui-slot-tooltip";
+        const ir = ITEM_RARITY[itemType];
         let tipText = displayName;
+        if (ir) tipText += `\n${ir.rarity[0].toUpperCase() + ir.rarity.slice(1)}`;
         if (sellVal) tipText += `\nSell: ${sellVal}c`;
         if (itemType === "Health Potion") tipText += "\nClick to use (+40 HP)";
         else if (itemType === "Mana Potion") tipText += "\nClick to use";
         else if (itemType === "logs") tipText += "\nClick to place Campfire (3 logs)";
-        tip.textContent = tipText;
+        tip.innerHTML = "";
+        const tipName = document.createElement("div");
+        tipName.textContent = displayName;
+        tip.append(tipName);
+        if (ir) {
+          const rarLine = document.createElement("div");
+          rarLine.textContent = ir.rarity[0].toUpperCase() + ir.rarity.slice(1);
+          rarLine.style.color = ir.color;
+          rarLine.style.fontWeight = "600";
+          tip.append(rarLine);
+        }
+        if (sellVal) { const s = document.createElement("div"); s.textContent = `Sell: ${sellVal}c`; tip.append(s); }
+        if (itemType === "Health Potion") { const s = document.createElement("div"); s.textContent = "Click to use (+40 HP)"; tip.append(s); }
+        else if (itemType === "Mana Potion") { const s = document.createElement("div"); s.textContent = "Click to use"; tip.append(s); }
+        else if (itemType === "logs") { const s = document.createElement("div"); s.textContent = "Click to place Campfire (3 logs)"; tip.append(s); }
         slot.append(tip);
         if (itemType === "Health Potion" || itemType === "Mana Potion" || itemType === "logs") {
           slot.classList.add("is-usable");
