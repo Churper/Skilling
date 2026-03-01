@@ -12,6 +12,5 @@
     "east": false,
     "west": false
   },
-  "baseType": "grass",
-  "objects": []
+  "baseType": "grass"
 }

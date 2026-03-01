@@ -1,1 +1,26 @@
-{"version":2,"chunk":[0,1],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[{"type":"Llama","x":8.63,"z":-35.5,"y":0.4,"scale":1,"rot":0}]}
+{
+  "version": 2,
+  "chunk": [
+    0,
+    1
+  ],
+  "tileSize": 2,
+  "water": true,
+  "edges": {
+    "north": false,
+    "south": false,
+    "east": false,
+    "west": false
+  },
+  "baseType": "grass",
+  "objects": [
+    {
+      "type": "Llama",
+      "x": 8.63,
+      "z": -35.5,
+      "y": 0.4,
+      "scale": 1,
+      "rot": 0
+    }
+  ]
+}

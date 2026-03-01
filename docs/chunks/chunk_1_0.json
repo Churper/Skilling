@@ -1,1 +1,26 @@
-{"version":2,"chunk":[1,0],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[{"type":"Pug","x":-18.64,"z":-13.33,"y":0.4,"scale":1,"rot":0}]}
+{
+  "version": 2,
+  "chunk": [
+    1,
+    0
+  ],
+  "tileSize": 2,
+  "water": true,
+  "edges": {
+    "north": false,
+    "south": false,
+    "east": false,
+    "west": false
+  },
+  "baseType": "grass",
+  "objects": [
+    {
+      "type": "Pug",
+      "x": -18.64,
+      "z": -13.33,
+      "y": 0.4,
+      "scale": 1,
+      "rot": 0
+    }
+  ]
+}
