@@ -775,7 +775,7 @@ function updateChunkList() {
   }
 
   /* World chunks section */
-  if (activeInstance) return; /* hide world chunks when in instance */
+  /* world chunks always shown — clicking one while in instance leaves the instance */
   const worldHeader = document.createElement("div");
   worldHeader.style.cssText = "font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:4px 0;margin-top:6px";
   worldHeader.textContent = "World Chunks";
@@ -800,6 +800,7 @@ function updateChunkList() {
     objCount.textContent = `${(cd.objects || []).length} obj`;
     row.appendChild(objCount);
     row.addEventListener("click", () => {
+      if (activeInstance) leaveInstance();
       switchChunk(cx, cz);
       updateMinimap();
       updateChunkList();
@@ -822,10 +823,11 @@ function enterInstance(name) {
   for (const [key, entry] of chunkMeshes) {
     if (!key.startsWith("inst:")) entry.mesh.visible = false;
   }
-  /* clear non-structural objects from scene */
-  for (let i = objects.length - 1; i >= 0; i--) {
-    if (!STRUCTURAL_TYPES.has(objects[i].type)) { scene.remove(objects[i].mesh); objects.splice(i, 1); }
-  }
+  /* clear ALL objects from scene (including structural — they belong to world, not instance) */
+  for (const obj of objects) scene.remove(obj.mesh);
+  objects.length = 0;
+  /* hide waterfall */
+  if (typeof waterfallGroup !== "undefined" && waterfallGroup) waterfallGroup.visible = false;
   /* build instance chunk at origin if not already built */
   const instKey = "inst:" + name;
   if (!chunkMeshes.has(instKey)) {
@@ -916,15 +918,18 @@ function leaveInstance() {
   }
   /* remove instance mesh */
   if (instEntry) { scene.remove(instEntry.mesh); instEntry.geo.dispose(); chunkMeshes.delete(instKey); }
-  /* clear instance objects from scene */
-  for (let i = objects.length - 1; i >= 0; i--) {
-    if (!STRUCTURAL_TYPES.has(objects[i].type)) { scene.remove(objects[i].mesh); objects.splice(i, 1); }
-  }
+  /* clear ALL instance objects from scene */
+  for (const obj of objects) scene.remove(obj.mesh);
+  objects.length = 0;
   activeInstance = null;
   _updateInstanceBanner();
-  /* restore world chunks */
+  /* restore world chunks + waterfall */
   for (const [, entry] of chunkMeshes) entry.mesh.visible = true;
-  switchChunk(0, 0);
+  if (typeof waterfallGroup !== "undefined" && waterfallGroup) waterfallGroup.visible = true;
+  /* reload world objects and activate chunk 0,0 for editing */
+  currentChunk = [0, 0];
+  loadChunkFromStore(0, 0);
+  teleportCameraToChunk(0, 0);
   updateMinimap();
   updateChunkList();
 }
