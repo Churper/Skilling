@@ -2254,7 +2254,6 @@ const GRAVITY = -18.0;
 let _isCrouching = false;
 let _crouchT = 0; // 0 = standing, 1 = fully crouched
 const CROUCH_SPEED = 8.0;
-let _crouchHoldTimer = 0; // debounce: prevent flicker from Ctrl key quirks
 let _smoothGroundY = null; // smoothed ground Y to prevent micro-terrain jitter
 
 function runServiceAction(node) {
@@ -3289,15 +3288,8 @@ function animate(now) {
     _jumpVelocity = JUMP_FORCE;
   }
 
-  /* Crouch (debounced — Ctrl key can flicker on Windows) */
-  const wantCrouch = input.keys.has("control") && !_isJumping;
-  if (wantCrouch) {
-    _isCrouching = true;
-    _crouchHoldTimer = 0;
-  } else {
-    _crouchHoldTimer += dt;
-    if (_crouchHoldTimer > 0.15) _isCrouching = false;
-  }
+  /* Crouch — uses grace-period hold detection to avoid Windows Ctrl flicker */
+  _isCrouching = input.isCrouchHeld() && !_isJumping;
 
   const keyboardMove = moveDir.lengthSq() > 0.0001;
   if (keyboardMove) {

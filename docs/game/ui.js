@@ -235,10 +235,10 @@ export function initializeUI(options = {}) {
   /* F-key bindings — same key closes panel, different key switches & opens */
   const _fkeyTabs = { F1: "inventory", F2: "worn", F3: "prayer", F4: "combat", F5: "skills", F6: "emotes" };
   window.addEventListener("keydown", (e) => {
-    if (e.repeat) return; /* ignore held-key repeats */
     const tab = _fkeyTabs[e.key];
     if (tab) {
-      e.preventDefault();
+      e.preventDefault(); /* always block browser F-key actions (F5 refresh etc) */
+      if (e.repeat) return; /* but only toggle on first press, not held repeats */
       if (activeTab === tab && !panelCollapsed) {
         setPanelCollapsed(true);
       } else {
@@ -246,8 +246,9 @@ export function initializeUI(options = {}) {
         setPanelCollapsed(false);
       }
       e.stopImmediatePropagation();
+      return;
     }
-    if (e.key === "Escape") {
+    if (e.key === "Escape" && !e.repeat) {
       setPanelCollapsed(true);
     }
   });
