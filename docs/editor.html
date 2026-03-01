@@ -1201,10 +1201,23 @@ async function loadAllModels() {
   const total = gltfItems.length;
   let loaded = 0;
   status.textContent = `Loading 0/${total}...`;
-  const loadOne = url => new Promise(res => { gltfLoader.load(url, gltf => res(gltf.scene), undefined, () => res(null)); });
+  const loadOne = url => new Promise(res => { gltfLoader.load(url, gltf => res(gltf.scene), undefined, (err) => { console.warn("GLB load failed:", url, err); res(null); }); });
   await Promise.all(gltfItems.map(async item => {
     const s = await loadOne(item.dir + item.file);
-    if (s) objLib[item.id] = s;
+    if (s) { objLib[item.id] = s; }
+    else {
+      /* create placeholder so placement still works */
+      console.warn(`Creating placeholder for failed model: ${item.id}`);
+      const g = new THREE.Group();
+      const box = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.8, 1.8), new THREE.MeshToonMaterial({ color: "#f44", gradientMap: TOON_GRAD }));
+      box.position.y = 0.9; g.add(box);
+      const c2 = document.createElement("canvas"); c2.width = 128; c2.height = 48;
+      const ctx2 = c2.getContext("2d"); ctx2.fillStyle = "rgba(0,0,0,0.6)"; ctx2.fillRect(0,0,128,48);
+      ctx2.font = "bold 22px sans-serif"; ctx2.fillStyle = "#ff4444"; ctx2.textAlign = "center"; ctx2.fillText(item.label || item.id, 64, 32);
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c2), transparent: true, depthTest: false }));
+      sp.scale.set(2.2, 0.8, 1); sp.position.y = 2.4; g.add(sp);
+      objLib[item.id] = g;
+    }
     status.textContent = `Loading ${++loaded}/${total}...`;
   }));
   status.textContent = `Loaded ${Object.keys(objLib).length}/${total}`;
