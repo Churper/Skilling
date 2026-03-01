@@ -62,6 +62,7 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
       entry.targetScaleY = state.scaleY;
       entry.targetScaleXZ = state.scaleXZ;
     }
+    if ("instance" in state) entry.instance = state.instance || "";
   }
 
   function upsertPeer(peer) {
@@ -89,9 +90,18 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
     }
   }
 
+  let _localInstance = "";
+  function setLocalInstance(inst) { _localInstance = inst || ""; }
+
   function update(dt) {
     for (const entry of peers.values()) {
       if (!entry.initialized) continue;
+
+      /* hide players in a different instance */
+      const sameInstance = (entry.instance || "") === _localInstance;
+      entry.avatar.player.visible = sameInstance;
+      if (entry.avatar.playerBlob) entry.avatar.playerBlob.visible = sameInstance;
+      if (!sameInstance) continue;
 
       entry.avatar.player.position.lerp(entry.targetPos, 1 - Math.exp(-dt * 9));
 
@@ -133,6 +143,7 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
   function getEmoteAnchor(id, out = new THREE.Vector3()) {
     const entry = peers.get(id);
     if (!entry || !entry.initialized) return null;
+    if ((entry.instance || "") !== _localInstance) return null;
     out.set(
       entry.avatar.player.position.x,
       entry.avatar.player.position.y + entry.headOffset + 0.45,
@@ -173,5 +184,6 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
     clear,
     getEmoteAnchor,
     hitTest,
+    setLocalInstance,
   };
 }

@@ -390,6 +390,7 @@ async function doBossEnter(name) {
   player.position.set(0, 0, 0);
   const gy = getPlayerGroundY(0, 0);
   player.position.y = gy;
+  remotePlayers.setLocalInstance(name);
   ui?.closeTaskBoard();
   ui?.setStatus(`Entered ${name} boss arena!`, "info");
   if (_instanceBanner) _instanceBanner.hidden = false;
@@ -430,6 +431,7 @@ function doBossLeave() {
   if (party && partyRole === "leader") broadcastToParty({ type: "boss_leave" });
   if (_bossStateInterval) { clearInterval(_bossStateInterval); _bossStateInterval = null; }
   leaveInstance(scene, ground, resourceNodes);
+  remotePlayers.setLocalInstance("");
   if (_preInstancePos) {
     player.position.set(_preInstancePos.x, 0, _preInstancePos.z);
     player.position.y = getPlayerGroundY(_preInstancePos.x, _preInstancePos.z);
@@ -4284,6 +4286,7 @@ function animate(now) {
       cooking: skills.cooking.level,
     },
     drops: Array.from(worldDrops.values()).filter(d => !d.peerOwner).map(d => ({ id: d.id, item: d.itemKey, x: d.x, z: d.z })),
+    instance: getActiveInstance() || "",
   });
 
   /* auto-save periodically */
