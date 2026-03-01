@@ -38,7 +38,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -154,6 +154,13 @@ export function initializeUI(options = {}) {
   const bankVaultGrid = document.getElementById("ui-bank-vault-grid");
   const bankInvGrid = document.getElementById("ui-bank-inv-grid");
   const bankQtyButtons = Array.from(document.querySelectorAll(".ui-bank-qty-btn"));
+
+  const storeOverlay = document.getElementById("ui-store-overlay");
+  const storeCloseBtn = document.getElementById("ui-store-close");
+  const storeStockGrid = document.getElementById("ui-store-stock-grid");
+  const storeInvGrid = document.getElementById("ui-store-inv-grid");
+  const storeCoinsEl = document.getElementById("ui-store-coins");
+  const storeSellAllBtn = document.getElementById("ui-store-sell-all");
 
   const combatStyleButtons = Array.from(document.querySelectorAll("[data-combat-style]"));
   const attackButton = document.getElementById("ui-attack-btn");
@@ -536,6 +543,97 @@ export function initializeUI(options = {}) {
       if (typeof onStoreSell === "function") onStoreSell();
     });
   }
+
+  /* ── Store overlay ── */
+  let _storeOpen = false;
+
+  function _renderStoreSlot(container, icon, label, price, priceClass, onClick) {
+    const slot = document.createElement("div");
+    slot.className = "ui-store-slot";
+    const ic = document.createElement("span");
+    ic.className = "ui-store-slot-icon";
+    ic.textContent = icon;
+    slot.append(ic);
+    if (price != null) {
+      const pr = document.createElement("span");
+      pr.className = "ui-store-slot-price" + (priceClass ? " " + priceClass : "");
+      pr.textContent = price;
+      slot.append(pr);
+    }
+    const tip = document.createElement("div");
+    tip.className = "ui-slot-tooltip";
+    tip.textContent = label;
+    slot.append(tip);
+    if (onClick) slot.addEventListener("click", onClick);
+    else slot.classList.add("is-empty");
+    container.append(slot);
+  }
+
+  function setStoreOverlay(payload = {}) {
+    if (!storeStockGrid || !storeInvGrid) return;
+    const slots = Array.isArray(payload.slots) ? payload.slots : [];
+    const capacity = payload.capacity || 28;
+    const coins = payload.coins || 0;
+    const shopItems = payload.shopItems || [];
+
+    if (storeCoinsEl) storeCoinsEl.textContent = `${coins}c`;
+
+    /* Shop stock — items the store sells */
+    storeStockGrid.innerHTML = "";
+    for (const item of shopItems) {
+      _renderStoreSlot(storeStockGrid, item.icon, `${item.label}\nBuy: ${item.cost}c`, `${item.cost}c`, "", () => {
+        if (typeof onStoreBuyItem === "function") onStoreBuyItem(item.id);
+      });
+    }
+    if (shopItems.length === 0) {
+      const hint = document.createElement("div");
+      hint.style.cssText = "grid-column:1/-1;text-align:center;color:var(--ui-ink-3);font-size:12px;padding:8px 0";
+      hint.textContent = "Nothing in stock";
+      storeStockGrid.append(hint);
+    }
+
+    /* Inventory — click to sell */
+    storeInvGrid.innerHTML = "";
+    for (let i = 0; i < capacity; i++) {
+      const itemType = slots[i] || null;
+      if (itemType) {
+        const eqData = EQUIPMENT_ITEMS[itemType];
+        const displayName = eqData ? eqData.label : (ITEM_LABEL[itemType] || itemType);
+        const iconChar = eqData ? eqData.icon : (ITEM_ICON[itemType] || "?");
+        const sellPrice = SELL_PRICE[itemType];
+        const priceText = sellPrice ? `${sellPrice}c` : "0c";
+        _renderStoreSlot(storeInvGrid, iconChar, `${displayName}\nSell: ${priceText}`, priceText, "is-sell", () => {
+          if (typeof onStoreSellItem === "function") onStoreSellItem(i);
+        });
+      } else {
+        const slot = document.createElement("div");
+        slot.className = "ui-store-slot is-empty";
+        storeInvGrid.append(slot);
+      }
+    }
+  }
+
+  function openStoreOverlay(payload = {}) {
+    setStoreOverlay(payload);
+    _storeOpen = true;
+    if (storeOverlay) storeOverlay.hidden = false;
+  }
+
+  function closeStoreOverlay() {
+    _storeOpen = false;
+    if (storeOverlay) storeOverlay.hidden = true;
+  }
+
+  function isStoreOpen() { return _storeOpen; }
+
+  if (storeCloseBtn) storeCloseBtn.addEventListener("click", closeStoreOverlay);
+  if (storeOverlay) storeOverlay.addEventListener("click", (e) => {
+    if (e.target === storeOverlay) closeStoreOverlay();
+  });
+  if (storeSellAllBtn) storeSellAllBtn.addEventListener("click", () => {
+    if (typeof onStoreSell === "function") onStoreSell();
+  });
+
   /* Bank overlay close handlers */
   if (bankCloseBtn) bankCloseBtn.addEventListener("click", closeBank);
   if (bankOverlay) bankOverlay.addEventListener("click", (e) => {
@@ -1172,6 +1270,10 @@ export function initializeUI(options = {}) {
     openBlacksmith,
     setStore,
     openStore,
+    setStoreOverlay,
+    openStoreOverlay,
+    closeStoreOverlay,
+    isStoreOpen,
     setBank,
     openBank,
     closeBank,

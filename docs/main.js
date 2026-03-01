@@ -298,6 +298,12 @@ const ui = initializeUI({
   onStoreSell: () => {
     sellBagViaStoreUI();
   },
+  onStoreSellItem: (slotIndex) => {
+    sellSingleItem(slotIndex);
+  },
+  onStoreBuyItem: (itemId) => {
+    buyShopItem(itemId);
+  },
   onStoreColor: (colorId) => {
     buyOrEquipSlimeColor(colorId);
   },
@@ -1642,10 +1648,55 @@ function sellBagViaStoreUI() {
   const { sold, coinsGained } = sellBagToStore();
   syncInventoryUI();
   if (sold <= 0) {
-    ui?.setStatus("Store: nothing to sell from your bag.", "warn");
+    ui?.setStatus("Nothing to sell.", "warn");
   } else {
-    ui?.setStatus(`Sold ${sold} item${sold === 1 ? "" : "s"} for ${coinsGained} coins.`, "success");
+    ui?.setStatus(`Sold ${sold} item${sold === 1 ? "" : "s"} for ${coinsGained}c.`, "success");
   }
+  if (ui?.isStoreOpen?.()) ui.setStoreOverlay(getStoreOverlayState());
+  saveGame();
+}
+
+function getStoreOverlayState() {
+  const shopItems = [
+    ...POTION_SHOP.map(p => ({ id: p.id, label: p.label, icon: p.icon, cost: p.cost })),
+  ];
+  return {
+    coins,
+    slots: [...bagSystem.slots],
+    capacity: BAG_CAPACITY,
+    shopItems,
+  };
+}
+
+function sellSingleItem(slotIndex) {
+  const itemId = bagSystem.slots[slotIndex];
+  if (!itemId) return;
+  const price = SELL_PRICE_BY_ITEM[itemId] || 0;
+  bagSystem.slots[slotIndex] = null;
+  bagSystem.recount();
+  coins += price;
+  syncInventoryUI();
+  if (ui?.isStoreOpen?.()) ui.setStoreOverlay(getStoreOverlayState());
+  ui?.setStatus(`Sold ${EQUIPMENT_ITEMS[itemId]?.label || itemId} for ${price}c.`, "success");
+  saveGame();
+}
+
+function buyShopItem(itemId) {
+  const potion = POTION_SHOP.find(p => p.id === itemId);
+  if (!potion) return;
+  if (coins < potion.cost) {
+    ui?.setStatus(`Need ${potion.cost}c to buy ${potion.label}.`, "warn");
+    return;
+  }
+  if (bagSystem.isFull()) {
+    ui?.setStatus("Bag is full!", "warn");
+    return;
+  }
+  coins -= potion.cost;
+  bagSystem.addItem(potion.item);
+  syncInventoryUI();
+  if (ui?.isStoreOpen?.()) ui.setStoreOverlay(getStoreOverlayState());
+  ui?.setStatus(`Bought ${potion.label} for ${potion.cost}c.`, "success");
   saveGame();
 }
 
@@ -1863,8 +1914,7 @@ function runServiceAction(node) {
   }
 
   if (serviceType === "store") {
-    ui?.openStore(getStoreState());
-    ui?.setStatus("Store open. Sell your bag and buy slime colors.", "info");
+    ui?.openStoreOverlay(getStoreOverlayState());
     return;
   }
 

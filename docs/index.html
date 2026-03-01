@@ -100,9 +100,6 @@
         <div id="ui-smith-craft-list" class="ui-smith-list"></div>
       </section>
       <section class="ui-panel-section" data-tab-panel="store" hidden>
-        <div class="ui-store-actions">
-          <button type="button" id="ui-store-sell-btn" class="ui-store-sell-btn">Sell Bag</button>
-        </div>
         <div class="ui-store-dyes">
           <button type="button" class="ui-dye-btn" data-store-color="lime"><span class="ui-dye-swatch" style="--sw:#58df78"></span><span>Lime</span><small data-store-cost="lime">0</small></button>
           <button type="button" class="ui-dye-btn" data-store-color="mint"><span class="ui-dye-swatch" style="--sw:#79f0b2"></span><span>Mint</span><small data-store-cost="mint">0</small></button>
@@ -467,6 +464,27 @@
         <div class="ui-bank-col">
           <h3 class="ui-bank-col-label">Inventory <small>(click to deposit)</small></h3>
           <div id="ui-bank-inv-grid" class="ui-bank-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Store overlay -->
+  <div id="ui-store-overlay" class="ui-store-overlay" hidden>
+    <div class="ui-store-modal">
+      <div class="ui-store-modal-header">
+        <span class="ui-store-modal-title">&#x1F3EA; General Store</span>
+        <span id="ui-store-coins" class="ui-store-coins"></span>
+        <button type="button" id="ui-store-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-store-modal-body">
+        <div class="ui-store-col">
+          <h3 class="ui-store-col-label">Shop Stock</h3>
+          <div id="ui-store-stock-grid" class="ui-store-grid"></div>
+        </div>
+        <div class="ui-store-col">
+          <h3 class="ui-store-col-label">Your Inventory <small>(click to sell)</small></h3>
+          <div id="ui-store-inv-grid" class="ui-store-grid"></div>
+          <button type="button" id="ui-store-sell-all" class="ui-store-sell-all-btn">Sell All</button>
         </div>
       </div>
     </div>
