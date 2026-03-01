@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { createSceneContext } from "./game/scene.js";
 import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE, createCampfire, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances, updateSnakeBoss } from "./game/world.js";
-import { getMeshSurfaceY } from "./game/terrainLayout.js";
 import { createPlayer, createMoveMarker, createCombatEffects } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
@@ -119,7 +118,10 @@ let party = null;    // { leader: peerId, members: [{ id, name }] }
 let partyRole = null; // "leader" | "member" | null
 let _bossStateInterval = null;
 
-/* ground height — analytic (no raycast needed) */
+/* ground raycast — cached, only fires when player moves >1 unit */
+const groundRaycaster = new THREE.Raycaster();
+const groundRayOrigin = new THREE.Vector3();
+const groundRayDir = new THREE.Vector3(0, -1, 0);
 
 /* ── Player HP ── */
 let playerHp = 100;
@@ -1997,10 +1999,9 @@ function updateLocalOverheadIcon() {
   const overhead = getActiveOverhead();
   if (overhead) {
     const entry = getOrCreateOverheadIcon("local");
-    if (entry.prayerId !== overhead) {
-      entry.el.innerHTML = OVERHEAD_ICON_MAP[overhead] || "";
-      entry.prayerId = overhead;
-    }
+    /* always update innerHTML when prayer changes */
+    entry.el.innerHTML = OVERHEAD_ICON_MAP[overhead] || "";
+    entry.prayerId = overhead;
   } else {
     removeOverheadIcon("local");
   }
@@ -2173,18 +2174,26 @@ function resolvePlayerCollisions() {
   pushPointOutsideObstacles(player.position, playerCollisionRadius);
 }
 
-/* Bridge deck AABB — only hard surface the analytic height doesn't know about */
-const _BRIDGE_X0 = -6.5, _BRIDGE_X1 = 6.5, _BRIDGE_Z0 = 5.5, _BRIDGE_Z1 = 10.5;
-const _BRIDGE_Y = 0.45; // WATER_Y(0) + 0.35 + 0.1
-
+let _groundYCache = { x: NaN, z: NaN, y: 0 };
+const _GROUND_Y_THRESH = 1.0; // re-raycast after moving 1 unit (bounding boxes make it cheap)
 function getPlayerGroundY(x, z) {
   if (inCave) return 0;
-  /* bridge deck — simple AABB instead of raycasting */
-  if (x > _BRIDGE_X0 && x < _BRIDGE_X1 && z > _BRIDGE_Z0 && z < _BRIDGE_Z1) {
-    return _BRIDGE_Y;
+  const cdx = x - _groundYCache.x, cdz = z - _groundYCache.z;
+  if (cdx * cdx + cdz * cdz < _GROUND_Y_THRESH * _GROUND_Y_THRESH) {
+    return _groundYCache.y;
   }
-  /* getMeshSurfaceY matches actual vertex positions (hills, bumps, sinusoidal rolling) */
-  return getMeshSurfaceY(x, z);
+  groundRayOrigin.set(x, 40, z);
+  groundRaycaster.set(groundRayOrigin, groundRayDir);
+  groundRaycaster.far = 60;
+  const hits = groundRaycaster.intersectObject(ground, true);
+  let resultY = 0.4; /* GRASS_Y fallback */
+  for (let i = 0; i < hits.length; i++) {
+    const h = hits[i];
+    if (h.object?.userData?.isWaterSurface) continue;
+    if (Number.isFinite(h.point?.y)) { resultY = h.point.y; break; }
+  }
+  _groundYCache.x = x; _groundYCache.z = z; _groundYCache.y = resultY;
+  return resultY;
 }
 
 function getPlayerStandY(x, z) {
