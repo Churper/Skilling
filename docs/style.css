@@ -1918,6 +1918,31 @@ body {
   text-transform: uppercase;
   color: var(--ui-accent-1) !important;
 }
+.ui-worn-skin-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px dashed rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.03);
+  position: relative;
+  transition: background .15s;
+}
+.ui-worn-skin-slot.is-equipped {
+  border-style: solid;
+  border-color: rgba(24,184,154,0.3);
+}
+.ui-worn-skin-slot:hover { background: rgba(255,255,255,0.08); }
+.ui-worn-skin-swatch-item {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+.ui-worn-skin-label {
+  font-size: 13px; font-weight: 600; color: var(--ui-ink);
+}
+.ui-worn-skin-slot:hover .ui-slot-tooltip { display: block; }
 .ui-worn-skin-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

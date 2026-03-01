@@ -1039,42 +1039,46 @@ export function initializeUI(options = {}) {
   }
 
   /* ── Worn tab: Skin selector ── */
-  const wornSkinGrid = document.getElementById("ui-worn-skin-grid");
+  const wornSkinSlot = document.getElementById("ui-worn-skin-slot");
+  const _patternGrads = {
+    fire: "linear-gradient(135deg, #ff4500, #ff8c00, #ffd700)",
+    ice: "linear-gradient(135deg, #87ceeb, #b0e0e6, #e0ffff)",
+    galaxy: "linear-gradient(135deg, #2e1065, #7c3aed, #c084fc)",
+    toxic: "linear-gradient(135deg, #22c55e, #84cc16, #facc15)",
+    lava: "linear-gradient(135deg, #b91c1c, #ef4444, #f97316)",
+    ocean: "linear-gradient(135deg, #0369a1, #38bdf8, #67e8f9)",
+    rainbow: "linear-gradient(135deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6)",
+    gold: "linear-gradient(135deg, #b8860b, #ffd700, #daa520)",
+    stained: "linear-gradient(135deg, #dc2626, #2563eb, #16a34a, #eab308)",
+  };
 
   function setWornSkins(payload = {}) {
-    if (!wornSkinGrid) return;
-    wornSkinGrid.innerHTML = "";
-    const unlocked = new Set(payload.unlocked || ["lime"]);
+    if (!wornSkinSlot) return;
+    wornSkinSlot.innerHTML = "";
     const selected = payload.selected || "lime";
-    for (const skin of SLIME_COLOR_SHOP) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "ui-worn-skin-btn";
-      const owned = unlocked.has(skin.id);
-      if (!owned) btn.classList.add("is-locked");
-      if (skin.id === selected) btn.classList.add("is-active");
-      const swatch = document.createElement("span");
-      swatch.className = "ui-worn-skin-swatch";
-      if (skin.pattern) {
-        swatch.classList.add("ui-dye-pattern");
-        // reuse the inline gradient from store buttons
-        const storeBtn = document.querySelector(`.ui-dye-btn[data-store-color="${skin.id}"] .ui-dye-swatch`);
-        if (storeBtn) swatch.style.background = getComputedStyle(storeBtn).background;
-        else swatch.style.background = skin.color;
-      } else {
-        swatch.style.background = skin.color;
-      }
-      btn.appendChild(swatch);
-      const label = document.createElement("span");
-      label.textContent = skin.label;
-      btn.appendChild(label);
-      if (owned) {
-        btn.addEventListener("click", () => {
-          if (typeof options.onStoreColor === "function") options.onStoreColor(skin.id);
-        });
-      }
-      btn.title = owned ? (skin.id === selected ? "Equipped" : "Click to equip") : `Locked (${skin.cost}c at Store)`;
-      wornSkinGrid.appendChild(btn);
+    const skin = SLIME_COLOR_SHOP.find(s => s.id === selected);
+    if (!skin) return;
+    wornSkinSlot.className = "ui-worn-skin-slot is-equipped";
+    const swatch = document.createElement("span");
+    swatch.className = "ui-worn-skin-swatch-item";
+    swatch.style.background = _patternGrads[skin.color] || skin.color;
+    wornSkinSlot.append(swatch);
+    const label = document.createElement("span");
+    label.className = "ui-worn-skin-label";
+    label.textContent = skin.label;
+    wornSkinSlot.append(label);
+    const tip = document.createElement("div");
+    tip.className = "ui-slot-tooltip";
+    tip.textContent = `${skin.label} Skin\nClick to unequip`;
+    wornSkinSlot.append(tip);
+    if (selected !== "lime") {
+      wornSkinSlot.style.cursor = "pointer";
+      wornSkinSlot.addEventListener("click", () => {
+        if (typeof onStoreColor === "function") onStoreColor("lime");
+      });
+    } else {
+      wornSkinSlot.style.cursor = "default";
+      tip.textContent = `${skin.label} Skin (Default)`;
     }
   }
 
