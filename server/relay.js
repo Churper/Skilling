@@ -197,6 +197,7 @@ wss.on("connection", (ws) => {
           x: Number(d.x) || 0,
           z: Number(d.z) || 0,
         })) : [],
+        instance: typeof state.instance === "string" ? state.instance.slice(0, 32) : "",
         totalLevel: Number(state.totalLevel) || 6,
         skills: state.skills && typeof state.skills === "object" ? {
           fishing: Number(state.skills.fishing) || 1,
