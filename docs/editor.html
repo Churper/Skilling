@@ -721,6 +721,7 @@ function updateMinimap() {
 
 /* click minimap to navigate */
 document.getElementById("minimap").addEventListener("click", e => {
+  if (activeInstance) leaveInstance();
   const cvs = e.target;
   const md = cvs._mapData;
   if (!md) return;
@@ -873,6 +874,7 @@ function enterInstance(name) {
   teleportCameraToChunk(0, 0);
   document.getElementById("chunk-id").textContent = name;
   _updateInstanceBanner();
+  rebuildWaterPlane();
   updateChunkList();
 }
 
@@ -1061,6 +1063,18 @@ function ensureAllChunkMeshes() {
 let _waterMesh = null;
 function rebuildWaterPlane() {
   if (_waterMesh) { scene.remove(_waterMesh); _waterMesh.geometry.dispose(); _waterMesh = null; }
+  if (activeInstance) {
+    /* instance mode: only show water if this instance has water enabled */
+    const inst = instanceStore.get(activeInstance);
+    if (!inst || !inst.water) return;
+    const wGeo = new THREE.PlaneGeometry(xMax - xMin, zMax - zMin, 1, 1);
+    wGeo.rotateX(-Math.PI / 2);
+    _waterMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
+    _waterMesh.position.set((xMin + xMax) / 2, WATER_Y, (zMin + zMax) / 2);
+    _waterMesh.renderOrder = 2;
+    scene.add(_waterMesh);
+    return;
+  }
   /* find bounding box of all chunks with water enabled */
   let wxMin = Infinity, wxMax = -Infinity, wzMin = Infinity, wzMax = -Infinity;
   let hasWater = false;
@@ -1746,14 +1760,16 @@ function raycastGround(e) {
   const allMeshes = getAllGroundMeshes();
   const hits = raycaster.intersectObjects(allMeshes);
   if (hits.length > 0) {
-    /* auto-switch active edit chunk based on which mesh was hit */
-    for (const [key, entry] of chunkMeshes) {
-      if (entry.mesh === hits[0].object) {
-        if (activeEditChunk[0] !== entry.cx || activeEditChunk[1] !== entry.cz) {
-          activateChunkForEditing(entry.cx, entry.cz);
-          updateMinimap();
+    /* auto-switch active edit chunk based on which mesh was hit (skip when editing instance) */
+    if (!activeInstance) {
+      for (const [key, entry] of chunkMeshes) {
+        if (entry.mesh === hits[0].object) {
+          if (activeEditChunk[0] !== entry.cx || activeEditChunk[1] !== entry.cz) {
+            activateChunkForEditing(entry.cx, entry.cz);
+            updateMinimap();
+          }
+          break;
         }
-        break;
       }
     }
     return hits[0].point;
