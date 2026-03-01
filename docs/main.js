@@ -876,6 +876,14 @@ function unequipItem(slotName) {
   saveGame();
 }
 
+function _combinedCraftCounts() {
+  const c = { ...inventory };
+  for (const [k, v] of Object.entries(bagSystem.bankStorage)) {
+    if (v > 0) c[k] = (c[k] || 0) + v;
+  }
+  return c;
+}
+
 function craftEquipment(itemId) {
   const recipe = EQUIPMENT_RECIPES[itemId];
   const item = EQUIPMENT_ITEMS[baseItemId(itemId)];
@@ -885,10 +893,12 @@ function craftEquipment(itemId) {
     ui?.setStatus(`Need combat level ${recipe.level} to craft ${item.label}!`, "warn");
     return;
   }
-  // Check materials
+  // Check materials (bag + bank combined)
   for (const [matKey, matQty] of Object.entries(recipe.materials)) {
-    if ((inventory[matKey] || 0) < matQty) {
-      ui?.setStatus(`Not enough materials for ${item.label}!`, "warn");
+    const bagAmt = inventory[matKey] || 0;
+    const bankAmt = bagSystem.bankStorage[matKey] || 0;
+    if (bagAmt + bankAmt < matQty) {
+      ui?.setStatus(`Not enough ${matKey} for ${item.label}! (need ${matQty}, have ${bagAmt + bankAmt})`, "warn");
       return;
     }
   }
@@ -896,9 +906,12 @@ function craftEquipment(itemId) {
     ui?.setStatus("Bag is full!", "warn");
     return;
   }
-  // Consume materials
+  // Consume materials — take from bag first, remainder from bank
   for (const [matKey, matQty] of Object.entries(recipe.materials)) {
-    bagSystem.removeItems(matKey, matQty);
+    let need = matQty;
+    const bagAmt = Math.min(need, inventory[matKey] || 0);
+    if (bagAmt > 0) { bagSystem.removeItems(matKey, bagAmt); need -= bagAmt; }
+    if (need > 0) { bagSystem.bankStorage[matKey] = Math.max(0, (bagSystem.bankStorage[matKey] || 0) - need); }
   }
   bagSystem.addItem(mintEquipId(itemId));
   syncInventoryUI();
@@ -912,7 +925,7 @@ function syncWornUI() {
   ui?.setWorn({ slots: { ...wornEquipment }, stars: { ...wornStars } });
   ui?.setWornSkins?.({ unlocked: [...unlockedSlimeColors], selected: currentSlimeColorId });
   ui?.setBlacksmithCrafting({
-    bagCounts: { ...inventory },
+    bagCounts: _combinedCraftCounts(),
     combatLevel: getCombatLevel(),
   });
 }
@@ -996,7 +1009,7 @@ function syncInventoryUI() {
   });
   ui?.setCoins(coins);
   ui?.setBlacksmith(getBlacksmithState());
-  ui?.setBlacksmithCrafting({ bagCounts: { ...inventory }, combatLevel: getCombatLevel() });
+  ui?.setBlacksmithCrafting({ bagCounts: _combinedCraftCounts(), combatLevel: getCombatLevel() });
   ui?.setStore(getStoreState());
   ui?.setBank(getBankState());
 }
