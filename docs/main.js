@@ -470,6 +470,12 @@ const ui = initializeUI({
   onTradeAccept: () => tradeAccept(),
   onTradeCancel: () => tradeCancel(),
   onDropItem: (slotIndex) => dropFromInventory(slotIndex),
+  onSwapSlots: (a, b) => {
+    const tmp = bagSystem.slots[a];
+    bagSystem.slots[a] = bagSystem.slots[b];
+    bagSystem.slots[b] = tmp;
+    syncInventoryUI();
+  },
   onTaskAccept: (taskId) => acceptTask(taskId),
   onTaskTurnIn: () => turnInTask(),
   onTaskAbandon: () => abandonTask(),

@@ -49,7 +49,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel, onDropItem, onTaskAccept, onTaskTurnIn, onTaskAbandon } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel, onDropItem, onTaskAccept, onTaskTurnIn, onTaskAbandon, onSwapSlots } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -91,6 +91,62 @@ export function initializeUI(options = {}) {
     _globalTip.classList.remove("is-visible");
   });
   function _wireSlotTooltip(slotEl) {}
+
+  /* ── Bag drag-and-drop system ── */
+  let _dragGhost = null;
+  let _dragSlotIdx = -1;
+  let _dragStarted = false;
+  let _dragStartX = 0, _dragStartY = 0;
+  const DRAG_THRESHOLD = 6;
+
+  function _startDrag(e, slotIdx, slotEl) {
+    _dragSlotIdx = slotIdx;
+    _dragStartX = e.clientX;
+    _dragStartY = e.clientY;
+    _dragStarted = false;
+    const onMove = (me) => {
+      const dx = me.clientX - _dragStartX, dy = me.clientY - _dragStartY;
+      if (!_dragStarted && Math.sqrt(dx * dx + dy * dy) < DRAG_THRESHOLD) return;
+      if (!_dragStarted) {
+        _dragStarted = true;
+        _globalTip.classList.remove("is-visible");
+        _hideEqTooltip();
+        _dragGhost = slotEl.cloneNode(true);
+        _dragGhost.style.cssText = "position:fixed;pointer-events:none;z-index:11000;opacity:0.85;transform:scale(1.1);transition:none;";
+        _dragGhost.style.width = slotEl.offsetWidth + "px";
+        _dragGhost.style.height = slotEl.offsetHeight + "px";
+        document.body.appendChild(_dragGhost);
+        slotEl.style.opacity = "0.3";
+      }
+      _dragGhost.style.left = (me.clientX - slotEl.offsetWidth / 2) + "px";
+      _dragGhost.style.top = (me.clientY - slotEl.offsetHeight / 2) + "px";
+    };
+    const onUp = (ue) => {
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onUp);
+      slotEl.style.opacity = "";
+      if (_dragGhost) { _dragGhost.remove(); _dragGhost = null; }
+      if (!_dragStarted) return;
+      /* find drop target */
+      const dropEl = document.elementFromPoint(ue.clientX, ue.clientY);
+      const targetSlot = dropEl?.closest?.(".ui-bag-slot");
+      if (targetSlot && inventoryGridEl?.contains(targetSlot)) {
+        /* dropped on another bag slot — swap */
+        const allSlots = Array.from(inventoryGridEl.children);
+        const targetIdx = allSlots.indexOf(targetSlot);
+        if (targetIdx >= 0 && targetIdx !== _dragSlotIdx) {
+          if (typeof onSwapSlots === "function") onSwapSlots(_dragSlotIdx, targetIdx);
+        }
+      } else if (!inventoryGridEl?.contains(dropEl)) {
+        /* dropped outside inventory — drop item */
+        if (typeof onDropItem === "function") onDropItem(_dragSlotIdx);
+      }
+      _dragSlotIdx = -1;
+      _dragStarted = false;
+    };
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+  }
 
   /* ── Right-click context menu for bag items ── */
   let _ctxMenu = document.getElementById("ui-ctx-menu");
@@ -458,6 +514,12 @@ export function initializeUI(options = {}) {
         slot.addEventListener("contextmenu", (e) => {
           e.preventDefault();
           _showCtxMenu(e.clientX, e.clientY, itemType, i, isEq);
+        });
+        /* drag to rearrange / drop */
+        const _si = i;
+        slot.addEventListener("pointerdown", (e) => {
+          if (e.button !== 0) return;
+          _startDrag(e, _si, slot);
         });
       }
       _wireSlotTooltip(slot);
