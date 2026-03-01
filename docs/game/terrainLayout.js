@@ -273,6 +273,8 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
   geo.setIndex(idx);
   geo.computeVertexNormals();
+  geo.computeBoundingBox();
+  geo.computeBoundingSphere();
   const groundMesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({
     vertexColors: true, gradientMap: TOON_GRAD, flatShading: true,
   }));

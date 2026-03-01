@@ -181,7 +181,7 @@ function registerAnimal(hsNode, parentModel) {
   /* use local position directly — map_objects group is always at origin */
   const spawnPos = parentModel.position.clone();
   /* snap to ground immediately so animals don't appear floating */
-  spawnPos.y = getPlayerGroundY(spawnPos.x, spawnPos.z);
+  spawnPos.y = getWorldSurfaceHeight(spawnPos.x, spawnPos.z);
   parentModel.position.y = spawnPos.y;
 
   const hpBar = document.createElement("div");
@@ -1845,7 +1845,7 @@ function updateAnimals(dt) {
         a._hidden = false;
         a.parentModel.visible = true;
         a.parentModel.traverse(c => { c.visible = true; });
-        a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
+        a.parentModel.position.y = getWorldSurfaceHeight(a.parentModel.position.x, a.parentModel.position.z);
       }
     }
     if (!a.alive) {
@@ -1887,7 +1887,7 @@ function updateAnimals(dt) {
         const cstep = Math.min(dt * chaseSpeed, adist - 1.8);
         a.parentModel.position.x += cnx * cstep;
         a.parentModel.position.z += cnz * cstep;
-        a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
+        a.parentModel.position.y = getWorldSurfaceHeight(a.parentModel.position.x, a.parentModel.position.z);
         a.parentModel.rotation.y = Math.atan2(cnx, cnz);
       } else {
         /* in melee range — attack */
@@ -1911,7 +1911,7 @@ function updateAnimals(dt) {
           0,
           a.spawnPos.z + Math.sin(angle) * dist,
         );
-        a.wanderTarget.y = getPlayerGroundY(a.wanderTarget.x, a.wanderTarget.z);
+        a.wanderTarget.y = getWorldSurfaceHeight(a.wanderTarget.x, a.wanderTarget.z);
         a.wanderTimer = 2 + Math.random() * 3;
       }
       if (a.wanderTarget) {
@@ -1925,7 +1925,7 @@ function updateAnimals(dt) {
           const step = Math.min(dt * 2.0, dist);
           a.parentModel.position.x += nx * step;
           a.parentModel.position.z += nz * step;
-          a.parentModel.position.y = getPlayerGroundY(a.parentModel.position.x, a.parentModel.position.z);
+          a.parentModel.position.y = getWorldSurfaceHeight(a.parentModel.position.x, a.parentModel.position.z);
           a.parentModel.rotation.y = Math.atan2(nx, nz);
         } else {
           a.wanderTarget = null;
@@ -2159,21 +2159,30 @@ function resolvePlayerCollisions() {
   pushPointOutsideObstacles(player.position, playerCollisionRadius);
 }
 
+let _groundYCache = { x: NaN, z: NaN, y: 0 };
+const _GROUND_Y_THRESH = 0.15; // only re-raycast if player moved this far
 function getPlayerGroundY(x, z) {
   if (inCave) {
     return 0; // flat cave floor
+  }
+  /* use cached value if player barely moved (avoids expensive raycast) */
+  const cdx = x - _groundYCache.x, cdz = z - _groundYCache.z;
+  if (cdx * cdx + cdz * cdz < _GROUND_Y_THRESH * _GROUND_Y_THRESH) {
+    return _groundYCache.y;
   }
   const analyticY = getWorldSurfaceHeight(x, z);
   groundRayOrigin.set(x, analyticY + 30, z);
   groundRaycaster.set(groundRayOrigin, groundRayDir);
   groundRaycaster.far = 80;
   const hits = groundRaycaster.intersectObject(ground, true);
+  let resultY = analyticY;
   for (let i = 0; i < hits.length; i++) {
     const h = hits[i];
     if (h.object?.userData?.isWaterSurface) continue;
-    if (Number.isFinite(h.point?.y)) return h.point.y;
+    if (Number.isFinite(h.point?.y)) { resultY = h.point.y; break; }
   }
-  return analyticY;
+  _groundYCache.x = x; _groundYCache.z = z; _groundYCache.y = resultY;
+  return resultY;
 }
 
 function getPlayerStandY(x, z) {
