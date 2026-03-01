@@ -181,6 +181,23 @@ export const MONSTER_EQUIPMENT_DROPS = {
   Zebra: { chance: 0.05, items: ["hide_amulet", "iron_ring", "iron_ring"] },
 };
 
+/* Equipment items sold in the general store (id → buy cost) */
+export const SHOP_EQUIPMENT = [
+  { id: "bronze_sword", cost: 30 },
+  { id: "bronze_bow",   cost: 30 },
+  { id: "bronze_staff", cost: 30 },
+  { id: "bronze_body",  cost: 40 },
+  { id: "bronze_shield",cost: 40 },
+  { id: "bronze_ring",  cost: 20 },
+  { id: "leather_cape", cost: 25 },
+  { id: "bone_amulet",  cost: 25 },
+  { id: "iron_sword",   cost: 80 },
+  { id: "iron_bow",     cost: 80 },
+  { id: "iron_body",    cost: 100 },
+  { id: "iron_shield",  cost: 100 },
+  { id: "iron_ring",    cost: 50 },
+];
+
 export const BAG_ITEM_KEYS = ["fish", "ore", "logs", "Raw Beef", "Raw Pork", "Wool", "Horse Hide", "Llama Wool", "Bone", "Striped Hide", "Health Potion", "Mana Potion", "Cooked Fish", "Cooked Beef", "Cooked Pork", "Burnt Food",
   ...Object.keys(EQUIPMENT_ITEMS)];
 

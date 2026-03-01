@@ -36,6 +36,7 @@ import {
   STAR_TIMING_BONUS,
   STAR_ATK_PER,
   STAR_DEF_PER,
+  SHOP_EQUIPMENT,
 } from "./game/config.js";
 import { createBagSystem } from "./game/systems/bagSystem.js";
 import { createConstructionProgress } from "./game/systems/constructionProgress.js";
@@ -1957,6 +1958,11 @@ function sellBagViaStoreUI() {
 function getStoreOverlayState() {
   const shopItems = [
     ...POTION_SHOP.map(p => ({ id: p.id, label: p.label, icon: p.icon, cost: p.cost, type: "potion" })),
+    ...SHOP_EQUIPMENT.map(se => {
+      const eq = EQUIPMENT_ITEMS[se.id];
+      if (!eq) return null;
+      return { id: "equip_" + se.id, label: eq.label, icon: eq.icon, cost: se.cost, type: "equipment", eqId: se.id, atk: eq.atk, def: eq.def, level: eq.level, tier: eq.tier };
+    }).filter(Boolean),
     ...SLIME_COLOR_SHOP.map(c => ({
       id: "color_" + c.id,
       label: c.label + (unlockedSlimeColors.has(c.id) ? " (Owned)" : ""),
@@ -2011,6 +2017,30 @@ function buyShopItem(itemId) {
     const colorId = itemId.slice(6);
     buyOrEquipSlimeColor(colorId);
     if (ui?.isStoreOpen?.()) ui.setStoreOverlay(getStoreOverlayState());
+    return;
+  }
+  // Handle equipment purchases — add to bag as item
+  if (itemId.startsWith("equip_")) {
+    const eqBaseId = itemId.slice(6);
+    const shopEntry = SHOP_EQUIPMENT.find(se => se.id === eqBaseId);
+    const eq = EQUIPMENT_ITEMS[eqBaseId];
+    if (!shopEntry || !eq) return;
+    if (coins < shopEntry.cost) {
+      ui?.setStatus(`Need ${shopEntry.cost}c to buy ${eq.label}.`, "warn");
+      return;
+    }
+    if (bagSystem.isFull()) {
+      ui?.setStatus("Bag is full!", "warn");
+      return;
+    }
+    coins -= shopEntry.cost;
+    // Generate unique instance id
+    const uid = eqBaseId + "#" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    bagSystem.addItem(uid);
+    syncInventoryUI();
+    if (ui?.isStoreOpen?.()) ui.setStoreOverlay(getStoreOverlayState());
+    ui?.setStatus(`Bought ${eq.label} for ${shopEntry.cost}c.`, "success");
+    saveGame();
     return;
   }
   const potion = POTION_SHOP.find(p => p.id === itemId);

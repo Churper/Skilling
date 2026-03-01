@@ -226,11 +226,22 @@ export function initializeUI(options = {}) {
     title.textContent = labelByTab[tab] || "Panel";
   }
 
-  /* F-key bindings */
-  const _fkeyTabs = { F1: "inventory", F2: "worn", F3: "prayer", F4: "combat" };
+  /* F-key bindings — double-press same key toggles panel closed */
+  const _fkeyTabs = { F1: "inventory", F2: "worn", F3: "prayer", F4: "combat", F5: "emotes", F6: "skills" };
   window.addEventListener("keydown", (e) => {
     const tab = _fkeyTabs[e.key];
-    if (tab) { e.preventDefault(); setActive(tab); setPanelCollapsed(false); }
+    if (tab) {
+      e.preventDefault();
+      if (activeTab === tab && !panelCollapsed) {
+        setPanelCollapsed(true);
+      } else {
+        setActive(tab);
+        setPanelCollapsed(false);
+      }
+    }
+    if (e.key === "Escape") {
+      setPanelCollapsed(true);
+    }
   });
 
   function setActiveTool(tool) {
@@ -379,7 +390,7 @@ export function initializeUI(options = {}) {
     const connected = !!payload.connected;
     const peers = Math.max(0, Math.floor(Number(payload.peers) || 0));
     if (friendsOnlineEl) friendsOnlineEl.textContent = connected ? "Online" : "Offline";
-    if (friendsCountEl) friendsCountEl.textContent = String(connected ? peers + 1 : 1);
+    if (friendsCountEl) friendsCountEl.textContent = `Players online: ${connected ? peers + 1 : 1}`;
   }
 
   function setBlacksmith(payload = {}) {
@@ -701,6 +712,13 @@ export function initializeUI(options = {}) {
           if (typeof onStoreBuyItem === "function") onStoreBuyItem(item.id);
         });
         storeStockGrid.append(slot);
+      } else if (item.type === "equipment") {
+        const tipLines = [item.label, `Lvl ${item.level}  Atk +${item.atk}  Def +${item.def}`, `Buy: ${item.cost}c`];
+        const slot = _renderStoreSlot(storeStockGrid, item.icon, tipLines.join("\n"), `${item.cost}c`, "", () => {
+          if (typeof onStoreBuyItem === "function") onStoreBuyItem(item.id);
+        });
+        const td = EQUIPMENT_TIERS[item.tier];
+        if (td?.tint) slot.style.background = td.tint;
       } else {
         _renderStoreSlot(storeStockGrid, item.icon, `${item.label}\nBuy: ${item.cost}c`, `${item.cost}c`, "", () => {
           if (typeof onStoreBuyItem === "function") onStoreBuyItem(item.id);
@@ -869,7 +887,8 @@ export function initializeUI(options = {}) {
   }
 
   window.addEventListener("keydown", (e) => {
-    /* close bank overlay on Escape */
+    /* close overlays on Escape */
+    if (_storeOpen && e.key === "Escape") { closeStoreOverlay(); e.preventDefault(); return; }
     if (_bankOpen && e.key === "Escape") { closeBank(); e.preventDefault(); return; }
     /* cancel hotkey listen on Escape */
     if (pendingHotkeyRow && e.key === "Escape") {
