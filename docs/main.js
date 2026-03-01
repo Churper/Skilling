@@ -408,6 +408,11 @@ async function doBossEnter(name) {
   }
   _preInstancePos = { x: player.position.x, z: player.position.z };
   await enterInstance(name, scene, ground, resourceNodes, [player, playerBlob]);
+  if (!getActiveInstance()) {
+    ui?.setStatus("Failed to load boss instance!", "warn");
+    _preInstancePos = null;
+    return;
+  }
   player.position.set(0, 0, 0);
   const gy = getPlayerGroundY(0, 0);
   player.position.y = gy;
