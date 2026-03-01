@@ -64,13 +64,17 @@ export function initializeUI(options = {}) {
     document.body.appendChild(_globalTip);
   }
   const _slotSelector = ".ui-bag-slot, .ui-bank-slot, .ui-store-slot, .ui-trade-slot, .ui-worn-slot, .ui-worn-skin-slot";
+  let _tipSlot = null;
   document.addEventListener("pointerover", (e) => {
     const slot = e.target.closest(_slotSelector);
     if (!slot) return;
+    _tipSlot = slot;
     const localTip = slot.querySelector(".ui-slot-tooltip");
-    const text = localTip ? localTip.textContent : slot.dataset.tip;
-    if (!text) return;
-    _globalTip.textContent = text;
+    if (localTip) {
+      _globalTip.innerHTML = localTip.innerHTML || localTip.textContent;
+    } else if (slot.dataset.tip) {
+      _globalTip.textContent = slot.dataset.tip;
+    } else return;
     _globalTip.classList.add("is-visible");
     const r = slot.getBoundingClientRect();
     _globalTip.style.left = (r.left + r.width / 2) + "px";
@@ -81,6 +85,9 @@ export function initializeUI(options = {}) {
   document.addEventListener("pointerout", (e) => {
     const slot = e.target.closest(_slotSelector);
     if (!slot) return;
+    /* don't hide if moving to a child within the same slot */
+    if (e.relatedTarget && slot.contains(e.relatedTarget)) return;
+    _tipSlot = null;
     _globalTip.classList.remove("is-visible");
   });
   function _wireSlotTooltip(slotEl) {}

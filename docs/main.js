@@ -2298,7 +2298,7 @@ let _smoothGroundY = null; // smoothed ground Y to prevent micro-terrain jitter
 const worldDrops = new Map(); // dropId → { id, itemKey, x, z, group, hs, sprite, expireAt, stars }
 const DROP_LIFETIME = 120000; // 2 minutes
 const _dropRingGeo = new THREE.RingGeometry(0.15, 0.35, 16);
-const _dropHsGeo = new THREE.CylinderGeometry(0.6, 0.6, 1.2, 8);
+const _dropHsGeo = new THREE.CylinderGeometry(1.0, 1.0, 1.6, 8);
 const _dropHsMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, depthTest: false });
 
 const _DROP_ICON = {

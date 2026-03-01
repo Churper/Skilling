@@ -587,23 +587,27 @@ function addCaveEntrance(scene, x, z, nodes, obstacles) {
 /* ── Fishing — river + dock spots ── */
 const RING_GEO = new THREE.TorusGeometry(.5, .045, 8, 24);
 const BOB_GEO = new THREE.SphereGeometry(.13, 8, 7);
+function addFishingSpot(scene, x, z, nodes) {
+  const g = new THREE.Group(); setRes(g, "fishing", "Fishing Spot");
+  g.userData.bobPhase = Math.random() * Math.PI * 2;
+  g.position.set(x, WATER_Y + .02, z);
+  g.renderOrder = R_WATER + 2;
+  const ring = new THREE.Mesh(RING_GEO,
+    new THREE.MeshBasicMaterial({ color: "#dcf8ff", transparent: true, opacity: .72 }));
+  ring.rotation.x = Math.PI / 2; g.add(ring);
+  const bob = new THREE.Mesh(BOB_GEO, toonMat("#ffcc58")); bob.position.y = .12; g.add(bob);
+  g.userData.ring = ring;
+  scene.add(g);
+  const hs = addHS(g, 0, .25, 0);
+  hs.scale.set(1.25, .55, 1.25);
+  nodes.push(hs);
+  return g;
+}
 function addFishing(scene, nodes) {
   const spots = [];
-  FISHING_SPOT_POSITIONS.forEach((pos, i) => {
-    const g = new THREE.Group(); setRes(g, "fishing", "Fishing Spot");
-    g.userData.bobPhase = pos.phase;
-    g.position.set(pos.x, WATER_Y + .02, pos.z);
-    g.renderOrder = R_WATER + 2;
-    const ring = new THREE.Mesh(RING_GEO,
-      new THREE.MeshBasicMaterial({ color: "#dcf8ff", transparent: true, opacity: .72 }));
-    ring.rotation.x = Math.PI / 2; g.add(ring);
-    const bob = new THREE.Mesh(BOB_GEO, toonMat("#ffcc58")); bob.position.y = .12; g.add(bob);
-    g.userData.ring = ring;
-    scene.add(g);
-    const hs = addHS(g, 0, .25, 0);
-    hs.scale.set(1.25, .55, 1.25);
-    nodes.push(hs);
-    spots.push(g);
+  FISHING_SPOT_POSITIONS.forEach((pos) => {
+    spots.push(addFishingSpot(scene, pos.x, pos.z, nodes));
+    spots[spots.length - 1].userData.bobPhase = pos.phase;
   });
   return spots;
 }
@@ -864,8 +868,9 @@ for (const t of [
 
 /* Service type lookup — maps editor object types to procedural building builders or service tags */
 const SERVICE_BUILDER = {
-  "Svc_Dummy":       { builder: (s, x, z, n) => addDummy(s, x, z, n) },
-  "Svc_Construction":{ builder: (s, x, z, n) => addYard(s, x, z, n) },
+  "Svc_Dummy":        { builder: (s, x, z, n) => addDummy(s, x, z, n) },
+  "Svc_Construction": { builder: (s, x, z, n) => addYard(s, x, z, n) },
+  "Svc_FishingSpot":  { builder: (s, x, z, n) => addFishingSpot(s, x, z, n) },
 };
 /* Service tags — GLTF model objects that need service interaction wired up */
 const SERVICE_TAG = {
