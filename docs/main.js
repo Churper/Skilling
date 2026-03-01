@@ -56,7 +56,7 @@ try {
   document.getElementById("webgl-fallback").style.display = "block";
   throw new Error("WebGL not supported");
 }
-const { renderer, scene, camera, controls, composer } = createSceneContext(canvas);
+const { renderer, scene, camera, controls } = createSceneContext(canvas);
 const { ground, skyMat, waterUniforms, causticMap, addShadowBlob, resourceNodes, updateWorld, constructionSite, collisionObstacles = [], weaponModels } = await createWorld(scene);
 const { player, playerBlob, setEquippedTool, updateAnimation, setSlimeColor } = createPlayer(scene, addShadowBlob, weaponModels);
 const { marker, markerRing, markerBeam } = createMoveMarker(scene);
@@ -1750,10 +1750,11 @@ function updateFloatingDrops(dt) {
     const eased = 1 - Math.pow(1 - t, 2);
     _dropProj.set(d.x + d.driftX * eased, d.y + d.rise * eased, d.z);
     _dropProj.project(camera);
-    d.el.style.left = (_dropProj.x * hw + hw) + "px";
-    d.el.style.top = (-_dropProj.y * hh + hh) + "px";
-    d.el.style.opacity = String(Math.max(0, 1 - t * 1.15));
-    d.el.style.transform = `translate(-50%, -100%) scale(${0.92 + t * 0.12})`;
+    const sx = (_dropProj.x * hw + hw).toFixed(1);
+    const sy = (-_dropProj.y * hh + hh).toFixed(1);
+    const op = Math.max(0, 1 - t * 1.15);
+    d.el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -100%) scale(${(0.92 + t * 0.12).toFixed(2)})`;
+    d.el.style.opacity = op < 0.01 ? "0" : op.toFixed(2);
     if (t >= 1) {
       d.el.remove();
       floatingDrops.splice(i, 1);
@@ -1764,6 +1765,7 @@ function updateFloatingDrops(dt) {
 // ── Name tags above slimes ──
 const nameTags = new Map(); // key -> { el, anchor, sx, sy }
 const _tagProj = new THREE.Vector3();
+let _uiFrameCount = 0;
 const TAG_LERP = 0.25; // smoothing factor per frame (0-1, lower = smoother)
 
 function getOrCreateNameTag(key) {
@@ -1924,12 +1926,13 @@ function updateAnimals(dt) {
       if (a.wanderTimer <= 0) {
         const angle = Math.random() * Math.PI * 2;
         const dist = 1.5 + Math.random() * 2.5;
-        a.wanderTarget = new THREE.Vector3(
+        _animalWanderDir.set(
           a.spawnPos.x + Math.cos(angle) * dist,
           0,
           a.spawnPos.z + Math.sin(angle) * dist,
         );
-        a.wanderTarget.y = getWorldSurfaceHeight(a.wanderTarget.x, a.wanderTarget.z);
+        _animalWanderDir.y = getWorldSurfaceHeight(_animalWanderDir.x, _animalWanderDir.z);
+        a.wanderTarget = _animalWanderDir.clone();
         a.wanderTimer = 2 + Math.random() * 3;
       }
       if (a.wanderTarget) {
@@ -2013,8 +2016,9 @@ function updateOverheadIcons() {
   if (localEntry) {
     _ohProj.set(player.position.x, player.position.y + playerHeadOffset + 0.65, player.position.z);
     _ohProj.project(camera);
-    localEntry.el.style.left = (_ohProj.x * hw + hw) + "px";
-    localEntry.el.style.top = (-_ohProj.y * hh + hh) + "px";
+    const lx = (_ohProj.x * hw + hw).toFixed(1);
+    const ly = (-_ohProj.y * hh + hh).toFixed(1);
+    localEntry.el.style.transform = `translate(${lx}px, ${ly}px) translate(-50%, -100%)`;
   }
 
   // Remote players
@@ -2024,8 +2028,9 @@ function updateOverheadIcons() {
     if (!anchor) { removeOverheadIcon(key); continue; }
     anchor.y += 0.25;
     anchor.project(camera);
-    entry.el.style.left = (anchor.x * hw + hw) + "px";
-    entry.el.style.top = (-anchor.y * hh + hh) + "px";
+    const rx = (anchor.x * hw + hw).toFixed(1);
+    const ry = (-anchor.y * hh + hh).toFixed(1);
+    entry.el.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -100%)`;
   }
 }
 
@@ -2049,15 +2054,7 @@ let hasTrailPoint = false;
 const lastTrailPoint = new THREE.Vector2();
 
 function updateSlimeTrail(dt, t, isMoving) {
-  if (!ENABLE_SLIME_TRAIL) {
-    for (let i = slimeTrails.length - 1; i >= 0; i--) {
-      scene.remove(slimeTrails[i].mesh);
-      slimeTrails[i].mesh.material.dispose();
-      slimeTrails.splice(i, 1);
-    }
-    hasTrailPoint = false;
-    return;
-  }
+  if (!ENABLE_SLIME_TRAIL) return;
 
   if (!isMoving) {
     hasTrailPoint = false;
@@ -2178,7 +2175,7 @@ function resolvePlayerCollisions() {
 }
 
 let _groundYCache = { x: NaN, z: NaN, y: 0 };
-const _GROUND_Y_THRESH = 0.15; // only re-raycast if player moved this far
+const _GROUND_Y_THRESH = 0.5; // only re-raycast if player moved this far
 function getPlayerGroundY(x, z) {
   if (inCave) {
     return 0; // flat cave floor
@@ -2191,7 +2188,7 @@ function getPlayerGroundY(x, z) {
   const analyticY = getWorldSurfaceHeight(x, z);
   groundRayOrigin.set(x, analyticY + 30, z);
   groundRaycaster.set(groundRayOrigin, groundRayDir);
-  groundRaycaster.far = 80;
+  groundRaycaster.far = 60;
   const hits = groundRaycaster.intersectObject(ground, true);
   let resultY = analyticY;
   for (let i = 0; i < hits.length; i++) {
@@ -3992,7 +3989,6 @@ if (dprSelect) {
     const w = renderer.domElement.parentElement.clientWidth;
     const h = renderer.domElement.parentElement.clientHeight;
     renderer.setSize(w, h);
-    composer.setSize(w, h);
     saveSettings();
   });
 }
@@ -4004,21 +4000,7 @@ if (fpsCapSelect) {
   if (_savedSettings.fpsCap != null) fpsCapSelect.value = String(_savedSettings.fpsCap);
   fpsCapSelect.addEventListener("change", () => { fpsCap = parseInt(fpsCapSelect.value) || 0; saveSettings(); });
 }
-/* bloom toggle */
-const bloomCheck = document.getElementById("setting-bloom");
-if (bloomCheck && composer.passes) {
-  const bloomOn = _savedSettings.bloom || false;
-  bloomCheck.checked = bloomOn;
-  for (const pass of composer.passes) {
-    if (pass.constructor.name === "UnrealBloomPass") pass.enabled = bloomOn;
-  }
-  bloomCheck.addEventListener("change", () => {
-    for (const pass of composer.passes) {
-      if (pass.constructor.name === "UnrealBloomPass") pass.enabled = bloomCheck.checked;
-    }
-    saveSettings();
-  });
-}
+/* bloom removed for performance */
 /* name input */
 const nameInput = document.getElementById("setting-name");
 if (nameInput) {
@@ -4267,8 +4249,12 @@ function animate(now) {
   updateFireworks(dt);
   updateClickEffects(dt);
   updateEmoteBubbles(dt);
-  updateNameTags();
-  updateOverheadIcons();
+  /* throttle DOM-heavy updates to every other frame */
+  _uiFrameCount = (_uiFrameCount + 1) & 1;
+  if (_uiFrameCount === 0) {
+    updateNameTags();
+    updateOverheadIcons();
+  }
   updateFloatingDrops(dt);
   updateWorldDrops(dt, t);
   cleanupExpiredDrops();
@@ -4344,7 +4330,7 @@ function animate(now) {
   /* auto-save periodically */
   if (now - _lastSaveTime > SAVE_INTERVAL) { _lastSaveTime = now; saveGame(); }
 
-  composer.render();
+  renderer.render(scene, camera);
   updateDebugOverlay();
   updateConnStatus();
 }

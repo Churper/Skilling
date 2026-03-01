@@ -173,13 +173,7 @@ export function getMeshSurfaceY(x, z) {
     const bridgeT = bxT * bzT;
     if (bridgeT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 2, bridgeT);
   }
-  /* flatten terrain under dock */
-  if (x > 34 && x < 54 && Math.abs(z - 4) < 6) {
-    const dxT = 1 - sm(Math.max(34 - x, x - 54, 0), 0, 3);
-    const dzT = 1 - sm(Math.abs(z - 4), 3, 6);
-    const dockT = dxT * dzT;
-    if (dockT > 0) y = THREE.MathUtils.lerp(y, WATER_Y - 2, dockT);
-  }
+  /* dock removed for performance */
   return y;
 }
 
@@ -286,7 +280,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   if (showWater) {
     /* use unpadded data bounds so neighbor water planes meet exactly (no overlap) */
     const ww = dxMax - dxMin, wh = dzMax - dzMin;
-    const wSegs = step <= 1 ? 48 : 16;
+    const wSegs = step <= 1 ? 32 : 6;
     const waterGeo = new THREE.PlaneGeometry(ww, wh, wSegs, wSegs);
     waterGeo.rotateX(-Math.PI / 2);
     const waterMat = new THREE.MeshBasicMaterial({
@@ -720,5 +714,4 @@ export const CLIFF_ROCK_SPOTS = [
 ];
 export const FISHING_SPOT_POSITIONS = [
   { x:-4, z:14, phase:0 },{ x:4, z:4, phase:1.2 },{ x:8, z:-4, phase:2.4 },
-  { x:42, z:4, phase:3.6 },{ x:46, z:2, phase:4.8 },
 ];

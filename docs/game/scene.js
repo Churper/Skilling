@@ -1,9 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 
 export function createSceneContext(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
@@ -15,9 +11,9 @@ export function createSceneContext(canvas) {
   renderer.toneMappingExposure = 1.0;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog("#93bfd4", 700, 1800);
+  scene.fog = new THREE.Fog("#93bfd4", 120, 340);
 
-  const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.5, 800);
+  const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.5, 400);
   camera.position.set(28, 30, 28);
 
   scene.add(new THREE.HemisphereLight("#f0fbff", "#6aa057", 0.92));
@@ -52,17 +48,11 @@ export function createSceneContext(canvas) {
   controls.touches.TWO = THREE.TOUCH.DOLLY_ROTATE;
   controls.target.set(0, 1.1, 0);
 
-  const composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.0, 0.45, 1.0));
-  composer.addPass(new OutputPass());
-
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  return { renderer, scene, camera, controls, composer };
+  return { renderer, scene, camera, controls };
 }

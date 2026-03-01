@@ -1234,10 +1234,7 @@ export async function createWorld(scene) {
     scene.add(bridge);
     bridge.traverse(o => { if (o.name === "bridge_deck") ground.add(o.clone()); });
 
-    /* dock */
-    const dock = buildDock(tileLib);
-    scene.add(dock);
-    dock.traverse(o => { if (o.name === "dock_deck") ground.add(o.clone()); });
+    /* dock removed for performance */
 
     /* props — skip if editor tilemap has objects (editor is source of truth) */
     if (!hasEditorObjects) buildProps(tileLib, scene);
