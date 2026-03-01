@@ -2053,6 +2053,7 @@ body {
   color: var(--ui-ink-2);
 }
 .ui-star-stat-val { color: #5cff8a; font-weight: 700; }
+.ui-star-coins-val { color: #ffe680; font-weight: 700; }
 .ui-star-cost-val { color: #ffe680; font-weight: 700; }
 .ui-star-chance-val { color: #5cff8a; font-weight: 700; }
 .ui-star-destroy-val { color: #ff6b6b; font-weight: 700; }

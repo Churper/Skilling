@@ -281,10 +281,13 @@ export function initializeUI(options = {}) {
     renderInventoryGrid(slots, capacity);
   }
 
+  let _currentCoins = 0;
   function setCoins(amount) {
-    if (!coinsEl) return;
-    const value = Math.max(0, Math.floor(Number(amount) || 0));
-    coinsEl.textContent = String(value);
+    _currentCoins = Math.max(0, Math.floor(Number(amount) || 0));
+    if (coinsEl) coinsEl.textContent = String(_currentCoins);
+    // Update star overlay coin display if open
+    const starCoinsEl = document.getElementById("ui-star-coins");
+    if (starCoinsEl) starCoinsEl.textContent = `${_currentCoins}c`;
   }
 
   function setSkills(skills) {
@@ -935,7 +938,15 @@ export function initializeUI(options = {}) {
     if (starAtkEl) starAtkEl.textContent = `+${bonuses.atk}`;
     if (starDefEl) starDefEl.textContent = `+${bonuses.def}`;
     const isMax = _starLevel >= STAR_MAX;
-    if (starCostEl) starCostEl.textContent = isMax ? "MAX" : `${STAR_COSTS[_starLevel]}c`;
+    const cost = isMax ? 0 : STAR_COSTS[_starLevel];
+    const canAfford = _currentCoins >= cost;
+    if (starCostEl) {
+      starCostEl.textContent = isMax ? "MAX" : `${cost}c`;
+      starCostEl.style.color = isMax ? "" : (canAfford ? "#ffe680" : "#ff6b6b");
+    }
+    const starCoinsEl = document.getElementById("ui-star-coins");
+    if (starCoinsEl) starCoinsEl.textContent = `${_currentCoins}c`;
+    if (starEnhanceBtn) starEnhanceBtn.disabled = isMax || !canAfford;
     if (starChanceEl) starChanceEl.textContent = isMax ? "-" : `${STAR_SUCCESS[_starLevel]}%`;
     if (starDestroyEl) starDestroyEl.textContent = isMax ? "-" : `${STAR_DESTROY[_starLevel]}%`;
     const starDowngradeEl = document.getElementById("ui-star-downgrade");
@@ -943,7 +954,6 @@ export function initializeUI(options = {}) {
       const dg = isMax ? 0 : (STAR_DOWNGRADE[_starLevel] || 0);
       starDowngradeEl.textContent = dg > 0 ? `${dg}%` : "-";
     }
-    if (starEnhanceBtn) starEnhanceBtn.disabled = isMax;
     // Green zone size shrinks with level
     if (starZone) {
       const zoneWidth = isMax ? 0 : Math.max(8, 40 - _starLevel * 3);
@@ -1132,6 +1142,11 @@ export function initializeUI(options = {}) {
   if (starOverlay) starOverlay.addEventListener("click", (e) => { if (e.target === starOverlay) closeStarEnhance(); });
   if (starEnhanceBtn) starEnhanceBtn.addEventListener("click", () => {
     if (_starLevel >= STAR_MAX) return;
+    const cost = STAR_COSTS[_starLevel] || 0;
+    if (_currentCoins < cost) {
+      if (starResultEl) { starResultEl.textContent = "Not enough coins!"; starResultEl.className = "ui-star-result fail"; }
+      return;
+    }
     _startTimingBar();
   });
   if (starStopBtn) starStopBtn.addEventListener("click", _stopTimingBar);
