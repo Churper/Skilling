@@ -94,9 +94,16 @@ function inKO(x, z, pad = 0) {
 function setRes(n, t, l) { n.userData.resourceType = t; n.userData.resourceLabel = l; }
 function setSvc(n, t, l) { n.userData.serviceType = t; n.userData.resourceLabel = l; }
 const HS_GEO = new THREE.CylinderGeometry(.9, .9, 1.6, 12);
+const _hsGeoCache = new Map();
 const HS_MAT = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, depthTest: false });
-function addHS(par, x, y, z) {
-  const m = new THREE.Mesh(HS_GEO, HS_MAT);
+function addHS(par, x, y, z, radius, height) {
+  let geo = HS_GEO;
+  if (radius != null && height != null) {
+    const key = `${radius},${height}`;
+    geo = _hsGeoCache.get(key);
+    if (!geo) { geo = new THREE.CylinderGeometry(radius, radius, height, 12); _hsGeoCache.set(key, geo); }
+  }
+  const m = new THREE.Mesh(geo, HS_MAT);
   m.position.set(x, y, z); m.renderOrder = R_DECOR + 10; par.add(m); return m;
 }
 
@@ -713,7 +720,8 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         const svcTag = SERVICE_TAG[entry.type];
         if (svcTag) {
           setSvc(m, svcTag.service, svcTag.label);
-          nodes.push(addHS(m, 0, 0.95, 0.55));
+          const hs = svcTag.hs || [0, 0.95, 0, 0.9, 1.6];
+          nodes.push(addHS(m, hs[0], hs[1], hs[2], hs[3], hs[4]));
           if (entry.type === "Market_Stalls") {
             spawnShopkeeper(objGroup, wx + 1.2, y, wz + 0.8);
           }
@@ -1104,11 +1112,11 @@ const SERVICE_BUILDER = {
 };
 /* Service tags — GLTF model objects that need service interaction wired up */
 const SERVICE_TAG = {
-  "Svc_Bank": { service: "bank", label: "Bank Chest" },
-  "Prop_Treasure_Chest": { service: "bank", label: "Bank Chest" },
-  "Market_Stalls": { service: "store", label: "General Store" },
-  "Svc_Blacksmith": { service: "blacksmith", label: "Blacksmith Forge" },
-  "Svc_TaskBoard": { service: "taskboard", label: "Task Board" },
+  "Svc_Bank":            { service: "bank",       label: "Bank Chest",       hs: [0, 0.6, 0, 1.2, 1.2] },
+  "Prop_Treasure_Chest": { service: "bank",       label: "Bank Chest",       hs: [0, 0.6, 0, 1.2, 1.2] },
+  "Market_Stalls":       { service: "store",      label: "General Store",    hs: [0, 1.2, 0, 2.0, 2.4] },
+  "Svc_Blacksmith":      { service: "blacksmith", label: "Blacksmith Forge", hs: [0, 0.7, 0, 1.4, 1.4] },
+  "Svc_TaskBoard":       { service: "taskboard",  label: "Task Board",       hs: [0, 1.0, 0, 1.0, 2.0] },
 };
 /* Register Svc_Bank in file lookup so it loads the chest model */
 _fileLookup["Svc_Bank"] = "models/terrain/Prop_Treasure_Chest.glb";
@@ -1178,7 +1186,8 @@ async function loadMapObjects(scene, nodes) {
           nodes.push(keeper);
         } else {
           setSvc(m, svcTag.service, svcTag.label);
-          nodes.push(addHS(m, 0, 0.95, 0.55));
+          const hs = svcTag.hs || [0, 0.95, 0, 0.9, 1.6];
+          nodes.push(addHS(m, hs[0], hs[1], hs[2], hs[3], hs[4]));
         }
       }
       /* tag resources so game interaction works */
