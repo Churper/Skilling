@@ -462,6 +462,9 @@ export function initializeUI(options = {}) {
         if (sellVal) tipText += `\nSell: ${sellVal}c`;
         if (itemType === "Health Potion") tipText += "\nClick to use (+40 HP)";
         else if (itemType === "Mana Potion") tipText += "\nClick to use";
+        else if (itemType === "Cooked Fish") tipText += "\nClick to eat (+20 HP)";
+        else if (itemType === "Cooked Pork") tipText += "\nClick to eat (+25 HP)";
+        else if (itemType === "Cooked Beef") tipText += "\nClick to eat (+30 HP)";
         else if (itemType === "logs") tipText += "\nClick to place Campfire (3 logs)";
         tip.innerHTML = "";
         const tipName = document.createElement("div");
@@ -477,9 +480,13 @@ export function initializeUI(options = {}) {
         if (sellVal) { const s = document.createElement("div"); s.textContent = `Sell: ${sellVal}c`; tip.append(s); }
         if (itemType === "Health Potion") { const s = document.createElement("div"); s.textContent = "Click to use (+40 HP)"; tip.append(s); }
         else if (itemType === "Mana Potion") { const s = document.createElement("div"); s.textContent = "Click to use"; tip.append(s); }
+        else if (itemType === "Cooked Fish") { const s = document.createElement("div"); s.textContent = "Click to eat (+20 HP)"; tip.append(s); }
+        else if (itemType === "Cooked Pork") { const s = document.createElement("div"); s.textContent = "Click to eat (+25 HP)"; tip.append(s); }
+        else if (itemType === "Cooked Beef") { const s = document.createElement("div"); s.textContent = "Click to eat (+30 HP)"; tip.append(s); }
         else if (itemType === "logs") { const s = document.createElement("div"); s.textContent = "Click to place Campfire (3 logs)"; tip.append(s); }
         slot.append(tip);
-        if (itemType === "Health Potion" || itemType === "Mana Potion" || itemType === "logs") {
+        const _cookedFoods = ["Cooked Fish", "Cooked Beef", "Cooked Pork"];
+        if (itemType === "Health Potion" || itemType === "Mana Potion" || itemType === "logs" || _cookedFoods.includes(itemType)) {
           slot.classList.add("is-usable");
           slot.addEventListener("click", () => {
             if (typeof onUseItem === "function") onUseItem(itemType, i);

@@ -589,6 +589,16 @@ const ui = initializeUI({
       syncInventoryUI();
       spawnFloatingDrop(player.position.x, player.position.z, "+30 Mana", "item");
       ui?.setStatus("Used Mana Potion! (no effect yet)", "info");
+    } else if (itemType === "Cooked Fish" || itemType === "Cooked Beef" || itemType === "Cooked Pork") {
+      if (playerHp >= playerMaxHp) { ui?.setStatus("Already full HP!", "info"); return; }
+      const healAmt = itemType === "Cooked Beef" ? 30 : itemType === "Cooked Pork" ? 25 : 20;
+      bagSystem.slots[slotIndex] = null;
+      bagSystem.recount();
+      playerHp = Math.min(playerMaxHp, playerHp + healAmt);
+      ui?.setHp(playerHp, playerMaxHp);
+      syncInventoryUI();
+      spawnFloatingDrop(player.position.x, player.position.z, `+${healAmt} HP`, "item");
+      ui?.setStatus(`Ate ${itemType}! +${healAmt} HP`, "success");
     } else if (itemType === "logs") {
       placeCampfire();
     }

@@ -47,11 +47,7 @@
         <span class="ui-tab-icon" aria-hidden="true">&#x271D;</span>
         <span class="ui-tab-label">Prayer</span>
       </button>
-      <button type="button" class="ui-tab-btn" data-tab="combat" title="F4">
-        <span class="ui-tab-icon" aria-hidden="true">&#x2694;</span>
-        <span class="ui-tab-label">Combat</span>
-      </button>
-      <button type="button" class="ui-tab-btn" data-tab="skills" title="F5">
+      <button type="button" class="ui-tab-btn" data-tab="skills" title="F4">
         <span class="ui-tab-icon" aria-hidden="true">&#x1F4CA;</span>
         <span class="ui-tab-label">Skills</span>
       </button>
@@ -64,6 +60,11 @@
       <h2 id="ui-panel-title">Inventory</h2>
       <section class="ui-panel-section" data-tab-panel="inventory">
         <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
+        <div id="ui-combat-styles">
+          <button type="button" class="ui-combat-btn is-active" data-combat-style="melee" title="Melee">&#x1F5E1;</button>
+          <button type="button" class="ui-combat-btn" data-combat-style="bow" title="Bow">&#x1F3F9;</button>
+          <button type="button" class="ui-combat-btn" data-combat-style="mage" title="Mage">&#x1F525;</button>
+        </div>
         <p id="ui-status-line" class="ui-status" data-tone="info"></p>
       </section>
       <section class="ui-panel-section" data-tab-panel="bank" hidden></section>
@@ -227,14 +228,6 @@
           <span id="ui-friends-online">Offline</span>
           <span id="ui-friends-count">Players online: 0</span>
         </div>
-      </section>
-      <section class="ui-panel-section" data-tab-panel="combat" hidden>
-        <div id="ui-combat-styles">
-          <button type="button" class="ui-combat-btn is-active" data-combat-style="melee" title="Melee">&#x1F5E1;</button>
-          <button type="button" class="ui-combat-btn" data-combat-style="bow" title="Bow">&#x1F3F9;</button>
-          <button type="button" class="ui-combat-btn" data-combat-style="mage" title="Mage">&#x1F525;</button>
-        </div>
-        <p class="ui-combat-hint">Left-click a Training Dummy to attack</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="prayer" hidden>
         <p class="ui-prayer-heading">Offensive</p>
