@@ -28,6 +28,13 @@ import {
   EQUIPMENT_RECIPES,
   EQUIPMENT_TIERS,
   MONSTER_EQUIPMENT_DROPS,
+  STAR_MAX,
+  STAR_COSTS,
+  STAR_SUCCESS,
+  STAR_DESTROY,
+  STAR_TIMING_BONUS,
+  STAR_ATK_PER,
+  STAR_DEF_PER,
 } from "./game/config.js";
 import { createBagSystem } from "./game/systems/bagSystem.js";
 import { createConstructionProgress } from "./game/systems/constructionProgress.js";
@@ -78,6 +85,7 @@ const skills = {
 const inCave = false; /* cave system removed */
 const activePrayers = new Set();
 const wornEquipment = { body: null, cape: null, ring: null, amulet: null, shield: null, bow: null, staff: null, sword: null };
+const wornStars = { body: 0, cape: 0, ring: 0, amulet: 0, shield: 0, bow: 0, staff: 0, sword: 0 };
 
 /* ground raycaster (declared early — needed by remotePlayers.getGroundY before full init) */
 const groundRaycaster = new THREE.Raycaster();
@@ -211,6 +219,7 @@ function saveGame() {
       currentSlimeColorId,
       unlockedSlimeColors: [...unlockedSlimeColors],
       wornEquipment: { ...wornEquipment },
+      wornStars: { ...wornStars },
       bag: bagSystem.serialize(),
       constructionStock: constructionProgress.getStock(),
       px: player.position.x,
@@ -241,6 +250,11 @@ function loadGame() {
     if (d.wornEquipment) {
       for (const slot of Object.keys(wornEquipment)) {
         wornEquipment[slot] = d.wornEquipment[slot] || null;
+      }
+    }
+    if (d.wornStars) {
+      for (const slot of Object.keys(wornStars)) {
+        wornStars[slot] = d.wornStars[slot] || 0;
       }
     }
     if (d.bag) bagSystem.deserialize(d.bag);
@@ -338,6 +352,9 @@ const ui = initializeUI({
   onCraftEquipment: (itemId) => {
     craftEquipment(itemId);
   },
+  onStarEnhance: (slot, timingBonus) => {
+    starEnhanceSlot(slot, timingBonus);
+  },
 });
 
 function getCombatToolForStyle(style) {
@@ -391,16 +408,22 @@ function getCombatLevel() {
 
 function getEquipmentAttackBonus() {
   let total = 0;
-  for (const itemId of Object.values(wornEquipment)) {
-    if (itemId && EQUIPMENT_ITEMS[itemId]) total += EQUIPMENT_ITEMS[itemId].atk;
+  for (const [slot, itemId] of Object.entries(wornEquipment)) {
+    if (!itemId || !EQUIPMENT_ITEMS[itemId]) continue;
+    total += EQUIPMENT_ITEMS[itemId].atk;
+    const stars = wornStars[slot] || 0;
+    for (let i = 0; i < stars; i++) total += (STAR_ATK_PER[i] || 0);
   }
   return total;
 }
 
 function getEquipmentDefenseBonus() {
   let total = 0;
-  for (const itemId of Object.values(wornEquipment)) {
-    if (itemId && EQUIPMENT_ITEMS[itemId]) total += EQUIPMENT_ITEMS[itemId].def;
+  for (const [slot, itemId] of Object.entries(wornEquipment)) {
+    if (!itemId || !EQUIPMENT_ITEMS[itemId]) continue;
+    total += EQUIPMENT_ITEMS[itemId].def;
+    const stars = wornStars[slot] || 0;
+    for (let i = 0; i < stars; i++) total += (STAR_DEF_PER[i] || 0);
   }
   return total;
 }
@@ -423,6 +446,7 @@ function equipItem(bagSlotIndex) {
     bagSlots[bagSlotIndex] = currentlyWorn;
   }
   wornEquipment[slotName] = itemId;
+  wornStars[slotName] = 0;
   bagSystem.recount();
   syncInventoryUI();
   syncWornUI();
@@ -438,6 +462,7 @@ function unequipItem(slotName) {
     return;
   }
   wornEquipment[slotName] = null;
+  wornStars[slotName] = 0;
   bagSystem.addItem(itemId);
   syncInventoryUI();
   syncWornUI();
@@ -479,12 +504,54 @@ function craftEquipment(itemId) {
 }
 
 function syncWornUI() {
-  ui?.setWorn({ slots: { ...wornEquipment } });
+  ui?.setWorn({ slots: { ...wornEquipment }, stars: { ...wornStars } });
   ui?.setWornSkins?.({ unlocked: [...unlockedSlimeColors], selected: currentSlimeColorId });
   ui?.setBlacksmithCrafting({
     bagCounts: { ...inventory },
     combatLevel: getCombatLevel(),
   });
+}
+
+function starEnhanceSlot(slot, timingBonus) {
+  const itemId = wornEquipment[slot];
+  if (!itemId) return;
+  const currentStars = wornStars[slot] || 0;
+  if (currentStars >= STAR_MAX) {
+    ui?.showStarResult("maxed", currentStars);
+    return;
+  }
+  const cost = STAR_COSTS[currentStars];
+  if (coins < cost) {
+    ui?.showStarResult("broke", currentStars);
+    return;
+  }
+  coins -= cost;
+  const baseChance = STAR_SUCCESS[currentStars];
+  const totalChance = Math.min(99, baseChance + timingBonus);
+  const destroyChance = STAR_DESTROY[currentStars];
+  const roll = Math.random() * 100;
+  if (roll < totalChance) {
+    // Success!
+    wornStars[slot] = currentStars + 1;
+    syncInventoryUI();
+    syncWornUI();
+    spawnFloatingDrop(player.position.x, player.position.z, `\u2605 ${wornStars[slot]} stars!`, "level");
+    ui?.showStarResult("success", wornStars[slot]);
+  } else if (roll < totalChance + destroyChance) {
+    // Destroyed!
+    wornEquipment[slot] = null;
+    wornStars[slot] = 0;
+    syncInventoryUI();
+    syncWornUI();
+    spawnFloatingDrop(player.position.x, player.position.z, "DESTROYED!", "warn");
+    ui?.showStarResult("destroy", 0);
+  } else {
+    // Failed but not destroyed — stars stay the same
+    syncInventoryUI();
+    syncWornUI();
+    ui?.showStarResult("fail", currentStars);
+  }
+  saveGame();
 }
 
 function bagUsedCount() {

@@ -409,6 +409,40 @@
       </div>
     </div>
   </div>
+  <!-- Star Enhancement overlay -->
+  <div id="ui-star-overlay" class="ui-star-overlay" hidden>
+    <div class="ui-star-modal">
+      <div class="ui-star-header">
+        <span class="ui-star-title">&#x2B50; Star Enhancement</span>
+        <button type="button" id="ui-star-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-star-body">
+        <div class="ui-star-item-display">
+          <span id="ui-star-item-icon" class="ui-star-item-icon"></span>
+          <span id="ui-star-item-name" class="ui-star-item-name"></span>
+        </div>
+        <div id="ui-star-stars" class="ui-star-stars"></div>
+        <div class="ui-star-stat-row"><span>Attack</span><span id="ui-star-atk" class="ui-star-stat-val"></span></div>
+        <div class="ui-star-stat-row"><span>Defense</span><span id="ui-star-def" class="ui-star-stat-val"></span></div>
+        <div class="ui-star-divider"></div>
+        <div class="ui-star-stat-row"><span>Cost</span><span id="ui-star-cost" class="ui-star-cost-val"></span></div>
+        <div class="ui-star-stat-row"><span>Success</span><span id="ui-star-chance" class="ui-star-chance-val"></span></div>
+        <div class="ui-star-stat-row"><span>Destroy</span><span id="ui-star-destroy" class="ui-star-destroy-val"></span></div>
+        <div class="ui-star-divider"></div>
+        <p class="ui-star-hint">Stop the bar in the green zone for bonus success!</p>
+        <div class="ui-star-timing-track">
+          <div class="ui-star-timing-zone" id="ui-star-zone"></div>
+          <div class="ui-star-timing-cursor" id="ui-star-cursor"></div>
+        </div>
+        <div class="ui-star-actions">
+          <button type="button" id="ui-star-stop-btn" class="ui-star-stop-btn" hidden>STOP!</button>
+          <button type="button" id="ui-star-enhance-btn" class="ui-star-enhance-btn">Enhance</button>
+        </div>
+        <button type="button" id="ui-star-unequip-btn" class="ui-star-unequip-btn">Unequip Item</button>
+        <p id="ui-star-result" class="ui-star-result"></p>
+      </div>
+    </div>
+  </div>
   <!-- Bank overlay (outside ui-root so it's not clipped) -->
   <div id="ui-bank-overlay" class="ui-bank-overlay" hidden>
     <div class="ui-bank-modal">

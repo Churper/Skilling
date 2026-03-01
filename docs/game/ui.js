@@ -1,4 +1,4 @@
-import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP } from "./config.js";
+import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP, STAR_MAX, STAR_COSTS, STAR_SUCCESS, STAR_DESTROY, STAR_ATK_PER, STAR_DEF_PER, STAR_TIMING_BONUS } from "./config.js";
 
 const TOOL_LABEL = {
   axe: "Axe",
@@ -38,7 +38,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -742,28 +742,34 @@ export function initializeUI(options = {}) {
   const wornAtkEl = document.getElementById("ui-worn-atk");
   const wornDefEl = document.getElementById("ui-worn-def");
 
+  let _wornSlotData = {}; // { slotName: { itemId, stars } }
   for (const slotEl of wornSlotEls) {
     slotEl.addEventListener("click", () => {
       const slot = slotEl.dataset.wornSlot;
-      if (slotEl.classList.contains("is-equipped")) {
-        if (typeof onUnequipSlot === "function") onUnequipSlot(slot);
+      const data = _wornSlotData[slot];
+      if (data && data.itemId) {
+        openStarEnhance(slot, data.itemId, data.stars || 0);
       }
     });
   }
 
   function setWorn(payload = {}) {
     const slots = payload.slots || {};
+    const starsMap = payload.stars || {};
     let totalAtk = 0, totalDef = 0;
     for (const slotEl of wornSlotEls) {
       const slotName = slotEl.dataset.wornSlot;
       const itemId = slots[slotName] || null;
+      const stars = starsMap[slotName] || 0;
       const item = itemId ? EQUIPMENT_ITEMS[itemId] : null;
+      _wornSlotData[slotName] = { itemId, stars };
       /* clear existing content except label */
       const label = slotEl.querySelector(".ui-worn-label");
       slotEl.innerHTML = "";
       if (label) slotEl.appendChild(label);
 
       if (item) {
+        const bonuses = _starCalcBonuses(itemId, stars);
         slotEl.classList.add("is-equipped");
         slotEl.style.setProperty("--eq-color", item.color + "88");
         const icon = document.createElement("span");
@@ -772,13 +778,14 @@ export function initializeUI(options = {}) {
         slotEl.appendChild(icon);
         const name = document.createElement("span");
         name.className = "ui-worn-slot-name";
-        name.textContent = item.label;
+        name.textContent = item.label + (stars > 0 ? ` \u2605${stars}` : "");
         name.style.color = item.color;
         slotEl.appendChild(name);
-        /* rich tooltip via fixed overlay */
-        _attachEqTooltip(slotEl, item, "Click to unequip", null, 0);
-        totalAtk += item.atk;
-        totalDef += item.def;
+        /* tooltip shows enhanced stats */
+        const tipItem = { ...item, atk: bonuses.atk, def: bonuses.def };
+        _attachEqTooltip(slotEl, tipItem, "Click to enhance / manage", null, stars);
+        totalAtk += bonuses.atk;
+        totalDef += bonuses.def;
       } else {
         slotEl.classList.remove("is-equipped");
         slotEl.style.removeProperty("--eq-color");
@@ -872,6 +879,186 @@ export function initializeUI(options = {}) {
     }
   }
 
+  /* ── Star Enhancement Overlay ── */
+  const starOverlay = document.getElementById("ui-star-overlay");
+  const starClose = document.getElementById("ui-star-close");
+  const starItemIcon = document.getElementById("ui-star-item-icon");
+  const starItemName = document.getElementById("ui-star-item-name");
+  const starStarsEl = document.getElementById("ui-star-stars");
+  const starAtkEl = document.getElementById("ui-star-atk");
+  const starDefEl = document.getElementById("ui-star-def");
+  const starCostEl = document.getElementById("ui-star-cost");
+  const starChanceEl = document.getElementById("ui-star-chance");
+  const starDestroyEl = document.getElementById("ui-star-destroy");
+  const starZone = document.getElementById("ui-star-zone");
+  const starCursor = document.getElementById("ui-star-cursor");
+  const starEnhanceBtn = document.getElementById("ui-star-enhance-btn");
+  const starStopBtn = document.getElementById("ui-star-stop-btn");
+  const starResultEl = document.getElementById("ui-star-result");
+
+  let _starSlot = null;
+  let _starItemId = null;
+  let _starLevel = 0;
+  let _starTimingAnim = null;
+  let _starTimingPos = 0; // 0-100
+  let _starTimingBonus = 0;
+  let _starPhase = "idle"; // idle | timing | done
+
+  function _starCalcBonuses(itemId, stars) {
+    const item = EQUIPMENT_ITEMS[itemId];
+    if (!item) return { atk: 0, def: 0 };
+    let bonusAtk = 0, bonusDef = 0;
+    for (let i = 0; i < stars; i++) {
+      bonusAtk += STAR_ATK_PER[i] || 0;
+      bonusDef += STAR_DEF_PER[i] || 0;
+    }
+    return { atk: item.atk + bonusAtk, def: item.def + bonusDef };
+  }
+
+  function _renderStarOverlay() {
+    const item = EQUIPMENT_ITEMS[_starItemId];
+    if (!item) return;
+    if (starItemIcon) starItemIcon.textContent = item.icon;
+    if (starItemName) { starItemName.textContent = item.label; starItemName.style.color = item.color; }
+    // Stars display
+    if (starStarsEl) {
+      let html = "";
+      for (let i = 0; i < STAR_MAX; i++) {
+        if (i > 0 && i % 5 === 0) html += " ";
+        html += i < _starLevel
+          ? `<span class="ui-star-star-on">\u2605</span>`
+          : `<span class="ui-star-star-off">\u2606</span>`;
+      }
+      starStarsEl.innerHTML = html;
+    }
+    const bonuses = _starCalcBonuses(_starItemId, _starLevel);
+    if (starAtkEl) starAtkEl.textContent = `+${bonuses.atk}`;
+    if (starDefEl) starDefEl.textContent = `+${bonuses.def}`;
+    const isMax = _starLevel >= STAR_MAX;
+    if (starCostEl) starCostEl.textContent = isMax ? "MAX" : `${STAR_COSTS[_starLevel]}c`;
+    if (starChanceEl) starChanceEl.textContent = isMax ? "-" : `${STAR_SUCCESS[_starLevel]}%`;
+    if (starDestroyEl) starDestroyEl.textContent = isMax ? "-" : `${STAR_DESTROY[_starLevel]}%`;
+    if (starEnhanceBtn) starEnhanceBtn.disabled = isMax;
+    // Green zone size shrinks with level
+    if (starZone) {
+      const zoneWidth = isMax ? 0 : Math.max(8, 40 - _starLevel * 3);
+      const zoneLeft = 50 - zoneWidth / 2;
+      starZone.style.left = zoneLeft + "%";
+      starZone.style.width = zoneWidth + "%";
+    }
+  }
+
+  function openStarEnhance(slot, itemId, stars) {
+    _starSlot = slot;
+    _starItemId = itemId;
+    _starLevel = stars || 0;
+    _starPhase = "idle";
+    _starTimingBonus = 0;
+    if (starResultEl) { starResultEl.textContent = ""; starResultEl.className = "ui-star-result"; }
+    if (starStopBtn) starStopBtn.hidden = true;
+    if (starEnhanceBtn) starEnhanceBtn.hidden = false;
+    if (starCursor) starCursor.style.left = "0%";
+    _stopTimingAnim();
+    _renderStarOverlay();
+    if (starOverlay) starOverlay.hidden = false;
+  }
+
+  function closeStarEnhance() {
+    _stopTimingAnim();
+    _starPhase = "idle";
+    if (starOverlay) starOverlay.hidden = true;
+  }
+
+  function _stopTimingAnim() {
+    if (_starTimingAnim) { cancelAnimationFrame(_starTimingAnim); _starTimingAnim = null; }
+  }
+
+  function _startTimingBar() {
+    _starPhase = "timing";
+    _starTimingPos = 0;
+    _starTimingBonus = 0;
+    if (starEnhanceBtn) starEnhanceBtn.hidden = true;
+    if (starStopBtn) starStopBtn.hidden = false;
+    if (starResultEl) { starResultEl.textContent = ""; starResultEl.className = "ui-star-result"; }
+    let dir = 1;
+    const speed = 1.2 + _starLevel * 0.3; // faster at higher stars
+    function tick() {
+      _starTimingPos += dir * speed;
+      if (_starTimingPos >= 100) { _starTimingPos = 100; dir = -1; }
+      if (_starTimingPos <= 0) { _starTimingPos = 0; dir = 1; }
+      if (starCursor) starCursor.style.left = _starTimingPos + "%";
+      _starTimingAnim = requestAnimationFrame(tick);
+    }
+    _starTimingAnim = requestAnimationFrame(tick);
+  }
+
+  function _stopTimingBar() {
+    _stopTimingAnim();
+    // Check if cursor is in the green zone
+    const isMax = _starLevel >= STAR_MAX;
+    const zoneWidth = isMax ? 0 : Math.max(8, 40 - _starLevel * 3);
+    const zoneLeft = 50 - zoneWidth / 2;
+    const zoneRight = zoneLeft + zoneWidth;
+    const inZone = _starTimingPos >= zoneLeft && _starTimingPos <= zoneRight;
+    // Bonus scales by how centered — max at dead center
+    if (inZone) {
+      const center = 50;
+      const dist = Math.abs(_starTimingPos - center);
+      const maxDist = zoneWidth / 2;
+      _starTimingBonus = Math.round(STAR_TIMING_BONUS * (1 - dist / maxDist));
+    } else {
+      _starTimingBonus = 0;
+    }
+    _starPhase = "done";
+    if (starStopBtn) starStopBtn.hidden = true;
+    // Fire enhance callback
+    if (typeof onStarEnhance === "function") {
+      onStarEnhance(_starSlot, _starTimingBonus);
+    }
+  }
+
+  function showStarResult(result, newStars) {
+    _starLevel = newStars;
+    _renderStarOverlay();
+    if (starResultEl) {
+      if (result === "success") {
+        starResultEl.textContent = `\u2605 Enhanced to ${newStars} stars!`;
+        starResultEl.className = "ui-star-result success";
+      } else if (result === "fail") {
+        starResultEl.textContent = "Enhancement failed...";
+        starResultEl.className = "ui-star-result fail";
+      } else if (result === "destroy") {
+        starResultEl.textContent = "DESTROYED! Item lost!";
+        starResultEl.className = "ui-star-result destroy";
+      } else if (result === "maxed") {
+        starResultEl.textContent = "\u2605 Already at max stars!";
+        starResultEl.className = "ui-star-result maxed";
+      } else if (result === "broke") {
+        starResultEl.textContent = "Not enough coins!";
+        starResultEl.className = "ui-star-result fail";
+      }
+    }
+    if (starEnhanceBtn) starEnhanceBtn.hidden = false;
+    if (result === "destroy") {
+      setTimeout(() => closeStarEnhance(), 1500);
+    }
+  }
+
+  const starUnequipBtn = document.getElementById("ui-star-unequip-btn");
+  if (starUnequipBtn) starUnequipBtn.addEventListener("click", () => {
+    if (_starSlot && typeof onUnequipSlot === "function") {
+      onUnequipSlot(_starSlot);
+      closeStarEnhance();
+    }
+  });
+  if (starClose) starClose.addEventListener("click", closeStarEnhance);
+  if (starOverlay) starOverlay.addEventListener("click", (e) => { if (e.target === starOverlay) closeStarEnhance(); });
+  if (starEnhanceBtn) starEnhanceBtn.addEventListener("click", () => {
+    if (_starLevel >= STAR_MAX) return;
+    _startTimingBar();
+  });
+  if (starStopBtn) starStopBtn.addEventListener("click", _stopTimingBar);
+
   return {
     setActiveTool,
     setActive,
@@ -895,5 +1082,8 @@ export function initializeUI(options = {}) {
     setWorn,
     setWornSkins,
     setBlacksmithCrafting,
+    openStarEnhance,
+    closeStarEnhance,
+    showStarResult,
   };
 }

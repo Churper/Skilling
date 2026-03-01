@@ -1987,3 +1987,176 @@ body {
   font-size: 10px;
   color: #ffe680;
 }
+
+/* ── Star Enhancement Overlay ── */
+.ui-star-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+}
+.ui-star-overlay[hidden] { display: none; }
+.ui-star-modal {
+  background: rgba(12, 18, 28, 0.96);
+  border: 2px solid rgba(255,200,50,0.2);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 40px rgba(255,200,50,0.05);
+  width: min(340px, 90vw);
+  overflow: hidden;
+}
+.ui-star-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,200,50,0.12);
+}
+.ui-star-title {
+  font-family: var(--ui-font-heading);
+  font-size: 17px;
+  color: #ffe680;
+  text-shadow: 0 0 8px rgba(255,200,50,0.3);
+}
+.ui-star-body {
+  padding: 14px 18px 18px;
+}
+.ui-star-item-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ui-star-item-icon { font-size: 28px; }
+.ui-star-item-name {
+  font-family: var(--ui-font-heading);
+  font-size: 16px;
+  color: var(--ui-ink-1);
+}
+.ui-star-stars {
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.ui-star-star-on { color: #ffe040; text-shadow: 0 0 6px rgba(255,224,64,0.5); }
+.ui-star-star-off { color: rgba(255,255,255,0.15); }
+.ui-star-stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+  font-size: 13px;
+  color: var(--ui-ink-2);
+}
+.ui-star-stat-val { color: #5cff8a; font-weight: 700; }
+.ui-star-cost-val { color: #ffe680; font-weight: 700; }
+.ui-star-chance-val { color: #5cff8a; font-weight: 700; }
+.ui-star-destroy-val { color: #ff6b6b; font-weight: 700; }
+.ui-star-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 8px 0;
+}
+.ui-star-hint {
+  text-align: center;
+  font-size: 11px;
+  color: var(--ui-ink-3);
+  margin: 0 0 8px;
+}
+/* Timing bar */
+.ui-star-timing-track {
+  position: relative;
+  height: 28px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.ui-star-timing-zone {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 12px;
+  background: rgba(92,255,138,0.2);
+  border: 1px solid rgba(92,255,138,0.35);
+}
+.ui-star-timing-cursor {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(255,255,255,0.6);
+  left: 0%;
+  transition: none;
+}
+.ui-star-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.ui-star-enhance-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255,200,50,0.35);
+  background: rgba(255,200,50,0.15);
+  color: #ffe680;
+  font-family: var(--ui-font-heading);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.ui-star-enhance-btn:hover { background: rgba(255,200,50,0.25); }
+.ui-star-enhance-btn:disabled { opacity: 0.4; cursor: default; }
+.ui-star-stop-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(92,255,138,0.4);
+  background: rgba(92,255,138,0.2);
+  color: #5cff8a;
+  font-family: var(--ui-font-heading);
+  font-size: 15px;
+  cursor: pointer;
+  animation: star-stop-pulse 0.5s ease-in-out infinite;
+}
+@keyframes star-stop-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(92,255,138,0.2); }
+  50% { box-shadow: 0 0 12px rgba(92,255,138,0.5); }
+}
+.ui-star-stop-btn:hover { background: rgba(92,255,138,0.35); }
+.ui-star-result {
+  text-align: center;
+  font-family: var(--ui-font-heading);
+  font-size: 14px;
+  margin: 8px 0 0;
+  min-height: 20px;
+}
+.ui-star-result.success { color: #5cff8a; text-shadow: 0 0 8px rgba(92,255,138,0.4); }
+.ui-star-result.fail { color: #ffb854; }
+.ui-star-result.destroy { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,100,100,0.4); }
+.ui-star-result.maxed { color: #ffe680; }
+.ui-star-unequip-btn {
+  width: 100%;
+  padding: 6px 0;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: var(--ui-ink-3);
+  font-family: var(--ui-font-body);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.ui-star-unequip-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--ui-ink-1);
+}
