@@ -455,7 +455,8 @@ if (_instanceBanner) _instanceBanner.addEventListener("click", () => doBossLeave
 /* ── Boss projectiles ── */
 const _bossProjectiles = [];
 const _projGeo = new THREE.SphereGeometry(0.7, 10, 8);
-const BOSS_PROJECTILE_SPEED = 6;
+const BOSS_PROJECTILE_MIN_SPEED = 8;
+const BOSS_PROJECTILE_ARRIVAL = 1.2; // seconds to reach player
 const BOSS_PROJECTILE_DMG = 25;
 
 function spawnBossProjectile(x, y, z, color, type) {
@@ -476,15 +477,16 @@ function updateBossProjectiles(dt) {
     const p = _bossProjectiles[i];
     if (!p.alive) continue;
     p.age += dt;
-    /* always home toward player */
+    /* home toward player — speed scales with distance so you can't outrun */
     const dx = player.position.x - p.mesh.position.x;
     const dy = (player.position.y + 0.5) - p.mesh.position.y;
     const dz = player.position.z - p.mesh.position.z;
     const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
     if (len > 0.01) {
-      p.mesh.position.x += (dx / len) * BOSS_PROJECTILE_SPEED * dt;
-      p.mesh.position.y += (dy / len) * BOSS_PROJECTILE_SPEED * dt;
-      p.mesh.position.z += (dz / len) * BOSS_PROJECTILE_SPEED * dt;
+      const speed = Math.max(BOSS_PROJECTILE_MIN_SPEED, len / BOSS_PROJECTILE_ARRIVAL);
+      p.mesh.position.x += (dx / len) * speed * dt;
+      p.mesh.position.y += (dy / len) * speed * dt;
+      p.mesh.position.z += (dz / len) * speed * dt;
     }
     p.mesh.rotation.y += dt * 4;
     /* check hit player */
@@ -3690,8 +3692,12 @@ function getTooltipText(node) {
   }
   /* animals */
   if (ud.serviceType === "animal") {
-    const a = animals.find(a => a.parentModel === node);
-    if (a && a.alive) return `${a.type}\nHP ${a.hp}/${a.maxHp}`;
+    const a = animals.find(a => a.node === node || a.parentModel === node);
+    if (a && a.alive) {
+      const dmg = ANIMAL_DAMAGE[a.type] || 5;
+      const combatLvl = Math.max(1, Math.floor(a.maxHp / 10));
+      return `${a.type}  Lv ${combatLvl}\nHP ${a.hp}/${a.maxHp}\nDamage: ${dmg}`;
+    }
     return null;
   }
   /* world drops */
@@ -3883,15 +3889,37 @@ function updateDebugOverlay() {
   }
 }
 
+/* ── Settings persistence ── */
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem("skilling_settings")) || {}; } catch { return {}; }
+}
+function saveSettings() {
+  const s = {
+    fps: debugSettings.fps, memory: debugSettings.memory,
+    drawcalls: debugSettings.drawcalls, position: debugSettings.position,
+    dpr: dprSelect?.value, fpsCap, bloom: bloomCheck?.checked || false,
+  };
+  try { localStorage.setItem("skilling_settings", JSON.stringify(s)); } catch {}
+}
+const _savedSettings = loadSettings();
+
 /* wire up settings checkboxes */
 for (const key of ["fps", "memory", "drawcalls", "position"]) {
   const el = document.getElementById(`setting-${key}`);
-  if (el) el.addEventListener("change", () => { debugSettings[key] = el.checked; });
+  if (el) {
+    if (_savedSettings[key] != null) { el.checked = _savedSettings[key]; debugSettings[key] = _savedSettings[key]; }
+    el.addEventListener("change", () => { debugSettings[key] = el.checked; saveSettings(); });
+  }
 }
 /* render scale */
 const dprSelect = document.getElementById("setting-dpr");
 if (dprSelect) {
-  dprSelect.value = String(Math.min(renderer.getPixelRatio(), 2));
+  if (_savedSettings.dpr) {
+    dprSelect.value = _savedSettings.dpr;
+    renderer.setPixelRatio(parseFloat(_savedSettings.dpr));
+  } else {
+    dprSelect.value = String(Math.min(renderer.getPixelRatio(), 2));
+  }
   dprSelect.addEventListener("change", () => {
     const dpr = parseFloat(dprSelect.value);
     renderer.setPixelRatio(dpr);
@@ -3899,26 +3927,30 @@ if (dprSelect) {
     const h = renderer.domElement.parentElement.clientHeight;
     renderer.setSize(w, h);
     composer.setSize(w, h);
+    saveSettings();
   });
 }
 /* FPS cap */
-let fpsCap = 60;
+let fpsCap = _savedSettings.fpsCap != null ? _savedSettings.fpsCap : 60;
 let lastFrameTime = 0;
 const fpsCapSelect = document.getElementById("setting-fps-cap");
 if (fpsCapSelect) {
-  fpsCapSelect.addEventListener("change", () => { fpsCap = parseInt(fpsCapSelect.value) || 0; });
+  if (_savedSettings.fpsCap != null) fpsCapSelect.value = String(_savedSettings.fpsCap);
+  fpsCapSelect.addEventListener("change", () => { fpsCap = parseInt(fpsCapSelect.value) || 0; saveSettings(); });
 }
 /* bloom toggle */
 const bloomCheck = document.getElementById("setting-bloom");
 if (bloomCheck && composer.passes) {
-  /* start with bloom disabled */
+  const bloomOn = _savedSettings.bloom || false;
+  bloomCheck.checked = bloomOn;
   for (const pass of composer.passes) {
-    if (pass.constructor.name === "UnrealBloomPass") pass.enabled = false;
+    if (pass.constructor.name === "UnrealBloomPass") pass.enabled = bloomOn;
   }
   bloomCheck.addEventListener("change", () => {
     for (const pass of composer.passes) {
       if (pass.constructor.name === "UnrealBloomPass") pass.enabled = bloomCheck.checked;
     }
+    saveSettings();
   });
 }
 /* name input */

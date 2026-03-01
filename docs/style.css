@@ -1132,17 +1132,17 @@ body {
   transform: scale(0.96);
 }
 .ui-prayer-btn.is-active {
-  border-color: rgba(220, 200, 80, 0.7);
-  background: rgba(240, 220, 80, 0.2);
-  box-shadow: 0 0 8px rgba(240, 220, 80, 0.25);
+  border-color: rgba(255, 200, 50, 0.85);
+  background: rgba(255, 210, 50, 0.3);
+  box-shadow: 0 0 12px rgba(255, 210, 50, 0.4), inset 0 0 8px rgba(255, 210, 50, 0.15);
 }
 .ui-prayer-btn.is-active span {
-  color: var(--ui-ink-1);
+  color: #ffe066;
 }
 .ui-prayer-overhead-btn.is-active {
-  border-color: rgba(80, 180, 255, 0.7);
-  background: rgba(80, 180, 255, 0.2);
-  box-shadow: 0 0 8px rgba(80, 180, 255, 0.25);
+  border-color: rgba(60, 180, 255, 0.85);
+  background: rgba(60, 180, 255, 0.3);
+  box-shadow: 0 0 12px rgba(60, 180, 255, 0.4), inset 0 0 8px rgba(60, 180, 255, 0.15);
 }
 
 /* overhead prayer icon above player */

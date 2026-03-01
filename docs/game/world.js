@@ -835,13 +835,13 @@ async function enterInstance(name, scene, ground, nodes, keepVisible) {
   groundGroup.name = `instance_ground_${name}`;
   groundGroup.add(terrainGroup);
   ground.add(groundGroup);
+  /* stash world resource nodes before spawning boss */
+  _stashedNodes = nodes.splice(0, nodes.length);
   /* spawn boss if this is a boss instance */
   let bossGroup = null;
   if (data.type === "boss") {
     bossGroup = _buildSnakeBoss(scene, nodes);
   }
-  /* stash world resource nodes and clear — only boss hitspot stays */
-  _stashedNodes = nodes.splice(0, nodes.length);
   _activeInstance = { name, groundGroup, terrainGroup, data, waterUniforms, heightOffsets, bossGroup };
 }
 
@@ -951,6 +951,7 @@ function _buildSnakeBoss(scene, nodes) {
 
   scene.add(group);
 
+  group.userData.hsNode = hs;
   group.userData.body = body;
   group.userData.head = head;
   group.userData.bodyMat = bodyMat;
