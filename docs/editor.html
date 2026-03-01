@@ -41,6 +41,7 @@ canvas{display:block}
 #objects-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #height-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #paint-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#chunks-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;padding-top:6px}
 
 /* paint swatches */
 #paint-colors{padding:8px 10px;display:flex;flex-wrap:wrap;gap:3px;border-bottom:1px solid #2a2a3e}
@@ -132,6 +133,7 @@ canvas{display:block}
     <div class="tab active" data-tab="objects">Objects</div>
     <div class="tab" data-tab="paint">Paint</div>
     <div class="tab" data-tab="height">Height</div>
+    <div class="tab" data-tab="chunks">Chunks</div>
   </div>
   <div id="info"></div>
   <div id="cell-display">—</div>
@@ -194,6 +196,24 @@ canvas{display:block}
         <span class="val" id="p-str-val">0.50</span>
       </div>
     </div>
+  </div>
+
+  <!-- Chunks panel -->
+  <div id="chunks-panel" class="hidden">
+    <div class="panel" style="margin-bottom:6px">
+      <div class="label" style="margin-bottom:4px">Create Instance</div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <input id="inst-name" type="text" placeholder="e.g. boss_dragon" style="flex:1;padding:3px 6px;font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;font-family:inherit">
+        <select id="inst-type" style="font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;padding:3px 4px">
+          <option value="boss">Boss</option>
+          <option value="dungeon">Dungeon</option>
+          <option value="arena">Arena</option>
+        </select>
+        <button id="inst-create" style="padding:3px 8px;font-size:10px;cursor:pointer;background:#2a2a50;color:#e8c44a;border:1px solid #e8c44a;border-radius:3px;font-family:inherit">Create</button>
+      </div>
+    </div>
+    <div class="label" style="padding:0 10px;margin-bottom:3px">All Chunks</div>
+    <div id="chunk-list" style="max-height:300px;overflow-y:auto;padding:0 10px"></div>
   </div>
 
   <div id="minimap-wrap">
@@ -499,6 +519,7 @@ function switchChunk(cx, cz) {
   /* activate for editing so brush/flatten targets this chunk */
   activateChunkForEditing(cx, cz);
   moveChunkHighlight(cx, cz);
+  teleportCameraToChunk(cx, cz);
   /* update UI for new selected chunk */
   document.getElementById("chunk-water").checked = cd.water;
   document.getElementById("edge-n").classList.toggle("on", !!cd.edges.north);
@@ -692,6 +713,59 @@ document.getElementById("minimap").addEventListener("click", e => {
   updateMinimap();
 });
 
+/* ── Chunk list panel ── */
+function updateChunkList() {
+  const list = document.getElementById("chunk-list");
+  if (!list) return;
+  list.innerHTML = "";
+  const allKeys = [...chunkDataStore.keys()].sort((a, b) => {
+    const [ax, az] = a.split(",").map(Number);
+    const [bx, bz] = b.split(",").map(Number);
+    return az !== bz ? bz - az : ax - bx;
+  });
+  for (const key of allKeys) {
+    const [cx, cz] = key.split(",").map(Number);
+    const cd = chunkDataStore.get(key);
+    const isCurrent = currentChunk[0] === cx && currentChunk[1] === cz;
+    const row = document.createElement("div");
+    row.style.cssText = `display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:3px;cursor:pointer;font-size:11px;color:${isCurrent ? "#e8c44a" : "#999"};background:${isCurrent ? "#2a2a50" : "transparent"};margin-bottom:2px`;
+    const label = document.createElement("span");
+    label.style.flex = "1";
+    const typeTag = cd.instanceType ? ` [${cd.instanceType}]` : "";
+    label.textContent = `(${cx}, ${cz})${typeTag}`;
+    row.appendChild(label);
+    const objCount = document.createElement("span");
+    objCount.style.cssText = "font-size:9px;color:#555;font-family:monospace";
+    objCount.textContent = `${(cd.objects || []).length} obj`;
+    row.appendChild(objCount);
+    row.addEventListener("click", () => {
+      switchChunk(cx, cz);
+      updateMinimap();
+      updateChunkList();
+    });
+    list.appendChild(row);
+  }
+}
+
+document.getElementById("inst-create").addEventListener("click", () => {
+  const nameEl = document.getElementById("inst-name");
+  const typeEl = document.getElementById("inst-type");
+  const name = nameEl.value.trim();
+  if (!name) { alert("Enter an instance name"); return; }
+  /* find an unused chunk coordinate far from origin for instances */
+  let ix = 100;
+  while (chunkDataStore.has(chunkKey(ix, 100))) ix++;
+  const cd = ensureChunkData(ix, 100);
+  cd.instanceType = typeEl.value;
+  cd.instanceName = name;
+  cd.water = false;
+  buildChunkMesh(ix, 100);
+  switchChunk(ix, 100);
+  updateMinimap();
+  updateChunkList();
+  nameEl.value = "";
+});
+
 /** Base height: flat GRASS_Y for all chunks (terrain defined by heightOffsets) */
 function getBaseY(x, z) { return GRASS_Y; }
 
@@ -783,6 +857,13 @@ function moveChunkHighlight(cx, cz) {
   const ox = cx * CHUNK_SIZE + (xMin + xMax) / 2, oz = cz * CHUNK_SIZE + (zMin + zMax) / 2;
   _chunkHighlight.position.set(ox, GRASS_Y + 0.3, oz);
   if (!_chunkHighlight.parent) scene.add(_chunkHighlight);
+}
+function teleportCameraToChunk(cx, cz) {
+  const ox = cx * CHUNK_SIZE + (xMin + xMax) / 2;
+  const oz = cz * CHUNK_SIZE + (zMin + zMax) / 2;
+  orbitControls.target.set(ox, 0, oz);
+  camera.position.set(ox, 150, oz - 0.01);
+  orbitControls.update();
 }
 
 function ensureAllChunkMeshes() {
@@ -1674,6 +1755,8 @@ function setMode(m) {
   document.getElementById("objects-panel").classList.toggle("hidden", mode !== "objects");
   document.getElementById("height-panel").classList.toggle("hidden", mode !== "height");
   document.getElementById("paint-panel").classList.toggle("hidden", mode !== "paint");
+  document.getElementById("chunks-panel").classList.toggle("hidden", mode !== "chunks");
+  if (mode === "chunks") updateChunkList();
   hoverMesh.visible = false; brushCircle.visible = false;
   if (mode === "objects") {
     orbitControls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null };
@@ -1838,6 +1921,8 @@ function buildChunkPayload(cx, cz) {
     edges: cd.edges,
     baseType: cd.baseType || "grass",
   };
+  if (cd.instanceType) payload.instanceType = cd.instanceType;
+  if (cd.instanceName) payload.instanceName = cd.instanceName;
   if (cd.objects.length) payload.objects = cd.objects;
   if (Object.keys(cd.heightData).length) payload.heightOffsets = cd.heightData;
   if (Object.keys(cd.colorData).length) payload.colorOverrides = cd.colorData;
@@ -1873,6 +1958,8 @@ function importChunkData(cData, cx, cz) {
   cd.water = cData.water !== false;
   cd.edges = cData.edges || {};
   cd.baseType = cData.baseType || "grass";
+  cd.instanceType = cData.instanceType || "";
+  cd.instanceName = cData.instanceName || "";
   cd.heightData = cData.heightOffsets || {};
   cd.colorData = cData.colorOverrides || {};
   cd.objects = (cData.objects || []).filter(o => !STRUCTURAL_TYPES.has(o.type));
