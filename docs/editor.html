@@ -41,7 +41,7 @@ canvas{display:block}
 #objects-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #height-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
 #paint-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
-#chunks-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;padding-top:6px}
+#chunks-panel{flex:1;display:flex;flex-direction:column;overflow-y:auto;padding-top:6px}
 
 /* paint swatches */
 #paint-colors{padding:8px 10px;display:flex;flex-wrap:wrap;gap:3px;border-bottom:1px solid #2a2a3e}
@@ -200,11 +200,11 @@ canvas{display:block}
 
   <!-- Chunks panel -->
   <div id="chunks-panel" class="hidden">
-    <div class="panel" style="margin-bottom:6px">
-      <div class="label" style="margin-bottom:4px">Create Instance</div>
-      <div style="display:flex;gap:4px;align-items:center">
-        <input id="inst-name" type="text" placeholder="e.g. boss_dragon" style="flex:1;padding:3px 6px;font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;font-family:inherit">
-        <select id="inst-type" style="font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;padding:3px 4px">
+    <div style="padding:4px 10px 6px">
+      <div class="label" style="margin-bottom:3px">Create Instance</div>
+      <input id="inst-name" type="text" placeholder="e.g. boss_dragon" style="width:100%;box-sizing:border-box;padding:3px 6px;font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;font-family:inherit;margin-bottom:4px">
+      <div style="display:flex;gap:4px">
+        <select id="inst-type" style="flex:1;font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;padding:3px 4px">
           <option value="boss">Boss</option>
           <option value="dungeon">Dungeon</option>
           <option value="arena">Arena</option>
@@ -431,14 +431,33 @@ function ensureChunkData(cx, cz) {
 }
 
 /** Save current editor state into the chunk store */
+function saveObjectsToChunkStores() {
+  /* distribute objects to their proper chunks based on world position,
+     converting world coords to local chunk coords for game compatibility */
+  const buckets = new Map(); // "cx,cz" → [obj, ...]
+  for (const [key] of chunkDataStore) buckets.set(key, []);
+  for (const o of objects) {
+    if (STRUCTURAL_TYPES.has(o.type)) continue;
+    const [ocx, ocz] = worldToChunk(o.x, o.z);
+    const key = `${ocx},${ocz}`;
+    if (!buckets.has(key)) buckets.set(key, []);
+    /* store in LOCAL chunk coords (subtract chunk world offset) */
+    const lx = o.x - ocx * CHUNK_SIZE;
+    const lz = o.z - ocz * CHUNK_SIZE;
+    buckets.get(key).push({ type: o.type, x: +lx.toFixed(2), z: +lz.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) });
+  }
+  for (const [key, objs] of buckets) {
+    const [cx, cz] = key.split(",").map(Number);
+    const cd = ensureChunkData(cx, cz);
+    cd.objects = objs;
+  }
+}
+
 function saveCurrentChunkToStore() {
   /* save all chunk mesh data to store */
   saveAllChunksToStore();
-  /* save objects (associated with selected chunk) */
-  const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
-  cd.objects = objects
-    .filter(o => !STRUCTURAL_TYPES.has(o.type))
-    .map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+  /* distribute objects to their proper chunks */
+  saveObjectsToChunkStores();
   /* save water + edges + baseType for selected chunk */
   cd.water = document.getElementById("chunk-water").checked;
   cd.edges = {
@@ -473,17 +492,20 @@ function loadChunkFromStore(cx, cz) {
   /* structural + waterfall always visible (they're in world space) */
   for (const obj of structural) obj.mesh.visible = true;
   if (typeof waterfallGroup !== "undefined") waterfallGroup.visible = true;
-  /* add chunk objects (from ALL chunks) */
+  /* add chunk objects (from ALL chunks) — convert local chunk coords to world coords */
   for (const [ck, cData] of chunkDataStore) {
+    const [ccx, ccz] = ck.split(",").map(Number);
+    const offX = ccx * CHUNK_SIZE, offZ = ccz * CHUNK_SIZE;
     for (const entry of cData.objects) {
       const tmpl = objLib[entry.type]; if (!tmpl) continue;
       const mesh = SkeletonUtils.clone(tmpl);
       mesh.scale.setScalar(entry.scale || 1);
-      mesh.position.set(entry.x, entry.y || 0, entry.z);
+      const wx = entry.x + offX, wz = entry.z + offZ;
+      mesh.position.set(wx, entry.y || 0, wz);
       mesh.rotation.y = entry.rot || 0;
       if (CLICK_HELPER_TYPES.has(entry.type)) addClickHelper(mesh);
       scene.add(mesh);
-      objects.push({ id: nextObjId++, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
+      objects.push({ id: nextObjId++, type: entry.type, x: wx, z: wz, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
     }
   }
   /* update UI for selected chunk */
@@ -1704,10 +1726,10 @@ canvas.addEventListener("mousedown", e => {
     const pt = raycastGround(e);
     if (pt) paintColorAt(pt.x, pt.z, 0.016);
   }
-  /* Start drag if clicking an existing object */
+  /* Start drag if clicking an existing object (only when no palette item selected) */
   if (mode === "objects" && e.button === 0) {
     const pt = raycastGround(e); // sets raycaster
-    const hit = raycastObject();
+    const hit = !selectedObj ? raycastObject() : null;
     if (hit) {
       dragging = hit;
       dragStartPos = { x: hit.x, y: hit.y, z: hit.z, mx: hit.mesh.position.x, my: hit.mesh.position.y, mz: hit.mesh.position.z };
