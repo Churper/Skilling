@@ -1,1 +1,16 @@
-{"version":2,"chunk":[3,-1],"tileSize":2,"water":true,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"grass","objects":[]}
+{
+  "version": 2,
+  "chunk": [
+    3,
+    -1
+  ],
+  "tileSize": 2,
+  "water": true,
+  "edges": {
+    "north": false,
+    "south": false,
+    "east": false,
+    "west": false
+  },
+  "baseType": "grass"
+}
