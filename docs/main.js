@@ -411,28 +411,22 @@ function doBossLeave() {
 if (_instanceBanner) _instanceBanner.addEventListener("click", () => doBossLeave());
 
 /* ── Boss projectiles ── */
-const _bossProjectiles = []; // { mesh, dir, speed, type, alive }
-const _projGeo = new THREE.SphereGeometry(0.5, 8, 6);
-const BOSS_PROJECTILE_SPEED = 8;
+const _bossProjectiles = [];
+const _projGeo = new THREE.SphereGeometry(0.7, 10, 8);
+const BOSS_PROJECTILE_SPEED = 6;
 const BOSS_PROJECTILE_DMG = 25;
 
 function spawnBossProjectile(x, y, z, color, type) {
-  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85 });
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9 });
   const mesh = new THREE.Mesh(_projGeo, mat);
   mesh.position.set(x, y, z);
   /* glow ring */
-  const ringGeo = new THREE.RingGeometry(0.6, 1.0, 12);
-  const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+  const ringGeo = new THREE.RingGeometry(0.8, 1.3, 12);
+  const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.45, side: THREE.DoubleSide });
   const ring = new THREE.Mesh(ringGeo, ringMat);
   mesh.add(ring);
   scene.add(mesh);
-  /* direction toward player */
-  const dir = new THREE.Vector3(
-    player.position.x - x,
-    player.position.y + 0.5 - y,
-    player.position.z - z
-  ).normalize();
-  _bossProjectiles.push({ mesh, dir, speed: BOSS_PROJECTILE_SPEED, type, alive: true, age: 0 });
+  _bossProjectiles.push({ mesh, type, alive: true, age: 0 });
 }
 
 function updateBossProjectiles(dt) {
@@ -440,33 +434,39 @@ function updateBossProjectiles(dt) {
     const p = _bossProjectiles[i];
     if (!p.alive) continue;
     p.age += dt;
-    p.mesh.position.addScaledVector(p.dir, p.speed * dt);
-    /* rotate glow ring */
-    p.mesh.rotation.y += dt * 3;
+    /* always home toward player */
+    const dx = player.position.x - p.mesh.position.x;
+    const dy = (player.position.y + 0.5) - p.mesh.position.y;
+    const dz = player.position.z - p.mesh.position.z;
+    const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    if (len > 0.01) {
+      p.mesh.position.x += (dx / len) * BOSS_PROJECTILE_SPEED * dt;
+      p.mesh.position.y += (dy / len) * BOSS_PROJECTILE_SPEED * dt;
+      p.mesh.position.z += (dz / len) * BOSS_PROJECTILE_SPEED * dt;
+    }
+    p.mesh.rotation.y += dt * 4;
     /* check hit player */
-    const dx = p.mesh.position.x - player.position.x;
-    const dz = p.mesh.position.z - player.position.z;
-    const dist = Math.hypot(dx, dz);
-    if (dist < 1.5) {
-      /* check prayer protection */
+    const dist = Math.hypot(player.position.x - p.mesh.position.x, player.position.z - p.mesh.position.z);
+    if (dist < 1.2) {
       const protectedBy = p.type === "range" ? "protect_range" : "protect_mage";
       if (activePrayers.has(protectedBy)) {
-        ui?.setStatus(`Prayer blocked the ${p.type} attack!`, "info");
+        spawnFloatingDrop(player.position.x, player.position.z, "Blocked!", "info");
       } else {
-        const dmg = BOSS_PROJECTILE_DMG + Math.floor(Math.random() * 10);
+        const dmg = BOSS_PROJECTILE_DMG + Math.floor(Math.random() * 15);
         playerHp = Math.max(0, playerHp - dmg);
-        ui?.setStatus(`Snake hits you for ${dmg} ${p.type} damage! Pray ${p.type === "range" ? "Range" : "Mage"}!`, "warn");
+        const prayName = p.type === "range" ? "Range" : "Mage";
+        spawnFloatingDrop(player.position.x, player.position.z, `-${dmg}`, "warn");
+        ui?.setStatus(`Snake hits ${dmg}! Pray ${prayName}!`, "warn");
         syncHpBar();
         if (playerHp <= 0) handlePlayerDeath();
       }
       p.alive = false;
       scene.remove(p.mesh);
-      p.mesh.geometry?.dispose();
       _bossProjectiles.splice(i, 1);
       continue;
     }
-    /* expire after 5s */
-    if (p.age > 5) {
+    /* expire after 8s */
+    if (p.age > 8) {
       p.alive = false;
       scene.remove(p.mesh);
       _bossProjectiles.splice(i, 1);
@@ -1561,6 +1561,7 @@ const _animalProj = new THREE.Vector3();
 const _animalWanderDir = new THREE.Vector3();
 
 function updateAnimals(dt) {
+  if (getActiveInstance()) return; /* skip world animals in boss instance */
   const hw = renderer.domElement.clientWidth * 0.5;
   const hh = renderer.domElement.clientHeight * 0.5;
   const px = player.position.x, pz = player.position.z;

@@ -940,8 +940,10 @@ function _buildSnakeBoss(scene, nodes) {
   tongue.position.set(0, -0.6, 2.2);
   head.add(tongue);
 
-  /* hitbox sphere for clicking */
-  const hs = addHS(body, 0, 4, 0);
+  /* hitbox — big cylinder covering whole boss body+head */
+  const bossHsGeo = new THREE.CylinderGeometry(3.5, 3.5, 12, 12);
+  const hs = new THREE.Mesh(bossHsGeo, HS_MAT);
+  hs.position.set(0, 4, 0); hs.renderOrder = R_DECOR + 10; body.add(hs);
   setSvc(hs, "animal", "Snake Boss");
   hs.userData.animalType = "Snake Boss";
   body.userData.animalType = "Snake Boss";
