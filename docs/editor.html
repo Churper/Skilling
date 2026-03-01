@@ -829,6 +829,9 @@ function enterInstance(name) {
   /* build instance chunk at origin if not already built */
   const instKey = "inst:" + name;
   if (!chunkMeshes.has(instKey)) {
+    /* save + remove existing 0,0 mesh so it doesn't overlap */
+    const savedMeshEntry = chunkMeshes.get("0,0");
+    if (savedMeshEntry) { savedMeshEntry.mesh.visible = false; chunkMeshes.delete("0,0"); }
     /* temporarily inject instance data into chunk 0,0 data store, build mesh, then move it */
     const savedCd = chunkDataStore.get("0,0");
     const tmpCd = { heightData: inst.heightData || {}, colorData: inst.colorData || {}, baseType: inst.baseType || "dark", water: inst.water || false, objects: [], edges: {} };
@@ -836,7 +839,8 @@ function enterInstance(name) {
     buildChunkMesh(0, 0);
     const entry = chunkMeshes.get("0,0");
     if (entry) { chunkMeshes.set(instKey, entry); chunkMeshes.delete("0,0"); }
-    /* restore original 0,0 data */
+    /* restore original 0,0 mesh + data */
+    if (savedMeshEntry) chunkMeshes.set("0,0", savedMeshEntry);
     if (savedCd) chunkDataStore.set("0,0", savedCd);
     else chunkDataStore.delete("0,0");
   }
