@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { createSceneContext } from "./game/scene.js";
 import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE, createCampfire, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances, updateSnakeBoss } from "./game/world.js";
+import { getMeshSurfaceY } from "./game/terrainLayout.js";
 import { createPlayer, createMoveMarker, createCombatEffects } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
@@ -2182,7 +2183,8 @@ function getPlayerGroundY(x, z) {
   if (x > _BRIDGE_X0 && x < _BRIDGE_X1 && z > _BRIDGE_Z0 && z < _BRIDGE_Z1) {
     return _BRIDGE_Y;
   }
-  return getWorldSurfaceHeight(x, z);
+  /* getMeshSurfaceY matches actual vertex positions (hills, bumps, sinusoidal rolling) */
+  return getMeshSurfaceY(x, z);
 }
 
 function getPlayerStandY(x, z) {
