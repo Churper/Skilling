@@ -2473,7 +2473,28 @@ async function loadExistingMap() {
         ensureAllChunkMeshes();
         loadChunkFromStore(sx, sz);
         updateMinimap();
-        console.log(`Loaded ${manifest.chunks.length} chunks from manifest`);
+        /* load instances from manifest */
+        if (manifest.instances && manifest.instances.length) {
+          for (const name of manifest.instances) {
+            try {
+              const iResp = await fetch(`instances/${name}.json?v=${Date.now()}`, { cache: "no-store" });
+              if (iResp.ok) {
+                const iData = await iResp.json();
+                instanceStore.set(name, {
+                  type: iData.type || "boss",
+                  objects: iData.objects || [],
+                  heightData: iData.heightData || {},
+                  colorData: iData.colorData || {},
+                  baseType: iData.baseType || "dark",
+                  water: iData.water || false,
+                });
+                console.log(`Loaded instance: ${name}`);
+              }
+            } catch (e) { /* skip */ }
+          }
+          updateChunkList();
+        }
+        console.log(`Loaded ${manifest.chunks.length} chunks, ${instanceStore.size} instances from manifest`);
         return;
       }
     }
