@@ -384,6 +384,9 @@ function abandonTask() {
 let _preInstancePos = null; // saved player position before entering instance
 
 const _instanceBanner = document.getElementById("ui-instance-banner");
+const _bossHpEl = document.getElementById("ui-boss-hp");
+const _bossHpFill = document.getElementById("ui-boss-hp-fill");
+const _bossHpText = document.getElementById("ui-boss-hp-text");
 let _snakeBossGroup = null;
 
 async function doBossEnter(name) {
@@ -397,6 +400,7 @@ async function doBossEnter(name) {
   ui?.closeTaskBoard();
   ui?.setStatus(`Entered ${name} boss arena!`, "info");
   if (_instanceBanner) _instanceBanner.hidden = false;
+  if (_bossHpEl) _bossHpEl.hidden = false;
   /* store boss group ref for animation updates */
   _snakeBossGroup = scene.getObjectByName("snake_boss") || null;
   if (_snakeBossGroup) {
@@ -443,6 +447,7 @@ function doBossLeave() {
   ui?.closeTaskBoard();
   ui?.setStatus("Left boss arena", "info");
   if (_instanceBanner) _instanceBanner.hidden = true;
+  if (_bossHpEl) _bossHpEl.hidden = true;
   _snakeBossGroup = null;
   /* clean up projectiles */
   for (const p of _bossProjectiles) scene.remove(p.mesh);
@@ -459,6 +464,19 @@ function doBossLeave() {
 }
 
 if (_instanceBanner) _instanceBanner.addEventListener("click", () => doBossLeave());
+
+function updateBossHpBar() {
+  if (!_bossHpEl || _bossHpEl.hidden) return;
+  const boss = animals.find(a => a.type === "Snake Boss" && a.alive);
+  if (!boss) {
+    if (_bossHpFill) _bossHpFill.style.width = "0%";
+    if (_bossHpText) _bossHpText.textContent = "DEFEATED";
+    return;
+  }
+  const pct = (boss.hp / boss.maxHp) * 100;
+  if (_bossHpFill) _bossHpFill.style.width = pct + "%";
+  if (_bossHpText) _bossHpText.textContent = `${boss.hp} / ${boss.maxHp}`;
+}
 
 /* ── Boss projectiles ── */
 const _bossProjectiles = [];
@@ -3431,10 +3449,8 @@ function performAttackHit(node) {
 
   /* check if this is an animal */
   const animal = animals.find(a => a.node === node || a.parentModel === node);
-  /* snake boss: cancel attack if it went underground */
+  /* snake boss: skip hit while underground but keep auto-attacking */
   if (animal && animal.type === "Snake Boss" && _snakeBossGroup && !_snakeBossGroup.userData.attackable) {
-    activeAttack = null;
-    ui?.setStatus("The Snake Boss retreated underground!", "info");
     return;
   }
   if (animal && animal.alive) {
@@ -4183,7 +4199,10 @@ function animate(now) {
       delta = Math.atan2(Math.sin(delta), Math.cos(delta));
       player.rotation.y += delta * Math.min(1, dt * 15);
     }
-    if (atkDist > getAttackRange() + 1.0) {
+    /* boss: never cancel ranged attacks due to distance */
+    const atkAnimalForRange = animals.find(a => a.node === activeAttack.node || a.parentModel === activeAttack.node);
+    const isBossRanged = atkAnimalForRange?.type === "Snake Boss" && (combatStyle === "bow" || combatStyle === "mage");
+    if (!isBossRanged && atkDist > getAttackRange() + 1.0) {
       activeAttack = null;
     } else {
       activeAttack.elapsed += dt;
@@ -4256,6 +4275,7 @@ function animate(now) {
   /* register animals from async-loaded chunks (~4x/sec) */
   if (Math.random() < dt * 4) scanForNewAnimals();
   updateAnimals(dt);
+  updateBossHpBar();
   combatEffects.update(dt);
   updateSlimeTrail(dt, t, isMovingNow);
   remotePlayers.update(dt);
