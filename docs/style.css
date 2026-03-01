@@ -1149,18 +1149,20 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 6px 2px;
+  gap: 3px;
+  padding: 8px 6px;
   border-radius: var(--ui-radius-md);
   border: 2px solid transparent;
   background: var(--ui-btn-bg);
   color: var(--ui-ink-1);
-  font-size: 22px;
+  font-size: 26px;
+  min-width: 52px;
+  min-height: 52px;
   cursor: pointer;
   transition: background-color 120ms ease, transform 120ms ease, border-color 120ms ease;
 }
 .ui-prayer-btn span {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--ui-ink-3);
   line-height: 1;

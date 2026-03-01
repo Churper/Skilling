@@ -118,10 +118,7 @@ let party = null;    // { leader: peerId, members: [{ id, name }] }
 let partyRole = null; // "leader" | "member" | null
 let _bossStateInterval = null;
 
-/* ground raycaster (declared early — needed by remotePlayers.getGroundY before full init) */
-const groundRaycaster = new THREE.Raycaster();
-const groundRayOrigin = new THREE.Vector3();
-const groundRayDir = new THREE.Vector3(0, -1, 0);
+/* ground height — analytic (no raycast needed) */
 
 /* ── Player HP ── */
 let playerHp = 100;
@@ -2175,30 +2172,17 @@ function resolvePlayerCollisions() {
   pushPointOutsideObstacles(player.position, playerCollisionRadius);
 }
 
-let _groundYCache = { x: NaN, z: NaN, y: 0 };
-const _GROUND_Y_THRESH = 0.5; // only re-raycast if player moved this far
+/* Bridge deck AABB — only hard surface the analytic height doesn't know about */
+const _BRIDGE_X0 = -6.5, _BRIDGE_X1 = 6.5, _BRIDGE_Z0 = 5.5, _BRIDGE_Z1 = 10.5;
+const _BRIDGE_Y = 0.45; // WATER_Y(0) + 0.35 + 0.1
+
 function getPlayerGroundY(x, z) {
-  if (inCave) {
-    return 0; // flat cave floor
+  if (inCave) return 0;
+  /* bridge deck — simple AABB instead of raycasting */
+  if (x > _BRIDGE_X0 && x < _BRIDGE_X1 && z > _BRIDGE_Z0 && z < _BRIDGE_Z1) {
+    return _BRIDGE_Y;
   }
-  /* use cached value if player barely moved (avoids expensive raycast) */
-  const cdx = x - _groundYCache.x, cdz = z - _groundYCache.z;
-  if (cdx * cdx + cdz * cdz < _GROUND_Y_THRESH * _GROUND_Y_THRESH) {
-    return _groundYCache.y;
-  }
-  const analyticY = getWorldSurfaceHeight(x, z);
-  groundRayOrigin.set(x, analyticY + 30, z);
-  groundRaycaster.set(groundRayOrigin, groundRayDir);
-  groundRaycaster.far = 60;
-  const hits = groundRaycaster.intersectObject(ground, true);
-  let resultY = analyticY;
-  for (let i = 0; i < hits.length; i++) {
-    const h = hits[i];
-    if (h.object?.userData?.isWaterSurface) continue;
-    if (Number.isFinite(h.point?.y)) { resultY = h.point.y; break; }
-  }
-  _groundYCache.x = x; _groundYCache.z = z; _groundYCache.y = resultY;
-  return resultY;
+  return getWorldSurfaceHeight(x, z);
 }
 
 function getPlayerStandY(x, z) {
