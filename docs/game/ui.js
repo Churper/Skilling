@@ -1,4 +1,4 @@
-import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP, STAR_MAX, STAR_COSTS, STAR_SUCCESS, STAR_DESTROY, STAR_ATK_PER, STAR_DEF_PER, STAR_TIMING_BONUS } from "./config.js";
+import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP, STAR_MAX, STAR_COSTS, STAR_SUCCESS, STAR_DESTROY, STAR_DOWNGRADE, STAR_ATK_PER, STAR_DEF_PER, STAR_TIMING_BONUS } from "./config.js";
 
 const TOOL_LABEL = {
   axe: "Axe",
@@ -38,7 +38,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreColor, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -938,6 +938,11 @@ export function initializeUI(options = {}) {
     if (starCostEl) starCostEl.textContent = isMax ? "MAX" : `${STAR_COSTS[_starLevel]}c`;
     if (starChanceEl) starChanceEl.textContent = isMax ? "-" : `${STAR_SUCCESS[_starLevel]}%`;
     if (starDestroyEl) starDestroyEl.textContent = isMax ? "-" : `${STAR_DESTROY[_starLevel]}%`;
+    const starDowngradeEl = document.getElementById("ui-star-downgrade");
+    if (starDowngradeEl) {
+      const dg = isMax ? 0 : (STAR_DOWNGRADE[_starLevel] || 0);
+      starDowngradeEl.textContent = dg > 0 ? `${dg}%` : "-";
+    }
     if (starEnhanceBtn) starEnhanceBtn.disabled = isMax;
     // Green zone size shrinks with level
     if (starZone) {
@@ -994,6 +999,7 @@ export function initializeUI(options = {}) {
 
   function _stopTimingBar() {
     _stopTimingAnim();
+    if (typeof onStarTimingStop === "function") onStarTimingStop();
     // Check if cursor is in the green zone
     const isMax = _starLevel >= STAR_MAX;
     const zoneWidth = isMax ? 0 : Math.max(8, 40 - _starLevel * 3);
@@ -1017,25 +1023,96 @@ export function initializeUI(options = {}) {
     }
   }
 
+  /* ── Star VFX helpers ── */
+  function _starSpawnParticles(count, colors, container) {
+    const rect = container.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement("div");
+      p.className = "ui-star-particle";
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+      const dist = 40 + Math.random() * 80;
+      const dx = Math.cos(angle) * dist;
+      const dy = Math.sin(angle) * dist;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = 4 + Math.random() * 6;
+      p.style.cssText = `left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;background:${color};--dx:${dx}px;--dy:${dy}px;`;
+      document.body.appendChild(p);
+      p.addEventListener("animationend", () => p.remove());
+    }
+  }
+
+  function _starFlash(color, duration) {
+    const flash = document.createElement("div");
+    flash.className = "ui-star-flash";
+    flash.style.background = color;
+    flash.style.animationDuration = duration + "ms";
+    const modal = starOverlay?.querySelector(".ui-star-modal");
+    if (modal) { modal.appendChild(flash); flash.addEventListener("animationend", () => flash.remove()); }
+  }
+
   function showStarResult(result, newStars) {
     _starLevel = newStars;
     _renderStarOverlay();
+    const modal = starOverlay?.querySelector(".ui-star-modal");
     if (starResultEl) {
       if (result === "success") {
         starResultEl.textContent = `\u2605 Enhanced to ${newStars} stars!`;
         starResultEl.className = "ui-star-result success";
+        /* golden sparkle burst + flash */
+        if (modal) {
+          _starSpawnParticles(18, ["#ffe040", "#ffcc00", "#fff8a0", "#ffaa00", "#ffffff"], modal);
+          _starFlash("rgba(255,224,64,0.25)", 400);
+          modal.classList.remove("star-shake-success");
+          void modal.offsetWidth;
+          modal.classList.add("star-shake-success");
+        }
+        /* pulse the new star */
+        if (starStarsEl) {
+          const starEls = starStarsEl.querySelectorAll(".ui-star-star-on");
+          const last = starEls[starEls.length - 1];
+          if (last) { last.classList.add("star-pop"); last.addEventListener("animationend", () => last.classList.remove("star-pop"), { once: true }); }
+        }
       } else if (result === "fail") {
         starResultEl.textContent = "Enhancement failed...";
         starResultEl.className = "ui-star-result fail";
+        if (modal) {
+          modal.classList.remove("star-shake-fail");
+          void modal.offsetWidth;
+          modal.classList.add("star-shake-fail");
+        }
       } else if (result === "destroy") {
         starResultEl.textContent = "DESTROYED! Item lost!";
         starResultEl.className = "ui-star-result destroy";
+        if (modal) {
+          _starSpawnParticles(30, ["#ff4444", "#ff6b6b", "#ff2222", "#ff8844", "#ffaa44"], modal);
+          _starFlash("rgba(255,50,50,0.35)", 600);
+          modal.classList.remove("star-shake-destroy");
+          void modal.offsetWidth;
+          modal.classList.add("star-shake-destroy");
+        }
+      } else if (result === "downgrade") {
+        starResultEl.textContent = `Downgraded to ${newStars} stars...`;
+        starResultEl.className = "ui-star-result downgrade";
+        if (modal) {
+          _starSpawnParticles(10, ["#ffaa44", "#ff8800", "#ff6633"], modal);
+          _starFlash("rgba(255,140,50,0.2)", 350);
+          modal.classList.remove("star-shake-destroy");
+          void modal.offsetWidth;
+          modal.classList.add("star-shake-destroy");
+        }
       } else if (result === "maxed") {
         starResultEl.textContent = "\u2605 Already at max stars!";
         starResultEl.className = "ui-star-result maxed";
       } else if (result === "broke") {
         starResultEl.textContent = "Not enough coins!";
         starResultEl.className = "ui-star-result fail";
+        if (modal) {
+          modal.classList.remove("star-shake-fail");
+          void modal.offsetWidth;
+          modal.classList.add("star-shake-fail");
+        }
       }
     }
     if (starEnhanceBtn) starEnhanceBtn.hidden = false;

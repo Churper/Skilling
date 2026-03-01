@@ -165,6 +165,7 @@ export const STAR_MAX = 10;
 export const STAR_COSTS =       [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240];
 export const STAR_SUCCESS =     [95, 90, 80, 70,  55,  40,  30,   20,   15,   10]; // base %
 export const STAR_DESTROY =     [0,  0,  0,  5,   10,  15,  25,   35,   45,   55]; // destroy %
+export const STAR_DOWNGRADE =   [0,  0,  0,  0,   0,   0,   0,    50,   60,   80]; // % chance to lose 1 star on fail (not destroy)
 export const STAR_ATK_PER =     [1,  1,  2,  2,   3,   3,   4,    5,    6,    8];  // bonus atk per star
 export const STAR_DEF_PER =     [1,  1,  2,  2,   3,   3,   4,    5,    6,    8];  // bonus def per star
 export const STAR_TIMING_BONUS = 15; // max % bonus from timing bar

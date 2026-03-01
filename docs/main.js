@@ -32,6 +32,7 @@ import {
   STAR_COSTS,
   STAR_SUCCESS,
   STAR_DESTROY,
+  STAR_DOWNGRADE,
   STAR_TIMING_BONUS,
   STAR_ATK_PER,
   STAR_DEF_PER,
@@ -355,6 +356,9 @@ const ui = initializeUI({
   onStarEnhance: (slot, timingBonus) => {
     starEnhanceSlot(slot, timingBonus);
   },
+  onStarTimingStop: () => {
+    playStarTimingClick();
+  },
 });
 
 function getCombatToolForStyle(style) {
@@ -536,6 +540,7 @@ function starEnhanceSlot(slot, timingBonus) {
     syncInventoryUI();
     syncWornUI();
     spawnFloatingDrop(player.position.x, player.position.z, `\u2605 ${wornStars[slot]} stars!`, "level");
+    playStarSuccess(wornStars[slot]);
     ui?.showStarResult("success", wornStars[slot]);
   } else if (roll < totalChance + destroyChance) {
     // Destroyed!
@@ -544,12 +549,24 @@ function starEnhanceSlot(slot, timingBonus) {
     syncInventoryUI();
     syncWornUI();
     spawnFloatingDrop(player.position.x, player.position.z, "DESTROYED!", "warn");
+    playStarDestroy();
     ui?.showStarResult("destroy", 0);
   } else {
-    // Failed but not destroyed — stars stay the same
-    syncInventoryUI();
-    syncWornUI();
-    ui?.showStarResult("fail", currentStars);
+    // Failed — check for downgrade (stars 7+ can lose a star)
+    const downgradeChance = STAR_DOWNGRADE[currentStars] || 0;
+    if (downgradeChance > 0 && Math.random() * 100 < downgradeChance && currentStars > 0) {
+      wornStars[slot] = currentStars - 1;
+      syncInventoryUI();
+      syncWornUI();
+      playStarFail();
+      spawnFloatingDrop(player.position.x, player.position.z, `\u2605 ${wornStars[slot]} stars...`, "warn");
+      ui?.showStarResult("downgrade", wornStars[slot]);
+    } else {
+      syncInventoryUI();
+      syncWornUI();
+      playStarFail();
+      ui?.showStarResult("fail", currentStars);
+    }
   }
   saveGame();
 }
@@ -2057,6 +2074,128 @@ function playGatherSound(resourceType) {
   if (resourceType === "woodcutting") playChopSound();
   else if (resourceType === "mining") playMineSound();
   else if (resourceType === "fishing") playFishSound();
+}
+
+/* ── Star enhancement sounds (MapleStory-inspired) ── */
+function playStarSuccess(newStars) {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  /* ascending sparkle arpeggio — higher pitch at higher star levels */
+  const basePitch = 1 + newStars * 0.06;
+  const notes = [660, 880, 1100, 1320, 1760].map(n => n * basePitch);
+  const timing = [0, 0.06, 0.12, 0.18, 0.24];
+  for (let i = 0; i < notes.length; i++) {
+    const osc = _audioCtx.createOscillator();
+    const g = _audioCtx.createGain();
+    osc.type = i < 3 ? "triangle" : "sine";
+    osc.frequency.setValueAtTime(notes[i], t + timing[i]);
+    g.gain.setValueAtTime(0.2, t + timing[i]);
+    g.gain.exponentialRampToValueAtTime(0.001, t + timing[i] + 0.2);
+    osc.connect(g); g.connect(_masterGain);
+    osc.start(t + timing[i]); osc.stop(t + timing[i] + 0.25);
+  }
+  /* shimmer sparkle noise */
+  const bufLen = Math.floor(_audioCtx.sampleRate * 0.3);
+  const buf = _audioCtx.createBuffer(1, bufLen, _audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1) * 0.08;
+  const src = _audioCtx.createBufferSource();
+  src.buffer = buf;
+  const filt = _audioCtx.createBiquadFilter();
+  filt.type = "bandpass"; filt.frequency.value = 8000 * basePitch; filt.Q.value = 3;
+  const sg = _audioCtx.createGain();
+  sg.gain.setValueAtTime(0.2, t + 0.15);
+  sg.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+  src.connect(filt); filt.connect(sg); sg.connect(_masterGain);
+  src.start(t + 0.15); src.stop(t + 0.55);
+}
+
+function playStarFail() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  /* descending dull buzz — "bonk" */
+  const osc = _audioCtx.createOscillator();
+  osc.type = "sawtooth";
+  osc.frequency.setValueAtTime(300, t);
+  osc.frequency.exponentialRampToValueAtTime(120, t + 0.15);
+  const g = _audioCtx.createGain();
+  g.gain.setValueAtTime(0.2, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+  const filt = _audioCtx.createBiquadFilter();
+  filt.type = "lowpass"; filt.frequency.value = 600;
+  osc.connect(filt); filt.connect(g); g.connect(_masterGain);
+  osc.start(); osc.stop(t + 0.3);
+  /* dull thud */
+  const osc2 = _audioCtx.createOscillator();
+  osc2.type = "sine";
+  osc2.frequency.setValueAtTime(80, t);
+  osc2.frequency.exponentialRampToValueAtTime(40, t + 0.12);
+  const g2 = _audioCtx.createGain();
+  g2.gain.setValueAtTime(0.25, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+  osc2.connect(g2); g2.connect(_masterGain);
+  osc2.start(); osc2.stop(t + 0.2);
+}
+
+function playStarDestroy() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  /* dramatic glass shatter — noise burst with sharp filter sweep */
+  const bufLen = Math.floor(_audioCtx.sampleRate * 0.5);
+  const buf = _audioCtx.createBuffer(1, bufLen, _audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) {
+    const env = Math.exp(-i / (bufLen * 0.15));
+    d[i] = (Math.random() * 2 - 1) * env * 0.7;
+  }
+  const src = _audioCtx.createBufferSource();
+  src.buffer = buf;
+  const filt = _audioCtx.createBiquadFilter();
+  filt.type = "highpass";
+  filt.frequency.setValueAtTime(6000, t);
+  filt.frequency.exponentialRampToValueAtTime(400, t + 0.4);
+  const g = _audioCtx.createGain();
+  g.gain.setValueAtTime(0.35, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+  src.connect(filt); filt.connect(g); g.connect(_masterGain);
+  src.start(); src.stop(t + 0.55);
+  /* low impact rumble */
+  const osc = _audioCtx.createOscillator();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(60, t);
+  osc.frequency.exponentialRampToValueAtTime(25, t + 0.3);
+  const g2 = _audioCtx.createGain();
+  g2.gain.setValueAtTime(0.3, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+  osc.connect(g2); g2.connect(_masterGain);
+  osc.start(); osc.stop(t + 0.4);
+  /* descending shatter tones */
+  const shatterNotes = [2400, 1800, 1200, 600];
+  for (let i = 0; i < shatterNotes.length; i++) {
+    const o = _audioCtx.createOscillator();
+    o.type = "square";
+    o.frequency.setValueAtTime(shatterNotes[i], t + i * 0.04);
+    o.frequency.exponentialRampToValueAtTime(shatterNotes[i] * 0.3, t + i * 0.04 + 0.08);
+    const og = _audioCtx.createGain();
+    og.gain.setValueAtTime(0.12, t + i * 0.04);
+    og.gain.exponentialRampToValueAtTime(0.001, t + i * 0.04 + 0.1);
+    o.connect(og); og.connect(_masterGain);
+    o.start(t + i * 0.04); o.stop(t + i * 0.04 + 0.12);
+  }
+}
+
+function playStarTimingClick() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  /* short crisp click */
+  const osc = _audioCtx.createOscillator();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(1200, t);
+  const g = _audioCtx.createGain();
+  g.gain.setValueAtTime(0.15, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+  osc.connect(g); g.connect(_masterGain);
+  osc.start(); osc.stop(t + 0.04);
 }
 
 /* ── Level-up celebration jingle ── */

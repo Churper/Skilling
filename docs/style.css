@@ -2056,6 +2056,7 @@ body {
 .ui-star-cost-val { color: #ffe680; font-weight: 700; }
 .ui-star-chance-val { color: #5cff8a; font-weight: 700; }
 .ui-star-destroy-val { color: #ff6b6b; font-weight: 700; }
+.ui-star-downgrade-val { color: #ffaa44; font-weight: 700; }
 .ui-star-divider {
   height: 1px;
   background: rgba(255,255,255,0.06);
@@ -2142,6 +2143,7 @@ body {
 .ui-star-result.success { color: #5cff8a; text-shadow: 0 0 8px rgba(92,255,138,0.4); }
 .ui-star-result.fail { color: #ffb854; }
 .ui-star-result.destroy { color: #ff6b6b; text-shadow: 0 0 8px rgba(255,100,100,0.4); }
+.ui-star-result.downgrade { color: #ffaa44; text-shadow: 0 0 6px rgba(255,170,68,0.3); }
 .ui-star-result.maxed { color: #ffe680; }
 .ui-star-unequip-btn {
   width: 100%;
@@ -2159,4 +2161,77 @@ body {
 .ui-star-unequip-btn:hover {
   background: rgba(255,255,255,0.08);
   color: var(--ui-ink-1);
+}
+
+/* ── Star VFX ── */
+.ui-star-particle {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  animation: starParticleBurst 0.6s ease-out forwards;
+}
+@keyframes starParticleBurst {
+  0% { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+.ui-star-flash {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+  animation: starFlashFade linear forwards;
+}
+@keyframes starFlashFade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+/* Shake animations */
+.star-shake-success {
+  animation: starShakeSuccess 0.35s ease-out;
+}
+@keyframes starShakeSuccess {
+  0% { transform: scale(1); }
+  20% { transform: scale(1.03) rotate(0.5deg); }
+  40% { transform: scale(1.01) rotate(-0.3deg); }
+  60% { transform: scale(1.02) rotate(0.2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.star-shake-fail {
+  animation: starShakeFail 0.3s ease-out;
+}
+@keyframes starShakeFail {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+.star-shake-destroy {
+  animation: starShakeDestroy 0.5s ease-out;
+}
+@keyframes starShakeDestroy {
+  0% { transform: scale(1) rotate(0deg); }
+  10% { transform: scale(1.05) rotate(1.5deg); }
+  20% { transform: scale(0.97) rotate(-2deg); }
+  30% { transform: scale(1.03) rotate(1deg); }
+  40% { transform: scale(0.98) rotate(-1.5deg); }
+  50% { transform: scale(1.02) rotate(0.8deg); }
+  60% { transform: scale(0.99) rotate(-0.5deg); }
+  80% { transform: scale(1); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+/* Star pop glow when newly earned */
+.star-pop {
+  animation: starPopGlow 0.5s ease-out;
+}
+@keyframes starPopGlow {
+  0% { transform: scale(1); text-shadow: 0 0 6px rgba(255,224,64,0.5); }
+  30% { transform: scale(1.8); text-shadow: 0 0 16px rgba(255,224,64,1), 0 0 30px rgba(255,200,0,0.6); }
+  100% { transform: scale(1); text-shadow: 0 0 6px rgba(255,224,64,0.5); }
+}
+.ui-star-star-on {
+  display: inline-block; /* needed for transform */
 }
