@@ -252,9 +252,16 @@ export function initializeUI(options = {}) {
           });
         } else if (EQUIPMENT_ITEMS[itemType]) {
           const eqInfo = EQUIPMENT_ITEMS[itemType];
+          const iStars = _itemStars[itemType] || 0;
           slot.classList.add("is-equipment");
           tip.remove();
-          _attachEqTooltip(slot, eqInfo, "Click to equip", sellVal, 0);
+          if (iStars > 0) {
+            const badge = document.createElement("span");
+            badge.className = "ui-bag-star-badge";
+            badge.textContent = `\u2605${iStars}`;
+            slot.append(badge);
+          }
+          _attachEqTooltip(slot, eqInfo, "Click to equip", sellVal, iStars);
           slot.addEventListener("click", () => {
             if (typeof onEquipFromBag === "function") onEquipFromBag(i);
           });
@@ -268,11 +275,13 @@ export function initializeUI(options = {}) {
     }
   }
 
+  let _itemStars = {}; // itemId → star count for bag tooltip display
   function setInventory(payload) {
     const counts = payload?.counts ?? payload ?? {};
     const slots = Array.isArray(payload?.slots) ? payload.slots : [];
     const capacity = Number.isFinite(payload?.capacity) ? payload.capacity : slots.length;
     const used = Number.isFinite(payload?.used) ? payload.used : slots.filter((slot) => !!slot).length;
+    if (payload?.itemStars) _itemStars = payload.itemStars;
 
     if (invFishEl) invFishEl.textContent = String(counts.fish ?? 0);
     if (invOreEl) invOreEl.textContent = String(counts.ore ?? 0);

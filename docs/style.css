@@ -2001,10 +2001,10 @@ body {
 }
 .ui-star-overlay[hidden] { display: none; }
 .ui-star-modal {
-  background: rgba(12, 18, 28, 0.96);
-  border: 2px solid rgba(255,200,50,0.2);
+  background: linear-gradient(170deg, rgba(18,10,32,0.97) 0%, rgba(8,14,28,0.97) 50%, rgba(14,8,24,0.97) 100%);
+  border: 2px solid rgba(255,200,50,0.25);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 40px rgba(255,200,50,0.05);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 60px rgba(255,200,50,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
   width: min(340px, 90vw);
   overflow: hidden;
 }
@@ -2013,7 +2013,8 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  border-bottom: 1px solid rgba(255,200,50,0.12);
+  border-bottom: 1px solid rgba(255,200,50,0.15);
+  background: rgba(255,200,50,0.04);
 }
 .ui-star-title {
   font-family: var(--ui-font-heading);
@@ -2053,6 +2054,16 @@ body {
   color: var(--ui-ink-2);
 }
 .ui-star-stat-val { color: #5cff8a; font-weight: 700; }
+.ui-bag-star-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 9px;
+  color: #ffe040;
+  text-shadow: 0 0 4px rgba(255,224,64,0.6), 0 1px 1px rgba(0,0,0,0.8);
+  pointer-events: none;
+  line-height: 1;
+}
 .ui-star-coins-val { color: #ffe680; font-weight: 700; }
 .ui-star-cost-val { color: #ffe680; font-weight: 700; }
 .ui-star-chance-val { color: #5cff8a; font-weight: 700; }

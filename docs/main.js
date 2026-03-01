@@ -87,6 +87,7 @@ const inCave = false; /* cave system removed */
 const activePrayers = new Set();
 const wornEquipment = { body: null, cape: null, ring: null, amulet: null, shield: null, bow: null, staff: null, sword: null };
 const wornStars = { body: 0, cape: 0, ring: 0, amulet: 0, shield: 0, bow: 0, staff: 0, sword: 0 };
+const itemStars = {}; // itemId → star count, persists across equip/unequip
 
 /* ground raycaster (declared early — needed by remotePlayers.getGroundY before full init) */
 const groundRaycaster = new THREE.Raycaster();
@@ -221,6 +222,7 @@ function saveGame() {
       unlockedSlimeColors: [...unlockedSlimeColors],
       wornEquipment: { ...wornEquipment },
       wornStars: { ...wornStars },
+      itemStars: { ...itemStars },
       bag: bagSystem.serialize(),
       constructionStock: constructionProgress.getStock(),
       px: player.position.x,
@@ -256,6 +258,11 @@ function loadGame() {
     if (d.wornStars) {
       for (const slot of Object.keys(wornStars)) {
         wornStars[slot] = d.wornStars[slot] || 0;
+      }
+    }
+    if (d.itemStars) {
+      for (const [id, stars] of Object.entries(d.itemStars)) {
+        if (stars > 0) itemStars[id] = stars;
       }
     }
     if (d.bag) bagSystem.deserialize(d.bag);
@@ -443,6 +450,10 @@ function equipItem(bagSlotIndex) {
   }
   const slotName = item.slot;
   const currentlyWorn = wornEquipment[slotName];
+  // Save outgoing item's stars
+  if (currentlyWorn) {
+    itemStars[currentlyWorn] = wornStars[slotName] || 0;
+  }
   // Remove from bag
   bagSlots[bagSlotIndex] = null;
   // If something is already equipped, put it in the bag slot we just freed
@@ -450,7 +461,8 @@ function equipItem(bagSlotIndex) {
     bagSlots[bagSlotIndex] = currentlyWorn;
   }
   wornEquipment[slotName] = itemId;
-  wornStars[slotName] = 0;
+  // Restore stars for this item
+  wornStars[slotName] = itemStars[itemId] || 0;
   bagSystem.recount();
   syncInventoryUI();
   syncWornUI();
@@ -465,6 +477,8 @@ function unequipItem(slotName) {
     ui?.setStatus("Bag is full! Can't unequip.", "warn");
     return;
   }
+  // Save stars tied to item
+  itemStars[itemId] = wornStars[slotName] || 0;
   wornEquipment[slotName] = null;
   wornStars[slotName] = 0;
   bagSystem.addItem(itemId);
@@ -544,6 +558,7 @@ function starEnhanceSlot(slot, timingBonus) {
     ui?.showStarResult("success", wornStars[slot]);
   } else if (roll < totalChance + destroyChance) {
     // Destroyed!
+    delete itemStars[itemId];
     wornEquipment[slot] = null;
     wornStars[slot] = 0;
     syncInventoryUI();
@@ -590,6 +605,7 @@ function syncInventoryUI() {
     slots: bagSlots,
     used: bagUsedCount(),
     capacity: BAG_CAPACITY,
+    itemStars: { ...itemStars },
   });
   ui?.setCoins(coins);
   ui?.setBlacksmith(getBlacksmithState());
