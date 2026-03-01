@@ -66,40 +66,7 @@
         <p id="ui-status-line" class="ui-status" data-tone="info"></p>
       </section>
       <section class="ui-panel-section" data-tab-panel="bank" hidden></section>
-      <section class="ui-panel-section" data-tab-panel="blacksmith" hidden>
-        <button type="button" id="ui-smith-close" class="ui-panel-close-btn">&times; Close</button>
-        <div class="ui-smith-list">
-          <div class="ui-smith-row">
-            <div class="ui-smith-meta">
-              <strong>Axe</strong>
-              <span>Upgrade level <b data-smith-level="axe">0</b></span>
-            </div>
-            <button type="button" class="ui-smith-buy-btn" data-smith-upgrade="axe">
-              Upgrade (<span data-smith-cost="axe">0</span>)
-            </button>
-          </div>
-          <div class="ui-smith-row">
-            <div class="ui-smith-meta">
-              <strong>Pickaxe</strong>
-              <span>Upgrade level <b data-smith-level="pickaxe">0</b></span>
-            </div>
-            <button type="button" class="ui-smith-buy-btn" data-smith-upgrade="pickaxe">
-              Upgrade (<span data-smith-cost="pickaxe">0</span>)
-            </button>
-          </div>
-          <div class="ui-smith-row">
-            <div class="ui-smith-meta">
-              <strong>Fishing Pole</strong>
-              <span>Upgrade level <b data-smith-level="fishing">0</b></span>
-            </div>
-            <button type="button" class="ui-smith-buy-btn" data-smith-upgrade="fishing">
-              Upgrade (<span data-smith-cost="fishing">0</span>)
-            </button>
-          </div>
-        </div>
-        <div class="ui-smith-craft-divider">Equipment Crafting</div>
-        <div id="ui-smith-craft-list" class="ui-smith-list"></div>
-      </section>
+      <section class="ui-panel-section" data-tab-panel="blacksmith" hidden></section>
       <section class="ui-panel-section" data-tab-panel="store" hidden>
         <div class="ui-store-dyes">
           <button type="button" class="ui-dye-btn" data-store-color="lime"><span class="ui-dye-swatch" style="--sw:#58df78"></span><span>Lime</span><small data-store-cost="lime">0</small></button>
@@ -490,6 +457,48 @@
           <div id="ui-store-inv-grid" class="ui-store-grid"></div>
           <button type="button" id="ui-store-sell-all" class="ui-store-sell-all-btn">Sell All</button>
         </div>
+      </div>
+    </div>
+  </div>
+  <!-- Blacksmith overlay -->
+  <div id="ui-smith-overlay" class="ui-smith-overlay" hidden>
+    <div class="ui-smith-modal">
+      <div class="ui-smith-modal-header">
+        <span class="ui-smith-modal-title">&#x2692;&#xFE0F; Blacksmith</span>
+        <button type="button" id="ui-smith-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-smith-modal-body">
+        <div class="ui-smith-list">
+          <div class="ui-smith-row">
+            <div class="ui-smith-meta">
+              <strong>Axe</strong>
+              <span>Upgrade level <b data-smith-level="axe">0</b></span>
+            </div>
+            <button type="button" class="ui-smith-buy-btn" data-smith-upgrade="axe">
+              Upgrade (<span data-smith-cost="axe">0</span>)
+            </button>
+          </div>
+          <div class="ui-smith-row">
+            <div class="ui-smith-meta">
+              <strong>Pickaxe</strong>
+              <span>Upgrade level <b data-smith-level="pickaxe">0</b></span>
+            </div>
+            <button type="button" class="ui-smith-buy-btn" data-smith-upgrade="pickaxe">
+              Upgrade (<span data-smith-cost="pickaxe">0</span>)
+            </button>
+          </div>
+          <div class="ui-smith-row">
+            <div class="ui-smith-meta">
+              <strong>Fishing Pole</strong>
+              <span>Upgrade level <b data-smith-level="fishing">0</b></span>
+            </div>
+            <button type="button" class="ui-smith-buy-btn" data-smith-upgrade="fishing">
+              Upgrade (<span data-smith-cost="fishing">0</span>)
+            </button>
+          </div>
+        </div>
+        <div class="ui-smith-craft-divider">Equipment Crafting</div>
+        <div id="ui-smith-craft-list" class="ui-smith-list"></div>
       </div>
     </div>
   </div>

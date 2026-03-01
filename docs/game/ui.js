@@ -248,6 +248,9 @@ export function initializeUI(options = {}) {
   const bankInvGrid = document.getElementById("ui-bank-inv-grid");
   const bankQtyButtons = Array.from(document.querySelectorAll(".ui-bank-qty-btn"));
 
+  const smithOverlay = document.getElementById("ui-smith-overlay");
+  const smithCloseBtn = document.getElementById("ui-smith-close");
+
   const storeOverlay = document.getElementById("ui-store-overlay");
   const storeCloseBtn = document.getElementById("ui-store-close");
   const storeStockGrid = document.getElementById("ui-store-stock-grid");
@@ -540,14 +543,21 @@ export function initializeUI(options = {}) {
     }
   }
 
+  let _smithOpen = false;
   function openBlacksmith(payload = {}) {
     setBlacksmith(payload);
-    setPanelCollapsed(false);
-    setActive("blacksmith");
-    if (mobileQuery.matches) setMobileMenuOpen(true);
+    _smithOpen = true;
+    if (smithOverlay) smithOverlay.hidden = false;
   }
-  const smithCloseBtn = document.getElementById("ui-smith-close");
-  if (smithCloseBtn) smithCloseBtn.addEventListener("click", () => setActive("inventory"));
+  function closeBlacksmith() {
+    _smithOpen = false;
+    if (smithOverlay) smithOverlay.hidden = true;
+  }
+  function isBlacksmithOpen() { return _smithOpen; }
+  if (smithCloseBtn) smithCloseBtn.addEventListener("click", closeBlacksmith);
+  if (smithOverlay) smithOverlay.addEventListener("click", (e) => {
+    if (e.target === smithOverlay) closeBlacksmith();
+  });
 
   function setStore(payload = {}) {
     const coins = Math.max(0, Math.floor(Number(payload.coins) || 0));
@@ -1011,6 +1021,7 @@ export function initializeUI(options = {}) {
     /* close overlays on Escape */
     if (_storeOpen && e.key === "Escape") { closeStoreOverlay(); e.preventDefault(); return; }
     if (_bankOpen && e.key === "Escape") { closeBank(); e.preventDefault(); return; }
+    if (_smithOpen && e.key === "Escape") { closeBlacksmith(); e.preventDefault(); return; }
     /* cancel hotkey listen on Escape */
     if (pendingHotkeyRow && e.key === "Escape") {
       pendingHotkeyRow.classList.remove("is-listening");
@@ -1800,6 +1811,8 @@ export function initializeUI(options = {}) {
     setFriendsState,
     setBlacksmith,
     openBlacksmith,
+    closeBlacksmith,
+    isBlacksmithOpen,
     setStore,
     openStore,
     setStoreOverlay,

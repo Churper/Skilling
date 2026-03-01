@@ -1736,6 +1736,7 @@ function setMoveTarget(point, preservePending = false) {
   moveTarget.y = getPlayerGroundY(moveTarget.x, moveTarget.z);
   hasMoveTarget = true;
   if (ui?.isBankOpen?.()) ui.closeBank();
+  if (ui?.isBlacksmithOpen?.()) ui.closeBlacksmith();
   marker.visible = true;
   const waterY = getWaterSurfaceHeight(markerTarget.x, markerTarget.z, waterUniforms.uTime.value);
   markerOnWater = Number.isFinite(waterY);
@@ -2294,12 +2295,36 @@ let _crouchT = 0; // 0 = standing, 1 = fully crouched
 let _smoothGroundY = null; // smoothed ground Y to prevent micro-terrain jitter
 
 /* ── World Item Drops ── */
-const worldDrops = new Map(); // dropId → { id, itemKey, x, z, group, hs, orb, expireAt, stars }
+const worldDrops = new Map(); // dropId → { id, itemKey, x, z, group, hs, sprite, expireAt, stars }
 const DROP_LIFETIME = 120000; // 2 minutes
-const _dropOrbGeo = new THREE.SphereGeometry(0.18, 12, 8);
 const _dropRingGeo = new THREE.RingGeometry(0.15, 0.35, 16);
 const _dropHsGeo = new THREE.CylinderGeometry(0.6, 0.6, 1.2, 8);
 const _dropHsMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, depthTest: false });
+
+const _DROP_ICON = {
+  fish: "\u{1F41F}", ore: "\u{1FAA8}", logs: "\u{1FAB5}",
+  "Raw Beef": "\u{1F969}", "Raw Pork": "\u{1F356}", "Wool": "\u{1F9F6}",
+  "Horse Hide": "\u{1F3AF}", "Llama Wool": "\u{1F9F6}", "Bone": "\u{1F9B4}",
+  "Striped Hide": "\u{1F993}", "Health Potion": "\u2764\uFE0F", "Mana Potion": "\u{1F4A7}",
+  "Cooked Fish": "\u{1F373}", "Cooked Beef": "\u{1F356}", "Cooked Pork": "\u{1F969}",
+  "Burnt Food": "\u{1F4A8}", "Bird Nest": "\u{1FAA8}", "Uncut Gem": "\u{1F48E}",
+  "Golden Fish": "\u{1F420}",
+};
+const _dropTexCache = new Map();
+function _getDropEmojiTex(emoji) {
+  if (_dropTexCache.has(emoji)) return _dropTexCache.get(emoji);
+  const size = 64;
+  const c = document.createElement("canvas");
+  c.width = size; c.height = size;
+  const ctx = c.getContext("2d");
+  ctx.font = `${size * 0.72}px serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(emoji, size / 2, size / 2);
+  const tex = new THREE.CanvasTexture(c);
+  _dropTexCache.set(emoji, tex);
+  return tex;
+}
 
 const _dropRarityColor = { common: "#c0c0c0", uncommon: "#6ec86e", rare: "#5ea0ff", equipment: "#ffcc44" };
 function _getDropColor(itemKey) {
@@ -2310,6 +2335,13 @@ function _getDropColor(itemKey) {
   return _dropRarityColor.common;
 }
 
+function _getDropEmoji(itemKey) {
+  const base = baseItemId(itemKey);
+  const eq = EQUIPMENT_ITEMS[base];
+  if (eq) return eq.icon;
+  return _DROP_ICON[itemKey] || _DROP_ICON[base] || "\u2753";
+}
+
 function spawnWorldDrop(itemKey, x, z, stars) {
   const dropId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   const group = new THREE.Group();
@@ -2318,11 +2350,14 @@ function spawnWorldDrop(itemKey, x, z, stars) {
 
   const color = _getDropColor(itemKey);
 
-  // Glowing orb
-  const orbMat = new THREE.MeshToonMaterial({ color, emissive: color, emissiveIntensity: 0.5 });
-  const orb = new THREE.Mesh(_dropOrbGeo, orbMat);
-  orb.position.y = 0.5;
-  group.add(orb);
+  // Emoji sprite billboard
+  const emoji = _getDropEmoji(itemKey);
+  const tex = _getDropEmojiTex(emoji);
+  const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: true });
+  const sprite = new THREE.Sprite(spriteMat);
+  sprite.scale.set(0.65, 0.65, 1);
+  sprite.position.y = 0.55;
+  group.add(sprite);
 
   // Ground glow ring
   const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide });
@@ -2343,7 +2378,7 @@ function spawnWorldDrop(itemKey, x, z, stars) {
   scene.add(group);
   resourceNodes.push(hs);
 
-  worldDrops.set(dropId, { id: dropId, itemKey, x, z, group, hs, orb, ring, ringMat, orbMat, expireAt: Date.now() + DROP_LIFETIME, stars: stars || 0 });
+  worldDrops.set(dropId, { id: dropId, itemKey, x, z, group, hs, sprite, ring, ringMat, spriteMat, expireAt: Date.now() + DROP_LIFETIME, stars: stars || 0 });
   return dropId;
 }
 
@@ -2353,7 +2388,7 @@ function removeWorldDrop(dropId) {
   scene.remove(drop.group);
   const idx = resourceNodes.indexOf(drop.hs);
   if (idx >= 0) resourceNodes.splice(idx, 1);
-  drop.orbMat.dispose();
+  drop.spriteMat.dispose();
   drop.ringMat.dispose();
   worldDrops.delete(dropId);
 }
@@ -2398,8 +2433,7 @@ function cleanupExpiredDrops() {
 
 function updateWorldDrops(dt, t) {
   for (const drop of worldDrops.values()) {
-    drop.orb.position.y = 0.5 + Math.sin(t * 2.0) * 0.12;
-    drop.orb.rotation.y += dt * 1.5;
+    drop.sprite.position.y = 0.55 + Math.sin(t * 2.0) * 0.12;
   }
 }
 
@@ -3467,6 +3501,7 @@ function animate(now) {
     activeGather = null;
     activeAttack = null;
     if (ui?.isBankOpen?.()) ui.closeBank();
+    if (ui?.isBlacksmithOpen?.()) ui.closeBlacksmith();
     moveDir.normalize();
   } else if (hasMoveTarget) {
     moveDir.subVectors(moveTarget, player.position);

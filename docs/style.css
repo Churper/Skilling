@@ -173,10 +173,10 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 14px;
-  background: rgba(10, 14, 24, 0.85);
-  backdrop-filter: blur(10px);
+  background: rgba(18, 28, 38, 0.72);
+  backdrop-filter: blur(16px);
   padding: 10px 12px 12px;
   pointer-events: auto;
   transform: translateY(0);
@@ -287,11 +287,11 @@ body {
 }
 .ui-bank-overlay[hidden] { display: none; }
 .ui-bank-modal {
-  background: rgba(12, 18, 28, 0.95);
-  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(20, 30, 40, 0.82);
+  border: 2px solid rgba(255,255,255,0.15);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  backdrop-filter: blur(16px);
   width: min(520px, 92vw);
   max-height: min(440px, 72vh);
   display: flex;
@@ -2137,13 +2137,13 @@ body {
 }
 .ui-store-overlay[hidden] { display: none; }
 .ui-store-modal {
-  background: rgba(12, 18, 28, 0.95);
-  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(20, 30, 40, 0.82);
+  border: 2px solid rgba(255,255,255,0.15);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  backdrop-filter: blur(16px);
   width: min(520px, 92vw);
-  max-height: min(440px, 72vh);
+  max-height: min(600px, 85vh);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -2247,6 +2247,51 @@ body {
   padding: 4px 0;
   color: #5cff8a;
   transition: opacity 0.3s;
+}
+
+/* ── Blacksmith overlay ── */
+.ui-smith-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+}
+.ui-smith-overlay[hidden] { display: none; }
+.ui-smith-modal {
+  background: rgba(20, 30, 40, 0.82);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  backdrop-filter: blur(16px);
+  width: min(460px, 92vw);
+  max-height: min(600px, 85vh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ui-smith-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.ui-smith-modal-title {
+  font-family: var(--ui-font-heading);
+  font-size: 18px;
+  color: var(--ui-ink-1);
+  text-shadow: var(--ui-text-shadow);
+}
+.ui-smith-modal-body {
+  padding: 12px 16px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .ui-bag-star-badge {
