@@ -933,10 +933,19 @@ async function loadMapObjects(scene, nodes) {
       const svcTag = SERVICE_TAG[entry.type];
       if (svcTag) {
         setSvc(m, svcTag.service, svcTag.label);
-        nodes.push(addHS(m, 0, 0.95, 0.55));
-        /* spawn shopkeeper slime next to market stalls */
         if (entry.type === "Market_Stalls") {
-          spawnShopkeeper(group, entry.x + 1.2, y, entry.z + 0.8);
+          /* Stall hitbox in front of counter, not at model origin.
+             Offset ~1.2 units forward in model-local space (pre-scale). */
+          const fwd = 0.4; // local forward offset (z)
+          nodes.push(addHS(m, 0, 0.3, fwd));
+          /* Shopkeeper positioned in front of the stall using rotation */
+          const rot = entry.rot || 0;
+          const shopDist = 3.5;
+          const sx = entry.x + Math.sin(rot) * shopDist;
+          const sz = entry.z + Math.cos(rot) * shopDist;
+          spawnShopkeeper(group, sx, y, sz);
+        } else {
+          nodes.push(addHS(m, 0, 0.95, 0.55));
         }
       }
       /* tag resources so game interaction works */
