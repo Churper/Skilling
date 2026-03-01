@@ -999,6 +999,11 @@ function updateSnakeBoss(group, t) {
   }
   group.position.y = GRASS_Y + y;
 
+  /* disable hitbox when underground so players can't click invisible boss */
+  if (ud.hsNode) {
+    ud.hsNode.visible = (ud.phase === "hold" || ud.phase === "up");
+  }
+
   /* tongue flick */
   if (ud.tongue) {
     ud.tongue.position.z = 2.2 + Math.sin(t * 8) * 0.4;
