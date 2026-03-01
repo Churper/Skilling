@@ -145,8 +145,11 @@ function playerDeath() {
   /* red flash overlay */
   deathOverlay.classList.add("active");
   setTimeout(() => deathOverlay.classList.remove("active"), 800);
+  /* leave boss instance if in one */
+  if (getActiveInstance()) doBossLeave();
   /* respawn at village */
   player.position.set(0, 0, -32);
+  player.position.y = getPlayerGroundY(0, -32);
   playerHp = playerMaxHp;
   ui?.setHp(playerHp, playerMaxHp);
   /* clear combat state */
@@ -389,6 +392,8 @@ async function doBossEnter(name) {
       spawnBossProjectile(x, y, z, color, type);
     };
   }
+  /* immediately register boss as animal so it's attackable */
+  scanForNewAnimals();
 }
 
 function doBossLeave() {
@@ -406,6 +411,15 @@ function doBossLeave() {
   /* clean up projectiles */
   for (const p of _bossProjectiles) scene.remove(p.mesh);
   _bossProjectiles.length = 0;
+  /* remove boss from animals array */
+  for (let i = animals.length - 1; i >= 0; i--) {
+    if (animals[i].type === "Snake Boss") {
+      animals[i].hpBar.remove();
+      _registeredAnimalNodes.delete(animals[i].node);
+      animals.splice(i, 1);
+    }
+  }
+  activeAttack = null;
 }
 
 if (_instanceBanner) _instanceBanner.addEventListener("click", () => doBossLeave());
@@ -453,12 +467,7 @@ function updateBossProjectiles(dt) {
         spawnFloatingDrop(player.position.x, player.position.z, "Blocked!", "info");
       } else {
         const dmg = BOSS_PROJECTILE_DMG + Math.floor(Math.random() * 15);
-        playerHp = Math.max(0, playerHp - dmg);
-        const prayName = p.type === "range" ? "Range" : "Mage";
-        spawnFloatingDrop(player.position.x, player.position.z, `-${dmg}`, "warn");
-        ui?.setStatus(`Snake hits ${dmg}! Pray ${prayName}!`, "warn");
-        syncHpBar();
-        if (playerHp <= 0) handlePlayerDeath();
+        damagePlayer(dmg);
       }
       p.alive = false;
       scene.remove(p.mesh);
@@ -1561,7 +1570,7 @@ const _animalProj = new THREE.Vector3();
 const _animalWanderDir = new THREE.Vector3();
 
 function updateAnimals(dt) {
-  if (getActiveInstance()) return; /* skip world animals in boss instance */
+  const inInstance = !!getActiveInstance();
   const hw = renderer.domElement.clientWidth * 0.5;
   const hh = renderer.domElement.clientHeight * 0.5;
   const px = player.position.x, pz = player.position.z;
@@ -1576,13 +1585,19 @@ function updateAnimals(dt) {
     }
   }
   for (const a of animals) {
-    /* only update animals in player's exact chunk */
-    const acx = Math.round(a.spawnPos.x / CHUNK_SIZE), acz = Math.round(a.spawnPos.z / CHUNK_SIZE);
-    if (acx !== playerCX || acz !== playerCZ) {
-      a.parentModel.visible = false;
-      a.parentModel.traverse(c => { c.visible = false; });
-      a.hpBar.dataset.state = "hidden";
-      continue;
+    const isBoss = a.type === "Snake Boss";
+    /* skip world animals when in instance, skip boss when not */
+    if (inInstance && !isBoss) continue;
+    if (!inInstance && isBoss) continue;
+    /* only update animals in player's exact chunk (skip for boss) */
+    if (!isBoss) {
+      const acx = Math.round(a.spawnPos.x / CHUNK_SIZE), acz = Math.round(a.spawnPos.z / CHUNK_SIZE);
+      if (acx !== playerCX || acz !== playerCZ) {
+        a.parentModel.visible = false;
+        a.parentModel.traverse(c => { c.visible = false; });
+        a.hpBar.dataset.state = "hidden";
+        continue;
+      }
     }
     a.parentModel.visible = true;
     a.parentModel.traverse(c => { c.visible = true; });
