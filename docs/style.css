@@ -166,13 +166,14 @@ body {
   position: fixed;
   top: calc(16px + env(safe-area-inset-top));
   right: calc(16px + env(safe-area-inset-right));
-  width: min(300px, calc(100vw - 32px));
+  width: min(320px, calc(100vw - 32px));
   max-height: min(60vh, 540px);
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 14px;
-  background: rgba(10, 14, 24, 0.82);
+  background: rgba(10, 14, 24, 0.85);
   backdrop-filter: blur(10px);
   padding: 10px 12px 12px;
   pointer-events: auto;
@@ -1324,7 +1325,7 @@ body {
 /* ── Responsive ── */
 @media (max-width: 1120px) {
   #ui-panel {
-    width: min(280px, calc(100vw - 26px));
+    width: min(300px, calc(100vw - 26px));
     padding: 4px 6px 5px;
   }
 
@@ -1773,11 +1774,12 @@ body {
 .ui-worn-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
+  gap: 4px;
   margin-bottom: 6px;
 }
 .ui-worn-slot {
-  aspect-ratio: 1;
+  min-height: 56px;
+  padding: 6px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1789,6 +1791,7 @@ body {
   position: relative;
   transition: background 0.12s, border-color 0.12s;
   gap: 2px;
+  overflow: hidden;
 }
 .ui-worn-slot:hover {
   background: rgba(255,255,255,0.08);
@@ -1811,7 +1814,7 @@ body {
   line-height: 1;
 }
 .ui-worn-slot-name {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--ui-ink-1);
   text-shadow: var(--ui-text-shadow);
   white-space: nowrap;
@@ -1819,6 +1822,7 @@ body {
   text-overflow: ellipsis;
   max-width: 100%;
   text-align: center;
+  line-height: 1.1;
 }
 .ui-worn-stats {
   display: flex;
@@ -1838,8 +1842,17 @@ body {
   color: var(--ui-ink-1);
   font-family: var(--ui-font-heading);
 }
-.ui-worn-slot:hover .ui-slot-tooltip {
+.ui-worn-slot:hover .ui-slot-tooltip,
+.ui-worn-slot:hover .ui-eq-tooltip {
   display: block;
+}
+/* Keep worn tooltips inside panel — anchor to slot center */
+.ui-worn-slot .ui-eq-tooltip {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 4px);
+  right: auto;
+  min-width: 130px;
 }
 
 /* ── Worn tab skin section ── */
