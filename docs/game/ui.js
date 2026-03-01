@@ -111,6 +111,19 @@ export function initializeUI(options = {}) {
     _ctxMenu.innerHTML = "";
     if (isEquipment) {
       _ctxMenu.appendChild(_ctxBtn("Equip", () => { if (typeof onEquipFromBag === "function") onEquipFromBag(slotIndex); }));
+      _ctxMenu.appendChild(_ctxBtn("Enhance \u2605", () => {
+        /* equip first, then open enhance */
+        if (typeof onEquipFromBag === "function") onEquipFromBag(slotIndex);
+        /* short delay so equip completes before opening enhance */
+        setTimeout(() => {
+          const base = baseItemId(itemType);
+          const eqInfo = EQUIPMENT_ITEMS[base];
+          if (!eqInfo) return;
+          const slot = eqInfo.slot;
+          const data = _wornSlotData[slot];
+          if (data && data.itemId) openStarEnhance(slot, data.itemId, data.stars || 0);
+        }, 50);
+      }));
     }
     _ctxMenu.appendChild(_ctxBtn("Drop", () => { if (typeof onDropItem === "function") onDropItem(slotIndex); }));
     _ctxMenu.style.left = mx + "px";

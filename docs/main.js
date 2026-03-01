@@ -2289,12 +2289,8 @@ let _isJumping = false;
 const JUMP_FORCE = 6.0;
 const GRAVITY = -18.0;
 
-/* ── Crouch system ── */
-let _isCrouching = false;
+/* ── Crouch system — smooth interpolation, no boolean/debounce ── */
 let _crouchT = 0; // 0 = standing, 1 = fully crouched
-const CROUCH_DOWN_SPEED = 10.0; // fast crouch — feels responsive
-const CROUCH_UP_SPEED = 2.5;   // slow uncrouch — hides keyrepeat flicker
-let _crouchHoldTimer = 0; // debounce: prevent flicker from Ctrl key quirks
 let _smoothGroundY = null; // smoothed ground Y to prevent micro-terrain jitter
 
 /* ── World Item Drops ── */
@@ -3460,15 +3456,7 @@ function animate(now) {
     _jumpVelocity = JUMP_FORCE;
   }
 
-  /* Crouch — debounce with generous window to handle Ctrl key repeat quirks on Windows */
-  const wantCrouch = input.keys.has("control") && !_isJumping;
-  if (wantCrouch) {
-    _isCrouching = true;
-    _crouchHoldTimer = 0;
-  } else {
-    _crouchHoldTimer += dt;
-    if (_crouchHoldTimer > 0.25) _isCrouching = false;
-  }
+  /* Crouch — smooth interpolation driven directly by key state */
 
   const keyboardMove = moveDir.lengthSq() > 0.0001;
   if (keyboardMove) {
@@ -3494,7 +3482,7 @@ function animate(now) {
   }
 
   if (moveDir.lengthSq() > 0.0001 && !activeGather && !activeAttack) {
-    const moveSpeed = _isCrouching ? 3.5 : 7.0;
+    const moveSpeed = _crouchT > 0.3 ? 3.5 : 7.0;
     player.position.addScaledVector(moveDir, moveSpeed * dt);
     const targetYaw = Math.atan2(moveDir.x, moveDir.z);
     let delta = targetYaw - player.rotation.y;
@@ -3623,10 +3611,11 @@ function animate(now) {
   } else {
     player.position.y = standY;
   }
-  /* Crouch squish — fast down, slow up (slow up hides key-repeat flicker) */
-  const crouchTarget = _isCrouching ? 1 : 0;
-  if (_crouchT < crouchTarget) _crouchT = Math.min(crouchTarget, _crouchT + dt * CROUCH_DOWN_SPEED);
-  else if (_crouchT > crouchTarget) _crouchT = Math.max(crouchTarget, _crouchT - dt * CROUCH_UP_SPEED);
+  /* Crouch squish — smooth exponential interp, immune to key flicker */
+  const crouchGoal = (input.keys.has("control") && !_isJumping) ? 1 : 0;
+  const crouchSpeed = crouchGoal > _crouchT ? 14 : 10;
+  _crouchT += (crouchGoal - _crouchT) * Math.min(1, dt * crouchSpeed);
+  if (Math.abs(_crouchT - crouchGoal) < 0.01) _crouchT = crouchGoal;
 
   /* Jump stretch — tall & narrow (opposite of crouch) */
   let jumpStretch = 0;
@@ -3704,7 +3693,7 @@ function animate(now) {
     moving: isMovingNow,
     gathering: !!activeGather,
     attacking: !!activeAttack,
-    crouching: _isCrouching,
+    crouching: _crouchT > 0.3,
     jumping: _isJumping,
     campfireX: activeCampfire ? activeCampfire.x : null,
     campfireZ: activeCampfire ? activeCampfire.z : null,
