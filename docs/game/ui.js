@@ -1093,12 +1093,16 @@ export function initializeUI(options = {}) {
     stained: "linear-gradient(135deg, #dc2626, #2563eb, #16a34a, #eab308)",
   };
 
+  const wornSkinGrid = document.getElementById("ui-worn-skin-grid");
+
   function setWornSkins(payload = {}) {
     if (!wornSkinSlot) return;
     wornSkinSlot.innerHTML = "";
     const selected = payload.selected || "lime";
+    const unlocked = new Set(payload.unlocked || ["lime"]);
     const skin = SLIME_COLOR_SHOP.find(s => s.id === selected);
     if (!skin) return;
+    /* Equipped skin slot */
     wornSkinSlot.className = "ui-worn-skin-slot is-equipped";
     const swatch = document.createElement("span");
     swatch.className = "ui-worn-skin-swatch-item";
@@ -1110,16 +1114,34 @@ export function initializeUI(options = {}) {
     wornSkinSlot.append(label);
     const tip = document.createElement("div");
     tip.className = "ui-slot-tooltip";
-    tip.textContent = `${skin.label} Skin\nClick to unequip`;
+    tip.textContent = selected !== "lime" ? `${skin.label} Skin\nClick to unequip` : `${skin.label} Skin (Default)`;
     wornSkinSlot.append(tip);
     if (selected !== "lime") {
       wornSkinSlot.style.cursor = "pointer";
-      wornSkinSlot.addEventListener("click", () => {
-        if (typeof onStoreColor === "function") onStoreColor("lime");
-      });
+      wornSkinSlot.onclick = () => { if (typeof onStoreColor === "function") onStoreColor("lime"); };
     } else {
       wornSkinSlot.style.cursor = "default";
-      tip.textContent = `${skin.label} Skin (Default)`;
+      wornSkinSlot.onclick = null;
+    }
+    /* Grid of all unlocked skins */
+    if (!wornSkinGrid) return;
+    wornSkinGrid.innerHTML = "";
+    for (const s of SLIME_COLOR_SHOP) {
+      if (!unlocked.has(s.id)) continue;
+      if (s.id === selected) continue; // skip currently equipped
+      const btn = document.createElement("div");
+      btn.className = "ui-worn-skin-btn";
+      const sw = document.createElement("span");
+      sw.className = "ui-worn-skin-swatch";
+      sw.style.background = _patternGrads[s.color] || s.color;
+      btn.append(sw);
+      const lbl = document.createElement("span");
+      lbl.textContent = s.label;
+      btn.append(lbl);
+      btn.addEventListener("click", () => {
+        if (typeof onStoreColor === "function") onStoreColor(s.id);
+      });
+      wornSkinGrid.append(btn);
     }
   }
 
