@@ -82,12 +82,12 @@ export const COOKING_RECIPES = {
 
 /* ── Equipment System ── */
 export const EQUIPMENT_TIERS = {
-  bronze:  { level: 1,  color: "#cd7f32", label: "Bronze" },
-  iron:    { level: 5,  color: "#a8a8a8", label: "Iron" },
-  steel:   { level: 10, color: "#b0c4de", label: "Steel" },
-  mithril: { level: 20, color: "#4169e1", label: "Mithril" },
-  adamant: { level: 30, color: "#2e8b57", label: "Adamant" },
-  rune:    { level: 40, color: "#40e0d0", label: "Rune" },
+  bronze:  { level: 1,  color: "#cd7f32", label: "Bronze",  tint: "rgba(180,140,80,0.12)" },
+  iron:    { level: 5,  color: "#a8a8a8", label: "Iron",    tint: "rgba(100,200,100,0.13)" },
+  steel:   { level: 10, color: "#b0c4de", label: "Steel",   tint: "rgba(70,130,255,0.15)" },
+  mithril: { level: 20, color: "#4169e1", label: "Mithril", tint: "rgba(150,80,255,0.16)" },
+  adamant: { level: 30, color: "#2e8b57", label: "Adamant", tint: "rgba(255,140,30,0.16)" },
+  rune:    { level: 40, color: "#40e0d0", label: "Rune",    tint: "rgba(255,220,50,0.18)" },
 };
 
 const TIER_KEYS = ["bronze","iron","steel","mithril","adamant","rune"];

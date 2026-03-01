@@ -87,7 +87,11 @@ const inCave = false; /* cave system removed */
 const activePrayers = new Set();
 const wornEquipment = { body: null, cape: null, ring: null, amulet: null, shield: null, bow: null, staff: null, sword: null };
 const wornStars = { body: 0, cape: 0, ring: 0, amulet: 0, shield: 0, bow: 0, staff: 0, sword: 0 };
-const itemStars = {}; // itemId → star count, persists across equip/unequip
+const itemStars = {}; // uniqueId → star count, persists across equip/unequip
+let _nextItemUid = 1;
+function baseItemId(id) { return id ? id.split("#")[0] : id; }
+function isEquipmentInstance(id) { return id && id.includes("#"); }
+function mintEquipId(baseId) { return baseId + "#" + (_nextItemUid++); }
 
 /* ground raycaster (declared early — needed by remotePlayers.getGroundY before full init) */
 const groundRaycaster = new THREE.Raycaster();
@@ -223,6 +227,7 @@ function saveGame() {
       wornEquipment: { ...wornEquipment },
       wornStars: { ...wornStars },
       itemStars: { ...itemStars },
+      nextItemUid: _nextItemUid,
       bag: bagSystem.serialize(),
       constructionStock: constructionProgress.getStock(),
       px: player.position.x,
@@ -265,6 +270,7 @@ function loadGame() {
         if (stars > 0) itemStars[id] = stars;
       }
     }
+    if (d.nextItemUid) _nextItemUid = d.nextItemUid;
     if (d.bag) bagSystem.deserialize(d.bag);
     if (d.constructionStock) constructionProgress.deposit(d.constructionStock);
     if (d.px != null) { player.position.x = d.px; player.position.z = d.pz; }
@@ -426,8 +432,8 @@ function getCombatLevel() {
 function getEquipmentAttackBonus() {
   let total = 0;
   for (const [slot, itemId] of Object.entries(wornEquipment)) {
-    if (!itemId || !EQUIPMENT_ITEMS[itemId]) continue;
-    total += EQUIPMENT_ITEMS[itemId].atk;
+    if (!itemId || !EQUIPMENT_ITEMS[baseItemId(itemId)]) continue;
+    total += EQUIPMENT_ITEMS[baseItemId(itemId)].atk;
     const stars = wornStars[slot] || 0;
     for (let i = 0; i < stars; i++) total += (STAR_ATK_PER[i] || 0);
   }
@@ -437,8 +443,8 @@ function getEquipmentAttackBonus() {
 function getEquipmentDefenseBonus() {
   let total = 0;
   for (const [slot, itemId] of Object.entries(wornEquipment)) {
-    if (!itemId || !EQUIPMENT_ITEMS[itemId]) continue;
-    total += EQUIPMENT_ITEMS[itemId].def;
+    if (!itemId || !EQUIPMENT_ITEMS[baseItemId(itemId)]) continue;
+    total += EQUIPMENT_ITEMS[baseItemId(itemId)].def;
     const stars = wornStars[slot] || 0;
     for (let i = 0; i < stars; i++) total += (STAR_DEF_PER[i] || 0);
   }
@@ -447,8 +453,8 @@ function getEquipmentDefenseBonus() {
 
 function equipItem(bagSlotIndex) {
   const itemId = bagSlots[bagSlotIndex];
-  if (!itemId || !EQUIPMENT_ITEMS[itemId]) return;
-  const item = EQUIPMENT_ITEMS[itemId];
+  if (!itemId || !EQUIPMENT_ITEMS[baseItemId(itemId)]) return;
+  const item = EQUIPMENT_ITEMS[baseItemId(itemId)];
   const combatLvl = getCombatLevel();
   if (combatLvl < item.level) {
     ui?.setStatus(`Need combat level ${item.level} to equip ${item.label}!`, "warn");
@@ -490,14 +496,14 @@ function unequipItem(slotName) {
   bagSystem.addItem(itemId);
   syncInventoryUI();
   syncWornUI();
-  const item = EQUIPMENT_ITEMS[itemId];
+  const item = EQUIPMENT_ITEMS[baseItemId(itemId)];
   ui?.setStatus(`Unequipped ${item ? item.label : itemId}.`, "info");
   saveGame();
 }
 
 function craftEquipment(itemId) {
   const recipe = EQUIPMENT_RECIPES[itemId];
-  const item = EQUIPMENT_ITEMS[itemId];
+  const item = EQUIPMENT_ITEMS[baseItemId(itemId)];
   if (!recipe || !item) return;
   const combatLvl = getCombatLevel();
   if (combatLvl < recipe.level) {
@@ -519,7 +525,7 @@ function craftEquipment(itemId) {
   for (const [matKey, matQty] of Object.entries(recipe.materials)) {
     bagSystem.removeItems(matKey, matQty);
   }
-  bagSystem.addItem(itemId);
+  bagSystem.addItem(mintEquipId(itemId));
   syncInventoryUI();
   syncWornUI();
   spawnFloatingDrop(player.position.x, player.position.z, `+1 ${item.label}`, "item");
@@ -1682,13 +1688,13 @@ function getStoreOverlayState() {
 function sellSingleItem(slotIndex) {
   const itemId = bagSystem.slots[slotIndex];
   if (!itemId) return;
-  const price = SELL_PRICE_BY_ITEM[itemId] || 0;
+  const price = SELL_PRICE_BY_ITEM[baseItemId(itemId)] || 0;
   bagSystem.slots[slotIndex] = null;
   bagSystem.recount();
   coins += price;
   syncInventoryUI();
   if (ui?.isStoreOpen?.()) ui.setStoreOverlay(getStoreOverlayState());
-  ui?.setStatus(`Sold ${EQUIPMENT_ITEMS[itemId]?.label || itemId} for ${price}c.`, "success");
+  ui?.setStatus(`Sold ${EQUIPMENT_ITEMS[baseItemId(itemId)]?.label || itemId} for ${price}c.`, "success");
   saveGame();
 }
 
@@ -2487,7 +2493,7 @@ function killAnimal(a) {
     const dropId = dropTable.items[Math.floor(Math.random() * dropTable.items.length)];
     const dropItem = EQUIPMENT_ITEMS[dropId];
     if (dropItem && !bagSystem.isFull()) {
-      bagSystem.addItem(dropId);
+      bagSystem.addItem(mintEquipId(dropId));
       syncInventoryUI();
       const p2 = new THREE.Vector3();
       a.parentModel.getWorldPosition(p2);

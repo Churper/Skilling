@@ -1,5 +1,7 @@
 import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP, STAR_MAX, STAR_COSTS, STAR_SUCCESS, STAR_DESTROY, STAR_DOWNGRADE, STAR_ATK_PER, STAR_DEF_PER, STAR_TIMING_BONUS } from "./config.js";
 
+function baseItemId(id) { return id ? id.split("#")[0] : id; }
+
 const TOOL_LABEL = {
   axe: "Axe",
   pickaxe: "Pickaxe",
@@ -234,9 +236,9 @@ export function initializeUI(options = {}) {
       const slot = document.createElement("div");
       slot.className = itemType ? "ui-bag-slot" : "ui-bag-slot is-empty";
       if (itemType) {
-        const eqData = EQUIPMENT_ITEMS[itemType];
+        const eqData = EQUIPMENT_ITEMS[baseItemId(itemType)];
         const displayName = eqData ? eqData.label : (ITEM_LABEL[itemType] || itemType);
-        const sellVal = SELL_PRICE[itemType];
+        const sellVal = SELL_PRICE[baseItemId(itemType)];
         const iconChar = eqData ? eqData.icon : (ITEM_ICON[itemType] || "?");
         const icon = document.createElement("span");
         icon.className = "ui-bag-slot-icon";
@@ -257,10 +259,13 @@ export function initializeUI(options = {}) {
           slot.addEventListener("click", () => {
             if (typeof onUseItem === "function") onUseItem(itemType, i);
           });
-        } else if (EQUIPMENT_ITEMS[itemType]) {
-          const eqInfo = EQUIPMENT_ITEMS[itemType];
+        } else if (EQUIPMENT_ITEMS[baseItemId(itemType)]) {
+          const eqInfo = EQUIPMENT_ITEMS[baseItemId(itemType)];
           const iStars = _itemStars[itemType] || 0;
           slot.classList.add("is-equipment");
+          /* rarity tint */
+          const tierData = eqInfo.tier ? EQUIPMENT_TIERS[eqInfo.tier] : null;
+          if (tierData?.tint) slot.style.background = tierData.tint;
           tip.remove();
           if (iStars > 0) {
             const badge = document.createElement("span");
@@ -428,7 +433,7 @@ export function initializeUI(options = {}) {
     const slot = document.createElement("div");
     slot.className = itemType ? "ui-bank-slot" : "ui-bank-slot is-empty";
     if (itemType && count > 0) {
-      const eqB = EQUIPMENT_ITEMS[itemType];
+      const eqB = EQUIPMENT_ITEMS[baseItemId(itemType)];
       const displayName = eqB ? eqB.label : (ITEM_LABEL[itemType] || itemType);
       const icon = document.createElement("span");
       icon.className = "ui-bank-slot-icon";
@@ -443,6 +448,10 @@ export function initializeUI(options = {}) {
         badge.className = "ui-bank-slot-count";
         badge.textContent = String(count);
         slot.append(badge);
+      }
+      if (eqB?.tier) {
+        const td = EQUIPMENT_TIERS[eqB.tier];
+        if (td?.tint) slot.style.background = td.tint;
       }
       slot.addEventListener("click", onClick);
     } else {
@@ -567,6 +576,7 @@ export function initializeUI(options = {}) {
     if (onClick) slot.addEventListener("click", onClick);
     else slot.classList.add("is-empty");
     container.append(slot);
+    return slot;
   }
 
   function setStoreOverlay(payload = {}) {
@@ -615,14 +625,18 @@ export function initializeUI(options = {}) {
     for (let i = 0; i < capacity; i++) {
       const itemType = slots[i] || null;
       if (itemType) {
-        const eqData = EQUIPMENT_ITEMS[itemType];
+        const eqData = EQUIPMENT_ITEMS[baseItemId(itemType)];
         const displayName = eqData ? eqData.label : (ITEM_LABEL[itemType] || itemType);
         const iconChar = eqData ? eqData.icon : (ITEM_ICON[itemType] || "?");
-        const sellPrice = SELL_PRICE[itemType];
+        const sellPrice = SELL_PRICE[baseItemId(itemType)];
         const priceText = sellPrice ? `${sellPrice}c` : "0c";
-        _renderStoreSlot(storeInvGrid, iconChar, `${displayName}\nSell: ${priceText}`, priceText, "is-sell", () => {
+        const storeSlot = _renderStoreSlot(storeInvGrid, iconChar, `${displayName}\nSell: ${priceText}`, priceText, "is-sell", () => {
           if (typeof onStoreSellItem === "function") onStoreSellItem(i);
         });
+        if (eqData?.tier) {
+          const td = EQUIPMENT_TIERS[eqData.tier];
+          if (td?.tint) storeSlot.style.background = td.tint;
+        }
       } else {
         const slot = document.createElement("div");
         slot.className = "ui-store-slot is-empty";
@@ -889,7 +903,7 @@ export function initializeUI(options = {}) {
       const slotName = slotEl.dataset.wornSlot;
       const itemId = slots[slotName] || null;
       const stars = starsMap[slotName] || 0;
-      const item = itemId ? EQUIPMENT_ITEMS[itemId] : null;
+      const item = itemId ? EQUIPMENT_ITEMS[baseItemId(itemId)] : null;
       _wornSlotData[slotName] = { itemId, stars };
       /* clear existing content except label */
       const label = slotEl.querySelector(".ui-worn-label");
@@ -899,7 +913,9 @@ export function initializeUI(options = {}) {
       if (item) {
         const bonuses = _starCalcBonuses(itemId, stars);
         slotEl.classList.add("is-equipped");
+        const tierData = item.tier ? EQUIPMENT_TIERS[item.tier] : null;
         slotEl.style.setProperty("--eq-color", item.color + "88");
+        if (tierData?.tint) slotEl.style.background = tierData.tint;
         const icon = document.createElement("span");
         icon.className = "ui-worn-slot-icon";
         icon.textContent = item.icon;
@@ -917,6 +933,7 @@ export function initializeUI(options = {}) {
       } else {
         slotEl.classList.remove("is-equipped");
         slotEl.style.removeProperty("--eq-color");
+        slotEl.style.removeProperty("background");
         slotEl.onmouseenter = null;
         slotEl.onmouseleave = null;
       }
@@ -975,7 +992,7 @@ export function initializeUI(options = {}) {
     const combatLevel = payload.combatLevel || 1;
     const recipes = Object.entries(EQUIPMENT_RECIPES);
     for (const [itemId, recipe] of recipes) {
-      const item = EQUIPMENT_ITEMS[itemId];
+      const item = EQUIPMENT_ITEMS[baseItemId(itemId)];
       if (!item) continue;
       const row = document.createElement("div");
       row.className = "ui-smith-row";
@@ -1033,7 +1050,7 @@ export function initializeUI(options = {}) {
   let _starPhase = "idle"; // idle | timing | done
 
   function _starCalcBonuses(itemId, stars) {
-    const item = EQUIPMENT_ITEMS[itemId];
+    const item = EQUIPMENT_ITEMS[baseItemId(itemId)];
     if (!item) return { atk: 0, def: 0 };
     let bonusAtk = 0, bonusDef = 0;
     for (let i = 0; i < stars; i++) {
@@ -1044,7 +1061,7 @@ export function initializeUI(options = {}) {
   }
 
   function _renderStarOverlay() {
-    const item = EQUIPMENT_ITEMS[_starItemId];
+    const item = EQUIPMENT_ITEMS[baseItemId(_starItemId)];
     if (!item) return;
     if (starItemIcon) starItemIcon.textContent = item.icon;
     if (starItemName) { starItemName.textContent = item.label; starItemName.style.color = item.color; }

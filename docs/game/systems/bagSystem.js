@@ -110,7 +110,8 @@ export function createBagSystem({ capacity, itemKeys }) {
       const item = slots[i];
       if (!item) continue;
       sold += 1;
-      coinsGained += priceByItem[item] ?? 0;
+      const baseId = item.includes("#") ? item.split("#")[0] : item;
+      coinsGained += priceByItem[baseId] ?? priceByItem[item] ?? 0;
       slots[i] = null;
     }
     recount();
