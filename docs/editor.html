@@ -1521,7 +1521,7 @@ function resnapObjects() {
   let i = 0;
   function batch() {
     if (id !== _resnapId) return; // newer resnap superseded this one
-    const end = Math.min(i + 80, objects.length);
+    const end = Math.min(i + 30, objects.length);
     for (; i < end; i++) {
       const obj = objects[i];
       if (STRUCTURAL_TYPES.has(obj.type)) continue;
@@ -1536,7 +1536,7 @@ function resnapObjects() {
     if (i < objects.length) requestAnimationFrame(batch);
     else if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
   }
-  batch();
+  requestAnimationFrame(batch);
 }
 
 /* ═══════════════════════════════════════════
