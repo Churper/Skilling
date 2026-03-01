@@ -384,6 +384,11 @@ async function doBossEnter(name) {
   if (_instanceBanner) _instanceBanner.hidden = false;
   /* store boss group ref for animation updates */
   _snakeBossGroup = scene.getObjectByName("snake_boss") || null;
+  if (_snakeBossGroup) {
+    _snakeBossGroup.userData.onAttack = (x, y, z, color, type) => {
+      spawnBossProjectile(x, y, z, color, type);
+    };
+  }
 }
 
 function doBossLeave() {
@@ -398,9 +403,76 @@ function doBossLeave() {
   ui?.setStatus("Left boss arena", "info");
   if (_instanceBanner) _instanceBanner.hidden = true;
   _snakeBossGroup = null;
+  /* clean up projectiles */
+  for (const p of _bossProjectiles) scene.remove(p.mesh);
+  _bossProjectiles.length = 0;
 }
 
 if (_instanceBanner) _instanceBanner.addEventListener("click", () => doBossLeave());
+
+/* ── Boss projectiles ── */
+const _bossProjectiles = []; // { mesh, dir, speed, type, alive }
+const _projGeo = new THREE.SphereGeometry(0.5, 8, 6);
+const BOSS_PROJECTILE_SPEED = 8;
+const BOSS_PROJECTILE_DMG = 25;
+
+function spawnBossProjectile(x, y, z, color, type) {
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85 });
+  const mesh = new THREE.Mesh(_projGeo, mat);
+  mesh.position.set(x, y, z);
+  /* glow ring */
+  const ringGeo = new THREE.RingGeometry(0.6, 1.0, 12);
+  const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  mesh.add(ring);
+  scene.add(mesh);
+  /* direction toward player */
+  const dir = new THREE.Vector3(
+    player.position.x - x,
+    player.position.y + 0.5 - y,
+    player.position.z - z
+  ).normalize();
+  _bossProjectiles.push({ mesh, dir, speed: BOSS_PROJECTILE_SPEED, type, alive: true, age: 0 });
+}
+
+function updateBossProjectiles(dt) {
+  for (let i = _bossProjectiles.length - 1; i >= 0; i--) {
+    const p = _bossProjectiles[i];
+    if (!p.alive) continue;
+    p.age += dt;
+    p.mesh.position.addScaledVector(p.dir, p.speed * dt);
+    /* rotate glow ring */
+    p.mesh.rotation.y += dt * 3;
+    /* check hit player */
+    const dx = p.mesh.position.x - player.position.x;
+    const dz = p.mesh.position.z - player.position.z;
+    const dist = Math.hypot(dx, dz);
+    if (dist < 1.5) {
+      /* check prayer protection */
+      const protectedBy = p.type === "range" ? "protect_range" : "protect_mage";
+      if (activePrayers.has(protectedBy)) {
+        ui?.setStatus(`Prayer blocked the ${p.type} attack!`, "info");
+      } else {
+        const dmg = BOSS_PROJECTILE_DMG + Math.floor(Math.random() * 10);
+        playerHp = Math.max(0, playerHp - dmg);
+        ui?.setStatus(`Snake hits you for ${dmg} ${p.type} damage! Pray ${p.type === "range" ? "Range" : "Mage"}!`, "warn");
+        syncHpBar();
+        if (playerHp <= 0) handlePlayerDeath();
+      }
+      p.alive = false;
+      scene.remove(p.mesh);
+      p.mesh.geometry?.dispose();
+      _bossProjectiles.splice(i, 1);
+      continue;
+    }
+    /* expire after 5s */
+    if (p.age > 5) {
+      p.alive = false;
+      scene.remove(p.mesh);
+      _bossProjectiles.splice(i, 1);
+    }
+  }
+}
 
 const onlineConfig = resolveOnlineConfig();
 const remotePlayers = createRemotePlayers({
@@ -1075,6 +1147,9 @@ netClient = createRealtimeClient({
     for (const [did] of worldDrops) {
       if (did.startsWith(peerPrefix)) removeWorldDrop(did);
     }
+    for (const cid of _consumedPeerDrops) {
+      if (cid.startsWith(peerPrefix)) _consumedPeerDrops.delete(cid);
+    }
     if (tradePartnerId === id) {
       resetTrade();
       ui?.closeTrade?.();
@@ -1128,15 +1203,16 @@ netClient = createRealtimeClient({
       // add new drops
       for (const d of peerDrops) {
         const fullId = peerKey + d.id;
+        if (_consumedPeerDrops.has(fullId)) continue;
         if (!worldDrops.has(fullId)) {
           const did = spawnWorldDrop(d.item, d.x, d.z);
           const drop = worldDrops.get(did);
           if (drop) {
             worldDrops.delete(did);
             drop.id = fullId;
-            // peer drops are view-only, remove hitspot from interactables
-            const hsIdx = resourceNodes.indexOf(drop.hs);
-            if (hsIdx >= 0) resourceNodes.splice(hsIdx, 1);
+            drop.hs.userData.dropId = fullId;
+            drop.peerOwner = msg.id; // track owner for pickup DM
+            drop.peerLocalId = d.id; // original drop ID on owner's side
             worldDrops.set(fullId, drop);
           }
         }
@@ -1155,6 +1231,12 @@ netClient = createRealtimeClient({
     showAnnouncement(msg.text || "");
   },
   onDM: (msg) => {
+    if (msg.payload?.type === "drop_picked") {
+      /* someone picked up one of our drops */
+      const did = msg.payload.dropId;
+      if (did && worldDrops.has(did)) removeWorldDrop(did);
+      return;
+    }
     handleTradeMessage(msg);
   },
 });
@@ -2416,6 +2498,7 @@ let _smoothGroundY = null; // smoothed ground Y to prevent micro-terrain jitter
 
 /* ── World Item Drops ── */
 const worldDrops = new Map(); // dropId → { id, itemKey, x, z, group, hs, sprite, expireAt, stars }
+const _consumedPeerDrops = new Set(); // peer drop IDs we already picked up (prevent re-spawn from state)
 const DROP_LIFETIME = 120000; // 2 minutes
 const _dropRingGeo = new THREE.RingGeometry(0.15, 0.35, 16);
 const _dropHsGeo = new THREE.CylinderGeometry(1.0, 1.0, 1.6, 8);
@@ -2527,6 +2610,11 @@ function pickupWorldDrop(dropId) {
   const eqData = EQUIPMENT_ITEMS[baseItemId(drop.itemKey)];
   const label = eqData ? eqData.label : drop.itemKey;
   spawnFloatingDrop(player.position.x, player.position.z, `+1 ${label}`, "item");
+  /* if peer drop, DM owner to remove it + prevent re-spawn */
+  if (drop.peerOwner) {
+    _consumedPeerDrops.add(dropId);
+    netClient.sendDM(drop.peerOwner, { type: "drop_picked", dropId: drop.peerLocalId });
+  }
   removeWorldDrop(dropId);
   return true;
 }
@@ -3607,6 +3695,7 @@ function animate(now) {
   skyMat.uniforms.uTime.value = t;
   updateWorld?.(t, player.position.x, player.position.z);
   if (_snakeBossGroup) updateSnakeBoss(_snakeBossGroup, t);
+  if (_bossProjectiles.length) updateBossProjectiles(dt);
 
   moveDir.set(0, 0, 0);
   camera.getWorldDirection(camForward);
@@ -3883,7 +3972,7 @@ function animate(now) {
       mage: skills.mage.level,
       cooking: skills.cooking.level,
     },
-    drops: Array.from(worldDrops.values()).map(d => ({ id: d.id, item: d.itemKey, x: d.x, z: d.z })),
+    drops: Array.from(worldDrops.values()).filter(d => !d.peerOwner).map(d => ({ id: d.id, item: d.itemKey, x: d.x, z: d.z })),
   });
 
   /* auto-save periodically */

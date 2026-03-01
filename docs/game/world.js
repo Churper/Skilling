@@ -888,9 +888,7 @@ function getAvailableInstances() {
 }
 
 /* ── Snake Boss builder ── */
-const SNAKE_COLORS = [
-  "#44aa44", "#aa4444", "#4444cc", "#cc44cc", "#ccaa22", "#22cccc", "#cc6622",
-];
+const SNAKE_COLORS = ["#44ff44", "#4488ff"]; /* green (range) → blue (mage) */
 
 function _buildSnakeBoss(scene, nodes) {
   const group = new THREE.Group();
@@ -996,6 +994,19 @@ function updateSnakeBoss(group, t) {
   /* tongue flick */
   if (ud.tongue) {
     ud.tongue.position.z = 2.2 + Math.sin(t * 8) * 0.4;
+  }
+
+  /* fire projectiles during hold phase */
+  if (ud.phase === "hold") {
+    ud.attackTimer = (ud.attackTimer || 0) + 0.016;
+    if (ud.attackTimer > 1.5) {
+      ud.attackTimer = 0;
+      /* alternate green (range) and blue (mage) */
+      const isRange = ud.colorIndex % 2 === 0;
+      const color = isRange ? "#44ff44" : "#4488ff";
+      const type = isRange ? "range" : "mage";
+      if (ud.onAttack) ud.onAttack(group.position.x, group.position.y + 6, group.position.z, color, type);
+    }
   }
 }
 
