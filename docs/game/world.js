@@ -934,16 +934,9 @@ async function loadMapObjects(scene, nodes) {
       if (svcTag) {
         setSvc(m, svcTag.service, svcTag.label);
         if (entry.type === "Market_Stalls") {
-          /* Stall hitbox in front of counter, not at model origin.
-             Offset ~1.2 units forward in model-local space (pre-scale). */
-          const fwd = 0.4; // local forward offset (z)
-          nodes.push(addHS(m, 0, 0.3, fwd));
-          /* Shopkeeper positioned in front of the stall using rotation */
-          const rot = entry.rot || 0;
-          const shopDist = 3.5;
-          const sx = entry.x + Math.sin(rot) * shopDist;
-          const sz = entry.z + Math.cos(rot) * shopDist;
-          spawnShopkeeper(group, sx, y, sz);
+          /* Hitbox in front of the counter, not at model origin */
+          nodes.push(addHS(m, 0, 0.3, 0.4));
+          spawnShopkeeper(group, entry.x + 1.2, y, entry.z + 0.8);
         } else {
           nodes.push(addHS(m, 0, 0.95, 0.55));
         }
