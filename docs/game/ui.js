@@ -55,35 +55,34 @@ export function initializeUI(options = {}) {
   const title = document.getElementById("ui-panel-title");
   if (!buttons.length || !panels.length || !title) return null;
 
-  /* ── Fixed tooltip positioning — prevents overflow/clipping issues ── */
-  /* Event delegation: any slot with a .ui-slot-tooltip child gets fixed positioning */
-  let _activeSlotTip = null;
+  /* ── Global tooltip — single element on document.body to avoid overflow/backdrop-filter clipping ── */
+  let _globalTip = document.getElementById("ui-global-tip");
+  if (!_globalTip) {
+    _globalTip = document.createElement("div");
+    _globalTip.id = "ui-global-tip";
+    _globalTip.className = "ui-slot-tooltip";
+    document.body.appendChild(_globalTip);
+  }
+  const _slotSelector = ".ui-bag-slot, .ui-bank-slot, .ui-store-slot, .ui-trade-slot, .ui-worn-slot, .ui-worn-skin-slot";
   document.addEventListener("pointerover", (e) => {
-    const slot = e.target.closest(".ui-bag-slot, .ui-bank-slot, .ui-store-slot, .ui-trade-slot, .ui-worn-slot, .ui-worn-skin-slot");
+    const slot = e.target.closest(_slotSelector);
     if (!slot) return;
-    const tip = slot.querySelector(".ui-slot-tooltip");
-    if (!tip) return;
-    _activeSlotTip = tip;
-    tip.classList.add("is-visible");
-    _positionFixedTip(tip, slot);
+    const localTip = slot.querySelector(".ui-slot-tooltip");
+    const text = localTip ? localTip.textContent : slot.dataset.tip;
+    if (!text) return;
+    _globalTip.textContent = text;
+    _globalTip.classList.add("is-visible");
+    const r = slot.getBoundingClientRect();
+    _globalTip.style.left = (r.left + r.width / 2) + "px";
+    _globalTip.style.transform = "translateX(-50%)";
+    _globalTip.style.top = "";
+    _globalTip.style.bottom = (window.innerHeight - r.top + 6) + "px";
   });
   document.addEventListener("pointerout", (e) => {
-    const slot = e.target.closest(".ui-bag-slot, .ui-bank-slot, .ui-store-slot, .ui-trade-slot, .ui-worn-slot, .ui-worn-skin-slot");
+    const slot = e.target.closest(_slotSelector);
     if (!slot) return;
-    const tip = slot.querySelector(".ui-slot-tooltip");
-    if (tip) tip.classList.remove("is-visible");
-    if (tip === _activeSlotTip) _activeSlotTip = null;
+    _globalTip.classList.remove("is-visible");
   });
-  function _positionFixedTip(tip, slotEl) {
-    const r = slotEl.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    tip.style.left = cx + "px";
-    tip.style.transform = "translateX(-50%)";
-    /* show above the slot */
-    tip.style.top = "";
-    tip.style.bottom = (window.innerHeight - r.top + 6) + "px";
-  }
-  /* no-op kept for compatibility — delegation handles it */
   function _wireSlotTooltip(slotEl) {}
 
   /* ── Right-click context menu for bag items ── */

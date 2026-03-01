@@ -1778,7 +1778,7 @@ body {
   min-width: 80px;
   text-align: center;
 }
-.ui-slot-tooltip.is-visible {
+#ui-global-tip.is-visible {
   display: block;
 }
 
