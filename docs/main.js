@@ -1658,7 +1658,18 @@ function sellBagViaStoreUI() {
 
 function getStoreOverlayState() {
   const shopItems = [
-    ...POTION_SHOP.map(p => ({ id: p.id, label: p.label, icon: p.icon, cost: p.cost })),
+    ...POTION_SHOP.map(p => ({ id: p.id, label: p.label, icon: p.icon, cost: p.cost, type: "potion" })),
+    ...SLIME_COLOR_SHOP.map(c => ({
+      id: "color_" + c.id,
+      label: c.label + (unlockedSlimeColors.has(c.id) ? " (Owned)" : ""),
+      icon: c.pattern ? "🎨" : "🟢",
+      cost: c.cost,
+      type: "color",
+      colorId: c.id,
+      owned: unlockedSlimeColors.has(c.id),
+      selected: currentSlimeColorId === c.id,
+      swatch: c.color,
+    })),
   ];
   return {
     coins,
@@ -1682,6 +1693,13 @@ function sellSingleItem(slotIndex) {
 }
 
 function buyShopItem(itemId) {
+  // Handle color/skin purchases
+  if (itemId.startsWith("color_")) {
+    const colorId = itemId.slice(6);
+    buyOrEquipSlimeColor(colorId);
+    if (ui?.isStoreOpen?.()) ui.setStoreOverlay(getStoreOverlayState());
+    return;
+  }
   const potion = POTION_SHOP.find(p => p.id === itemId);
   if (!potion) return;
   if (coins < potion.cost) {

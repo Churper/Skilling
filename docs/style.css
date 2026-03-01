@@ -2147,6 +2147,14 @@ body {
   margin-top: 1px;
 }
 .ui-store-slot-price.is-sell { color: #5cff8a; }
+.ui-store-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+}
+.ui-store-slot.is-selected { border-color: #ffe680; }
+.ui-store-slot.is-owned .ui-store-swatch { border-color: rgba(92,255,138,0.4); }
 .ui-store-sell-all-btn {
   margin-top: 8px;
   width: 100%;

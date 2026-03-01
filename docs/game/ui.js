@@ -581,15 +581,33 @@ export function initializeUI(options = {}) {
     /* Shop stock — items the store sells */
     storeStockGrid.innerHTML = "";
     for (const item of shopItems) {
-      _renderStoreSlot(storeStockGrid, item.icon, `${item.label}\nBuy: ${item.cost}c`, `${item.cost}c`, "", () => {
-        if (typeof onStoreBuyItem === "function") onStoreBuyItem(item.id);
-      });
-    }
-    if (shopItems.length === 0) {
-      const hint = document.createElement("div");
-      hint.style.cssText = "grid-column:1/-1;text-align:center;color:var(--ui-ink-3);font-size:12px;padding:8px 0";
-      hint.textContent = "Nothing in stock";
-      storeStockGrid.append(hint);
+      if (item.type === "color") {
+        /* Color swatch slot */
+        const slot = document.createElement("div");
+        slot.className = "ui-store-slot";
+        if (item.selected) slot.classList.add("is-selected");
+        if (item.owned) slot.classList.add("is-owned");
+        const swatch = document.createElement("span");
+        swatch.className = "ui-store-swatch";
+        swatch.style.background = item.swatch;
+        slot.append(swatch);
+        const pr = document.createElement("span");
+        pr.className = "ui-store-slot-price";
+        pr.textContent = item.owned ? (item.selected ? "✓" : "Equip") : `${item.cost}c`;
+        slot.append(pr);
+        const tip = document.createElement("div");
+        tip.className = "ui-slot-tooltip";
+        tip.textContent = item.label + (item.owned ? "\nClick to equip" : `\nBuy: ${item.cost}c`);
+        slot.append(tip);
+        slot.addEventListener("click", () => {
+          if (typeof onStoreBuyItem === "function") onStoreBuyItem(item.id);
+        });
+        storeStockGrid.append(slot);
+      } else {
+        _renderStoreSlot(storeStockGrid, item.icon, `${item.label}\nBuy: ${item.cost}c`, `${item.cost}c`, "", () => {
+          if (typeof onStoreBuyItem === "function") onStoreBuyItem(item.id);
+        });
+      }
     }
 
     /* Inventory — click to sell */
