@@ -1782,7 +1782,9 @@ body {
   text-align: center;
 }
 .ui-bag-slot:hover .ui-slot-tooltip,
-.ui-bank-slot:hover .ui-slot-tooltip {
+.ui-bank-slot:hover .ui-slot-tooltip,
+.ui-store-slot:hover .ui-slot-tooltip,
+.ui-trade-slot:hover .ui-slot-tooltip {
   display: block;
 }
 
@@ -2423,6 +2425,16 @@ body {
 .ui-star-star-on {
   display: inline-block; /* needed for transform */
 }
+/* ── Panel close button (for service panels like blacksmith) ── */
+.ui-panel-close-btn {
+  display: block; width: 100%; padding: 4px 0; margin-bottom: 6px;
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
+  background: rgba(255,60,60,0.15); color: #ff8888;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  text-align: center;
+}
+.ui-panel-close-btn:hover { background: rgba(255,60,60,0.3); }
+
 /* ── Trade overlay ── */
 .ui-trade-overlay {
   position: fixed; inset: 0; z-index: 2000;
@@ -2435,8 +2447,8 @@ body {
   background: linear-gradient(170deg, rgba(18,14,28,0.97), rgba(30,25,44,0.97));
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.08);
-  width: min(720px, 95vw);
-  max-height: 85vh;
+  width: min(640px, 95vw);
+  max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 12px 48px rgba(0,0,0,0.5);
   padding: 0;
@@ -2447,8 +2459,8 @@ body {
 }
 .ui-trade-title { font-size: 15px; font-weight: 600; color: var(--ui-ink); }
 .ui-trade-body {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-  padding: 12px 16px 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  padding: 8px 12px 0;
 }
 .ui-trade-col { min-width: 0; }
 .ui-trade-col-label { font-size: 12px; color: var(--ui-ink-2); margin: 0 0 6px; font-weight: 600; }
@@ -2457,17 +2469,18 @@ body {
   min-height: 72px;
 }
 .ui-trade-slot {
-  aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center;
-  font-size: 20px; border: 1px solid rgba(255,255,255,0.08);
+  aspect-ratio: 1; border-radius: 5px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; border: 1px solid rgba(255,255,255,0.08);
   background: rgba(255,255,255,0.04); cursor: pointer; position: relative;
-  transition: background .15s;
+  transition: background .15s; max-height: 44px;
 }
 .ui-trade-slot:hover { background: rgba(255,255,255,0.1); }
 .ui-trade-slot.is-empty { cursor: default; opacity: 0.3; }
 .ui-trade-slot.is-empty:hover { background: rgba(255,255,255,0.04); }
-.ui-trade-inv { padding: 8px 16px; }
+.ui-trade-inv { padding: 4px 12px; }
+.ui-trade-inv .ui-trade-grid { grid-template-columns: repeat(7, 1fr); }
 .ui-trade-actions {
-  display: flex; gap: 10px; justify-content: center; padding: 10px 16px 14px;
+  display: flex; gap: 10px; justify-content: center; padding: 6px 12px 8px;
 }
 .ui-trade-accept-btn {
   padding: 8px 24px; border-radius: 8px; border: none;

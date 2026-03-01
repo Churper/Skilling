@@ -932,15 +932,13 @@ async function loadMapObjects(scene, nodes) {
       /* GLTF-based services — tag with service interaction */
       const svcTag = SERVICE_TAG[entry.type];
       if (svcTag) {
-        setSvc(m, svcTag.service, svcTag.label);
         if (entry.type === "Market_Stalls") {
-          /* Hitbox on stall */
-          nodes.push(addHS(m, 0, 0.3, 0.4));
-          /* Shopkeeper slime — also clickable as store */
+          /* Only the shopkeeper slime is clickable — no service on stall itself */
           const keeper = spawnShopkeeper(group, entry.x + 1.2, y, entry.z + 0.8);
           setSvc(keeper, "store", "General Store");
           nodes.push(keeper);
         } else {
+          setSvc(m, svcTag.service, svcTag.label);
           nodes.push(addHS(m, 0, 0.95, 0.55));
         }
       }

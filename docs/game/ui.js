@@ -404,6 +404,8 @@ export function initializeUI(options = {}) {
     setActive("blacksmith");
     if (mobileQuery.matches) setMobileMenuOpen(true);
   }
+  const smithCloseBtn = document.getElementById("ui-smith-close");
+  if (smithCloseBtn) smithCloseBtn.addEventListener("click", () => setActive("inventory"));
 
   function setStore(payload = {}) {
     const coins = Math.max(0, Math.floor(Number(payload.coins) || 0));
@@ -659,7 +661,18 @@ export function initializeUI(options = {}) {
         if (item.owned) slot.classList.add("is-owned");
         const swatch = document.createElement("span");
         swatch.className = "ui-store-swatch";
-        swatch.style.background = item.swatch;
+        const _patternGrads = {
+          fire: "linear-gradient(135deg, #ff4500, #ff8c00, #ffd700)",
+          ice: "linear-gradient(135deg, #87ceeb, #b0e0e6, #e0ffff)",
+          galaxy: "linear-gradient(135deg, #2e1065, #7c3aed, #c084fc)",
+          toxic: "linear-gradient(135deg, #22c55e, #84cc16, #facc15)",
+          lava: "linear-gradient(135deg, #b91c1c, #ef4444, #f97316)",
+          ocean: "linear-gradient(135deg, #0369a1, #38bdf8, #67e8f9)",
+          rainbow: "linear-gradient(135deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6)",
+          gold: "linear-gradient(135deg, #b8860b, #ffd700, #daa520)",
+          stained: "linear-gradient(135deg, #dc2626, #2563eb, #16a34a, #eab308)",
+        };
+        swatch.style.background = _patternGrads[item.swatch] || item.swatch;
         slot.append(swatch);
         const pr = document.createElement("span");
         pr.className = "ui-store-slot-price";
@@ -1452,8 +1465,13 @@ export function initializeUI(options = {}) {
       badge.className = "ui-note-qty";
       badge.textContent = String(n.qty);
       slot.append(badge);
+      const tip = document.createElement("div");
+      tip.className = "ui-slot-tooltip";
+      tip.textContent = `Noted ${ITEM_LABEL[n.baseItem] || n.baseItem} x${n.qty}`;
+      slot.append(tip);
     } else {
       const eqData = EQUIPMENT_ITEMS[baseItemId(itemId)];
+      const displayName = eqData ? eqData.label : (ITEM_LABEL[itemId] || ITEM_LABEL[baseItemId(itemId)] || itemId);
       const icon = document.createElement("span");
       icon.className = "ui-bag-slot-icon";
       icon.textContent = eqData ? eqData.icon : (ITEM_ICON[itemId] || ITEM_ICON[baseItemId(itemId)] || "?");
@@ -1462,6 +1480,12 @@ export function initializeUI(options = {}) {
         const td = EQUIPMENT_TIERS[eqData.tier];
         if (td?.tint) slot.style.background = td.tint;
       }
+      const tip = document.createElement("div");
+      tip.className = "ui-slot-tooltip";
+      let tipText = displayName;
+      if (eqData) tipText += `\n+${eqData.atk} Atk  +${eqData.def} Def`;
+      slot.append(tip);
+      tip.textContent = tipText;
     }
     if (onClick) slot.addEventListener("click", onClick);
     container.append(slot);

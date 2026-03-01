@@ -1837,7 +1837,6 @@ function transferBankItem(direction, itemKey, qtyRaw, noteMode) {
   if (direction === "deposit" && isNote(itemKey)) {
     const n = parseNote(itemKey);
     if (!n) return;
-    // Find the note slot in bag and remove it
     const si = bagSystem.slots.indexOf(itemKey);
     if (si < 0) return;
     bagSystem.slots[si] = null;
@@ -1850,7 +1849,35 @@ function transferBankItem(direction, itemKey, qtyRaw, noteMode) {
     return;
   }
 
-  if (!itemKey || !Object.prototype.hasOwnProperty.call(bagSystem.bankStorage, itemKey)) return;
+  /* ── Equipment instances (unique IDs with #) — store individually ── */
+  if (isEquipmentInstance(itemKey)) {
+    if (direction === "deposit") {
+      const si = bagSystem.slots.indexOf(itemKey);
+      if (si < 0) { ui?.setStatus("Item not in bag.", "warn"); return; }
+      bagSystem.slots[si] = null;
+      bagSystem.recount();
+      bagSystem.bankStorage[itemKey] = 1;
+      syncInventoryUI();
+      ui?.setStatus(`Deposited ${EQUIPMENT_ITEMS[baseItemId(itemKey)]?.label || itemKey}.`, "success");
+    } else {
+      if (!bagSystem.bankStorage[itemKey]) { ui?.setStatus("Item not in bank.", "warn"); return; }
+      if (bagIsFull()) { ui?.setStatus(`Bag is full (${bagUsedCount()}/${BAG_CAPACITY}).`, "warn"); return; }
+      const emptySlot = bagSystem.slots.indexOf(null);
+      bagSystem.slots[emptySlot] = itemKey;
+      delete bagSystem.bankStorage[itemKey];
+      bagSystem.recount();
+      syncInventoryUI();
+      ui?.setStatus(`Withdrew ${EQUIPMENT_ITEMS[baseItemId(itemKey)]?.label || itemKey}.`, "success");
+    }
+    if (ui?.isBankOpen?.()) ui.setBank(getBankState());
+    saveGame();
+    return;
+  }
+
+  if (!itemKey) return;
+  /* For non-equipment items, ensure the key exists in bankStorage */
+  if (!Object.prototype.hasOwnProperty.call(bagSystem.bankStorage, itemKey)) return;
+
   const sourceCount = direction === "deposit"
     ? Math.max(0, Math.floor(Number(inventory[itemKey]) || 0))
     : Math.max(0, Math.floor(Number(bagSystem.bankStorage[itemKey]) || 0));
@@ -1864,17 +1891,29 @@ function transferBankItem(direction, itemKey, qtyRaw, noteMode) {
   const limit = Math.max(1, parsedQty);
 
   /* ── Note mode withdraw: pull qty into single bag slot as a note ── */
-  if (direction === "withdraw" && noteMode && !isEquipmentInstance(itemKey) && !EQUIPMENT_ITEMS[baseItemId(itemKey)]) {
-    if (bagIsFull()) {
-      ui?.setStatus(`Bank: bag is full (${bagUsedCount()}/${BAG_CAPACITY}).`, "warn");
-      if (ui?.isBankOpen?.()) ui.setBank(getBankState());
-      return;
-    }
+  if (direction === "withdraw" && noteMode && !EQUIPMENT_ITEMS[baseItemId(itemKey)]) {
     const qty = Math.min(limit, sourceCount);
-    bagSystem.bankStorage[itemKey] -= qty;
-    const noteId = makeNote(itemKey, qty);
-    const emptySlot = bagSystem.slots.indexOf(null);
-    bagSystem.slots[emptySlot] = noteId;
+    /* Try to merge with an existing note of the same item in bag */
+    let merged = false;
+    for (let i = 0; i < bagSystem.slots.length; i++) {
+      const existing = parseNote(bagSystem.slots[i]);
+      if (existing && existing.baseItem === itemKey) {
+        bagSystem.bankStorage[itemKey] -= qty;
+        bagSystem.slots[i] = makeNote(itemKey, existing.qty + qty);
+        merged = true;
+        break;
+      }
+    }
+    if (!merged) {
+      if (bagIsFull()) {
+        ui?.setStatus(`Bank: bag is full (${bagUsedCount()}/${BAG_CAPACITY}).`, "warn");
+        if (ui?.isBankOpen?.()) ui.setBank(getBankState());
+        return;
+      }
+      bagSystem.bankStorage[itemKey] -= qty;
+      const emptySlot = bagSystem.slots.indexOf(null);
+      bagSystem.slots[emptySlot] = makeNote(itemKey, qty);
+    }
     bagSystem.recount();
     syncInventoryUI();
     ui?.setStatus(`Withdrew noted ${itemKey} x${qty}.`, "success");

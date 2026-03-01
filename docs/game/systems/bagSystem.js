@@ -161,6 +161,12 @@ export function createBagSystem({ capacity, itemKeys }) {
     }
     if (data.bank) {
       for (const key of itemKeys) bankStorage[key] = data.bank[key] || 0;
+      /* Restore equipment instances (unique IDs with #) */
+      for (const key of Object.keys(data.bank)) {
+        if (key.includes("#") && data.bank[key] > 0) {
+          bankStorage[key] = data.bank[key];
+        }
+      }
     }
     recount();
   }
