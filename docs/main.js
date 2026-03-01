@@ -2175,7 +2175,7 @@ function resolvePlayerCollisions() {
 }
 
 let _groundYCache = { x: NaN, z: NaN, y: 0 };
-const _GROUND_Y_THRESH = 1.0; // re-raycast after moving 1 unit (bounding boxes make it cheap)
+const _GROUND_Y_THRESH = 0.3; // re-raycast after moving 0.3 units
 function getPlayerGroundY(x, z) {
   if (inCave) return 0;
   const cdx = x - _groundYCache.x, cdz = z - _groundYCache.z;
