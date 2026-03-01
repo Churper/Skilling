@@ -34,31 +34,38 @@
     </button>
     <button type="button" id="ui-settings-btn" aria-label="Settings" title="Settings">&#x2699;</button>
     <nav id="ui-dock" aria-label="Main tabs">
-      <button type="button" class="ui-tab-btn is-active" data-tab="inventory">
+      <button type="button" class="ui-tab-btn is-active" data-tab="inventory" title="F1">
         <span class="ui-tab-icon" aria-hidden="true">&#x1F392;</span>
         <span class="ui-tab-label">Inventory</span>
       </button>
-      <button type="button" class="ui-tab-btn" data-tab="skills">
-        <span class="ui-tab-icon" aria-hidden="true">&#x1F4CA;</span>
-        <span class="ui-tab-label">Skills</span>
+      <button type="button" class="ui-tab-btn" data-tab="worn" title="F2">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F6E1;</span>
+        <span class="ui-tab-label">Equip</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="prayer" title="F3">
+        <span class="ui-tab-icon" aria-hidden="true">&#x271D;</span>
+        <span class="ui-tab-label">Prayer</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="combat" title="F4">
+        <span class="ui-tab-icon" aria-hidden="true">&#x2694;</span>
+        <span class="ui-tab-label">Combat</span>
       </button>
       <button type="button" class="ui-tab-btn" data-tab="emotes">
         <span class="ui-tab-icon" aria-hidden="true">&#x1F60A;</span>
         <span class="ui-tab-label">Emotes</span>
       </button>
-      <button type="button" class="ui-tab-btn" data-tab="combat">
-        <span class="ui-tab-icon" aria-hidden="true">&#x2694;</span>
-        <span class="ui-tab-label">Combat</span>
-      </button>
-      <button type="button" class="ui-tab-btn" data-tab="prayer">
-        <span class="ui-tab-icon" aria-hidden="true">&#x271D;</span>
-        <span class="ui-tab-label">Prayer</span>
-      </button>
-      <button type="button" class="ui-tab-btn" data-tab="worn">
-        <span class="ui-tab-icon" aria-hidden="true">&#x1F6E1;</span>
-        <span class="ui-tab-label">Worn</span>
-      </button>
     </nav>
+    <!-- Top-left panels: Skills & Friends -->
+    <div id="ui-topleft" class="ui-topleft">
+      <button type="button" class="ui-tab-btn" data-tab="skills">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F4CA;</span>
+        <span class="ui-tab-label">Skills</span>
+      </button>
+      <div id="ui-friends-chip" class="ui-friends-chip">
+        <span class="ui-friends-icon">&#x1F465;</span>
+        <span id="ui-friends-count">0</span>
+      </div>
+    </div>
     <aside id="ui-panel" aria-live="polite">
       <h2 id="ui-panel-title">Inventory</h2>
       <section class="ui-panel-section" data-tab-panel="inventory">

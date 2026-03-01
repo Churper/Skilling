@@ -226,6 +226,13 @@ export function initializeUI(options = {}) {
     title.textContent = labelByTab[tab] || "Panel";
   }
 
+  /* F-key bindings */
+  const _fkeyTabs = { F1: "inventory", F2: "worn", F3: "prayer", F4: "combat" };
+  window.addEventListener("keydown", (e) => {
+    const tab = _fkeyTabs[e.key];
+    if (tab) { e.preventDefault(); setActive(tab); setPanelCollapsed(false); }
+  });
+
   function setActiveTool(tool) {
     for (const button of toolButtons) {
       button.classList.toggle("is-active", button.dataset.tool === tool);
@@ -367,7 +374,7 @@ export function initializeUI(options = {}) {
     const connected = !!payload.connected;
     const peers = Math.max(0, Math.floor(Number(payload.peers) || 0));
     if (friendsOnlineEl) friendsOnlineEl.textContent = connected ? "Online" : "Offline";
-    if (friendsCountEl) friendsCountEl.textContent = `Players online: ${connected ? peers + 1 : 1}`;
+    if (friendsCountEl) friendsCountEl.textContent = String(connected ? peers + 1 : 1);
   }
 
   function setBlacksmith(payload = {}) {

@@ -1158,6 +1158,38 @@ body {
   50% { opacity: 1; }
 }
 
+/* ── Top-left panels (Skills + Friends) ── */
+.ui-topleft {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 50;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.ui-topleft .ui-tab-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(6px);
+}
+.ui-friends-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(6px);
+  color: var(--ui-ink-2);
+}
+.ui-friends-icon { font-size: 14px; }
+
 /* ── Friends ── */
 #ui-friends-online,
 #ui-friends-count {
