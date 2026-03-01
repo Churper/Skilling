@@ -2253,7 +2253,8 @@ const GRAVITY = -18.0;
 /* ── Crouch system ── */
 let _isCrouching = false;
 let _crouchT = 0; // 0 = standing, 1 = fully crouched
-const CROUCH_SPEED = 8.0;
+const CROUCH_DOWN_SPEED = 10.0; // fast crouch — feels responsive
+const CROUCH_UP_SPEED = 2.5;   // slow uncrouch — hides keyrepeat flicker
 let _crouchHoldTimer = 0; // debounce: prevent flicker from Ctrl key quirks
 let _smoothGroundY = null; // smoothed ground Y to prevent micro-terrain jitter
 
@@ -3452,10 +3453,10 @@ function animate(now) {
   } else {
     player.position.y = standY;
   }
-  /* Crouch squish — lerp toward target, snap when close */
+  /* Crouch squish — fast down, slow up (slow up hides key-repeat flicker) */
   const crouchTarget = _isCrouching ? 1 : 0;
-  if (_crouchT < crouchTarget) _crouchT = Math.min(crouchTarget, _crouchT + dt * CROUCH_SPEED);
-  else if (_crouchT > crouchTarget) _crouchT = Math.max(crouchTarget, _crouchT - dt * CROUCH_SPEED);
+  if (_crouchT < crouchTarget) _crouchT = Math.min(crouchTarget, _crouchT + dt * CROUCH_DOWN_SPEED);
+  else if (_crouchT > crouchTarget) _crouchT = Math.max(crouchTarget, _crouchT - dt * CROUCH_UP_SPEED);
 
   /* Jump stretch — tall & narrow (opposite of crouch) */
   let jumpStretch = 0;
