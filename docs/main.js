@@ -1471,8 +1471,7 @@ function updateAnimals(dt) {
         }
       }
     }
-    /* subtle bob */
-    a.parentModel.position.y += Math.sin(Date.now() * 0.003 + a.spawnPos.x * 7) * 0.01;
+    /* bob removed — unnecessary per-frame sine was hurting FPS */
 
     /* update HP bar screen position */
     if (a.hpBar.dataset.state !== "hidden") {
@@ -3660,8 +3659,8 @@ function animate(now) {
   updateFloatingDrops(dt);
   updateWorldDrops(dt, t);
   cleanupExpiredDrops();
-  /* lazy-register animals from async-loaded chunks (check every ~2s) */
-  if (Math.random() < dt * 0.5) scanForNewAnimals();
+  /* register animals from async-loaded chunks (~4x/sec) */
+  if (Math.random() < dt * 4) scanForNewAnimals();
   updateAnimals(dt);
   combatEffects.update(dt);
   updateSlimeTrail(dt, t, isMovingNow);

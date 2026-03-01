@@ -692,7 +692,8 @@ async function loadChunk(cx, cz, scene, ground, nodes) {
         const tmpl = templates[entry.type];
         if (!tmpl) continue;
         const m = SkeletonUtils.clone(tmpl);
-        m.scale.setScalar(entry.scale || 1);
+        const defaultScale = ANIMAL_TYPES.has(entry.type) && !entry.scale ? 0.45 : (entry.scale || 1);
+        m.scale.setScalar(defaultScale);
         let y = _getWSH(wx, wz);
         if (heightOffsets) {
           const fx = Math.floor(entry.x), fz = Math.floor(entry.z);
@@ -863,7 +864,6 @@ for (const t of [
 
 /* Service type lookup — maps editor object types to procedural building builders or service tags */
 const SERVICE_BUILDER = {
-  "Svc_Blacksmith":  { builder: (s, x, z, n) => addSmith(s, x, z, n) },
   "Svc_Dummy":       { builder: (s, x, z, n) => addDummy(s, x, z, n) },
   "Svc_Construction":{ builder: (s, x, z, n) => addYard(s, x, z, n) },
 };
@@ -872,10 +872,12 @@ const SERVICE_TAG = {
   "Svc_Bank": { service: "bank", label: "Bank Chest" },
   "Prop_Treasure_Chest": { service: "bank", label: "Bank Chest" },
   "Market_Stalls": { service: "store", label: "General Store" },
+  "Svc_Blacksmith": { service: "blacksmith", label: "Blacksmith Forge" },
 };
 /* Register Svc_Bank in file lookup so it loads the chest model */
 _fileLookup["Svc_Bank"] = "models/terrain/Prop_Treasure_Chest.glb";
 _fileLookup["Market_Stalls"] = "models/terrain/Market_Stalls.glb";
+_fileLookup["Svc_Blacksmith"] = "models/terrain/Workbench.glb";
 _fileLookup["Farm"] = "models/terrain/Farm.glb";
 for (const a of ["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra"])
   _fileLookup[a] = "models/terrain/" + a + ".glb";
@@ -1057,7 +1059,8 @@ export async function createWorld(scene) {
     for (const entry of spawn00animals) {
       const tmpl = aTmpls[entry.type]; if (!tmpl) continue;
       const m = SkeletonUtils.clone(tmpl);
-      m.scale.setScalar(entry.scale || 1);
+      const aScale = !entry.scale ? 0.45 : entry.scale;
+      m.scale.setScalar(aScale);
       let ay = _groundY(entry.x, entry.z);
       m.position.set(entry.x, ay, entry.z);
       m.rotation.y = entry.rot || 0;

@@ -55,6 +55,75 @@ export function initializeUI(options = {}) {
   const title = document.getElementById("ui-panel-title");
   if (!buttons.length || !panels.length || !title) return null;
 
+  /* ── Fixed tooltip positioning — prevents overflow/clipping issues ── */
+  /* Event delegation: any slot with a .ui-slot-tooltip child gets fixed positioning */
+  let _activeSlotTip = null;
+  document.addEventListener("pointerover", (e) => {
+    const slot = e.target.closest(".ui-bag-slot, .ui-bank-slot, .ui-store-slot, .ui-trade-slot, .ui-worn-slot, .ui-worn-skin-slot");
+    if (!slot) return;
+    const tip = slot.querySelector(".ui-slot-tooltip");
+    if (!tip) return;
+    _activeSlotTip = tip;
+    tip.classList.add("is-visible");
+    _positionFixedTip(tip, slot);
+  });
+  document.addEventListener("pointerout", (e) => {
+    const slot = e.target.closest(".ui-bag-slot, .ui-bank-slot, .ui-store-slot, .ui-trade-slot, .ui-worn-slot, .ui-worn-skin-slot");
+    if (!slot) return;
+    const tip = slot.querySelector(".ui-slot-tooltip");
+    if (tip) tip.classList.remove("is-visible");
+    if (tip === _activeSlotTip) _activeSlotTip = null;
+  });
+  function _positionFixedTip(tip, slotEl) {
+    const r = slotEl.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    tip.style.left = cx + "px";
+    tip.style.transform = "translateX(-50%)";
+    /* show above the slot */
+    tip.style.top = "";
+    tip.style.bottom = (window.innerHeight - r.top + 6) + "px";
+  }
+  /* no-op kept for compatibility — delegation handles it */
+  function _wireSlotTooltip(slotEl) {}
+
+  /* ── Right-click context menu for bag items ── */
+  let _ctxMenu = document.getElementById("ui-ctx-menu");
+  if (!_ctxMenu) {
+    _ctxMenu = document.createElement("div");
+    _ctxMenu.id = "ui-ctx-menu";
+    _ctxMenu.style.cssText = "display:none;position:fixed;z-index:10000;background:rgba(10,10,20,0.95);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:3px 0;min-width:90px;font-family:var(--ui-font-body);font-size:13px;pointer-events:auto;box-shadow:0 4px 16px rgba(0,0,0,0.5);-webkit-user-select:none;user-select:none;";
+    document.body.appendChild(_ctxMenu);
+  }
+  function _hideCtxMenu() { _ctxMenu.style.display = "none"; _ctxMenu.innerHTML = ""; }
+  document.addEventListener("pointerdown", (e) => {
+    if (!_ctxMenu.contains(e.target)) _hideCtxMenu();
+  });
+  function _ctxBtn(label, fn) {
+    const b = document.createElement("div");
+    b.textContent = label;
+    b.style.cssText = "padding:5px 14px;cursor:pointer;color:#f0f0f0;white-space:nowrap;";
+    b.addEventListener("pointerenter", () => b.style.background = "rgba(255,255,255,0.12)");
+    b.addEventListener("pointerleave", () => b.style.background = "none");
+    b.addEventListener("click", () => { _hideCtxMenu(); fn(); });
+    return b;
+  }
+  function _showCtxMenu(mx, my, itemType, slotIndex, isEquipment) {
+    _ctxMenu.innerHTML = "";
+    if (isEquipment) {
+      _ctxMenu.appendChild(_ctxBtn("Equip", () => { if (typeof onEquipFromBag === "function") onEquipFromBag(slotIndex); }));
+    }
+    _ctxMenu.appendChild(_ctxBtn("Drop", () => { if (typeof onDropItem === "function") onDropItem(slotIndex); }));
+    _ctxMenu.style.left = mx + "px";
+    _ctxMenu.style.top = my + "px";
+    _ctxMenu.style.display = "block";
+    /* clamp to viewport */
+    requestAnimationFrame(() => {
+      const r = _ctxMenu.getBoundingClientRect();
+      if (r.right > window.innerWidth) _ctxMenu.style.left = (window.innerWidth - r.width - 4) + "px";
+      if (r.bottom > window.innerHeight) _ctxMenu.style.top = (window.innerHeight - r.height - 4) + "px";
+    });
+  }
+
   /* Shared fixed tooltip element — reused for all equipment hovers */
   const _eqTip = document.createElement("div");
   _eqTip.className = "ui-eq-tooltip";
@@ -361,13 +430,15 @@ export function initializeUI(options = {}) {
         empty.className = "ui-bag-slot-empty";
         slot.append(empty);
       }
-      /* Right-click to drop item */
+      /* Right-click context menu */
       if (itemType) {
+        const isEq = !!EQUIPMENT_ITEMS[baseItemId(itemType)];
         slot.addEventListener("contextmenu", (e) => {
           e.preventDefault();
-          if (typeof onDropItem === "function") onDropItem(i);
+          _showCtxMenu(e.clientX, e.clientY, itemType, i, isEq);
         });
       }
+      _wireSlotTooltip(slot);
       inventoryGridEl.append(slot);
     }
   }
@@ -1043,12 +1114,26 @@ export function initializeUI(options = {}) {
 
   let _wornSlotData = {}; // { slotName: { itemId, stars } }
   for (const slotEl of wornSlotEls) {
+    /* click = unequip */
     slotEl.addEventListener("click", () => {
       const slot = slotEl.dataset.wornSlot;
       const data = _wornSlotData[slot];
-      if (data && data.itemId) {
-        openStarEnhance(slot, data.itemId, data.stars || 0);
+      if (data && data.itemId && typeof onUnequipSlot === "function") {
+        onUnequipSlot(slot);
       }
+    });
+    /* right-click = context menu with Enhance */
+    slotEl.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      const slot = slotEl.dataset.wornSlot;
+      const data = _wornSlotData[slot];
+      if (!data || !data.itemId) return;
+      _ctxMenu.innerHTML = "";
+      _ctxMenu.appendChild(_ctxBtn("Enhance \u2605", () => openStarEnhance(slot, data.itemId, data.stars || 0)));
+      _ctxMenu.appendChild(_ctxBtn("Unequip", () => { if (typeof onUnequipSlot === "function") onUnequipSlot(slot); }));
+      _ctxMenu.style.left = e.clientX + "px";
+      _ctxMenu.style.top = e.clientY + "px";
+      _ctxMenu.style.display = "block";
     });
   }
 

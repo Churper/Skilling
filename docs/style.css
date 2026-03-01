@@ -44,6 +44,8 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 24;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* ── Player HP bar ── */
@@ -1760,10 +1762,7 @@ body {
 }
 .ui-slot-tooltip {
   display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
   padding: 5px 9px;
   border-radius: 6px;
   background: rgba(10, 10, 20, 0.95);
@@ -1774,15 +1773,12 @@ body {
   line-height: 1.4;
   white-space: pre-line;
   pointer-events: none;
-  z-index: 300;
+  z-index: 9999;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   min-width: 80px;
   text-align: center;
 }
-.ui-bag-slot:hover .ui-slot-tooltip,
-.ui-bank-slot:hover .ui-slot-tooltip,
-.ui-store-slot:hover .ui-slot-tooltip,
-.ui-trade-slot:hover .ui-slot-tooltip {
+.ui-slot-tooltip.is-visible {
   display: block;
 }
 
@@ -1866,9 +1862,7 @@ body {
   color: var(--ui-ink-1);
   font-family: var(--ui-font-heading);
 }
-.ui-worn-slot:hover .ui-slot-tooltip {
-  display: block;
-}
+/* worn slot tooltips use .is-visible class now */
 
 /* ── Worn tab skin section ── */
 .ui-worn-skin-section {
@@ -1908,7 +1902,7 @@ body {
 .ui-worn-skin-label {
   font-size: 13px; font-weight: 600; color: var(--ui-ink);
 }
-.ui-worn-skin-slot:hover .ui-slot-tooltip { display: block; }
+/* skin tooltips use .is-visible class now */
 .ui-worn-skin-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
