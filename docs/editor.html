@@ -460,6 +460,7 @@ function saveCurrentChunkToStore() {
   /* distribute objects to their proper chunks */
   saveObjectsToChunkStores();
   /* save water + edges + baseType for selected chunk */
+  const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
   cd.water = document.getElementById("chunk-water").checked;
   cd.edges = {
     north: document.getElementById("edge-n").classList.contains("on"),
