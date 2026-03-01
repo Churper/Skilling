@@ -1871,11 +1871,15 @@ function tryGather(node) {
     spawnFloatingDrop(successPos.x - 0.14, successPos.z + 0.1, `${skillKey} Lv ${skills[skillKey].level}!`, "level");
     celebrateLevelUp(successPos.x, successPos.z);
   }
-  /* rare bonus drop — pops out onto the ground */
+  /* rare bonus drop — pops out toward the player so it lands in the clear */
   const rareDrop = RARE_GATHER_DROPS[resourceType];
   if (rareDrop && Math.random() < rareDrop.chance) {
-    const rx = successPos.x + (Math.random() - 0.5) * 2;
-    const rz = successPos.z + (Math.random() - 0.5) * 2;
+    let dx = player.position.x - successPos.x;
+    let dz = player.position.z - successPos.z;
+    const len = Math.sqrt(dx * dx + dz * dz) || 1;
+    dx /= len; dz /= len;
+    const rx = successPos.x + dx * 3 + (Math.random() - 0.5);
+    const rz = successPos.z + dz * 3 + (Math.random() - 0.5);
     spawnWorldDrop(rareDrop.item, rx, rz);
     spawnFloatingDrop(rx, rz, `Rare: ${rareDrop.item}!`, "level");
   }
@@ -3072,12 +3076,16 @@ function killAnimal(a) {
   a.hpBar.dataset.state = "hidden";
   a.aggro = false;
   a.aggroTarget = null;
-  /* loot drops on ground */
+  /* loot drops on ground — push toward the player so they're visible */
   const lootName = ANIMAL_LOOT[a.type];
   const p = new THREE.Vector3();
   a.parentModel.getWorldPosition(p);
+  let _ldx = player.position.x - p.x;
+  let _ldz = player.position.z - p.z;
+  const _llen = Math.sqrt(_ldx * _ldx + _ldz * _ldz) || 1;
+  _ldx /= _llen; _ldz /= _llen;
   if (lootName) {
-    spawnWorldDrop(lootName, p.x + (Math.random() - 0.5), p.z + (Math.random() - 0.5));
+    spawnWorldDrop(lootName, p.x + _ldx * 2 + (Math.random() - 0.5) * 0.5, p.z + _ldz * 2 + (Math.random() - 0.5) * 0.5);
   }
   /* equipment drop chance */
   const dropTable = MONSTER_EQUIPMENT_DROPS[a.type];
@@ -3085,7 +3093,7 @@ function killAnimal(a) {
     const eqBaseId = dropTable.items[Math.floor(Math.random() * dropTable.items.length)];
     const dropItem = EQUIPMENT_ITEMS[eqBaseId];
     if (dropItem) {
-      spawnWorldDrop(mintEquipId(eqBaseId), p.x + (Math.random() - 0.5) * 0.8, p.z + (Math.random() - 0.5) * 0.8);
+      spawnWorldDrop(mintEquipId(eqBaseId), p.x + _ldx * 2.5 + (Math.random() - 0.5) * 0.5, p.z + _ldz * 2.5 + (Math.random() - 0.5) * 0.5);
     }
   }
   /* task board kill tracking */
