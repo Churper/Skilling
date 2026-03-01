@@ -3120,12 +3120,14 @@ function killAnimal(a) {
   a.hpBar.dataset.state = "hidden";
   a.aggro = false;
   a.aggroTarget = null;
-  /* loot drops on ground — spawn at player's feet so they're visible */
+  /* loot drops on ground — spawn where the mob died */
   const lootName = ANIMAL_LOOT[a.type];
   const p = new THREE.Vector3();
   a.parentModel.getWorldPosition(p);
+  const dx = p.x + (Math.random() - 0.5);
+  const dz = p.z + (Math.random() - 0.5);
   if (lootName) {
-    spawnWorldDrop(lootName, player.position.x + (Math.random() - 0.5), player.position.z + (Math.random() - 0.5));
+    spawnWorldDrop(lootName, dx, dz);
   }
   /* equipment drop chance */
   const dropTable = MONSTER_EQUIPMENT_DROPS[a.type];
@@ -3133,7 +3135,7 @@ function killAnimal(a) {
     const eqBaseId = dropTable.items[Math.floor(Math.random() * dropTable.items.length)];
     const dropItem = EQUIPMENT_ITEMS[eqBaseId];
     if (dropItem) {
-      spawnWorldDrop(mintEquipId(eqBaseId), player.position.x + (Math.random() - 0.5) * 0.8, player.position.z + (Math.random() - 0.5) * 0.8);
+      spawnWorldDrop(mintEquipId(eqBaseId), p.x + (Math.random() - 0.5) * 0.8, p.z + (Math.random() - 0.5) * 0.8);
     }
   }
   /* task board kill tracking */

@@ -762,7 +762,7 @@ function unloadChunk(cx, cz, scene, ground, nodes) {
 
 /** Call each frame with player world position to load/unload chunks */
 function updateChunks(px, pz) {
-  if (!_chunkManifest || !_chunkScene) return;
+  if (!_chunkManifest || !_chunkScene || _activeInstance) return;
   const ccx = Math.round(px / CHUNK_SIZE);
   const ccz = Math.round(pz / CHUNK_SIZE);
   /* load chunks within 1 of player */
@@ -891,86 +891,111 @@ function getAvailableInstances() {
 const SNAKE_COLORS = [
   "#44aa44", "#aa4444", "#4444cc", "#cc44cc", "#ccaa22", "#22cccc", "#cc6622",
 ];
-const SNAKE_SEGMENTS = 12;
-const SNAKE_SEG_SIZE = 1.2;
 
 function _buildSnakeBoss(scene, nodes) {
   const group = new THREE.Group();
   group.name = "snake_boss";
   group.position.set(0, GRASS_Y, 0);
 
-  const segments = [];
-  const mat = toonMat(SNAKE_COLORS[0]);
-  /* head — larger sphere */
-  const headGeo = new THREE.SphereGeometry(1.0, 12, 8);
-  const head = new THREE.Mesh(headGeo, toonMat("#44aa44"));
+  /* chunky body — tall cylinder */
+  const bodyGeo = new THREE.CylinderGeometry(1.8, 2.2, 8, 10, 1);
+  const bodyMat = toonMat(SNAKE_COLORS[0]);
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  group.add(body);
+
+  /* head on top — sphere */
+  const headGeo = new THREE.SphereGeometry(2.4, 10, 8);
+  const headMat = toonMat(SNAKE_COLORS[0]);
+  const head = new THREE.Mesh(headGeo, headMat);
+  head.position.y = 5.5;
   group.add(head);
-  segments.push(head);
-  /* eyes */
-  const eyeGeo = new THREE.SphereGeometry(0.22, 6, 6);
+
+  /* angry eyes */
+  const eyeGeo = new THREE.SphereGeometry(0.5, 6, 6);
   const eyeMat = new THREE.MeshBasicMaterial({ color: "#ff2222" });
   const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-  eyeL.position.set(-0.4, 0.3, 0.7);
+  eyeL.position.set(-1.0, 0.4, 1.8);
   head.add(eyeL);
   const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-  eyeR.position.set(0.4, 0.3, 0.7);
+  eyeR.position.set(1.0, 0.4, 1.8);
   head.add(eyeR);
-  /* body segments */
-  for (let i = 1; i < SNAKE_SEGMENTS; i++) {
-    const r = SNAKE_SEG_SIZE * (1 - i * 0.05);
-    const geo = new THREE.SphereGeometry(r, 10, 6);
-    const seg = new THREE.Mesh(geo, mat.clone());
-    group.add(seg);
-    segments.push(seg);
-  }
-  /* tail */
-  const tailGeo = new THREE.ConeGeometry(0.4, 1.5, 8);
-  tailGeo.rotateX(Math.PI / 2);
-  const tail = new THREE.Mesh(tailGeo, mat.clone());
-  group.add(tail);
-  segments.push(tail);
+
+  /* pupils */
+  const pupilGeo = new THREE.SphereGeometry(0.25, 6, 6);
+  const pupilMat = new THREE.MeshBasicMaterial({ color: "#000000" });
+  const pupilL = new THREE.Mesh(pupilGeo, pupilMat);
+  pupilL.position.set(0, 0, 0.4);
+  eyeL.add(pupilL);
+  const pupilR = new THREE.Mesh(pupilGeo, pupilMat);
+  pupilR.position.set(0, 0, 0.4);
+  eyeR.add(pupilR);
+
+  /* forked tongue */
+  const tongueGeo = new THREE.BoxGeometry(0.15, 0.06, 1.2);
+  const tongueMat = toonMat("#cc2222");
+  const tongue = new THREE.Mesh(tongueGeo, tongueMat);
+  tongue.position.set(0, -0.6, 2.2);
+  head.add(tongue);
 
   /* hitbox sphere for clicking */
-  const hs = addHS(head, 0, 0.5, 0.3);
+  const hs = addHS(body, 0, 4, 0);
   setSvc(hs, "animal", "Snake Boss");
   hs.userData.animalType = "Snake Boss";
-  head.userData.animalType = "Snake Boss";
+  body.userData.animalType = "Snake Boss";
   nodes.push(hs);
 
   scene.add(group);
 
-  /* store update data on the group */
-  group.userData.segments = segments;
-  group.userData.mat = mat;
+  group.userData.body = body;
+  group.userData.head = head;
+  group.userData.bodyMat = bodyMat;
+  group.userData.headMat = headMat;
+  group.userData.tongue = tongue;
   group.userData.colorIndex = 0;
   group.userData.colorTimer = 0;
+  group.userData.phase = "up"; // up, hold, down, hidden
+  group.userData.phaseTimer = 0;
   group.userData.hsNode = hs;
-  group.userData.headMesh = head;
   return group;
 }
 
 function updateSnakeBoss(group, t) {
   if (!group || !group.visible) return;
-  const segs = group.userData.segments;
-  if (!segs) return;
-  /* slither in a figure-8 pattern, dipping below ground */
-  for (let i = 0; i < segs.length; i++) {
-    const phase = t * 1.2 - i * 0.5;
-    const x = Math.sin(phase) * 6;
-    const z = Math.cos(phase * 0.5) * 8;
-    const dip = Math.sin(phase * 0.8 + i * 0.3);
-    const y = dip * 3 + 1.5;
-    segs[i].position.set(x, y, z);
-  }
-  /* color cycling */
-  group.userData.colorTimer += 0.016;
-  if (group.userData.colorTimer > 3) {
-    group.userData.colorTimer = 0;
-    group.userData.colorIndex = (group.userData.colorIndex + 1) % SNAKE_COLORS.length;
-    const c = SNAKE_COLORS[group.userData.colorIndex];
-    for (let i = 1; i < segs.length; i++) {
-      segs[i].material.color.set(c);
+  const ud = group.userData;
+  ud.phaseTimer += 0.016;
+
+  /* bob cycle: rise up (1s) → hold (3s) → sink down (1s) → hidden (2s) → change color → repeat */
+  let y = -10; // default hidden below ground
+  if (ud.phase === "up") {
+    const p = Math.min(ud.phaseTimer / 1.0, 1);
+    y = -10 + p * 10;
+    if (p >= 1) { ud.phase = "hold"; ud.phaseTimer = 0; }
+  } else if (ud.phase === "hold") {
+    y = 0;
+    /* slight sway */
+    y += Math.sin(t * 2) * 0.3;
+    if (ud.phaseTimer > 3) { ud.phase = "down"; ud.phaseTimer = 0; }
+  } else if (ud.phase === "down") {
+    const p = Math.min(ud.phaseTimer / 1.0, 1);
+    y = 0 - p * 10;
+    if (p >= 1) { ud.phase = "hidden"; ud.phaseTimer = 0; }
+  } else if (ud.phase === "hidden") {
+    y = -10;
+    if (ud.phaseTimer > 2) {
+      ud.phase = "up";
+      ud.phaseTimer = 0;
+      /* change color on resurface */
+      ud.colorIndex = (ud.colorIndex + 1) % SNAKE_COLORS.length;
+      const c = SNAKE_COLORS[ud.colorIndex];
+      ud.bodyMat.color.set(c);
+      ud.headMat.color.set(c);
     }
+  }
+  group.position.y = GRASS_Y + y;
+
+  /* tongue flick */
+  if (ud.tongue) {
+    ud.tongue.position.z = 2.2 + Math.sin(t * 8) * 0.4;
   }
 }
 
