@@ -60,6 +60,7 @@ export function createRealtimeClient({
   onPeerState = null,
   onPeerEmote = null,
   onServerMessage = null,
+  onDM = null,
 } = {}) {
   let ws = null;
   let channel = null;
@@ -159,6 +160,9 @@ export function createRealtimeClient({
     if (msg.type === "server_message") {
       if (typeof onServerMessage === "function") onServerMessage(msg);
     }
+    if (msg.type === "dm") {
+      if (typeof onDM === "function") onDM(msg);
+    }
   }
 
   function buildPeerStatePayload(id, peer = {}) {
@@ -241,6 +245,12 @@ export function createRealtimeClient({
     if (msg.type === "local_leave") {
       localPeers.delete(peerId);
       if (typeof onPeerLeave === "function") onPeerLeave(peerId);
+    }
+
+    if (msg.type === "local_dm") {
+      if (msg._to !== localId) return;
+      const peer = upsertLocalPeer(peerId);
+      if (typeof onDM === "function") onDM({ type: "dm", from: peerId, fromName: peer.name, payload: msg.payload });
     }
   }
 
@@ -351,6 +361,15 @@ export function createRealtimeClient({
     sendRaw({ type: "emote", emoji: value });
   }
 
+  function sendDM(targetId, payload) {
+    if (!targetId || !payload) return;
+    if (usingLocalTransport) {
+      postLocal({ type: "local_dm", _to: targetId, payload });
+      return;
+    }
+    sendRaw({ type: "dm", to: targetId, payload });
+  }
+
   return {
     isEnabled: !!wsUrl || !!fallbackLocal,
     getLocalId: () => localId,
@@ -361,5 +380,6 @@ export function createRealtimeClient({
     sendState,
     updateProfile,
     sendEmote,
+    sendDM,
   };
 }

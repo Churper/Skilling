@@ -109,6 +109,16 @@ export function createBagSystem({ capacity, itemKeys }) {
     for (let i = 0; i < slots.length; i++) {
       const item = slots[i];
       if (!item) continue;
+      /* Handle noted items: note:baseItem:qty */
+      if (item.startsWith("note:")) {
+        const parts = item.split(":");
+        const baseId = parts[1];
+        const qty = parseInt(parts[2], 10) || 1;
+        coinsGained += (priceByItem[baseId] ?? 0) * qty;
+        sold += qty;
+        slots[i] = null;
+        continue;
+      }
       sold += 1;
       const baseId = item.includes("#") ? item.split("#")[0] : item;
       coinsGained += priceByItem[baseId] ?? priceByItem[item] ?? 0;

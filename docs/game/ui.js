@@ -1,6 +1,12 @@
 import { EQUIPMENT_ITEMS, EQUIPMENT_RECIPES, EQUIPMENT_TIERS, SELL_PRICE_BY_ITEM, SLIME_COLOR_SHOP, STAR_MAX, STAR_COSTS, STAR_SUCCESS, STAR_DESTROY, STAR_DOWNGRADE, STAR_ATK_PER, STAR_DEF_PER, STAR_TIMING_BONUS } from "./config.js";
 
 function baseItemId(id) { return id ? id.split("#")[0] : id; }
+function isNote(id) { return typeof id === "string" && id.startsWith("note:"); }
+function parseNote(id) {
+  if (!isNote(id)) return null;
+  const parts = id.split(":");
+  return { baseItem: parts[1], qty: parseInt(parts[2], 10) || 1 };
+}
 
 const TOOL_LABEL = {
   axe: "Axe",
@@ -40,7 +46,7 @@ const COMBAT_TOOLS = new Set(["sword", "bow", "staff"]);
 const SKILLING_TOOLS = new Set(["axe", "pickaxe", "fishing"]);
 
 export function initializeUI(options = {}) {
-  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop } = options;
+  const { onToolSelect, onEmote, onBlacksmithUpgrade, onStoreSell, onStoreSellItem, onStoreColor, onStoreBuyItem, onCombatStyle, onAttack, onBankTransfer, onPrayerToggle, onBuyPotion, onUseItem, onVolumeChange, onMusicChange, onEquipFromBag, onUnequipSlot, onCraftEquipment, onStarEnhance, onStarTimingStop, onTradeOfferItem, onTradeRemoveItem, onTradeAccept, onTradeCancel } = options;
   const buttons = Array.from(document.querySelectorAll(".ui-tab-btn"));
   const panels = Array.from(document.querySelectorAll("[data-tab-panel]"));
   const title = document.getElementById("ui-panel-title");
@@ -235,7 +241,28 @@ export function initializeUI(options = {}) {
       const itemType = slots[i] || null;
       const slot = document.createElement("div");
       slot.className = itemType ? "ui-bag-slot" : "ui-bag-slot is-empty";
-      if (itemType) {
+      if (itemType && isNote(itemType)) {
+        /* ── Noted item: paper background + item icon + qty ── */
+        const n = parseNote(itemType);
+        slot.classList.add("is-note");
+        const paper = document.createElement("span");
+        paper.className = "ui-note-paper";
+        paper.textContent = "\uD83D\uDCC4";
+        slot.append(paper);
+        const icon = document.createElement("span");
+        icon.className = "ui-bag-slot-icon ui-note-icon";
+        icon.textContent = ITEM_ICON[n.baseItem] || "?";
+        slot.append(icon);
+        const badge = document.createElement("span");
+        badge.className = "ui-note-qty";
+        badge.textContent = String(n.qty);
+        slot.append(badge);
+        const perPrice = SELL_PRICE[n.baseItem] || 0;
+        const tip = document.createElement("div");
+        tip.className = "ui-slot-tooltip";
+        tip.textContent = `Noted ${ITEM_LABEL[n.baseItem] || n.baseItem} x${n.qty}\nSell: ${perPrice * n.qty}c`;
+        slot.append(tip);
+      } else if (itemType) {
         const eqData = EQUIPMENT_ITEMS[baseItemId(itemType)];
         const displayName = eqData ? eqData.label : (ITEM_LABEL[itemType] || itemType);
         const sellVal = SELL_PRICE[baseItemId(itemType)];
@@ -420,6 +447,8 @@ export function initializeUI(options = {}) {
 
   let _bankOpen = false;
   let _bankQty = "1";
+  let _bankNoteMode = false;
+  const bankNoteBtn = document.getElementById("ui-bank-note-btn");
 
   /* Quantity toggle */
   for (const btn of bankQtyButtons) {
@@ -428,6 +457,10 @@ export function initializeUI(options = {}) {
       for (const b of bankQtyButtons) b.classList.toggle("is-active", b === btn);
     });
   }
+  if (bankNoteBtn) bankNoteBtn.addEventListener("click", () => {
+    _bankNoteMode = !_bankNoteMode;
+    bankNoteBtn.classList.toggle("is-active", _bankNoteMode);
+  });
 
   function _renderBankSlot(container, itemType, count, onClick) {
     const slot = document.createElement("div");
@@ -473,7 +506,7 @@ export function initializeUI(options = {}) {
     const bankItems = Object.keys(bank).filter(k => bank[k] > 0);
     for (const key of bankItems) {
       _renderBankSlot(bankVaultGrid, key, bank[key], () => {
-        if (typeof onBankTransfer === "function") onBankTransfer("withdraw", key, _bankQty);
+        if (typeof onBankTransfer === "function") onBankTransfer("withdraw", key, _bankQty, _bankNoteMode);
       });
     }
     if (bankItems.length === 0) {
@@ -487,9 +520,36 @@ export function initializeUI(options = {}) {
     bankInvGrid.innerHTML = "";
     for (let i = 0; i < capacity; i++) {
       const itemType = slots[i] || null;
-      _renderBankSlot(bankInvGrid, itemType, 1, () => {
-        if (itemType && typeof onBankTransfer === "function") onBankTransfer("deposit", itemType, _bankQty);
-      });
+      if (itemType && isNote(itemType)) {
+        /* Render noted item slot with paper bg + icon */
+        const n = parseNote(itemType);
+        const slot = document.createElement("div");
+        slot.className = "ui-bank-slot is-note";
+        const paper = document.createElement("span");
+        paper.className = "ui-note-paper";
+        paper.textContent = "\uD83D\uDCC4";
+        slot.append(paper);
+        const icon = document.createElement("span");
+        icon.className = "ui-bank-slot-icon ui-note-icon";
+        icon.textContent = ITEM_ICON[n.baseItem] || "?";
+        slot.append(icon);
+        const badge = document.createElement("span");
+        badge.className = "ui-note-qty";
+        badge.textContent = String(n.qty);
+        slot.append(badge);
+        const tip = document.createElement("div");
+        tip.className = "ui-slot-tooltip";
+        tip.textContent = `Noted ${ITEM_LABEL[n.baseItem] || n.baseItem} x${n.qty}\nClick to deposit`;
+        slot.append(tip);
+        slot.addEventListener("click", () => {
+          if (typeof onBankTransfer === "function") onBankTransfer("deposit", itemType, "all");
+        });
+        bankInvGrid.append(slot);
+      } else {
+        _renderBankSlot(bankInvGrid, itemType, 1, () => {
+          if (itemType && typeof onBankTransfer === "function") onBankTransfer("deposit", itemType, _bankQty);
+        });
+      }
     }
   }
 
@@ -624,7 +684,15 @@ export function initializeUI(options = {}) {
     storeInvGrid.innerHTML = "";
     for (let i = 0; i < capacity; i++) {
       const itemType = slots[i] || null;
-      if (itemType) {
+      if (itemType && isNote(itemType)) {
+        const n = parseNote(itemType);
+        const perPrice = SELL_PRICE[n.baseItem] || 0;
+        const totalPrice = perPrice * n.qty;
+        const storeSlot = _renderStoreSlot(storeInvGrid, ITEM_ICON[n.baseItem] || "?", `Noted ${ITEM_LABEL[n.baseItem] || n.baseItem} x${n.qty}\nSell: ${totalPrice}c`, `${totalPrice}c`, "is-sell", () => {
+          if (typeof onStoreSellItem === "function") onStoreSellItem(i);
+        });
+        storeSlot.classList.add("is-note");
+      } else if (itemType) {
         const eqData = EQUIPMENT_ITEMS[baseItemId(itemType)];
         const displayName = eqData ? eqData.label : (ITEM_LABEL[itemType] || itemType);
         const iconChar = eqData ? eqData.icon : (ITEM_ICON[itemType] || "?");
@@ -985,29 +1053,73 @@ export function initializeUI(options = {}) {
   /* ── Blacksmith Equipment Crafting ── */
   const smithCraftListEl = document.getElementById("ui-smith-craft-list");
 
+  const _craftCategories = [
+    { id: "sword", label: "\u2694\uFE0F Swords", slots: ["sword"] },
+    { id: "bow", label: "\uD83C\uDFF9 Bows", slots: ["bow"] },
+    { id: "staff", label: "\uD83E\uDE84 Staffs", slots: ["staff"] },
+    { id: "armor", label: "\uD83D\uDEE1\uFE0F Armor", slots: ["body", "shield"] },
+    { id: "acc", label: "\uD83D\uDC8D Accessories", slots: ["cape", "ring", "amulet"] },
+  ];
+  let _craftActiveCategory = "sword";
+
   function setBlacksmithCrafting(payload = {}) {
     if (!smithCraftListEl) return;
     smithCraftListEl.innerHTML = "";
     const bagCounts = payload.bagCounts || {};
     const combatLevel = payload.combatLevel || 1;
-    const recipes = Object.entries(EQUIPMENT_RECIPES);
+
+    /* Category tabs */
+    const tabBar = document.createElement("div");
+    tabBar.className = "ui-craft-tabs";
+    for (const cat of _craftCategories) {
+      const tab = document.createElement("button");
+      tab.type = "button";
+      tab.className = "ui-craft-tab" + (cat.id === _craftActiveCategory ? " is-active" : "");
+      tab.textContent = cat.label;
+      tab.addEventListener("click", () => {
+        _craftActiveCategory = cat.id;
+        setBlacksmithCrafting(payload);
+      });
+      tabBar.appendChild(tab);
+    }
+    smithCraftListEl.appendChild(tabBar);
+
+    /* Filtered recipes */
+    const activeCat = _craftCategories.find(c => c.id === _craftActiveCategory);
+    const activeSlots = activeCat ? activeCat.slots : [];
+    const recipes = Object.entries(EQUIPMENT_RECIPES).filter(([id]) => {
+      const item = EQUIPMENT_ITEMS[baseItemId(id)];
+      return item && activeSlots.includes(item.slot);
+    });
+
     for (const [itemId, recipe] of recipes) {
       const item = EQUIPMENT_ITEMS[baseItemId(itemId)];
       if (!item) continue;
+      const tierData = item.tier ? EQUIPMENT_TIERS[item.tier] : null;
       const row = document.createElement("div");
       row.className = "ui-smith-row";
+      if (tierData?.tint) row.style.background = tierData.tint;
       const meta = document.createElement("div");
       meta.className = "ui-smith-meta";
       const nameEl = document.createElement("strong");
       nameEl.textContent = item.icon + " " + item.label;
       nameEl.style.color = item.color;
       meta.appendChild(nameEl);
+      /* Stats preview */
+      const statsEl = document.createElement("span");
+      statsEl.className = "ui-smith-stats";
+      const statParts = [];
+      if (item.atk > 0) statParts.push(`+${item.atk} Atk`);
+      if (item.def > 0) statParts.push(`+${item.def} Def`);
+      statsEl.textContent = statParts.join("  ");
+      meta.appendChild(statsEl);
       const matLines = Object.entries(recipe.materials).map(([k, v]) => {
         const have = bagCounts[k] || 0;
-        return `${ITEM_LABEL[k] || k}: ${have}/${v}`;
-      }).join(", ");
+        const color = have >= v ? "#5cff8a" : "#ff6b6b";
+        return `<span style="color:${color}">${ITEM_LABEL[k] || k}: ${have}/${v}</span>`;
+      }).join(" ");
       const info = document.createElement("span");
-      info.textContent = `Lv ${recipe.level} | ${matLines}`;
+      info.innerHTML = `Lv ${recipe.level} | ${matLines}`;
       meta.appendChild(info);
       row.appendChild(meta);
       const btn = document.createElement("button");
@@ -1021,6 +1133,12 @@ export function initializeUI(options = {}) {
       });
       row.appendChild(btn);
       smithCraftListEl.appendChild(row);
+    }
+    if (recipes.length === 0) {
+      const hint = document.createElement("div");
+      hint.style.cssText = "text-align:center;color:var(--ui-ink-3);font-size:12px;padding:12px 0";
+      hint.textContent = "No recipes in this category";
+      smithCraftListEl.appendChild(hint);
     }
   }
 
@@ -1293,6 +1411,161 @@ export function initializeUI(options = {}) {
   });
   if (starStopBtn) starStopBtn.addEventListener("click", _stopTimingBar);
 
+  /* ── Trade UI ── */
+  const tradeOverlay = document.getElementById("ui-trade-overlay");
+  const tradeCloseBtn = document.getElementById("ui-trade-close");
+  const tradePartnerName = document.getElementById("ui-trade-partner-name");
+  const tradeMyOfferGrid = document.getElementById("ui-trade-my-offer");
+  const tradeTheirOfferGrid = document.getElementById("ui-trade-their-offer");
+  const tradeInvGrid = document.getElementById("ui-trade-inv-grid");
+  const tradeAcceptBtn = document.getElementById("ui-trade-accept");
+  const tradeDeclineBtn = document.getElementById("ui-trade-decline");
+  const tradeStatusEl = document.getElementById("ui-trade-status");
+  const tradeRequestEl = document.getElementById("ui-trade-request");
+  const tradeRequestText = document.getElementById("ui-trade-request-text");
+  const tradeRequestAccept = document.getElementById("ui-trade-request-accept");
+  const tradeRequestDecline = document.getElementById("ui-trade-request-decline");
+
+  let _tradeOpen = false;
+  let _tradeAccepted = false;
+
+  function _renderTradeSlot(container, itemId, onClick) {
+    const slot = document.createElement("div");
+    if (!itemId) {
+      slot.className = "ui-trade-slot is-empty";
+      container.append(slot);
+      return;
+    }
+    slot.className = "ui-trade-slot";
+    if (isNote(itemId)) {
+      const n = parseNote(itemId);
+      slot.classList.add("is-note");
+      const paper = document.createElement("span");
+      paper.className = "ui-note-paper";
+      paper.textContent = "\uD83D\uDCC4";
+      slot.append(paper);
+      const icon = document.createElement("span");
+      icon.className = "ui-bag-slot-icon ui-note-icon";
+      icon.textContent = ITEM_ICON[n.baseItem] || "?";
+      slot.append(icon);
+      const badge = document.createElement("span");
+      badge.className = "ui-note-qty";
+      badge.textContent = String(n.qty);
+      slot.append(badge);
+    } else {
+      const eqData = EQUIPMENT_ITEMS[baseItemId(itemId)];
+      const icon = document.createElement("span");
+      icon.className = "ui-bag-slot-icon";
+      icon.textContent = eqData ? eqData.icon : (ITEM_ICON[itemId] || ITEM_ICON[baseItemId(itemId)] || "?");
+      slot.append(icon);
+      if (eqData?.tier) {
+        const td = EQUIPMENT_TIERS[eqData.tier];
+        if (td?.tint) slot.style.background = td.tint;
+      }
+    }
+    if (onClick) slot.addEventListener("click", onClick);
+    container.append(slot);
+  }
+
+  function setTrade(payload = {}) {
+    if (!tradeMyOfferGrid || !tradeTheirOfferGrid || !tradeInvGrid) return;
+    const myOffer = payload.myOffer || [];
+    const theirOffer = payload.theirOffer || [];
+    const slots = payload.slots || [];
+    const capacity = payload.capacity || 28;
+    const partnerName = payload.partnerName || "Player";
+    const partnerAccepted = !!payload.partnerAccepted;
+    _tradeAccepted = !!payload.myAccepted;
+
+    if (tradePartnerName) tradePartnerName.textContent = partnerName;
+
+    tradeMyOfferGrid.innerHTML = "";
+    for (let i = 0; i < 12; i++) {
+      _renderTradeSlot(tradeMyOfferGrid, myOffer[i] || null, myOffer[i] ? () => {
+        if (typeof onTradeRemoveItem === "function") onTradeRemoveItem(i);
+      } : null);
+    }
+
+    tradeTheirOfferGrid.innerHTML = "";
+    for (let i = 0; i < 12; i++) {
+      _renderTradeSlot(tradeTheirOfferGrid, theirOffer[i] || null, null);
+    }
+
+    tradeInvGrid.innerHTML = "";
+    for (let i = 0; i < capacity; i++) {
+      const itemType = slots[i] || null;
+      _renderTradeSlot(tradeInvGrid, itemType, itemType ? () => {
+        if (typeof onTradeOfferItem === "function") onTradeOfferItem(i);
+      } : null);
+    }
+
+    if (tradeAcceptBtn) {
+      tradeAcceptBtn.classList.toggle("is-accepted", _tradeAccepted);
+      tradeAcceptBtn.textContent = _tradeAccepted ? "Accepted \u2713" : "Accept";
+    }
+    if (tradeStatusEl) {
+      if (partnerAccepted && _tradeAccepted) tradeStatusEl.textContent = "Trade completing...";
+      else if (partnerAccepted) tradeStatusEl.textContent = "Partner has accepted.";
+      else if (_tradeAccepted) tradeStatusEl.textContent = "Waiting for partner...";
+      else tradeStatusEl.textContent = "";
+    }
+  }
+
+  function openTrade(payload = {}) {
+    setTrade(payload);
+    _tradeOpen = true;
+    _tradeAccepted = false;
+    if (tradeOverlay) tradeOverlay.hidden = false;
+  }
+
+  function closeTrade() {
+    _tradeOpen = false;
+    _tradeAccepted = false;
+    if (tradeOverlay) tradeOverlay.hidden = true;
+  }
+
+  function isTradeOpen() { return _tradeOpen; }
+
+  function showTradeRequest(name, onAccept, onDecline) {
+    if (!tradeRequestEl) return;
+    if (tradeRequestText) tradeRequestText.textContent = `${name} wants to trade!`;
+    tradeRequestEl.hidden = false;
+    const _accept = () => { tradeRequestEl.hidden = true; cleanup(); onAccept(); };
+    const _decline = () => { tradeRequestEl.hidden = true; cleanup(); onDecline(); };
+    function cleanup() {
+      tradeRequestAccept?.removeEventListener("click", _accept);
+      tradeRequestDecline?.removeEventListener("click", _decline);
+    }
+    tradeRequestAccept?.addEventListener("click", _accept);
+    tradeRequestDecline?.addEventListener("click", _decline);
+    // Auto-decline after 15s
+    setTimeout(() => {
+      if (!tradeRequestEl.hidden) { tradeRequestEl.hidden = true; cleanup(); onDecline(); }
+    }, 15000);
+  }
+
+  function hideTradeRequest() {
+    if (tradeRequestEl) tradeRequestEl.hidden = true;
+  }
+
+  if (tradeCloseBtn) tradeCloseBtn.addEventListener("click", () => {
+    if (typeof onTradeCancel === "function") onTradeCancel();
+    closeTrade();
+  });
+  if (tradeDeclineBtn) tradeDeclineBtn.addEventListener("click", () => {
+    if (typeof onTradeCancel === "function") onTradeCancel();
+    closeTrade();
+  });
+  if (tradeAcceptBtn) tradeAcceptBtn.addEventListener("click", () => {
+    if (!_tradeAccepted && typeof onTradeAccept === "function") onTradeAccept();
+  });
+  if (tradeOverlay) tradeOverlay.addEventListener("click", (e) => {
+    if (e.target === tradeOverlay) {
+      if (typeof onTradeCancel === "function") onTradeCancel();
+      closeTrade();
+    }
+  });
+
   return {
     setActiveTool,
     setActive,
@@ -1323,5 +1596,11 @@ export function initializeUI(options = {}) {
     openStarEnhance,
     closeStarEnhance,
     showStarResult,
+    setTrade,
+    openTrade,
+    closeTrade,
+    isTradeOpen,
+    showTradeRequest,
+    hideTradeRequest,
   };
 }

@@ -88,10 +88,26 @@ const activePrayers = new Set();
 const wornEquipment = { body: null, cape: null, ring: null, amulet: null, shield: null, bow: null, staff: null, sword: null };
 const wornStars = { body: 0, cape: 0, ring: 0, amulet: 0, shield: 0, bow: 0, staff: 0, sword: 0 };
 const itemStars = {}; // uniqueId → star count, persists across equip/unequip
+
+/* ── Trade state ── */
+let tradePartnerId = null;
+let tradePartnerName = "";
+let tradeMyOffer = [];      // items from my bag (slot indices)
+let tradeTheirOffer = [];   // item IDs from partner
+let tradeMyAccepted = false;
+let tradePartnerAccepted = false;
 let _nextItemUid = 1;
 function baseItemId(id) { return id ? id.split("#")[0] : id; }
 function isEquipmentInstance(id) { return id && id.includes("#"); }
 function mintEquipId(baseId) { return baseId + "#" + (_nextItemUid++); }
+/* ── Bank note helpers ── */
+function isNote(id) { return typeof id === "string" && id.startsWith("note:"); }
+function parseNote(id) {
+  if (!isNote(id)) return null;
+  const parts = id.split(":");
+  return { baseItem: parts[1], qty: parseInt(parts[2], 10) || 1 };
+}
+function makeNote(baseItem, qty) { return `note:${baseItem}:${qty}`; }
 
 /* ground raycaster (declared early — needed by remotePlayers.getGroundY before full init) */
 const groundRaycaster = new THREE.Raycaster();
@@ -313,8 +329,8 @@ const ui = initializeUI({
   onStoreColor: (colorId) => {
     buyOrEquipSlimeColor(colorId);
   },
-  onBankTransfer: (direction, itemKey, qtyRaw) => {
-    transferBankItem(direction, itemKey, qtyRaw);
+  onBankTransfer: (direction, itemKey, qtyRaw, noteMode) => {
+    transferBankItem(direction, itemKey, qtyRaw, noteMode);
   },
   onCombatStyle: (style) => {
     combatStyle = style;
@@ -378,6 +394,10 @@ const ui = initializeUI({
   onStarTimingStop: () => {
     playStarTimingClick();
   },
+  onTradeOfferItem: (bagSlotIdx) => tradeOfferItem(bagSlotIdx),
+  onTradeRemoveItem: (offerIdx) => tradeRemoveItem(offerIdx),
+  onTradeAccept: () => tradeAccept(),
+  onTradeCancel: () => tradeCancel(),
 });
 
 function getCombatToolForStyle(style) {
@@ -702,6 +722,193 @@ function getCurrentSlimeColorHex() {
   return getSlimeColorById(currentSlimeColorId);
 }
 
+/* ── Trade functions ── */
+function getTradeState() {
+  return {
+    myOffer: tradeMyOffer.map(si => bagSystem.slots[si]),
+    theirOffer: [...tradeTheirOffer],
+    slots: [...bagSystem.slots],
+    capacity: BAG_CAPACITY,
+    partnerName: tradePartnerName,
+    myAccepted: tradeMyAccepted,
+    partnerAccepted: tradePartnerAccepted,
+  };
+}
+
+function syncTradeUI() {
+  if (ui?.isTradeOpen?.()) ui.setTrade(getTradeState());
+}
+
+function sendTradeOffer() {
+  if (!tradePartnerId) return;
+  const items = tradeMyOffer.map(si => bagSystem.slots[si]).filter(Boolean);
+  netClient.sendDM(tradePartnerId, { type: "trade_offer", items });
+}
+
+function tradeOfferItem(bagSlotIdx) {
+  if (!tradePartnerId) return;
+  if (!bagSystem.slots[bagSlotIdx]) return;
+  if (tradeMyOffer.includes(bagSlotIdx)) return;
+  if (tradeMyOffer.length >= 12) { ui?.setStatus("Trade offer full (max 12 items).", "warn"); return; }
+  tradeMyOffer.push(bagSlotIdx);
+  tradeMyAccepted = false;
+  tradePartnerAccepted = false;
+  sendTradeOffer();
+  syncTradeUI();
+}
+
+function tradeRemoveItem(offerIdx) {
+  if (!tradePartnerId) return;
+  if (offerIdx < 0 || offerIdx >= tradeMyOffer.length) return;
+  tradeMyOffer.splice(offerIdx, 1);
+  tradeMyAccepted = false;
+  tradePartnerAccepted = false;
+  sendTradeOffer();
+  syncTradeUI();
+}
+
+function tradeAccept() {
+  if (!tradePartnerId) return;
+  tradeMyAccepted = true;
+  netClient.sendDM(tradePartnerId, { type: "trade_accept" });
+  syncTradeUI();
+  // Check if both accepted
+  if (tradeMyAccepted && tradePartnerAccepted) executeTrade();
+}
+
+function tradeCancel() {
+  if (tradePartnerId) {
+    netClient.sendDM(tradePartnerId, { type: "trade_cancel" });
+  }
+  resetTrade();
+  ui?.closeTrade?.();
+  ui?.setStatus("Trade cancelled.", "info");
+}
+
+function resetTrade() {
+  tradePartnerId = null;
+  tradePartnerName = "";
+  tradeMyOffer = [];
+  tradeTheirOffer = [];
+  tradeMyAccepted = false;
+  tradePartnerAccepted = false;
+}
+
+function executeTrade() {
+  // Remove my offered items from bag
+  const myItems = tradeMyOffer.map(si => bagSystem.slots[si]).filter(Boolean);
+  for (const si of tradeMyOffer) {
+    bagSystem.slots[si] = null;
+  }
+  // Add their items to my bag
+  let received = 0;
+  for (const itemId of tradeTheirOffer) {
+    if (!itemId) continue;
+    const emptySlot = bagSystem.slots.indexOf(null);
+    if (emptySlot < 0) break;
+    bagSystem.slots[emptySlot] = itemId;
+    received++;
+  }
+  bagSystem.recount();
+  syncInventoryUI();
+  ui?.closeTrade?.();
+  ui?.setStatus(`Trade complete! Received ${received} item${received !== 1 ? "s" : ""}.`, "success");
+  netClient.sendDM(tradePartnerId, { type: "trade_execute", items: myItems });
+  resetTrade();
+  saveGame();
+}
+
+function requestTrade(peerId, peerName) {
+  if (tradePartnerId) { ui?.setStatus("Already in a trade.", "warn"); return; }
+  tradePartnerId = peerId;
+  tradePartnerName = peerName;
+  netClient.sendDM(peerId, { type: "trade_request", name: onlineConfig.name });
+  ui?.setStatus(`Trade request sent to ${peerName}.`, "info");
+}
+
+function handleTradeMessage(msg) {
+  const payload = msg.payload;
+  if (!payload || !payload.type) return;
+
+  if (payload.type === "trade_request") {
+    // Someone wants to trade with us
+    if (tradePartnerId) {
+      netClient.sendDM(msg.from, { type: "trade_decline", reason: "busy" });
+      return;
+    }
+    ui?.showTradeRequest?.(payload.name || msg.fromName || "Player",
+      () => {
+        // Accept
+        tradePartnerId = msg.from;
+        tradePartnerName = payload.name || msg.fromName || "Player";
+        tradeMyOffer = [];
+        tradeTheirOffer = [];
+        tradeMyAccepted = false;
+        tradePartnerAccepted = false;
+        netClient.sendDM(msg.from, { type: "trade_accepted", name: onlineConfig.name });
+        ui?.openTrade?.(getTradeState());
+      },
+      () => {
+        // Decline
+        netClient.sendDM(msg.from, { type: "trade_decline" });
+      }
+    );
+    return;
+  }
+
+  if (payload.type === "trade_accepted") {
+    // Our request was accepted, open trade window
+    tradeMyOffer = [];
+    tradeTheirOffer = [];
+    tradeMyAccepted = false;
+    tradePartnerAccepted = false;
+    ui?.openTrade?.(getTradeState());
+    ui?.setStatus(`${tradePartnerName} accepted your trade request!`, "success");
+    return;
+  }
+
+  if (payload.type === "trade_decline") {
+    if (tradePartnerId === msg.from) {
+      resetTrade();
+      ui?.closeTrade?.();
+    }
+    ui?.setStatus("Trade request declined.", "info");
+    ui?.hideTradeRequest?.();
+    return;
+  }
+
+  if (payload.type === "trade_offer") {
+    if (msg.from !== tradePartnerId) return;
+    tradeTheirOffer = Array.isArray(payload.items) ? payload.items : [];
+    tradeMyAccepted = false;
+    tradePartnerAccepted = false;
+    syncTradeUI();
+    return;
+  }
+
+  if (payload.type === "trade_accept") {
+    if (msg.from !== tradePartnerId) return;
+    tradePartnerAccepted = true;
+    syncTradeUI();
+    if (tradeMyAccepted && tradePartnerAccepted) executeTrade();
+    return;
+  }
+
+  if (payload.type === "trade_cancel") {
+    if (msg.from !== tradePartnerId) return;
+    resetTrade();
+    ui?.closeTrade?.();
+    ui?.setStatus("Trade cancelled by partner.", "info");
+    return;
+  }
+
+  if (payload.type === "trade_execute") {
+    // Partner confirms trade execution — we already executed on our side via executeTrade
+    // This message carries their items to us (in case of race conditions, we already have them from trade_offer)
+    return;
+  }
+}
+
 let onlineConnected = false;
 function syncFriendsUI() {
   ui?.setFriendsState?.({ connected: onlineConnected, peers: remotePlayers.count() });
@@ -744,6 +951,12 @@ netClient = createRealtimeClient({
     removeOverheadIcon(id);
     removeRemoteCampfire(id);
     _peerWasJumping.delete(id);
+    if (tradePartnerId === id) {
+      resetTrade();
+      ui?.closeTrade?.();
+      ui?.hideTradeRequest?.();
+      ui?.setStatus("Trade partner disconnected.", "warn");
+    }
     syncFriendsUI();
   },
   onPeerState: (msg) => {
@@ -792,6 +1005,9 @@ netClient = createRealtimeClient({
   onServerMessage: (msg) => {
     console.log("[admin broadcast]", msg);
     showAnnouncement(msg.text || "");
+  },
+  onDM: (msg) => {
+    handleTradeMessage(msg);
   },
 });
 
@@ -1616,7 +1832,24 @@ function getBankState() {
   };
 }
 
-function transferBankItem(direction, itemKey, qtyRaw) {
+function transferBankItem(direction, itemKey, qtyRaw, noteMode) {
+  /* ── Deposit a note back to bank ── */
+  if (direction === "deposit" && isNote(itemKey)) {
+    const n = parseNote(itemKey);
+    if (!n) return;
+    // Find the note slot in bag and remove it
+    const si = bagSystem.slots.indexOf(itemKey);
+    if (si < 0) return;
+    bagSystem.slots[si] = null;
+    bagSystem.recount();
+    bagSystem.bankStorage[n.baseItem] = (bagSystem.bankStorage[n.baseItem] || 0) + n.qty;
+    syncInventoryUI();
+    ui?.setStatus(`Deposited noted ${n.baseItem} x${n.qty}.`, "success");
+    if (ui?.isBankOpen?.()) ui.setBank(getBankState());
+    saveGame();
+    return;
+  }
+
   if (!itemKey || !Object.prototype.hasOwnProperty.call(bagSystem.bankStorage, itemKey)) return;
   const sourceCount = direction === "deposit"
     ? Math.max(0, Math.floor(Number(inventory[itemKey]) || 0))
@@ -1629,6 +1862,27 @@ function transferBankItem(direction, itemKey, qtyRaw) {
 
   const parsedQty = qtyRaw === "all" ? sourceCount : Math.max(0, Math.floor(Number(qtyRaw) || 0));
   const limit = Math.max(1, parsedQty);
+
+  /* ── Note mode withdraw: pull qty into single bag slot as a note ── */
+  if (direction === "withdraw" && noteMode && !isEquipmentInstance(itemKey) && !EQUIPMENT_ITEMS[baseItemId(itemKey)]) {
+    if (bagIsFull()) {
+      ui?.setStatus(`Bank: bag is full (${bagUsedCount()}/${BAG_CAPACITY}).`, "warn");
+      if (ui?.isBankOpen?.()) ui.setBank(getBankState());
+      return;
+    }
+    const qty = Math.min(limit, sourceCount);
+    bagSystem.bankStorage[itemKey] -= qty;
+    const noteId = makeNote(itemKey, qty);
+    const emptySlot = bagSystem.slots.indexOf(null);
+    bagSystem.slots[emptySlot] = noteId;
+    bagSystem.recount();
+    syncInventoryUI();
+    ui?.setStatus(`Withdrew noted ${itemKey} x${qty}.`, "success");
+    if (ui?.isBankOpen?.()) ui.setBank(getBankState());
+    saveGame();
+    return;
+  }
+
   let moved = 0;
   if (direction === "deposit") moved = depositItemToBank(itemKey, Math.min(limit, sourceCount));
   else moved = withdrawItemFromBank(itemKey, Math.min(limit, sourceCount));
@@ -1645,7 +1899,6 @@ function transferBankItem(direction, itemKey, qtyRaw) {
   }
   const verb = direction === "deposit" ? "Deposited" : "Withdrew";
   ui?.setStatus(`${verb} ${moved} ${itemKey}.`, "success");
-  /* refresh the bank overlay so slots update instantly */
   if (ui?.isBankOpen?.()) ui.setBank(getBankState());
   saveGame();
 }
@@ -1688,6 +1941,21 @@ function getStoreOverlayState() {
 function sellSingleItem(slotIndex) {
   const itemId = bagSystem.slots[slotIndex];
   if (!itemId) return;
+  /* Handle noted items — sell entire stack */
+  if (isNote(itemId)) {
+    const n = parseNote(itemId);
+    if (!n) return;
+    const perPrice = SELL_PRICE_BY_ITEM[n.baseItem] || 0;
+    const total = perPrice * n.qty;
+    bagSystem.slots[slotIndex] = null;
+    bagSystem.recount();
+    coins += total;
+    syncInventoryUI();
+    if (ui?.isStoreOpen?.()) ui.setStoreOverlay(getStoreOverlayState());
+    ui?.setStatus(`Sold noted ${n.baseItem} x${n.qty} for ${total}c.`, "success");
+    saveGame();
+    return;
+  }
   const price = SELL_PRICE_BY_ITEM[baseItemId(itemId)] || 0;
   bagSystem.slots[slotIndex] = null;
   bagSystem.recount();
@@ -2780,10 +3048,18 @@ renderer.domElement.addEventListener("contextmenu", (e) => {
     + `<span>\u{1F525} Mage ${sk.mage}</span>`
     + `<span>\u{1F373} Cook ${sk.cooking || 1}</span>`
     + `</div>` : "";
-  popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Total Lv ${hit.totalLevel}</div>${skillsHtml}<div class="inspect-activity">${activity}</div>`;
+  popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Total Lv ${hit.totalLevel}</div>${skillsHtml}<div class="inspect-activity">${activity}</div><button class="inspect-trade-btn">Trade</button>`;
   popup.style.left = Math.min(e.clientX, window.innerWidth - 220) + "px";
   popup.style.top = Math.min(e.clientY, window.innerHeight - 180) + "px";
   document.body.appendChild(popup);
+  const tradeBtn = popup.querySelector(".inspect-trade-btn");
+  if (tradeBtn) {
+    tradeBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      closeInspectPopup();
+      requestTrade(hit.id, hit.name);
+    });
+  }
   _inspectPopup = popup;
 });
 

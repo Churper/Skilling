@@ -455,6 +455,8 @@
         <button type="button" class="ui-bank-qty-btn" data-bank-qty="5">5</button>
         <button type="button" class="ui-bank-qty-btn" data-bank-qty="10">10</button>
         <button type="button" class="ui-bank-qty-btn" data-bank-qty="all">All</button>
+        <span class="ui-bank-qty-spacer"></span>
+        <button type="button" id="ui-bank-note-btn" class="ui-bank-note-btn">Note</button>
       </div>
       <div class="ui-bank-modal-body">
         <div class="ui-bank-col">
@@ -488,6 +490,40 @@
         </div>
       </div>
     </div>
+  </div>
+  <!-- Trade overlay -->
+  <div id="ui-trade-overlay" class="ui-trade-overlay" hidden>
+    <div class="ui-trade-modal">
+      <div class="ui-trade-header">
+        <span class="ui-trade-title">Trading with <span id="ui-trade-partner-name">Player</span></span>
+        <button type="button" id="ui-trade-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-trade-body">
+        <div class="ui-trade-col">
+          <h3 class="ui-trade-col-label">Your Offer</h3>
+          <div id="ui-trade-my-offer" class="ui-trade-grid"></div>
+        </div>
+        <div class="ui-trade-col">
+          <h3 class="ui-trade-col-label">Their Offer</h3>
+          <div id="ui-trade-their-offer" class="ui-trade-grid"></div>
+        </div>
+      </div>
+      <div class="ui-trade-inv">
+        <h3 class="ui-trade-col-label">Your Inventory <small>(click to offer)</small></h3>
+        <div id="ui-trade-inv-grid" class="ui-trade-grid"></div>
+      </div>
+      <div class="ui-trade-actions">
+        <button type="button" id="ui-trade-accept" class="ui-trade-accept-btn">Accept</button>
+        <button type="button" id="ui-trade-decline" class="ui-trade-decline-btn">Decline</button>
+      </div>
+      <div id="ui-trade-status" class="ui-trade-status"></div>
+    </div>
+  </div>
+  <!-- Trade request notification -->
+  <div id="ui-trade-request" class="ui-trade-request" hidden>
+    <span id="ui-trade-request-text"></span>
+    <button type="button" id="ui-trade-request-accept" class="ui-trade-req-btn accept">Accept</button>
+    <button type="button" id="ui-trade-request-decline" class="ui-trade-req-btn decline">Decline</button>
   </div>
   <script type="importmap">
     {

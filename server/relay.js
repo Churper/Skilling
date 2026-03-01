@@ -231,6 +231,22 @@ wss.on("connection", (ws) => {
       );
     }
 
+    /* Direct message — forward to a specific peer by ID */
+    if (msg.type === "dm") {
+      const targetId = typeof msg.to === "string" ? msg.to : "";
+      if (!targetId || !msg.payload) return;
+      const roomSet = rooms.get(meta.room);
+      if (!roomSet) return;
+      for (const peer of roomSet) {
+        const peerMeta = clients.get(peer);
+        if (peerMeta && peerMeta.id === targetId) {
+          send(peer, { type: "dm", from: meta.id, fromName: meta.name, payload: msg.payload });
+          break;
+        }
+      }
+      return;
+    }
+
     if (msg.type === "admin_players") {
       if (msg.key !== ADMIN_KEY) return;
       const players = [];
