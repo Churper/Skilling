@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { createSceneContext } from "./game/scene.js";
-import { createWorld, getWorldSurfaceHeight, getWaterSurfaceHeight, CHUNK_SIZE, createCampfire, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances, updateSnakeBoss } from "./game/world.js";
+import { createWorld, getWaterSurfaceHeight, CHUNK_SIZE, createCampfire, enterInstance, leaveInstance, getActiveInstance, getAvailableInstances, updateSnakeBoss } from "./game/world.js";
 import { createPlayer, createMoveMarker, createCombatEffects } from "./game/entities.js";
 import { createInputController } from "./game/input.js";
 import { initializeUI } from "./game/ui.js";
@@ -170,7 +170,8 @@ function playerDeath() {
 }
 
 /* ── Animals ── */
-const ANIMAL_HP = { Cow: 50, Horse: 60, Llama: 40, Pig: 30, Pug: 20, Sheep: 35, Zebra: 70, "Snake Boss": 1000 };
+const ANIMAL_HP = { Cow: 50, Horse: 60, Llama: 40, Pig: 30, Pug: 20, Sheep: 35, Zebra: 70, "Snake Boss": 1000, "Baby Snake": 1 };
+let bossKillCount = 0; // persisted, broadcast to peers
 const ANIMAL_LOOT = {
   Cow: "Raw Beef", Horse: "Horse Hide", Llama: "Llama Wool",
   Pig: "Raw Pork", Pug: "Bone", Sheep: "Wool", Zebra: "Striped Hide",
@@ -183,8 +184,8 @@ function registerAnimal(hsNode, parentModel) {
   const maxHp = ANIMAL_HP[type] || 10;
   /* use local position directly — map_objects group is always at origin */
   const spawnPos = parentModel.position.clone();
-  /* snap to ground immediately so animals don't appear floating */
-  spawnPos.y = getWorldSurfaceHeight(spawnPos.x, spawnPos.z);
+  /* snap to ground immediately via raycast so animals match actual mesh */
+  spawnPos.y = _rawGroundRaycast(spawnPos.x, spawnPos.z);
   parentModel.position.y = spawnPos.y;
 
   const hpBar = document.createElement("div");
@@ -205,6 +206,7 @@ function registerAnimal(hsNode, parentModel) {
     chunkX: Math.round(spawnPos.x / CHUNK_SIZE),
     chunkZ: Math.round(spawnPos.z / CHUNK_SIZE),
     _hidden: false,
+    _yCache: { x: NaN, z: NaN, y: 0.4 },
   });
   console.log(`Registered animal: ${type} at pos(${spawnPos.x.toFixed(1)}, ${spawnPos.y.toFixed(1)}, ${spawnPos.z.toFixed(1)}) modelPos(${parentModel.position.x.toFixed(1)}, ${parentModel.position.z.toFixed(1)})`);
 }
@@ -273,6 +275,7 @@ function saveGame() {
       volume: _masterVolume,
       musicVolume: _musicGain.gain.value,
       activeTask,
+      bossKillCount,
       v: 1,
     };
     for (const [k, s] of Object.entries(skills)) data.skills[k] = { xp: s.xp, level: s.level };
@@ -316,6 +319,7 @@ function loadGame() {
     if (d.volume != null) { setVolume(d.volume); }
     if (d.musicVolume != null) { _musicGain.gain.value = d.musicVolume; _musicMuted = d.musicVolume === 0; }
     if (d.activeTask) activeTask = d.activeTask;
+    if (d.bossKillCount) bossKillCount = d.bossKillCount;
   } catch (e) { console.warn("Load save failed:", e); }
 }
 
@@ -478,6 +482,76 @@ function doBossLeave() {
 }
 
 if (_instanceBanner) _instanceBanner.addEventListener("click", () => doBossLeave());
+
+/* ── Baby snakes (boss add phase) ── */
+const _babySnakeGeo = new THREE.CylinderGeometry(0.3, 0.4, 1.2, 6, 1);
+const _babySnakeHeadGeo = new THREE.SphereGeometry(0.5, 6, 5);
+const _babySnakeEyeGeo = new THREE.SphereGeometry(0.12, 4, 4);
+
+function spawnBabySnakes(count) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
+    const dist = 6 + Math.random() * 4;
+    const sx = Math.cos(angle) * dist;
+    const sz = Math.sin(angle) * dist;
+
+    const group = new THREE.Group();
+    group.name = "baby_snake";
+    group.position.set(sx, 0.4, sz);
+
+    const bodyMat = new THREE.MeshToonMaterial({ color: "#55aa33" });
+    const body = new THREE.Mesh(_babySnakeGeo, bodyMat);
+    group.add(body);
+
+    const headMat = new THREE.MeshToonMaterial({ color: "#55aa33" });
+    const head = new THREE.Mesh(_babySnakeHeadGeo, headMat);
+    head.position.y = 1.0;
+    group.add(head);
+
+    const eyeMat = new THREE.MeshBasicMaterial({ color: "#ff3333" });
+    const eyeL = new THREE.Mesh(_babySnakeEyeGeo, eyeMat);
+    eyeL.position.set(-0.25, 0.1, 0.4);
+    head.add(eyeL);
+    const eyeR = new THREE.Mesh(_babySnakeEyeGeo, eyeMat);
+    eyeR.position.set(0.25, 0.1, 0.4);
+    head.add(eyeR);
+
+    group.userData.serviceType = "animal";
+    group.userData.resourceLabel = "Baby Snake";
+    group.userData.animalType = "Baby Snake";
+    scene.add(group);
+    resourceNodes.push(group);
+
+    /* register as 1-HP animal, auto-aggro */
+    const hpBar = document.createElement("div");
+    hpBar.className = "animal-hp-bar";
+    hpBar.dataset.state = "";
+    const hpFill = document.createElement("div");
+    hpFill.className = "animal-hp-fill";
+    hpFill.style.width = "100%";
+    hpBar.appendChild(hpFill);
+    getBubbleLayer().appendChild(hpBar);
+
+    const a = {
+      node: group, parentModel: group, type: "Baby Snake",
+      hp: 1, maxHp: 1, spawnPos: group.position.clone(),
+      alive: true, wanderTimer: 0, wanderTarget: null,
+      hpBar, hpFill, respawnTimer: 0, origScale: 1,
+      aggro: true, aggroTarget: player, lastHitTime: clock.elapsedTime,
+      attackCooldown: 1.5,
+      chunkX: 0, chunkZ: 0, _hidden: false, _deathAnim: null,
+      _yCache: { x: NaN, z: NaN, y: 0.4 },
+    };
+    animals.push(a);
+    _registeredAnimalNodes.add(group);
+
+    /* broadcast to party */
+    if (party && partyRole === "leader") {
+      broadcastToParty({ type: "baby_snake", x: sx, z: sz, index: i });
+    }
+  }
+  ui?.setStatus("Baby snakes emerged!", "warn");
+}
 
 function updateBossHpBar() {
   if (!_bossHpEl || _bossHpEl.hidden) return;
@@ -1874,11 +1948,13 @@ function updateAnimals(dt) {
   }
   for (const a of animals) {
     const isBoss = a.type === "Snake Boss";
-    /* skip world animals when in instance, skip boss when not */
-    if (inInstance && !isBoss) continue;
-    if (!inInstance && isBoss) continue;
-    /* only update animals in player's exact chunk (skip for boss) */
-    if (!isBoss) {
+    const isBabySnake = a.type === "Baby Snake";
+    const isInstanceMob = isBoss || isBabySnake;
+    /* skip world animals when in instance, skip instance mobs when not */
+    if (inInstance && !isInstanceMob) continue;
+    if (!inInstance && isInstanceMob) continue;
+    /* only update animals in player's exact chunk (skip for instance mobs) */
+    if (!isInstanceMob) {
       if (a.chunkX !== playerCX || a.chunkZ !== playerCZ) {
         if (!a._hidden) {
           a._hidden = true;
@@ -1892,7 +1968,7 @@ function updateAnimals(dt) {
         a._hidden = false;
         a.parentModel.visible = true;
         a.parentModel.traverse(c => { c.visible = true; });
-        a.parentModel.position.y = getWorldSurfaceHeight(a.parentModel.position.x, a.parentModel.position.z);
+        a.parentModel.position.y = _cachedGroundY(a.parentModel.position.x, a.parentModel.position.z, a._yCache);
       }
     }
     if (!a.alive) {
@@ -1909,9 +1985,11 @@ function updateAnimals(dt) {
           if (idx >= 0) resourceNodes.splice(idx, 1);
         }
       }
-      /* respawn countdown */
-      a.respawnTimer -= dt;
-      if (a.respawnTimer <= 0) respawnAnimal(a);
+      /* respawn countdown — baby snakes don't respawn */
+      if (a.type !== "Baby Snake") {
+        a.respawnTimer -= dt;
+        if (a.respawnTimer <= 0) respawnAnimal(a);
+      }
       continue;
     }
 
@@ -1934,7 +2012,7 @@ function updateAnimals(dt) {
         const cstep = Math.min(dt * chaseSpeed, adist - 1.8);
         a.parentModel.position.x += cnx * cstep;
         a.parentModel.position.z += cnz * cstep;
-        a.parentModel.position.y = getWorldSurfaceHeight(a.parentModel.position.x, a.parentModel.position.z);
+        a.parentModel.position.y = _cachedGroundY(a.parentModel.position.x, a.parentModel.position.z, a._yCache);
         a.parentModel.rotation.y = Math.atan2(cnx, cnz);
       } else {
         /* in melee range — attack */
@@ -1958,7 +2036,7 @@ function updateAnimals(dt) {
           0,
           a.spawnPos.z + Math.sin(angle) * dist,
         );
-        _animalWanderDir.y = getWorldSurfaceHeight(_animalWanderDir.x, _animalWanderDir.z);
+        _animalWanderDir.y = _cachedGroundY(_animalWanderDir.x, _animalWanderDir.z, a._yCache);
         a.wanderTarget = _animalWanderDir.clone();
         a.wanderTimer = 2 + Math.random() * 3;
       }
@@ -1973,7 +2051,7 @@ function updateAnimals(dt) {
           const step = Math.min(dt * 2.0, dist);
           a.parentModel.position.x += nx * step;
           a.parentModel.position.z += nz * step;
-          a.parentModel.position.y = getWorldSurfaceHeight(a.parentModel.position.x, a.parentModel.position.z);
+          a.parentModel.position.y = _cachedGroundY(a.parentModel.position.x, a.parentModel.position.z, a._yCache);
           a.parentModel.rotation.y = Math.atan2(nx, nz);
         } else {
           a.wanderTarget = null;
@@ -2200,14 +2278,8 @@ function resolvePlayerCollisions() {
   pushPointOutsideObstacles(player.position, playerCollisionRadius);
 }
 
-let _groundYCache = { x: NaN, z: NaN, y: 0 };
-const _GROUND_Y_THRESH = 0.3; // re-raycast after moving 0.3 units
-function getPlayerGroundY(x, z) {
-  if (inCave) return 0;
-  const cdx = x - _groundYCache.x, cdz = z - _groundYCache.z;
-  if (cdx * cdx + cdz * cdz < _GROUND_Y_THRESH * _GROUND_Y_THRESH) {
-    return _groundYCache.y;
-  }
+const _GROUND_Y_THRESH = 0.3;
+function _rawGroundRaycast(x, z) {
   groundRayOrigin.set(x, 40, z);
   groundRaycaster.set(groundRayOrigin, groundRayDir);
   groundRaycaster.far = 60;
@@ -2218,8 +2290,19 @@ function getPlayerGroundY(x, z) {
     if (h.object?.userData?.isWaterSurface) continue;
     if (Number.isFinite(h.point?.y)) { resultY = h.point.y; break; }
   }
-  _groundYCache.x = x; _groundYCache.z = z; _groundYCache.y = resultY;
   return resultY;
+}
+function _cachedGroundY(x, z, cache) {
+  if (inCave) return 0;
+  const cdx = x - cache.x, cdz = z - cache.z;
+  if (cdx * cdx + cdz * cdz < _GROUND_Y_THRESH * _GROUND_Y_THRESH) return cache.y;
+  const y = _rawGroundRaycast(x, z);
+  cache.x = x; cache.z = z; cache.y = y;
+  return y;
+}
+let _groundYCache = { x: NaN, z: NaN, y: 0 };
+function getPlayerGroundY(x, z) {
+  return _cachedGroundY(x, z, _groundYCache);
 }
 
 function getPlayerStandY(x, z) {
@@ -3521,11 +3604,18 @@ function performAttackHit(node) {
       netClient.sendDM(party.leader, { type: "boss_damage", amount: damage, style: combatStyle });
       /* still show local hit effect but don't change HP (host will sync it) */
     } else {
+      const prevHp = animal.hp;
       animal.hp = Math.max(0, animal.hp - damage);
       animal.hpBar.dataset.state = "";
       animal.hpFill.style.width = ((animal.hp / animal.maxHp) * 100) + "%";
       const pct = animal.hp / animal.maxHp;
       animal.hpFill.style.background = pct > 0.5 ? "#4ade80" : pct > 0.25 ? "#facc15" : "#ef4444";
+      /* snake boss: spawn baby snakes at HP thresholds */
+      if (isBoss) {
+        const prevPct = prevHp / animal.maxHp;
+        if (prevPct > 0.66 && pct <= 0.66) spawnBabySnakes(3);
+        if (prevPct > 0.33 && pct <= 0.33) spawnBabySnakes(4);
+      }
       if (animal.hp <= 0) {
         killAnimal(animal);
         activeAttack = null;
@@ -3591,8 +3681,10 @@ function killAnimal(a) {
       spawnWorldDrop(eqDropItem, p.x + (Math.random() - 0.5) * 0.8, p.z + (Math.random() - 0.5) * 0.8);
     }
   }
-  /* party boss: leader broadcasts death + loot so members get drops too */
+  /* boss kill count */
   const isBoss = a.type === "Snake Boss";
+  if (isBoss) { bossKillCount++; saveGame(); }
+  /* party boss: leader broadcasts death + loot so members get drops too */
   if (isBoss && party && partyRole === "leader") {
     const loot = [];
     if (lootName) loot.push(lootName);
@@ -3928,7 +4020,8 @@ renderer.domElement.addEventListener("contextmenu", (e) => {
     + `<span>\u{1F525} Mage ${sk.mage}</span>`
     + `<span>\u{1F373} Cook ${sk.cooking || 1}</span>`
     + `</div>` : "";
-  popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Total Lv ${hit.totalLevel}</div>${skillsHtml}<div class="inspect-activity">${activity}</div><button class="inspect-trade-btn">Trade</button><button class="inspect-party-btn">Invite to Party</button>`;
+  const kcHtml = hit.bossKc > 0 ? `<div class="inspect-kc">\u{1F40D} Boss KC: ${hit.bossKc}</div>` : "";
+  popup.innerHTML = `<h3>${hit.name}</h3><div class="inspect-level">Total Lv ${hit.totalLevel}</div>${skillsHtml}${kcHtml}<div class="inspect-activity">${activity}</div><button class="inspect-trade-btn">Trade</button><button class="inspect-party-btn">Invite to Party</button>`;
   popup.style.left = Math.min(e.clientX, window.innerWidth - 220) + "px";
   popup.style.top = Math.min(e.clientY, window.innerHeight - 180) + "px";
   document.body.appendChild(popup);
@@ -4255,8 +4348,14 @@ function animate(now) {
       if (activeAttack.elapsed >= activeAttack.interval) {
         const now = clock.elapsedTime;
         if (now >= nextAttackAllowedAt) {
-          activeAttack.elapsed = 0;
-          performAttackHit(activeAttack.node);
+          /* skip attack tick while boss is underground */
+          const atkAnimal = animals.find(a => a.node === activeAttack.node || a.parentModel === activeAttack.node);
+          if (atkAnimal?.type === "Snake Boss" && _snakeBossGroup && !_snakeBossGroup.userData.attackable) {
+            activeAttack.elapsed = 0; // reset timer, try again next tick
+          } else {
+            activeAttack.elapsed = 0;
+            performAttackHit(activeAttack.node);
+          }
           nextAttackAllowedAt = now + Math.max(0.2, activeAttack.interval * 0.92);
         }
       }
@@ -4379,6 +4478,7 @@ function animate(now) {
     overhead: getActiveOverhead() || "",
     hitDmg: _lastHitDmg,
     hitSeq: _lastHitSeq,
+    bossKc: bossKillCount,
     totalLevel: Object.values(skills).reduce((s, sk) => s + sk.level, 0),
     skills: {
       fishing: skills.fishing.level,

@@ -160,7 +160,7 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
       const intersects = raycaster.intersectObject(entry.avatar.player, true);
       if (intersects.length > 0 && intersects[0].distance < closestDist) {
         closestDist = intersects[0].distance;
-        closest = { id, name: entry.name || id, totalLevel: entry.totalLevel || 6, skills: entry.skills || null, tool: entry.tool, combatStyle: entry.combatStyle, moving: entry.moving, gathering: entry.gathering, attacking: entry.attacking };
+        closest = { id, name: entry.name || id, totalLevel: entry.totalLevel || 6, skills: entry.skills || null, tool: entry.tool, combatStyle: entry.combatStyle, moving: entry.moving, gathering: entry.gathering, attacking: entry.attacking, bossKc: entry.bossKc || 0 };
       }
     }
     return closest;
@@ -172,6 +172,7 @@ export function createRemotePlayers({ scene, addShadowBlob, getGroundY, weaponMo
     if (entry && peerMeta?.name) entry.name = peerMeta.name;
     if (entry && state?.totalLevel) entry.totalLevel = state.totalLevel;
     if (entry && state?.skills) entry.skills = state.skills;
+    if (entry && state?.bossKc != null) entry.bossKc = state.bossKc;
   }
 
   return {

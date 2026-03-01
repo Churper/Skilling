@@ -202,6 +202,7 @@ wss.on("connection", (ws) => {
         hitSeq: Math.max(0, Math.min(999999, Math.floor(Number(state.hitSeq)) || 0)),
         instance: typeof state.instance === "string" ? state.instance.slice(0, 32) : "",
         totalLevel: Number(state.totalLevel) || 6,
+        bossKc: Math.max(0, Math.min(99999, Math.floor(Number(state.bossKc)) || 0)),
         skills: state.skills && typeof state.skills === "object" ? {
           fishing: Number(state.skills.fishing) || 1,
           mining: Number(state.skills.mining) || 1,
