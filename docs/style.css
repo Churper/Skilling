@@ -1181,20 +1181,54 @@ body {
   color: #ffe066;
 }
 .ui-prayer-overhead-btn.is-active {
-  border-color: rgba(60, 180, 255, 0.85);
-  background: rgba(60, 180, 255, 0.3);
-  box-shadow: 0 0 12px rgba(60, 180, 255, 0.4), inset 0 0 8px rgba(60, 180, 255, 0.15);
+  border-color: rgba(220, 50, 50, 0.85);
+  background: rgba(220, 50, 50, 0.22);
+  box-shadow: 0 0 12px rgba(220, 50, 50, 0.4), inset 0 0 8px rgba(220, 50, 50, 0.15);
 }
+.ui-prayer-overhead-btn.is-active span:first-child::after {
+  opacity: 1;
+}
+
+/* red 🚫 circle+slash overlay for protection prayer icons */
+.pray-block {
+  position: relative;
+  display: inline-block;
+}
+.pray-block::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2.5px solid rgba(220, 40, 40, 0.9);
+  border-radius: 50%;
+  opacity: 0.7;
+  pointer-events: none;
+  /* diagonal slash */
+  background: linear-gradient(
+    135deg,
+    transparent 42%,
+    rgba(220, 40, 40, 0.9) 42%,
+    rgba(220, 40, 40, 0.9) 58%,
+    transparent 58%
+  );
+  background-size: 100% 100%;
+}
+.pray-block--melee { filter: hue-rotate(0deg); }
+.pray-block--range { filter: sepia(0.3) saturate(1.2); }
+.pray-block--mage { filter: hue-rotate(180deg) saturate(1.5) brightness(1.2); }
 
 /* overhead prayer icon above player */
 .prayer-overhead-icon {
   position: absolute;
   left: 0; top: 0;
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
   pointer-events: none;
   animation: prayer-pulse 1.5s ease-in-out infinite;
+}
+.prayer-overhead-icon .pray-block::after {
+  inset: -3px;
+  border-width: 3px;
 }
 @keyframes prayer-pulse {
   0%, 100% { opacity: 0.85; }

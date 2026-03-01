@@ -28,6 +28,7 @@ const ITEM_ICON = {
   "Llama Wool": "\u{1F9F6}",
   "Bone": "\u{1F9B4}",
   "Striped Hide": "\u{1F993}",
+  "Snake Scale": "\u{1F40D}",
   "Health Potion": "\u{2764}\u{FE0F}",
   "Mana Potion": "\u{1F4A7}",
   "Cooked Fish": "\u{1F373}",

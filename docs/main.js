@@ -1723,6 +1723,7 @@ function updateEmoteBubbles(dt) {
 const _dropProj = new THREE.Vector3();
 
 function spawnFloatingDrop(x, z, text, tone = "xp") {
+  if (tone === "xp") return; // skip XP drops — just show hit splats
   const el = document.createElement("div");
   el.className = `xp-drop xp-drop-${tone}`;
   el.textContent = text;
@@ -1969,9 +1970,9 @@ function updateAnimals(dt) {
 
 /* ── Overhead prayer icons ── */
 const OVERHEAD_ICON_MAP = {
-  protect_melee: "\uD83D\uDEE1\uFE0F",
-  protect_range: "\uD83C\uDFF9",
-  protect_mage: "\uD83D\uDD25",
+  protect_melee: '<span class="pray-block pray-block--melee">\u2694\uFE0F</span>',
+  protect_range: '<span class="pray-block pray-block--range">\uD83D\uDE4F</span>',
+  protect_mage:  '<span class="pray-block pray-block--mage">\uD83C\uDF00</span>',
 };
 const overheadIcons = new Map(); // key -> { el, prayerId }
 const _ohProj = new THREE.Vector3();
@@ -1999,7 +2000,7 @@ function updateLocalOverheadIcon() {
   if (overhead) {
     const entry = getOrCreateOverheadIcon("local");
     if (entry.prayerId !== overhead) {
-      entry.el.textContent = OVERHEAD_ICON_MAP[overhead] || "";
+      entry.el.innerHTML = OVERHEAD_ICON_MAP[overhead] || "";
       entry.prayerId = overhead;
     }
   } else {
@@ -2041,7 +2042,7 @@ function setRemoteOverhead(id, prayerId) {
   }
   const entry = getOrCreateOverheadIcon(id);
   if (entry.prayerId !== prayerId) {
-    entry.el.textContent = OVERHEAD_ICON_MAP[prayerId] || "";
+    entry.el.innerHTML = OVERHEAD_ICON_MAP[prayerId] || "";
     entry.prayerId = prayerId;
   }
 }
@@ -2796,7 +2797,8 @@ const _DROP_ICON = {
   fish: "\u{1F41F}", ore: "\u{1FAA8}", logs: "\u{1FAB5}",
   "Raw Beef": "\u{1F969}", "Raw Pork": "\u{1F356}", "Wool": "\u{1F9F6}",
   "Horse Hide": "\u{1F3AF}", "Llama Wool": "\u{1F9F6}", "Bone": "\u{1F9B4}",
-  "Striped Hide": "\u{1F993}", "Health Potion": "\u2764\uFE0F", "Mana Potion": "\u{1F4A7}",
+  "Striped Hide": "\u{1F993}", "Snake Scale": "\u{1F40D}",
+  "Health Potion": "\u2764\uFE0F", "Mana Potion": "\u{1F4A7}",
   "Cooked Fish": "\u{1F373}", "Cooked Beef": "\u{1F356}", "Cooked Pork": "\u{1F969}",
   "Burnt Food": "\u{1F4A8}", "Bird Nest": "\u{1FAA8}", "Uncut Gem": "\u{1F48E}",
   "Golden Fish": "\u{1F420}",
@@ -2830,6 +2832,11 @@ function _getDropEmoji(itemKey) {
   const base = baseItemId(itemKey);
   const eq = EQUIPMENT_ITEMS[base];
   if (eq) return eq.icon;
+  /* handle noted items — note:baseItem:qty */
+  if (typeof itemKey === "string" && itemKey.startsWith("note:")) {
+    const noteBase = itemKey.split(":")[1];
+    return _DROP_ICON[noteBase] || "\u{1F4DC}";
+  }
   return _DROP_ICON[itemKey] || _DROP_ICON[base] || "\u2753";
 }
 
@@ -3034,6 +3041,37 @@ function playBowSound() {
   gain.connect(_masterGain);
   osc.start();
   osc.stop(_audioCtx.currentTime + 0.12);
+}
+
+function playMageSound() {
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const t = _audioCtx.currentTime;
+  const ps = 0.9 + Math.random() * 0.2;
+  /* zappy rising sweep */
+  const osc1 = _audioCtx.createOscillator();
+  osc1.type = "sawtooth";
+  osc1.frequency.setValueAtTime(300 * ps, t);
+  osc1.frequency.exponentialRampToValueAtTime(1800 * ps, t + 0.06);
+  osc1.frequency.exponentialRampToValueAtTime(600 * ps, t + 0.15);
+  const g1 = _audioCtx.createGain();
+  g1.gain.setValueAtTime(0.18, t);
+  g1.gain.linearRampToValueAtTime(0.22, t + 0.04);
+  g1.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  osc1.connect(g1); g1.connect(_masterGain);
+  osc1.start(t); osc1.stop(t + 0.18);
+  /* crackle burst */
+  const buf = _audioCtx.createBuffer(1, _audioCtx.sampleRate * 0.08, _audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.4;
+  const noise = _audioCtx.createBufferSource();
+  noise.buffer = buf;
+  const gn = _audioCtx.createGain();
+  gn.gain.setValueAtTime(0.12, t);
+  gn.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  const bp = _audioCtx.createBiquadFilter();
+  bp.type = "bandpass"; bp.frequency.value = 2400 * ps; bp.Q.value = 2;
+  noise.connect(bp); bp.connect(gn); gn.connect(_masterGain);
+  noise.start(t); noise.stop(t + 0.08);
 }
 
 /* ── Gathering sounds ── */
@@ -3431,7 +3469,9 @@ function celebrateLevelUp(worldX, worldZ) {
 }
 
 function performAttackHit(node) {
-  if (combatStyle === "bow") playBowSound(); else playAttackSound();
+  if (combatStyle === "mage") playMageSound();
+  else if (combatStyle === "bow") playBowSound();
+  else playAttackSound();
   const dummyPos = combatPos;
   node.getWorldPosition(dummyPos);
   const dx = dummyPos.x - player.position.x;
