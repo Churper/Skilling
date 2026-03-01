@@ -433,6 +433,8 @@ function ensureChunkData(cx, cz) {
 
 /** Save current editor state into the chunk store */
 function saveObjectsToChunkStores() {
+  /* skip when in instance — objects array only has instance objects, not world objects */
+  if (activeInstance) return;
   /* distribute objects to their proper chunks based on world position,
      converting world coords to local chunk coords for game compatibility */
   const buckets = new Map(); // "cx,cz" → [obj, ...]
