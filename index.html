@@ -657,10 +657,20 @@
         <div class="ui-trade-col">
           <h3 class="ui-trade-col-label">Your Offer</h3>
           <div id="ui-trade-my-offer" class="ui-trade-grid"></div>
+          <div class="ui-trade-coins-row">
+            <span class="ui-trade-coins-icon">&#x1FA99;</span>
+            <input type="number" id="ui-trade-my-coins" class="ui-trade-coins-input" min="0" value="0" placeholder="0">
+            <span class="ui-trade-coins-label">coins</span>
+          </div>
         </div>
         <div class="ui-trade-col">
           <h3 class="ui-trade-col-label">Their Offer</h3>
           <div id="ui-trade-their-offer" class="ui-trade-grid"></div>
+          <div class="ui-trade-coins-row">
+            <span class="ui-trade-coins-icon">&#x1FA99;</span>
+            <span id="ui-trade-their-coins" class="ui-trade-coins-value">0</span>
+            <span class="ui-trade-coins-label">coins</span>
+          </div>
         </div>
       </div>
       <div class="ui-trade-inv">
