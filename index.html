@@ -78,12 +78,6 @@
       <div class="ui-panel-resize" data-resize="nw" aria-hidden="true"></div>
       <section class="ui-panel-section" data-tab-panel="inventory">
         <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
-        <div id="ui-combat-styles">
-          <button type="button" class="ui-combat-btn is-active" data-combat-style="melee" title="Melee">&#x1F5E1;</button>
-          <button type="button" class="ui-combat-btn" data-combat-style="bow" title="Bow">&#x1F3F9;</button>
-          <button type="button" class="ui-combat-btn" data-combat-style="mage" title="Mage">&#x1F525;</button>
-          <button type="button" id="ui-auto-retal" class="ui-combat-btn" title="Auto Retaliate" style="margin-left:auto;font-size:10px;padding:2px 6px;opacity:0.6">Auto</button>
-        </div>
         <p id="ui-status-line" class="ui-status" data-tone="info"></p>
       </section>
       <section class="ui-panel-section" data-tab-panel="bank" hidden></section>
@@ -318,6 +312,16 @@
         </div>
       </section>
     </aside>
+    <!-- Standalone combat style panel -->
+    <div id="ui-combat-panel">
+      <div id="ui-combat-panel-title">Combat</div>
+      <div class="ui-combat-panel-resize" data-resize="se" aria-hidden="true"></div>
+      <div id="ui-combat-styles">
+        <button type="button" class="ui-combat-btn is-active" data-combat-style="melee" title="Melee">&#x1F5E1;</button>
+        <button type="button" class="ui-combat-btn" data-combat-style="bow" title="Bow">&#x1F3F9;</button>
+        <button type="button" class="ui-combat-btn" data-combat-style="mage" title="Mage">&#x1F525;</button>
+      </div>
+    </div>
   </div>
   <div id="ui-settings-overlay" class="ui-settings-overlay" hidden>
     <div class="ui-settings-overlay-head">
