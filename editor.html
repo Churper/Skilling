@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Map Editor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:'Segoe UI',system-ui,sans-serif;color:#ccc}
+canvas{display:block}
+
+/* ── Sidebar ── */
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:#12121f;
+  display:flex;flex-direction:column;border-right:1px solid #2a2a3e;z-index:10;user-select:none}
+#sidebar h1{padding:10px 12px;font-size:15px;font-weight:700;color:#e8c44a;
+  border-bottom:1px solid #2a2a3e;letter-spacing:1px;text-align:center}
+
+/* tabs */
+#tabs{display:flex;border-bottom:1px solid #2a2a3e}
+.tab{flex:1;padding:8px 4px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;
+  color:#666;background:#0d0d18;border-right:1px solid #2a2a3e;transition:all .15s}
+.tab:last-child{border-right:none}
+.tab:hover{color:#aaa;background:#1a1a2e}
+.tab.active{color:#e8c44a;background:#1e1e32;border-bottom:2px solid #e8c44a}
+
+/* info bar */
+#info{padding:6px 10px;font-size:10px;color:#666;border-bottom:1px solid #1a1a2e;line-height:1.7}
+#info kbd{background:#2a2a3e;padding:1px 5px;border-radius:3px;color:#bbb;font-family:monospace;font-size:9px}
+#cell-display{padding:4px 10px;font-size:10px;color:#888;border-bottom:1px solid #1a1a2e;white-space:pre-line;min-height:28px}
+
+/* palette area */
+#palette-wrap{flex:1;overflow-y:auto;padding:6px 8px}
+.cat{color:#555;font-size:9px;text-transform:uppercase;padding:8px 2px 3px;letter-spacing:1.2px;font-weight:700}
+.obj-btn{padding:4px 8px;margin:1px 0;cursor:pointer;border-radius:4px;font-size:10px;
+  color:#999;transition:all .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  display:flex;align-items:center;gap:6px}
+.obj-btn:hover{background:#252540;color:#ddd}
+.obj-btn.active{background:#2a2a50;color:#e8c44a;font-weight:600}
+.obj-thumb{width:36px;height:36px;border-radius:3px;background:#0d0d18;flex-shrink:0;image-rendering:auto}
+
+/* panel flex layouts for scrollable content */
+#objects-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#height-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#paint-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#chunks-panel{flex:1;display:flex;flex-direction:column;overflow-y:auto;padding-top:6px}
+
+/* paint swatches */
+#paint-colors{padding:8px 10px;display:flex;flex-wrap:wrap;gap:3px;border-bottom:1px solid #2a2a3e}
+#paint-colors .label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;width:100%;margin-bottom:2px}
+.color-swatch{width:28px;height:28px;border-radius:4px;cursor:pointer;border:2px solid #333;display:inline-block;transition:all .12s}
+.color-swatch.active{border-color:#e8c44a;box-shadow:0 0 4px #e8c44a88}
+.color-swatch:hover{border-color:#888}
+
+/* mode controls */
+.panel{padding:8px 10px;border-top:1px solid #2a2a3e;font-size:10px}
+.panel .row{display:flex;gap:4px;align-items:center;margin-bottom:4px}
+.panel label{color:#666;min-width:40px}
+.panel input[type=range]{flex:1;height:4px;accent-color:#e8c44a}
+.panel .val{font-size:10px;color:#e8c44a;min-width:32px;text-align:right;font-family:monospace}
+
+/* height mode buttons */
+#height-modes{display:flex;gap:3px;margin-bottom:6px}
+#height-modes button{flex:1;padding:5px;font-size:10px;cursor:pointer;
+  background:#1e1e32;color:#999;border:1px solid #333;border-radius:4px;font-family:inherit}
+#height-modes button.active{background:#2a2a50;color:#e8c44a;border-color:#e8c44a}
+#height-modes button:hover{background:#252540}
+.flat-preset{padding:2px 6px;font-size:9px;cursor:pointer;background:#1e1e32;color:#aaa;border:1px solid #333;border-radius:3px;margin-left:2px;font-family:inherit}
+.flat-preset:hover{background:#252540;color:#e8c44a}
+
+/* buttons */
+#btns{padding:8px 10px;border-top:1px solid #2a2a3e;display:flex;gap:4px;flex-wrap:wrap}
+#btns button{flex:1;min-width:60px;padding:6px;font-size:10px;cursor:pointer;
+  background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:4px;font-family:inherit;transition:all .12s}
+#btns button:hover{background:#2a2a50;border-color:#555}
+
+/* chunk selector */
+#chunk-bar{padding:6px 10px;border-bottom:1px solid #2a2a3e;display:flex;gap:3px;align-items:center;flex-wrap:wrap}
+#chunk-bar .label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;width:100%;margin-bottom:1px}
+#chunk-bar button{padding:3px 8px;font-size:10px;cursor:pointer;background:#1e1e32;color:#999;border:1px solid #333;border-radius:3px;font-family:inherit}
+#chunk-bar button:hover{background:#252540;color:#ddd}
+#chunk-bar button.active{background:#2a2a50;color:#e8c44a;border-color:#e8c44a}
+#chunk-id{font-size:11px;color:#e8c44a;font-weight:600;font-family:monospace;margin:0 4px}
+#chunk-opts{padding:4px 10px;font-size:10px;border-bottom:1px solid #2a2a3e;display:flex;gap:8px;align-items:center}
+#chunk-opts label{color:#666;cursor:pointer}
+#chunk-opts input[type=checkbox]{accent-color:#e8c44a;margin-right:2px}
+.edge-toggles{display:flex;gap:3px}
+.edge-toggles button{padding:2px 5px;font-size:9px;cursor:pointer;background:#1e1e32;color:#666;border:1px solid #333;border-radius:2px}
+.edge-toggles button.on{color:#e8c44a;border-color:#e8c44a}
+
+/* minimap */
+#minimap-wrap{padding:6px 10px;border-top:1px solid #2a2a3e}
+#minimap-wrap .label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:3px}
+#minimap{width:100%;aspect-ratio:1;background:#0d0d18;border:1px solid #2a2a3e;border-radius:4px;cursor:pointer;image-rendering:pixelated}
+
+#count{padding:5px 10px;font-size:10px;color:#555;text-align:center;border-top:1px solid #1a1a2e;font-family:monospace}
+
+/* ── Canvas ── */
+#canvas-wrap{position:fixed;left:220px;top:0;right:0;bottom:0}
+#compass{position:absolute;top:10px;right:10px;width:80px;height:80px;pointer-events:none;z-index:5}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <h1>MAP EDITOR</h1>
+  <div id="chunk-bar">
+    <div class="label">Chunk</div>
+    <button id="chunk-w" title="West">W</button>
+    <button id="chunk-s" title="South">S</button>
+    <span id="chunk-id">0,0</span>
+    <button id="chunk-n" title="North">N</button>
+    <button id="chunk-e" title="East">E</button>
+    <button id="chunk-new" title="New chunk here">+</button>
+  </div>
+  <div id="chunk-opts">
+    <label><input type="checkbox" id="chunk-water" checked> Water</label>
+    <select id="chunk-base" title="Base terrain type" style="font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;padding:2px 4px">
+      <option value="grass">Grass</option>
+      <option value="dirt">Dirt</option>
+      <option value="sand">Sand</option>
+      <option value="stone">Stone</option>
+      <option value="snow">Snow</option>
+      <option value="dark">Dark</option>
+    </select>
+    <div class="edge-toggles">
+      <button id="edge-n" class="on" title="North edge">N</button>
+      <button id="edge-s" class="on" title="South edge">S</button>
+      <button id="edge-e" class="on" title="East edge">E</button>
+      <button id="edge-w" class="on" title="West edge">W</button>
+    </div>
+  </div>
+  <div id="tabs">
+    <div class="tab active" data-tab="objects">Objects</div>
+    <div class="tab" data-tab="paint">Paint</div>
+    <div class="tab" data-tab="height">Height</div>
+    <div class="tab" data-tab="chunks">Chunks</div>
+  </div>
+  <div id="info"></div>
+  <div id="cell-display">—</div>
+
+  <!-- Objects mode -->
+  <div id="objects-panel">
+    <div id="palette-wrap"></div>
+    <div class="panel" id="obj-controls">
+      <div class="row"><label>Scale</label>
+        <input type="range" id="obj-scale" min="0.2" max="5" step="0.1" value="1.0">
+        <span class="val" id="obj-scale-val">1.00</span>
+      </div>
+      <div class="row"><label>Rot</label>
+        <input type="range" id="obj-rot" min="0" max="6.28" step="0.05" value="0">
+        <span class="val" id="obj-rot-val">0°</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Height mode -->
+  <div id="height-panel" class="hidden">
+    <div class="panel">
+      <div id="height-modes">
+        <button class="active" data-hm="raise">Raise</button>
+        <button data-hm="flatten">Flatten</button>
+        <button data-hm="smooth">Smooth</button>
+        <button data-hm="stamp">Stamp</button>
+      </div>
+      <div class="row"><label>Size</label>
+        <input type="range" id="h-size" min="1" max="20" value="4" step="1">
+        <span class="val" id="h-size-val">4</span>
+      </div>
+      <div class="row"><label>Str</label>
+        <input type="range" id="h-str" min="0.05" max="1.0" value="0.30" step="0.05">
+        <span class="val" id="h-str-val">0.30</span>
+      </div>
+      <div class="row"><label>Flat Y</label>
+        <input type="range" id="h-flat" min="-1.0" max="5.0" value="0.40" step="0.1">
+        <span class="val" id="h-flat-val">0.40</span>
+      </div>
+      <div class="row" style="justify-content:flex-end;gap:6px">
+        <button class="flat-preset" data-y="0.00" title="Flatten to water level (Y=0)">Water Lvl</button>
+        <button class="flat-preset" data-y="0.40" title="Flatten to grass level (Y=0.4)">Land Lvl</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paint mode -->
+  <div id="paint-panel" class="hidden">
+    <div id="paint-colors">
+      <div class="label">Brush Color</div>
+    </div>
+    <div class="panel">
+      <div class="row"><label>Size</label>
+        <input type="range" id="p-size" min="1" max="20" value="4" step="1">
+        <span class="val" id="p-size-val">4</span>
+      </div>
+      <div class="row"><label>Str</label>
+        <input type="range" id="p-str" min="0.05" max="1.0" value="0.50" step="0.05">
+        <span class="val" id="p-str-val">0.50</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chunks panel -->
+  <div id="chunks-panel" class="hidden">
+    <div style="padding:4px 10px 6px">
+      <div class="label" style="margin-bottom:3px">Create Instance</div>
+      <input id="inst-name" type="text" placeholder="e.g. boss_dragon" style="width:100%;box-sizing:border-box;padding:3px 6px;font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;font-family:inherit;margin-bottom:4px">
+      <div style="display:flex;gap:4px">
+        <select id="inst-type" style="flex:1;font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;padding:3px 4px">
+          <option value="boss">Boss</option>
+          <option value="dungeon">Dungeon</option>
+          <option value="arena">Arena</option>
+        </select>
+        <button id="inst-create" style="padding:3px 8px;font-size:10px;cursor:pointer;background:#2a2a50;color:#e8c44a;border:1px solid #e8c44a;border-radius:3px;font-family:inherit">Create</button>
+      </div>
+    </div>
+    <div class="label" style="padding:0 10px;margin-bottom:3px">All Chunks</div>
+    <div id="chunk-list" style="max-height:300px;overflow-y:auto;padding:0 10px"></div>
+  </div>
+
+  <div id="minimap-wrap">
+    <div class="label">Chunks</div>
+    <canvas id="minimap" width="200" height="200"></canvas>
+  </div>
+  <div id="btns">
+    <button id="btn-export">Export</button>
+    <button id="btn-import">Import</button>
+    <button id="btn-clear">Clear</button>
+    <button id="btn-flatten">Flatten</button>
+  </div>
+  <div id="count">—</div>
+</div>
+
+<div id="canvas-wrap"><canvas id="compass" width="160" height="160"></canvas>
+<button id="btn-select-mode" title="Select/Move objects (Esc)" style="position:absolute;top:10px;left:10px;z-index:10;padding:4px 10px;font-size:11px;cursor:pointer;background:#1e1e32;color:#e8c44a;border:1px solid #e8c44a;border-radius:4px;font-weight:700">Select</button>
+</div>
+<input type="file" id="file-input" accept=".json" style="display:none">
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import * as SkeletonUtils from "three/addons/utils/SkeletonUtils.js";
+import {
+  TILE_S, WATER_Y, GRASS_Y, HILL_Y,
+  GX_MIN, GX_MAX, GZ_MIN, GZ_MAX,
+  CHUNK_SIZE, chunkBounds,
+  isInRiver, isBeach, isOnPath,
+  riverQuery, distToPath, terrainH,
+} from "./game/terrainHeight.js";
+import {
+  getMeshSurfaceY, loadTiles, buildBridge, buildDock, buildFences,
+  buildSteppingStones, addWaterfall, buildProps,
+  TREE_SPOTS, ROCK_MAJOR_SPOTS, ROCK_SMALL_SPOTS, BUSH_SPOTS, CLIFF_ROCK_SPOTS,
+} from "./game/terrainLayout.js";
+
+/* ═══════════════════════════════════════════
+   Constants & Catalogues
+   ═══════════════════════════════════════════ */
+const MODEL_DIR = "models/";
+const TILE_DIR = "models/terrain/";
+const sm = THREE.MathUtils.smoothstep;
+
+const OBJ_CATEGORIES = [
+  { name: "Trees", items: [
+    { id: "Tree_1_A", file: "Tree_1_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_1_B", file: "Tree_1_B_Color1.gltf", scale: 2.0 },
+    { id: "Tree_1_C", file: "Tree_1_C_Color1.gltf", scale: 2.0 },
+    { id: "Tree_2_A", file: "Tree_2_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_2_B", file: "Tree_2_B_Color1.gltf", scale: 2.0 },
+    { id: "Tree_2_C", file: "Tree_2_C_Color1.gltf", scale: 2.0 },
+    { id: "Tree_3_A", file: "Tree_3_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_3_B", file: "Tree_3_B_Color1.gltf", scale: 2.0 },
+    { id: "Tree_4_A", file: "Tree_4_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_4_B", file: "Tree_4_B_Color1.gltf", scale: 2.0 },
+    { id: "Tree_Bare_1_A", file: "Tree_Bare_1_A_Color1.gltf", scale: 2.0 },
+    { id: "Tree_Bare_2_A", file: "Tree_Bare_2_A_Color1.gltf", scale: 2.0 },
+  ]},
+  { name: "Rocks", items: [
+    { id: "Rock_1_A", file: "Rock_1_A_Color1.gltf", scale: 1.0 },
+    { id: "Rock_1_J", file: "Rock_1_J_Color1.gltf", scale: 1.0 },
+    { id: "Rock_1_K", file: "Rock_1_K_Color1.gltf", scale: 1.0 },
+    { id: "Rock_2_A", file: "Rock_2_A_Color1.gltf", scale: 1.0 },
+    { id: "Rock_3_A", file: "Rock_3_A_Color1.gltf", scale: 1.0 },
+    { id: "Rock_3_C", file: "Rock_3_C_Color1.gltf", scale: 1.0 },
+    { id: "Rock_3_E", file: "Rock_3_E_Color1.gltf", scale: 1.0 },
+    { id: "Rock_3_G", file: "Rock_3_G_Color1.gltf", scale: 1.0 },
+  ]},
+  { name: "Bushes", items: [
+    { id: "Bush_1_A", file: "Bush_1_A_Color1.gltf", scale: 1.0 },
+    { id: "Bush_2_A", file: "Bush_2_A_Color1.gltf", scale: 1.0 },
+    { id: "Bush_3_A", file: "Bush_3_A_Color1.gltf", scale: 1.0 },
+    { id: "Bush_4_A", file: "Bush_4_A_Color1.gltf", scale: 1.0 },
+  ]},
+  { name: "Grass/Flowers", items: [
+    { id: "Grass_1_A", file: "Grass_1_A_Color1.gltf", scale: 1.0 },
+    { id: "Grass_2_A", file: "Grass_2_A_Color1.gltf", scale: 1.0 },
+  ]},
+  { name: "Terrain Props", dir: TILE_DIR, items: [
+    { id: "Prop_Grass_Clump_1", file: "Prop_Grass_Clump_1.glb", scale: 1.0 },
+    { id: "Prop_Grass_Clump_2", file: "Prop_Grass_Clump_2.glb", scale: 1.0 },
+    { id: "Prop_Grass_Clump_3", file: "Prop_Grass_Clump_3.glb", scale: 1.0 },
+    { id: "Prop_Grass_Clump_4", file: "Prop_Grass_Clump_4.glb", scale: 1.0 },
+    { id: "Prop_Flower_Daisy", file: "Prop_Flower_Daisy.glb", scale: 1.0 },
+    { id: "Prop_Flower_Rose", file: "Prop_Flower_Rose.glb", scale: 1.0 },
+    { id: "Prop_Flower_Sunflower", file: "Prop_Flower_Sunflower.glb", scale: 1.0 },
+    { id: "Prop_Flower_Tulip", file: "Prop_Flower_Tulip.glb", scale: 1.0 },
+    { id: "Prop_Flower_Lily_Blue", file: "Prop_Flower_Lily_Blue.glb", scale: 1.0 },
+    { id: "Prop_Flower_Lily_Pink", file: "Prop_Flower_Lily_Pink.glb", scale: 1.0 },
+    { id: "Prop_Cattail_1", file: "Prop_Cattail_1.glb", scale: 1.0 },
+    { id: "Prop_Cattail_2", file: "Prop_Cattail_2.glb", scale: 1.0 },
+    { id: "Prop_Mushroom_1", file: "Prop_Mushroom_1.glb", scale: 1.0 },
+    { id: "Prop_Mushroom_2", file: "Prop_Mushroom_2.glb", scale: 1.0 },
+    { id: "Prop_Stump", file: "Prop_Stump.glb", scale: 1.0 },
+    { id: "Prop_Hollow_Trunk", file: "Prop_Hollow_Trunk.glb", scale: 1.0 },
+    { id: "Prop_Branch_1", file: "Prop_Branch_1.glb", scale: 1.0 },
+    { id: "Prop_Branch_2", file: "Prop_Branch_2.glb", scale: 1.0 },
+    { id: "Prop_Branch_3", file: "Prop_Branch_3.glb", scale: 1.0 },
+    { id: "Prop_Rock_1", file: "Prop_Rock_1.glb", scale: 1.0 },
+    { id: "Prop_Rock_2", file: "Prop_Rock_2.glb", scale: 1.0 },
+    { id: "Prop_Rock_3", file: "Prop_Rock_3.glb", scale: 1.0 },
+    { id: "Prop_Rock_4", file: "Prop_Rock_4.glb", scale: 1.0 },
+    { id: "Prop_Bush_1", file: "Prop_Bush_1.glb", scale: 1.0 },
+    { id: "Prop_Bush_2", file: "Prop_Bush_2.glb", scale: 1.0 },
+    { id: "Prop_Bush_3", file: "Prop_Bush_3.glb", scale: 1.0 },
+    { id: "Prop_Cliff_Rock_1", file: "Prop_Cliff_Rock_1.glb", scale: 1.0 },
+    { id: "Prop_Cliff_Rock_2", file: "Prop_Cliff_Rock_2.glb", scale: 1.0 },
+    { id: "Prop_Shell_1", file: "Prop_Shell_1.glb", scale: 1.0 },
+    { id: "Prop_Shell_2", file: "Prop_Shell_2.glb", scale: 1.0 },
+    { id: "Prop_Starfish_1", file: "Prop_Starfish_1.glb", scale: 1.0 },
+    { id: "Prop_Starfish_2", file: "Prop_Starfish_2.glb", scale: 1.0 },
+    { id: "Prop_Treasure_Chest", file: "Prop_Treasure_Chest.glb", scale: 1.0 },
+  ]},
+  { name: "Terrain Trees", dir: TILE_DIR, items: [
+    { id: "Prop_Tree_Cedar_1", file: "Prop_Tree_Cedar_1.glb", scale: 1.0 },
+    { id: "Prop_Tree_Cedar_2", file: "Prop_Tree_Cedar_2.glb", scale: 1.0 },
+    { id: "Prop_Tree_Oak_1", file: "Prop_Tree_Oak_1.glb", scale: 1.0 },
+    { id: "Prop_Tree_Oak_2", file: "Prop_Tree_Oak_2.glb", scale: 1.0 },
+    { id: "Prop_Tree_Oak_3", file: "Prop_Tree_Oak_3.glb", scale: 1.0 },
+    { id: "Prop_Tree_Palm_1", file: "Prop_Tree_Palm_1.glb", scale: 1.0 },
+    { id: "Prop_Tree_Palm_2", file: "Prop_Tree_Palm_2.glb", scale: 1.0 },
+    { id: "Prop_Tree_Palm_3", file: "Prop_Tree_Palm_3.glb", scale: 1.0 },
+    { id: "Prop_Tree_Pine_1", file: "Prop_Tree_Pine_1.glb", scale: 1.0 },
+    { id: "Prop_Tree_Pine_2", file: "Prop_Tree_Pine_2.glb", scale: 1.0 },
+    { id: "Prop_Tree_Pine_3", file: "Prop_Tree_Pine_3.glb", scale: 1.0 },
+  ]},
+  { name: "Fences", dir: TILE_DIR, items: [
+    { id: "Prop_Fence_Boards_1", file: "Prop_Fence_Boards_1.glb", scale: 1.0 },
+    { id: "Prop_Fence_Boards_2", file: "Prop_Fence_Boards_2.glb", scale: 1.0 },
+    { id: "Prop_Fence_Boards_3", file: "Prop_Fence_Boards_3.glb", scale: 1.0 },
+    { id: "Prop_Fence_Boards_4", file: "Prop_Fence_Boards_4.glb", scale: 1.0 },
+    { id: "Prop_Fence_Post_1", file: "Prop_Fence_Post_1.glb", scale: 1.0 },
+    { id: "Prop_Fence_Post_2", file: "Prop_Fence_Post_2.glb", scale: 1.0 },
+    { id: "Prop_Fence_Post_3", file: "Prop_Fence_Post_3.glb", scale: 1.0 },
+    { id: "Prop_Fence_Post_4", file: "Prop_Fence_Post_4.glb", scale: 1.0 },
+    { id: "Prop_Fence_Curve_1x1", file: "Prop_Fence_Curve_1x1.glb", scale: 1.0 },
+    { id: "Prop_Fence_Curve_2x2", file: "Prop_Fence_Curve_2x2.glb", scale: 1.0 },
+    { id: "Prop_Fence_Curve_3x3", file: "Prop_Fence_Curve_3x3.glb", scale: 1.0 },
+    { id: "Prop_Fence_Gate_1", file: "Prop_Fence_Gate_1.glb", scale: 1.0 },
+    { id: "Prop_Fence_Gate_2", file: "Prop_Fence_Gate_2.glb", scale: 1.0 },
+    { id: "Prop_Fence_Hill_Gentle", file: "Prop_Fence_Hill_Gentle.glb", scale: 1.0 },
+    { id: "Prop_Fence_Hill_Sharp", file: "Prop_Fence_Hill_Sharp.glb", scale: 1.0 },
+  ]},
+  { name: "Bridge", dir: TILE_DIR, items: [
+    { id: "Prop_Bridge_Log_End", file: "Prop_Bridge_Log_End.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_End_Edge", file: "Prop_Bridge_Log_End_Edge.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_Middle", file: "Prop_Bridge_Log_Middle.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_Middle_Edge", file: "Prop_Bridge_Log_Middle_Edge.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_Post_Support", file: "Prop_Bridge_Log_Post_Support.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Log_Post_Top", file: "Prop_Bridge_Log_Post_Top.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Rope_End", file: "Prop_Bridge_Rope_End.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Rope_Middle", file: "Prop_Bridge_Rope_Middle.glb", scale: 1.0 },
+    { id: "Prop_Bridge_Rope_Rope_Support", file: "Prop_Bridge_Rope_Rope_Support.glb", scale: 1.0 },
+  ]},
+  { name: "Dock", dir: TILE_DIR, items: [
+    { id: "Prop_Docks_Straight", file: "Prop_Docks_Straight.glb", scale: 1.0 },
+    { id: "Prop_Docks_Straight_Supports", file: "Prop_Docks_Straight_Supports.glb", scale: 1.0 },
+    { id: "Prop_Docks_Steps", file: "Prop_Docks_Steps.glb", scale: 1.0 },
+    { id: "Prop_Docks_Corner", file: "Prop_Docks_Corner.glb", scale: 1.0 },
+    { id: "Prop_Docks_Corner_Supports", file: "Prop_Docks_Corner_Supports.glb", scale: 1.0 },
+  ]},
+  { name: "Buildings", dir: TILE_DIR, items: [
+    { id: "Farm", file: "Farm.glb", scale: 1.0 },
+    { id: "Market_Stalls", file: "Market_Stalls.glb", scale: 1.0, label: "Store" },
+  ]},
+  { name: "Animals", dir: TILE_DIR, items: [
+    { id: "Cow", file: "Cow.glb", scale: 1.0 },
+    { id: "Horse", file: "Horse.glb", scale: 1.0 },
+    { id: "Llama", file: "Llama.glb", scale: 1.0 },
+    { id: "Pig", file: "Pig.glb", scale: 1.0 },
+    { id: "Pug", file: "Pug.glb", scale: 1.0 },
+    { id: "Sheep", file: "Sheep.glb", scale: 1.0 },
+    { id: "Zebra", file: "Zebra.glb", scale: 1.0 },
+    { id: "Crab", file: "Crab.glb", scale: 1.0 },
+  ]},
+  { name: "Services", items: [
+    { id: "Svc_Bank", dir: TILE_DIR, file: "Prop_Treasure_Chest.glb", scale: 2.0, label: "Bank" },
+    { id: "Svc_Blacksmith", dir: TILE_DIR, file: "Workbench_Anvil.glb", scale: 1.0, label: "Smith" },
+    { id: "Svc_CraftTable", dir: TILE_DIR, file: "Workbench.glb", scale: 1.0, label: "Craft" },
+    { id: "Svc_SpinWheel", dir: TILE_DIR, file: "Workbench_Grind.glb", scale: 1.0, label: "Spin" },
+    { id: "Svc_Dummy", placeholder: true, color: "#a07040", label: "Dummy" },
+    { id: "Svc_Construction", placeholder: true, color: "#b7aea0", label: "House" },
+    { id: "Svc_FishingSpot", placeholder: true, color: "#5ec8e6", label: "Fish Spot" },
+    { id: "Svc_TaskBoard", dir: TILE_DIR, file: "Wooden_Sign.glb", scale: 1.0, label: "Tasks" },
+    { id: "Svc_Cave", placeholder: true, color: "#5a5550", label: "Cave" },
+    { id: "Svc_WashMachine", dir: TILE_DIR, file: "Washing_Machine.glb", scale: 1.0, label: "Washer" },
+    { id: "Svc_Forage_Bush", dir: MODEL_DIR, file: "Bush_2_A_Color1.gltf", scale: 1.0, label: "Forage" },
+    { id: "Svc_Flax", dir: TILE_DIR, file: "Prop_Grass_Clump_4.glb", scale: 1.0, label: "Flax" },
+  ]},
+];
+
+/* ═══════════════════════════════════════════
+   Chunk System
+   ═══════════════════════════════════════════ */
+let currentChunk = [0, 0];       // [cx, cz]
+const chunkDataStore = new Map(); // "cx,cz" → { heightOffsets, colorOverrides, objects, water, edges }
+
+function chunkKey(cx, cz) { return `${cx},${cz}`; }
+function currentChunkKey() { return chunkKey(currentChunk[0], currentChunk[1]); }
+
+function ensureChunkData(cx, cz) {
+  const key = chunkKey(cx, cz);
+  if (!chunkDataStore.has(key)) {
+    chunkDataStore.set(key, {
+      heightData: {},  // sparse "wx,wz" → offset
+      colorData: {},   // sparse "wx,wz" → [r,g,b]
+      objects: [],     // { type, x, z, y, scale, rot }
+      water: true,
+      edges: { north: false, south: false, east: false, west: false },
+      baseType: "grass", // grass|dirt|sand|stone|snow|dark
+    });
+  }
+  return chunkDataStore.get(key);
+}
+
+/** Save current editor state into the chunk store */
+function saveObjectsToChunkStores() {
+  /* skip when in instance — objects array only has instance objects, not world objects */
+  if (activeInstance) return;
+  /* distribute objects to their proper chunks based on world position,
+     converting world coords to local chunk coords for game compatibility */
+  const buckets = new Map(); // "cx,cz" → [obj, ...]
+  for (const [key] of chunkDataStore) buckets.set(key, []);
+  for (const o of objects) {
+    if (STRUCTURAL_TYPES.has(o.type)) continue;
+    const [ocx, ocz] = worldToChunk(o.x, o.z);
+    const key = `${ocx},${ocz}`;
+    if (!buckets.has(key)) buckets.set(key, []);
+    /* store in LOCAL chunk coords (subtract chunk world offset) */
+    const lx = o.x - ocx * CHUNK_SIZE;
+    const lz = o.z - ocz * CHUNK_SIZE;
+    buckets.get(key).push({ type: o.type, x: +lx.toFixed(2), z: +lz.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) });
+  }
+  for (const [key, objs] of buckets) {
+    const [cx, cz] = key.split(",").map(Number);
+    const cd = ensureChunkData(cx, cz);
+    cd.objects = objs;
+  }
+}
+
+function saveCurrentChunkToStore() {
+  /* save all chunk mesh data to store */
+  saveAllChunksToStore();
+  /* distribute objects to their proper chunks */
+  saveObjectsToChunkStores();
+  /* save water + edges + baseType for selected chunk */
+  const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
+  cd.water = document.getElementById("chunk-water").checked;
+  cd.edges = {
+    north: document.getElementById("edge-n").classList.contains("on"),
+    south: document.getElementById("edge-s").classList.contains("on"),
+    east:  document.getElementById("edge-e").classList.contains("on"),
+    west:  document.getElementById("edge-w").classList.contains("on"),
+  };
+  cd.baseType = document.getElementById("chunk-base").value;
+  /* update the mesh entry's baseType + water visibility */
+  const entry = chunkMeshes.get(currentChunkKey());
+  if (entry) {
+    entry.baseType = cd.baseType;
+  }
+  rebuildWaterPlane();
+}
+
+/** Load chunk data from store — build mesh if needed, update UI */
+function loadChunkFromStore(cx, cz) {
+  const cd = ensureChunkData(cx, cz);
+  /* build mesh for this chunk if not already built */
+  const key = chunkKey(cx, cz);
+  if (!chunkMeshes.has(key)) buildChunkMesh(cx, cz);
+  /* activate for editing */
+  activateChunkForEditing(cx, cz);
+  /* load objects — remove all non-structural, keep structural but toggle visibility */
+  const structural = objects.filter(o => STRUCTURAL_TYPES.has(o.type));
+  const remove = objects.filter(o => !STRUCTURAL_TYPES.has(o.type));
+  for (const obj of remove) scene.remove(obj.mesh);
+  objects.length = 0; objects.push(...structural);
+  deselectInstance();
+  /* structural + waterfall always visible (they're in world space) */
+  for (const obj of structural) obj.mesh.visible = true;
+  if (typeof waterfallGroup !== "undefined") waterfallGroup.visible = true;
+  /* add chunk objects (from ALL chunks) — convert local chunk coords to world coords */
+  for (const [ck, cData] of chunkDataStore) {
+    const [ccx, ccz] = ck.split(",").map(Number);
+    const offX = ccx * CHUNK_SIZE, offZ = ccz * CHUNK_SIZE;
+    for (const entry of cData.objects) {
+      const tmpl = objLib[entry.type]; if (!tmpl) continue;
+      const mesh = SkeletonUtils.clone(tmpl);
+      mesh.scale.setScalar(entry.scale || 1);
+      const wx = entry.x + offX, wz = entry.z + offZ;
+      mesh.position.set(wx, entry.y || 0, wz);
+      mesh.rotation.y = entry.rot || 0;
+      if (CLICK_HELPER_TYPES.has(entry.type)) addClickHelper(mesh);
+      scene.add(mesh);
+      objects.push({ id: nextObjId++, type: entry.type, x: wx, z: wz, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
+    }
+  }
+  /* update UI for selected chunk */
+  document.getElementById("chunk-water").checked = cd.water;
+  document.getElementById("edge-n").classList.toggle("on", !!cd.edges.north);
+  document.getElementById("edge-s").classList.toggle("on", !!cd.edges.south);
+  document.getElementById("edge-e").classList.toggle("on", !!cd.edges.east);
+  document.getElementById("edge-w").classList.toggle("on", !!cd.edges.west);
+  document.getElementById("chunk-base").value = cd.baseType || "grass";
+  updateCount();
+}
+
+function switchChunk(cx, cz) {
+  /* save UI settings for previous selected chunk */
+  const prevCd = ensureChunkData(currentChunk[0], currentChunk[1]);
+  prevCd.water = document.getElementById("chunk-water").checked;
+  prevCd.edges = {
+    north: document.getElementById("edge-n").classList.contains("on"),
+    south: document.getElementById("edge-s").classList.contains("on"),
+    east:  document.getElementById("edge-e").classList.contains("on"),
+    west:  document.getElementById("edge-w").classList.contains("on"),
+  };
+  prevCd.baseType = document.getElementById("chunk-base").value;
+  const prevEntry = chunkMeshes.get(chunkKey(currentChunk[0], currentChunk[1]));
+  if (prevEntry) {
+    prevEntry.baseType = prevCd.baseType;
+  }
+  /* switch to new chunk */
+  currentChunk = [cx, cz];
+  document.getElementById("chunk-id").textContent = `${cx},${cz}`;
+  const cd = ensureChunkData(cx, cz);
+  if (!chunkMeshes.has(chunkKey(cx, cz))) buildChunkMesh(cx, cz);
+  /* activate for editing so brush/flatten targets this chunk */
+  activateChunkForEditing(cx, cz);
+  moveChunkHighlight(cx, cz);
+  teleportCameraToChunk(cx, cz);
+  /* update UI for new selected chunk */
+  document.getElementById("chunk-water").checked = cd.water;
+  document.getElementById("edge-n").classList.toggle("on", !!cd.edges.north);
+  document.getElementById("edge-s").classList.toggle("on", !!cd.edges.south);
+  document.getElementById("edge-e").classList.toggle("on", !!cd.edges.east);
+  document.getElementById("edge-w").classList.toggle("on", !!cd.edges.west);
+  document.getElementById("chunk-base").value = cd.baseType || "grass";
+  updateMinimap();
+}
+
+/* ═══════════════════════════════════════════
+   Height-editable terrain mesh (from heighteditor.js)
+   ═══════════════════════════════════════════ */
+const TOON_GRAD = (() => {
+  const c = document.createElement("canvas"); c.width = 4; c.height = 1;
+  const ctx = c.getContext("2d");
+  [25, 95, 185, 255].forEach((v, i) => { ctx.fillStyle = `rgb(${v},${v},${v})`; ctx.fillRect(i, 0, 1, 1); });
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.NoColorSpace; t.minFilter = t.magFilter = THREE.NearestFilter; t.generateMipmaps = false;
+  return t;
+})();
+
+const hStep = 1.0;
+const MESH_PAD = 1; // extend mesh 1 unit past chunk edge to cover gaps
+const xMin = (GX_MIN - 1) * TILE_S, xMax = (GX_MAX + 1) * TILE_S;
+const zMin = (GZ_MIN - 1) * TILE_S, zMax = (GZ_MAX + 1) * TILE_S;
+const hnx = Math.ceil((xMax - xMin) / hStep) + 1;
+const hnz = Math.ceil((zMax - zMin) / hStep) + 1;
+/* padded mesh grid (1 extra vertex on each side) */
+const PAD_V = Math.round(MESH_PAD / hStep); // padding in vertices
+const mnx = hnx + PAD_V * 2;
+const mnz = hnz + PAD_V * 2;
+function mvi(ix, iz) { return (iz + PAD_V) * mnx + (ix + PAD_V); } // data-grid ix,iz → mesh vertex index
+let heightOffsets = new Float32Array(hnx * hnz);
+const hUndoStack = [];
+let activeBaseType = "grass";
+let activeEditChunk = [0, 0];
+const chunkMeshes = new Map(); // "cx,cz" → { mesh, geo, hPos, hCol, heightOffsets, colorOverrides, baseType, cx, cz }
+
+function worldToChunk(wx, wz) {
+  return [Math.floor((wx - xMin) / CHUNK_SIZE), Math.floor((wz - zMin) / CHUNK_SIZE)];
+}
+let hUndoSnap = null;
+
+function hvi(ix, iz) { return iz * hnx + ix; }
+function worldToHGrid(wx, wz) { return [Math.round((wx - xMin) / hStep), Math.round((wz - zMin) / hStep)]; }
+
+const cGrass = new THREE.Color("#4dad38"), cPath = new THREE.Color("#c4a060");
+const cSand = new THREE.Color("#e2d098"), cHill = new THREE.Color("#3d8a2e");
+const cBank = new THREE.Color("#6d8854"), cRiver = new THREE.Color("#5a7454");
+const cCliff = new THREE.Color("#8a8a7a"), tmpC = new THREE.Color();
+const beachCX = 38, beachCZ = -6, beachR = 26;
+
+/* base type → color palette */
+const BASE_COLORS = {
+  grass: new THREE.Color("#4dad38"),
+  dirt:  new THREE.Color("#8B7355"),
+  sand:  new THREE.Color("#e2d098"),
+  stone: new THREE.Color("#8a8a7a"),
+  snow:  new THREE.Color("#e8eef0"),
+  dark:  new THREE.Color("#3a3a42"),
+};
+const BRIDGE_X0 = -6, BRIDGE_X1 = 6, BRIDGE_Z = 8, BRIDGE_HW = 3;
+let colorOverrides = {};
+
+function computeColor(x, z, y) {
+  const key = `${x},${z}`;
+  if (colorOverrides[key]) {
+    const ov = colorOverrides[key];
+    tmpC.setRGB(ov[0], ov[1], ov[2]);
+    return tmpC;
+  }
+  return computeBaseColor(x, z, y);
+}
+function computeBaseColor(x, z, y) {
+  const bc = BASE_COLORS[activeBaseType] || cGrass;
+  if (y > GRASS_Y + 3) { tmpC.copy(cCliff); return tmpC; }
+  if (y > GRASS_Y + 0.5) { tmpC.copy(bc).lerp(cCliff, sm(y, GRASS_Y + 0.5, GRASS_Y + 3) * 0.4); return tmpC; }
+  return bc;
+}
+
+/* ═══════════════════════════════════════════
+   Minimap — shows chunk grid, click to navigate
+   ═══════════════════════════════════════════ */
+const BASE_TYPE_MINIMAP_COLORS = {
+  grass: "#4dad38", dirt: "#8B7355", sand: "#e2d098",
+  stone: "#8a8a7a", snow: "#e8eef0", dark: "#3a3a42",
+};
+
+function updateMinimap() {
+  const cvs = document.getElementById("minimap");
+  const ctx = cvs.getContext("2d");
+  const w = cvs.width, h = cvs.height;
+  ctx.fillStyle = "#0d0d18";
+  ctx.fillRect(0, 0, w, h);
+
+  /* find bounding box of all chunks */
+  let cxMin = 0, cxMax = 0, czMin = 0, czMax = 0;
+  for (const key of chunkDataStore.keys()) {
+    const [cx, cz] = key.split(",").map(Number);
+    cxMin = Math.min(cxMin, cx); cxMax = Math.max(cxMax, cx);
+    czMin = Math.min(czMin, cz); czMax = Math.max(czMax, cz);
+  }
+  /* also include current chunk + 1 padding in each direction */
+  cxMin = Math.min(cxMin, currentChunk[0]) - 1;
+  cxMax = Math.max(cxMax, currentChunk[0]) + 1;
+  czMin = Math.min(czMin, currentChunk[1]) - 1;
+  czMax = Math.max(czMax, currentChunk[1]) + 1;
+
+  const cols = cxMax - cxMin + 1, rows = czMax - czMin + 1;
+  const cellW = Math.floor(w / cols), cellH = Math.floor(h / rows);
+  const cellSize = Math.min(cellW, cellH, 40);
+  const ox = Math.floor((w - cols * cellSize) / 2);
+  const oy = Math.floor((h - rows * cellSize) / 2);
+
+  /* draw grid */
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const cx = cxMin + col, cz = czMax - row; // flip z so north is up
+      const x = ox + col * cellSize, y = oy + row * cellSize;
+      const key = chunkKey(cx, cz);
+      const hasData = chunkDataStore.has(key);
+
+      /* cell fill */
+      if (hasData) {
+        const cd = chunkDataStore.get(key);
+        ctx.fillStyle = BASE_TYPE_MINIMAP_COLORS[cd.baseType || "grass"] || "#4dad38";
+      } else {
+        ctx.fillStyle = "#1a1a2e";
+      }
+      ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+
+      /* grid lines */
+      ctx.strokeStyle = "#2a2a3e";
+      ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
+
+      /* active edit chunk highlight (cyan) */
+      if (cx === activeEditChunk[0] && cz === activeEditChunk[1]) {
+        ctx.strokeStyle = "#00ffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 1.5, y + 1.5, cellSize - 3, cellSize - 3);
+        ctx.lineWidth = 1;
+      }
+      /* selected chunk highlight (yellow) */
+      if (cx === currentChunk[0] && cz === currentChunk[1]) {
+        ctx.strokeStyle = "#e8c44a";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 2.5, y + 2.5, cellSize - 5, cellSize - 5);
+        ctx.lineWidth = 1;
+      }
+
+      /* coord label */
+      if (cellSize >= 20) {
+        ctx.fillStyle = hasData ? "#000" : "#444";
+        ctx.font = `${Math.min(9, cellSize / 3)}px monospace`;
+        ctx.textAlign = "center";
+        ctx.fillText(`${cx},${cz}`, x + cellSize / 2, y + cellSize / 2 + 3);
+      }
+    }
+  }
+
+  /* compass labels on minimap edges */
+  ctx.font = "bold 11px sans-serif";
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillStyle = "#e8c44a";
+  ctx.fillText("N", w / 2, oy - 7);
+  ctx.fillStyle = "#888";
+  ctx.fillText("S", w / 2, oy + rows * cellSize + 8);
+  ctx.fillText("E", ox + cols * cellSize + 9, h / 2);
+  ctx.fillText("W", ox - 9, h / 2);
+
+  /* store mapping for click handler */
+  cvs._mapData = { cxMin, czMax, cols, rows, cellSize, ox, oy };
+}
+
+/* click minimap to navigate */
+document.getElementById("minimap").addEventListener("click", e => {
+  if (activeInstance) leaveInstance();
+  const cvs = e.target;
+  const md = cvs._mapData;
+  if (!md) return;
+  const rect = cvs.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (cvs.width / rect.width);
+  const my = (e.clientY - rect.top) * (cvs.height / rect.height);
+  const col = Math.floor((mx - md.ox) / md.cellSize);
+  const row = Math.floor((my - md.oy) / md.cellSize);
+  if (col < 0 || col >= md.cols || row < 0 || row >= md.rows) return;
+  const cx = md.cxMin + col, cz = md.czMax - row;
+  switchChunk(cx, cz);
+  activateChunkForEditing(cx, cz);
+  moveChunkHighlight(cx, cz);
+  updateMinimap();
+});
+
+/* ── Chunk list panel ── */
+function updateChunkList() {
+  const list = document.getElementById("chunk-list");
+  if (!list) return;
+  list.innerHTML = "";
+
+  /* Instances section */
+  if (instanceStore.size > 0) {
+    const instHeader = document.createElement("div");
+    instHeader.style.cssText = "font-size:9px;color:#e8c44a;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:4px 0;margin-top:4px";
+    instHeader.textContent = "Instances";
+    list.appendChild(instHeader);
+    for (const [name, inst] of instanceStore) {
+      const isActive = activeInstance === name;
+      const row = document.createElement("div");
+      row.style.cssText = `display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:3px;cursor:pointer;font-size:11px;color:${isActive ? "#e8c44a" : "#c9a0ff"};background:${isActive ? "#2a2a50" : "transparent"};margin-bottom:2px`;
+      const label = document.createElement("span");
+      label.style.flex = "1";
+      label.textContent = `${name} [${inst.type}]`;
+      row.appendChild(label);
+      const objCount = document.createElement("span");
+      objCount.style.cssText = "font-size:9px;color:#555;font-family:monospace";
+      objCount.textContent = `${(inst.objects || []).length} obj`;
+      row.appendChild(objCount);
+      if (isActive) {
+        const leaveBtn = document.createElement("button");
+        leaveBtn.textContent = "Exit";
+        leaveBtn.style.cssText = "padding:1px 6px;font-size:9px;cursor:pointer;background:#5a2020;color:#ff8888;border:1px solid #882222;border-radius:3px";
+        leaveBtn.addEventListener("click", (ev) => { ev.stopPropagation(); leaveInstance(); });
+        row.appendChild(leaveBtn);
+      } else {
+        row.addEventListener("click", () => { if (activeInstance) leaveInstance(); enterInstance(name); });
+      }
+      list.appendChild(row);
+    }
+  }
+
+  /* World chunks section */
+  /* world chunks always shown — clicking one while in instance leaves the instance */
+  const worldHeader = document.createElement("div");
+  worldHeader.style.cssText = "font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:4px 0;margin-top:6px";
+  worldHeader.textContent = "World Chunks";
+  list.appendChild(worldHeader);
+  const allKeys = [...chunkDataStore.keys()].sort((a, b) => {
+    const [ax, az] = a.split(",").map(Number);
+    const [bx, bz] = b.split(",").map(Number);
+    return az !== bz ? bz - az : ax - bx;
+  });
+  for (const key of allKeys) {
+    const [cx, cz] = key.split(",").map(Number);
+    const isCurrent = currentChunk[0] === cx && currentChunk[1] === cz;
+    const row = document.createElement("div");
+    row.style.cssText = `display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:3px;cursor:pointer;font-size:11px;color:${isCurrent ? "#e8c44a" : "#999"};background:${isCurrent ? "#2a2a50" : "transparent"};margin-bottom:2px`;
+    const label = document.createElement("span");
+    label.style.flex = "1";
+    label.textContent = `(${cx}, ${cz})`;
+    row.appendChild(label);
+    const cd = chunkDataStore.get(key);
+    const objCount = document.createElement("span");
+    objCount.style.cssText = "font-size:9px;color:#555;font-family:monospace";
+    objCount.textContent = `${(cd.objects || []).length} obj`;
+    row.appendChild(objCount);
+    row.addEventListener("click", () => {
+      if (activeInstance) leaveInstance();
+      switchChunk(cx, cz);
+      updateMinimap();
+      updateChunkList();
+    });
+    list.appendChild(row);
+  }
+}
+
+/* ── Instance system — separate from main world ── */
+const instanceStore = new Map(); // name → { type, objects:[], heightData:{}, colorData:{}, baseType, water }
+let activeInstance = null; // null = editing world, string = instance name
+
+function enterInstance(name) {
+  if (!instanceStore.has(name)) return;
+  /* save current world chunk first */
+  saveCurrentChunkToStore();
+  activeInstance = name;
+  const inst = instanceStore.get(name);
+  /* hide all world chunk meshes */
+  for (const [key, entry] of chunkMeshes) {
+    if (!key.startsWith("inst:")) entry.mesh.visible = false;
+  }
+  /* clear ALL objects from scene (including structural — they belong to world, not instance) */
+  for (const obj of objects) scene.remove(obj.mesh);
+  objects.length = 0;
+  /* hide waterfall */
+  if (typeof waterfallGroup !== "undefined" && waterfallGroup) waterfallGroup.visible = false;
+  /* build instance chunk at origin if not already built */
+  const instKey = "inst:" + name;
+  if (!chunkMeshes.has(instKey)) {
+    /* save + remove existing 0,0 mesh so it doesn't overlap */
+    const savedMeshEntry = chunkMeshes.get("0,0");
+    if (savedMeshEntry) { savedMeshEntry.mesh.visible = false; chunkMeshes.delete("0,0"); }
+    /* temporarily inject instance data into chunk 0,0 data store, build mesh, then move it */
+    const savedCd = chunkDataStore.get("0,0");
+    const tmpCd = { heightData: inst.heightData || {}, colorData: inst.colorData || {}, baseType: inst.baseType || "dark", water: inst.water || false, objects: [], edges: {} };
+    chunkDataStore.set("0,0", tmpCd);
+    buildChunkMesh(0, 0);
+    const entry = chunkMeshes.get("0,0");
+    if (entry) { chunkMeshes.set(instKey, entry); chunkMeshes.delete("0,0"); }
+    /* restore original 0,0 mesh + data */
+    if (savedMeshEntry) chunkMeshes.set("0,0", savedMeshEntry);
+    if (savedCd) chunkDataStore.set("0,0", savedCd);
+    else chunkDataStore.delete("0,0");
+  }
+  const instEntry = chunkMeshes.get(instKey);
+  if (instEntry) {
+    instEntry.mesh.visible = true;
+    /* activate instance mesh for editing directly */
+    heightOffsets = instEntry.heightOffsets;
+    colorOverrides = instEntry.colorOverrides;
+    groundMesh = instEntry.mesh;
+    groundGeo = instEntry.geo;
+    hPos = instEntry.hPos;
+    hCol = instEntry.hCol;
+    activeBaseType = instEntry.baseType;
+    activeEditChunk = [0, 0];
+  }
+  /* load instance objects */
+  for (const entry of inst.objects || []) {
+    const tmpl = objLib[entry.type]; if (!tmpl) continue;
+    const mesh = SkeletonUtils.clone(tmpl);
+    mesh.scale.setScalar(entry.scale || 1);
+    mesh.position.set(entry.x, entry.y || 0, entry.z);
+    mesh.rotation.y = entry.rot || 0;
+    scene.add(mesh);
+    objects.push({ id: nextObjId++, type: entry.type, x: entry.x, z: entry.z, y: entry.y || 0, scale: entry.scale || 1, rot: entry.rot || 0, mesh });
+  }
+  currentChunk = [0, 0];
+  teleportCameraToChunk(0, 0);
+  document.getElementById("chunk-id").textContent = name;
+  document.getElementById("chunk-water").checked = inst.water || false;
+  _updateInstanceBanner();
+  rebuildWaterPlane();
+  updateChunkList();
+}
+
+function _updateInstanceBanner() {
+  let banner = document.getElementById("instance-banner");
+  if (activeInstance) {
+    if (!banner) {
+      banner = document.createElement("div");
+      banner.id = "instance-banner";
+      banner.style.cssText = "position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:999;background:#e8c44a;color:#1a1a2e;font-size:12px;font-weight:700;padding:4px 16px;border-radius:0 0 6px 6px;font-family:inherit;pointer-events:none;text-align:center";
+      document.body.appendChild(banner);
+    }
+    banner.textContent = `INSTANCE: ${activeInstance}`;
+    banner.style.display = "block";
+  } else if (banner) {
+    banner.style.display = "none";
+  }
+}
+
+function leaveInstance() {
+  if (!activeInstance) return;
+  /* save instance objects + terrain data */
+  const inst = instanceStore.get(activeInstance);
+  const instKey = "inst:" + activeInstance;
+  const instEntry = chunkMeshes.get(instKey);
+  if (inst) {
+    inst.objects = objects
+      .filter(o => !STRUCTURAL_TYPES.has(o.type))
+      .map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+    /* save height + color data from the mesh back to the instance */
+    if (instEntry) {
+      inst.heightData = {};
+      for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+        const vi = hvi(ix, iz);
+        if (Math.abs(instEntry.heightOffsets[vi]) > 0.001)
+          inst.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +instEntry.heightOffsets[vi].toFixed(3);
+      }
+      inst.colorData = {};
+      for (const [ck, cv] of Object.entries(instEntry.colorOverrides))
+        inst.colorData[ck] = [+cv[0].toFixed(4), +cv[1].toFixed(4), +cv[2].toFixed(4)];
+      inst.baseType = instEntry.baseType;
+    }
+  }
+  /* remove instance mesh */
+  if (instEntry) { scene.remove(instEntry.mesh); instEntry.geo.dispose(); chunkMeshes.delete(instKey); }
+  /* clear ALL instance objects from scene */
+  for (const obj of objects) scene.remove(obj.mesh);
+  objects.length = 0;
+  activeInstance = null;
+  _updateInstanceBanner();
+  /* restore world chunks + waterfall */
+  for (const [, entry] of chunkMeshes) entry.mesh.visible = true;
+  if (typeof waterfallGroup !== "undefined" && waterfallGroup) waterfallGroup.visible = true;
+  /* reload world objects and activate chunk 0,0 for editing */
+  currentChunk = [0, 0];
+  loadChunkFromStore(0, 0);
+  teleportCameraToChunk(0, 0);
+  updateMinimap();
+  updateChunkList();
+}
+
+document.getElementById("inst-create").addEventListener("click", () => {
+  const nameEl = document.getElementById("inst-name");
+  const typeEl = document.getElementById("inst-type");
+  const name = nameEl.value.trim();
+  if (!name) { alert("Enter an instance name"); return; }
+  if (instanceStore.has(name)) { alert("Instance already exists"); return; }
+  instanceStore.set(name, { type: typeEl.value, objects: [], heightData: {}, colorData: {}, baseType: "dark", water: false });
+  setMode("chunks");
+  enterInstance(name);
+  nameEl.value = "";
+});
+
+/** Base height: flat GRASS_Y for all chunks (terrain defined by heightOffsets) */
+function getBaseY(x, z) { return GRASS_Y; }
+
+function vertColor(x, z, y) { return computeColor(x, z, y); }
+
+let hPos, hCol, groundMesh, groundGeo;
+
+function buildChunkMesh(cx, cz) {
+  const cd = ensureChunkData(cx, cz);
+  const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
+  const bt = cd.baseType || "grass";
+  const bc = BASE_COLORS[bt] || cGrass;
+  const ho = new Float32Array(hnx * hnz);
+  const co = {};
+  for (const [key, val] of Object.entries(cd.heightData)) {
+    const [wx, wz] = key.split(",").map(Number);
+    const [ix, iz] = worldToHGrid(wx, wz);
+    if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) ho[hvi(ix, iz)] = val;
+  }
+  Object.assign(co, cd.colorData);
+  /* build mesh with MESH_PAD extension on each side to cover inter-chunk gaps */
+  const mxMin = xMin - MESH_PAD, mxMax = xMax + MESH_PAD;
+  const mzMin = zMin - MESH_PAD, mzMax = zMax + MESH_PAD;
+  const hp = new Float32Array(mnx * mnz * 3);
+  const hc = new Float32Array(mnx * mnz * 3);
+  const idx = [];
+  for (let iz = 0; iz < mnz; iz++) {
+    for (let ix = 0; ix < mnx; ix++) {
+      const lx = mxMin + ix * hStep, lz = mzMin + iz * hStep;
+      const vi = iz * mnx + ix, i3 = vi * 3;
+      /* clamp to editable grid for height lookup */
+      const eix = Math.max(0, Math.min(hnx - 1, Math.round((lx - xMin) / hStep)));
+      const eiz = Math.max(0, Math.min(hnz - 1, Math.round((lz - zMin) / hStep)));
+      const isPad = lx < xMin || lx > xMax || lz < zMin || lz > zMax;
+      const y = GRASS_Y + ho[hvi(eix, eiz)] - (isPad ? 0.02 : 0);
+      hp[i3] = lx + ox; hp[i3+1] = y; hp[i3+2] = lz + oz;
+      const ckey = `${Math.max(xMin, Math.min(xMax, lx))},${Math.max(zMin, Math.min(zMax, lz))}`;
+      if (co[ckey]) {
+        hc[i3] = co[ckey][0]; hc[i3+1] = co[ckey][1]; hc[i3+2] = co[ckey][2];
+      } else {
+        let fc;
+        if (y > GRASS_Y + 3) fc = cCliff;
+        else if (y > GRASS_Y + 0.5) { tmpC.copy(bc).lerp(cCliff, sm(y, GRASS_Y+0.5, GRASS_Y+3)*0.4); fc = tmpC; }
+        else fc = bc;
+        hc[i3] = fc.r; hc[i3+1] = fc.g; hc[i3+2] = fc.b;
+      }
+      if (ix < mnx-1 && iz < mnz-1) idx.push(vi, vi+mnx, vi+1, vi+1, vi+mnx, vi+mnx+1);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(hp, 3));
+  geo.setAttribute("color", new THREE.BufferAttribute(hc, 3));
+  geo.setIndex(idx); geo.computeVertexNormals();
+  const mesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
+  scene.add(mesh);
+  const entry = { mesh, geo, hPos: hp, hCol: hc, heightOffsets: ho, colorOverrides: co, baseType: bt, cx, cz };
+  chunkMeshes.set(chunkKey(cx, cz), entry);
+  return entry;
+}
+
+function removeChunkMesh(cx, cz) {
+  const key = chunkKey(cx, cz);
+  const entry = chunkMeshes.get(key);
+  if (!entry) return;
+  scene.remove(entry.mesh); entry.geo.dispose();
+  chunkMeshes.delete(key);
+}
+
+/* chunk highlight outline */
+const _chunkHighlightGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(xMax - xMin, 0.6, zMax - zMin));
+const _chunkHighlight = new THREE.LineSegments(_chunkHighlightGeo, new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2, transparent: true, opacity: 0.7 }));
+_chunkHighlight.renderOrder = 999;
+
+function activateChunkForEditing(cx, cz) {
+  const key = chunkKey(cx, cz);
+  let entry = chunkMeshes.get(key);
+  if (!entry) { ensureChunkData(cx, cz); entry = buildChunkMesh(cx, cz); }
+  heightOffsets = entry.heightOffsets;
+  colorOverrides = entry.colorOverrides;
+  groundMesh = entry.mesh;
+  groundGeo = entry.geo;
+  hPos = entry.hPos;
+  hCol = entry.hCol;
+  activeBaseType = entry.baseType;
+  activeEditChunk = [cx, cz];
+}
+
+function moveChunkHighlight(cx, cz) {
+  const ox = cx * CHUNK_SIZE + (xMin + xMax) / 2, oz = cz * CHUNK_SIZE + (zMin + zMax) / 2;
+  _chunkHighlight.position.set(ox, GRASS_Y + 0.3, oz);
+  if (!_chunkHighlight.parent) scene.add(_chunkHighlight);
+}
+function teleportCameraToChunk(cx, cz) {
+  const ox = cx * CHUNK_SIZE + (xMin + xMax) / 2;
+  const oz = cz * CHUNK_SIZE + (zMin + zMax) / 2;
+  orbitControls.target.set(ox, 0, oz);
+  camera.position.set(ox, 150, oz - 0.01);
+  orbitControls.update();
+}
+
+function ensureAllChunkMeshes() {
+  for (const key of chunkDataStore.keys()) {
+    if (!chunkMeshes.has(key)) {
+      const [cx, cz] = key.split(",").map(Number);
+      buildChunkMesh(cx, cz);
+    }
+  }
+  if (!chunkMeshes.has("0,0")) { ensureChunkData(0, 0); buildChunkMesh(0, 0); }
+  rebuildWaterPlane();
+}
+
+/* single water plane covering all water-enabled chunks */
+let _waterMesh = null;
+function rebuildWaterPlane() {
+  if (_waterMesh) { scene.remove(_waterMesh); _waterMesh.geometry.dispose(); _waterMesh = null; }
+  if (activeInstance) {
+    /* instance mode: only show water if this instance has water enabled */
+    const inst = instanceStore.get(activeInstance);
+    if (!inst || !inst.water) return;
+    const wGeo = new THREE.PlaneGeometry(xMax - xMin, zMax - zMin, 1, 1);
+    wGeo.rotateX(-Math.PI / 2);
+    _waterMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
+    _waterMesh.position.set((xMin + xMax) / 2, WATER_Y, (zMin + zMax) / 2);
+    _waterMesh.renderOrder = 2;
+    scene.add(_waterMesh);
+    return;
+  }
+  /* find bounding box of all chunks with water enabled */
+  let wxMin = Infinity, wxMax = -Infinity, wzMin = Infinity, wzMax = -Infinity;
+  let hasWater = false;
+  for (const [key, cd] of chunkDataStore) {
+    if (!cd.water) continue;
+    hasWater = true;
+    const [cx, cz] = key.split(",").map(Number);
+    const ox = cx * CHUNK_SIZE, oz = cz * CHUNK_SIZE;
+    wxMin = Math.min(wxMin, xMin + ox); wxMax = Math.max(wxMax, xMax + ox);
+    wzMin = Math.min(wzMin, zMin + oz); wzMax = Math.max(wzMax, zMax + oz);
+  }
+  if (!hasWater) return;
+  const wGeo = new THREE.PlaneGeometry(wxMax - wxMin, wzMax - wzMin, 1, 1);
+  wGeo.rotateX(-Math.PI / 2);
+  _waterMesh = new THREE.Mesh(wGeo, new THREE.MeshBasicMaterial({ color: "#93d8f6", transparent: true, opacity: 0.55, depthWrite: false }));
+  _waterMesh.position.set((wxMin + wxMax) / 2, WATER_Y, (wzMin + wzMax) / 2);
+  _waterMesh.renderOrder = 2;
+  scene.add(_waterMesh);
+}
+
+function saveAllChunksToStore() {
+  for (const [key, entry] of chunkMeshes) {
+    const cd = ensureChunkData(entry.cx, entry.cz);
+    cd.heightData = {};
+    for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+      const vi = hvi(ix, iz);
+      if (Math.abs(entry.heightOffsets[vi]) > 0.001)
+        cd.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +entry.heightOffsets[vi].toFixed(3);
+    }
+    cd.colorData = {};
+    for (const [ck, cv] of Object.entries(entry.colorOverrides))
+      cd.colorData[ck] = [+cv[0].toFixed(4), +cv[1].toFixed(4), +cv[2].toFixed(4)];
+    cd.baseType = entry.baseType;
+  }
+}
+
+function getAllGroundMeshes() { return [...chunkMeshes.values()].map(e => e.mesh); }
+
+function updateMeshRegion(cx, cz, radius) {
+  const r = Math.ceil(radius / hStep) + 2;
+  for (let iz = Math.max(0, cz - r); iz <= Math.min(hnz - 1, cz + r); iz++) {
+    for (let ix = Math.max(0, cx - r); ix <= Math.min(hnx - 1, cx + r); ix++) {
+      const mi = mvi(ix, iz), mi3 = mi * 3; // mesh vertex index
+      const di = hvi(ix, iz); // data grid index
+      const x = xMin + ix * hStep, z = zMin + iz * hStep;
+      const y = getBaseY(x, z) + heightOffsets[di];
+      hPos[mi3 + 1] = y;
+      const fc = vertColor(x, z, y);
+      hCol[mi3] = fc.r; hCol[mi3 + 1] = fc.g; hCol[mi3 + 2] = fc.b;
+    }
+  }
+  /* also update padded edge vertices that mirror the data edge */
+  updatePadEdges();
+  groundGeo.attributes.position.needsUpdate = true;
+  groundGeo.attributes.color.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+}
+
+/* copy edge data-grid values out to the pad vertices so they stay in sync */
+function updatePadEdges() {
+  for (let iz = -PAD_V; iz < hnz + PAD_V; iz++) {
+    for (let ix = -PAD_V; ix < hnx + PAD_V; ix++) {
+      if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) continue; // skip interior
+      const ci = Math.max(0, Math.min(hnx - 1, ix));
+      const cj = Math.max(0, Math.min(hnz - 1, iz));
+      const mi = (iz + PAD_V) * mnx + (ix + PAD_V), mi3 = mi * 3;
+      const di = hvi(ci, cj);
+      const x = xMin + ci * hStep, z = zMin + cj * hStep;
+      const y = getBaseY(x, z) + heightOffsets[di] - 0.02;
+      hPos[mi3 + 1] = y;
+      const fc = vertColor(x, z, y);
+      hCol[mi3] = fc.r; hCol[mi3 + 1] = fc.g; hCol[mi3 + 2] = fc.b;
+    }
+  }
+}
+
+function rebuildAllVerts() {
+  for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+    const mi = mvi(ix, iz), mi3 = mi * 3;
+    const di = hvi(ix, iz);
+    const x = xMin + ix * hStep, z = zMin + iz * hStep;
+    const y = getBaseY(x, z) + heightOffsets[di];
+    hPos[mi3 + 1] = y;
+    const fc = vertColor(x, z, y);
+    hCol[mi3] = fc.r; hCol[mi3 + 1] = fc.g; hCol[mi3 + 2] = fc.b;
+  }
+  updatePadEdges();
+  groundGeo.attributes.position.needsUpdate = true;
+  groundGeo.attributes.color.needsUpdate = true;
+  groundGeo.computeVertexNormals();
+}
+
+/* Ghost system removed — all chunks rendered as full-res meshes */
+
+/* ═══════════════════════════════════════════
+   Three.js Setup
+   ═══════════════════════════════════════════ */
+const wrap = document.getElementById("canvas-wrap");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+renderer.setClearColor(0x1a1a2e);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NoToneMapping;
+wrap.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, wrap.clientWidth / wrap.clientHeight, 0.5, 500);
+camera.position.set(0, 150, -0.01);
+
+const orbitControls = new OrbitControls(camera, renderer.domElement);
+orbitControls.target.set(0, 0, 0);
+orbitControls.enableDamping = true;
+orbitControls.dampingFactor = 0.1;
+orbitControls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null };
+orbitControls.update();
+
+/* Lighting */
+scene.add(new THREE.HemisphereLight("#f0fbff", "#6aa057", 0.92));
+scene.add(new THREE.AmbientLight("#ffffff", 0.18));
+const sun = new THREE.DirectionalLight("#fff2d0", 1.46);
+sun.position.set(42, 54, 18); scene.add(sun);
+const fillL = new THREE.DirectionalLight("#d8efff", 0.32);
+fillL.position.set(-34, 26, -24); scene.add(fillL);
+
+/* ═══════════════════════════════════════════
+   Scene: terrain mesh + water + structures
+   ═══════════════════════════════════════════ */
+/* Initial chunk mesh — more built after loading data */
+ensureChunkData(0, 0);
+buildChunkMesh(0, 0);
+activateChunkForEditing(0, 0);
+
+/* stepping stones — registered as editable in loadGameStructures */
+
+/* waterfall — only shown on spawn chunk */
+const waterUniforms = { uTime: { value: 0 } };
+const waterfallGroup = new THREE.Group();
+waterfallGroup.name = "waterfall";
+addWaterfall(waterfallGroup, waterUniforms);
+scene.add(waterfallGroup);
+
+/* grid */
+const GRID_MIN = -25, GRID_MAX = 25;
+const gridGroup = new THREE.Group(); gridGroup.name = "grid"; gridGroup.visible = false;
+{
+  const mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.12 });
+  const pts = [];
+  for (let i = GRID_MIN; i <= GRID_MAX + 1; i++) {
+    const x = i * TILE_S;
+    pts.push(new THREE.Vector3(x, 0.01, GRID_MIN * TILE_S), new THREE.Vector3(x, 0.01, (GRID_MAX + 1) * TILE_S));
+  }
+  for (let j = GRID_MIN; j <= GRID_MAX + 1; j++) {
+    const z = j * TILE_S;
+    pts.push(new THREE.Vector3(GRID_MIN * TILE_S, 0.01, z), new THREE.Vector3((GRID_MAX + 1) * TILE_S, 0.01, z));
+  }
+  gridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), mat));
+  scene.add(gridGroup);
+}
+
+/* brush circle for height mode */
+let brushRadius = 4;
+const brushGeo = new THREE.RingGeometry(brushRadius - 0.15, brushRadius + 0.15, 48);
+brushGeo.rotateX(-Math.PI / 2);
+const brushCircle = new THREE.Mesh(brushGeo, new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.6, depthTest: false }));
+brushCircle.renderOrder = 100; brushCircle.visible = false; scene.add(brushCircle);
+function updateBrushGeo() {
+  brushCircle.geometry.dispose();
+  brushCircle.geometry = new THREE.RingGeometry(brushRadius - 0.15, brushRadius + 0.15, 48);
+  brushCircle.geometry.rotateX(-Math.PI / 2);
+}
+
+/* hover highlight for object mode */
+const hoverMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(TILE_S, TILE_S),
+  new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthTest: false })
+);
+hoverMesh.rotation.x = -Math.PI / 2; hoverMesh.position.y = 0.03; hoverMesh.visible = false; hoverMesh.renderOrder = 999;
+scene.add(hoverMesh);
+
+/* ═══════════════════════════════════════════
+   Load tile models (bridge, dock, fences) + character models
+   ═══════════════════════════════════════════ */
+THREE.Cache.enabled = true;
+const gltfLoader = new GLTFLoader();
+const objLib = {};
+const allObjItems = OBJ_CATEGORIES.flatMap(c => c.items.map(it => ({ ...it, dir: it.dir || c.dir || MODEL_DIR })));
+
+/* create placeholder box meshes for service buildings */
+for (const cat of OBJ_CATEGORIES) {
+  for (const item of cat.items) {
+    if (!item.placeholder) continue;
+    const g = new THREE.Group();
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(1.8, 1.8, 1.8),
+      new THREE.MeshToonMaterial({ color: item.color || "#888", gradientMap: TOON_GRAD })
+    );
+    box.position.y = 0.9;
+    g.add(box);
+    /* floating label */
+    const canvas = document.createElement("canvas"); canvas.width = 128; canvas.height = 48;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, 0, 128, 48);
+    ctx.font = "bold 22px sans-serif"; ctx.fillStyle = "#fff"; ctx.textAlign = "center";
+    ctx.fillText(item.label || item.id, 64, 32);
+    const tex = new THREE.CanvasTexture(canvas);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+    sprite.scale.set(2.2, 0.8, 1); sprite.position.y = 2.4;
+    g.add(sprite);
+    objLib[item.id] = g;
+  }
+}
+
+async function loadAllModels() {
+  const status = document.getElementById("count");
+  const gltfItems = allObjItems.filter(it => !it.placeholder && it.file);
+  const total = gltfItems.length;
+  let loaded = 0;
+  status.textContent = `Loading 0/${total}...`;
+  const loadOne = url => new Promise(res => { gltfLoader.load(url, gltf => res(gltf.scene), undefined, (err) => { console.warn("GLB load failed:", url, err); res(null); }); });
+  await Promise.all(gltfItems.map(async item => {
+    const s = await loadOne(item.dir + item.file);
+    if (s) { objLib[item.id] = s; }
+    else {
+      /* create placeholder so placement still works */
+      console.warn(`Creating placeholder for failed model: ${item.id}`);
+      const g = new THREE.Group();
+      const box = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.8, 1.8), new THREE.MeshToonMaterial({ color: "#f44", gradientMap: TOON_GRAD }));
+      box.position.y = 0.9; g.add(box);
+      const c2 = document.createElement("canvas"); c2.width = 128; c2.height = 48;
+      const ctx2 = c2.getContext("2d"); ctx2.fillStyle = "rgba(0,0,0,0.6)"; ctx2.fillRect(0,0,128,48);
+      ctx2.font = "bold 22px sans-serif"; ctx2.fillStyle = "#ff4444"; ctx2.textAlign = "center"; ctx2.fillText(item.label || item.id, 64, 32);
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c2), transparent: true, depthTest: false }));
+      sp.scale.set(2.2, 0.8, 1); sp.position.y = 2.4; g.add(sp);
+      objLib[item.id] = g;
+    }
+    status.textContent = `Loading ${++loaded}/${total}...`;
+  }));
+  status.textContent = `Loaded ${Object.keys(objLib).length}/${total}`;
+  status.style.color = "#4a4";
+}
+
+/* ═══════════════════════════════════════════
+   Load and display ALL game structures (bridge, dock, fences, props)
+   + trees, rocks, bushes, cliff rocks as ghost references
+   ═══════════════════════════════════════════ */
+/* village keep-out (same as terrainLayout.js) */
+const SVC = [{ x: 0, z: -32, r: 14 }, { x: 18, z: -35, r: 10 }, { x: -22, z: -34, r: 8 }];
+function inVillage(x, z, pad) { for (const s of SVC) if (Math.hypot(x - s.x, z - s.z) <= s.r + (pad||0)) return true; return false; }
+function mulberry32(seed) { let s = seed|0; return () => { s=(s+0x6D2B79F5)|0; let t=Math.imul(s^(s>>>15),1|s); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; }; }
+
+async function loadGameStructures() {
+  let tileLib;
+  try { tileLib = await loadTiles(); } catch (e) { console.warn("Tile load failed:", e); return; }
+  if (!tileLib) return;
+
+  /* Also make tileLib models available in objLib for future clone/export */
+  const TILE_OBJ_MAP = {
+    grassClump1:"Prop_Grass_Clump_1", grassClump2:"Prop_Grass_Clump_2", grassClump3:"Prop_Grass_Clump_3", grassClump4:"Prop_Grass_Clump_4",
+    flowerDaisy:"Prop_Flower_Daisy", flowerRose:"Prop_Flower_Rose", flowerSunflower:"Prop_Flower_Sunflower", flowerTulip:"Prop_Flower_Tulip",
+    cattail1:"Prop_Cattail_1", cattail2:"Prop_Cattail_2", mushroom1:"Prop_Mushroom_1", mushroom2:"Prop_Mushroom_2",
+    palmTree1:"Prop_Tree_Palm_1", palmTree2:"Prop_Tree_Palm_2",
+    shell1:"Prop_Shell_1", shell2:"Prop_Shell_2", starfish1:"Prop_Starfish_1", starfish2:"Prop_Starfish_2",
+    stump:"Prop_Stump", hollowTrunk:"Prop_Hollow_Trunk",
+  };
+  for (const [tk, ok] of Object.entries(TILE_OBJ_MAP)) {
+    if (tileLib[tk] && !objLib[ok]) objLib[ok] = tileLib[tk];
+  }
+
+  /* ── Bridge / Dock / Fences — register whole group as single editable object ── */
+  function groupAsObject(group, typeLabel) {
+    scene.add(group);
+    group.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(group);
+    const center = new THREE.Vector3(); box.getCenter(center);
+    const id = nextObjId++;
+    objects.push({ id, type: typeLabel, x: center.x, z: center.z, y: center.y, scale: 1, rot: 0, mesh: group });
+  }
+  groupAsObject(buildBridge(tileLib), "bridge");
+  groupAsObject(buildDock(tileLib), "dock");
+  groupAsObject(buildFences(tileLib), "fence");
+  groupAsObject(buildSteppingStones(), "stepping_stones");
+
+  /* ── Props — replicate scatter using objLib keys for proper export ── */
+  const rng = mulberry32(42);
+  const rand = (lo, hi) => lo + rng() * (hi - lo);
+  const grassKeys = ["Prop_Grass_Clump_1","Prop_Grass_Clump_2","Prop_Grass_Clump_3","Prop_Grass_Clump_4"].filter(k => objLib[k]);
+  const flowerKeys = ["Prop_Flower_Daisy","Prop_Flower_Rose","Prop_Flower_Sunflower","Prop_Flower_Tulip"].filter(k => objLib[k]);
+  const cattailKeys = ["Prop_Cattail_1","Prop_Cattail_2"].filter(k => objLib[k]);
+  const mushKeys = ["Prop_Mushroom_1","Prop_Mushroom_2"].filter(k => objLib[k]);
+  const shellKeys = ["Prop_Shell_1","Prop_Shell_2","Prop_Starfish_1","Prop_Starfish_2"].filter(k => objLib[k]);
+  const palmKeys = ["Prop_Tree_Palm_1","Prop_Tree_Palm_2"].filter(k => objLib[k]);
+
+  function placeProp(type, x, z, s, r) {
+    const tmpl = objLib[type]; if (!tmpl) return;
+    const mesh = SkeletonUtils.clone(tmpl);
+    const y = getMeshSurfaceY(x, z);
+    mesh.scale.setScalar(TILE_S * s);
+    mesh.position.set(x, y, z); mesh.rotation.y = r;
+    scene.add(mesh);
+    const id = nextObjId++;
+    objects.push({ id, type, x, z, y, scale: +(TILE_S * s).toFixed(2), rot: r, mesh });
+  }
+
+  if (grassKeys.length) for (let i = 0; i < 80; i++) {
+    const x = rand(-36,28), z = rand(-34,36);
+    const rq = riverQuery(x,z); if (rq.dist < rq.width+1.5) continue;
+    if (isBeach(x,z) || inVillage(x,z,3) || isOnPath(x,z)) continue;
+    placeProp(grassKeys[i % grassKeys.length], x, z, rand(0.7,1.1), rng()*Math.PI*2);
+  }
+  if (flowerKeys.length) for (let i = 0; i < 40; i++) {
+    const x = rand(-34,26), z = rand(-30,34);
+    const rq = riverQuery(x,z); if (rq.dist < rq.width+2) continue;
+    if (isBeach(x,z) || inVillage(x,z,4) || isOnPath(x,z)) continue;
+    placeProp(flowerKeys[i % flowerKeys.length], x, z, rand(0.6,1.0), rng()*Math.PI*2);
+  }
+  if (cattailKeys.length) for (let i = 0; i < 15; i++) {
+    const x = rand(-10,30), z = rand(-16,38);
+    const rq = riverQuery(x,z); if (rq.dist < rq.width || rq.dist > rq.width+3) continue;
+    placeProp(cattailKeys[i % cattailKeys.length], x, z, rand(0.8,1.2), rng()*Math.PI*2);
+  }
+  if (mushKeys.length) for (let i = 0; i < 10; i++) {
+    const x = rand(-32,34), z = rand(10,34);
+    const rq = riverQuery(x,z); if (rq.dist < rq.width+1) continue;
+    if (isOnPath(x,z)) continue;
+    placeProp(mushKeys[i % mushKeys.length], x, z, rand(0.6,1.0), rng()*Math.PI*2);
+  }
+  if (shellKeys.length) for (let i = 0; i < 8; i++) {
+    const x = rand(32,46), z = rand(-22,2);
+    if (isInRiver(x,z)) continue;
+    placeProp(shellKeys[i % shellKeys.length], x, z, rand(0.5,0.9), rng()*Math.PI*2);
+  }
+  if (palmKeys.length) for (let i = 0; i < 4; i++) {
+    const x = rand(34,44), z = rand(-20,0);
+    if (isInRiver(x,z)) continue;
+    placeProp(palmKeys[i % palmKeys.length], x, z, rand(0.8,1.2), rng()*Math.PI*2);
+  }
+  const stumpSpots = [[22,20],[26,26],[-24,20],[-18,24],[30,24]];
+  if (objLib["Prop_Stump"]) for (const [sx,sz] of stumpSpots) {
+    placeProp("Prop_Stump", sx+rand(-2,2), sz+rand(-2,2), rand(0.7,1.0), rng()*Math.PI*2);
+  }
+  if (objLib["Prop_Hollow_Trunk"]) placeProp("Prop_Hollow_Trunk", -28, 18, 0.9, rand(0,Math.PI*2));
+
+  updateCount();
+  console.log(`Loaded structures + props as ${objects.length} editable objects`);
+}
+
+async function loadGameObjects() {
+  /* Add hard-coded game objects as real editable entries in the objects array */
+  function addGameObj(type, x, z, s, r, yOffset) {
+    const tmpl = objLib[type]; if (!tmpl) return;
+    const mesh = SkeletonUtils.clone(tmpl);
+    const y = getMeshSurfaceY(x, z) + (yOffset || 0);
+    mesh.scale.setScalar(s);
+    mesh.position.set(x, y, z);
+    mesh.rotation.y = r;
+    scene.add(mesh);
+    const id = nextObjId++;
+    objects.push({ id, type, x, z, y, scale: s, rot: r, mesh });
+  }
+
+  const treeModels = ["Tree_1_A","Tree_2_A","Tree_2_C","Tree_3_A","Tree_4_A"].filter(k => objLib[k]);
+  const rockModels = ["Rock_1_J","Rock_1_K","Rock_3_A","Rock_3_C","Rock_3_E","Rock_3_G"].filter(k => objLib[k]);
+  const bushModels = ["Bush_1_A","Bush_2_A"].filter(k => objLib[k]);
+
+  if (treeModels.length) TREE_SPOTS.forEach(([x,z,s,r], i) => addGameObj(treeModels[i % treeModels.length], x, z, s, r));
+  if (rockModels.length) {
+    ROCK_MAJOR_SPOTS.forEach(([x,z,s,r], i) => addGameObj(rockModels[i % rockModels.length], x, z, s, r));
+    ROCK_SMALL_SPOTS.forEach(([x,z,s,r], i) => addGameObj(rockModels[i % rockModels.length], x, z, s, r));
+  }
+  if (bushModels.length) BUSH_SPOTS.forEach(([x,z,s,r], i) => addGameObj(bushModels[i % bushModels.length], x, z, s, r));
+  if (rockModels.length) CLIFF_ROCK_SPOTS.forEach(([x,z,s,r], i) => addGameObj(rockModels[i % rockModels.length], x, z, s, r, -2));
+
+  updateCount();
+  console.log(`Loaded ${objects.length} game objects as editable`);
+}
+
+/* ═══════════════════════════════════════════
+   Editor State
+   ═══════════════════════════════════════════ */
+let mode = "objects"; // "objects" | "height" | "paint"
+let selectedObj = null;
+let objScale = 1.0, objRot = 0;
+
+/* Object instances */
+let nextObjId = 1;
+const objects = [];
+let selectedInstance = null;
+let highlightRing = null;
+
+/* Height brush state */
+let brushMode = "raise";
+let brushStrength = 0.30;
+let flattenY = GRASS_Y;
+let painting = false, paintSign = 1, lastPaintTime = 0;
+
+/* Paint mode state */
+const PAINT_COLORS = [
+  { name: "Grass", hex: "#4dad38", color: new THREE.Color("#4dad38") },
+  { name: "Dark Grass", hex: "#3d8a2e", color: new THREE.Color("#3d8a2e") },
+  { name: "Sand", hex: "#e2d098", color: new THREE.Color("#e2d098") },
+  { name: "Stone", hex: "#8a8a7a", color: new THREE.Color("#8a8a7a") },
+  { name: "Path", hex: "#c4a060", color: new THREE.Color("#c4a060") },
+  { name: "River Bank", hex: "#6d8854", color: new THREE.Color("#6d8854") },
+  { name: "Dirt", hex: "#8b6a3e", color: new THREE.Color("#8b6a3e") },
+];
+let selectedPaintColor = PAINT_COLORS[0].color;
+let paintStrength = 0.50;
+let colorPainting = false, colorPaintSign = 1, lastColorPaintTime = 0;
+const pUndoStack = [];
+let pUndoSnap = null;
+
+const STRUCTURAL_TYPES = new Set(["bridge","dock","fence","stepping_stones","bridge_piece","dock_piece","fence_piece"]);
+
+/* Undo (objects) */
+const objUndoStack = [];
+function pushObjUndo(a) { objUndoStack.push(a); if (objUndoStack.length > 100) objUndoStack.shift(); }
+
+/* ═══════════════════════════════════════════
+   Height painting
+   ═══════════════════════════════════════════ */
+function paintAt(wx, wz, dt) {
+  _lastBrushWX = wx; _lastBrushWZ = wz; _lastBrushR = brushRadius;
+  /* convert world coords to local (chunk-relative) coords */
+  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+  const lx = wx - chOx, lz = wz - chOz;
+  const [cx, cz] = worldToHGrid(lx, lz);
+  const r = Math.ceil(brushRadius / hStep);
+  for (let dz = -r; dz <= r; dz++) {
+    for (let dx = -r; dx <= r; dx++) {
+      const ix = cx + dx, iz = cz + dz;
+      if (ix < 0 || ix >= hnx || iz < 0 || iz >= hnz) continue;
+      const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
+      const dist = Math.hypot(vx - lx, vz - lz);
+      if (dist > brushRadius) continue;
+      const falloff = 1 - sm(dist, 0, brushRadius);
+      const vi = hvi(ix, iz);
+      const curY = getBaseY(vx, vz) + heightOffsets[vi];
+      if (brushMode === "raise") {
+        heightOffsets[vi] += paintSign * brushStrength * falloff * dt * 8;
+      } else if (brushMode === "flatten") {
+        const diff = flattenY - curY;
+        const step = diff * brushStrength * falloff * dt * 4;
+        /* clamp so we never overshoot the target */
+        heightOffsets[vi] += Math.abs(step) > Math.abs(diff) ? diff : step;
+      } else if (brushMode === "stamp") {
+        heightOffsets[vi] = flattenY - getBaseY(vx, vz);
+      } else if (brushMode === "smooth") {
+        let sum = 0, cnt = 0;
+        for (const [ox, oz] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+          const ni = ix + ox, nj = iz + oz;
+          if (ni >= 0 && ni < hnx && nj >= 0 && nj < hnz) {
+            sum += getBaseY(xMin + ni * hStep, zMin + nj * hStep) + heightOffsets[hvi(ni, nj)]; cnt++;
+          }
+        }
+        if (cnt) heightOffsets[vi] += (sum / cnt - curY) * brushStrength * falloff * dt * 4;
+      }
+    }
+  }
+  updateMeshRegion(cx, cz, brushRadius);
+}
+
+function hSaveUndo() { hUndoSnap = new Float32Array(heightOffsets); }
+function hPushUndo() { if (hUndoSnap) { hUndoStack.push(hUndoSnap); if (hUndoStack.length > 50) hUndoStack.shift(); hUndoSnap = null; } resnapObjectsNearBrush(); }
+function hUndo() { if (!hUndoStack.length) return; heightOffsets.set(hUndoStack.pop()); rebuildAllVerts(); resnapObjects(); }
+
+/* ── Color painting ── */
+function paintColorAt(wx, wz, dt) {
+  /* convert world coords to local (chunk-relative) coords */
+  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+  const lx = wx - chOx, lz = wz - chOz;
+  const [cx, cz] = worldToHGrid(lx, lz);
+  const r = Math.ceil(brushRadius / hStep);
+  for (let dz = -r; dz <= r; dz++) {
+    for (let dx = -r; dx <= r; dx++) {
+      const ix = cx + dx, iz = cz + dz;
+      if (ix < 0 || ix >= hnx || iz < 0 || iz >= hnz) continue;
+      const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
+      const dist = Math.hypot(vx - lx, vz - lz);
+      if (dist > brushRadius) continue;
+      const falloff = 1 - sm(dist, 0, brushRadius);
+      const key = `${vx},${vz}`;
+      const vi = hvi(ix, iz);
+      const y = getBaseY(vx, vz) + heightOffsets[vi];
+      if (colorPaintSign < 0) {
+        delete colorOverrides[key];
+      } else {
+        let cr, cg, cb;
+        if (colorOverrides[key]) { [cr, cg, cb] = colorOverrides[key]; }
+        else { const pc = computeBaseColor(vx, vz, y); cr = pc.r; cg = pc.g; cb = pc.b; }
+        const flatFalloff = 1 - sm(dist, brushRadius * 0.5, brushRadius);
+        const t = Math.min(paintStrength * flatFalloff * dt * 4, 1);
+        cr += (selectedPaintColor.r - cr) * t;
+        cg += (selectedPaintColor.g - cg) * t;
+        cb += (selectedPaintColor.b - cb) * t;
+        colorOverrides[key] = [cr, cg, cb];
+      }
+    }
+  }
+  updateMeshRegion(cx, cz, brushRadius);
+}
+function pSaveUndo() { pUndoSnap = JSON.parse(JSON.stringify(colorOverrides)); }
+function pPushUndo() { if (pUndoSnap !== null) { pUndoStack.push(pUndoSnap); if (pUndoStack.length > 50) pUndoStack.shift(); pUndoSnap = null; } }
+function pUndo() { if (!pUndoStack.length) return; const snap = pUndoStack.pop(); for (const k in colorOverrides) delete colorOverrides[k]; Object.assign(colorOverrides, snap); rebuildAllVerts(); }
+
+/* Re-snap objects to terrain — just read heightOffset directly, no raycasting */
+let _lastBrushWX = 0, _lastBrushWZ = 0, _lastBrushR = 0;
+
+function resnapObjects() {
+  /* snap ALL objects (used for undo / full rebuild) */
+  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+  for (const obj of objects) {
+    if (STRUCTURAL_TYPES.has(obj.type)) continue;
+    const lx = obj.x - chOx, lz = obj.z - chOz;
+    const [ix, iz] = worldToHGrid(lx, lz);
+    if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) {
+      obj.y = getBaseY(lx, lz) + heightOffsets[hvi(ix, iz)];
+      obj.mesh.position.y = obj.y;
+    }
+  }
+  if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
+}
+
+function resnapObjectsNearBrush() {
+  /* only snap objects within brush radius — fast */
+  const r = _lastBrushR + 2;
+  const wx = _lastBrushWX, wz = _lastBrushWZ;
+  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+  for (const obj of objects) {
+    if (STRUCTURAL_TYPES.has(obj.type)) continue;
+    if (Math.abs(obj.x - wx) > r || Math.abs(obj.z - wz) > r) continue;
+    const lx = obj.x - chOx, lz = obj.z - chOz;
+    const [ix, iz] = worldToHGrid(lx, lz);
+    if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) {
+      obj.y = getBaseY(lx, lz) + heightOffsets[hvi(ix, iz)];
+      obj.mesh.position.y = obj.y;
+    }
+  }
+  if (selectedInstance && highlightRing) highlightRing.position.y = selectedInstance.y + 0.05;
+}
+
+/* ═══════════════════════════════════════════
+   Object placement
+   ═══════════════════════════════════════════ */
+let previewObj = null;
+function updatePreview() {
+  if (previewObj) { scene.remove(previewObj); previewObj = null; }
+  if (mode !== "objects" || !selectedObj || !lastHit) return;
+  const tmpl = objLib[selectedObj]; if (!tmpl) return;
+  const obj = SkeletonUtils.clone(tmpl);
+  obj.scale.setScalar(objScale);
+  obj.position.set(lastHit.x, lastHit.y, lastHit.z);
+  obj.rotation.y = objRot;
+  obj.traverse(c => { if (c.isMesh) { c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.35; c.material.depthWrite = false; } });
+  obj.renderOrder = 998; previewObj = obj; scene.add(obj);
+}
+
+const CLICK_HELPER_TYPES = new Set(["Cow","Horse","Llama","Pig","Pug","Sheep","Zebra","Crab","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Flax"]);
+const _hbMat = new THREE.MeshBasicMaterial({ visible: false });
+function addClickHelper(root) {
+  /* add invisible bounding box so thin GLTF meshes are easier to click */
+  const box = new THREE.Box3();
+  root.updateMatrixWorld(true);
+  root.traverse(c => { if (c.isMesh && c.geometry) { c.geometry.computeBoundingBox(); box.expandByObject(c); } });
+  if (box.isEmpty()) return;
+  const size = new THREE.Vector3(); box.getSize(size);
+  const center = new THREE.Vector3(); box.getCenter(center);
+  root.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  center.applyMatrix4(inv);
+  const helper = new THREE.Mesh(new THREE.BoxGeometry(size.x, size.y, size.z), _hbMat);
+  helper.position.copy(center);
+  root.add(helper);
+}
+
+function placeObject(wx, wy, wz) {
+  if (!selectedObj) return;
+  const tmpl = objLib[selectedObj]; if (!tmpl) return;
+  const mesh = SkeletonUtils.clone(tmpl);
+  mesh.scale.setScalar(objScale);
+  mesh.position.set(wx, wy, wz);
+  mesh.rotation.y = objRot;
+  if (CLICK_HELPER_TYPES.has(selectedObj)) addClickHelper(mesh);
+  scene.add(mesh);
+  const id = nextObjId++;
+  const entry = { id, type: selectedObj, x: wx, z: wz, y: wy, scale: objScale, rot: objRot, mesh };
+  objects.push(entry);
+  pushObjUndo({ type: "place", objId: id });
+  selectInstance(entry);
+  updateCount();
+}
+
+function removeObjectAt() {
+  const obj = raycastObject();
+  if (!obj) return;
+  pushObjUndo({ type: "remove", data: { id: obj.id, type: obj.type, x: obj.x, z: obj.z, y: obj.y, scale: obj.scale, rot: obj.rot } });
+  scene.remove(obj.mesh); objects.splice(objects.indexOf(obj), 1);
+  if (selectedInstance === obj) deselectInstance();
+  updateCount();
+}
+
+/* Raycast against placed object meshes to find what the cursor is over */
+function raycastObject() {
+  if (!objects.length) return null;
+  const roots = objects.map(o => o.mesh);
+  /* ensure world matrices are current so raycasting works */
+  for (const r of roots) r.updateMatrixWorld(true);
+  const hits = raycaster.intersectObjects(roots, true);
+  if (!hits.length) return null;
+  /* walk up from hit mesh to find which object root it belongs to */
+  let hitMesh = hits[0].object;
+  for (const obj of objects) {
+    let cur = hitMesh;
+    while (cur) {
+      if (cur === obj.mesh) return obj;
+      cur = cur.parent;
+    }
+  }
+  return null;
+}
+
+function findObjectAt() {
+  return raycastObject();
+}
+
+function objUndo() {
+  const a = objUndoStack.pop(); if (!a) return;
+  if (a.type === "place") {
+    const idx = objects.findIndex(o => o.id === a.objId);
+    if (idx >= 0) { scene.remove(objects[idx].mesh); objects.splice(idx, 1); }
+  } else if (a.type === "remove") {
+    const tmpl = objLib[a.data.type]; if (!tmpl) return;
+    const mesh = SkeletonUtils.clone(tmpl); mesh.scale.setScalar(a.data.scale); mesh.position.set(a.data.x, a.data.y, a.data.z); mesh.rotation.y = a.data.rot;
+    scene.add(mesh); objects.push({ ...a.data, mesh });
+  } else if (a.type === "move") {
+    const obj = objects.find(o => o.id === a.id);
+    if (obj) {
+      obj.x = a.from.x; obj.y = a.from.y; obj.z = a.from.z;
+      obj.mesh.position.set(a.from.mx, a.from.my, a.from.mz);
+      if (selectedInstance === obj && highlightRing) highlightRing.position.set(a.from.x, a.from.y + 0.05, a.from.z);
+    }
+  }
+  updateCount();
+}
+
+/* selection ring */
+function createRing() {
+  const m = new THREE.Mesh(new THREE.RingGeometry(0.8, 1.0, 24), new THREE.MeshBasicMaterial({ color: 0xe8c44a, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthTest: false }));
+  m.rotation.x = -Math.PI / 2; m.renderOrder = 1000; m.visible = false; scene.add(m); return m;
+}
+function selectInstance(obj) {
+  selectedInstance = obj;
+  if (!highlightRing) highlightRing = createRing();
+  highlightRing.visible = true;
+  highlightRing.position.set(obj.x, obj.y + 0.05, obj.z);
+  highlightRing.scale.setScalar(obj.scale);
+  document.getElementById("obj-scale").value = obj.scale;
+  document.getElementById("obj-scale-val").textContent = obj.scale.toFixed(2);
+  document.getElementById("obj-rot").value = obj.rot;
+  document.getElementById("obj-rot-val").textContent = Math.round(obj.rot * 180 / Math.PI) + "°";
+  objScale = obj.scale; objRot = obj.rot;
+}
+function deselectInstance() { selectedInstance = null; if (highlightRing) highlightRing.visible = false; }
+function updateSelectedInstance() {
+  if (!selectedInstance) return;
+  selectedInstance.scale = objScale; selectedInstance.rot = objRot;
+  selectedInstance.mesh.scale.setScalar(objScale); selectedInstance.mesh.rotation.y = objRot;
+  if (highlightRing) { highlightRing.position.set(selectedInstance.x, selectedInstance.y + 0.05, selectedInstance.z); highlightRing.scale.setScalar(objScale); }
+}
+
+/* ═══════════════════════════════════════════
+   Raycasting
+   ═══════════════════════════════════════════ */
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let lastHit = null;
+
+function raycastGround(e) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const allMeshes = getAllGroundMeshes();
+  const hits = raycaster.intersectObjects(allMeshes);
+  if (hits.length > 0) {
+    /* auto-switch active edit chunk based on which mesh was hit (skip when editing instance) */
+    if (!activeInstance) {
+      for (const [key, entry] of chunkMeshes) {
+        if (entry.mesh === hits[0].object) {
+          if (activeEditChunk[0] !== entry.cx || activeEditChunk[1] !== entry.cz) {
+            activateChunkForEditing(entry.cx, entry.cz);
+            updateMinimap();
+          }
+          break;
+        }
+      }
+    }
+    return hits[0].point;
+  }
+  /* fallback: plane */
+  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  const target = new THREE.Vector3();
+  if (raycaster.ray.intersectPlane(plane, target)) return target;
+  return null;
+}
+
+/* ═══════════════════════════════════════════
+   Input
+   ═══════════════════════════════════════════ */
+let mouseDownPos = null;
+let dragging = null; // object being dragged
+let dragStartPos = null; // original position before drag
+let dragOffset = { x: 0, z: 0 }; // offset from grab point to object center
+const canvas = renderer.domElement;
+
+canvas.addEventListener("mousedown", e => {
+  mouseDownPos = { x: e.clientX, y: e.clientY };
+  if (mode === "height" && (e.button === 0 || e.button === 2)) {
+    painting = true;
+    paintSign = e.button === 0 ? 1 : -1;
+    hSaveUndo(); lastPaintTime = performance.now();
+    const pt = raycastGround(e);
+    if (pt) paintAt(pt.x, pt.z, 0.016);
+  }
+  if (mode === "paint" && (e.button === 0 || e.button === 2)) {
+    colorPainting = true;
+    colorPaintSign = e.button === 0 ? 1 : -1;
+    pSaveUndo(); lastColorPaintTime = performance.now();
+    const pt = raycastGround(e);
+    if (pt) paintColorAt(pt.x, pt.z, 0.016);
+  }
+  /* Start drag if clicking an existing object (only when no palette item selected) */
+  if (mode === "objects" && e.button === 0) {
+    const pt = raycastGround(e); // sets raycaster
+    const hit = !selectedObj ? raycastObject() : null;
+    if (hit) {
+      dragging = hit;
+      dragStartPos = { x: hit.x, y: hit.y, z: hit.z, mx: hit.mesh.position.x, my: hit.mesh.position.y, mz: hit.mesh.position.z };
+      dragOffset = pt ? { x: hit.x - pt.x, z: hit.z - pt.z } : { x: 0, z: 0 };
+      selectInstance(hit);
+      orbitControls.enabled = false;
+    }
+  }
+});
+
+canvas.addEventListener("mouseup", e => {
+  if (mode === "height" && painting) { painting = false; hPushUndo(); return; }
+  if (mode === "paint" && colorPainting) { colorPainting = false; pPushUndo(); return; }
+  /* Finish drag */
+  if (dragging) {
+    orbitControls.enabled = true;
+    const wasDrag = Math.abs(e.clientX - mouseDownPos.x) > 4 || Math.abs(e.clientY - mouseDownPos.y) > 4;
+    if (wasDrag && dragStartPos) {
+      pushObjUndo({ type: "move", id: dragging.id, from: dragStartPos, to: { x: dragging.x, y: dragging.y, z: dragging.z, mx: dragging.mesh.position.x, my: dragging.mesh.position.y, mz: dragging.mesh.position.z } });
+    }
+    dragging = null; dragStartPos = null;
+    return;
+  }
+  if (!mouseDownPos) return;
+  if (Math.abs(e.clientX - mouseDownPos.x) > 4 || Math.abs(e.clientY - mouseDownPos.y) > 4) return;
+  if (mode !== "objects") return;
+  const pt = raycastGround(e);
+  if (!pt) return;
+  if (e.button === 0) {
+    /* Click on empty space with a palette item selected → place */
+    if (selectedObj) placeObject(pt.x, pt.y, pt.z);
+  }
+  if (e.button === 2) removeObjectAt();
+});
+
+canvas.addEventListener("mousemove", e => {
+  const pt = raycastGround(e);
+  lastHit = pt;
+  if (pt) {
+    if (mode === "objects") {
+      /* Drag-move selected object */
+      if (dragging && (e.buttons & 1)) {
+        const nx = pt.x + dragOffset.x, nz = pt.z + dragOffset.z;
+        const dx = nx - dragging.x, dz = nz - dragging.z;
+        dragging.x = nx; dragging.z = nz; dragging.y = pt.y;
+        dragging.mesh.position.x += dx; dragging.mesh.position.z += dz;
+        dragging.mesh.position.y += pt.y - dragging.mesh.position.y + (dragStartPos.my - dragStartPos.y);
+        if (highlightRing) highlightRing.position.set(nx, pt.y + 0.05, nz);
+      }
+      hoverMesh.position.set(Math.floor(pt.x / TILE_S) * TILE_S + TILE_S / 2, pt.y + 0.03, Math.floor(pt.z / TILE_S) * TILE_S + TILE_S / 2);
+      hoverMesh.visible = !dragging; brushCircle.visible = false;
+      let label = `${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}`;
+      if (!dragging) { const near = findObjectAt(); if (near) label += ` [${near.type}]`; }
+      else label += ` [moving ${dragging.type}]`;
+      document.getElementById("cell-display").textContent = label;
+    } else {
+      hoverMesh.visible = false;
+      brushCircle.visible = true;
+      brushCircle.position.set(pt.x, pt.y + 0.2, pt.z);
+      if (mode === "height") {
+        const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+        const lx = pt.x - chOx, lz = pt.z - chOz;
+        const [gx, gz] = worldToHGrid(lx, lz);
+        const vi = (gx >= 0 && gx < hnx && gz >= 0 && gz < hnz) ? hvi(gx, gz) : -1;
+        const baseY = getBaseY(lx, lz).toFixed(2);
+        const offset = vi >= 0 ? heightOffsets[vi].toFixed(2) : "—";
+        document.getElementById("cell-display").textContent = `${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}\nBase Y: ${baseY}  Offset: ${offset}`;
+        if (painting) {
+          const now = performance.now();
+          const dt = Math.min((now - lastPaintTime) / 1000, 0.05);
+          lastPaintTime = now;
+          paintAt(pt.x, pt.z, dt);
+        }
+      } else if (mode === "paint") {
+        const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+        const lx = pt.x - chOx, lz = pt.z - chOz;
+        const key = `${Math.round(lx)},${Math.round(lz)}`;
+        const hasOv = !!colorOverrides[key];
+        document.getElementById("cell-display").textContent = `${pt.x.toFixed(1)}, ${pt.z.toFixed(1)}${hasOv ? " [painted]" : ""}`;
+        if (colorPainting) {
+          const now = performance.now();
+          const dt = Math.min((now - lastColorPaintTime) / 1000, 0.05);
+          lastColorPaintTime = now;
+          paintColorAt(pt.x, pt.z, dt);
+        }
+      }
+    }
+  } else {
+    hoverMesh.visible = false; brushCircle.visible = false;
+  }
+  updatePreview();
+});
+
+canvas.addEventListener("mouseleave", () => {
+  if (painting) { painting = false; hPushUndo(); }
+  if (colorPainting) { colorPainting = false; pPushUndo(); }
+  if (dragging) { orbitControls.enabled = true; dragging = null; dragStartPos = null; }
+  hoverMesh.visible = false; brushCircle.visible = false;
+});
+
+canvas.addEventListener("contextmenu", e => e.preventDefault());
+
+canvas.addEventListener("wheel", e => {
+  if (e.shiftKey) {
+    e.preventDefault();
+    if (mode === "objects") {
+      objScale = Math.max(0.2, Math.min(5, objScale + (e.deltaY > 0 ? -0.1 : 0.1)));
+      document.getElementById("obj-scale").value = objScale;
+      document.getElementById("obj-scale-val").textContent = objScale.toFixed(2);
+      updateSelectedInstance(); updatePreview();
+    } else {
+      const d = e.deltaY > 0 ? -1 : 1;
+      brushRadius = Math.max(1, Math.min(20, brushRadius + d));
+      document.getElementById("h-size").value = brushRadius;
+      document.getElementById("h-size-val").textContent = brushRadius;
+      document.getElementById("p-size").value = brushRadius;
+      document.getElementById("p-size-val").textContent = brushRadius;
+      updateBrushGeo();
+    }
+  }
+}, { passive: false });
+
+/* WASD pan */
+const keysDown = new Set();
+window.addEventListener("keyup", e => keysDown.delete(e.key.toLowerCase()));
+
+window.addEventListener("keydown", e => {
+  keysDown.add(e.key.toLowerCase());
+  if (e.key === "r" || e.key === "R") {
+    if (mode === "objects") {
+      objRot = (objRot + Math.PI / 4) % (Math.PI * 2);
+      document.getElementById("obj-rot").value = objRot;
+      document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°";
+      updateSelectedInstance(); updatePreview();
+    }
+  }
+  if (e.key === "g" || e.key === "G") gridGroup.visible = !gridGroup.visible;
+  if (e.ctrlKey && e.key === "s") { e.preventDefault(); exportJSON(); }
+  if (e.ctrlKey && e.key === "z") { e.preventDefault(); if (mode === "objects") objUndo(); else if (mode === "height") hUndo(); else pUndo(); }
+  if (e.key === "Escape") { deselectInstance(); selectedObj = null; updatePaletteSelection(); updatePreview(); }
+  if (e.key === "Delete" && selectedInstance) {
+    pushObjUndo({ type: "remove", data: { id: selectedInstance.id, type: selectedInstance.type, x: selectedInstance.x, z: selectedInstance.z, y: selectedInstance.y, scale: selectedInstance.scale, rot: selectedInstance.rot } });
+    scene.remove(selectedInstance.mesh); objects.splice(objects.indexOf(selectedInstance), 1); deselectInstance(); updateCount();
+  }
+  /* height mode shortcuts */
+  if (mode === "height") {
+    if (e.key === "f" || e.key === "F") setHeightMode("flatten");
+    if (e.key === "s" && !e.ctrlKey) setHeightMode("smooth");
+    if ((e.key === "r" || e.key === "R") && mode === "height") setHeightMode("raise");
+  }
+});
+
+/* ═══════════════════════════════════════════
+   Tab switching
+   ═══════════════════════════════════════════ */
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === mode));
+  document.getElementById("objects-panel").classList.toggle("hidden", mode !== "objects");
+  document.getElementById("height-panel").classList.toggle("hidden", mode !== "height");
+  document.getElementById("paint-panel").classList.toggle("hidden", mode !== "paint");
+  document.getElementById("chunks-panel").classList.toggle("hidden", mode !== "chunks");
+  if (mode === "chunks") updateChunkList();
+  hoverMesh.visible = false; brushCircle.visible = false;
+  if (mode === "objects") {
+    orbitControls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: null };
+    document.getElementById("info").innerHTML =
+      '<kbd>Click</kbd> place &nbsp; <kbd>RClick</kbd> remove<br>' +
+      '<kbd>R</kbd> rotate &nbsp; <kbd>Shift+Scroll</kbd> resize<br>' +
+      '<kbd>Del</kbd> delete &nbsp; <kbd>Esc</kbd> deselect<br>' +
+      '<kbd>G</kbd> grid &nbsp; <kbd>Ctrl+S</kbd> export &nbsp; <kbd>Ctrl+Z</kbd> undo';
+  } else if (mode === "height") {
+    orbitControls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.ROTATE, RIGHT: null };
+    document.getElementById("info").innerHTML =
+      '<kbd>Left-drag</kbd> raise &nbsp; <kbd>Right-drag</kbd> lower<br>' +
+      '<kbd>Middle</kbd> orbit &nbsp; <kbd>Shift+Scroll</kbd> brush size<br>' +
+      '<kbd>F</kbd> flatten &nbsp; <kbd>S</kbd> smooth &nbsp; <kbd>R</kbd> raise<br>' +
+      '<kbd>Ctrl+Z</kbd> undo &nbsp; <kbd>Ctrl+S</kbd> export';
+  } else if (mode === "paint") {
+    orbitControls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.ROTATE, RIGHT: null };
+    document.getElementById("info").innerHTML =
+      '<kbd>Left-drag</kbd> paint &nbsp; <kbd>Right-drag</kbd> erase<br>' +
+      '<kbd>Middle</kbd> orbit &nbsp; <kbd>Shift+Scroll</kbd> brush size<br>' +
+      '<kbd>Ctrl+Z</kbd> undo &nbsp; <kbd>Ctrl+S</kbd> export';
+  }
+  deselectInstance(); updatePreview();
+}
+
+document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => setMode(tab.dataset.tab)));
+
+/* height mode buttons */
+function setHeightMode(m) {
+  brushMode = m;
+  document.querySelectorAll("#height-modes button").forEach(b => b.classList.toggle("active", b.dataset.hm === m));
+}
+document.querySelectorAll("#height-modes button").forEach(b => b.addEventListener("click", () => setHeightMode(b.dataset.hm)));
+
+/* ═══════════════════════════════════════════
+   Palette
+   ═══════════════════════════════════════════ */
+/* ── Thumbnail renderer (offscreen) ── */
+const thumbSize = 72; // px (render 2x, display 36x36)
+const thumbRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+thumbRenderer.setSize(thumbSize, thumbSize);
+thumbRenderer.setClearColor(0x000000, 0);
+thumbRenderer.outputColorSpace = THREE.SRGBColorSpace;
+const thumbScene = new THREE.Scene();
+thumbScene.add(new THREE.HemisphereLight("#f0fbff", "#6aa057", 1.2));
+const thumbSun = new THREE.DirectionalLight("#fff2d0", 1.4);
+thumbSun.position.set(3, 5, 4); thumbScene.add(thumbSun);
+const thumbCam = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
+const thumbCache = {}; // id → dataURL
+
+function renderThumb(id) {
+  if (thumbCache[id]) return thumbCache[id];
+  const model = objLib[id];
+  if (!model) return null;
+  const clone = model.clone();
+  thumbScene.add(clone);
+  /* fit camera to model */
+  clone.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(clone);
+  const center = new THREE.Vector3(); box.getCenter(center);
+  const size = new THREE.Vector3(); box.getSize(size);
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  const dist = maxDim * 1.6;
+  thumbCam.position.set(center.x + dist * 0.6, center.y + dist * 0.5, center.z + dist * 0.7);
+  thumbCam.lookAt(center);
+  thumbCam.updateProjectionMatrix();
+  thumbRenderer.render(thumbScene, thumbCam);
+  const url = thumbRenderer.domElement.toDataURL();
+  thumbScene.remove(clone);
+  thumbCache[id] = url;
+  return url;
+}
+
+function buildPalette() {
+  const pal = document.getElementById("palette-wrap");
+  pal.innerHTML = "";
+  for (const cat of OBJ_CATEGORIES) {
+    const h = document.createElement("div"); h.className = "cat"; h.textContent = cat.name; pal.appendChild(h);
+    for (const item of cat.items) {
+      const d = document.createElement("div");
+      d.className = "obj-btn" + (item.id === selectedObj ? " active" : "");
+      d.dataset.obj = item.id;
+      /* thumbnail */
+      if (item.placeholder) {
+        const swatch = document.createElement("div");
+        swatch.className = "obj-thumb";
+        swatch.style.background = item.color || "#888";
+        swatch.style.borderRadius = "4px";
+        d.appendChild(swatch);
+      } else {
+        const img = document.createElement("img");
+        img.className = "obj-thumb";
+        img.alt = item.id;
+        img.width = 36; img.height = 36;
+        const url = renderThumb(item.id);
+        if (url) img.src = url;
+        else img.style.background = "#1e1e32";
+        d.appendChild(img);
+      }
+      /* label */
+      const span = document.createElement("span");
+      span.textContent = item.label || item.id.replace(/_/g, " ");
+      d.appendChild(span);
+      d.addEventListener("click", () => {
+        if (selectedObj === item.id) { selectedObj = null; }
+        else { selectedObj = item.id; objScale = item.scale; document.getElementById("obj-scale").value = objScale; document.getElementById("obj-scale-val").textContent = objScale.toFixed(2); }
+        deselectInstance(); updatePaletteSelection(); updatePreview();
+      });
+      pal.appendChild(d);
+    }
+  }
+}
+function updatePaletteSelection() { document.querySelectorAll(".obj-btn").forEach(d => d.classList.toggle("active", d.dataset.obj === selectedObj)); document.getElementById("btn-select-mode").style.background = selectedObj ? "#1e1e32" : "#2a2a50"; }
+document.getElementById("btn-select-mode").addEventListener("click", () => { selectedObj = null; deselectInstance(); updatePaletteSelection(); updatePreview(); });
+function updateCount() { document.getElementById("count").textContent = `${objects.length} objects`; document.getElementById("count").style.color = "#555"; }
+
+/* sliders */
+document.getElementById("obj-scale").addEventListener("input", e => { objScale = parseFloat(e.target.value); document.getElementById("obj-scale-val").textContent = objScale.toFixed(2); updateSelectedInstance(); updatePreview(); });
+document.getElementById("obj-rot").addEventListener("input", e => { objRot = parseFloat(e.target.value); document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°"; updateSelectedInstance(); updatePreview(); });
+document.getElementById("h-size").addEventListener("input", e => { brushRadius = +e.target.value; document.getElementById("h-size-val").textContent = e.target.value; document.getElementById("p-size").value = brushRadius; document.getElementById("p-size-val").textContent = brushRadius; updateBrushGeo(); });
+document.getElementById("h-str").addEventListener("input", e => { brushStrength = +e.target.value; document.getElementById("h-str-val").textContent = (+e.target.value).toFixed(2); });
+document.getElementById("h-flat").addEventListener("input", e => { flattenY = +e.target.value; document.getElementById("h-flat-val").textContent = (+e.target.value).toFixed(1); });
+for (const btn of document.querySelectorAll(".flat-preset")) {
+  btn.addEventListener("click", () => {
+    flattenY = +btn.dataset.y;
+    document.getElementById("h-flat").value = flattenY;
+    document.getElementById("h-flat-val").textContent = flattenY.toFixed(1);
+    setHeightMode("stamp");
+  });
+}
+document.getElementById("p-size").addEventListener("input", e => { brushRadius = +e.target.value; document.getElementById("p-size-val").textContent = e.target.value; document.getElementById("h-size").value = brushRadius; document.getElementById("h-size-val").textContent = brushRadius; updateBrushGeo(); });
+document.getElementById("p-str").addEventListener("input", e => { paintStrength = +e.target.value; document.getElementById("p-str-val").textContent = (+e.target.value).toFixed(2); });
+
+/* Build paint color palette */
+{
+  const wrap = document.getElementById("paint-colors");
+  for (let i = 0; i < PAINT_COLORS.length; i++) {
+    const pc = PAINT_COLORS[i];
+    const el = document.createElement("div");
+    el.className = "color-swatch" + (i === 0 ? " active" : "");
+    el.style.background = pc.hex;
+    el.title = pc.name;
+    el.addEventListener("click", () => {
+      selectedPaintColor = pc.color;
+      wrap.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
+      el.classList.add("active");
+    });
+    wrap.appendChild(el);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   Export / Import
+   ═══════════════════════════════════════════ */
+function buildChunkPayload(cx, cz) {
+  /* get data from store (saveCurrentChunkToStore should be called first for current chunk) */
+  const cd = ensureChunkData(cx, cz);
+  const payload = {
+    version: 2,
+    chunk: [cx, cz],
+    tileSize: TILE_S,
+    water: cd.water,
+    edges: cd.edges,
+    baseType: cd.baseType || "grass",
+  };
+  if (cd.instanceType) payload.instanceType = cd.instanceType;
+  if (cd.instanceName) payload.instanceName = cd.instanceName;
+  if (cd.objects.length) payload.objects = cd.objects;
+  if (Object.keys(cd.heightData).length) payload.heightOffsets = cd.heightData;
+  if (Object.keys(cd.colorData).length) payload.colorOverrides = cd.colorData;
+  return payload;
+}
+
+function exportJSON() {
+  /* save all chunk mesh data + current UI state */
+  saveCurrentChunkToStore();
+  const allChunks = [...chunkDataStore.keys()];
+  /* always export as single world.json — contains manifest + all chunk data */
+  /* save active instance objects + terrain before export */
+  if (activeInstance && instanceStore.has(activeInstance)) {
+    const inst = instanceStore.get(activeInstance);
+    inst.objects = objects
+      .filter(o => !STRUCTURAL_TYPES.has(o.type))
+      .map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+    const instEntry = chunkMeshes.get("inst:" + activeInstance);
+    if (instEntry) {
+      inst.heightData = {};
+      for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
+        const vi = hvi(ix, iz);
+        if (Math.abs(instEntry.heightOffsets[vi]) > 0.001)
+          inst.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +instEntry.heightOffsets[vi].toFixed(3);
+      }
+      inst.colorData = {};
+      for (const [ck, cv] of Object.entries(instEntry.colorOverrides))
+        inst.colorData[ck] = [+cv[0].toFixed(4), +cv[1].toFixed(4), +cv[2].toFixed(4)];
+      inst.baseType = instEntry.baseType;
+    }
+  }
+  const world = {
+    chunks: allChunks,
+    spawn: "0,0",
+    data: {},
+  };
+  for (const key of allChunks) {
+    const [cx, cz] = key.split(",").map(Number);
+    world.data[key] = buildChunkPayload(cx, cz);
+  }
+  /* include instances */
+  if (instanceStore.size > 0) {
+    world.instances = {};
+    for (const [name, inst] of instanceStore) {
+      world.instances[name] = { type: inst.type, objects: inst.objects || [], heightData: inst.heightData || {}, colorData: inst.colorData || {}, baseType: inst.baseType || "dark", water: inst.water || false };
+    }
+  }
+  const json = JSON.stringify(world);
+  const blob = new Blob([json], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "world.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  console.log(`Exported ${allChunks.length} chunks as world.json`);
+}
+
+function importChunkData(cData, cx, cz) {
+  const cd = ensureChunkData(cx, cz);
+  cd.water = cData.water !== false;
+  cd.edges = cData.edges || {};
+  cd.baseType = cData.baseType || "grass";
+  cd.instanceType = cData.instanceType || "";
+  cd.instanceName = cData.instanceName || "";
+  cd.heightData = cData.heightOffsets || {};
+  cd.colorData = cData.colorOverrides || {};
+  cd.objects = (cData.objects || []).filter(o => !STRUCTURAL_TYPES.has(o.type));
+}
+
+function importJSON(json) {
+  try {
+    const data = JSON.parse(json);
+    /* remove existing chunk meshes */
+    for (const [key, entry] of chunkMeshes) {
+      scene.remove(entry.mesh); entry.geo.dispose();
+    }
+    chunkMeshes.clear();
+    /* world.json format: { chunks, spawn, data: { "cx,cz": chunkPayload } } */
+    if (data.data && data.chunks) {
+      chunkDataStore.clear();
+      for (const key of data.chunks) {
+        const [cx, cz] = key.split(",").map(Number);
+        if (data.data[key]) importChunkData(data.data[key], cx, cz);
+      }
+      const spawn = data.spawn || "0,0";
+      const [sx, sz] = spawn.split(",").map(Number);
+      currentChunk = [sx, sz];
+      document.getElementById("chunk-id").textContent = `${sx},${sz}`;
+      /* build meshes for ALL chunks */
+      ensureAllChunkMeshes();
+      loadChunkFromStore(sx, sz);
+      /* import instances */
+      instanceStore.clear();
+      if (data.instances) {
+        for (const [name, inst] of Object.entries(data.instances)) {
+          instanceStore.set(name, { type: inst.type || "boss", objects: inst.objects || [], heightData: inst.heightData || {}, colorData: inst.colorData || {}, baseType: inst.baseType || "dark", water: inst.water || false });
+        }
+      }
+      activeInstance = null;
+      updateMinimap();
+      console.log(`Imported world.json with ${data.chunks.length} chunks, ${instanceStore.size} instances`);
+      return;
+    }
+    /* single chunk format (legacy) */
+    if (data.chunk) {
+      currentChunk = data.chunk;
+      document.getElementById("chunk-id").textContent = `${data.chunk[0]},${data.chunk[1]}`;
+    }
+    importChunkData(data, currentChunk[0], currentChunk[1]);
+    ensureAllChunkMeshes();
+    loadChunkFromStore(currentChunk[0], currentChunk[1]);
+    updateMinimap();
+    console.log(`Imported chunk ${currentChunk[0]},${currentChunk[1]}`);
+  } catch (e) { alert("Invalid JSON: " + e.message); }
+}
+
+/* buttons */
+document.getElementById("btn-export").addEventListener("click", exportJSON);
+document.getElementById("btn-import").addEventListener("click", () => document.getElementById("file-input").click());
+document.getElementById("file-input").addEventListener("change", e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader(); reader.onload = () => importJSON(reader.result); reader.readAsText(file); e.target.value = "";
+});
+document.getElementById("btn-clear").addEventListener("click", () => {
+  if (!confirm("Clear current chunk?")) return;
+  heightOffsets.fill(0); for (const k in colorOverrides) delete colorOverrides[k]; rebuildAllVerts(); updateCount();
+});
+document.getElementById("btn-flatten").addEventListener("click", () => {
+  if (!confirm("Flatten & clear entire active chunk (heights, colors, and objects)?")) return;
+  /* reset heights + colors */
+  heightOffsets.fill(0);
+  for (const k in colorOverrides) delete colorOverrides[k];
+  rebuildAllVerts();
+  /* remove non-structural objects that belong to this chunk */
+  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+  const bx0 = chOx + xMin, bx1 = chOx + xMax, bz0 = chOz + zMin, bz1 = chOz + zMax;
+  for (let i = objects.length - 1; i >= 0; i--) {
+    const o = objects[i];
+    if (STRUCTURAL_TYPES.has(o.type)) continue;
+    if (o.x >= bx0 && o.x <= bx1 && o.z >= bz0 && o.z <= bz1) {
+      scene.remove(o.mesh); objects.splice(i, 1);
+    }
+  }
+  deselectInstance();
+  /* also reset chunk store data */
+  const cd = ensureChunkData(activeEditChunk[0], activeEditChunk[1]);
+  cd.heightData = {}; cd.colorData = {}; cd.objects = [];
+  updateCount();
+});
+
+/* ── Chunk navigation ── */
+document.getElementById("chunk-n").addEventListener("click", () => switchChunk(currentChunk[0], currentChunk[1] + 1));
+document.getElementById("chunk-s").addEventListener("click", () => switchChunk(currentChunk[0], currentChunk[1] - 1));
+document.getElementById("chunk-e").addEventListener("click", () => switchChunk(currentChunk[0] + 1, currentChunk[1]));
+document.getElementById("chunk-w").addEventListener("click", () => switchChunk(currentChunk[0] - 1, currentChunk[1]));
+document.getElementById("chunk-new").addEventListener("click", () => {
+  const key = currentChunkKey();
+  if (!chunkDataStore.has(key)) {
+    ensureChunkData(currentChunk[0], currentChunk[1]);
+    buildChunkMesh(currentChunk[0], currentChunk[1]);
+    activateChunkForEditing(currentChunk[0], currentChunk[1]);
+    updateMinimap();
+    console.log(`Created new chunk ${key}`);
+  }
+});
+
+/* water toggle — toggle selected chunk's water mesh */
+document.getElementById("chunk-water").addEventListener("change", () => {
+  const checked = document.getElementById("chunk-water").checked;
+  if (activeInstance) {
+    const inst = instanceStore.get(activeInstance);
+    if (inst) inst.water = checked;
+  } else {
+    const cd = ensureChunkData(currentChunk[0], currentChunk[1]);
+    cd.water = checked;
+  }
+  rebuildWaterPlane();
+});
+/* edge toggle buttons */
+for (const id of ["edge-n", "edge-s", "edge-e", "edge-w"]) {
+  document.getElementById(id).addEventListener("click", e => e.target.classList.toggle("on"));
+}
+/* base type change → rebuild selected chunk's terrain colors */
+document.getElementById("chunk-base").addEventListener("change", () => {
+  const bt = document.getElementById("chunk-base").value;
+  const key = currentChunkKey();
+  const entry = chunkMeshes.get(key);
+  if (entry) {
+    entry.baseType = bt;
+    /* if this is the active edit chunk, update the global */
+    if (activeEditChunk[0] === currentChunk[0] && activeEditChunk[1] === currentChunk[1]) {
+      activeBaseType = bt;
+    }
+    /* rebuild that chunk's mesh colors using its data */
+    const prevHO = heightOffsets, prevCO = colorOverrides, prevGM = groundMesh, prevGG = groundGeo, prevHP = hPos, prevHC = hCol, prevBT = activeBaseType;
+    heightOffsets = entry.heightOffsets; colorOverrides = entry.colorOverrides;
+    groundMesh = entry.mesh; groundGeo = entry.geo; hPos = entry.hPos; hCol = entry.hCol;
+    activeBaseType = bt;
+    rebuildAllVerts();
+    /* restore if different from active edit chunk */
+    if (activeEditChunk[0] !== currentChunk[0] || activeEditChunk[1] !== currentChunk[1]) {
+      heightOffsets = prevHO; colorOverrides = prevCO; groundMesh = prevGM;
+      groundGeo = prevGG; hPos = prevHP; hCol = prevHC; activeBaseType = prevBT;
+    }
+  }
+});
+
+/* ═══════════════════════════════════════════
+   Resize + Animate
+   ═══════════════════════════════════════════ */
+window.addEventListener("resize", () => {
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
+});
+
+/* ── Compass ── */
+const compassCvs = document.getElementById("compass");
+const compassCtx = compassCvs.getContext("2d");
+const _cpDir = new THREE.Vector3();
+const _cpRight = new THREE.Vector3();
+
+function drawCompass() {
+  const w = compassCvs.width, h = compassCvs.height;
+  const cx = w / 2, cy = h / 2, r = w * 0.36;
+  compassCtx.clearRect(0, 0, w, h);
+
+  /* get camera's forward projected onto XZ plane */
+  camera.getWorldDirection(_cpDir);
+  _cpDir.y = 0; _cpDir.normalize();
+  _cpRight.crossVectors(_cpDir, new THREE.Vector3(0, 1, 0)).normalize();
+
+  /* project world directions to screen-space compass
+     North = +z, East = +x in world coords
+     On compass: up = camera forward, right = camera right */
+  const dirs = [
+    { label: "N", wx: 0, wz: 1, col: "#e8c44a" },
+    { label: "S", wx: 0, wz: -1, col: "#666" },
+    { label: "E", wx: 1, wz: 0, col: "#888" },
+    { label: "W", wx: -1, wz: 0, col: "#888" },
+  ];
+
+  for (const d of dirs) {
+    /* dot with camera right = screen X, dot with camera forward = screen -Y (up) */
+    const sx = d.wx * _cpRight.x + d.wz * _cpRight.z;
+    const sy = -(d.wx * _cpDir.x + d.wz * _cpDir.z);
+    const px = cx + sx * r, py = cy + sy * r;
+
+    /* line from center */
+    compassCtx.beginPath();
+    compassCtx.moveTo(cx, cy);
+    compassCtx.lineTo(px, py);
+    compassCtx.strokeStyle = d.col;
+    compassCtx.lineWidth = d.label === "N" ? 3 : 1.5;
+    compassCtx.globalAlpha = d.label === "N" ? 1 : 0.5;
+    compassCtx.stroke();
+
+    /* label */
+    compassCtx.globalAlpha = 1;
+    compassCtx.font = d.label === "N" ? "bold 18px sans-serif" : "13px sans-serif";
+    compassCtx.fillStyle = d.col;
+    compassCtx.textAlign = "center";
+    compassCtx.textBaseline = "middle";
+    const lx = cx + sx * (r + 14), ly = cy + sy * (r + 14);
+    compassCtx.fillText(d.label, lx, ly);
+  }
+
+  /* center dot */
+  compassCtx.globalAlpha = 0.6;
+  compassCtx.beginPath();
+  compassCtx.arc(cx, cy, 3, 0, Math.PI * 2);
+  compassCtx.fillStyle = "#ccc";
+  compassCtx.fill();
+  compassCtx.globalAlpha = 1;
+}
+
+function animate(t) {
+  requestAnimationFrame(animate);
+  waterUniforms.uTime.value = (t || 0) * 0.001;
+
+  /* WASD pan */
+  const panSpeed = 0.5;
+  const forward = new THREE.Vector3();
+  camera.getWorldDirection(forward);
+  forward.y = 0; forward.normalize();
+  const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
+  if (keysDown.has("w")) { orbitControls.target.addScaledVector(forward, panSpeed); camera.position.addScaledVector(forward, panSpeed); }
+  if (keysDown.has("s") && !keysDown.has("control") && mode !== "height") { orbitControls.target.addScaledVector(forward, -panSpeed); camera.position.addScaledVector(forward, -panSpeed); }
+  if (keysDown.has("a")) { orbitControls.target.addScaledVector(right, -panSpeed); camera.position.addScaledVector(right, -panSpeed); }
+  if (keysDown.has("d")) { orbitControls.target.addScaledVector(right, panSpeed); camera.position.addScaledVector(right, panSpeed); }
+
+  orbitControls.update();
+  renderer.render(scene, camera);
+  drawCompass();
+}
+
+/* ═══════════════════════════════════════════
+   Load existing map
+   ═══════════════════════════════════════════ */
+async function loadExistingMap() {
+  /* load chunks.json manifest + individual chunk files */
+  try {
+    const mResp = await fetch(`chunks.json?v=${Date.now()}`, { cache: "no-store" });
+    if (mResp.ok) {
+      const manifest = await mResp.json();
+      if (manifest.chunks && manifest.chunks.length) {
+        for (const key of manifest.chunks) {
+          const [cx, cz] = key.split(",").map(Number);
+          try {
+            const cResp = await fetch(`chunks/chunk_${cx}_${cz}.json?v=${Date.now()}`, { cache: "no-store" });
+            if (cResp.ok) {
+              const cData = await cResp.json();
+              importChunkData(cData, cx, cz);
+              const hc = Object.keys(cData.heightOffsets || {}).length;
+              const cc = Object.keys(cData.colorOverrides || {}).length;
+              const oc = (cData.objects || []).length;
+              console.log(`Loaded chunk ${cx},${cz} — hOff:${hc} colors:${cc} objs:${oc}`);
+            }
+          } catch (e) { /* skip */ }
+        }
+        const spawn = manifest.spawn || "0,0";
+        const [sx, sz] = spawn.split(",").map(Number);
+        currentChunk = [sx, sz];
+        document.getElementById("chunk-id").textContent = `${sx},${sz}`;
+        /* rebuild all chunk meshes with loaded data (old meshes may be stale) */
+        for (const [key, entry] of chunkMeshes) {
+          scene.remove(entry.mesh); entry.geo.dispose();
+        }
+        chunkMeshes.clear();
+        ensureAllChunkMeshes();
+        loadChunkFromStore(sx, sz);
+        updateMinimap();
+        /* load instances from manifest */
+        if (manifest.instances && manifest.instances.length) {
+          for (const name of manifest.instances) {
+            try {
+              const iResp = await fetch(`instances/${name}.json?v=${Date.now()}`, { cache: "no-store" });
+              if (iResp.ok) {
+                const iData = await iResp.json();
+                instanceStore.set(name, {
+                  type: iData.type || "boss",
+                  objects: iData.objects || [],
+                  heightData: iData.heightData || {},
+                  colorData: iData.colorData || {},
+                  baseType: iData.baseType || "dark",
+                  water: iData.water || false,
+                });
+                console.log(`Loaded instance: ${name}`);
+              }
+            } catch (e) { /* skip */ }
+          }
+          updateChunkList();
+        }
+        console.log(`Loaded ${manifest.chunks.length} chunks, ${instanceStore.size} instances from manifest`);
+        return;
+      }
+    }
+  } catch (e) { /* no manifest, try legacy */ }
+
+  /* legacy: flat files */
+  for (const file of ["objectmap.json", "tilemap.json"]) {
+    try {
+      const resp = await fetch(`${file}?v=${Date.now()}`, { cache: "no-store" });
+      if (!resp.ok) continue;
+      const text = await resp.text();
+      const data = JSON.parse(text);
+      if ((data.objects && data.objects.length) || data.heightOffsets || data.colorOverrides) {
+        importJSON(text);
+        /* also store into chunk store */
+        saveCurrentChunkToStore();
+        console.log(`Auto-loaded from ${file}`);
+        return;
+      }
+    } catch (e) { /* try next */ }
+  }
+  /* also try heightmap.json */
+  try {
+    const resp = await fetch(`heightmap.json?v=${Date.now()}`, { cache: "no-store" });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.offsets) {
+        heightOffsets.fill(0);
+        for (const [key, val] of Object.entries(data.offsets)) {
+          const [wx, wz] = key.split(",").map(Number);
+          const [ix, iz] = worldToHGrid(wx, wz);
+          if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) heightOffsets[hvi(ix, iz)] = val;
+        }
+        rebuildAllVerts();
+        saveCurrentChunkToStore();
+        console.log("Auto-loaded heightmap.json");
+      }
+    }
+  } catch (e) { /* ok */ }
+}
+
+/* ═══════════════════════════════════════════
+   Init
+   ═══════════════════════════════════════════ */
+buildPalette();
+setMode("objects");
+await loadAllModels();
+buildPalette(); /* rebuild with thumbnails now that models are loaded */
+await loadGameStructures();
+await loadGameObjects();
+await loadExistingMap();
+/* ensure spawn chunk mesh exists */
+if (!chunkDataStore.has("0,0")) ensureChunkData(0, 0);
+ensureAllChunkMeshes();
+activateChunkForEditing(0, 0);
+moveChunkHighlight(0, 0);
+updateMinimap();
+animate();
+console.log("Map Editor ready.");
+</script>
+</body>
+</html>

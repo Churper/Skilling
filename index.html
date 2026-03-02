@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" href="data:,">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skilling</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
+  <div id="webgl-fallback" style="display:none;position:fixed;inset:0;background:#1a1a2e;color:#e0e0e0;font-family:sans-serif;z-index:9999;padding:20vh 10vw;text-align:center">
+    <h1 style="color:#e8c44a;margin-bottom:16px">WebGL Not Supported</h1>
+    <p style="max-width:500px;margin:0 auto;line-height:1.6">Your browser or GPU can't run WebGL, which is required for this game. Try:<br><br>
+    1. Update your graphics drivers<br>
+    2. Try Chrome or Edge<br>
+    3. Enable hardware acceleration in browser settings</p>
+  </div>
+  <div id="ui-dupe-tab" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:sans-serif;text-align:center;gap:16px">
+    <div style="font-size:48px">&#x26A0;&#xFE0F;</div>
+    <h2 style="margin:0;color:#e8c44a">Game Already Open</h2>
+    <p style="max-width:360px;line-height:1.5;color:#ccc">Skilling is already running in another tab. Playing in two tabs may cause your progress to get out of sync.</p>
+    <button id="ui-dupe-tab-btn" type="button" style="padding:10px 28px;border:none;border-radius:8px;background:#e8c44a;color:#1a1a2e;font-weight:700;font-size:14px;cursor:pointer">Play Anyway</button>
+  </div>
+  <div id="debug-overlay" aria-hidden="true"></div>
+  <div id="ui-root">
+    <div id="ui-hp-bar" aria-label="Player health">
+      <div id="ui-hp-bar-fill"></div>
+      <span id="ui-hp-bar-text">HP 100/100</span>
+    </div>
+    <div id="ui-mock-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(239,68,68,0.9);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:0 0 6px 6px;text-align:center;pointer-events:none;letter-spacing:0.03em">TEST MODE — progress not saved</div>
+    <div id="ui-instance-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:#e8c44a;color:#1a1a2e;font-size:12px;font-weight:700;padding:6px 20px;border-radius:0 0 6px 6px;cursor:pointer;text-align:center;pointer-events:auto" title="Click to leave">BOSS ARENA — click to leave</div>
+    <div id="ui-boss-hp" hidden>
+      <div id="ui-boss-hp-label">Snake Boss</div>
+      <div id="ui-boss-hp-track">
+        <div id="ui-boss-hp-fill"></div>
+      </div>
+      <div id="ui-boss-hp-text">1000 / 1000</div>
+    </div>
+    <div id="ui-coins-chip" aria-live="polite" aria-label="Gold coins">
+      <span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span>
+      <strong id="ui-coins-value">0</strong>
+    </div>
+    <button type="button" id="ui-mobile-toggle" aria-expanded="false" aria-controls="ui-dock ui-panel">
+      Menu
+    </button>
+    <button type="button" id="ui-settings-btn" aria-label="Settings" title="Settings">&#x2699;</button>
+    <nav id="ui-dock" aria-label="Main tabs">
+      <button type="button" class="ui-tab-btn is-active" data-tab="inventory" title="F1">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F392;</span>
+        <span class="ui-tab-label">Inventory</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="worn" title="F2">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F6E1;</span>
+        <span class="ui-tab-label">Equip</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="prayer" title="F3">
+        <span class="ui-tab-icon" aria-hidden="true">&#x271D;</span>
+        <span class="ui-tab-label">Prayer</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="skills" title="F4">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F4CA;</span>
+        <span class="ui-tab-label">Skills</span>
+      </button>
+      <button type="button" class="ui-tab-btn" data-tab="emotes" title="F5">
+        <span class="ui-tab-icon" aria-hidden="true">&#x1F60A;</span>
+        <span class="ui-tab-label">Emotes</span>
+      </button>
+    </nav>
+    <aside id="ui-panel" aria-live="polite">
+      <h2 id="ui-panel-title">Inventory</h2>
+      <div class="ui-panel-resize" data-resize="se" aria-hidden="true"></div>
+      <div class="ui-panel-resize" data-resize="sw" aria-hidden="true"></div>
+      <div class="ui-panel-resize" data-resize="ne" aria-hidden="true"></div>
+      <div class="ui-panel-resize" data-resize="nw" aria-hidden="true"></div>
+      <section class="ui-panel-section" data-tab-panel="inventory">
+        <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
+        <div id="ui-combat-styles">
+          <button type="button" class="ui-combat-btn is-active" data-combat-style="melee" title="Melee">&#x1F5E1;</button>
+          <button type="button" class="ui-combat-btn" data-combat-style="bow" title="Bow">&#x1F3F9;</button>
+          <button type="button" class="ui-combat-btn" data-combat-style="mage" title="Mage">&#x1F525;</button>
+          <button type="button" id="ui-auto-retal" class="ui-combat-btn" title="Auto Retaliate" style="margin-left:auto;font-size:10px;padding:2px 6px;opacity:0.6">Auto</button>
+        </div>
+        <p id="ui-status-line" class="ui-status" data-tone="info"></p>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="bank" hidden></section>
+      <section class="ui-panel-section" data-tab-panel="blacksmith" hidden></section>
+      <section class="ui-panel-section" data-tab-panel="store" hidden></section>
+      <section class="ui-panel-section" data-tab-panel="skills" hidden>
+        <div class="ui-skills-header"><p>Gathering</p><button type="button" id="ui-hiscores-btn" class="ui-hiscores-inline-btn">&#x1F3C6; Hiscores</button></div>
+        <div class="ui-skill-row" data-skill="fishing">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F41F;</span>
+            <strong class="ui-skill-level" id="ui-skill-fishing">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Fishing</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-fishing"></div></div>
+          </div>
+        </div>
+        <div class="ui-skill-row" data-skill="mining">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1FAA8;</span>
+            <strong class="ui-skill-level" id="ui-skill-mining">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Mining</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-mining"></div></div>
+          </div>
+        </div>
+        <div class="ui-skill-row" data-skill="woodcutting">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1FAB5;</span>
+            <strong class="ui-skill-level" id="ui-skill-woodcutting">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Woodcutting</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-woodcutting"></div></div>
+          </div>
+        </div>
+        <div class="ui-skill-row" data-skill="cooking">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F373;</span>
+            <strong class="ui-skill-level" id="ui-skill-cooking">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Cooking</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-cooking"></div></div>
+          </div>
+        </div>
+        <div class="ui-skill-row" data-skill="survival">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F3D5;</span>
+            <strong class="ui-skill-level" id="ui-skill-survival">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Survival</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-survival"></div></div>
+          </div>
+        </div>
+        <p>Combat</p>
+        <div class="ui-skill-row" data-skill="hitpoints">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x2764;</span>
+            <strong class="ui-skill-level" id="ui-skill-hitpoints">10</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Hitpoints</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill ui-skill-bar-combat" id="ui-skill-bar-hitpoints"></div></div>
+          </div>
+        </div>
+        <div class="ui-skill-row" data-skill="melee">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F5E1;</span>
+            <strong class="ui-skill-level" id="ui-skill-melee">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Melee</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill ui-skill-bar-combat" id="ui-skill-bar-melee"></div></div>
+          </div>
+        </div>
+        <div class="ui-skill-row" data-skill="bow">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F3F9;</span>
+            <strong class="ui-skill-level" id="ui-skill-bow">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Ranged</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill ui-skill-bar-combat" id="ui-skill-bar-bow"></div></div>
+          </div>
+        </div>
+        <div class="ui-skill-row" data-skill="mage">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F525;</span>
+            <strong class="ui-skill-level" id="ui-skill-mage">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Magic</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill ui-skill-bar-combat" id="ui-skill-bar-mage"></div></div>
+          </div>
+        </div>
+        <p style="margin-top:6px">Boss</p>
+        <div class="ui-skill-row" style="opacity:0.85">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F40D;</span>
+            <strong class="ui-skill-level" id="ui-boss-kc">0</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Snake Boss KC</span></div>
+          </div>
+        </div>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="emotes" hidden>
+        <div id="ui-emote-list">
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F496;" title="Sparkle Heart">&#x1F496;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x2728;" title="Sparkles">&#x2728;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F338;" title="Cherry Blossom">&#x1F338;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F97A;" title="Pleading Face">&#x1F97A;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F60A;" title="Smile">&#x1F60A;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F4AB;" title="Dizzy">&#x1F4AB;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F380;" title="Ribbon">&#x1F380;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F361;" title="Dango">&#x1F361;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F624;" title="Angry Face">&#x1F624;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F4A4;" title="Sleep">&#x1F4A4;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F44B;" title="Wave">&#x1F44B;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x2B50;" title="Star">&#x2B50;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F970;" title="Smiling Face with Hearts">&#x1F970;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F60D;" title="Heart Eyes">&#x1F60D;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F40C;" title="Snail">&#x1F40C;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F480;" title="Skull">&#x1F480;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F921;" title="Clown">&#x1F921;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F483;" title="Dancing">&#x1F483;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F5FF;" title="Moai">&#x1F5FF;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F62D;" title="Sobbing">&#x1F62D;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F923;" title="ROFL">&#x1F923;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F608;" title="Devil">&#x1F608;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F440;" title="Eyes">&#x1F440;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F525;" title="Fire">&#x1F525;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F4AF;" title="100">&#x1F4AF;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F911;" title="Money Mouth">&#x1F911;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F92E;" title="Vomiting">&#x1F92E;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1FAE0;" title="Melting">&#x1FAE0;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F92F;" title="Mind Blown">&#x1F92F;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F620;" title="Angry">&#x1F620;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F621;" title="Rage">&#x1F621;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F644;" title="Eye Roll">&#x1F644;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F485;" title="Nail Polish">&#x1F485;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1FAE1;" title="Salute">&#x1FAE1;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F976;" title="Freezing">&#x1F976;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F47B;" title="Ghost">&#x1F47B;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F44D;&#x1F3FF;" title="Thumbs Up">&#x1F44D;&#x1F3FF;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F44E;&#x1F3FF;" title="Thumbs Down">&#x1F44E;&#x1F3FF;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F633;" title="Flushed">&#x1F633;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F49A;" title="Green Heart">&#x1F49A;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F60F;" title="Smirk">&#x1F60F;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F920;" title="Cowboy">&#x1F920;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F990;" title="Shrimp">&#x1F990;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F629;" title="Weary">&#x1F629;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F9D0;" title="Monocle">&#x1F9D0;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F4A5;" title="Boom">&#x1F4A5;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F919;" title="Call Me">&#x1F919;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F622;" title="Cry">&#x1F622;</button>
+          <button type="button" class="ui-emote-btn ui-emote-flag" data-emote="USA" title="USA"><span class="flag-usa"></span></button>
+          <button type="button" class="ui-emote-btn ui-emote-flag" data-emote="UKR" title="Ukraine"><span class="flag-ukr"></span></button>
+          <button type="button" class="ui-emote-btn ui-emote-flag" data-emote="ISR" title="Israel"><span class="flag-isr"></span></button>
+          <button type="button" class="ui-emote-btn ui-emote-flag" data-emote="POL" title="Poland"><span class="flag-pol"></span></button>
+          <button type="button" class="ui-emote-btn ui-emote-flag" data-emote="TRANS" title="Trans Pride"><span class="flag-trans"></span></button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F973;" title="Partying Face">&#x1F973;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x1F4F1;" title="Phone">&#x1F4F1;</button>
+        </div>
+        <div class="ui-friends-bar">
+          <span id="ui-friends-online">Offline</span>
+          <span id="ui-friends-count">Players online: 0</span>
+        </div>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="leaderboard" hidden>
+        <div class="ui-lb-categories">
+          <button type="button" class="ui-lb-cat-btn is-active" data-lb-cat="total_level">Overall</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="fishing">Fishing</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="mining">Mining</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="woodcutting">Woodcutting</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="cooking">Cooking</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="melee">Melee</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="bow">Ranged</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="mage">Magic</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="hitpoints">Hitpoints</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="boss_kc">Boss KC</button>
+        </div>
+        <div id="ui-lb-table" class="ui-lb-table"></div>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="prayer" hidden>
+        <p class="ui-prayer-heading">Offensive</p>
+        <div class="ui-prayer-grid">
+          <button type="button" class="ui-prayer-btn" data-prayer="clarity" title="Clarity of Thought: +5% melee accuracy">&#x2694;&#xFE0F;<span>Clarity</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="sharp_eye" title="Sharp Eye: +5% ranged accuracy">&#x1F3F9;<span>Sharp Eye</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="mystic_will" title="Mystic Will: +5% magic accuracy">&#x1F52E;<span>Mystic Will</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="burst_str" title="Burst of Strength: +5% melee damage">&#x1F4AA;<span>Burst Str</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="superhuman" title="Superhuman Strength: +10% melee damage">&#x26A1;<span>Superhuman</span></button>
+          <button type="button" class="ui-prayer-btn" data-prayer="eagle_eye" title="Eagle Eye: +10% ranged accuracy">&#x1F9E0;<span>Eagle Eye</span></button>
+        </div>
+        <p class="ui-prayer-heading">Overhead Protection</p>
+        <div class="ui-prayer-grid ui-prayer-overhead">
+          <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_mage" title="Protect from Magic"><span class="pray-block pray-block--mage">&#x1F300;</span><span>Magic</span></button>
+          <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_range" title="Protect from Range"><span class="pray-block pray-block--range">&#x27B3;</span><span>Range</span></button>
+          <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_melee" title="Protect from Melee"><span class="pray-block pray-block--melee">&#x2694;&#xFE0F;</span><span>Melee</span></button>
+        </div>
+      </section>
+      <section class="ui-panel-section" data-tab-panel="worn" hidden>
+        <div class="ui-worn-grid">
+          <div class="ui-worn-slot" data-worn-slot="amulet"><span class="ui-worn-label">Amulet</span></div>
+          <div class="ui-worn-slot" data-worn-slot="body"><span class="ui-worn-label">Body</span></div>
+          <div class="ui-worn-slot" data-worn-slot="cape"><span class="ui-worn-label">Cape</span></div>
+          <div class="ui-worn-slot" data-worn-slot="sword"><span class="ui-worn-label">Sword</span></div>
+          <div class="ui-worn-slot" data-worn-slot="shield"><span class="ui-worn-label">Shield</span></div>
+          <div class="ui-worn-slot" data-worn-slot="ring"><span class="ui-worn-label">Ring</span></div>
+          <div class="ui-worn-slot" data-worn-slot="bow"><span class="ui-worn-label">Bow</span></div>
+          <div class="ui-worn-slot" data-worn-slot="staff"><span class="ui-worn-label">Staff</span></div>
+          <div class="ui-worn-stats" id="ui-worn-stats">
+            <span class="ui-worn-stat">Atk: <b id="ui-worn-atk">0</b></span>
+            <span class="ui-worn-stat">Def: <b id="ui-worn-def">0</b></span>
+          </div>
+        </div>
+        <div class="ui-toolbelt-section">
+          <p class="ui-worn-skin-heading">Toolbelt</p>
+          <div class="ui-toolbelt-grid">
+            <div class="ui-toolbelt-slot" data-toolbelt="axe"><span class="ui-toolbelt-icon">🪓</span><span class="ui-toolbelt-name" id="ui-tb-axe">Wood Axe</span></div>
+            <div class="ui-toolbelt-slot" data-toolbelt="pickaxe"><span class="ui-toolbelt-icon">⛏️</span><span class="ui-toolbelt-name" id="ui-tb-pickaxe">Wood Pickaxe</span></div>
+            <div class="ui-toolbelt-slot" data-toolbelt="fishing"><span class="ui-toolbelt-icon">🎣</span><span class="ui-toolbelt-name" id="ui-tb-fishing">Fishing Pole +0</span></div>
+          </div>
+        </div>
+        <div class="ui-worn-skin-section">
+          <p class="ui-worn-skin-heading">Skin</p>
+          <div id="ui-worn-skin-slot" class="ui-worn-skin-slot"></div>
+          <div id="ui-worn-skin-grid" class="ui-worn-skin-grid"></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+  <div id="ui-settings-overlay" class="ui-settings-overlay" hidden>
+    <div class="ui-settings-overlay-head">
+      <h3>Settings</h3>
+      <button type="button" id="ui-settings-close" aria-label="Close settings">&times;</button>
+    </div>
+    <div class="ui-settings-list">
+      <div class="ui-settings-row">
+        <span>Name</span>
+        <input type="text" id="setting-name" maxlength="16" placeholder="Slime1234" spellcheck="false" autocomplete="off">
+      </div>
+      <div class="ui-settings-row">
+        <span>Server</span>
+        <span id="setting-connection" class="ui-conn-status">--</span>
+      </div>
+      <div class="ui-settings-row ui-volume-row">
+        <span>Effects</span>
+        <div class="ui-volume-controls">
+          <button type="button" id="setting-volume-mute" class="ui-volume-mute-btn">&#x1F50A;</button>
+          <input type="range" id="setting-volume" min="0" max="100" value="50" class="ui-volume-slider">
+        </div>
+      </div>
+      <div class="ui-settings-row ui-volume-row">
+        <span>Music</span>
+        <div class="ui-volume-controls">
+          <button type="button" id="setting-music-mute" class="ui-volume-mute-btn">&#x1F3B5;</button>
+          <input type="range" id="setting-music" min="0" max="100" value="35" class="ui-volume-slider">
+        </div>
+      </div>
+      <hr class="ui-settings-divider">
+      <label class="ui-settings-row">
+        <span>Show FPS</span>
+        <input type="checkbox" id="setting-fps">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Memory</span>
+        <input type="checkbox" id="setting-memory">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Draw Calls</span>
+        <input type="checkbox" id="setting-drawcalls">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Player Position</span>
+        <input type="checkbox" id="setting-position">
+      </label>
+      <label class="ui-settings-row">
+        <span>Render Scale</span>
+        <select id="setting-dpr">
+          <option value="0.5">0.5x (Fast)</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1x (Default)</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x (Sharp)</option>
+        </select>
+      </label>
+      <label class="ui-settings-row">
+        <span>FPS Cap</span>
+        <select id="setting-fps-cap">
+          <option value="30">30 (Battery saver)</option>
+          <option value="60" selected>60 (Default)</option>
+          <option value="0">Uncapped</option>
+        </select>
+      </label>
+      <label class="ui-settings-row">
+        <span>Bloom</span>
+        <input type="checkbox" id="setting-bloom">
+      </label>
+      <hr class="ui-settings-divider">
+      <div class="ui-settings-row ui-hotkey-header"><span>Tab Hotkeys</span></div>
+      <div class="ui-hotkey-row" data-hotkey-tab="inventory">
+        <span>Inventory</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="prayer">
+        <span>Prayer</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="emotes">
+        <span>Emotes</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="skills">
+        <span>Skills</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="worn">
+        <span>Worn</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-tab="leaderboard">
+        <span>Hiscores</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <hr class="ui-settings-divider">
+      <div class="ui-settings-row ui-hotkey-header"><span>Action Binds</span></div>
+      <div class="ui-hotkey-row" data-hotkey-action="jump">
+        <span>Jump</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+      <div class="ui-hotkey-row" data-hotkey-action="crouch">
+        <span>Crouch</span>
+        <button type="button" class="ui-hotkey-set-btn">Set</button>
+        <kbd class="ui-hotkey-display">—</kbd>
+      </div>
+    </div>
+  </div>
+  <!-- Star Enhancement overlay -->
+  <div id="ui-star-overlay" class="ui-star-overlay" hidden>
+    <div class="ui-star-modal">
+      <div class="ui-star-header">
+        <span class="ui-star-title">&#x2B50; Star Enhancement</span>
+        <button type="button" id="ui-star-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-star-body">
+        <div class="ui-star-item-display">
+          <span id="ui-star-item-icon" class="ui-star-item-icon"></span>
+          <span id="ui-star-item-name" class="ui-star-item-name"></span>
+        </div>
+        <div id="ui-star-stars" class="ui-star-stars"></div>
+        <div class="ui-star-stat-row"><span>Attack</span><span id="ui-star-atk" class="ui-star-stat-val"></span></div>
+        <div class="ui-star-stat-row"><span>Defense</span><span id="ui-star-def" class="ui-star-stat-val"></span></div>
+        <div class="ui-star-divider"></div>
+        <div class="ui-star-stat-row"><span>Your Coins</span><span id="ui-star-coins" class="ui-star-coins-val"></span></div>
+        <div class="ui-star-stat-row"><span>Cost</span><span id="ui-star-cost" class="ui-star-cost-val"></span></div>
+        <div class="ui-star-stat-row"><span>Success</span><span id="ui-star-chance" class="ui-star-chance-val"></span></div>
+        <div class="ui-star-stat-row"><span>Destroy</span><span id="ui-star-destroy" class="ui-star-destroy-val"></span></div>
+        <div class="ui-star-stat-row"><span>Downgrade</span><span id="ui-star-downgrade" class="ui-star-downgrade-val"></span></div>
+        <div class="ui-star-divider"></div>
+        <p class="ui-star-hint">Stop the bar in the green zone for bonus success!</p>
+        <div class="ui-star-timing-track">
+          <div class="ui-star-timing-zone" id="ui-star-zone"></div>
+          <div class="ui-star-timing-cursor" id="ui-star-cursor"></div>
+        </div>
+        <div class="ui-star-actions">
+          <button type="button" id="ui-star-stop-btn" class="ui-star-stop-btn" hidden>STOP!</button>
+          <button type="button" id="ui-star-enhance-btn" class="ui-star-enhance-btn">Enhance</button>
+        </div>
+        <button type="button" id="ui-star-unequip-btn" class="ui-star-unequip-btn">Unequip Item</button>
+        <p id="ui-star-result" class="ui-star-result"></p>
+      </div>
+    </div>
+  </div>
+  <!-- Washing Machine overlay -->
+  <div id="ui-wash-overlay" class="ui-wash-overlay" hidden>
+    <div class="ui-wash-modal">
+      <div class="ui-wash-header">
+        <span class="ui-wash-title">&#x1F9FA; Washing Machine</span>
+        <button type="button" id="ui-wash-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-wash-body">
+        <p class="ui-wash-hint">Select an equipped item to wash potential lines onto it.</p>
+        <div id="ui-wash-equip-grid" class="ui-wash-equip-grid"></div>
+        <div id="ui-wash-item-section" class="ui-wash-item-section" hidden>
+          <div class="ui-wash-item-display">
+            <span id="ui-wash-item-icon" class="ui-wash-item-icon"></span>
+            <span id="ui-wash-item-name" class="ui-wash-item-name"></span>
+          </div>
+          <div id="ui-wash-lines" class="ui-wash-lines"></div>
+          <div class="ui-wash-cost-row">
+            <span>Your Coins</span><span id="ui-wash-coins" class="ui-wash-coins-val"></span>
+          </div>
+          <div class="ui-wash-cost-row">
+            <span>Cost</span><span id="ui-wash-cost" class="ui-wash-cost-val"></span>
+          </div>
+          <div class="ui-wash-actions">
+            <button type="button" id="ui-wash-btn" class="ui-wash-roll-btn">Wash!</button>
+          </div>
+          <p id="ui-wash-result" class="ui-wash-result"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Bank overlay (outside ui-root so it's not clipped) -->
+  <div id="ui-bank-overlay" class="ui-bank-overlay" hidden>
+    <div class="ui-bank-modal">
+      <div class="ui-bank-modal-header">
+        <span class="ui-bank-modal-title">&#x1F4E6; Bank</span>
+        <button type="button" id="ui-bank-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-bank-qty-bar">
+        <span class="ui-bank-qty-label">Amount:</span>
+        <button type="button" class="ui-bank-qty-btn is-active" data-bank-qty="1">1</button>
+        <button type="button" class="ui-bank-qty-btn" data-bank-qty="5">5</button>
+        <button type="button" class="ui-bank-qty-btn" data-bank-qty="10">10</button>
+        <button type="button" class="ui-bank-qty-btn" data-bank-qty="all">All</button>
+        <span class="ui-bank-qty-spacer"></span>
+        <button type="button" id="ui-bank-deposit-all" class="ui-bank-note-btn" title="Deposit all inventory">&#x1F4E5; All</button>
+        <button type="button" id="ui-bank-note-btn" class="ui-bank-note-btn">Note</button>
+      </div>
+      <div class="ui-bank-modal-body">
+        <div id="ui-bank-vault-grid" class="ui-bank-grid"></div>
+        <div class="ui-bank-divider"><span>Inventory</span></div>
+        <div id="ui-bank-inv-grid" class="ui-bank-grid"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Store overlay -->
+  <div id="ui-store-overlay" class="ui-store-overlay" hidden>
+    <div class="ui-store-modal">
+      <div class="ui-store-modal-header">
+        <span class="ui-store-modal-title">&#x1F3EA; General Store</span>
+        <span id="ui-store-coins" class="ui-store-coins"></span>
+        <button type="button" id="ui-store-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-store-tab-bar">
+        <button type="button" class="ui-store-tab is-active" data-store-tab="shop">Shop</button>
+        <button type="button" class="ui-store-tab" data-store-tab="skins">Skins</button>
+      </div>
+      <div class="ui-store-modal-body">
+        <div id="ui-store-shop-panel">
+          <div id="ui-store-stock-grid" class="ui-store-grid"></div>
+          <div class="ui-store-divider"><span>Your Inventory</span><button type="button" id="ui-store-sell-all" class="ui-store-sell-all-inline">Sell All</button></div>
+          <div id="ui-store-inv-grid" class="ui-store-grid"></div>
+        </div>
+        <div id="ui-store-skins-panel" class="ui-store-skin-grid" hidden></div>
+      </div>
+    </div>
+  </div>
+  <!-- Task Board overlay -->
+  <div id="ui-task-overlay" class="ui-task-overlay" hidden>
+    <div class="ui-task-modal">
+      <div class="ui-task-modal-header">
+        <span class="ui-task-modal-title">&#x1F4CB; Task Board</span>
+        <button type="button" id="ui-task-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-task-modal-body">
+        <div id="ui-task-active" class="ui-task-active" hidden>
+          <h3 class="ui-task-section-label">Active Task</h3>
+          <div id="ui-task-active-content"></div>
+        </div>
+        <h3 class="ui-task-section-label">Available Tasks</h3>
+        <div id="ui-task-list" class="ui-task-list"></div>
+        <h3 class="ui-task-section-label" style="margin-top:10px">&#x1F40D; Boss Encounters</h3>
+        <div id="ui-boss-list" class="ui-task-list"></div>
+        <div id="ui-boss-lockout" hidden style="color:#facc15;font-size:11px;padding:4px 0;text-align:center"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Blacksmith overlay -->
+  <div id="ui-smith-overlay" class="ui-smith-overlay" hidden>
+    <div class="ui-smith-modal">
+      <div class="ui-smith-modal-header">
+        <span class="ui-smith-modal-title">&#x2692;&#xFE0F; Blacksmith</span>
+        <button type="button" id="ui-smith-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-smith-modal-body">
+        <div class="ui-smith-list">
+          <div class="ui-smith-row">
+            <div class="ui-smith-meta">
+              <strong>Axe</strong>
+              <span data-smith-level="axe">Wood</span>
+            </div>
+            <button type="button" class="ui-smith-buy-btn" data-smith-upgrade="axe">
+              <span data-smith-cost="axe">50</span>
+            </button>
+          </div>
+          <div class="ui-smith-row">
+            <div class="ui-smith-meta">
+              <strong>Pickaxe</strong>
+              <span data-smith-level="pickaxe">Wood</span>
+            </div>
+            <button type="button" class="ui-smith-buy-btn" data-smith-upgrade="pickaxe">
+              <span data-smith-cost="pickaxe">50</span>
+            </button>
+          </div>
+          <div class="ui-smith-row">
+            <div class="ui-smith-meta">
+              <strong>Fishing Pole</strong>
+              <span data-smith-level="fishing">+0</span>
+            </div>
+            <button type="button" class="ui-smith-buy-btn" data-smith-upgrade="fishing">
+              <span data-smith-cost="fishing">28</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Crafting Table overlay -->
+  <div id="ui-craft-overlay" class="ui-smith-overlay" hidden>
+    <div class="ui-smith-modal">
+      <div class="ui-smith-modal-header">
+        <span class="ui-smith-modal-title">&#x1F6E0;&#xFE0F; Crafting Table</span>
+        <button type="button" id="ui-craft-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-smith-modal-body">
+        <div id="ui-craft-list" class="ui-smith-list"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Trade overlay -->
+  <div id="ui-trade-overlay" class="ui-trade-overlay" hidden>
+    <div class="ui-trade-modal">
+      <div class="ui-trade-header">
+        <span class="ui-trade-title">Trading with <span id="ui-trade-partner-name">Player</span></span>
+        <button type="button" id="ui-trade-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-trade-body">
+        <div class="ui-trade-col">
+          <h3 class="ui-trade-col-label">Your Offer</h3>
+          <div id="ui-trade-my-offer" class="ui-trade-grid"></div>
+        </div>
+        <div class="ui-trade-col">
+          <h3 class="ui-trade-col-label">Their Offer</h3>
+          <div id="ui-trade-their-offer" class="ui-trade-grid"></div>
+        </div>
+      </div>
+      <div class="ui-trade-inv">
+        <h3 class="ui-trade-col-label">Your Inventory <small>(click to offer)</small></h3>
+        <div id="ui-trade-inv-grid" class="ui-trade-grid"></div>
+      </div>
+      <div class="ui-trade-actions">
+        <button type="button" id="ui-trade-accept" class="ui-trade-accept-btn">Accept</button>
+        <button type="button" id="ui-trade-decline" class="ui-trade-decline-btn">Decline</button>
+      </div>
+      <div id="ui-trade-status" class="ui-trade-status"></div>
+    </div>
+  </div>
+  <!-- Trade request notification -->
+  <div id="ui-trade-request" class="ui-trade-request" hidden>
+    <span id="ui-trade-request-text"></span>
+    <button type="button" id="ui-trade-request-accept" class="ui-trade-req-btn accept">Accept</button>
+    <button type="button" id="ui-trade-request-decline" class="ui-trade-req-btn decline">Decline</button>
+  </div>
+  <!-- Party invite notification -->
+  <div id="ui-party-request" class="ui-trade-request" hidden>
+    <span id="ui-party-request-text"></span>
+    <button type="button" id="ui-party-request-accept" class="ui-trade-req-btn accept">Join</button>
+    <button type="button" id="ui-party-request-decline" class="ui-trade-req-btn decline">Decline</button>
+  </div>
+  <!-- Party panel -->
+  <div id="ui-party-panel" class="ui-party-panel" hidden>
+    <div class="ui-party-header">Party</div>
+    <div id="ui-party-members"></div>
+    <button type="button" id="ui-party-leave" class="ui-party-leave-btn">Leave</button>
+  </div>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/",
+        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+      }
+    }
+  </script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
