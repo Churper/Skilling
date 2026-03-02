@@ -456,7 +456,7 @@ function saveObjectsToChunkStores() {
     /* store in LOCAL chunk coords (subtract chunk world offset) */
     const lx = o.x - ocx * CHUNK_SIZE;
     const lz = o.z - ocz * CHUNK_SIZE;
-    buckets.get(key).push({ type: o.type, x: +lx.toFixed(2), z: +lz.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) });
+    buckets.get(key).push({ type: o.type, x: +(lx||0).toFixed(2), z: +(lz||0).toFixed(2), y: +(o.y||0).toFixed(2), scale: +(o.scale||1).toFixed(2), rot: +(o.rot||0).toFixed(3) });
   }
   for (const [key, objs] of buckets) {
     const [cx, cz] = key.split(",").map(Number);
@@ -915,7 +915,7 @@ function leaveInstance() {
   if (inst) {
     inst.objects = objects
       .filter(o => !STRUCTURAL_TYPES.has(o.type))
-      .map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+      .map(o => ({ type: o.type, x: +(o.x||0).toFixed(2), z: +(o.z||0).toFixed(2), y: +(o.y||0).toFixed(2), scale: +(o.scale||1).toFixed(2), rot: +(o.rot||0).toFixed(3) }));
     /* save height + color data from the mesh back to the instance */
     if (instEntry) {
       inst.heightData = {};
@@ -1744,9 +1744,9 @@ function selectInstance(obj) {
   highlightRing.position.set(obj.x, obj.y + 0.05, obj.z);
   highlightRing.scale.setScalar(obj.scale);
   document.getElementById("obj-scale").value = obj.scale;
-  document.getElementById("obj-scale-val").textContent = obj.scale.toFixed(2);
-  document.getElementById("obj-rot").value = obj.rot;
-  document.getElementById("obj-rot-val").textContent = Math.round(obj.rot * 180 / Math.PI) + "°";
+  document.getElementById("obj-scale-val").textContent = (obj.scale||1).toFixed(2);
+  document.getElementById("obj-rot").value = obj.rot||0;
+  document.getElementById("obj-rot-val").textContent = Math.round((obj.rot||0) * 180 / Math.PI) + "°";
   objScale = obj.scale; objRot = obj.rot;
 }
 function deselectInstance() { selectedInstance = null; if (highlightRing) highlightRing.visible = false; }
@@ -2090,7 +2090,7 @@ function buildPalette() {
       d.appendChild(span);
       d.addEventListener("click", () => {
         if (selectedObj === item.id) { selectedObj = null; }
-        else { selectedObj = item.id; objScale = item.scale; document.getElementById("obj-scale").value = objScale; document.getElementById("obj-scale-val").textContent = objScale.toFixed(2); }
+        else { selectedObj = item.id; objScale = item.scale || 1; document.getElementById("obj-scale").value = objScale; document.getElementById("obj-scale-val").textContent = objScale.toFixed(2); }
         deselectInstance(); updatePaletteSelection(); updatePreview();
       });
       pal.appendChild(d);
@@ -2168,7 +2168,7 @@ function exportJSON() {
     const inst = instanceStore.get(activeInstance);
     inst.objects = objects
       .filter(o => !STRUCTURAL_TYPES.has(o.type))
-      .map(o => ({ type: o.type, x: +o.x.toFixed(2), z: +o.z.toFixed(2), y: +o.y.toFixed(2), scale: +o.scale.toFixed(2), rot: +o.rot.toFixed(3) }));
+      .map(o => ({ type: o.type, x: +(o.x||0).toFixed(2), z: +(o.z||0).toFixed(2), y: +(o.y||0).toFixed(2), scale: +(o.scale||1).toFixed(2), rot: +(o.rot||0).toFixed(3) }));
     const instEntry = chunkMeshes.get("inst:" + activeInstance);
     if (instEntry) {
       inst.heightData = {};
