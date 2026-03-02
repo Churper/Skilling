@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <link rel="icon" href="data:,">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Skilling</title>
+  <title>SlimeScape</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Patrick+Hand&display=swap" rel="stylesheet">
@@ -26,7 +26,15 @@
     <button id="ui-dupe-tab-btn" type="button" style="padding:10px 28px;border:none;border-radius:8px;background:#e8c44a;color:#1a1a2e;font-weight:700;font-size:14px;cursor:pointer">Play Anyway</button>
   </div>
   <div id="debug-overlay" aria-hidden="true"></div>
-  <div id="ui-root">
+  <!-- Start Menu -->
+  <div id="start-menu">
+    <h1 class="start-title">SlimeScape</h1>
+    <p class="start-subtitle">Gather. Craft. Fight.</p>
+    <input type="text" id="start-name" class="start-name-input" maxlength="16" placeholder="Enter your name..." spellcheck="false" autocomplete="off">
+    <div id="start-colors" class="start-color-row"></div>
+    <button type="button" id="start-play-btn" class="start-play-btn">Play</button>
+  </div>
+  <div id="ui-root" hidden>
     <div id="ui-hp-bar" aria-label="Player health">
       <div id="ui-hp-bar-fill"></div>
       <span id="ui-hp-bar-text">HP 100/100</span>
