@@ -1567,7 +1567,6 @@ function paintColorAt(wx, wz, dt) {
       const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
       const dist = Math.hypot(vx - lx, vz - lz);
       if (dist > brushRadius) continue;
-      const falloff = 1 - sm(dist, 0, brushRadius);
       const key = `${vx},${vz}`;
       const vi = hvi(ix, iz);
       const y = getBaseY(vx, vz) + heightOffsets[vi];
@@ -1577,8 +1576,10 @@ function paintColorAt(wx, wz, dt) {
         let cr, cg, cb;
         if (colorOverrides[key]) { [cr, cg, cb] = colorOverrides[key]; }
         else { const pc = computeBaseColor(vx, vz, y); cr = pc.r; cg = pc.g; cb = pc.b; }
-        const flatFalloff = 1 - sm(dist, brushRadius * 0.5, brushRadius);
-        const t = Math.min(paintStrength * flatFalloff * dt * 4, 1);
+        /* toon-style stepped falloff: full inside 60%, half 60-85%, none beyond */
+        const norm = dist / brushRadius;
+        const toonFalloff = norm < 0.6 ? 1.0 : norm < 0.85 ? 0.35 : 0.0;
+        const t = Math.min(paintStrength * toonFalloff * dt * 4, 1);
         cr += (selectedPaintColor.r - cr) * t;
         cg += (selectedPaintColor.g - cg) * t;
         cb += (selectedPaintColor.b - cb) * t;
