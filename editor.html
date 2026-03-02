@@ -2486,24 +2486,40 @@ async function loadExistingMap() {
         ensureAllChunkMeshes();
         loadChunkFromStore(sx, sz);
         updateMinimap();
-        /* load instances from manifest */
-        if (manifest.instances && manifest.instances.length) {
-          for (const name of manifest.instances) {
-            try {
-              const iResp = await fetch(`instances/${name}.json?v=${Date.now()}`, { cache: "no-store" });
-              if (iResp.ok) {
-                const iData = await iResp.json();
-                instanceStore.set(name, {
-                  type: iData.type || "boss",
-                  objects: iData.objects || [],
-                  heightData: iData.heightData || {},
-                  colorData: iData.colorData || {},
-                  baseType: iData.baseType || "dark",
-                  water: iData.water || false,
-                });
-                console.log(`Loaded instance: ${name}`);
-              }
-            } catch (e) { /* skip */ }
+        /* load instances from manifest (inline object or legacy array) */
+        if (manifest.instances) {
+          if (typeof manifest.instances === "object" && !Array.isArray(manifest.instances)) {
+            /* inline: instances is { name: { type, objects, heightData, ... }, ... } */
+            for (const [name, iData] of Object.entries(manifest.instances)) {
+              instanceStore.set(name, {
+                type: iData.type || "boss",
+                objects: iData.objects || [],
+                heightData: iData.heightData || {},
+                colorData: iData.colorData || {},
+                baseType: iData.baseType || "dark",
+                water: iData.water || false,
+              });
+              console.log(`Loaded instance: ${name}`);
+            }
+          } else if (Array.isArray(manifest.instances)) {
+            /* legacy: instances is ["name1","name2"] — fetch from files */
+            for (const name of manifest.instances) {
+              try {
+                const iResp = await fetch(`instances/${name}.json?v=${Date.now()}`, { cache: "no-store" });
+                if (iResp.ok) {
+                  const iData = await iResp.json();
+                  instanceStore.set(name, {
+                    type: iData.type || "boss",
+                    objects: iData.objects || [],
+                    heightData: iData.heightData || {},
+                    colorData: iData.colorData || {},
+                    baseType: iData.baseType || "dark",
+                    water: iData.water || false,
+                  });
+                  console.log(`Loaded instance: ${name}`);
+                }
+              } catch (e) { /* skip */ }
+            }
           }
           updateChunkList();
         }
