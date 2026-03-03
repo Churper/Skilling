@@ -120,6 +120,7 @@ canvas{display:block}
       <option value="sand">Sand</option>
       <option value="stone">Stone</option>
       <option value="snow">Snow</option>
+      <option value="ice">Ice</option>
       <option value="dark">Dark</option>
     </select>
     <div class="edge-toggles">
@@ -336,6 +337,10 @@ const OBJ_CATEGORIES = [
     { id: "Prop_Starfish_1", file: "Prop_Starfish_1.glb", scale: 1.0 },
     { id: "Prop_Starfish_2", file: "Prop_Starfish_2.glb", scale: 1.0 },
     { id: "Prop_Treasure_Chest", file: "Prop_Treasure_Chest.glb", scale: 1.0 },
+    { id: "Crystal_1", file: "Crystal_1.glb", scale: 1.0 },
+    { id: "Crystal_2", file: "Crystal_2.glb", scale: 1.0 },
+    { id: "Crystal_3", file: "Crystal_3.glb", scale: 1.0 },
+    { id: "Ice_Block", file: "Ice_Block.glb", scale: 1.0 },
   ]},
   { name: "Terrain Trees", dir: TILE_DIR, items: [
     { id: "Prop_Tree_Cedar_1", file: "Prop_Tree_Cedar_1.glb", scale: 1.0 },
@@ -617,6 +622,7 @@ const BASE_COLORS = {
   sand:  new THREE.Color("#e2d098"),
   stone: new THREE.Color("#8a8a7a"),
   snow:  new THREE.Color("#e8eef0"),
+  ice:   new THREE.Color("#a8d8ea"),
   dark:  new THREE.Color("#3a3a42"),
 };
 const BRIDGE_X0 = -6, BRIDGE_X1 = 6, BRIDGE_Z = 8, BRIDGE_HW = 3;
@@ -643,7 +649,7 @@ function computeBaseColor(x, z, y) {
    ═══════════════════════════════════════════ */
 const BASE_TYPE_MINIMAP_COLORS = {
   grass: "#4dad38", dirt: "#8B7355", sand: "#e2d098",
-  stone: "#8a8a7a", snow: "#e8eef0", dark: "#3a3a42",
+  stone: "#8a8a7a", snow: "#e8eef0", ice: "#a8d8ea", dark: "#3a3a42",
 };
 
 function updateMinimap() {
@@ -1491,9 +1497,16 @@ const PAINT_COLORS = [
   { name: "Dark Grass", hex: "#3d8a2e", color: new THREE.Color("#3d8a2e") },
   { name: "Sand", hex: "#e2d098", color: new THREE.Color("#e2d098") },
   { name: "Stone", hex: "#8a8a7a", color: new THREE.Color("#8a8a7a") },
+  { name: "Dark Stone", hex: "#5e5e54", color: new THREE.Color("#5e5e54") },
+  { name: "Light Stone", hex: "#b0b0a0", color: new THREE.Color("#b0b0a0") },
   { name: "Path", hex: "#c4a060", color: new THREE.Color("#c4a060") },
   { name: "River Bank", hex: "#6d8854", color: new THREE.Color("#6d8854") },
   { name: "Dirt", hex: "#8b6a3e", color: new THREE.Color("#8b6a3e") },
+  { name: "Ice", hex: "#a8d8ea", color: new THREE.Color("#a8d8ea") },
+  { name: "Frost", hex: "#c8e8f8", color: new THREE.Color("#c8e8f8") },
+  { name: "Deep Ice", hex: "#6bb0cc", color: new THREE.Color("#6bb0cc") },
+  { name: "Snow", hex: "#e8eef0", color: new THREE.Color("#e8eef0") },
+  { name: "Slush", hex: "#b8ccd0", color: new THREE.Color("#b8ccd0") },
 ];
 let selectedPaintColor = PAINT_COLORS[0].color;
 let paintStrength = 0.50;

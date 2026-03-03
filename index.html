@@ -68,6 +68,7 @@
       <div id="ui-hp-bar-fill"></div>
       <span id="ui-hp-bar-text">HP 100/100</span>
     </div>
+    <div id="ui-buff-bar"></div>
     <div id="ui-mock-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(239,68,68,0.9);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:0 0 6px 6px;text-align:center;pointer-events:none;letter-spacing:0.03em">TEST MODE — progress not saved</div>
     <div id="ui-instance-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:#e8c44a;color:#1a1a2e;font-size:12px;font-weight:700;padding:6px 20px;border-radius:0 0 6px 6px;cursor:pointer;text-align:center;pointer-events:auto" title="Click to leave">BOSS ARENA — click to leave</div>
     <div id="ui-boss-hp" hidden>
@@ -232,6 +233,24 @@
             <div class="ui-skill-head"><span class="ui-skill-name">Rock Golem</span></div>
           </div>
         </div>
+        <div class="ui-skill-row" style="opacity:0.85">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F451;</span>
+            <strong class="ui-skill-level" id="ui-slime-daddy-kc">0</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Slime Daddy</span></div>
+          </div>
+        </div>
+        <div class="ui-skill-row" style="opacity:0.85">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x2744;</span>
+            <strong class="ui-skill-level" id="ui-yeti-kc">0</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Frost Yeti</span></div>
+          </div>
+        </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="emotes" hidden>
         <div id="ui-emote-list">
@@ -311,6 +330,8 @@
           <button type="button" class="ui-lb-cat-btn" data-lb-cat="boss_kc">Boss KC</button>
           <button type="button" class="ui-lb-cat-btn" data-lb-cat="snake_kc">Snake KC</button>
           <button type="button" class="ui-lb-cat-btn" data-lb-cat="golem_kc">Golem KC</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="slime_daddy_kc">Slime Daddy KC</button>
+          <button type="button" class="ui-lb-cat-btn" data-lb-cat="yeti_kc">Yeti KC</button>
         </div>
         <div id="ui-lb-table" class="ui-lb-table"></div>
       </section>
