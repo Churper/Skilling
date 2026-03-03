@@ -1,0 +1,24 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Save Recovery</title>
+<style>body{background:#111;color:#0f0;font-family:monospace;padding:20px}
+textarea{width:100%;height:60vh;background:#222;color:#0f0;font-size:12px;border:1px solid #0f0}
+button{background:#0f0;color:#000;font-size:18px;padding:12px 24px;border:none;margin:10px 0;cursor:pointer}
+h1{color:#ff0}</style></head><body>
+<h1>Save Recovery</h1>
+<p>DO NOT LOG IN TO THE GAME. Just open this page.</p>
+<button onclick="dump()">Show Save Data</button>
+<button onclick="copyIt()">Copy to Clipboard</button>
+<textarea id="out" readonly></textarea>
+<script>
+function dump(){
+  var d = localStorage.getItem("skilling_save");
+  document.getElementById("out").value = d || "NO SAVE FOUND";
+}
+function copyIt(){
+  var t = document.getElementById("out");
+  t.select();
+  document.execCommand("copy");
+  alert("Copied!");
+}
+dump();
+</script></body></html>
