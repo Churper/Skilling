@@ -171,6 +171,10 @@ canvas{display:block}
         <input type="range" id="h-str" min="0.05" max="1.0" value="0.30" step="0.05">
         <span class="val" id="h-str-val">0.30</span>
       </div>
+      <div class="row"><label>Hard</label>
+        <input type="range" id="h-hard" min="0" max="1.0" value="0" step="0.1">
+        <span class="val" id="h-hard-val">0.0</span>
+      </div>
       <div class="row"><label>Flat Y</label>
         <input type="range" id="h-flat" min="-1.0" max="5.0" value="0.40" step="0.1">
         <span class="val" id="h-flat-val">0.40</span>
@@ -195,6 +199,10 @@ canvas{display:block}
       <div class="row"><label>Str</label>
         <input type="range" id="p-str" min="0.05" max="1.0" value="0.50" step="0.05">
         <span class="val" id="p-str-val">0.50</span>
+      </div>
+      <div class="row"><label>Hard</label>
+        <input type="range" id="p-hard" min="0" max="1.0" value="0" step="0.1">
+        <span class="val" id="p-hard-val">0.0</span>
       </div>
     </div>
   </div>
@@ -1488,6 +1496,7 @@ let highlightRing = null;
 /* Height brush state */
 let brushMode = "raise";
 let brushStrength = 0.30;
+let brushHardness = 0.0; // 0 = smooth gradient, 1 = flat/hard edge
 let flattenY = GRASS_Y;
 let painting = false, paintSign = 1, lastPaintTime = 0;
 
@@ -1537,7 +1546,8 @@ function paintAt(wx, wz, dt) {
       const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
       const dist = Math.hypot(vx - lx, vz - lz);
       if (dist > brushRadius) continue;
-      const falloff = 1 - sm(dist, 0, brushRadius);
+      const softFalloff = 1 - sm(dist, 0, brushRadius);
+      const falloff = softFalloff + (1 - softFalloff) * brushHardness * (dist < brushRadius ? 1 : 0);
       const vi = hvi(ix, iz);
       const curY = getBaseY(vx, vz) + heightOffsets[vi];
       if (brushMode === "raise") {
@@ -1591,10 +1601,11 @@ function paintColorAt(wx, wz, dt) {
         let cr, cg, cb;
         if (colorOverrides[key]) { [cr, cg, cb] = colorOverrides[key]; }
         else { const pc = computeBaseColor(vx, vz, y); cr = pc.r; cg = pc.g; cb = pc.b; }
-        /* toon-style stepped falloff: full inside 60%, half 60-85%, none beyond */
+        /* falloff: hardness 0 = toon stepped, hardness 1 = flat/uniform */
         const norm = dist / brushRadius;
         const toonFalloff = norm < 0.6 ? 1.0 : norm < 0.85 ? 0.35 : 0.0;
-        const t = Math.min(paintStrength * toonFalloff * dt * 4, 1);
+        const colorFalloff = toonFalloff + (1 - toonFalloff) * brushHardness;
+        const t = Math.min(paintStrength * colorFalloff * dt * 4, 1);
         cr += (selectedPaintColor.r - cr) * t;
         cg += (selectedPaintColor.g - cg) * t;
         cb += (selectedPaintColor.b - cb) * t;
@@ -2122,6 +2133,7 @@ document.getElementById("obj-scale").addEventListener("input", e => { objScale =
 document.getElementById("obj-rot").addEventListener("input", e => { objRot = parseFloat(e.target.value); document.getElementById("obj-rot-val").textContent = Math.round(objRot * 180 / Math.PI) + "°"; updateSelectedInstance(); updatePreview(); });
 document.getElementById("h-size").addEventListener("input", e => { brushRadius = +e.target.value; document.getElementById("h-size-val").textContent = e.target.value; document.getElementById("p-size").value = brushRadius; document.getElementById("p-size-val").textContent = brushRadius; updateBrushGeo(); });
 document.getElementById("h-str").addEventListener("input", e => { brushStrength = +e.target.value; document.getElementById("h-str-val").textContent = (+e.target.value).toFixed(2); });
+document.getElementById("h-hard").addEventListener("input", e => { brushHardness = +e.target.value; document.getElementById("h-hard-val").textContent = (+e.target.value).toFixed(1); document.getElementById("p-hard").value = brushHardness; document.getElementById("p-hard-val").textContent = (+e.target.value).toFixed(1); });
 document.getElementById("h-flat").addEventListener("input", e => { flattenY = +e.target.value; document.getElementById("h-flat-val").textContent = (+e.target.value).toFixed(1); });
 for (const btn of document.querySelectorAll(".flat-preset")) {
   btn.addEventListener("click", () => {
@@ -2133,6 +2145,7 @@ for (const btn of document.querySelectorAll(".flat-preset")) {
 }
 document.getElementById("p-size").addEventListener("input", e => { brushRadius = +e.target.value; document.getElementById("p-size-val").textContent = e.target.value; document.getElementById("h-size").value = brushRadius; document.getElementById("h-size-val").textContent = brushRadius; updateBrushGeo(); });
 document.getElementById("p-str").addEventListener("input", e => { paintStrength = +e.target.value; document.getElementById("p-str-val").textContent = (+e.target.value).toFixed(2); });
+document.getElementById("p-hard").addEventListener("input", e => { brushHardness = +e.target.value; document.getElementById("p-hard-val").textContent = (+e.target.value).toFixed(1); document.getElementById("h-hard").value = brushHardness; document.getElementById("h-hard-val").textContent = (+e.target.value).toFixed(1); });
 
 /* Build paint color palette */
 {
@@ -2448,7 +2461,7 @@ function animate(t) {
   waterUniforms.uTime.value = (t || 0) * 0.001;
 
   /* WASD pan */
-  const panSpeed = 0.5;
+  const panSpeed = 0.5 * Math.max(0.2, camera.position.distanceTo(orbitControls.target) / 40);
   const forward = new THREE.Vector3();
   camera.getWorldDirection(forward);
   forward.y = 0; forward.normalize();
