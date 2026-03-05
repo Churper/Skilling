@@ -91,6 +91,17 @@
   .player-pos { font-size: 11px; color: #666; }
   .player-skin { font-size: 10px; color: #ffd700; margin-left: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
   .no-players { color: #555; font-size: 13px; padding: 12px 0; text-align: center; }
+  .player-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .player-actions button { padding: 4px 10px; font-size: 11px; border-radius: 4px; }
+  .btn-rename { background: #3a86ff; color: #fff; }
+  .btn-rename:hover { background: #5a9fff; }
+  .btn-nameban { background: #ff6b35; color: #fff; }
+  .btn-nameban:hover { background: #ff8855; }
+  .btn-kick { background: #ff3333; color: #fff; }
+  .btn-kick:hover { background: #ff5555; }
+  .btn-unban { background: #6ed998; color: #1a1a2e; }
+  .btn-unban:hover { background: #8eedb8; }
+  .name-banned { color: #ff6b35; font-size: 11px; font-weight: bold; margin-left: 6px; }
 </style>
 </head>
 <body>
@@ -220,8 +231,40 @@ function getEquip(state) {
   return `${toolIcons[tool] || "🔧"} ${tool}`;
 }
 
+function adminCmd(type, data) {
+  const key = keyInput.value.trim();
+  if (!key || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type, key, ...data }));
+}
+
+function doRename(id, currentName) {
+  const newName = prompt("New name for " + currentName + ":", currentName);
+  if (!newName || !newName.trim()) return;
+  adminCmd("admin_rename", { targetId: id, newName: newName.trim() });
+  setTimeout(requestPlayers, 500);
+}
+
+function doNameBan(id, currentName) {
+  const newName = prompt("Force name to:", "Player");
+  if (newName === null) return;
+  const hours = prompt("Ban name changes for how many hours?", "24");
+  if (!hours) return;
+  adminCmd("admin_nameban", { targetId: id, newName: newName.trim() || "Player", hours: Number(hours) || 24 });
+  setTimeout(requestPlayers, 500);
+}
+
+function doNameUnban(id) {
+  adminCmd("admin_nameunban", { targetId: id });
+  setTimeout(requestPlayers, 500);
+}
+
+function doKick(id, name) {
+  if (!confirm("Kick " + name + "?")) return;
+  adminCmd("admin_kick", { targetId: id });
+  setTimeout(requestPlayers, 1000);
+}
+
 function renderPlayers(players) {
-  // filter out the Admin connection itself
   const real = players.filter(p => p.name !== "Admin");
   playerCountEl.textContent = `${real.length} player${real.length !== 1 ? "s" : ""} online`;
   if (real.length === 0) {
@@ -235,6 +278,9 @@ function renderPlayers(players) {
     const card = document.createElement("div");
     card.className = "player-card";
     const hasCampfire = s.campfireX != null && s.campfireZ != null;
+    const banTag = p.nameBanned
+      ? `<span class="name-banned">🚫 Name banned until ${new Date(p.nameBanned).toLocaleString()}</span>`
+      : "";
     card.innerHTML = `
       <div class="player-swatch" style="${swatchStyle(p.color)}"></div>
       <div class="player-info">
@@ -242,6 +288,7 @@ function renderPlayers(players) {
           <span class="player-name">${esc(p.name)}</span>
           <span class="player-room">${esc(p.room)}</span>
           <span class="player-skin">${PATTERN_CSS[p.color] ? p.color : ''}</span>
+          ${banTag}
         </div>
         <div class="player-meta">Total Lv ${s.totalLevel || 6} · ${getEquip(s)}</div>
         <div class="player-skills">
@@ -255,6 +302,14 @@ function renderPlayers(players) {
         </div>
         <div class="player-activity">${getActivity(s)}${hasCampfire ? ' · 🔥 Campfire' : ''}</div>
         <div class="player-pos">Pos: (${(s.x||0).toFixed(0)}, ${(s.z||0).toFixed(0)})${s.y ? ` Y:${s.y.toFixed(1)}` : ''}</div>
+        <div class="player-actions">
+          <button class="btn-rename" onclick="doRename('${p.id}','${esc(p.name)}')">✏️ Rename</button>
+          ${p.nameBanned
+            ? `<button class="btn-unban" onclick="doNameUnban('${p.id}')">✅ Unban Name</button>`
+            : `<button class="btn-nameban" onclick="doNameBan('${p.id}','${esc(p.name)}')">🚫 Name Ban</button>`
+          }
+          <button class="btn-kick" onclick="doKick('${p.id}','${esc(p.name)}')">👢 Kick</button>
+        </div>
       </div>`;
     playerListEl.appendChild(card);
   }
