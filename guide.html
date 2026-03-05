@@ -3,702 +3,581 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SlimeVille - Game Guide</title>
+<title>SlimeVille Wiki</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Patrick+Hand&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg-deep:#0c1a2a;
-  --bg-card:#132238;
-  --bg-card-hover:#17294a;
-  --bg-surface:#0f1f33;
-  --border:#1e3a5c;
-  --border-glow:#2e5a8c;
-  --accent:#5cff8a;
-  --accent-dim:rgba(92,255,138,.12);
-  --gold:#ffd866;
-  --gold-dim:rgba(255,216,102,.1);
-  --red:#ff6b6b;
-  --blue:#6bc5ff;
-  --purple:#c78dff;
-  --ink-1:#e8f0f8;
-  --ink-2:rgba(232,240,248,.7);
-  --ink-3:rgba(232,240,248,.45);
-  --font-display:"Luckiest Guy",cursive;
-  --font-body:"Fredoka",sans-serif;
-  --font-hand:"Patrick Hand",cursive;
-  --radius:14px;
-  --radius-sm:8px;
+  --bg:#1b1b1f;
+  --bg-alt:#222228;
+  --bg-surface:#2a2a30;
+  --bg-header:#1e1e24;
+  --border:#3a3a42;
+  --border-light:#4a4a54;
+  --accent:#c8aa6e;
+  --accent-dim:rgba(200,170,110,.12);
+  --link:#6db3f2;
+  --link-hover:#8cc8ff;
+  --green:#3fba5e;
+  --red:#e74c4c;
+  --blue:#4ea4d4;
+  --purple:#9b6dd4;
+  --gold:#d4a830;
+  --ink:#d4d4d8;
+  --ink-dim:#9a9aa0;
+  --ink-faint:#6a6a72;
+  --font:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --radius:4px;
 }
 html{scroll-behavior:smooth}
-body{
-  font-family:var(--font-body);
-  background:var(--bg-deep);
-  color:var(--ink-1);
-  line-height:1.55;
-  overflow-x:hidden;
-  min-height:100vh;
-}
-body.embedded .hero-wrap{display:none}
-body.embedded .tabs{top:0}
-body.embedded{background:var(--bg-deep)}
-body.embedded .hero-links{display:none}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6}
+body.embedded .wiki-header{display:none}
+body.embedded .toc-sidebar{display:none}
+body.embedded .wiki-main{margin-left:0;max-width:100%}
 
-/* ═══════════════ HERO ═══════════════ */
-.hero-wrap{
-  position:relative;
-  overflow:hidden;
-  background:linear-gradient(170deg,#0d2137 0%,#132d4a 40%,#0a2844 100%);
-  border-bottom:2px solid var(--border);
+/* ── Header ── */
+.wiki-header{
+  background:var(--bg-header);border-bottom:1px solid var(--border);
+  padding:12px 24px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:100;
 }
-.hero-bg{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse 600px 300px at 20% 80%,rgba(92,255,138,.08),transparent),
-    radial-gradient(ellipse 500px 250px at 80% 20%,rgba(255,216,102,.06),transparent);
-  pointer-events:none;
-}
-.hero-bg::before{
-  content:"";position:absolute;inset:0;
-  background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1' fill='%23ffffff' opacity='.04'/%3E%3C/svg%3E");
-  opacity:.5;
-}
-.hero{
-  position:relative;z-index:1;
-  max-width:800px;margin:0 auto;
-  text-align:center;
-  padding:44px 20px 36px;
-}
-.hero-icon{font-size:56px;line-height:1;margin-bottom:8px;filter:drop-shadow(0 4px 20px rgba(92,255,138,.3))}
-.hero h1{
-  font-family:var(--font-display);
-  font-size:clamp(2rem,5vw,3rem);
-  color:var(--accent);
-  text-shadow:0 0 40px rgba(92,255,138,.25),0 2px 0 rgba(0,0,0,.4);
-  letter-spacing:.04em;
-}
-.hero-sub{
-  font-family:var(--font-hand);
-  font-size:1.2rem;color:var(--ink-3);
-  margin-top:4px;letter-spacing:.02em;
-}
-.hero-links{margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.hero-links a{
-  color:var(--blue);text-decoration:none;font-size:.85rem;font-weight:500;
-  border:1px solid var(--border);padding:6px 18px;border-radius:20px;
-  transition:all .2s;
-}
-.hero-links a:hover{background:rgba(107,197,255,.08);border-color:var(--blue)}
+.wiki-logo{font-size:20px;font-weight:700;color:var(--accent);letter-spacing:-.3px}
+.wiki-logo span{color:var(--ink-dim);font-weight:400;font-size:14px;margin-left:6px}
 
-/* ═══════════════ TABS ═══════════════ */
-.tabs{
-  position:sticky;top:0;z-index:50;
-  background:var(--bg-deep);
-  border-bottom:2px solid var(--border);
-  display:flex;justify-content:center;flex-wrap:wrap;
-  gap:2px;padding:10px 12px 0;
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+/* ── Layout ── */
+.wiki-wrap{display:flex;max-width:1200px;margin:0 auto;gap:0}
+.toc-sidebar{
+  width:210px;min-width:210px;padding:20px 0 20px 16px;
+  position:sticky;top:50px;align-self:flex-start;height:calc(100vh - 50px);
+  overflow-y:auto;border-right:1px solid var(--border);
 }
-.tab-btn{
-  font-family:var(--font-body);
-  background:transparent;border:none;border-bottom:3px solid transparent;
-  padding:10px 18px 8px;color:var(--ink-3);font-size:.88rem;font-weight:500;
-  cursor:pointer;transition:all .2s;white-space:nowrap;
-  position:relative;
+.toc-sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-faint);margin-bottom:8px;padding-left:8px}
+.toc-sidebar a{
+  display:block;padding:4px 8px;font-size:13px;color:var(--ink-dim);
+  text-decoration:none;border-radius:var(--radius);transition:background .1s,color .1s;
 }
-.tab-btn:hover{color:var(--ink-2)}
-.tab-btn.active{
-  color:var(--accent);border-bottom-color:var(--accent);font-weight:600;
-}
-.tab-icon{margin-right:6px;font-size:1.05em}
+.toc-sidebar a:hover{background:var(--bg-surface);color:var(--ink)}
+.toc-sidebar a.toc-h2{padding-left:20px;font-size:12px}
+.wiki-main{flex:1;min-width:0;padding:24px 32px 60px}
 
-/* ═══════════════ CONTENT ═══════════════ */
-.tab-content{display:none;max-width:820px;margin:0 auto;padding:24px 16px 60px}
-.tab-content.active{display:block;animation:fadeUp .3s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
-/* ═══════════════ SECTION HEADER ═══════════════ */
-.sec-head{
-  display:flex;align-items:center;gap:14px;
-  margin:28px 0 16px;padding-bottom:10px;
-  border-bottom:1px solid var(--border);
-}
-.sec-head:first-child{margin-top:4px}
-.sec-icon{
-  width:48px;height:48px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;flex-shrink:0;
-  background:var(--accent-dim);border:1px solid rgba(92,255,138,.15);
-  box-shadow:0 0 20px rgba(92,255,138,.06);
-}
-.sec-icon.gold{background:var(--gold-dim);border-color:rgba(255,216,102,.2);box-shadow:0 0 20px rgba(255,216,102,.06)}
-.sec-icon.red{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.2)}
-.sec-icon.blue{background:rgba(107,197,255,.1);border-color:rgba(107,197,255,.2)}
-.sec-icon.purple{background:rgba(199,141,255,.1);border-color:rgba(199,141,255,.2)}
-.sec-head h2{
-  font-family:var(--font-display);font-size:1.25rem;
-  color:var(--gold);letter-spacing:.03em;
-  text-shadow:0 1px 0 rgba(0,0,0,.3);
-}
-.sec-head p{font-size:.82rem;color:var(--ink-3);margin-top:2px}
-
-/* ═══════════════ CARDS ═══════════════ */
-.card{
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:20px;margin-bottom:14px;
-  transition:border-color .2s,box-shadow .2s;
-}
-.card:hover{border-color:var(--border-glow);box-shadow:0 4px 24px rgba(0,0,0,.2)}
-.card p{color:var(--ink-2);font-size:.88rem;margin:5px 0}
-.card strong{color:var(--ink-1)}
-
-/* ═══════════════ ILLUSTRATED CARD ═══════════════ */
-.illust-card{
-  display:grid;grid-template-columns:80px 1fr;gap:18px;
-  align-items:start;
-}
-.illust-card .illust{
-  width:80px;height:80px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:40px;
-  background:linear-gradient(135deg,rgba(92,255,138,.08),rgba(107,197,255,.06));
-  border:1px solid rgba(92,255,138,.1);
-  flex-shrink:0;
-}
-.illust-card .illust.scene{
-  font-size:28px;line-height:1.2;text-align:center;
-  background:linear-gradient(135deg,#0e2a1a,#0a1f2f);
-}
-
-/* ═══════════════ TIER STRIPS ═══════════════ */
-.tier-strip{
-  display:grid;gap:6px;margin:10px 0;
-}
-.tier-item{
-  display:flex;align-items:center;gap:10px;
-  background:var(--bg-surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:10px 14px;
-  transition:transform .15s,border-color .15s;
-}
-.tier-item:hover{transform:translateX(4px);border-color:var(--border-glow)}
-.tier-badge{
-  min-width:40px;padding:3px 8px;border-radius:6px;
-  font-size:.72rem;font-weight:700;text-align:center;
-  text-transform:uppercase;letter-spacing:.06em;
-  flex-shrink:0;
-}
-.tier-swatch{
-  width:28px;height:28px;border-radius:8px;flex-shrink:0;
-  border:2px solid rgba(255,255,255,.1);
-  box-shadow:inset 0 -2px 4px rgba(0,0,0,.3);
-}
-.tier-name{font-weight:600;color:var(--ink-1);flex:1}
-.tier-meta{font-size:.78rem;color:var(--ink-3);white-space:nowrap}
-.tier-detail{display:flex;gap:8px;flex-wrap:wrap}
-.tier-detail span{
-  font-size:.72rem;padding:2px 8px;border-radius:4px;
-  background:rgba(255,255,255,.04);color:var(--ink-3);
-}
-
-/* ═══════════════ BESTIARY CARDS ═══════════════ */
-.bestiary{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:10px 0}
-.mob-card{
-  background:var(--bg-surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:12px 14px;
-  display:flex;align-items:center;gap:12px;
-  transition:transform .15s,border-color .15s;
-}
-.mob-card:hover{transform:translateY(-2px);border-color:var(--border-glow)}
-.mob-icon{
-  width:44px;height:44px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;font-size:24px;
-  background:rgba(255,255,255,.03);flex-shrink:0;
-  border:1px solid rgba(255,255,255,.06);
-}
-.mob-info{flex:1;min-width:0}
-.mob-name{font-weight:600;font-size:.88rem;color:var(--ink-1)}
-.mob-stats{font-size:.75rem;color:var(--ink-3);margin-top:2px}
-.mob-stats span{margin-right:8px}
-.mob-loot{
-  font-size:.7rem;color:var(--gold);margin-top:3px;
-  padding:2px 6px;background:var(--gold-dim);border-radius:4px;
-  display:inline-block;
-}
-
-/* ═══════════════ BOSS CARDS ═══════════════ */
-.boss-card{
-  background:linear-gradient(135deg,var(--bg-card),rgba(255,107,107,.03));
-  border:1px solid rgba(255,107,107,.15);border-radius:var(--radius);
-  padding:16px 18px;margin-bottom:10px;
-  display:flex;align-items:center;gap:16px;
-  transition:transform .15s;
-}
-.boss-card:hover{transform:translateX(4px)}
-.boss-icon{
-  width:56px;height:56px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;font-size:30px;
-  background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.15);
-  flex-shrink:0;
-}
-.boss-info{flex:1}
-.boss-name{font-family:var(--font-display);font-size:1rem;color:var(--red);letter-spacing:.02em}
-.boss-stats{font-size:.78rem;color:var(--ink-3);margin-top:2px;display:flex;gap:12px;flex-wrap:wrap}
-.boss-stats span::before{margin-right:3px}
-.boss-trophy{
-  font-size:.72rem;color:var(--gold);margin-top:4px;
-  padding:2px 8px;background:var(--gold-dim);border-radius:4px;display:inline-block;
-}
-
-/* ═══════════════ FOOD GRID ═══════════════ */
-.food-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin:10px 0}
-.food-item{
-  display:flex;align-items:center;gap:10px;
-  background:var(--bg-surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:10px 12px;
-  transition:border-color .15s;
-}
-.food-item:hover{border-color:var(--border-glow)}
-.food-icon{font-size:22px;flex-shrink:0;width:32px;text-align:center}
-.food-name{font-weight:500;font-size:.82rem;color:var(--ink-1);flex:1}
-.food-heal{
-  font-size:.78rem;font-weight:700;color:var(--accent);white-space:nowrap;
-  padding:2px 8px;background:var(--accent-dim);border-radius:4px;
-}
-
-/* ═══════════════ SERVICE GRID ═══════════════ */
-.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:10px 0}
-.svc-card{
-  background:var(--bg-surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:14px;
-  display:flex;gap:12px;align-items:start;
-  transition:border-color .15s,transform .15s;
-}
-.svc-card:hover{border-color:var(--border-glow);transform:translateY(-2px)}
-.svc-icon{
-  width:40px;height:40px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;font-size:20px;
-  background:rgba(107,197,255,.08);border:1px solid rgba(107,197,255,.12);
-  flex-shrink:0;
-}
-.svc-name{font-weight:600;font-size:.85rem;color:var(--ink-1)}
-.svc-desc{font-size:.75rem;color:var(--ink-3);margin-top:2px}
-
-/* ═══════════════ CONTROLS ═══════════════ */
-.ctrl-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;
-}
-.ctrl-item{
-  display:flex;align-items:center;gap:10px;
-  background:var(--bg-surface);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:8px 12px;
-}
+/* ── Typography ── */
+h1{font-size:26px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:16px}
+h2{font-size:19px;font-weight:700;color:var(--ink);margin:28px 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+h2:first-child{margin-top:0}
+h3{font-size:15px;font-weight:700;color:var(--ink);margin:18px 0 8px}
+p{margin:6px 0 10px}
+a{color:var(--link);text-decoration:none}
+a:hover{color:var(--link-hover);text-decoration:underline}
 kbd{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-width:28px;height:26px;padding:0 8px;
-  background:linear-gradient(180deg,#2a3f5c,#1e2f48);
-  border:1px solid #3a5a82;border-bottom-width:3px;
-  border-radius:5px;font-family:var(--font-body);font-size:.75rem;
-  font-weight:600;color:var(--ink-1);white-space:nowrap;
-  box-shadow:0 2px 4px rgba(0,0,0,.3);
+  display:inline-block;padding:1px 6px;font-size:12px;font-family:inherit;
+  background:var(--bg-surface);border:1px solid var(--border);border-radius:3px;
+  color:var(--ink-dim);
 }
-.ctrl-label{font-size:.82rem;color:var(--ink-2)}
 
-/* ═══════════════ CALLOUTS ═══════════════ */
-.tip{
-  background:var(--accent-dim);
-  border:1px solid rgba(92,255,138,.15);border-left:4px solid var(--accent);
-  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
-  padding:12px 16px;margin:12px 0;font-size:.85rem;color:rgba(170,255,200,.9);
-  display:flex;align-items:start;gap:10px;
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:14px}
+th{
+  background:var(--bg-header);text-align:left;padding:6px 10px;font-weight:600;
+  border:1px solid var(--border);color:var(--ink-dim);font-size:12px;
+  text-transform:uppercase;letter-spacing:.5px;
 }
-.tip::before{content:"";font-size:1.1em;flex-shrink:0}
-.warn{
-  background:rgba(255,107,107,.06);
-  border:1px solid rgba(255,107,107,.15);border-left:4px solid var(--red);
-  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
-  padding:12px 16px;margin:12px 0;font-size:.85rem;color:rgba(255,180,180,.9);
-  display:flex;align-items:start;gap:10px;
+td{padding:5px 10px;border:1px solid var(--border);vertical-align:middle}
+tr:nth-child(even){background:var(--bg-alt)}
+tr:hover{background:var(--bg-surface)}
+.col-icon{width:28px;text-align:center;font-size:16px}
+.col-num{text-align:right;width:70px}
+.col-sm{width:80px}
+.col-color{width:20px}
+.swatch{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle}
+
+/* ── Infobox ── */
+.infobox{
+  float:right;width:280px;margin:0 0 16px 20px;
+  background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);
+  font-size:13px;overflow:hidden;
 }
-.warn::before{content:"";font-size:1.1em;flex-shrink:0}
+.infobox-title{background:var(--bg-header);padding:8px 12px;font-weight:700;text-align:center;border-bottom:1px solid var(--border)}
+.infobox td{padding:4px 10px}
+.infobox th{background:transparent;font-size:12px;color:var(--ink-faint);text-align:right;width:90px;border-color:var(--border)}
 
-/* ═══════════════ MISC ═══════════════ */
-.tag{
-  display:inline-block;padding:2px 8px;border-radius:4px;font-size:.72rem;
-  font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+/* ── Notice boxes ── */
+.notice{
+  padding:10px 14px;margin:10px 0;border-radius:var(--radius);font-size:13px;
+  border-left:3px solid var(--border);background:var(--bg-alt);
 }
-.tag-green{background:var(--accent-dim);color:var(--accent)}
-.tag-gold{background:var(--gold-dim);color:var(--gold)}
-.tag-red{background:rgba(255,107,107,.1);color:var(--red)}
-.tag-blue{background:rgba(107,197,255,.1);color:var(--blue)}
-.tag-purple{background:rgba(199,141,255,.1);color:var(--purple)}
+.notice-warn{border-left-color:var(--red);background:rgba(231,76,76,.06)}
+.notice-info{border-left-color:var(--blue);background:rgba(78,164,212,.06)}
+.notice-tip{border-left-color:var(--green);background:rgba(63,186,94,.06)}
 
-.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+/* ── Tabs ── */
+.wiki-tabs{
+  display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.wiki-tab{
+  padding:8px 16px;font-size:13px;font-weight:600;color:var(--ink-dim);
+  background:none;border:none;cursor:pointer;white-space:nowrap;
+  border-bottom:2px solid transparent;margin-bottom:-2px;
+  font-family:var(--font);transition:color .15s,border-color .15s;
+}
+.wiki-tab:hover{color:var(--ink)}
+.wiki-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
 
-/* ═══════════════ RESPONSIVE ═══════════════ */
-@media(max-width:640px){
-  .tabs{gap:0;padding:6px 4px 0}
-  .tab-btn{padding:8px 12px;font-size:.82rem}
-  .illust-card{grid-template-columns:1fr}
-  .illust-card .illust{width:100%;height:60px;font-size:32px}
-  .ctrl-grid{grid-template-columns:1fr}
-  .bestiary{grid-template-columns:1fr}
-  .food-grid{grid-template-columns:1fr}
-  .svc-grid{grid-template-columns:1fr}
-  .boss-card{flex-direction:column;text-align:center}
-  .boss-icon{margin:0 auto}
-  .tab-icon{display:none}
+/* ── Responsive ── */
+@media(max-width:820px){
+  .toc-sidebar{display:none}
+  .wiki-main{padding:16px}
+  .infobox{float:none;width:100%;margin:0 0 12px}
+  table{font-size:13px}
+  th,td{padding:4px 6px}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ HERO ═══ -->
-<div class="hero-wrap">
-  <div class="hero-bg"></div>
-  <div class="hero">
-    <div class="hero-icon">&#x1F7E2;</div>
-    <h1>SlimeVille</h1>
-  </div>
+<div class="wiki-header">
+  <div class="wiki-logo">SlimeVille<span>Wiki</span></div>
 </div>
 
-<!-- ═══ TABS ═══ -->
-<div class="tabs" id="tabs">
-  <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>Basics</button>
-  <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>Gathering</button>
-  <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>Combat</button>
-  <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>Gear</button>
-  <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>Food</button>
-  <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>World</button>
+<div class="wiki-wrap">
+
+<!-- ── Table of Contents ── -->
+<nav class="toc-sidebar">
+  <h3>Contents</h3>
+  <a href="#" data-tab="overview">Overview</a>
+  <a href="#" data-tab="skills" class="toc-h2">Skills</a>
+  <a href="#" data-tab="combat" class="toc-h2">Combat</a>
+  <a href="#" data-tab="equipment" class="toc-h2">Equipment</a>
+  <a href="#" data-tab="food" class="toc-h2">Food & Cooking</a>
+  <a href="#" data-tab="world" class="toc-h2">World & Services</a>
+</nav>
+
+<main class="wiki-main">
+
+<!-- ════════════════════════════ TABS ════════════════════════════ -->
+<div class="wiki-tabs" id="wiki-tabs">
+  <button class="wiki-tab active" data-tab="overview">Overview</button>
+  <button class="wiki-tab" data-tab="skills">Skills</button>
+  <button class="wiki-tab" data-tab="combat">Combat</button>
+  <button class="wiki-tab" data-tab="equipment">Equipment</button>
+  <button class="wiki-tab" data-tab="food">Food & Cooking</button>
+  <button class="wiki-tab" data-tab="world">World</button>
 </div>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- ═══ BASICS ═══════════════════════════ -->
-<!-- ═══════════════════════════════════════ -->
-<div class="tab-content active" id="tab-start">
+<!-- ════════════════════════════ OVERVIEW ════════════════════════════ -->
+<div class="tab-panel active" id="tab-overview">
 
-  <div class="card illust-card">
-    <div class="illust">&#x1F7E2;</div>
-    <div>
-      <p><strong>You're a slime!</strong> You spawn in the village center. Click <strong>trees</strong>, <strong>rocks</strong>, or <strong>fishing spots</strong> to start gathering resources. Sell items at the <strong>General Store</strong> for coins. Level up skills, craft equipment, and take on bosses.</p>
-      <div class="tip">First goal: buy <strong>Stone Tools</strong> at the Blacksmith for 50 coins &mdash; 25% faster gathering speed!</div>
-    </div>
-  </div>
+<h1>SlimeVille</h1>
 
-  <div class="sec-head"><div class="sec-icon blue">&#x1F3AE;</div><div><h2>Controls</h2><p>Mouse, keyboard & touch</p></div></div>
-
-  <div class="ctrl-grid">
-    <div class="ctrl-item"><kbd>Click</kbd><span class="ctrl-label">Move / interact</span></div>
-    <div class="ctrl-item"><kbd>Right Click</kbd><span class="ctrl-label">Context menu</span></div>
-    <div class="ctrl-item"><kbd>Scroll</kbd><span class="ctrl-label">Zoom in / out</span></div>
-    <div class="ctrl-item"><kbd>Middle Drag</kbd><span class="ctrl-label">Rotate camera</span></div>
-    <div class="ctrl-item"><kbd>Space</kbd><span class="ctrl-label">Jump</span></div>
-    <div class="ctrl-item"><kbd>Ctrl</kbd><span class="ctrl-label">Crouch</span></div>
-    <div class="ctrl-item"><kbd>M</kbd><span class="ctrl-label">Dismount horse</span></div>
-    <div class="ctrl-item"><kbd>F1&ndash;F6</kbd><span class="ctrl-label">Tab hotkeys (rebindable)</span></div>
-    <div class="ctrl-item"><kbd>Esc</kbd><span class="ctrl-label">Close panels</span></div>
-  </div>
-
-  <div class="sec-head"><div class="sec-icon gold">&#x1F6E0;&#xFE0F;</div><div><h2>Tool Upgrades</h2><p>Upgrade at the Blacksmith for faster gathering</p></div></div>
-
-  <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge" style="background:#6b4c2a;color:#d4a96a">Lv 1</span><span class="tier-swatch" style="background:#a77a48"></span><span class="tier-name">Wood</span><span class="tier-meta">Free &bull; 1.0x</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:#4a4a4a;color:#bbb">Lv 1</span><span class="tier-swatch" style="background:#9a9a9a"></span><span class="tier-name">Stone</span><span class="tier-meta">100c &bull; 1.05x</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:#6b5a00;color:#ffd700">Lv 10</span><span class="tier-swatch" style="background:#ffd700"></span><span class="tier-name">Gold</span><span class="tier-meta">500c &bull; 1.12x</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:#1a3a4a;color:#7df0ff">Lv 25</span><span class="tier-swatch" style="background:#7df0ff"></span><span class="tier-name">Diamond</span><span class="tier-meta">1,500c &bull; 1.2x</span></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 40</span><span class="tier-swatch" style="background:#50c878"></span><span class="tier-name">Emerald</span><span class="tier-meta">4,000c &bull; 1.3x</span></div>
-    <div class="tier-item"><span class="tier-badge tag-red">Lv 60</span><span class="tier-swatch" style="background:#e0115f"></span><span class="tier-name">Ruby</span><span class="tier-meta">10,000c &bull; 1.45x</span></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 80</span><span class="tier-swatch" style="background:#0f52ba"></span><span class="tier-name">Sapphire</span><span class="tier-meta">25,000c &bull; 1.65x</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:#222;color:#999">Lv 100</span><span class="tier-swatch" style="background:#3d3d3d"></span><span class="tier-name">Obsidian</span><span class="tier-meta">50,000c &bull; 1.9x</span></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 130</span><span class="tier-swatch" style="background:#e8c0ff"></span><span class="tier-name">Crystal</span><span class="tier-meta">100,000c &bull; 2.2x</span></div>
-    <div class="tier-item"><span class="tier-badge tag-red">Lv 170</span><span class="tier-swatch" style="background:#ff4500"></span><span class="tier-name">Dragon</span><span class="tier-meta">200,000c &bull; 2.6x</span></div>
-    <div class="tier-item" style="border-color:rgba(255,216,102,.2)"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:linear-gradient(135deg,#f0e68c,#fff8dc)"></span><span class="tier-name">Celestial</span><span class="tier-meta">500,000c &bull; 3.0x</span></div>
-  </div>
+<div class="infobox">
+  <div class="infobox-title">Game Info</div>
+  <table>
+    <tr><th>Genre</th><td>Browser MMO</td></tr>
+    <tr><th>Engine</th><td>Three.js (WebGL)</td></tr>
+    <tr><th>Players</th><td>Multiplayer (real-time)</td></tr>
+    <tr><th>Platform</th><td>Browser (desktop &amp; mobile)</td></tr>
+    <tr><th>Skills</th><td>9 trainable skills</td></tr>
+    <tr><th>Bosses</th><td>5 boss encounters</td></tr>
+  </table>
 </div>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- ═══ GATHERING ════════════════════════ -->
-<!-- ═══════════════════════════════════════ -->
-<div class="tab-content" id="tab-gather">
+<p><strong>SlimeVille</strong> is a browser-based multiplayer game where players control a slime character in an open world. Players gather resources, train skills, craft equipment, cook food, and fight increasingly powerful monsters and bosses.</p>
 
-  <div class="card illust-card">
-    <div class="illust scene">&#x1F332;&#x26CF;&#xFE0F;<br>&#x1F41F;</div>
-    <div>
-      <p>Click a resource node to gather. Each success gives <strong>XP</strong> and an <strong>item</strong>. Your bag holds 32 slots.</p>
-      <p>Gathering has a <strong>fail chance</strong> that shrinks as you level &mdash; 70% at level 1, nearly 0% at high levels. <strong>Foraging</strong> and <strong>Flax</strong> never fail.</p>
-    </div>
-  </div>
+<p>New players spawn in the <strong>Village</strong>, which contains all essential services: a Bank, General Store, Blacksmith, Crafting Table, Campfire, and Food Shop.</p>
 
-  <!-- MINING -->
-  <div class="sec-head"><div class="sec-icon">&#x26CF;&#xFE0F;</div><div><h2>Mining</h2><p>Mine rocks for ore &bull; Rare drop: Uncut Gem (3-6%)</p></div></div>
+<h2>Getting Started</h2>
+<ol style="margin:6px 0 14px 20px">
+  <li>Click trees, rocks, or fishing spots to gather resources and earn XP.</li>
+  <li>Sell gathered items at the <strong>General Store</strong> for coins.</li>
+  <li>Buy your first <strong>Stone Tools</strong> at the Blacksmith (100 coins) for faster gathering.</li>
+  <li>Cook raw fish at a <strong>Campfire</strong> for healing food.</li>
+  <li>Craft combat gear at the <strong>Crafting Table</strong> and start fighting animals.</li>
+</ol>
 
-  <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#777"></span><span class="tier-name">Rock</span><div class="tier-detail"><span>25 xp</span><span>7c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#b0a080"></span><span class="tier-name">Tin</span><div class="tier-detail"><span>65 xp</span><span>10c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#cd7f32"></span><span class="tier-name">Copper</span><div class="tier-detail"><span>110 xp</span><span>15c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 45</span><span class="tier-swatch" style="background:#e8d8e0"></span><span class="tier-name">Quartz</span><div class="tier-detail"><span>155 xp</span><span>20c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 60</span><span class="tier-swatch" style="background:#c0c0c0"></span><span class="tier-name">Silver</span><div class="tier-detail"><span>200 xp</span><span>28c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 80</span><span class="tier-swatch" style="background:#c8d8e0"></span><span class="tier-name">Platinum</span><div class="tier-detail"><span>260 xp</span><span>36c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 100</span><span class="tier-swatch" style="background:#4070a0"></span><span class="tier-name">Cobalt</span><div class="tier-detail"><span>330 xp</span><span>45c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 125</span><span class="tier-swatch" style="background:#50b060"></span><span class="tier-name">Jade</span><div class="tier-detail"><span>420 xp</span><span>56c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 150</span><span class="tier-swatch" style="background:#8090a0"></span><span class="tier-name">Titanium</span><div class="tier-detail"><span>520 xp</span><span>70c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 175</span><span class="tier-swatch" style="background:linear-gradient(135deg,#e0a0c0,#a0c0e0,#e0c0a0)"></span><span class="tier-name">Opal</span><div class="tier-detail"><span>630 xp</span><span>85c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:linear-gradient(135deg,#ff6090,#60c0ff,#a0ff80)"></span><span class="tier-name">Gem</span><div class="tier-detail"><span>750 xp</span><span>100c</span></div></div>
-  </div>
+<h2>Controls</h2>
+<table>
+  <tr><th>Input</th><th>Action</th></tr>
+  <tr><td><kbd>Click</kbd></td><td>Move to location / interact with object</td></tr>
+  <tr><td><kbd>Right Click</kbd></td><td>Context menu (drop items, equip, enhance)</td></tr>
+  <tr><td><kbd>Scroll</kbd></td><td>Zoom in/out</td></tr>
+  <tr><td><kbd>Middle Drag</kbd></td><td>Rotate camera</td></tr>
+  <tr><td><kbd>Space</kbd></td><td>Jump</td></tr>
+  <tr><td><kbd>Ctrl</kbd></td><td>Crouch</td></tr>
+  <tr><td><kbd>M</kbd></td><td>Dismount horse</td></tr>
+  <tr><td><kbd>F1</kbd>&ndash;<kbd>F6</kbd></td><td>Tab hotkeys (rebindable in settings)</td></tr>
+  <tr><td><kbd>Esc</kbd></td><td>Close open panels</td></tr>
+</table>
 
-  <!-- WOODCUTTING -->
-  <div class="sec-head"><div class="sec-icon" style="background:rgba(76,175,80,.1);border-color:rgba(76,175,80,.2)">&#x1FA93;</div><div><h2>Woodcutting</h2><p>Chop trees for logs &bull; Rare drop: Bird Nest (4-12%)</p></div></div>
-
-  <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#4a8c3f"></span><span class="tier-name">Tree</span><div class="tier-detail"><span>25 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#6b4c2a"></span><span class="tier-name">Oak</span><div class="tier-detail"><span>95 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 60</span><span class="tier-swatch" style="background:#2a8b4a"></span><span class="tier-name">Palm</span><div class="tier-detail"><span>160 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#c86420"></span><span class="tier-name">Maple</span><div class="tier-detail"><span>300 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#3a5c3a"></span><span class="tier-name">Pine</span><div class="tier-detail"><span>250 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 150</span><span class="tier-swatch" style="background:#8b4513"></span><span class="tier-name">Cedar</span><div class="tier-detail"><span>380 xp</span></div></div>
-  </div>
-
-  <!-- FISHING -->
-  <div class="sec-head"><div class="sec-icon blue">&#x1F3A3;</div><div><h2>Fishing</h2><p>Fish at any spot &bull; Rare drop: Golden Fish (3%)</p></div></div>
-
-  <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#ff9080"></span><span class="tier-name">Shrimp</span><div class="tier-detail"><span>28 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>45 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>70 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>100 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 70</span><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>140 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#5080c0"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>190 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 130</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>260 xp</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 170</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>350 xp</span></div></div>
-  </div>
-  <div class="tip">All fish are cookable! Higher fish = more healing when cooked.</div>
+<h2>Tools</h2>
+<p>Gathering tools (axes, pickaxes, fishing poles) can be upgraded at the <strong>Blacksmith</strong>. Higher tiers require a minimum skill level and increase gathering speed.</p>
+<table>
+  <tr><th>Tier</th><th class="col-color"></th><th>Level</th><th class="col-num">Cost</th><th class="col-num">Speed</th></tr>
+  <tr><td>Wood</td><td><span class="swatch" style="background:#a77a48"></span></td><td>1</td><td class="col-num">Free</td><td class="col-num">1.0x</td></tr>
+  <tr><td>Stone</td><td><span class="swatch" style="background:#9a9a9a"></span></td><td>1</td><td class="col-num">100</td><td class="col-num">1.05x</td></tr>
+  <tr><td>Gold</td><td><span class="swatch" style="background:#ffd700"></span></td><td>10</td><td class="col-num">500</td><td class="col-num">1.12x</td></tr>
+  <tr><td>Diamond</td><td><span class="swatch" style="background:#7df0ff"></span></td><td>25</td><td class="col-num">1,500</td><td class="col-num">1.2x</td></tr>
+  <tr><td>Emerald</td><td><span class="swatch" style="background:#50c878"></span></td><td>40</td><td class="col-num">4,000</td><td class="col-num">1.3x</td></tr>
+  <tr><td>Ruby</td><td><span class="swatch" style="background:#e0115f"></span></td><td>60</td><td class="col-num">10,000</td><td class="col-num">1.45x</td></tr>
+  <tr><td>Sapphire</td><td><span class="swatch" style="background:#0f52ba"></span></td><td>80</td><td class="col-num">25,000</td><td class="col-num">1.65x</td></tr>
+  <tr><td>Obsidian</td><td><span class="swatch" style="background:#3d3d3d"></span></td><td>100</td><td class="col-num">50,000</td><td class="col-num">1.9x</td></tr>
+  <tr><td>Crystal</td><td><span class="swatch" style="background:#e8c0ff"></span></td><td>130</td><td class="col-num">100,000</td><td class="col-num">2.2x</td></tr>
+  <tr><td>Dragon</td><td><span class="swatch" style="background:#ff4500"></span></td><td>170</td><td class="col-num">200,000</td><td class="col-num">2.6x</td></tr>
+  <tr><td>Celestial</td><td><span class="swatch" style="background:#f0e68c"></span></td><td>200</td><td class="col-num">500,000</td><td class="col-num">3.0x</td></tr>
+</table>
 </div>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- ═══ COMBAT ═══════════════════════════ -->
-<!-- ═══════════════════════════════════════ -->
-<div class="tab-content" id="tab-combat">
+<!-- ════════════════════════════ SKILLS ════════════════════════════ -->
+<div class="tab-panel" id="tab-skills">
 
-  <div class="card illust-card">
-    <div class="illust" style="background:linear-gradient(135deg,rgba(255,107,107,.1),rgba(199,141,255,.08))">&#x2694;&#xFE0F;</div>
-    <div>
-      <p>Click an animal to attack. <strong>Three combat styles</strong>, each training its own skill plus Hitpoints. Switch styles via the combat panel.</p>
-      <p>HP hits 0 = respawn at village with full health.</p>
-    </div>
-  </div>
+<h1>Skills</h1>
+<p>There are 9 trainable skills. Each has its own XP track and level. Total Level is the sum of all skill levels. Gathering skills have a fail chance that decreases with level (70% at level 1, approaching 0% at high levels).</p>
 
-  <div class="sec-head"><div class="sec-icon red">&#x1F5E1;&#xFE0F;</div><div><h2>Combat Styles</h2></div></div>
+<h2>Mining</h2>
+<p>Mine rocks for ore. Ore is used to craft equipment and can be sold. Higher-tier rocks require a minimum Mining level.</p>
+<div class="notice notice-info">Rare drop: <strong>Uncut Gem</strong> (3.5&ndash;9% chance, increases with ore tier)</div>
+<table>
+  <tr><th>Rock</th><th class="col-color"></th><th>Level</th><th class="col-num">XP</th><th>Item</th><th class="col-num">Sell</th></tr>
+  <tr><td>Rock</td><td><span class="swatch" style="background:#777"></span></td><td>1</td><td class="col-num">25</td><td>Ore</td><td class="col-num">7</td></tr>
+  <tr><td>Tin</td><td><span class="swatch" style="background:#b0a080"></span></td><td>15</td><td class="col-num">65</td><td>Tin Ore</td><td class="col-num">10</td></tr>
+  <tr><td>Copper</td><td><span class="swatch" style="background:#cd7f32"></span></td><td>30</td><td class="col-num">110</td><td>Copper Ore</td><td class="col-num">15</td></tr>
+  <tr><td>Quartz</td><td><span class="swatch" style="background:#e8d8e0"></span></td><td>45</td><td class="col-num">155</td><td>Quartz Ore</td><td class="col-num">20</td></tr>
+  <tr><td>Silver</td><td><span class="swatch" style="background:#c0c0c0"></span></td><td>60</td><td class="col-num">200</td><td>Silver Ore</td><td class="col-num">28</td></tr>
+  <tr><td>Platinum</td><td><span class="swatch" style="background:#c8d8e0"></span></td><td>80</td><td class="col-num">260</td><td>Platinum Ore</td><td class="col-num">36</td></tr>
+  <tr><td>Cobalt</td><td><span class="swatch" style="background:#4070a0"></span></td><td>100</td><td class="col-num">330</td><td>Cobalt Ore</td><td class="col-num">45</td></tr>
+  <tr><td>Jade</td><td><span class="swatch" style="background:#50b060"></span></td><td>125</td><td class="col-num">420</td><td>Jade Ore</td><td class="col-num">56</td></tr>
+  <tr><td>Titanium</td><td><span class="swatch" style="background:#8090a0"></span></td><td>150</td><td class="col-num">520</td><td>Titanium Ore</td><td class="col-num">70</td></tr>
+  <tr><td>Opal</td><td><span class="swatch" style="background:#d0a8b8"></span></td><td>175</td><td class="col-num">630</td><td>Opal Ore</td><td class="col-num">85</td></tr>
+  <tr><td>Gem</td><td><span class="swatch" style="background:#9040d0"></span></td><td>200</td><td class="col-num">750</td><td>Gem Ore</td><td class="col-num">100</td></tr>
+</table>
 
-  <div class="tier-strip">
-    <div class="tier-item"><span class="tier-swatch" style="background:linear-gradient(135deg,#c0c0c0,#e0e0e0)"></span><span class="tier-name">Melee (Sword)</span><span class="tier-meta">Close range &bull; High damage</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:linear-gradient(135deg,#8b6914,#a67c1a)"></span><span class="tier-name">Ranged (Bow)</span><span class="tier-meta">Distance &bull; Safe positioning</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:linear-gradient(135deg,#6040c0,#8060e0)"></span><span class="tier-name">Magic (Staff)</span><span class="tier-meta">Distance &bull; Elemental power</span></div>
-  </div>
+<h2>Woodcutting</h2>
+<p>Chop trees for logs. Logs are used for crafting and cooking (campfires cost 3 logs per cook).</p>
+<div class="notice notice-info">Rare drop: <strong>Bird Nest</strong> (4&ndash;12% chance, increases with tree tier)</div>
+<table>
+  <tr><th>Tree</th><th class="col-color"></th><th>Level</th><th class="col-num">XP</th><th>Item</th><th class="col-num">Sell</th></tr>
+  <tr><td>Tree</td><td><span class="swatch" style="background:#4a8c3f"></span></td><td>1</td><td class="col-num">25</td><td>Logs</td><td class="col-num">5</td></tr>
+  <tr><td>Oak</td><td><span class="swatch" style="background:#6b4c2a"></span></td><td>30</td><td class="col-num">95</td><td>Oak Logs</td><td class="col-num">12</td></tr>
+  <tr><td>Palm</td><td><span class="swatch" style="background:#2a8b4a"></span></td><td>60</td><td class="col-num">160</td><td>Palm Logs</td><td class="col-num">22</td></tr>
+  <tr><td>Maple</td><td><span class="swatch" style="background:#c86420"></span></td><td>75</td><td class="col-num">300</td><td>Maple Logs</td><td class="col-num">48</td></tr>
+  <tr><td>Pine</td><td><span class="swatch" style="background:#3a5c3a"></span></td><td>100</td><td class="col-num">250</td><td>Pine Logs</td><td class="col-num">38</td></tr>
+  <tr><td>Cedar</td><td><span class="swatch" style="background:#8b4513"></span></td><td>150</td><td class="col-num">380</td><td>Cedar Logs</td><td class="col-num">60</td></tr>
+</table>
 
-  <!-- ANIMALS -->
-  <div class="sec-head"><div class="sec-icon" style="background:rgba(255,180,80,.08);border-color:rgba(255,180,80,.15)">&#x1F43E;</div><div><h2>Animals</h2><p>Fight these creatures across the world</p></div></div>
+<h2>Fishing</h2>
+<p>Fish at fishing spots (dock or riverside). The type of fish caught depends on your Fishing level &mdash; you always catch the highest tier available.</p>
+<div class="notice notice-info">Rare drop: <strong>Golden Fish</strong> (3% chance). Can be cooked into Sushi.</div>
+<table>
+  <tr><th>Fish</th><th class="col-color"></th><th>Level</th><th class="col-num">XP</th><th class="col-num">Sell</th></tr>
+  <tr><td>Shrimp</td><td><span class="swatch" style="background:#ff9080"></span></td><td>1</td><td class="col-num">28</td><td class="col-num">4</td></tr>
+  <tr><td>Trout</td><td><span class="swatch" style="background:#80b0c0"></span></td><td>15</td><td class="col-num">45</td><td class="col-num">12</td></tr>
+  <tr><td>Salmon</td><td><span class="swatch" style="background:#fa8072"></span></td><td>30</td><td class="col-num">70</td><td class="col-num">18</td></tr>
+  <tr><td>Lobster</td><td><span class="swatch" style="background:#dc3c3c"></span></td><td>50</td><td class="col-num">100</td><td class="col-num">28</td></tr>
+  <tr><td>Mackerel</td><td><span class="swatch" style="background:#6090a0"></span></td><td>70</td><td class="col-num">140</td><td class="col-num">35</td></tr>
+  <tr><td>Swordfish</td><td><span class="swatch" style="background:#5080c0"></span></td><td>100</td><td class="col-num">190</td><td class="col-num">50</td></tr>
+  <tr><td>Tuna</td><td><span class="swatch" style="background:#6495ed"></span></td><td>130</td><td class="col-num">260</td><td class="col-num">70</td></tr>
+  <tr><td>Manta Ray</td><td><span class="swatch" style="background:#4b0082"></span></td><td>170</td><td class="col-num">350</td><td class="col-num">100</td></tr>
+</table>
 
-  <div class="bestiary">
-    <div class="mob-card"><div class="mob-icon">&#x1F423;</div><div class="mob-info"><div class="mob-name">Chick</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 15</span><span>&#x2694;&#xFE0F; 0-1</span></div><div class="mob-loot">Feather</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F414;</div><div class="mob-info"><div class="mob-name">Chicken</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 40</span><span>&#x2694;&#xFE0F; 1-2</span></div><div class="mob-loot">Raw Chicken</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F431;</div><div class="mob-info"><div class="mob-name">Cat</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 50</span><span>&#x2694;&#xFE0F; 1-3</span></div><div class="mob-loot">Fur</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F436;</div><div class="mob-info"><div class="mob-name">Dog</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 60</span><span>&#x2694;&#xFE0F; 2-4</span></div><div class="mob-loot">Bone</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F437;</div><div class="mob-info"><div class="mob-name">Pig</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 75</span><span>&#x2694;&#xFE0F; 2-4</span></div><div class="mob-loot">Raw Pork</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F411;</div><div class="mob-info"><div class="mob-name">Sheep</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 85</span><span>&#x2694;&#xFE0F; 2-5</span></div><div class="mob-loot">Wool</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F99D;</div><div class="mob-info"><div class="mob-name">Raccoon</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 120</span><span>&#x2694;&#xFE0F; 3-6</span></div><div class="mob-loot">Raccoon Tail</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F40E;</div><div class="mob-info"><div class="mob-name">Horse</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 180</span><span>&#x2694;&#xFE0F; 4-8</span></div><div class="mob-loot">Horse Hide</div></div></div>
-    <div class="mob-card" style="border-color:rgba(255,107,107,.2)"><div class="mob-icon" style="background:rgba(255,107,107,.08)">&#x1F43A;</div><div class="mob-info"><div class="mob-name" style="color:var(--red)">Wolf <span class="tag tag-red">Aggro</span></div><div class="mob-stats"><span>&#x2764;&#xFE0F; 250</span><span>&#x2694;&#xFE0F; 5-10</span></div><div class="mob-loot">Wolf Pelt</div></div></div>
-  </div>
-  <div class="warn">Wolves are <strong>auto-aggressive</strong> &mdash; they attack on sight!</div>
-  <div class="tip">Horses can be <strong>ridden</strong> instead of killed! Click a horse to mount it. Click the horse again or press <kbd>M</kbd> to dismount. 2x movement speed while mounted.</div>
-
-  <!-- BOSSES -->
-  <div class="sec-head"><div class="sec-icon red">&#x1F480;</div><div><h2>Bosses</h2><p>Enter boss arenas to fight powerful monsters</p></div></div>
-
-  <div class="boss-card"><div class="boss-icon">&#x1F40D;</div><div class="boss-info"><div class="boss-name">Snake Boss</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 1,000 HP</span></div><div class="boss-trophy">&#x1FA99; Snake Scale</div></div></div>
-  <div class="boss-card"><div class="boss-icon">&#x1FAA8;</div><div class="boss-info"><div class="boss-name">Rock Golem</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 8,000 HP</span><span>&#x2694;&#xFE0F; 15-20 dmg</span></div><div class="boss-trophy">&#x1FA99; Golem Core</div></div></div>
-  <div class="boss-card"><div class="boss-icon">&#x2744;&#xFE0F;</div><div class="boss-info"><div class="boss-name">Frost Yeti</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 15,000 HP</span><span>&#x2694;&#xFE0F; 18-28 dmg</span></div><div class="boss-trophy">&#x1FA99; Frozen Heart</div></div></div>
-  <div class="boss-card"><div class="boss-icon">&#x1F49C;</div><div class="boss-info"><div class="boss-name">Slime Daddy</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 20,000 HP</span><span>&#x2694;&#xFE0F; 12-18 dmg</span></div><div class="boss-trophy">&#x1FA99; Royal Jelly</div></div></div>
-  <div class="boss-card" style="border-color:rgba(255,160,40,.2);background:linear-gradient(135deg,var(--bg-card),rgba(255,160,40,.04))"><div class="boss-icon" style="background:rgba(255,160,40,.1);border-color:rgba(255,160,40,.2)">&#x1F432;</div><div class="boss-info"><div class="boss-name" style="color:#ffa028">Dragon</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 25,000 HP</span><span>&#x2694;&#xFE0F; 35-55 dmg</span></div><div class="boss-trophy">&#x1FA99; Dragon Scale</div></div></div>
-
-  <div class="tip">Boss trophies sell for 50&ndash;500c. Bring <strong>10+ food</strong>, buff potions, and your best gear!</div>
-  <div class="tip">Use the <strong>Party System</strong> to team up! Click the handshake emote near another player to invite them. Fight bosses together for shared loot.</div>
+<h2>Other Skills</h2>
+<table>
+  <tr><th>Skill</th><th>Trained by</th><th>Notes</th></tr>
+  <tr><td>Melee</td><td>Attacking with a sword</td><td>Increases melee damage</td></tr>
+  <tr><td>Ranged</td><td>Attacking with a bow</td><td>Increases ranged damage</td></tr>
+  <tr><td>Magic</td><td>Attacking with a staff</td><td>Increases magic damage</td></tr>
+  <tr><td>Hitpoints</td><td>All combat (passive)</td><td>Increases maximum HP</td></tr>
+  <tr><td>Cooking</td><td>Cooking food at campfires</td><td>Reduces burn chance</td></tr>
+  <tr><td>Survival</td><td>Foraging berries, picking flax</td><td>Never fails</td></tr>
+</table>
 </div>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- ═══ GEAR ═════════════════════════════ -->
-<!-- ═══════════════════════════════════════ -->
-<div class="tab-content" id="tab-gear">
+<!-- ════════════════════════════ COMBAT ════════════════════════════ -->
+<div class="tab-panel" id="tab-combat">
 
-  <div class="card illust-card">
-    <div class="illust" style="background:linear-gradient(135deg,rgba(199,141,255,.1),rgba(107,197,255,.08))">&#x1F6E1;&#xFE0F;</div>
-    <div>
-      <p>Craft gear at the <strong>Crafting Table</strong> using Ore and Logs. Equip across <strong>8 worn slots</strong>: Body, Cape, Ring, Amulet, Shield, Sword, Bow, Staff.</p>
-      <div class="tip">Monsters also drop equipment! Higher-tier monsters = better gear drops.</div>
-    </div>
-  </div>
+<h1>Combat</h1>
+<p>Click an animal or monster to attack it. There are three combat styles, each training a different skill. All combat also grants Hitpoints XP. If your HP reaches 0, you respawn at the village with full health.</p>
 
-  <div class="sec-head"><div class="sec-icon purple">&#x2728;</div><div><h2>Equipment Tiers</h2><p>11 tiers from Bronze to Celestial</p></div></div>
+<h2>Combat Styles</h2>
+<table>
+  <tr><th>Style</th><th>Weapon</th><th>Skill Trained</th><th>Range</th></tr>
+  <tr><td>Melee</td><td>Sword</td><td>Melee + Hitpoints</td><td>Close</td></tr>
+  <tr><td>Ranged</td><td>Bow</td><td>Ranged + Hitpoints</td><td>Distance</td></tr>
+  <tr><td>Magic</td><td>Staff</td><td>Magic + Hitpoints</td><td>Distance</td></tr>
+</table>
 
-  <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(205,127,50,.15);color:#cd7f32">Lv 1</span><span class="tier-swatch" style="background:linear-gradient(135deg,#cd7f32,#e8a040)"></span><span class="tier-name">Bronze</span><span class="tier-meta">Starter gear</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(168,168,168,.15);color:#c8c8c8">Lv 5</span><span class="tier-swatch" style="background:linear-gradient(135deg,#a8a8a8,#d0d0d0)"></span><span class="tier-name">Iron</span><span class="tier-meta">Common drops</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(176,196,222,.12);color:#b0c4de">Lv 10</span><span class="tier-swatch" style="background:linear-gradient(135deg,#8098b8,#b0c4de)"></span><span class="tier-name">Steel</span><span class="tier-meta">Reliable upgrade</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(65,105,225,.12);color:#6888e8">Lv 20</span><span class="tier-swatch" style="background:linear-gradient(135deg,#3050b0,#4169e1)"></span><span class="tier-name">Mithril</span><span class="tier-meta">Mid-game</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(46,139,87,.12);color:#4caf80">Lv 30</span><span class="tier-swatch" style="background:linear-gradient(135deg,#1e6b3a,#2e8b57)"></span><span class="tier-name">Adamant</span><span class="tier-meta">Late-game</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(64,224,208,.12);color:#40e0d0">Lv 40</span><span class="tier-swatch" style="background:linear-gradient(135deg,#20b0a0,#40e0d0)"></span><span class="tier-name">Rune</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(127,255,0,.12);color:#7fff00">Lv 60</span><span class="tier-swatch" style="background:linear-gradient(135deg,#5cc000,#7fff00)"></span><span class="tier-name">Slime</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(232,192,255,.12);color:#e8c0ff">Lv 80</span><span class="tier-swatch" style="background:linear-gradient(135deg,#c090e0,#e8c0ff)"></span><span class="tier-name">Crystal</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(255,69,0,.12);color:#ff4500">Lv 100</span><span class="tier-swatch" style="background:linear-gradient(135deg,#cc3800,#ff4500)"></span><span class="tier-name">Volcanic</span></div>
-    <div class="tier-item"><span class="tier-badge" style="background:rgba(135,206,235,.12);color:#87ceeb">Lv 130</span><span class="tier-swatch" style="background:linear-gradient(135deg,#60a8d0,#87ceeb)"></span><span class="tier-name">Frost</span></div>
-    <div class="tier-item" style="border-color:rgba(255,215,0,.15)"><span class="tier-badge" style="background:rgba(255,215,0,.12);color:#ffd700">Lv 170</span><span class="tier-swatch" style="background:linear-gradient(135deg,#ccaa00,#ffd700)"></span><span class="tier-name">Celestial</span><span class="tier-meta tag-gold">Best in slot</span></div>
-  </div>
+<h2>Animals</h2>
+<p>Animals are found throughout the world. Most are passive and only fight back when attacked. Wolves are auto-aggressive and attack on sight.</p>
+<table>
+  <tr><th>Animal</th><th class="col-num">HP</th><th class="col-num">Damage</th><th>Loot</th><th>Notes</th></tr>
+  <tr><td>Chick</td><td class="col-num">25</td><td class="col-num">0&ndash;2</td><td>Feather</td><td>Passive</td></tr>
+  <tr><td>Chicken</td><td class="col-num">80</td><td class="col-num">2&ndash;5</td><td>Raw Chicken</td><td>Passive</td></tr>
+  <tr><td>Cat</td><td class="col-num">120</td><td class="col-num">3&ndash;7</td><td>Fur</td><td>Passive</td></tr>
+  <tr><td>Dog</td><td class="col-num">160</td><td class="col-num">5&ndash;10</td><td>Bone</td><td>Passive</td></tr>
+  <tr><td>Pig</td><td class="col-num">200</td><td class="col-num">6&ndash;12</td><td>Raw Pork</td><td>Passive</td></tr>
+  <tr><td>Sheep</td><td class="col-num">280</td><td class="col-num">8&ndash;15</td><td>Wool</td><td>Passive</td></tr>
+  <tr><td>Raccoon</td><td class="col-num">400</td><td class="col-num">10&ndash;20</td><td>Raccoon Tail</td><td>Passive</td></tr>
+  <tr><td>Horse</td><td class="col-num">600</td><td class="col-num">15&ndash;28</td><td>Horse Hide</td><td>Mountable (click to ride, click again or <kbd>M</kbd> to dismount)</td></tr>
+  <tr style="color:var(--red)"><td>Wolf</td><td class="col-num">900</td><td class="col-num">18&ndash;35</td><td>Wolf Pelt</td><td><strong>Auto-aggressive</strong></td></tr>
+</table>
+<div class="notice notice-tip">Animals can also drop equipment. Drop rates vary by animal &mdash; stronger animals have better chances and higher-tier drops.</div>
 
-  <div class="sec-head"><div class="sec-icon gold">&#x2B50;</div><div><h2>Star Enhancement</h2><p>Right-click worn gear &rarr; Enhance</p></div></div>
+<h2>Bosses</h2>
+<p>Boss arenas are located across the map. Walk into a boss arena to enter an instanced fight. Bosses can be fought solo or in a party.</p>
+<table>
+  <tr><th>Boss</th><th class="col-num">HP</th><th class="col-num">Damage</th><th>Trophy Drop</th><th class="col-num">Sell</th></tr>
+  <tr><td>Snake Boss</td><td class="col-num">1,000</td><td class="col-num">&mdash;</td><td>Snake Scale</td><td class="col-num">50</td></tr>
+  <tr><td>Rock Golem</td><td class="col-num">8,000</td><td class="col-num">15&ndash;20</td><td>Golem Core</td><td class="col-num">100</td></tr>
+  <tr><td>Frost Yeti</td><td class="col-num">15,000</td><td class="col-num">18&ndash;28</td><td>Frozen Heart</td><td class="col-num">300</td></tr>
+  <tr><td>Slime Daddy</td><td class="col-num">25,000</td><td class="col-num">18&ndash;30</td><td>Royal Jelly</td><td class="col-num">150</td></tr>
+  <tr><td>Dragon</td><td class="col-num">40,000</td><td class="col-num">45&ndash;70</td><td>Dragon Scale</td><td class="col-num">500</td></tr>
+</table>
+<div class="notice notice-warn">Bring 10+ food and buff potions before attempting bosses. Death means respawning at the village.</div>
 
-  <div class="card">
-    <p>Items go up to <strong>10 stars</strong>, boosting ATK and DEF. A timing minigame controls bonus success chance &mdash; stop the slider in the green zone.</p>
-    <div class="warn">Stars <strong>7+</strong> can destroy your item on failure! If destroyed, you get a <strong>broken version</strong> of the item back (same tier, no stars). Enhance carefully.</div>
-  </div>
+<h3>Boss Equipment Drops</h3>
+<table>
+  <tr><th>Boss</th><th class="col-num">Drop Rate</th><th>Possible Equipment</th></tr>
+  <tr><td>Snake Boss</td><td class="col-num">35%</td><td>Mithril, Adamant weapons/armor</td></tr>
+  <tr><td>Rock Golem</td><td class="col-num">40%</td><td>Adamant, Rune weapons/armor</td></tr>
+  <tr><td>Slime Daddy</td><td class="col-num">45%</td><td>Rune, Slime weapons/armor</td></tr>
+  <tr><td>Frost Yeti</td><td class="col-num">50%</td><td>Slime, Crystal, Frost weapons/armor</td></tr>
+  <tr><td>Dragon</td><td class="col-num">55%</td><td>Crystal, Volcanic, Celestial weapons/armor</td></tr>
+</table>
 
-  <div class="sec-head"><div class="sec-icon purple">&#x1F300;</div><div><h2>Washing Machine</h2><p>Roll potential stat lines on equipment</p></div></div>
-
-  <div class="card">
-    <p>Roll 3 random stat lines for <strong>50c</strong>. Lock lines you want to keep.</p>
-    <div class="tier-strip" style="margin-top:10px">
-      <div class="tier-item"><span class="tier-swatch" style="background:#ff5050"></span><span class="tier-name">Life Steal</span><span class="tier-meta">1-5% &bull; Heal on hit</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:#ffb020"></span><span class="tier-name">Attack Speed</span><span class="tier-meta">3-15% &bull; Faster attacks</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:#40c0ff"></span><span class="tier-name">Crit Chance</span><span class="tier-meta">2-8% &bull; Chance for crits</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:#c080ff"></span><span class="tier-name">Crit Damage</span><span class="tier-meta">10-50% &bull; Bonus crit dmg</span></div>
-    </div>
-    <p style="margin-top:8px;font-size:.82rem;color:var(--ink-3)">Lock costs: 1 line = 200c &bull; 2 lines = 500c</p>
-  </div>
+<h2>Party System</h2>
+<p>Click the handshake emote near another player to invite them to your party. Party members can enter boss instances together and share loot.</p>
 </div>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- ═══ FOOD ═════════════════════════════ -->
-<!-- ═══════════════════════════════════════ -->
-<div class="tab-content" id="tab-food">
+<!-- ════════════════════════════ EQUIPMENT ════════════════════════════ -->
+<div class="tab-panel" id="tab-equipment">
 
-  <div class="card illust-card">
-    <div class="illust" style="background:linear-gradient(135deg,rgba(255,180,80,.1),rgba(255,107,107,.06))">&#x1F373;</div>
-    <div>
-      <p>Use a <strong>Campfire</strong> with raw food in your bag. Costs <strong>3 logs</strong> per cook. Burn chance decreases with cooking level. Click food in your bag to eat and restore HP.</p>
-    </div>
-  </div>
+<h1>Equipment</h1>
+<p>Equipment is crafted at the <strong>Crafting Table</strong> using ore and logs, or dropped by monsters and bosses. There are <strong>8 worn slots</strong>: Sword, Bow, Staff, Body, Shield, Cape, Ring, and Amulet.</p>
 
-  <div class="sec-head"><div class="sec-icon gold">&#x1F525;</div><div><h2>Cooking Recipes</h2><p>Cook raw food at campfires for better healing</p></div></div>
+<h2>Equipment Tiers</h2>
+<p>Each tier requires a minimum combat skill level to equip. Higher tiers provide significantly more ATK and DEF.</p>
+<table>
+  <tr><th>Tier</th><th class="col-color"></th><th>Level</th><th class="col-num">ATK (wep)</th><th class="col-num">DEF (armor)</th><th>Source</th></tr>
+  <tr><td>Bronze</td><td><span class="swatch" style="background:#cd7f32"></span></td><td>1</td><td class="col-num">4</td><td class="col-num">5</td><td>Shop, Craft, Drops</td></tr>
+  <tr><td>Iron</td><td><span class="swatch" style="background:#a8a8a8"></span></td><td>5</td><td class="col-num">8</td><td class="col-num">10</td><td>Shop, Craft, Drops</td></tr>
+  <tr><td>Steel</td><td><span class="swatch" style="background:#b0c4de"></span></td><td>10</td><td class="col-num">14</td><td class="col-num">18</td><td>Craft, Drops</td></tr>
+  <tr><td>Mithril</td><td><span class="swatch" style="background:#4169e1"></span></td><td>20</td><td class="col-num">20</td><td class="col-num">28</td><td>Craft, Boss Drops</td></tr>
+  <tr><td>Adamant</td><td><span class="swatch" style="background:#2e8b57"></span></td><td>30</td><td class="col-num">27</td><td class="col-num">40</td><td>Craft, Boss Drops</td></tr>
+  <tr><td>Rune</td><td><span class="swatch" style="background:#40e0d0"></span></td><td>40</td><td class="col-num">34</td><td class="col-num">52</td><td>Craft, Boss Drops</td></tr>
+  <tr><td>Slime</td><td><span class="swatch" style="background:#7fff00"></span></td><td>60</td><td class="col-num">44</td><td class="col-num">68</td><td>Craft, Boss Drops</td></tr>
+  <tr><td>Crystal</td><td><span class="swatch" style="background:#e8c0ff"></span></td><td>80</td><td class="col-num">56</td><td class="col-num">86</td><td>Craft, Boss Drops</td></tr>
+  <tr><td>Volcanic</td><td><span class="swatch" style="background:#ff4500"></span></td><td>100</td><td class="col-num">70</td><td class="col-num">108</td><td>Craft, Boss Drops</td></tr>
+  <tr><td>Frost</td><td><span class="swatch" style="background:#87ceeb"></span></td><td>130</td><td class="col-num">88</td><td class="col-num">134</td><td>Craft, Boss Drops</td></tr>
+  <tr><td>Celestial</td><td><span class="swatch" style="background:#ffd700"></span></td><td>170</td><td class="col-num">110</td><td class="col-num">165</td><td>Craft, Boss Drops</td></tr>
+</table>
 
-  <div class="tier-strip">
-    <div class="tier-item"><span class="tier-swatch" style="background:#ff8060"></span><span class="tier-name">Shrimp &rarr; Cooked Shrimp</span><div class="tier-detail"><span>25 xp</span><span class="tag tag-green">50 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout &rarr; Cooked Trout</span><div class="tier-detail"><span>35 xp</span><span class="tag tag-green">120 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon &rarr; Cooked Salmon</span><div class="tier-detail"><span>50 xp</span><span class="tag tag-green">160 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster &rarr; Cooked Lobster</span><div class="tier-detail"><span>68 xp</span><span class="tag tag-green">220 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">Mackerel &rarr; Cooked Mackerel</span><div class="tier-detail"><span>85 xp</span><span class="tag tag-green">300 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#5080c0"></span><span class="tier-name">Swordfish &rarr; Cooked Swordfish</span><div class="tier-detail"><span>110 xp</span><span class="tag tag-green">400 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna &rarr; Cooked Tuna</span><div class="tier-detail"><span>140 xp</span><span class="tag tag-green">550 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray &rarr; Cooked Manta Ray</span><div class="tier-detail"><span>180 xp</span><span class="tag tag-green">750 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#d4a060"></span><span class="tier-name">Raw Chicken &rarr; Cooked Chicken</span><div class="tier-detail"><span>25 xp</span><span class="tag tag-green">80 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#c08070"></span><span class="tier-name">Raw Pork &rarr; Cooked Pork</span><div class="tier-detail"><span>22 xp</span><span class="tag tag-green">70 HP</span></div></div>
-    <div class="tier-item" style="border-color:rgba(255,216,102,.2)"><span class="tier-swatch" style="background:linear-gradient(135deg,#ffd700,#ffed4a)"></span><span class="tier-name">Golden Fish &rarr; Sushi</span><div class="tier-detail"><span>50 xp</span><span class="tag tag-gold">300 HP</span></div></div>
-  </div>
+<h3>Crafting Costs</h3>
+<p>Equipment is crafted at the Crafting Table. Swords use ore only; bows use mostly logs; staves use a 50/50 mix; armor uses 1.2x ore.</p>
+<table>
+  <tr><th>Tier</th><th class="col-num">Ore (sword)</th><th class="col-num">Ore (body)</th><th>Level Req.</th></tr>
+  <tr><td>Bronze</td><td class="col-num">3</td><td class="col-num">4</td><td>1</td></tr>
+  <tr><td>Iron</td><td class="col-num">8</td><td class="col-num">10</td><td>5</td></tr>
+  <tr><td>Steel</td><td class="col-num">15</td><td class="col-num">18</td><td>10</td></tr>
+  <tr><td>Mithril</td><td class="col-num">25</td><td class="col-num">30</td><td>20</td></tr>
+  <tr><td>Adamant</td><td class="col-num">40</td><td class="col-num">48</td><td>30</td></tr>
+  <tr><td>Rune</td><td class="col-num">55</td><td class="col-num">66</td><td>40</td></tr>
+  <tr><td>Slime</td><td class="col-num">75</td><td class="col-num">90</td><td>60</td></tr>
+  <tr><td>Crystal</td><td class="col-num">100</td><td class="col-num">120</td><td>80</td></tr>
+  <tr><td>Volcanic</td><td class="col-num">130</td><td class="col-num">156</td><td>100</td></tr>
+  <tr><td>Frost</td><td class="col-num">170</td><td class="col-num">204</td><td>130</td></tr>
+  <tr><td>Celestial</td><td class="col-num">220</td><td class="col-num">264</td><td>170</td></tr>
+</table>
 
-  <div class="sec-head"><div class="sec-icon">&#x2764;&#xFE0F;</div><div><h2>All Healing Food</h2><p>Click food in your bag to eat it</p></div></div>
+<h2>Accessories</h2>
+<table>
+  <tr><th>Item</th><th>Slot</th><th>Level</th><th class="col-num">ATK</th><th class="col-num">DEF</th><th>Materials</th></tr>
+  <tr><td>Leather Cape</td><td>Cape</td><td>1</td><td class="col-num">1</td><td class="col-num">2</td><td>2 Horse Hide</td></tr>
+  <tr><td>Wool Cape</td><td>Cape</td><td>5</td><td class="col-num">2</td><td class="col-num">4</td><td>4 Wool, 2 Ore</td></tr>
+  <tr><td>Silk Cape</td><td>Cape</td><td>10</td><td class="col-num">3</td><td class="col-num">6</td><td>5 Wolf Pelt, 4 Ore</td></tr>
+  <tr><td>Bronze Ring</td><td>Ring</td><td>1</td><td class="col-num">2</td><td class="col-num">1</td><td>2 Ore</td></tr>
+  <tr><td>Iron Ring</td><td>Ring</td><td>5</td><td class="col-num">3</td><td class="col-num">2</td><td>5 Ore</td></tr>
+  <tr><td>Steel Ring</td><td>Ring</td><td>10</td><td class="col-num">5</td><td class="col-num">3</td><td>10 Ore</td></tr>
+  <tr><td>Bone Amulet</td><td>Amulet</td><td>1</td><td class="col-num">1</td><td class="col-num">1</td><td>3 Bone</td></tr>
+  <tr><td>Hide Amulet</td><td>Amulet</td><td>5</td><td class="col-num">2</td><td class="col-num">3</td><td>2 Bone, 2 Horse Hide</td></tr>
+  <tr><td>Jewel Amulet</td><td>Amulet</td><td>10</td><td class="col-num">4</td><td class="col-num">5</td><td>3 Bone, 8 Ore</td></tr>
+</table>
 
-  <div class="food-grid">
-    <div class="food-item"><span class="food-icon">&#x1F353;</span><span class="food-name">Berries</span><span class="food-heal">15</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F34E;</span><span class="food-name">Apple</span><span class="food-heal">25</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F366;</span><span class="food-name">Popsicle</span><span class="food-heal">30</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F950;</span><span class="food-name">Croissant</span><span class="food-heal">40</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F990;</span><span class="food-name">Cooked Shrimp</span><span class="food-heal">50</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Salmon</span><span class="food-heal">160</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F99E;</span><span class="food-name">Cooked Lobster</span><span class="food-heal">220</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Fish</span><span class="food-heal">60</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F356;</span><span class="food-name">Cooked Pork</span><span class="food-heal">70</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F357;</span><span class="food-name">Cooked Chicken</span><span class="food-heal">80</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F3A3;</span><span class="food-name">Cooked Trout</span><span class="food-heal">120</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F969;</span><span class="food-name">Steak</span><span class="food-heal">150</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F354;</span><span class="food-name">Burger</span><span class="food-heal">200</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Mackerel</span><span class="food-heal">200</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F983;</span><span class="food-name">Turkey</span><span class="food-heal">250</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F363;</span><span class="food-name">Sushi</span><span class="food-heal">300</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Swordfish</span><span class="food-heal">400</span></div>
-    <div class="food-item"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Tuna</span><span class="food-heal">550</span></div>
-    <div class="food-item" style="border-color:rgba(255,216,102,.2)"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Manta Ray</span><span class="food-heal" style="background:var(--gold-dim);color:var(--gold)">750</span></div>
-    <div class="food-item" style="border-color:rgba(255,107,107,.15)"><span class="food-icon">&#x2764;&#xFE0F;</span><span class="food-name">Health Potion</span><span class="food-heal" style="background:rgba(255,107,107,.1);color:var(--red)">25%</span></div>
-  </div>
+<h2>All Weapons & Armor</h2>
+<p>Each equipment tier has 5 items: Sword, Bow, Staff (weapons with ATK), Body, and Shield (armor with DEF).</p>
+<table>
+  <tr><th>Tier</th><th>Sword</th><th>Bow</th><th>Staff</th><th>Body</th><th>Shield</th></tr>
+  <tr><td>Bronze</td><td>4 ATK</td><td>4 ATK</td><td>4 ATK</td><td>5 DEF</td><td>5 DEF</td></tr>
+  <tr><td>Iron</td><td>8 ATK</td><td>8 ATK</td><td>8 ATK</td><td>10 DEF</td><td>10 DEF</td></tr>
+  <tr><td>Steel</td><td>14 ATK</td><td>14 ATK</td><td>14 ATK</td><td>18 DEF</td><td>18 DEF</td></tr>
+  <tr><td>Mithril</td><td>20 ATK</td><td>20 ATK</td><td>20 ATK</td><td>28 DEF</td><td>28 DEF</td></tr>
+  <tr><td>Adamant</td><td>27 ATK</td><td>27 ATK</td><td>27 ATK</td><td>40 DEF</td><td>40 DEF</td></tr>
+  <tr><td>Rune</td><td>34 ATK</td><td>34 ATK</td><td>34 ATK</td><td>52 DEF</td><td>52 DEF</td></tr>
+  <tr><td>Slime</td><td>44 ATK</td><td>44 ATK</td><td>44 ATK</td><td>68 DEF</td><td>68 DEF</td></tr>
+  <tr><td>Crystal</td><td>56 ATK</td><td>56 ATK</td><td>56 ATK</td><td>86 DEF</td><td>86 DEF</td></tr>
+  <tr><td>Volcanic</td><td>70 ATK</td><td>70 ATK</td><td>70 ATK</td><td>108 DEF</td><td>108 DEF</td></tr>
+  <tr><td>Frost</td><td>88 ATK</td><td>88 ATK</td><td>88 ATK</td><td>134 DEF</td><td>134 DEF</td></tr>
+  <tr><td>Celestial</td><td>110 ATK</td><td>110 ATK</td><td>110 ATK</td><td>165 DEF</td><td>165 DEF</td></tr>
+</table>
+<div class="notice notice-info">Sword trains Melee, Bow trains Ranged, Staff trains Magic. All three weapon types have equal ATK at the same tier.</div>
 
-  <div class="sec-head"><div class="sec-icon purple">&#x2697;&#xFE0F;</div><div><h2>Buff Potions</h2><p>5 minute duration &bull; Buy from General Store</p></div></div>
+<h2>Star Enhancement</h2>
+<p>Right-click a worn item and select <strong>Enhance</strong> to add stars. Stars boost ATK and DEF. A timing minigame determines bonus success chance &mdash; stop the slider in the green zone for a better roll. Items can be enhanced up to <strong>10 stars</strong>.</p>
 
-  <div class="tier-strip">
-    <div class="tier-item"><span class="tier-swatch" style="background:#40c0ff"></span><span class="tier-name">Swiftness Potion</span><span class="tier-meta tag-blue">+20% atk speed</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#ff5050"></span><span class="tier-name">Power Potion</span><span class="tier-meta tag-red">+15% atk damage</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#c080ff"></span><span class="tier-name">Slayer Potion</span><span class="tier-meta tag-purple">+25% boss damage</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#ffd700"></span><span class="tier-name">Tempo Potion</span><span class="tier-meta tag-gold">+3 tempo buff</span></div>
-  </div>
+<table>
+  <tr><th>Star</th><th class="col-num">Success %</th><th class="col-num">Destroy %</th><th class="col-num">Downgrade %</th></tr>
+  <tr><td>1&ndash;3</td><td class="col-num">95 / 90 / 85</td><td class="col-num">0</td><td class="col-num">0</td></tr>
+  <tr><td>4</td><td class="col-num">75</td><td class="col-num">0</td><td class="col-num">0</td></tr>
+  <tr><td>5</td><td class="col-num">65</td><td class="col-num">3</td><td class="col-num">0</td></tr>
+  <tr><td>6</td><td class="col-num">55</td><td class="col-num">6</td><td class="col-num">0</td></tr>
+  <tr><td>7</td><td class="col-num">45</td><td class="col-num">10</td><td class="col-num">0</td></tr>
+  <tr><td>8</td><td class="col-num">35</td><td class="col-num">18</td><td class="col-num">40</td></tr>
+  <tr><td>9</td><td class="col-num">25</td><td class="col-num">25</td><td class="col-num">50</td></tr>
+  <tr><td>10</td><td class="col-num">18</td><td class="col-num">35</td><td class="col-num">60</td></tr>
+</table>
+<div class="notice notice-warn"><strong>Stars 5+</strong> can destroy your item on failure. If destroyed, you receive a <strong>broken version</strong> of the item (same tier, 0 stars). On failed attempts that don't destroy, stars 8+ have a chance to <strong>downgrade</strong> by 1 star instead.</div>
+
+<h2>Washing Machine</h2>
+<p>The Washing Machine rolls 3 random <strong>potential stat lines</strong> on a piece of equipment. Each roll costs <strong>50 coins</strong>. You can lock lines you want to keep between rolls (locking increases cost).</p>
+
+<table>
+  <tr><th>Stat</th><th>Range</th><th>Effect</th></tr>
+  <tr><td>Life Steal</td><td>1&ndash;5%</td><td>Heal a percentage of damage dealt</td></tr>
+  <tr><td>Attack Speed</td><td>3&ndash;15%</td><td>Reduce time between attacks</td></tr>
+  <tr><td>Crit Chance</td><td>2&ndash;8%</td><td>Chance to deal a critical hit</td></tr>
+  <tr><td>Crit Damage</td><td>10&ndash;50%</td><td>Bonus damage on critical hits</td></tr>
+</table>
+<p><strong>Lock costs:</strong> 1 line locked = 200 coins per roll. 2 lines locked = 500 coins per roll.</p>
 </div>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- ═══ WORLD ════════════════════════════ -->
-<!-- ═══════════════════════════════════════ -->
-<div class="tab-content" id="tab-world">
+<!-- ════════════════════════════ FOOD ════════════════════════════ -->
+<div class="tab-panel" id="tab-food">
 
-  <div class="sec-head" style="margin-top:4px"><div class="sec-icon blue">&#x1F3D8;&#xFE0F;</div><div><h2>Buildings & Services</h2><p>Find these around the village and across the map</p></div></div>
+<h1>Food & Cooking</h1>
+<p>Click food in your inventory to eat it and restore HP. Raw fish and meat can be cooked at a <strong>Campfire</strong> (costs 3 logs per cook). Higher Cooking levels reduce burn chance. Burnt food heals nothing.</p>
 
-  <div class="svc-grid">
-    <div class="svc-card"><div class="svc-icon" style="background:rgba(255,216,102,.08);border-color:rgba(255,216,102,.15)">&#x1F4B0;</div><div><div class="svc-name">Bank Chest</div><div class="svc-desc">Store unlimited items safely</div></div></div>
-    <div class="svc-card"><div class="svc-icon">&#x1F3EA;</div><div><div class="svc-name">General Store</div><div class="svc-desc">Buy potions, skins. Sell items.</div></div></div>
-    <div class="svc-card"><div class="svc-icon" style="background:rgba(255,180,80,.08);border-color:rgba(255,180,80,.12)">&#x1F354;</div><div><div class="svc-name">Food Shop</div><div class="svc-desc">Buy food and healing items</div></div></div>
-    <div class="svc-card"><div class="svc-icon" style="background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.12)">&#x1F525;</div><div><div class="svc-name">Blacksmith</div><div class="svc-desc">Upgrade gathering tools</div></div></div>
-    <div class="svc-card"><div class="svc-icon" style="background:rgba(199,141,255,.08);border-color:rgba(199,141,255,.12)">&#x2692;&#xFE0F;</div><div><div class="svc-name">Crafting Table</div><div class="svc-desc">Craft equipment from ore & logs</div></div></div>
-    <div class="svc-card"><div class="svc-icon">&#x1F9F5;</div><div><div class="svc-name">Spinning Wheel</div><div class="svc-desc">Spin flax into bowstring, wool into cloth</div></div></div>
-    <div class="svc-card"><div class="svc-icon" style="background:rgba(199,141,255,.08);border-color:rgba(199,141,255,.12)">&#x1F300;</div><div><div class="svc-name">Washing Machine</div><div class="svc-desc">Roll potential stat lines on gear</div></div></div>
-    <div class="svc-card"><div class="svc-icon" style="background:rgba(255,160,40,.08);border-color:rgba(255,160,40,.12)">&#x1F525;</div><div><div class="svc-name">Campfire</div><div class="svc-desc">Cook raw food (costs 3 logs)</div></div></div>
-    <div class="svc-card"><div class="svc-icon">&#x1F3D7;&#xFE0F;</div><div><div class="svc-name">Construction Site</div><div class="svc-desc">Dump logs & ore to train Construction</div></div></div>
-    <div class="svc-card"><div class="svc-icon" style="background:rgba(92,255,138,.08);border-color:rgba(92,255,138,.12)">&#x1F4CB;</div><div><div class="svc-name">Task Board</div><div class="svc-desc">Pick up quests for XP and coin rewards</div></div></div>
-    <div class="svc-card"><div class="svc-icon">&#x1F94A;</div><div><div class="svc-name">Training Dummies</div><div class="svc-desc">Practice combat without taking damage</div></div></div>
-    <div class="svc-card"><div class="svc-icon" style="background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.12)">&#x1F514;</div><div><div class="svc-name">Summon Bell</div><div class="svc-desc">Enter a boss instance fight</div></div></div>
-  </div>
+<h2>Cooking Recipes</h2>
+<table>
+  <tr><th>Raw Item</th><th>Cooked Result</th><th class="col-num">Cook XP</th><th class="col-num">Burn %</th><th class="col-num">Heals</th></tr>
+  <tr><td>Shrimp</td><td>Cooked Shrimp</td><td class="col-num">25</td><td class="col-num">30%</td><td class="col-num">50</td></tr>
+  <tr><td>Trout</td><td>Cooked Trout</td><td class="col-num">35</td><td class="col-num">25%</td><td class="col-num">120</td></tr>
+  <tr><td>Salmon</td><td>Cooked Salmon</td><td class="col-num">50</td><td class="col-num">22%</td><td class="col-num">160</td></tr>
+  <tr><td>Lobster</td><td>Cooked Lobster</td><td class="col-num">68</td><td class="col-num">18%</td><td class="col-num">220</td></tr>
+  <tr><td>Mackerel</td><td>Cooked Mackerel</td><td class="col-num">85</td><td class="col-num">15%</td><td class="col-num">300</td></tr>
+  <tr><td>Swordfish</td><td>Cooked Swordfish</td><td class="col-num">110</td><td class="col-num">12%</td><td class="col-num">400</td></tr>
+  <tr><td>Tuna</td><td>Cooked Tuna</td><td class="col-num">140</td><td class="col-num">10%</td><td class="col-num">550</td></tr>
+  <tr><td>Manta Ray</td><td>Cooked Manta Ray</td><td class="col-num">180</td><td class="col-num">8%</td><td class="col-num">750</td></tr>
+  <tr><td>Raw Chicken</td><td>Cooked Chicken</td><td class="col-num">25</td><td class="col-num">30%</td><td class="col-num">80</td></tr>
+  <tr><td>Raw Pork</td><td>Cooked Pork</td><td class="col-num">22</td><td class="col-num">30%</td><td class="col-num">70</td></tr>
+  <tr><td>Golden Fish</td><td>Sushi</td><td class="col-num">50</td><td class="col-num">12%</td><td class="col-num">300</td></tr>
+</table>
 
-  <div class="sec-head"><div class="sec-icon">&#x1F91D;</div><div><h2>Multiplayer</h2><p>Play with others in real-time</p></div></div>
+<h2>All Healing Items</h2>
+<table>
+  <tr><th>Item</th><th class="col-num">Heals</th><th>Source</th></tr>
+  <tr><td>Berries</td><td class="col-num">15</td><td>Foraging</td></tr>
+  <tr><td>Apple</td><td class="col-num">25</td><td>Food Shop</td></tr>
+  <tr><td>Popsicle</td><td class="col-num">30</td><td>Food Shop</td></tr>
+  <tr><td>Croissant</td><td class="col-num">40</td><td>Food Shop</td></tr>
+  <tr><td>Cooked Shrimp</td><td class="col-num">50</td><td>Cooking</td></tr>
+  <tr><td>Cooked Fish</td><td class="col-num">60</td><td>Food Shop</td></tr>
+  <tr><td>Cooked Pork</td><td class="col-num">70</td><td>Cooking</td></tr>
+  <tr><td>Cooked Chicken</td><td class="col-num">80</td><td>Cooking</td></tr>
+  <tr><td>Cooked Trout</td><td class="col-num">120</td><td>Cooking</td></tr>
+  <tr><td>Steak</td><td class="col-num">150</td><td>Food Shop</td></tr>
+  <tr><td>Cooked Salmon</td><td class="col-num">160</td><td>Cooking</td></tr>
+  <tr><td>Burger</td><td class="col-num">200</td><td>Food Shop</td></tr>
+  <tr><td>Cooked Lobster</td><td class="col-num">220</td><td>Cooking</td></tr>
+  <tr><td>Turkey</td><td class="col-num">250</td><td>Boss Drop</td></tr>
+  <tr><td>Cooked Mackerel</td><td class="col-num">300</td><td>Cooking</td></tr>
+  <tr><td>Sushi</td><td class="col-num">300</td><td>Cooking (Golden Fish)</td></tr>
+  <tr><td>Cooked Swordfish</td><td class="col-num">400</td><td>Cooking</td></tr>
+  <tr><td>Eggplant</td><td class="col-num">500</td><td>Rare</td></tr>
+  <tr><td>Cooked Tuna</td><td class="col-num">550</td><td>Cooking</td></tr>
+  <tr><td>Cooked Manta Ray</td><td class="col-num">750</td><td>Cooking</td></tr>
+  <tr><td>Health Potion</td><td class="col-num">25% max HP</td><td>General Store (25c)</td></tr>
+</table>
 
-  <div class="card">
-    <div class="tier-strip">
-      <div class="tier-item"><span class="tier-swatch" style="background:var(--accent)"></span><span class="tier-name">See other players as colored slimes</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:var(--red)"></span><span class="tier-name">Fight bosses together in party instances</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:var(--blue)"></span><span class="tier-name">Use emotes to communicate</span><span class="tier-meta">Emotes tab (F5)</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name">Click players to inspect their stats</span></div>
-    </div>
-  </div>
+<h2>Buff Potions</h2>
+<p>Buff potions last <strong>5 minutes</strong> and are purchased from the General Store. Effects do not stack with themselves.</p>
+<table>
+  <tr><th>Potion</th><th>Effect</th><th>Duration</th></tr>
+  <tr><td>Swiftness Potion</td><td>+20% attack speed</td><td>5 min</td></tr>
+  <tr><td>Power Potion</td><td>+15% attack damage</td><td>5 min</td></tr>
+  <tr><td>Slayer Potion</td><td>+25% boss damage</td><td>5 min</td></tr>
+  <tr><td>Tempo Potion</td><td>+3 tempo buff</td><td>5 min</td></tr>
+</table>
+</div>
 
-  <div class="sec-head"><div class="sec-icon gold">&#x1F4A1;</div><div><h2>Pro Tips</h2><p>Advice from veteran slimes</p></div></div>
+<!-- ════════════════════════════ WORLD ════════════════════════════ -->
+<div class="tab-panel" id="tab-world">
 
-  <div class="card">
-    <div class="tier-strip">
-      <div class="tier-item"><span class="tier-swatch" style="background:var(--gold)"></span><span class="tier-name">Upgrade tools ASAP</span><span class="tier-meta">Diamond = 2x speed</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:var(--accent)"></span><span class="tier-name">Bank often</span><span class="tier-meta">Don't waste bag space</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:#ff8040"></span><span class="tier-name">Cook raw food before eating</span><span class="tier-meta">Way more healing</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:var(--blue)"></span><span class="tier-name">Explore different chunks</span><span class="tier-meta">Resources everywhere</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name">Task Board early on</span><span class="tier-meta">Easy XP & coins</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:var(--red)"></span><span class="tier-name">Star enhance weapons first</span><span class="tier-meta">ATK > DEF early</span></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:#ff5050"></span><span class="tier-name">Get Life Steal from Washing Machine</span><span class="tier-meta">Game-changer for sustain</span></div>
-    </div>
-  </div>
+<h1>World & Services</h1>
+<p>The world is divided into chunks that load as you explore. The village is the central hub containing most services.</p>
+
+<h2>Services</h2>
+<table>
+  <tr><th>Service</th><th>Function</th><th>Location</th></tr>
+  <tr><td>Bank Chest</td><td>Store unlimited items safely. Transfer items between bag and bank.</td><td>Village</td></tr>
+  <tr><td>General Store</td><td>Buy potions, slime skins. Sell items from your inventory.</td><td>Village</td></tr>
+  <tr><td>Food Shop</td><td>Buy food and healing items.</td><td>Village</td></tr>
+  <tr><td>Blacksmith</td><td>Upgrade gathering tools (axe, pickaxe, fishing pole).</td><td>Village</td></tr>
+  <tr><td>Crafting Table</td><td>Craft equipment from ore and logs.</td><td>Village</td></tr>
+  <tr><td>Spinning Wheel</td><td>Spin flax into bowstrings, wool into cloth.</td><td>Village</td></tr>
+  <tr><td>Washing Machine</td><td>Roll potential stat lines on equipment (50c per roll).</td><td>Village</td></tr>
+  <tr><td>Campfire</td><td>Cook raw food into healing food. Costs 3 logs per cook.</td><td>Various</td></tr>
+  <tr><td>Construction Site</td><td>Deposit logs and ore to train Construction skill.</td><td>East Village</td></tr>
+  <tr><td>Task Board</td><td>Accept quests for XP and coin rewards.</td><td>Village</td></tr>
+  <tr><td>Training Dummies</td><td>Practice combat without taking damage.</td><td>West Village</td></tr>
+  <tr><td>Summon Bell</td><td>Enter a boss instance fight.</td><td>Boss Arenas</td></tr>
+</table>
+
+<h2>Multiplayer</h2>
+<p>SlimeVille is multiplayer by default. Other players appear as colored slimes in the game world.</p>
+<ul style="margin:6px 0 14px 20px">
+  <li>See other players moving and gathering in real-time.</li>
+  <li>Use emotes to communicate (Emotes tab or <kbd>F5</kbd>).</li>
+  <li>Click another player to inspect their stats and equipment.</li>
+  <li>Form a <strong>party</strong> using the handshake emote to fight bosses together.</li>
+  <li>Trade items with other players via the trade system.</li>
+</ul>
+
+<h2>Tips</h2>
+<ul style="margin:6px 0 14px 20px">
+  <li>Upgrade tools as soon as you can afford them &mdash; the speed increase compounds over time.</li>
+  <li>Bank your items frequently. Your bag only holds 32 slots.</li>
+  <li>Always cook raw food before eating &mdash; cooked food heals significantly more.</li>
+  <li>Check the Task Board early for easy XP and coin rewards.</li>
+  <li>Prioritize ATK upgrades early in the game (weapons > armor).</li>
+  <li>Life Steal from the Washing Machine is a strong sustain option for bossing.</li>
+  <li>Horses can be mounted for 2x movement speed. Click a horse to ride, click again or press <kbd>M</kbd> to dismount.</li>
+</ul>
+</div>
+
+</main>
 </div>
 
 <script>
 if(new URLSearchParams(location.search).has("embed"))document.body.classList.add("embedded");
-document.getElementById("tabs").addEventListener("click",e=>{
-  const b=e.target.closest(".tab-btn");if(!b)return;
-  document.querySelectorAll(".tab-btn").forEach(t=>t.classList.remove("active"));
-  document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
-  b.classList.add("active");
-  document.getElementById("tab-"+b.dataset.tab).classList.add("active");
-  window.scrollTo({top:document.querySelector(".tabs").offsetTop,behavior:"smooth"});
+
+// Tab switching
+function switchTab(tabId){
+  document.querySelectorAll(".wiki-tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+  const btn=document.querySelector(`.wiki-tab[data-tab="${tabId}"]`);
+  const panel=document.getElementById("tab-"+tabId);
+  if(btn)btn.classList.add("active");
+  if(panel)panel.classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.getElementById("wiki-tabs").addEventListener("click",e=>{
+  const b=e.target.closest(".wiki-tab");
+  if(b)switchTab(b.dataset.tab);
+});
+document.querySelector(".toc-sidebar")?.addEventListener("click",e=>{
+  const a=e.target.closest("a[data-tab]");
+  if(a){e.preventDefault();switchTab(a.dataset.tab);}
 });
 </script>
 </body>
