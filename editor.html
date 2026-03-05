@@ -9,7 +9,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:
 canvas{display:block}
 
 /* ── Sidebar ── */
-#sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:#12121f;
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:#12121f;
   display:flex;flex-direction:column;border-right:1px solid #2a2a3e;z-index:10;user-select:none}
 #sidebar h1{padding:10px 12px;font-size:15px;font-weight:700;color:#e8c44a;
   border-bottom:1px solid #2a2a3e;letter-spacing:1px;text-align:center}
@@ -30,12 +30,12 @@ canvas{display:block}
 /* palette area */
 #palette-wrap{flex:1;overflow-y:auto;padding:6px 8px}
 .cat{color:#555;font-size:9px;text-transform:uppercase;padding:8px 2px 3px;letter-spacing:1.2px;font-weight:700}
-.obj-btn{padding:4px 8px;margin:1px 0;cursor:pointer;border-radius:4px;font-size:10px;
+.obj-btn{padding:6px 8px;margin:2px 0;cursor:pointer;border-radius:5px;font-size:12px;
   color:#999;transition:all .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  display:flex;align-items:center;gap:6px}
+  display:flex;align-items:center;gap:8px}
 .obj-btn:hover{background:#252540;color:#ddd}
 .obj-btn.active{background:#2a2a50;color:#e8c44a;font-weight:600}
-.obj-thumb{width:36px;height:36px;border-radius:3px;background:#0d0d18;flex-shrink:0;image-rendering:auto}
+.obj-thumb{width:48px;height:48px;border-radius:4px;background:#0d0d18;flex-shrink:0;image-rendering:auto}
 
 /* panel flex layouts for scrollable content */
 #objects-panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -46,7 +46,7 @@ canvas{display:block}
 /* paint swatches */
 #paint-colors{padding:8px 10px;display:flex;flex-wrap:wrap;gap:3px;border-bottom:1px solid #2a2a3e}
 #paint-colors .label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;width:100%;margin-bottom:2px}
-.color-swatch{width:28px;height:28px;border-radius:4px;cursor:pointer;border:2px solid #333;display:inline-block;transition:all .12s}
+.color-swatch{width:38px;height:38px;border-radius:5px;cursor:pointer;border:2px solid #333;display:inline-block;transition:all .12s}
 .color-swatch.active{border-color:#e8c44a;box-shadow:0 0 4px #e8c44a88}
 .color-swatch:hover{border-color:#888}
 
@@ -67,8 +67,8 @@ canvas{display:block}
 .flat-preset:hover{background:#252540;color:#e8c44a}
 
 /* buttons */
-#btns{padding:8px 10px;border-top:1px solid #2a2a3e;display:flex;gap:4px;flex-wrap:wrap}
-#btns button{flex:1;min-width:60px;padding:6px;font-size:10px;cursor:pointer;
+#btns{padding:4px 10px;border-top:1px solid #2a2a3e;display:flex;gap:3px;flex-wrap:wrap}
+#btns button{flex:1;min-width:50px;padding:4px;font-size:9px;cursor:pointer;
   background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:4px;font-family:inherit;transition:all .12s}
 #btns button:hover{background:#2a2a50;border-color:#555}
 
@@ -87,15 +87,17 @@ canvas{display:block}
 .edge-toggles button.on{color:#e8c44a;border-color:#e8c44a}
 
 /* minimap */
-#minimap-wrap{padding:6px 10px;border-top:1px solid #2a2a3e}
+#minimap-wrap{padding:4px 10px;border-top:1px solid #2a2a3e}
 #minimap-wrap .label{font-size:9px;color:#555;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:3px}
-#minimap{width:100%;aspect-ratio:1;background:#0d0d18;border:1px solid #2a2a3e;border-radius:4px;cursor:pointer;image-rendering:pixelated}
+#minimap{width:100%;height:100px;background:#0d0d18;border:1px solid #2a2a3e;border-radius:4px;cursor:pointer;image-rendering:pixelated}
 
 #count{padding:5px 10px;font-size:10px;color:#555;text-align:center;border-top:1px solid #1a1a2e;font-family:monospace}
 
 /* ── Canvas ── */
-#canvas-wrap{position:fixed;left:220px;top:0;right:0;bottom:0}
+#canvas-wrap{position:fixed;left:260px;top:0;right:0;bottom:0}
 #compass{position:absolute;top:10px;right:10px;width:80px;height:80px;pointer-events:none;z-index:5}
+#chunk-drawer{overflow:hidden;transition:max-height .2s ease;max-height:200px}
+#chunk-drawer.collapsed{max-height:0}
 .hidden{display:none!important}
 </style>
 </head>
@@ -103,11 +105,15 @@ canvas{display:block}
 
 <div id="sidebar">
   <h1>MAP EDITOR</h1>
+  <div id="chunk-header" style="cursor:pointer;padding:4px 10px;border-bottom:1px solid #2a2a3e;display:flex;align-items:center;gap:6px;font-size:10px;color:#666" title="Click to expand/collapse chunk settings">
+    <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#555">Chunk</span>
+    <span id="chunk-id" style="font-size:11px;color:#e8c44a;font-weight:600;font-family:monospace">0,0</span>
+    <span id="chunk-toggle" style="margin-left:auto;font-size:8px;color:#555">&#9660;</span>
+  </div>
+  <div id="chunk-drawer">
   <div id="chunk-bar">
-    <div class="label">Chunk</div>
     <button id="chunk-w" title="West">W</button>
     <button id="chunk-s" title="South">S</button>
-    <span id="chunk-id">0,0</span>
     <button id="chunk-n" title="North">N</button>
     <button id="chunk-e" title="East">E</button>
     <button id="chunk-new" title="New chunk here">+</button>
@@ -129,6 +135,7 @@ canvas{display:block}
       <button id="edge-e" class="on" title="East edge">E</button>
       <button id="edge-w" class="on" title="West edge">W</button>
     </div>
+  </div>
   </div>
   <div id="tabs">
     <div class="tab active" data-tab="objects">Objects</div>
@@ -226,8 +233,8 @@ canvas{display:block}
   </div>
 
   <div id="minimap-wrap">
-    <div class="label">Chunks</div>
-    <canvas id="minimap" width="200" height="200"></canvas>
+    <div class="label" id="minimap-header" style="cursor:pointer;display:flex;align-items:center;gap:4px">Minimap <span id="minimap-toggle" style="font-size:8px;color:#555">&#9660;</span></div>
+    <canvas id="minimap" width="200" height="100"></canvas>
   </div>
   <div id="btns">
     <button id="btn-export">Export</button>
@@ -561,6 +568,13 @@ function switchChunk(cx, cz) {
   if (prevEntry) {
     prevEntry.baseType = prevCd.baseType;
   }
+  /* abort any in-progress paint stroke so it doesn't bleed into new chunk */
+  if (painting) { painting = false; _prevStrokeX = _prevStrokeZ = null; }
+  if (colorPainting) { colorPainting = false; _prevColorStrokeX = _prevColorStrokeZ = null; }
+  /* clear undo stacks — they belong to the previous chunk */
+  hUndoStack.length = 0; hUndoSnap = null;
+  pUndoStack.length = 0; pUndoSnap = null;
+  objUndoStack.length = 0;
   /* switch to new chunk */
   currentChunk = [cx, cz];
   document.getElementById("chunk-id").textContent = `${cx},${cz}`;
@@ -1499,6 +1513,7 @@ let brushStrength = 0.30;
 let brushHardness = 0.0; // 0 = smooth gradient, 1 = flat/hard edge
 let flattenY = GRASS_Y;
 let painting = false, paintSign = 1, lastPaintTime = 0;
+let _prevStrokeX = null, _prevStrokeZ = null; // for stroke interpolation
 
 /* Paint mode state */
 const PAINT_COLORS = [
@@ -1520,6 +1535,7 @@ const PAINT_COLORS = [
 let selectedPaintColor = PAINT_COLORS[0].color;
 let paintStrength = 0.50;
 let colorPainting = false, colorPaintSign = 1, lastColorPaintTime = 0;
+let _prevColorStrokeX = null, _prevColorStrokeZ = null;
 const pUndoStack = [];
 let pUndoSnap = null;
 
@@ -1528,6 +1544,21 @@ const STRUCTURAL_TYPES = new Set(["bridge","dock","fence","stepping_stones","bri
 /* Undo (objects) */
 const objUndoStack = [];
 function pushObjUndo(a) { objUndoStack.push(a); if (objUndoStack.length > 100) objUndoStack.shift(); }
+
+/* ── Stroke interpolation helpers ── */
+function strokeInterp(prevX, prevZ, wx, wz, r, fn, dt) {
+  /* stamp brush along the line from prev → current so fast strokes don't skip */
+  const step = Math.max(0.5, r * 0.35); // spacing = 35% of radius
+  const dx = wx - prevX, dz = wz - prevZ;
+  const dist = Math.hypot(dx, dz);
+  if (dist < step) { fn(wx, wz, dt); return; }
+  const n = Math.ceil(dist / step);
+  const perDt = dt / n;
+  for (let i = 1; i <= n; i++) {
+    const t = i / n;
+    fn(prevX + dx * t, prevZ + dz * t, perDt);
+  }
+}
 
 /* ═══════════════════════════════════════════
    Height painting
@@ -1836,14 +1867,14 @@ canvas.addEventListener("mousedown", e => {
     paintSign = e.button === 0 ? 1 : -1;
     hSaveUndo(); lastPaintTime = performance.now();
     const pt = raycastGround(e);
-    if (pt) paintAt(pt.x, pt.z, 0.016);
+    if (pt) { paintAt(pt.x, pt.z, 0.016); _prevStrokeX = pt.x; _prevStrokeZ = pt.z; }
   }
   if (mode === "paint" && (e.button === 0 || e.button === 2)) {
     colorPainting = true;
     colorPaintSign = e.button === 0 ? 1 : -1;
     pSaveUndo(); lastColorPaintTime = performance.now();
     const pt = raycastGround(e);
-    if (pt) paintColorAt(pt.x, pt.z, 0.016);
+    if (pt) { paintColorAt(pt.x, pt.z, 0.016); _prevColorStrokeX = pt.x; _prevColorStrokeZ = pt.z; }
   }
   /* Start drag if clicking an existing object (only when no palette item selected) */
   if (mode === "objects" && e.button === 0) {
@@ -1860,8 +1891,8 @@ canvas.addEventListener("mousedown", e => {
 });
 
 canvas.addEventListener("mouseup", e => {
-  if (mode === "height" && painting) { painting = false; hPushUndo(); return; }
-  if (mode === "paint" && colorPainting) { colorPainting = false; pPushUndo(); return; }
+  if (mode === "height" && painting) { painting = false; _prevStrokeX = _prevStrokeZ = null; hPushUndo(); return; }
+  if (mode === "paint" && colorPainting) { colorPainting = false; _prevColorStrokeX = _prevColorStrokeZ = null; pPushUndo(); return; }
   /* Finish drag */
   if (dragging) {
     orbitControls.enabled = true;
@@ -1920,7 +1951,9 @@ canvas.addEventListener("mousemove", e => {
           const now = performance.now();
           const dt = Math.min((now - lastPaintTime) / 1000, 0.05);
           lastPaintTime = now;
-          paintAt(pt.x, pt.z, dt);
+          if (_prevStrokeX != null) strokeInterp(_prevStrokeX, _prevStrokeZ, pt.x, pt.z, brushRadius, paintAt, dt);
+          else paintAt(pt.x, pt.z, dt);
+          _prevStrokeX = pt.x; _prevStrokeZ = pt.z;
         }
       } else if (mode === "paint") {
         const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
@@ -1932,7 +1965,9 @@ canvas.addEventListener("mousemove", e => {
           const now = performance.now();
           const dt = Math.min((now - lastColorPaintTime) / 1000, 0.05);
           lastColorPaintTime = now;
-          paintColorAt(pt.x, pt.z, dt);
+          if (_prevColorStrokeX != null) strokeInterp(_prevColorStrokeX, _prevColorStrokeZ, pt.x, pt.z, brushRadius, paintColorAt, dt);
+          else paintColorAt(pt.x, pt.z, dt);
+          _prevColorStrokeX = pt.x; _prevColorStrokeZ = pt.z;
         }
       }
     }
@@ -1943,8 +1978,8 @@ canvas.addEventListener("mousemove", e => {
 });
 
 canvas.addEventListener("mouseleave", () => {
-  if (painting) { painting = false; hPushUndo(); }
-  if (colorPainting) { colorPainting = false; pPushUndo(); }
+  if (painting) { painting = false; _prevStrokeX = _prevStrokeZ = null; hPushUndo(); }
+  if (colorPainting) { colorPainting = false; _prevColorStrokeX = _prevColorStrokeZ = null; pPushUndo(); }
   if (dragging) { orbitControls.enabled = true; dragging = null; dragStartPos = null; }
   hoverMesh.visible = false; brushCircle.visible = false;
 });
@@ -2332,6 +2367,22 @@ document.getElementById("btn-flatten").addEventListener("click", () => {
 });
 
 /* ── Chunk navigation ── */
+document.getElementById("chunk-header").addEventListener("click", () => {
+  const d = document.getElementById("chunk-drawer");
+  d.classList.toggle("collapsed");
+  document.getElementById("chunk-toggle").textContent = d.classList.contains("collapsed") ? "\u25B6" : "\u25BC";
+});
+/* start collapsed to save space */
+document.getElementById("chunk-drawer").classList.add("collapsed");
+document.getElementById("chunk-toggle").textContent = "\u25B6";
+
+document.getElementById("minimap-header").addEventListener("click", () => {
+  const c = document.getElementById("minimap");
+  const vis = c.style.display !== "none";
+  c.style.display = vis ? "none" : "";
+  document.getElementById("minimap-toggle").textContent = vis ? "\u25B6" : "\u25BC";
+});
+
 document.getElementById("chunk-n").addEventListener("click", () => switchChunk(currentChunk[0], currentChunk[1] + 1));
 document.getElementById("chunk-s").addEventListener("click", () => switchChunk(currentChunk[0], currentChunk[1] - 1));
 document.getElementById("chunk-e").addEventListener("click", () => switchChunk(currentChunk[0] + 1, currentChunk[1]));
