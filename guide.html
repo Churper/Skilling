@@ -362,6 +362,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>Combat</button>
   <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>Gear</button>
   <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>Food</button>
+  <button class="tab-btn" data-tab="skills"><span class="tab-icon">&#x2B50;</span>Skills</button>
   <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>World</button>
 </div>
 
@@ -673,6 +674,72 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="tier-item"><span class="tier-swatch" style="background:#ff5050"></span><span class="tier-name">Power Potion</span><span class="tier-meta tag-red">+15% atk damage</span></div>
     <div class="tier-item"><span class="tier-swatch" style="background:#c080ff"></span><span class="tier-name">Slayer Potion</span><span class="tier-meta tag-purple">+25% boss damage</span></div>
     <div class="tier-item"><span class="tier-swatch" style="background:#ffd700"></span><span class="tier-name">Tempo Potion</span><span class="tier-meta tag-gold">+3 tempo buff</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- ═══ SKILLS ═══════════════════════════ -->
+<!-- ═══════════════════════════════════════ -->
+<div class="tab-content" id="tab-skills">
+
+  <div class="sec-head" style="margin-top:4px"><div class="sec-icon gold">&#x2B50;</div><div><h2>All Skills</h2><p>8 trainable skills &bull; Max level 250</p></div></div>
+
+  <div class="card">
+    <p><strong>XP Formula:</strong> Level L requires <code>34 &times; (L&minus;1)&sup2;</code> total XP. After level 200, progression slows to 10&times;.</p>
+    <p style="margin-top:6px"><strong>Fail Chance:</strong> Gathering starts at 70% fail rate at level 1, dropping by 0.3% per level (minimum 2%).</p>
+  </div>
+
+  <div class="tier-strip" style="margin-top:16px">
+    <div class="tier-item"><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">&#x1F3A3; Fishing</span><span class="tier-meta">Fish at water spots &bull; Raw fish for cooking</span></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#a0a0a0"></span><span class="tier-name">&#x26CF;&#xFE0F; Mining</span><span class="tier-meta">Mine rocks for ore &bull; Sell or craft</span></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#4a8c3f"></span><span class="tier-name">&#x1FA93; Woodcutting</span><span class="tier-meta">Chop trees for logs &bull; Sell or craft</span></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#e05050"></span><span class="tier-name">&#x2694;&#xFE0F; Melee</span><span class="tier-meta">XP from sword attacks &bull; Increases melee damage</span></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#50b050"></span><span class="tier-name">&#x1F3F9; Ranged</span><span class="tier-meta">XP from bow attacks &bull; Increases ranged damage</span></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#8060c0"></span><span class="tier-name">&#x1FA84; Magic</span><span class="tier-meta">XP from staff attacks &bull; Increases magic damage</span></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#ff8040"></span><span class="tier-name">&#x1F373; Cooking</span><span class="tier-meta">Cook raw food at campfires &bull; Reduces burn chance</span></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#e04040"></span><span class="tier-name">&#x2764;&#xFE0F; Hitpoints</span><span class="tier-meta">XP from all combat &bull; Starts at level 10</span></div>
+  </div>
+
+  <div class="sec-head"><div class="sec-icon">&#x1F4CA;</div><div><h2>XP Milestones</h2><p>Total XP needed to reach key levels</p></div></div>
+
+  <div class="tier-strip">
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 10</span><span class="tier-name">2,754 XP</span><span class="tier-meta">Starter gear unlocked</span></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 20</span><span class="tier-name">12,274 XP</span><span class="tier-meta">Coral tier</span></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-name">28,594 XP</span><span class="tier-meta">Opal tier</span></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 40</span><span class="tier-name">51,714 XP</span><span class="tier-meta">Jade tier</span></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 60</span><span class="tier-name">118,354 XP</span><span class="tier-meta">Shell tier</span></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 90</span><span class="tier-name">269,534 XP</span><span class="tier-meta">Slime tier</span></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 120</span><span class="tier-name">481,474 XP</span><span class="tier-meta">Crystal tier</span></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 160</span><span class="tier-name">860,574 XP</span><span class="tier-meta">Volcanic tier</span></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-name">1,347,534 XP</span><span class="tier-meta">Frost tier &bull; Progression slows 10&times;</span></div>
+    <div class="tier-item" style="border-color:rgba(255,215,0,.2)"><span class="tier-badge" style="background:rgba(255,215,0,.12);color:var(--gold)">Lv 250</span><span class="tier-name" style="color:var(--gold)">92,005,034 XP</span><span class="tier-meta">Celestial tier &bull; Max level</span></div>
+  </div>
+
+  <div class="sec-head"><div class="sec-icon blue">&#x2764;&#xFE0F;</div><div><h2>HP Scaling</h2><p>Hitpoints level determines your max HP</p></div></div>
+
+  <div class="card">
+    <p>Levels 1&ndash;140: <strong>10 HP per level</strong> (linear). After 140, HP ramps up quadratically &mdash; higher levels give significantly more HP per level.</p>
+  </div>
+  <div class="tier-strip" style="margin-top:8px">
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 10</span><span class="tier-name">100 HP</span><span class="tier-meta">Starting HP</span></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 50</span><span class="tier-name">500 HP</span><span class="tier-meta">10/lv</span></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 100</span><span class="tier-name">1,000 HP</span><span class="tier-meta">10/lv</span></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 140</span><span class="tier-name">1,400 HP</span><span class="tier-meta">10/lv &bull; Scaling ramps up</span></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 180</span><span class="tier-name">2,680 HP</span><span class="tier-meta">~32/lv</span></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-name">4,280 HP</span><span class="tier-meta">~57/lv</span></div>
+    <div class="tier-item" style="border-color:rgba(255,215,0,.2)"><span class="tier-badge" style="background:rgba(255,215,0,.12);color:var(--gold)">Lv 250</span><span class="tier-name" style="color:var(--gold)">11,050 HP</span><span class="tier-meta">~95/lv</span></div>
+  </div>
+
+  <div class="sec-head"><div class="sec-icon purple">&#x1F4A1;</div><div><h2>Training Tips</h2><p>Efficient leveling advice</p></div></div>
+
+  <div class="card">
+    <div class="tier-strip">
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--gold)"></span><span class="tier-name">Always gather highest tier you can</span><span class="tier-meta">More XP per action</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--accent)"></span><span class="tier-name">Combat trains 2 skills at once</span><span class="tier-meta">Weapon skill + Hitpoints</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#ff8040"></span><span class="tier-name">Cook everything before selling</span><span class="tier-meta">Free cooking XP</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--blue)"></span><span class="tier-name">Task Board gives bonus XP</span><span class="tier-meta">Check it regularly</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name">XP Boost from Washing Machine</span><span class="tier-meta">2-8% bonus on all rolls</span></div>
+    </div>
   </div>
 </div>
 
