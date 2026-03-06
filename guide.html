@@ -751,7 +751,7 @@ document.getElementById("tabs").addEventListener("click",e=>{
   // Data generators
   function xpForLevel(lv){return lv<=1?0:Math.floor(34*(lv-1)*(lv-1))}
   function gatherRate(lv){return Math.min(100,Math.max(2,30+lv*0.3))}
-  function maxHp(lv){return lv<=140?lv*10:1400+Math.floor(Math.pow(lv-140,1.6))}
+  function maxHp(lv){return lv<=140?lv*10:Math.floor(1400+(lv-140)*10+Math.pow(lv-140,2)*0.4)}
   function burnChance(lv){return Math.max(1,Math.round(30*Math.pow(0.985,lv)))}
 
   const graphs={
