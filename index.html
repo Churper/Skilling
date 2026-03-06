@@ -83,6 +83,22 @@
       <span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span>
       <strong id="ui-coins-value">0</strong>
     </div>
+    <!-- Quest resume button (shows when tutorial dismissed) -->
+    <button type="button" id="ui-quest-btn" hidden title="Resume Quest">&#x1F4DC;</button>
+    <!-- Tutorial quest tracker -->
+    <div id="ui-tutorial" hidden>
+      <div class="ui-tut-head">
+        <span class="ui-tut-quest">Getting Started</span>
+        <span id="ui-tut-progress" class="ui-tut-progress">1/21</span>
+        <button type="button" id="ui-tut-dismiss" class="ui-tut-dismiss" title="Dismiss">&times;</button>
+      </div>
+      <div class="ui-tut-bar"><div class="ui-tut-bar-fill" id="ui-tut-fill"></div></div>
+      <div class="ui-tut-body">
+        <strong id="ui-tut-title" class="ui-tut-title">Chop a Tree</strong>
+        <p id="ui-tut-text" class="ui-tut-text">Walk to a nearby tree and click it!</p>
+      </div>
+      <button type="button" id="ui-tut-skip" class="ui-tut-skip" hidden>Skip Step</button>
+    </div>
     <button type="button" id="ui-guide-btn" title="Game Guide">Guide</button>
     <button type="button" id="ui-mobile-toggle" aria-expanded="false" aria-controls="ui-dock ui-panel">
       Menu
@@ -124,7 +140,10 @@
       <section class="ui-panel-section" data-tab-panel="blacksmith" hidden></section>
       <section class="ui-panel-section" data-tab-panel="store" hidden></section>
       <section class="ui-panel-section" data-tab-panel="skills" hidden>
-        <div class="ui-skills-header"><button type="button" id="ui-hiscores-btn" class="ui-hiscores-inline-btn">&#x1F3C6; Hiscores</button></div>
+        <div class="ui-skills-header">
+          <button type="button" id="ui-hiscores-btn" class="ui-hiscores-inline-btn">&#x1F3C6; Hiscores</button>
+          <button type="button" id="ui-quest-tab-btn" class="ui-quest-inline-btn">&#x1F4DC; Quests</button>
+        </div>
         <div class="ui-skill-grid">
           <div class="ui-skill-tile" data-skill="fishing">
             <span class="ui-skill-tile-icon">&#x1F41F;</span>
@@ -194,6 +213,37 @@
           <div class="ui-kc-item"><span>&#x1F451;</span><strong id="ui-slime-daddy-kc">0</strong></div>
           <div class="ui-kc-item"><span>&#x2744;</span><strong id="ui-yeti-kc">0</strong></div>
           <div class="ui-kc-item"><span>&#x1F409;</span><strong id="ui-dragon-kc">0</strong></div>
+        </div>
+        <!-- Quest list (hidden by default, toggled by Quests button) -->
+        <div id="ui-quest-view" class="ui-quest-view" hidden>
+          <div class="ui-quest-view-head">
+            <span class="ui-quest-view-title">Getting Started</span>
+            <span id="ui-quest-view-progress" class="ui-quest-view-progress"></span>
+          </div>
+          <div id="ui-quest-step-list" class="ui-quest-step-list"></div>
+        </div>
+        <!-- Hiscores inline (hidden by default, toggled by Hiscores button) -->
+        <div id="ui-lb-inline" class="ui-lb-inline" hidden>
+          <div class="ui-lb-categories">
+            <button type="button" class="ui-lb-cat-btn is-active" data-lb-cat="total_level">Overall</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="fishing">Fishing</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="mining">Mining</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="woodcutting">Woodcutting</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="cooking">Cooking</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="survival">Survival</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="farming">Farming</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="melee">Melee</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="bow">Ranged</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="mage">Magic</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="hitpoints">Hitpoints</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="boss_kc">Boss KC</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="snake_kc">Snake KC</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="golem_kc">Golem KC</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="slime_daddy_kc">Slime Daddy KC</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="yeti_kc">Yeti KC</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="dragon_kc">Dragon KC</button>
+          </div>
+          <div id="ui-lb-table" class="ui-lb-table"></div>
         </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="emotes" hidden>
@@ -311,28 +361,6 @@
           <span id="ui-friends-online">Offline</span>
           <span id="ui-friends-count">Players online: 0</span>
         </div>
-      </section>
-      <section class="ui-panel-section" data-tab-panel="leaderboard" hidden>
-        <div class="ui-lb-categories">
-          <button type="button" class="ui-lb-cat-btn is-active" data-lb-cat="total_level">Overall</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="fishing">Fishing</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="mining">Mining</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="woodcutting">Woodcutting</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="cooking">Cooking</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="survival">Survival</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="farming">Farming</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="melee">Melee</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="bow">Ranged</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="mage">Magic</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="hitpoints">Hitpoints</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="boss_kc">Boss KC</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="snake_kc">Snake KC</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="golem_kc">Golem KC</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="slime_daddy_kc">Slime Daddy KC</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="yeti_kc">Yeti KC</button>
-          <button type="button" class="ui-lb-cat-btn" data-lb-cat="dragon_kc">Dragon KC</button>
-        </div>
-        <div id="ui-lb-table" class="ui-lb-table"></div>
       </section>
       <section class="ui-panel-section" data-tab-panel="prayer" hidden>
         <p class="ui-prayer-heading">Offensive</p>
@@ -502,11 +530,6 @@
         <button type="button" class="ui-hotkey-set-btn">Set</button>
         <kbd class="ui-hotkey-display">—</kbd>
       </div>
-      <div class="ui-hotkey-row" data-hotkey-tab="leaderboard">
-        <span>Hiscores</span>
-        <button type="button" class="ui-hotkey-set-btn">Set</button>
-        <kbd class="ui-hotkey-display">—</kbd>
-      </div>
       <hr class="ui-settings-divider">
       <div class="ui-settings-row ui-hotkey-header"><span>Action Binds</span></div>
       <div class="ui-hotkey-row" data-hotkey-action="jump">
@@ -610,6 +633,23 @@
           </div>
           <p id="ui-wash-result" class="ui-wash-result"></p>
         </div>
+      </div>
+    </div>
+  </div>
+  <!-- Compost Bin overlay -->
+  <div id="ui-compost-overlay" class="ui-compost-overlay" hidden>
+    <div class="ui-compost-modal">
+      <div class="ui-compost-header">
+        <span class="ui-compost-title">Compost Bin</span>
+        <button type="button" id="ui-compost-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-compost-body">
+        <div class="ui-compost-meter">
+          <div class="ui-compost-meter-fill" id="ui-compost-fill"></div>
+          <span class="ui-compost-meter-text" id="ui-compost-charges">0 charges</span>
+        </div>
+        <p class="ui-compost-hint">Click an organic item below to add it as compost. Each charge gives <strong>double yield</strong> on your next farm harvest.</p>
+        <div id="ui-compost-inv" class="ui-compost-inv"></div>
       </div>
     </div>
   </div>
