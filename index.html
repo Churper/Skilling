@@ -124,153 +124,76 @@
       <section class="ui-panel-section" data-tab-panel="blacksmith" hidden></section>
       <section class="ui-panel-section" data-tab-panel="store" hidden></section>
       <section class="ui-panel-section" data-tab-panel="skills" hidden>
-        <div class="ui-skills-header"><p>Gathering</p><button type="button" id="ui-hiscores-btn" class="ui-hiscores-inline-btn">&#x1F3C6; Hiscores</button></div>
-        <div class="ui-skill-row" data-skill="fishing">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F41F;</span>
-            <strong class="ui-skill-level" id="ui-skill-fishing">1</strong>
+        <div class="ui-skills-header"><button type="button" id="ui-hiscores-btn" class="ui-hiscores-inline-btn">&#x1F3C6; Hiscores</button></div>
+        <div class="ui-skill-grid">
+          <div class="ui-skill-tile" data-skill="fishing">
+            <span class="ui-skill-tile-icon">&#x1F41F;</span>
+            <span class="ui-skill-tile-name">Fishing</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-fishing">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-fishing"></div></div>
           </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Fishing</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-fishing"></div></div>
+          <div class="ui-skill-tile" data-skill="mining">
+            <span class="ui-skill-tile-icon">&#x1FAA8;</span>
+            <span class="ui-skill-tile-name">Mining</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-mining">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-mining"></div></div>
           </div>
-        </div>
-        <div class="ui-skill-row" data-skill="mining">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1FAA8;</span>
-            <strong class="ui-skill-level" id="ui-skill-mining">1</strong>
+          <div class="ui-skill-tile" data-skill="woodcutting">
+            <span class="ui-skill-tile-icon">&#x1FAB5;</span>
+            <span class="ui-skill-tile-name">Woodcut</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-woodcutting">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-woodcutting"></div></div>
           </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Mining</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-mining"></div></div>
+          <div class="ui-skill-tile" data-skill="cooking">
+            <span class="ui-skill-tile-icon">&#x1F373;</span>
+            <span class="ui-skill-tile-name">Cooking</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-cooking">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-cooking"></div></div>
           </div>
-        </div>
-        <div class="ui-skill-row" data-skill="woodcutting">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1FAB5;</span>
-            <strong class="ui-skill-level" id="ui-skill-woodcutting">1</strong>
+          <div class="ui-skill-tile" data-skill="survival">
+            <span class="ui-skill-tile-icon">&#x1F3D5;</span>
+            <span class="ui-skill-tile-name">Survival</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-survival">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-survival"></div></div>
           </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Woodcutting</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-woodcutting"></div></div>
+          <div class="ui-skill-tile" data-skill="farming">
+            <span class="ui-skill-tile-icon">&#x1F33E;</span>
+            <span class="ui-skill-tile-name">Farming</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-farming">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-farming"></div></div>
           </div>
-        </div>
-        <div class="ui-skill-row" data-skill="cooking">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F373;</span>
-            <strong class="ui-skill-level" id="ui-skill-cooking">1</strong>
+          <div class="ui-skill-tile is-combat" data-skill="hitpoints">
+            <span class="ui-skill-tile-icon">&#x2764;</span>
+            <span class="ui-skill-tile-name">Hitpoints</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-hitpoints">10</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill ui-skill-tile-fill-combat" id="ui-skill-bar-hitpoints"></div></div>
           </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Cooking</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-cooking"></div></div>
+          <div class="ui-skill-tile is-combat" data-skill="melee">
+            <span class="ui-skill-tile-icon">&#x1F5E1;</span>
+            <span class="ui-skill-tile-name">Melee</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-melee">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill ui-skill-tile-fill-combat" id="ui-skill-bar-melee"></div></div>
           </div>
-        </div>
-        <div class="ui-skill-row" data-skill="survival">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F3D5;</span>
-            <strong class="ui-skill-level" id="ui-skill-survival">1</strong>
+          <div class="ui-skill-tile is-combat" data-skill="bow">
+            <span class="ui-skill-tile-icon">&#x1F3F9;</span>
+            <span class="ui-skill-tile-name">Ranged</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-bow">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill ui-skill-tile-fill-combat" id="ui-skill-bar-bow"></div></div>
           </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Survival</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-survival"></div></div>
-          </div>
-        </div>
-        <div class="ui-skill-row" data-skill="farming">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F33E;</span>
-            <strong class="ui-skill-level" id="ui-skill-farming">1</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Farming</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-farming"></div></div>
-          </div>
-        </div>
-        <p>Combat</p>
-        <div class="ui-skill-row" data-skill="hitpoints">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x2764;</span>
-            <strong class="ui-skill-level" id="ui-skill-hitpoints">10</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Hitpoints</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill ui-skill-bar-combat" id="ui-skill-bar-hitpoints"></div></div>
+          <div class="ui-skill-tile is-combat" data-skill="mage">
+            <span class="ui-skill-tile-icon">&#x1F525;</span>
+            <span class="ui-skill-tile-name">Magic</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-mage">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill ui-skill-tile-fill-combat" id="ui-skill-bar-mage"></div></div>
           </div>
         </div>
-        <div class="ui-skill-row" data-skill="melee">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F5E1;</span>
-            <strong class="ui-skill-level" id="ui-skill-melee">1</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Melee</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill ui-skill-bar-combat" id="ui-skill-bar-melee"></div></div>
-          </div>
-        </div>
-        <div class="ui-skill-row" data-skill="bow">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F3F9;</span>
-            <strong class="ui-skill-level" id="ui-skill-bow">1</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Ranged</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill ui-skill-bar-combat" id="ui-skill-bar-bow"></div></div>
-          </div>
-        </div>
-        <div class="ui-skill-row" data-skill="mage">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F525;</span>
-            <strong class="ui-skill-level" id="ui-skill-mage">1</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Magic</span></div>
-            <div class="ui-skill-bar"><div class="ui-skill-bar-fill ui-skill-bar-combat" id="ui-skill-bar-mage"></div></div>
-          </div>
-        </div>
-        <p style="margin-top:6px">Boss KC</p>
-        <div class="ui-skill-row" style="opacity:0.85">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F40D;</span>
-            <strong class="ui-skill-level" id="ui-snake-kc">0</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Snake Boss</span></div>
-          </div>
-        </div>
-        <div class="ui-skill-row" style="opacity:0.85">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1FAA8;</span>
-            <strong class="ui-skill-level" id="ui-golem-kc">0</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Rock Golem</span></div>
-          </div>
-        </div>
-        <div class="ui-skill-row" style="opacity:0.85">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F451;</span>
-            <strong class="ui-skill-level" id="ui-slime-daddy-kc">0</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Slime Daddy</span></div>
-          </div>
-        </div>
-        <div class="ui-skill-row" style="opacity:0.85">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x2744;</span>
-            <strong class="ui-skill-level" id="ui-yeti-kc">0</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Frost Yeti</span></div>
-          </div>
-        </div>
-        <div class="ui-skill-row" style="opacity:0.85">
-          <div class="ui-skill-icon-wrap">
-            <span class="ui-skill-icon">&#x1F409;</span>
-            <strong class="ui-skill-level" id="ui-dragon-kc">0</strong>
-          </div>
-          <div class="ui-skill-info">
-            <div class="ui-skill-head"><span class="ui-skill-name">Dragon</span></div>
-          </div>
+        <div class="ui-kc-strip">
+          <span class="ui-kc-label">Boss KC</span>
+          <div class="ui-kc-item"><span>&#x1F40D;</span><strong id="ui-snake-kc">0</strong></div>
+          <div class="ui-kc-item"><span>&#x1FAA8;</span><strong id="ui-golem-kc">0</strong></div>
+          <div class="ui-kc-item"><span>&#x1F451;</span><strong id="ui-slime-daddy-kc">0</strong></div>
+          <div class="ui-kc-item"><span>&#x2744;</span><strong id="ui-yeti-kc">0</strong></div>
+          <div class="ui-kc-item"><span>&#x1F409;</span><strong id="ui-dragon-kc">0</strong></div>
         </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="emotes" hidden>
@@ -696,6 +619,14 @@
       <div class="ui-bank-modal-header">
         <span class="ui-bank-modal-title">&#x1F4E6; Bank</span>
         <button type="button" id="ui-bank-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-bank-tabs">
+        <button type="button" class="ui-bank-tab is-active" data-bank-tab="0">1</button>
+        <button type="button" class="ui-bank-tab" data-bank-tab="1">2</button>
+        <button type="button" class="ui-bank-tab" data-bank-tab="2">3</button>
+        <button type="button" class="ui-bank-tab" data-bank-tab="3">4</button>
+        <button type="button" class="ui-bank-tab" data-bank-tab="4">5</button>
+        <button type="button" class="ui-bank-tab" data-bank-tab="5">6</button>
       </div>
       <div class="ui-bank-modal-body">
         <div id="ui-bank-vault-grid" class="ui-bank-grid"></div>
