@@ -382,6 +382,16 @@ const OBJ_CATEGORIES = [
     { id: "Prop_Tree_Pine_2", file: "Prop_Tree_Pine_2.glb", scale: 1.0 },
     { id: "Prop_Tree_Pine_3", file: "Prop_Tree_Pine_3.glb", scale: 1.0 },
     { id: "Prop_Tree_Maple_1", file: "Autumn_Tree.glb", scale: 1.0 },
+    { id: "Birch_Tree", file: "Birch_Tree.glb", scale: 1.0 },
+    { id: "Birch_Tree_Snow", file: "Birch_Tree_Snow.glb", scale: 1.0 },
+    { id: "Birch_Tree_Dead", file: "Birch_Tree_Dead.glb", scale: 1.0 },
+    { id: "Birch_Tree_Dead_Snow", file: "Birch_Tree_Dead_Snow.glb", scale: 1.0 },
+    { id: "Pine_Tree_Snow", file: "Pine_Tree_Snow.glb", scale: 1.0 },
+    { id: "Willow", file: "Willow.glb", scale: 1.0 },
+    { id: "Tree_42", file: "Tree_42.glb", scale: 1.0 },
+    { id: "Cactus", file: "Cactus.glb", scale: 1.0 },
+    { id: "Cactus_Flowers", file: "Cactus_Flowers.glb", scale: 1.0 },
+    { id: "Bamboo", file: "Bamboo.glb", scale: 0.8 },
   ]},
   { name: "Fences", dir: TILE_DIR, items: [
     { id: "Prop_Fence_Boards_1", file: "Prop_Fence_Boards_1.glb", scale: 1.0 },
@@ -421,6 +431,9 @@ const OBJ_CATEGORIES = [
   { name: "Buildings", dir: TILE_DIR, items: [
     { id: "Farm", file: "Farm.glb", scale: 1.0 },
     { id: "Market_Stalls", file: "Market_Stalls.glb", scale: 1.0, label: "Store" },
+    { id: "ChickenCoop", file: "ChickenCoop.glb", scale: 1.0 },
+    { id: "Fence_New", file: "Fence_New.glb", scale: 1.0 },
+    { id: "Bomb", file: "Bomb.glb", scale: 1.0 },
   ]},
   { name: "Animals", dir: TILE_DIR, items: [
     { id: "Wolf", file: "Wolf.glb", scale: 1.0 },
@@ -432,6 +445,11 @@ const OBJ_CATEGORIES = [
     { id: "Chicken", file: "Chicken.glb", scale: 1.0 },
     { id: "Chick", file: "Chick.glb", scale: 1.0 },
     { id: "Pig", file: "Pig.glb", scale: 1.0 },
+    { id: "Demon", file: "Demon.glb", scale: 1.0 },
+    { id: "Goblin", file: "Goblin.glb", scale: 1.0 },
+    { id: "Skeleton", file: "Skeleton.glb", scale: 1.0 },
+    { id: "Zombie", file: "Zombie.glb", scale: 1.0 },
+    /* T_Rex and Giant reserved for future boss wiring */
   ]},
   { name: "Services", items: [
     { id: "Svc_Bank", dir: TILE_DIR, file: "Prop_Treasure_Chest.glb", scale: 2.0, label: "Bank" },
@@ -448,6 +466,9 @@ const OBJ_CATEGORIES = [
     { id: "Svc_FoodShop", dir: TILE_DIR, file: "Market_Stall.glb", scale: 1.0, label: "Food Shop" },
     { id: "Svc_Forage_Bush", dir: MODEL_DIR, file: "Bush_2_A_Color1.gltf", scale: 1.0, label: "Forage" },
     { id: "Svc_Flax", dir: TILE_DIR, file: "Prop_Grass_Clump_4.glb", scale: 1.0, label: "Flax" },
+    { id: "Svc_FarmPatch", dir: TILE_DIR, file: "Farm_Dirt.glb", scale: 1.0, label: "Farm" },
+    { id: "Small_Farm", dir: TILE_DIR, file: "Small_Farm.glb", scale: 1.0, label: "Farmhouse" },
+    { id: "Silo", dir: TILE_DIR, file: "Silo.glb", scale: 1.0, label: "Silo" },
   ]},
 ];
 
@@ -1715,7 +1736,7 @@ function updatePreview() {
   obj.renderOrder = 998; previewObj = obj; scene.add(obj);
 }
 
-const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Flax"]);
+const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Flax","Svc_FarmPatch","Demon","Goblin","Skeleton","Zombie"]);
 const _hbMat = new THREE.MeshBasicMaterial({ visible: false });
 function addClickHelper(root) {
   /* add invisible bounding box so thin GLTF meshes are easier to click */

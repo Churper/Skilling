@@ -1,1 +1,1 @@
-{"version":2,"chunk":[0,-2],"tileSize":2,"water":false,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"snow"}
+{"version":2,"chunk":[0,-2],"tileSize":2,"water":false,"edges":{"north":false,"south":false,"east":false,"west":false},"baseType":"snow","objects":[{"type":"Pine_Tree_Snow","x":39.6,"z":40.44,"y":0.4,"scale":4.2,"rot":5},{"type":"Birch_Tree_Snow","x":2.76,"z":45.7,"y":0.4,"scale":5,"rot":5},{"type":"Birch_Tree_Dead_Snow","x":-28.25,"z":33.71,"y":0.4,"scale":5,"rot":5}]}
