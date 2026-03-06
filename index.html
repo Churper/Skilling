@@ -175,6 +175,16 @@
             <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-survival"></div></div>
           </div>
         </div>
+        <div class="ui-skill-row" data-skill="farming">
+          <div class="ui-skill-icon-wrap">
+            <span class="ui-skill-icon">&#x1F33E;</span>
+            <strong class="ui-skill-level" id="ui-skill-farming">1</strong>
+          </div>
+          <div class="ui-skill-info">
+            <div class="ui-skill-head"><span class="ui-skill-name">Farming</span></div>
+            <div class="ui-skill-bar"><div class="ui-skill-bar-fill" id="ui-skill-bar-farming"></div></div>
+          </div>
+        </div>
         <p>Combat</p>
         <div class="ui-skill-row" data-skill="hitpoints">
           <div class="ui-skill-icon-wrap">
@@ -628,6 +638,26 @@
       </div>
     </div>
   </div>
+  <!-- Farming crop picker overlay -->
+  <div id="ui-farm-overlay" class="ui-farm-overlay" hidden>
+    <div class="ui-farm-modal">
+      <div class="ui-farm-header">
+        <span class="ui-farm-title">&#x1F33E; Farm Patch</span>
+        <button type="button" id="ui-farm-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div id="ui-farm-body" class="ui-farm-body"></div>
+    </div>
+  </div>
+  <!-- Horse Shop overlay -->
+  <div id="ui-horse-overlay" class="ui-horse-overlay" hidden>
+    <div class="ui-horse-modal">
+      <div class="ui-horse-header">
+        <span class="ui-horse-title">&#x1F40E; Horse Ranch</span>
+        <button type="button" id="ui-horse-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div id="ui-horse-body" class="ui-horse-body"></div>
+    </div>
+  </div>
   <!-- Washing Machine overlay -->
   <div id="ui-wash-overlay" class="ui-wash-overlay" hidden>
     <div class="ui-wash-modal">
@@ -665,6 +695,11 @@
         <span class="ui-bank-modal-title">&#x1F4E6; Bank</span>
         <button type="button" id="ui-bank-close" class="ui-bank-close-btn">&times;</button>
       </div>
+      <div class="ui-bank-modal-body">
+        <div id="ui-bank-vault-grid" class="ui-bank-grid"></div>
+        <div class="ui-bank-divider"><span>Inventory</span></div>
+        <div id="ui-bank-inv-grid" class="ui-bank-grid"></div>
+      </div>
       <div class="ui-bank-qty-bar">
         <span class="ui-bank-qty-label">Amount:</span>
         <button type="button" class="ui-bank-qty-btn is-active" data-bank-qty="1">1</button>
@@ -674,11 +709,6 @@
         <span class="ui-bank-qty-spacer"></span>
         <button type="button" id="ui-bank-deposit-all" class="ui-bank-note-btn" title="Deposit all inventory">&#x1F4E5; All</button>
         <button type="button" id="ui-bank-note-btn" class="ui-bank-note-btn">Note</button>
-      </div>
-      <div class="ui-bank-modal-body">
-        <div id="ui-bank-vault-grid" class="ui-bank-grid"></div>
-        <div class="ui-bank-divider"><span>Inventory</span></div>
-        <div id="ui-bank-inv-grid" class="ui-bank-grid"></div>
       </div>
     </div>
   </div>
