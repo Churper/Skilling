@@ -293,8 +293,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       shader.vertexShader = shader.vertexShader.replace(
         "#include <begin_vertex>",
         `#include <begin_vertex>
-         transformed.y += sin(position.x*0.14 + position.z*0.10 + uTime*0.7)*0.025
-                        + cos(position.x*0.09 + position.z*0.22 - uTime*0.5)*0.02;`
+         vec4 wp = modelMatrix * vec4(position, 1.0);
+         transformed.y += sin(wp.x*0.14 + wp.z*0.10 + uTime*0.7)*0.025
+                        + cos(wp.x*0.09 + wp.z*0.22 - uTime*0.5)*0.02;`
       );
     };
     const waterMesh = new THREE.Mesh(waterGeo, waterMat);
