@@ -152,6 +152,21 @@ body.embedded{background:var(--bg-deep)}
   transition:transform .15s,border-color .15s;
 }
 .tier-item:hover{transform:translateX(4px);border-color:var(--border-glow)}
+.tier-item[data-goto]{cursor:pointer}
+.tier-item[data-goto]::after{content:'\2192';color:var(--ink-3);font-size:.85rem;margin-left:auto;padding-left:8px;transition:transform .15s,color .15s}
+.tier-item[data-goto]:hover::after{transform:translateX(3px);color:var(--accent)}
+/* Collapsible skill details in Skills tab */
+.skill-row{cursor:pointer;position:relative}
+.skill-row::after{content:'\25BC';color:var(--ink-3);font-size:.7rem;margin-left:auto;padding-left:8px;transition:transform .2s,color .15s}
+.skill-row:hover::after{color:var(--accent)}
+.skill-row.is-open::after{transform:rotate(180deg);color:var(--accent)}
+.skill-collapse{
+  max-height:0;overflow:hidden;transition:max-height .3s ease;
+  border-left:2px solid var(--accent-dim);margin-left:6px;padding-left:0;
+}
+.skill-collapse.is-open{max-height:2000px;padding-left:8px;margin-top:4px;margin-bottom:4px}
+.skill-collapse .tier-strip{margin-top:4px}
+.skill-collapse .tip{margin:4px 0 2px}
 .tier-badge{
   min-width:40px;padding:3px 8px;border-radius:6px;
   font-size:.72rem;font-weight:700;text-align:center;
@@ -172,11 +187,11 @@ body.embedded{background:var(--bg-deep)}
 }
 
 /* ═══════════════ BESTIARY CARDS ═══════════════ */
-.bestiary{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:10px 0}
+.bestiary{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin:10px 0}
 .mob-card{
   background:var(--bg-surface);border:1px solid var(--border);
   border-radius:var(--radius-sm);padding:12px 14px;
-  display:flex;align-items:center;gap:12px;
+  display:flex;align-items:start;gap:12px;
   transition:transform .15s,border-color .15s;
 }
 .mob-card:hover{transform:translateY(-2px);border-color:var(--border-glow)}
@@ -195,6 +210,14 @@ body.embedded{background:var(--bg-deep)}
   padding:2px 6px;background:var(--gold-dim);border-radius:4px;
   display:inline-block;
 }
+.mob-drops{margin-top:5px;display:flex;flex-wrap:wrap;gap:3px}
+.mob-drops .drop-tag{
+  font-size:.65rem;padding:2px 6px;border-radius:3px;
+  background:rgba(199,141,255,.08);color:rgba(199,141,255,.85);
+  border:1px solid rgba(199,141,255,.12);
+}
+.mob-drops .drop-tag.secondary{background:rgba(107,197,255,.08);color:rgba(107,197,255,.85);border-color:rgba(107,197,255,.12)}
+.mob-drops .drop-chance{font-size:.6rem;color:var(--ink-3);margin-left:1px}
 
 /* ═══════════════ BOSS CARDS ═══════════════ */
 .boss-card{
@@ -219,6 +242,13 @@ body.embedded{background:var(--bg-deep)}
   font-size:.72rem;color:var(--gold);margin-top:4px;
   padding:2px 8px;background:var(--gold-dim);border-radius:4px;display:inline-block;
 }
+.boss-drops{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.boss-drops .drop-tag{
+  font-size:.65rem;padding:2px 7px;border-radius:3px;
+  background:rgba(199,141,255,.08);color:rgba(199,141,255,.85);
+  border:1px solid rgba(199,141,255,.12);
+}
+.boss-drops .drop-tag.potion{background:rgba(107,197,255,.08);color:rgba(107,197,255,.85);border-color:rgba(107,197,255,.12)}
 
 /* ═══════════════ FOOD GRID ═══════════════ */
 .food-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin:10px 0}
@@ -332,6 +362,41 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   min-height:20px;margin-top:8px;text-align:center;
 }
 
+/* ═══════════════ SLIME MASCOT ═══════════════ */
+.slime-mascot{
+  width:80px;height:80px;position:relative;
+}
+.slime-mascot .slime-body{
+  width:64px;height:52px;
+  background:radial-gradient(ellipse at 40% 35%,#7eff9e,#42c966 50%,#2a8b45);
+  border-radius:50% 50% 42% 42% / 60% 60% 40% 40%;
+  position:absolute;bottom:6px;left:8px;
+  box-shadow:0 4px 12px rgba(66,201,102,.3),inset 0 -6px 12px rgba(0,0,0,.15),inset 0 4px 8px rgba(255,255,255,.15);
+  animation:slimeBob 2.5s ease-in-out infinite;
+}
+.slime-mascot .slime-eye{
+  width:10px;height:12px;background:#1a1a2e;border-radius:50%;
+  position:absolute;top:14px;
+  box-shadow:inset 0 -2px 3px rgba(255,255,255,.15);
+}
+.slime-mascot .slime-eye::after{
+  content:'';width:4px;height:4px;background:rgba(255,255,255,.8);
+  border-radius:50%;position:absolute;top:2px;left:2px;
+}
+.slime-mascot .slime-eye.left{left:16px}
+.slime-mascot .slime-eye.right{left:36px}
+.slime-mascot .slime-mouth{
+  width:10px;height:5px;border:2px solid #1a1a2e;border-top:none;
+  border-radius:0 0 8px 8px;position:absolute;top:28px;left:26px;
+}
+.slime-mascot .slime-shadow{
+  width:52px;height:8px;background:rgba(0,0,0,.15);
+  border-radius:50%;position:absolute;bottom:2px;left:14px;
+  animation:slimeShadow 2.5s ease-in-out infinite;
+}
+@keyframes slimeBob{0%,100%{transform:translateY(0) scaleX(1) scaleY(1)}50%{transform:translateY(-4px) scaleX(.97) scaleY(1.04)}}
+@keyframes slimeShadow{0%,100%{transform:scaleX(1);opacity:.15}50%{transform:scaleX(.85);opacity:.1}}
+
 /* ═══════════════ RESPONSIVE ═══════════════ */
 @media(max-width:640px){
   .tabs{gap:0;padding:6px 4px 0}
@@ -372,7 +437,9 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <div class="tab-content active" id="tab-start">
 
   <div class="card illust-card">
-    <div class="illust">&#x1F7E2;</div>
+    <div class="illust" style="background:transparent;border:none;box-shadow:none;align-items:end">
+      <div class="slime-mascot"><div class="slime-shadow"></div><div class="slime-body"><div class="slime-eye left"></div><div class="slime-eye right"></div><div class="slime-mouth"></div></div></div>
+    </div>
     <div>
       <p><strong>You're a slime!</strong> You spawn in the village center. Click <strong>trees</strong>, <strong>rocks</strong>, or <strong>fishing spots</strong> to start gathering resources. Sell items at the <strong>General Store</strong> for coins. Level up skills, craft equipment, and take on bosses.</p>
       <div class="tip">First goal: buy <strong>Stone Tools</strong> at the Blacksmith for 100 coins!</div>
@@ -459,14 +526,14 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
   <div class="tier-strip">
     <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#4a8c3f"></span><span class="tier-name">Tree</span><div class="tier-detail"><span>25 xp</span><span>5c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#6b4c2a"></span><span class="tier-name">Oak</span><div class="tier-detail"><span>360 xp</span><span>12c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 45</span><span class="tier-swatch" style="background:#64a050"></span><span class="tier-name">&#x1FAB5; Willow</span><div class="tier-detail"><span>470 xp</span><span>30c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 60</span><span class="tier-swatch" style="background:#2a8b4a"></span><span class="tier-name">Palm</span><div class="tier-detail"><span>580 xp</span><span>22c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#c86420"></span><span class="tier-name">Maple</span><div class="tier-detail"><span>1,000 xp</span><span>48c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#3a5c3a"></span><span class="tier-name">Pine</span><div class="tier-detail"><span>850 xp</span><span>38c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 150</span><span class="tier-swatch" style="background:#8b4513"></span><span class="tier-name">Cedar</span><div class="tier-detail"><span>1,200 xp</span><span>60c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 175</span><span class="tier-swatch" style="background:#50a03c"></span><span class="tier-name">&#x1F335; Cactus</span><div class="tier-detail"><span>1,500 xp</span><span>75c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(120,200,80,.2)"><span class="tier-badge" style="background:rgba(120,200,80,.12);color:var(--gold)">Lv 200</span><span class="tier-swatch" style="background:#78c850"></span><span class="tier-name" style="color:var(--gold)">&#x1F38D; Bamboo</span><div class="tier-detail"><span>1,800 xp</span><span>90c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#6b4c2a"></span><span class="tier-name">Oak</span><div class="tier-detail"><span>200 xp</span><span>12c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 45</span><span class="tier-swatch" style="background:#64a050"></span><span class="tier-name">&#x1FAB5; Willow</span><div class="tier-detail"><span>265 xp</span><span>30c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 60</span><span class="tier-swatch" style="background:#2a8b4a"></span><span class="tier-name">Palm</span><div class="tier-detail"><span>330 xp</span><span>22c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#c86420"></span><span class="tier-name">Maple</span><div class="tier-detail"><span>450 xp</span><span>48c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#3a5c3a"></span><span class="tier-name">Pine</span><div class="tier-detail"><span>480 xp</span><span>38c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 150</span><span class="tier-swatch" style="background:#8b4513"></span><span class="tier-name">Cedar</span><div class="tier-detail"><span>680 xp</span><span>60c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 175</span><span class="tier-swatch" style="background:#50a03c"></span><span class="tier-name">&#x1F335; Cactus</span><div class="tier-detail"><span>850 xp</span><span>75c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(120,200,80,.2)"><span class="tier-badge" style="background:rgba(120,200,80,.12);color:var(--gold)">Lv 200</span><span class="tier-swatch" style="background:#78c850"></span><span class="tier-name" style="color:var(--gold)">&#x1F38D; Bamboo</span><div class="tier-detail"><span>500 xp</span><span>90c</span></div></div>
   </div>
 
   <!-- FISHING -->
@@ -541,30 +608,42 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="sec-head"><div class="sec-icon" style="background:rgba(255,180,80,.08);border-color:rgba(255,180,80,.15)">&#x1F43E;</div><div><h2>Animals</h2><p>Fight these creatures across the world</p></div></div>
 
   <div class="bestiary">
-    <div class="mob-card"><div class="mob-icon">&#x1F423;</div><div class="mob-info"><div class="mob-name">Chick</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 25</span><span>&#x2694;&#xFE0F; 0-2</span></div><div class="mob-loot">Feather</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F414;</div><div class="mob-info"><div class="mob-name">Chicken</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 80</span><span>&#x2694;&#xFE0F; 2-5</span></div><div class="mob-loot">Raw Chicken</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F431;</div><div class="mob-info"><div class="mob-name">Cat</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 120</span><span>&#x2694;&#xFE0F; 3-7</span></div><div class="mob-loot">Fur</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F436;</div><div class="mob-info"><div class="mob-name">Dog</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 160</span><span>&#x2694;&#xFE0F; 5-10</span></div><div class="mob-loot">Bone</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F437;</div><div class="mob-info"><div class="mob-name">Pig</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 200</span><span>&#x2694;&#xFE0F; 6-12</span></div><div class="mob-loot">Raw Pork</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F411;</div><div class="mob-info"><div class="mob-name">Sheep</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 280</span><span>&#x2694;&#xFE0F; 8-15</span></div><div class="mob-loot">Wool</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F99D;</div><div class="mob-info"><div class="mob-name">Raccoon</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 400</span><span>&#x2694;&#xFE0F; 10-20</span></div><div class="mob-loot">Raccoon Tail</div></div></div>
-    <div class="mob-card"><div class="mob-icon">&#x1F40E;</div><div class="mob-info"><div class="mob-name">Horse</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 600</span><span>&#x2694;&#xFE0F; 15-28</span></div><div class="mob-loot">Horse Hide</div></div></div>
-    <div class="mob-card" style="border-color:rgba(232,84,84,.2)"><div class="mob-icon" style="background:rgba(232,84,84,.08)">&#x1F43A;</div><div class="mob-info"><div class="mob-name" style="color:var(--red)">Wolf <span class="tag tag-red">Aggro</span></div><div class="mob-stats"><span>&#x2764;&#xFE0F; 900</span><span>&#x2694;&#xFE0F; 18-35</span></div><div class="mob-loot">Wolf Pelt</div></div></div>
+    <div class="mob-card"><div class="mob-icon">&#x1F423;</div><div class="mob-info"><div class="mob-name">Chick</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 25</span><span>&#x2694;&#xFE0F; 0-2</span></div><div class="mob-loot">Feather</div><div class="mob-drops"><span class="drop-tag">Bronze Ring<span class="drop-chance"> 15%</span></span></div></div></div>
+    <div class="mob-card"><div class="mob-icon">&#x1F414;</div><div class="mob-info"><div class="mob-name">Chicken</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 80</span><span>&#x2694;&#xFE0F; 2-5</span></div><div class="mob-loot">Raw Chicken</div><div class="mob-drops"><span class="drop-tag secondary">Egg<span class="drop-chance"> 30%</span></span><span class="drop-tag">Bone Amulet<span class="drop-chance"> 12%</span></span></div></div></div>
+    <div class="mob-card"><div class="mob-icon">&#x1F431;</div><div class="mob-info"><div class="mob-name">Cat</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 120</span><span>&#x2694;&#xFE0F; 3-7</span></div><div class="mob-loot">Fur</div><div class="mob-drops"><span class="drop-tag">Bronze Ring<span class="drop-chance"> 10%</span></span><span class="drop-tag">Bone Amulet<span class="drop-chance"> 10%</span></span></div></div></div>
+    <div class="mob-card"><div class="mob-icon">&#x1F436;</div><div class="mob-info"><div class="mob-name">Dog</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 160</span><span>&#x2694;&#xFE0F; 5-10</span></div><div class="mob-loot">Bone</div><div class="mob-drops"><span class="drop-tag">Bone Amulet<span class="drop-chance"> 10%</span></span></div></div></div>
+    <div class="mob-card"><div class="mob-icon">&#x1F437;</div><div class="mob-info"><div class="mob-name">Pig</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 200</span><span>&#x2694;&#xFE0F; 6-12</span></div><div class="mob-loot">Raw Pork</div><div class="mob-drops"><span class="drop-tag secondary">Mushroom<span class="drop-chance"> 20%</span></span><span class="drop-tag">Bone Amulet<span class="drop-chance"> 10%</span></span></div></div></div>
+    <div class="mob-card"><div class="mob-icon">&#x1F411;</div><div class="mob-info"><div class="mob-name">Sheep</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 280</span><span>&#x2694;&#xFE0F; 8-15</span></div><div class="mob-loot">Wool</div><div class="mob-drops"><span class="drop-tag">Wool Cape<span class="drop-chance"> 8%</span></span><span class="drop-tag">Bone Amulet<span class="drop-chance"> 8%</span></span></div></div></div>
+    <div class="mob-card"><div class="mob-icon">&#x1F99D;</div><div class="mob-info"><div class="mob-name">Raccoon</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 400</span><span>&#x2694;&#xFE0F; 10-20</span></div><div class="mob-loot">Raccoon Tail</div><div class="mob-drops"><span class="drop-tag">Leather Cape<span class="drop-chance"> 7%</span></span><span class="drop-tag">Wool Cape<span class="drop-chance"> 7%</span></span></div></div></div>
+    <div class="mob-card"><div class="mob-icon">&#x1F40E;</div><div class="mob-info"><div class="mob-name">Horse</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 600</span><span>&#x2694;&#xFE0F; 15-28</span></div><div class="mob-loot">Horse Hide</div><div class="mob-drops"><span class="drop-tag">Leather Cape<span class="drop-chance"> 6%</span></span><span class="drop-tag">Bronze Ring<span class="drop-chance"> 6%</span></span></div></div></div>
+    <div class="mob-card" style="border-color:rgba(232,84,84,.2)"><div class="mob-icon" style="background:rgba(232,84,84,.08)">&#x1F43A;</div><div class="mob-info"><div class="mob-name" style="color:var(--red)">Wolf <span class="tag tag-red">Aggro</span></div><div class="mob-stats"><span>&#x2764;&#xFE0F; 900</span><span>&#x2694;&#xFE0F; 18-35</span></div><div class="mob-loot">Wolf Pelt</div><div class="mob-drops"><span class="drop-tag">Hide Amulet<span class="drop-chance"> 5%</span></span><span class="drop-tag">Iron Ring<span class="drop-chance"> 5%</span></span></div></div></div>
   </div>
-  <div class="warn">Wolves are <strong>auto-aggressive</strong> &mdash; they attack on sight!</div>
+
+  <!-- DUNGEON MONSTERS -->
+  <div class="sec-head"><div class="sec-icon red">&#x1F47E;</div><div><h2>Dungeon Monsters</h2><p>Found in the cave &mdash; tougher but better drops</p></div></div>
+
+  <div class="bestiary">
+    <div class="mob-card" style="border-color:rgba(199,141,255,.15)"><div class="mob-icon" style="background:rgba(199,141,255,.06)">&#x1F47A;</div><div class="mob-info"><div class="mob-name">Goblin</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 180</span><span>&#x2694;&#xFE0F; 15-28</span></div><div class="mob-loot">Bone</div><div class="mob-drops"><span class="drop-tag">Steel Sword<span class="drop-chance"> 8%</span></span><span class="drop-tag">Steel Bow<span class="drop-chance"> 8%</span></span><span class="drop-tag">Steel Body<span class="drop-chance"> 8%</span></span><span class="drop-tag">Iron Ring<span class="drop-chance"> 8%</span></span></div></div></div>
+    <div class="mob-card" style="border-color:rgba(199,141,255,.15)"><div class="mob-icon" style="background:rgba(199,141,255,.06)">&#x1F480;</div><div class="mob-info"><div class="mob-name">Skeleton</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 350</span><span>&#x2694;&#xFE0F; 22-40</span></div><div class="mob-loot">Bone</div><div class="mob-drops"><span class="drop-tag">Mithril Sword<span class="drop-chance"> 10%</span></span><span class="drop-tag">Mithril Bow<span class="drop-chance"> 10%</span></span><span class="drop-tag">Mithril Body<span class="drop-chance"> 10%</span></span><span class="drop-tag">Mithril Shield<span class="drop-chance"> 10%</span></span></div></div></div>
+    <div class="mob-card" style="border-color:rgba(199,141,255,.15)"><div class="mob-icon" style="background:rgba(199,141,255,.06)">&#x1F9DF;</div><div class="mob-info"><div class="mob-name">Zombie</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 500</span><span>&#x2694;&#xFE0F; 30-55</span></div><div class="mob-loot">Fur</div><div class="mob-drops"><span class="drop-tag">Adamant Sword<span class="drop-chance"> 12%</span></span><span class="drop-tag">Adamant Bow<span class="drop-chance"> 12%</span></span><span class="drop-tag">Adamant Body<span class="drop-chance"> 12%</span></span><span class="drop-tag">Adamant Shield<span class="drop-chance"> 12%</span></span></div></div></div>
+    <div class="mob-card" style="border-color:rgba(232,84,84,.2)"><div class="mob-icon" style="background:rgba(232,84,84,.08)">&#x1F608;</div><div class="mob-info"><div class="mob-name" style="color:var(--red)">Demon <span class="tag tag-red">Aggro</span></div><div class="mob-stats"><span>&#x2764;&#xFE0F; 800</span><span>&#x2694;&#xFE0F; 45-80</span></div><div class="mob-loot">Bone</div><div class="mob-drops"><span class="drop-tag">Rune Sword<span class="drop-chance"> 15%</span></span><span class="drop-tag">Rune Bow<span class="drop-chance"> 15%</span></span><span class="drop-tag">Rune Staff<span class="drop-chance"> 15%</span></span><span class="drop-tag">Rune Body<span class="drop-chance"> 15%</span></span><span class="drop-tag">Rune Shield<span class="drop-chance"> 15%</span></span></div></div></div>
+  </div>
+
+  <div class="warn">Wolves and Demons are <strong>auto-aggressive</strong> &mdash; they attack on sight!</div>
   <div class="tip">Horses can be <strong>mounted</strong> instead of killed! Click to ride, press <kbd>M</kbd> to dismount. 2x movement speed.</div>
 
   <!-- BOSSES -->
   <div class="sec-head"><div class="sec-icon red">&#x1F480;</div><div><h2>Bosses</h2><p>Ring the Summon Bell to start an instanced fight</p></div></div>
 
-  <div class="boss-card"><div class="boss-icon">&#x1F40D;</div><div class="boss-info"><div class="boss-name">Snake Boss</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 1,000 HP</span><span>Dodge-only</span></div><div class="boss-trophy">&#x1FA99; Snake Scale (50c)</div></div></div>
-  <div class="boss-card"><div class="boss-icon">&#x1FAA8;</div><div class="boss-info"><div class="boss-name">Rock Golem</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 8,000 HP</span><span>&#x2694;&#xFE0F; 15-20 dmg</span></div><div class="boss-trophy">&#x1FA99; Golem Core (100c)</div></div></div>
-  <div class="boss-card"><div class="boss-icon">&#x2744;&#xFE0F;</div><div class="boss-info"><div class="boss-name">Frost Yeti</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 15,000 HP</span><span>&#x2694;&#xFE0F; 18-28 dmg</span></div><div class="boss-trophy">&#x1FA99; Frozen Heart (300c)</div></div></div>
-  <div class="boss-card"><div class="boss-icon">&#x1F49C;</div><div class="boss-info"><div class="boss-name">Slime Daddy</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 25,000 HP</span><span>&#x2694;&#xFE0F; 18-30 dmg</span></div><div class="boss-trophy">&#x1FA99; Royal Jelly (150c)</div></div></div>
-  <div class="boss-card" style="border-color:rgba(232,84,84,.2);background:linear-gradient(135deg,var(--bg-card),rgba(255,69,0,.04))"><div class="boss-icon" style="background:rgba(255,69,0,.1);border-color:rgba(255,69,0,.2)">&#x1F432;</div><div class="boss-info"><div class="boss-name" style="color:#ff6030">Dragon</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 40,000 HP</span><span>&#x2694;&#xFE0F; 45-70 dmg</span></div><div class="boss-trophy">&#x1FA99; Dragon Scale (500c)</div></div></div>
+  <div class="boss-card"><div class="boss-icon">&#x1F40D;</div><div class="boss-info"><div class="boss-name">Snake Boss</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 1,000 HP</span><span>Dodge-only</span></div><div class="boss-trophy">&#x1FA99; Snake Scale (50c)</div><div class="boss-drops"><span class="drop-tag potion">Tempo Potion<span class="drop-chance"> 30%</span></span><span class="drop-tag">Mithril gear<span class="drop-chance"> 35%</span></span><span class="drop-tag">Adamant gear<span class="drop-chance"> 35%</span></span></div></div></div>
+  <div class="boss-card"><div class="boss-icon">&#x1FAA8;</div><div class="boss-info"><div class="boss-name">Rock Golem</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 8,000 HP</span><span>&#x2694;&#xFE0F; 15-20 dmg</span></div><div class="boss-trophy">&#x1FA99; Golem Core (100c)</div><div class="boss-drops"><span class="drop-tag potion">Slayer Potion<span class="drop-chance"> 30%</span></span><span class="drop-tag">Adamant gear<span class="drop-chance"> 40%</span></span><span class="drop-tag">Rune gear<span class="drop-chance"> 40%</span></span></div></div></div>
+  <div class="boss-card"><div class="boss-icon">&#x2744;&#xFE0F;</div><div class="boss-info"><div class="boss-name">Frost Yeti</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 15,000 HP</span><span>&#x2694;&#xFE0F; 18-28 dmg</span></div><div class="boss-trophy">&#x1FA99; Frozen Heart (300c)</div><div class="boss-drops"><span class="drop-tag potion">Swiftness Potion<span class="drop-chance"> 30%</span></span><span class="drop-tag">Slime gear<span class="drop-chance"> 50%</span></span><span class="drop-tag">Crystal gear<span class="drop-chance"> 50%</span></span><span class="drop-tag">Ember gear<span class="drop-chance"> 50%</span></span></div></div></div>
+  <div class="boss-card"><div class="boss-icon">&#x1F49C;</div><div class="boss-info"><div class="boss-name">Slime Daddy</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 25,000 HP</span><span>&#x2694;&#xFE0F; 25-45 dmg</span></div><div class="boss-trophy">&#x1FA99; Royal Jelly (150c)</div><div class="boss-drops"><span class="drop-tag potion">Power Potion<span class="drop-chance"> 30%</span></span><span class="drop-tag">Rune gear<span class="drop-chance"> 45%</span></span><span class="drop-tag">Slime gear<span class="drop-chance"> 45%</span></span></div></div></div>
+  <div class="boss-card" style="border-color:rgba(232,84,84,.2);background:linear-gradient(135deg,var(--bg-card),rgba(255,69,0,.04))"><div class="boss-icon" style="background:rgba(255,69,0,.1);border-color:rgba(255,69,0,.2)">&#x1F432;</div><div class="boss-info"><div class="boss-name" style="color:#ff6030">Dragon</div><div class="boss-stats"><span>&#x2764;&#xFE0F; 40,000 HP</span><span>&#x2694;&#xFE0F; 45-70 dmg</span></div><div class="boss-trophy">&#x1FA99; Dragon Scale (500c)</div><div class="boss-drops"><span class="drop-tag potion">Power Potion<span class="drop-chance"> 35%</span></span><span class="drop-tag">Ember gear<span class="drop-chance"> 55%</span></span><span class="drop-tag">Frost gear<span class="drop-chance"> 55%</span></span><span class="drop-tag">Volcanic gear<span class="drop-chance"> 55%</span></span><span class="drop-tag">Celestial gear<span class="drop-chance"> 55%</span></span></div></div></div>
 
   <div class="warn">Dragon fire breath <strong>ignores armor</strong>. Bring lots of food!</div>
   <div class="tip">Bring <strong>10+ food</strong>, buff potions, and your best gear. Bosses can be fought in a party!</div>
+  <div class="tip">&#x1F4A1; <strong>Luck stat</strong> from Washing Machine increases equipment and potion drop chances!</div>
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -725,14 +804,75 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   </div>
 
   <div class="tier-strip" style="margin-top:16px">
-    <div class="tier-item"><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">&#x1F3A3; Fishing</span><span class="tier-meta">Fish at water spots &bull; Raw fish for cooking</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#a0a0a0"></span><span class="tier-name">&#x26CF;&#xFE0F; Mining</span><span class="tier-meta">Mine rocks for ore &bull; Sell or craft</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#4a8c3f"></span><span class="tier-name">&#x1FA93; Woodcutting</span><span class="tier-meta">Chop trees for logs &bull; Sell or craft</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#78b43c"></span><span class="tier-name">&#x1F33E; Farming</span><span class="tier-meta">Plant &amp; harvest crops &bull; Passive XP</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#e05050"></span><span class="tier-name">&#x2694;&#xFE0F; Melee</span><span class="tier-meta">XP from sword attacks &bull; Increases melee damage</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#50b050"></span><span class="tier-name">&#x1F3F9; Ranged</span><span class="tier-meta">XP from bow attacks &bull; Increases ranged damage</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#8060c0"></span><span class="tier-name">&#x1FA84; Magic</span><span class="tier-meta">XP from staff attacks &bull; Increases magic damage</span></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#ff8040"></span><span class="tier-name">&#x1F373; Cooking</span><span class="tier-meta">Cook raw food at campfires &bull; Reduces burn chance</span></div>
+
+    <div class="tier-item skill-row" data-skill="sk-fishing"><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">&#x1F3A3; Fishing</span><span class="tier-meta">Fish at water spots &bull; Raw fish for cooking</span></div>
+    <div class="skill-collapse" id="sk-fishing"><div class="tier-strip">
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#ff9080"></span><span class="tier-name">Shrimp</span><div class="tier-detail"><span>50 xp</span><span>4c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>85 xp</span><span>12c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>125 xp</span><span>18c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>175 xp</span><span>28c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 70</span><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>240 xp</span><span>35c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#5080c0"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>320 xp</span><span>50c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 130</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>420 xp</span><span>70c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 170</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>530 xp</span><span>100c</span></div></div>
+    </div><div class="tip">Rare drop: Golden Fish (3%). All fish are cookable!</div></div>
+
+    <div class="tier-item skill-row" data-skill="sk-mining"><span class="tier-swatch" style="background:#a0a0a0"></span><span class="tier-name">&#x26CF;&#xFE0F; Mining</span><span class="tier-meta">Mine rocks for ore &bull; Sell or craft</span></div>
+    <div class="skill-collapse" id="sk-mining"><div class="tier-strip">
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#777"></span><span class="tier-name">Rock</span><div class="tier-detail"><span>25 xp</span><span>7c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#b0a080"></span><span class="tier-name">Tin</span><div class="tier-detail"><span>120 xp</span><span>10c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#cd7f32"></span><span class="tier-name">Copper</span><div class="tier-detail"><span>200 xp</span><span>15c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 45</span><span class="tier-swatch" style="background:#e8d8e0"></span><span class="tier-name">Quartz</span><div class="tier-detail"><span>270 xp</span><span>20c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 60</span><span class="tier-swatch" style="background:#c0c0c0"></span><span class="tier-name">Silver</span><div class="tier-detail"><span>340 xp</span><span>28c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 80</span><span class="tier-swatch" style="background:#c8d8e0"></span><span class="tier-name">Platinum</span><div class="tier-detail"><span>420 xp</span><span>36c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 100</span><span class="tier-swatch" style="background:#4070a0"></span><span class="tier-name">Cobalt</span><div class="tier-detail"><span>510 xp</span><span>45c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 125</span><span class="tier-swatch" style="background:#50b060"></span><span class="tier-name">Jade</span><div class="tier-detail"><span>620 xp</span><span>56c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 150</span><span class="tier-swatch" style="background:#8090a0"></span><span class="tier-name">Titanium</span><div class="tier-detail"><span>730 xp</span><span>70c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 175</span><span class="tier-swatch" style="background:linear-gradient(135deg,#e0a0c0,#a0c0e0,#e0c0a0)"></span><span class="tier-name">Opal</span><div class="tier-detail"><span>840 xp</span><span>85c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:linear-gradient(135deg,#ff6090,#60c0ff,#a0ff80)"></span><span class="tier-name">Gem</span><div class="tier-detail"><span>950 xp</span><span>100c</span></div></div>
+    </div><div class="tip">Rare drop: Uncut Gem (3-6%)</div></div>
+
+    <div class="tier-item skill-row" data-skill="sk-woodcutting"><span class="tier-swatch" style="background:#4a8c3f"></span><span class="tier-name">&#x1FA93; Woodcutting</span><span class="tier-meta">Chop trees for logs &bull; Sell or craft</span></div>
+    <div class="skill-collapse" id="sk-woodcutting"><div class="tier-strip">
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#4a8c3f"></span><span class="tier-name">Tree</span><div class="tier-detail"><span>25 xp</span><span>5c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#6b4c2a"></span><span class="tier-name">Oak</span><div class="tier-detail"><span>200 xp</span><span>12c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 45</span><span class="tier-swatch" style="background:#64a050"></span><span class="tier-name">Willow</span><div class="tier-detail"><span>265 xp</span><span>30c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 60</span><span class="tier-swatch" style="background:#2a8b4a"></span><span class="tier-name">Palm</span><div class="tier-detail"><span>330 xp</span><span>22c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#c86420"></span><span class="tier-name">Maple</span><div class="tier-detail"><span>450 xp</span><span>48c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#3a5c3a"></span><span class="tier-name">Pine</span><div class="tier-detail"><span>480 xp</span><span>38c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 150</span><span class="tier-swatch" style="background:#8b4513"></span><span class="tier-name">Cedar</span><div class="tier-detail"><span>680 xp</span><span>60c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 175</span><span class="tier-swatch" style="background:#50a03c"></span><span class="tier-name">Cactus</span><div class="tier-detail"><span>850 xp</span><span>75c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#78c850"></span><span class="tier-name">Bamboo</span><div class="tier-detail"><span>500 xp</span><span>90c</span></div></div>
+    </div><div class="tip">Rare drop: Bird Nest (4-12%)</div></div>
+
+    <div class="tier-item skill-row" data-skill="sk-farming"><span class="tier-swatch" style="background:#78b43c"></span><span class="tier-name">&#x1F33E; Farming</span><span class="tier-meta">Plant &amp; harvest crops &bull; Passive XP</span></div>
+    <div class="skill-collapse" id="sk-farming"><div class="tier-strip">
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-name">Carrot</span><div class="tier-detail"><span>80 xp</span><span>5c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 8</span><span class="tier-name">Cabbage</span><div class="tier-detail"><span>160 xp</span><span>10c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-name">Onion</span><div class="tier-detail"><span>280 xp</span><span>18c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 45</span><span class="tier-name">Tomato</span><div class="tier-detail"><span>1,000 xp</span><span>65c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 95</span><span class="tier-name">Pepper</span><div class="tier-detail"><span>3,300 xp</span><span>220c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 190</span><span class="tier-name">Pineapple</span><div class="tier-detail"><span>12,000 xp</span><span>900c</span></div></div>
+    </div><div class="tip">15 crops total. Passive — plant &amp; do other things while crops grow!</div></div>
+
+    <div class="tier-item skill-row" data-skill="sk-melee"><span class="tier-swatch" style="background:#e05050"></span><span class="tier-name">&#x2694;&#xFE0F; Melee</span><span class="tier-meta">XP from sword attacks &bull; Increases melee damage</span></div>
+    <div class="skill-collapse" id="sk-melee"><div class="tip">Train by attacking animals with a sword equipped. Close range, high damage. XP also trains Hitpoints.</div></div>
+
+    <div class="tier-item skill-row" data-skill="sk-ranged"><span class="tier-swatch" style="background:#50b050"></span><span class="tier-name">&#x1F3F9; Ranged</span><span class="tier-meta">XP from bow attacks &bull; Increases ranged damage</span></div>
+    <div class="skill-collapse" id="sk-ranged"><div class="tip">Train by attacking animals with a bow equipped. Safe distance attacks. XP also trains Hitpoints.</div></div>
+
+    <div class="tier-item skill-row" data-skill="sk-magic"><span class="tier-swatch" style="background:#8060c0"></span><span class="tier-name">&#x1FA84; Magic</span><span class="tier-meta">XP from staff attacks &bull; Increases magic damage</span></div>
+    <div class="skill-collapse" id="sk-magic"><div class="tip">Train by attacking animals with a staff equipped. Elemental power at range. XP also trains Hitpoints.</div></div>
+
+    <div class="tier-item skill-row" data-skill="sk-cooking"><span class="tier-swatch" style="background:#ff8040"></span><span class="tier-name">&#x1F373; Cooking</span><span class="tier-meta">Cook raw food at campfires &bull; Reduces burn chance</span></div>
+    <div class="skill-collapse" id="sk-cooking"><div class="tier-strip">
+      <div class="tier-item"><span class="tier-swatch" style="background:#ff8060"></span><span class="tier-name">Shrimp &rarr; Cooked</span><div class="tier-detail"><span>25 xp</span><span class="tag tag-green">50 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout &rarr; Cooked</span><div class="tier-detail"><span>35 xp</span><span class="tag tag-green">120 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster &rarr; Cooked</span><div class="tier-detail"><span>68 xp</span><span class="tag tag-green">220 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#5080c0"></span><span class="tier-name">Swordfish &rarr; Cooked</span><div class="tier-detail"><span>110 xp</span><span class="tag tag-green">400 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray &rarr; Cooked</span><div class="tier-detail"><span>180 xp</span><span class="tag tag-gold">750 HP</span></div></div>
+    </div><div class="tip">Costs 3 logs per cook. Burn chance decreases with level.</div></div>
+
     <div class="tier-item"><span class="tier-swatch" style="background:#e04040"></span><span class="tier-name">&#x2764;&#xFE0F; Hitpoints</span><span class="tier-meta">XP from all combat &bull; Starts at level 10</span></div>
   </div>
 
@@ -843,6 +983,27 @@ document.getElementById("tabs").addEventListener("click",e=>{
   const b=e.target.closest(".tab-btn");if(!b)return;
   _switchTab(b.dataset.tab);
   window.scrollTo({top:document.querySelector(".tabs").offsetTop,behavior:"smooth"});
+});
+/* Skill row → navigate to section in another tab */
+document.addEventListener("click",e=>{
+  const item=e.target.closest("[data-goto]");if(!item)return;
+  const [tab,hash]=item.dataset.goto.split(":");
+  _switchTab(tab);
+  const el=document.getElementById(hash);
+  if(el)setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"start"}),80);
+});
+/* Skill row collapse/expand in Skills tab */
+document.addEventListener("click",e=>{
+  const row=e.target.closest(".skill-row");if(!row)return;
+  const id=row.dataset.skill;if(!id)return;
+  const panel=document.getElementById(id);if(!panel)return;
+  const wasOpen=panel.classList.contains("is-open");
+  /* Close all others */
+  document.querySelectorAll(".skill-collapse.is-open").forEach(p=>{p.classList.remove("is-open");});
+  document.querySelectorAll(".skill-row.is-open").forEach(r=>{r.classList.remove("is-open");});
+  if(!wasOpen){panel.classList.add("is-open");row.classList.add("is-open");
+    setTimeout(()=>panel.scrollIntoView({behavior:"smooth",block:"nearest"}),50);
+  }
 });
 /* Deep-link: guide.html?embed#sec-woodcutting → switch to gather tab, scroll to section */
 function _handleHash(){
