@@ -275,8 +275,8 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   groundMesh.renderOrder = R_GND;
   group.add(groundMesh);
 
-  /* ── water plane (optional per chunk) ── */
-  const showWater = !bounds || bounds.water !== false;
+  /* ── water plane — always show so rivers/lakes within land chunks have a surface ── */
+  const showWater = true;
   if (showWater) {
     /* use unpadded data bounds so neighbor water planes meet exactly (no overlap) */
     const ww = dxMax - dxMin, wh = dzMax - dzMin;
