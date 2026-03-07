@@ -8,6 +8,16 @@
 html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:'Segoe UI',system-ui,sans-serif;color:#ccc}
 canvas{display:block}
 
+/* ── Loading overlay ── */
+#loading-overlay{position:fixed;inset:0;z-index:9999;background:#0d0d18;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .4s}
+#loading-overlay.done{opacity:0;pointer-events:none}
+#loading-title{font-size:18px;font-weight:700;color:#e8c44a;letter-spacing:2px}
+#loading-bar-outer{width:280px;height:6px;background:#1a1a2e;border-radius:3px;overflow:hidden}
+#loading-bar-inner{width:0%;height:100%;background:linear-gradient(90deg,#e8c44a,#f0d870);
+  border-radius:3px;transition:width .25s ease-out}
+#loading-status{font-size:11px;color:#666;min-height:16px}
+
 /* ── Sidebar ── */
 #sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:#12121f;
   display:flex;flex-direction:column;border-right:1px solid #2a2a3e;z-index:10;user-select:none}
@@ -102,6 +112,12 @@ canvas{display:block}
 </style>
 </head>
 <body>
+
+<div id="loading-overlay">
+  <div id="loading-title">MAP EDITOR</div>
+  <div id="loading-bar-outer"><div id="loading-bar-inner"></div></div>
+  <div id="loading-status">Initializing...</div>
+</div>
 
 <div id="sidebar">
   <h1>MAP EDITOR</h1>
@@ -561,7 +577,7 @@ function loadChunkFromStore(cx, cz) {
   deselectInstance();
   /* structural + waterfall always visible (they're in world space) */
   for (const obj of structural) obj.mesh.visible = true;
-  if (typeof waterfallGroup !== "undefined") waterfallGroup.visible = true;
+  if (waterfallGroup) waterfallGroup.visible = true;
   /* add chunk objects (from ALL chunks) — convert local chunk coords to world coords */
   for (const [ck, cData] of chunkDataStore) {
     const [ccx, ccz] = ck.split(",").map(Number);
@@ -904,7 +920,7 @@ function enterInstance(name) {
   for (const obj of objects) scene.remove(obj.mesh);
   objects.length = 0;
   /* hide waterfall */
-  if (typeof waterfallGroup !== "undefined" && waterfallGroup) waterfallGroup.visible = false;
+  if (waterfallGroup) waterfallGroup.visible = false;
   /* build instance chunk at origin if not already built */
   const instKey = "inst:" + name;
   if (!chunkMeshes.has(instKey)) {
@@ -1004,7 +1020,7 @@ function leaveInstance() {
   _updateInstanceBanner();
   /* restore world chunks + waterfall */
   for (const [, entry] of chunkMeshes) entry.mesh.visible = true;
-  if (typeof waterfallGroup !== "undefined" && waterfallGroup) waterfallGroup.visible = true;
+  if (waterfallGroup) waterfallGroup.visible = true;
   /* reload world objects and activate chunk 0,0 for editing */
   currentChunk = [0, 0];
   loadChunkFromStore(0, 0);
@@ -1250,7 +1266,7 @@ function rebuildAllVerts() {
    Three.js Setup
    ═══════════════════════════════════════════ */
 const wrap = document.getElementById("canvas-wrap");
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
 renderer.setSize(wrap.clientWidth, wrap.clientHeight);
 renderer.setClearColor(0x1a1a2e);
@@ -1259,7 +1275,7 @@ renderer.toneMapping = THREE.NoToneMapping;
 wrap.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(50, wrap.clientWidth / wrap.clientHeight, 0.5, 500);
+const camera = new THREE.PerspectiveCamera(50, wrap.clientWidth / wrap.clientHeight, 1, 4000);
 camera.position.set(0, 150, -0.01);
 
 const orbitControls = new OrbitControls(camera, renderer.domElement);
@@ -1287,12 +1303,9 @@ activateChunkForEditing(0, 0);
 
 /* stepping stones — registered as editable in loadGameStructures */
 
-/* waterfall — only shown on spawn chunk */
+/* waterfall — only for legacy single-chunk maps (hidden until we know) */
 const waterUniforms = { uTime: { value: 0 } };
-const waterfallGroup = new THREE.Group();
-waterfallGroup.name = "waterfall";
-addWaterfall(waterfallGroup, waterUniforms);
-scene.add(waterfallGroup);
+let waterfallGroup = null;
 
 /* grid */
 const GRID_MIN = -25, GRID_MAX = 25;
@@ -1566,6 +1579,7 @@ const PAINT_COLORS = [
   { name: "Deep Ice", hex: "#6bb0cc", color: new THREE.Color("#6bb0cc") },
   { name: "Snow", hex: "#e8eef0", color: new THREE.Color("#e8eef0") },
   { name: "Slush", hex: "#b8ccd0", color: new THREE.Color("#b8ccd0") },
+  { name: "Water", hex: "#0f2e7a", color: new THREE.Color("#0f2e7a") },
 ];
 let selectedPaintColor = PAINT_COLORS[0].color;
 let paintStrength = 0.50;
@@ -1671,7 +1685,7 @@ function paintColorAt(wx, wz, dt) {
         const norm = dist / brushRadius;
         const toonFalloff = norm < 0.6 ? 1.0 : norm < 0.85 ? 0.35 : 0.0;
         const colorFalloff = toonFalloff + (1 - toonFalloff) * brushHardness;
-        const t = Math.min(paintStrength * colorFalloff * dt * 4, 1);
+        const t = Math.min(paintStrength * colorFalloff * dt * 25, 1);
         cr += (selectedPaintColor.r - cr) * t;
         cg += (selectedPaintColor.g - cg) * t;
         cb += (selectedPaintColor.b - cb) * t;
@@ -2680,19 +2694,47 @@ async function loadExistingMap() {
 /* ═══════════════════════════════════════════
    Init
    ═══════════════════════════════════════════ */
+const _loadBar = document.getElementById("loading-bar-inner");
+const _loadStatus = document.getElementById("loading-status");
+function _loadProgress(pct, msg) { _loadBar.style.width = pct + "%"; _loadStatus.textContent = msg; }
+
+_loadProgress(5, "Building palette...");
 buildPalette();
 setMode("objects");
+
+_loadProgress(10, "Loading 3D models...");
 await loadAllModels();
-buildPalette(); /* rebuild with thumbnails now that models are loaded */
-await loadGameStructures();
+buildPalette();
+
+_loadProgress(30, "Loading game objects...");
 await loadGameObjects();
+
+_loadProgress(50, "Loading map data...");
 await loadExistingMap();
-/* ensure spawn chunk mesh exists */
-if (!chunkDataStore.has("0,0")) ensureChunkData(0, 0);
+
+if (chunkDataStore.size <= 1) {
+  _loadProgress(70, "Loading legacy structures...");
+  await loadGameStructures();
+  waterfallGroup = new THREE.Group();
+  waterfallGroup.name = "waterfall";
+  addWaterfall(waterfallGroup, waterUniforms);
+  scene.add(waterfallGroup);
+}
+
+_loadProgress(80, "Building terrain meshes...");
+const _initChunk = currentChunk || [0, 0];
+if (!chunkDataStore.has(`${_initChunk[0]},${_initChunk[1]}`)) ensureChunkData(_initChunk[0], _initChunk[1]);
 ensureAllChunkMeshes();
-activateChunkForEditing(0, 0);
-moveChunkHighlight(0, 0);
+
+_loadProgress(95, "Activating editor...");
+activateChunkForEditing(_initChunk[0], _initChunk[1]);
+moveChunkHighlight(_initChunk[0], _initChunk[1]);
 updateMinimap();
+
+_loadProgress(100, "Ready!");
+setTimeout(() => document.getElementById("loading-overlay").classList.add("done"), 300);
+setTimeout(() => { const el = document.getElementById("loading-overlay"); if (el) el.remove(); }, 800);
+
 animate();
 console.log("Map Editor ready.");
 </script>
