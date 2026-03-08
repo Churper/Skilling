@@ -223,14 +223,20 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
-      /* local coords for data lookup — clamp to data grid edge */
-      const lx = Math.max(dxMin, Math.min(dxMax, x)) - loX;
-      const lz = Math.max(dzMin, Math.min(dzMax, z)) - loZ;
+      /* local coords for data lookup — use actual position, fall back to clamped edge */
+      let lx = x - loX;
+      let lz = z - loZ;
       const isPad = x < dxMin || x > dxMax || z < dzMin || z > dzMax;
       let y = GRASS_Y;
       /* apply editor height offsets */
       if (heightOffsets) {
-        const key = `${lx},${lz}`;
+        let key = `${lx},${lz}`;
+        if (!(key in heightOffsets) && isPad) {
+          /* fallback: clamp to data grid edge for chunks without margin data */
+          lx = Math.max(dxMin, Math.min(dxMax, x)) - loX;
+          lz = Math.max(dzMin, Math.min(dzMax, z)) - loZ;
+          key = `${lx},${lz}`;
+        }
         if (key in heightOffsets) y += heightOffsets[key];
       }
       if (isPad) y -= 0.05; // nudge pad verts down to avoid z-fighting with neighbor

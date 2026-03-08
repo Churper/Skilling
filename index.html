@@ -12,7 +12,7 @@
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
-  <div id="minimap-wrap" style="display:none"><canvas id="minimap" width="200" height="200"></canvas><div class="mm-resize-handle"></div></div>
+  <div id="minimap-wrap" style="display:none"><canvas id="minimap" width="200" height="200"></canvas><div class="mm-resize-handle"></div><div id="mm-res-panel"><div id="mm-res-toggle">🔍 Resources</div><div id="mm-res-list"></div></div></div>
   <div id="webgl-fallback" style="display:none;position:fixed;inset:0;background:#1a1a2e;color:#e0e0e0;font-family:sans-serif;z-index:9999;padding:20vh 10vw;text-align:center">
     <h1 style="color:#e8c44a;margin-bottom:16px">WebGL Not Supported</h1>
     <p style="max-width:500px;margin:0 auto;line-height:1.6">Your browser or GPU can't run WebGL, which is required for this game. Try:<br><br>
@@ -504,6 +504,10 @@
       <label class="ui-settings-row">
         <span>Low Power Mode</span>
         <input type="checkbox" id="setting-lowpower">
+      </label>
+      <label class="ui-settings-row">
+        <span>High Detail Terrain</span>
+        <input type="checkbox" id="setting-hd-terrain">
       </label>
       <hr class="ui-settings-divider">
       <div class="ui-settings-row ui-hotkey-header"><span>Tab Hotkeys</span></div>
