@@ -187,7 +187,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
 
   /* ── ground mesh ── */
   const step = lodStep || 1.0;
-  const MESH_PAD = Math.max(step + 1, 2); // extend mesh past chunk edge — scale with LOD step to cover gaps
+  const MESH_PAD = Math.max(step * 3, 4); // extend mesh past chunk edge — must match generator MARGIN
   const dxMin = bounds ? bounds.xMin : (GX_MIN - 1) * TILE_S;
   const dxMax = bounds ? bounds.xMax : (GX_MAX + 1) * TILE_S;
   const dzMin = bounds ? bounds.zMin : (GZ_MIN - 1) * TILE_S;
@@ -239,7 +239,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         }
         if (key in heightOffsets) y += heightOffsets[key];
       }
-      if (isPad) y -= 0.05; // nudge pad verts down to avoid z-fighting with neighbor
+      /* no y nudge on pad verts — adjacent chunks share these positions, nudging causes seams */
       const i3 = (iz * nx + ix) * 3;
 
       /* low-poly jitter (don't jitter edges) */
@@ -294,26 +294,16 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       },
       vertexShader: `
         uniform float uTime;
-        varying vec3 vWP;
-        varying float vWave;
         void main() {
           vec3 pos = position;
-          vec4 wp = modelMatrix * vec4(pos, 1.0);
-          float w = sin(wp.x*0.07 + wp.z*0.05 + uTime*0.35)*0.008
-                  + cos(wp.x*0.04 - wp.z*0.08 + uTime*0.25)*0.006
-                  + sin(-wp.x*0.06 + wp.z*0.07 + uTime*0.45)*0.004;
-          pos.y += w;
-          vWave = w;
-          vWP = wp.xyz;
+          /* gentle uniform bob — whole surface rises/falls together */
+          pos.y += sin(uTime * 0.5) * 0.025;
           gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0);
         }
       `,
       fragmentShader: `
-        varying float vWave;
         void main() {
-          vec3 col = vec3(0.32, 0.65, 0.82);
-          col += smoothstep(0.002, 0.01, vWave) * vec3(0.06, 0.08, 0.06);
-          gl_FragColor = vec4(col, 0.38);
+          gl_FragColor = vec4(0.32, 0.65, 0.82, 0.38);
         }
       `,
     });
