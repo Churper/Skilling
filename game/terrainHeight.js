@@ -169,10 +169,10 @@ export function terrainH(x, z) {
   if (rq.dist < bankHi) {
     const center = 1 - s(rq.dist, 0, rq.width);
     const bank = 1 - s(rq.dist, bankLo, bankHi);
-    const bed = WATER_Y - 0.72 - 0.48 * center;
+    const bed = WATER_Y - 1.4 - 0.8 * center;
     h = THREE.MathUtils.lerp(h, bed, Math.max(center, bank * 0.45));
-    h -= bank * 0.18;
-    if (rq.dist < rq.width + 0.5) h = Math.min(h, WATER_Y - 0.10);
+    h -= bank * 0.28;
+    if (rq.dist < rq.width + 0.5) h = Math.min(h, WATER_Y - 0.25);
   }
 
   /* ─ gentle rolling noise ─ */
