@@ -12,7 +12,7 @@
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
-  <div id="minimap-wrap" style="display:none"><canvas id="minimap" width="200" height="200"></canvas><div class="mm-resize-handle"></div><div id="mm-res-panel"><div id="mm-res-toggle">🔍 Resources</div><div id="mm-res-list"></div></div><label id="mm-names-toggle"><input type="checkbox" id="mm-names-cb">Town Names</label><div id="mm-close-btn">✕</div></div>
+  <div id="minimap-wrap" style="display:none"><canvas id="minimap" width="200" height="200"></canvas><button id="mm-close-btn" title="Close">&#x2715;</button><div class="mm-compass-btns"><button class="mm-dir" data-dir="N">N</button><button class="mm-dir" data-dir="E">E</button><button class="mm-dir" data-dir="S">S</button><button class="mm-dir" data-dir="W">W</button></div><div class="mm-resize-handle"></div><div id="mm-res-panel"><div id="mm-res-toggle">🔍 Resources</div><div id="mm-res-list"></div></div><label id="mm-names-toggle"><input type="checkbox" id="mm-names-cb">Town Names</label></div>
   <div id="webgl-fallback" style="display:none;position:fixed;inset:0;background:#1a1a2e;color:#e0e0e0;font-family:sans-serif;z-index:9999;padding:20vh 10vw;text-align:center">
     <h1 style="color:#e8c44a;margin-bottom:16px">WebGL Not Supported</h1>
     <p style="max-width:500px;margin:0 auto;line-height:1.6">Your browser or GPU can't run WebGL, which is required for this game. Try:<br><br>
@@ -80,7 +80,7 @@
       </div>
       <div id="ui-boss-hp-text">1000 / 1000</div>
     </div>
-    <div id="ui-coins-chip" aria-live="polite" aria-label="Gold coins">
+    <div id="ui-coins-chip" aria-live="polite" aria-label="Gold coins" style="display:none">
       <span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span>
       <strong id="ui-coins-value">0</strong>
     </div>
@@ -100,7 +100,7 @@
       </div>
       <button type="button" id="ui-tut-skip" class="ui-tut-skip" hidden>Skip Step</button>
     </div>
-    <button type="button" id="ui-guide-btn" title="Game Guide">Guide</button>
+    <!-- guide button moved into skills panel -->
     <button type="button" id="ui-mobile-toggle" aria-expanded="false" aria-controls="ui-dock ui-panel">
       Menu
     </button>
@@ -128,22 +128,22 @@
       </button>
     </nav>
     <aside id="ui-panel" aria-live="polite">
-      <h2 id="ui-panel-title">Inventory</h2>
+      <div id="ui-panel-title-row"><h2 id="ui-panel-title">Inventory</h2><button type="button" id="ui-guide-btn" class="ui-skills-header-btn guide" hidden>&#x1F4D6; Guide</button></div>
       <div class="ui-panel-resize" data-resize="se" aria-hidden="true"></div>
       <div class="ui-panel-resize" data-resize="sw" aria-hidden="true"></div>
       <div class="ui-panel-resize" data-resize="ne" aria-hidden="true"></div>
       <div class="ui-panel-resize" data-resize="nw" aria-hidden="true"></div>
       <section class="ui-panel-section" data-tab-panel="inventory">
         <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
-        <p id="ui-status-line" class="ui-status" data-tone="info"></p>
+        <div id="ui-inv-footer"><div id="ui-coins-inline"><span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span><strong id="ui-coins-value-inline">0</strong></div><p id="ui-status-line" class="ui-status" data-tone="info"></p></div>
       </section>
       <section class="ui-panel-section" data-tab-panel="bank" hidden></section>
       <section class="ui-panel-section" data-tab-panel="blacksmith" hidden></section>
       <section class="ui-panel-section" data-tab-panel="store" hidden></section>
       <section class="ui-panel-section" data-tab-panel="skills" hidden>
         <div class="ui-skills-header">
-          <button type="button" id="ui-hiscores-btn" class="ui-hiscores-inline-btn">&#x1F3C6; Hiscores</button>
-          <button type="button" id="ui-quest-tab-btn" class="ui-quest-inline-btn">&#x1F4DC; Quests</button>
+          <button type="button" id="ui-hiscores-btn" class="ui-skills-header-btn hiscores">&#x1F3C6; Hiscores</button>
+          <button type="button" id="ui-quest-tab-btn" class="ui-skills-header-btn quest">&#x1F4DC; Quests</button>
         </div>
         <div class="ui-skill-grid">
           <div class="ui-skill-tile" data-skill="fishing">
@@ -440,6 +440,8 @@
       <button type="button" id="ui-settings-close" aria-label="Close settings">&times;</button>
     </div>
     <div class="ui-settings-list">
+      <!-- ─── Profile ─── -->
+      <div class="ui-settings-row ui-hotkey-header"><span>Profile</span></div>
       <div class="ui-settings-row">
         <span>Name</span>
         <input type="text" id="setting-name" maxlength="16" placeholder="Slime1234" spellcheck="false" autocomplete="off">
@@ -448,6 +450,9 @@
         <span>Server</span>
         <span id="setting-connection" class="ui-conn-status">--</span>
       </div>
+      <hr class="ui-settings-divider">
+      <!-- ─── Audio ─── -->
+      <div class="ui-settings-row ui-hotkey-header"><span>Audio</span></div>
       <div class="ui-settings-row ui-volume-row">
         <span>Effects</span>
         <div class="ui-volume-controls">
@@ -463,22 +468,8 @@
         </div>
       </div>
       <hr class="ui-settings-divider">
-      <label class="ui-settings-row">
-        <span>Show FPS</span>
-        <input type="checkbox" id="setting-fps">
-      </label>
-      <label class="ui-settings-row">
-        <span>Show Memory</span>
-        <input type="checkbox" id="setting-memory">
-      </label>
-      <label class="ui-settings-row">
-        <span>Show Draw Calls</span>
-        <input type="checkbox" id="setting-drawcalls">
-      </label>
-      <label class="ui-settings-row">
-        <span>Show Player Position</span>
-        <input type="checkbox" id="setting-position">
-      </label>
+      <!-- ─── Video ─── -->
+      <div class="ui-settings-row ui-hotkey-header"><span>Video</span></div>
       <label class="ui-settings-row">
         <span>Render Scale</span>
         <select id="setting-dpr">
@@ -492,24 +483,53 @@
       <label class="ui-settings-row">
         <span>FPS Cap</span>
         <select id="setting-fps-cap">
-          <option value="30">30 (Battery saver)</option>
+          <option value="30">30 (Battery)</option>
           <option value="60" selected>60 (Default)</option>
           <option value="0">Uncapped</option>
         </select>
       </label>
       <label class="ui-settings-row">
-        <span>Bloom</span>
-        <input type="checkbox" id="setting-bloom">
+        <span>Render Distance</span>
+        <select id="setting-render-dist">
+          <option value="0">Potato (1 chunk)</option>
+          <option value="1" selected>Normal (3×3)</option>
+          <option value="2">Extra (5×5)</option>
+          <option value="3">GTX (7×7)</option>
+          <option value="4">NASA (9×9)</option>
+          <option value="5">Don't (11×11)</option>
+          <option value="6">Stop (13×13)</option>
+          <option value="7">RIP (15×15)</option>
+        </select>
+      </label>
+      <label class="ui-settings-row">
+        <span>HD Terrain</span>
+        <input type="checkbox" id="setting-hd-terrain">
       </label>
       <label class="ui-settings-row">
         <span>Low Power Mode</span>
         <input type="checkbox" id="setting-lowpower">
       </label>
+      <hr class="ui-settings-divider">
+      <!-- ─── Debug ─── -->
+      <div class="ui-settings-row ui-hotkey-header"><span>Debug</span></div>
       <label class="ui-settings-row">
-        <span>High Detail Terrain</span>
-        <input type="checkbox" id="setting-hd-terrain">
+        <span>Show FPS</span>
+        <input type="checkbox" id="setting-fps">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Memory</span>
+        <input type="checkbox" id="setting-memory">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Draw Calls</span>
+        <input type="checkbox" id="setting-drawcalls">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Position</span>
+        <input type="checkbox" id="setting-position">
       </label>
       <hr class="ui-settings-divider">
+      <!-- ─── Hotkeys ─── -->
       <div class="ui-settings-row ui-hotkey-header"><span>Tab Hotkeys</span></div>
       <div class="ui-hotkey-row" data-hotkey-tab="inventory">
         <span>Inventory</span>
@@ -610,6 +630,10 @@
         <button type="button" id="ui-horse-close" class="ui-bank-close-btn">&times;</button>
       </div>
       <div id="ui-horse-body" class="ui-horse-body"></div>
+      <div id="ui-horse-speed-section" class="ui-horse-speed-section" hidden>
+        <label class="ui-horse-speed-label">Ride Speed: <span id="ui-horse-speed-val">2.5x</span></label>
+        <input type="range" id="ui-horse-speed-slider" min="14" max="49" step="1" value="14">
+      </div>
     </div>
   </div>
   <!-- Washing Machine overlay -->

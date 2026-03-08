@@ -136,6 +136,7 @@ canvas{display:block}
   </div>
   <div id="chunk-opts">
     <label><input type="checkbox" id="chunk-water" checked> Water</label>
+    <label><input type="checkbox" id="chunk-grid-cb"> Grid</label>
     <select id="chunk-base" title="Base terrain type" style="font-size:10px;background:#1e1e32;color:#ccc;border:1px solid #333;border-radius:3px;padding:2px 4px">
       <option value="grass">Grass</option>
       <option value="dirt">Dirt</option>
@@ -1002,7 +1003,7 @@ function leaveInstance() {
       inst.heightData = {};
       for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
         const vi = hvi(ix, iz);
-        if (Math.abs(instEntry.heightOffsets[vi]) > 0.001)
+        if (Math.abs(instEntry.heightOffsets[vi]) > 0.02)
           inst.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +instEntry.heightOffsets[vi].toFixed(3);
       }
       inst.colorData = {};
@@ -1055,10 +1056,18 @@ function buildChunkMesh(cx, cz) {
   const bc = BASE_COLORS[bt] || cGrass;
   const ho = new Float32Array(hnx * hnz);
   const co = {};
+  /* preserve height/color entries outside the editable grid (generator margin data) */
+  const marginHeights = {};
+  const marginColors = {};
   for (const [key, val] of Object.entries(cd.heightData)) {
     const [wx, wz] = key.split(",").map(Number);
     const [ix, iz] = worldToHGrid(wx, wz);
     if (ix >= 0 && ix < hnx && iz >= 0 && iz < hnz) ho[hvi(ix, iz)] = val;
+    else marginHeights[key] = val;
+  }
+  for (const [key, val] of Object.entries(cd.colorData)) {
+    const [wx, wz] = key.split(",").map(Number);
+    if (wx < xMin || wx > xMax || wz < zMin || wz > zMax) marginColors[key] = val;
   }
   Object.assign(co, cd.colorData);
   /* build mesh with MESH_PAD extension on each side to cover inter-chunk gaps */
@@ -1096,7 +1105,7 @@ function buildChunkMesh(cx, cz) {
   geo.setIndex(idx); geo.computeVertexNormals();
   const mesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: TOON_GRAD }));
   scene.add(mesh);
-  const entry = { mesh, geo, hPos: hp, hCol: hc, heightOffsets: ho, colorOverrides: co, baseType: bt, cx, cz };
+  const entry = { mesh, geo, hPos: hp, hCol: hc, heightOffsets: ho, colorOverrides: co, baseType: bt, cx, cz, marginHeights, marginColors };
   chunkMeshes.set(chunkKey(cx, cz), entry);
   return entry;
 }
@@ -1192,14 +1201,19 @@ function saveAllChunksToStore() {
   for (const [key, entry] of chunkMeshes) {
     const cd = ensureChunkData(entry.cx, entry.cz);
     cd.heightData = {};
+    /* save editable grid heights */
     for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
       const vi = hvi(ix, iz);
-      if (Math.abs(entry.heightOffsets[vi]) > 0.001)
+      if (Math.abs(entry.heightOffsets[vi]) > 0.02)
         cd.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +entry.heightOffsets[vi].toFixed(3);
     }
+    /* restore margin heights from generator (outside editable grid) */
+    if (entry.marginHeights) Object.assign(cd.heightData, entry.marginHeights);
     cd.colorData = {};
     for (const [ck, cv] of Object.entries(entry.colorOverrides))
       cd.colorData[ck] = [+cv[0].toFixed(4), +cv[1].toFixed(4), +cv[2].toFixed(4)];
+    /* restore margin colors from generator */
+    if (entry.marginColors) Object.assign(cd.colorData, entry.marginColors);
     cd.baseType = entry.baseType;
   }
 }
@@ -1323,6 +1337,24 @@ const gridGroup = new THREE.Group(); gridGroup.name = "grid"; gridGroup.visible 
   }
   gridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), mat));
   scene.add(gridGroup);
+}
+
+/* chunk boundary grid — aligned to actual chunk origins */
+const chunkGridGroup = new THREE.Group(); chunkGridGroup.name = "chunkGrid"; chunkGridGroup.visible = false;
+{
+  const mat = new THREE.LineBasicMaterial({ color: 0xe8c44a, transparent: true, opacity: 0.45, depthTest: false });
+  const pts = [];
+  const cOX = xMin, cOZ = zMin; // chunk grid origin in world coords
+  const far = 12 * CHUNK_SIZE;
+  for (let i = -2; i <= 12; i++) {
+    const vx = cOX + i * CHUNK_SIZE;
+    pts.push(new THREE.Vector3(vx, 0.5, cOZ - CHUNK_SIZE), new THREE.Vector3(vx, 0.5, cOZ + far));
+    const vz = cOZ + i * CHUNK_SIZE;
+    pts.push(new THREE.Vector3(cOX - CHUNK_SIZE, 0.5, vz), new THREE.Vector3(cOX + far, 0.5, vz));
+  }
+  chunkGridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), mat));
+  chunkGridGroup.renderOrder = 9999;
+  scene.add(chunkGridGroup);
 }
 
 /* brush circle for height mode */
@@ -2287,7 +2319,7 @@ function exportJSON() {
       inst.heightData = {};
       for (let iz = 0; iz < hnz; iz++) for (let ix = 0; ix < hnx; ix++) {
         const vi = hvi(ix, iz);
-        if (Math.abs(instEntry.heightOffsets[vi]) > 0.001)
+        if (Math.abs(instEntry.heightOffsets[vi]) > 0.02)
           inst.heightData[`${xMin + ix * hStep},${zMin + iz * hStep}`] = +instEntry.heightOffsets[vi].toFixed(3);
       }
       inst.colorData = {};
@@ -2458,6 +2490,10 @@ document.getElementById("chunk-water").addEventListener("change", () => {
     cd.water = checked;
   }
   rebuildWaterPlane();
+});
+/* chunk grid toggle */
+document.getElementById("chunk-grid-cb").addEventListener("change", e => {
+  chunkGridGroup.visible = e.target.checked;
 });
 /* edge toggle buttons */
 for (const id of ["edge-n", "edge-s", "edge-e", "edge-w"]) {

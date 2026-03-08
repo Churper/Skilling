@@ -49,8 +49,17 @@ const RP = [
   [48,-14, 8.0],
 ];
 
+/* spatial cache for riverQuery — keyed by rounded coords */
+const _riverCache = new Map();
+const _RIVER_CACHE_MAX = 2048;
+
 export function riverQuery(px, pz) {
-  let best = { dist: 1e9, t: 0, width: 3 };
+  const kx = Math.round(px * 2) | 0, kz = Math.round(pz * 2) | 0;
+  const key = (kx << 16) ^ kz;
+  let cached = _riverCache.get(key);
+  if (cached) return cached;
+
+  let bestDist = 1e9, bestT = 0, bestW = 3;
   for (let i = 0; i < RP.length - 1; i++) {
     const [ax, az, aw] = RP[i], [bx, bz, bw] = RP[i + 1];
     const dx = bx - ax, dz = bz - az, len2 = dx * dx + dz * dz;
@@ -58,10 +67,12 @@ export function riverQuery(px, pz) {
       ? Math.max(0, Math.min(1, ((px - ax) * dx + (pz - az) * dz) / len2))
       : 0;
     const d = Math.hypot(px - (ax + t * dx), pz - (az + t * dz));
-    if (d < best.dist)
-      best = { dist: d, t: (i + t) / (RP.length - 1), width: aw + (bw - aw) * t };
+    if (d < bestDist) { bestDist = d; bestT = (i + t) / (RP.length - 1); bestW = aw + (bw - aw) * t; }
   }
-  return best;
+  cached = { dist: bestDist, t: bestT, width: bestW };
+  if (_riverCache.size > _RIVER_CACHE_MAX) _riverCache.clear();
+  _riverCache.set(key, cached);
+  return cached;
 }
 
 export function isInRiver(x, z) {
@@ -95,7 +106,16 @@ const PATH_CLS = [
   [[0, 14], [0, 22], [0, 34], [0, 40]],
 ];
 
+/* spatial cache for distToPath */
+const _pathCache = new Map();
+const _PATH_CACHE_MAX = 2048;
+
 export function distToPath(x, z) {
+  const kx = Math.round(x * 2) | 0, kz = Math.round(z * 2) | 0;
+  const key = (kx << 16) ^ kz;
+  let cached = _pathCache.get(key);
+  if (cached !== undefined) return cached;
+
   let md = 1e9;
   for (const pts of PATH_CLS)
     for (let i = 0; i < pts.length - 1; i++) {
@@ -104,6 +124,8 @@ export function distToPath(x, z) {
       const t = l2 > 0 ? Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / l2)) : 0;
       md = Math.min(md, Math.hypot(x - (ax + t * dx), z - (az + t * dz)));
     }
+  if (_pathCache.size > _PATH_CACHE_MAX) _pathCache.clear();
+  _pathCache.set(key, md);
   return md;
 }
 
