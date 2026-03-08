@@ -299,11 +299,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         void main() {
           vec3 pos = position;
           vec4 wp = modelMatrix * vec4(pos, 1.0);
-          /* multi-directional waves so it doesn't look like a conveyor */
-          float w = sin(wp.x*0.11 + wp.z*0.06 + uTime*0.5)*0.03
-                  + cos(wp.x*0.05 - wp.z*0.13 + uTime*0.35)*0.025
-                  + sin(-wp.x*0.08 + wp.z*0.10 + uTime*0.65)*0.015
-                  + cos(wp.x*0.15 + wp.z*0.15 - uTime*0.28)*0.01;
+          float w = sin(wp.x*0.07 + wp.z*0.05 + uTime*0.35)*0.008
+                  + cos(wp.x*0.04 - wp.z*0.08 + uTime*0.25)*0.006
+                  + sin(-wp.x*0.06 + wp.z*0.07 + uTime*0.45)*0.004;
           pos.y += w;
           vWave = w;
           vWP = wp.xyz;
@@ -311,26 +309,11 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         }
       `,
       fragmentShader: `
-        uniform float uTime;
-        varying vec3 vWP;
         varying float vWave;
         void main() {
-          /* crystal clear tropical water */
-          vec3 base = vec3(0.22, 0.58, 0.72);
-          vec3 bright = vec3(0.45, 0.78, 0.88);
-          vec3 shimmer = vec3(0.82, 0.95, 1.0);
-          /* smooth color from wave height */
-          float t = smoothstep(-0.04, 0.05, vWave);
-          vec3 col = mix(base, bright, t);
-          /* sparkle/shimmer — moving highlights across surface */
-          float s1 = sin(vWP.x*0.4 + vWP.z*0.25 + uTime*1.1);
-          float s2 = cos(vWP.x*0.3 - vWP.z*0.35 + uTime*0.8);
-          float sparkle = smoothstep(0.85, 1.0, s1 * s2 + 0.9) * smoothstep(0.01, 0.05, vWave);
-          col = mix(col, shimmer, sparkle * 0.6);
-          /* soft bright edge on wave crests */
-          float crest = smoothstep(0.04, 0.065, vWave);
-          col = mix(col, shimmer, crest * 0.3);
-          gl_FragColor = vec4(col, 0.55);
+          vec3 col = vec3(0.32, 0.65, 0.82);
+          col += smoothstep(0.002, 0.01, vWave) * vec3(0.06, 0.08, 0.06);
+          gl_FragColor = vec4(col, 0.38);
         }
       `,
     });
