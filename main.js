@@ -5,8 +5,11 @@ import*as I from"three";import*as gt from"three";import{OrbitControls as I1}from
         void main() {
           vec3 pos = position;
           vec4 wp = modelMatrix * vec4(pos, 1.0);
-          float w = sin(wp.x*0.10 + wp.z*0.07 + uTime*0.55)*0.035
-                  + cos(wp.x*0.06 + wp.z*0.15 - uTime*0.4)*0.025;
+          /* multi-directional waves so it doesn't look like a conveyor */
+          float w = sin(wp.x*0.11 + wp.z*0.06 + uTime*0.5)*0.03
+                  + cos(wp.x*0.05 - wp.z*0.13 + uTime*0.35)*0.025
+                  + sin(-wp.x*0.08 + wp.z*0.10 + uTime*0.65)*0.015
+                  + cos(wp.x*0.15 + wp.z*0.15 - uTime*0.28)*0.01;
           pos.y += w;
           vWave = w;
           vWP = wp.xyz;
@@ -17,16 +20,22 @@ import*as I from"three";import*as gt from"three";import{OrbitControls as I1}from
         varying vec3 vWP;
         varying float vWave;
         void main() {
-          /* two-tone toon water \u2014 deep base with lighter wave crests */
-          vec3 deep = vec3(0.08, 0.22, 0.42);
-          vec3 mid  = vec3(0.14, 0.38, 0.58);
-          vec3 lite = vec3(0.42, 0.68, 0.82);
-          float t = smoothstep(-0.02, 0.05, vWave);
-          vec3 col = mix(deep, mid, t);
-          /* thin bright line on wave peaks \u2014 toon highlight */
-          float peak = smoothstep(0.045, 0.058, vWave);
-          col = mix(col, lite, peak * 0.5);
-          gl_FragColor = vec4(col, 0.72);
+          /* crystal clear tropical water */
+          vec3 base = vec3(0.22, 0.58, 0.72);
+          vec3 bright = vec3(0.45, 0.78, 0.88);
+          vec3 shimmer = vec3(0.82, 0.95, 1.0);
+          /* smooth color from wave height */
+          float t = smoothstep(-0.04, 0.05, vWave);
+          vec3 col = mix(base, bright, t);
+          /* sparkle/shimmer \u2014 moving highlights across surface */
+          float s1 = sin(vWP.x*0.4 + vWP.z*0.25 + uTime*1.1);
+          float s2 = cos(vWP.x*0.3 - vWP.z*0.35 + uTime*0.8);
+          float sparkle = smoothstep(0.85, 1.0, s1 * s2 + 0.9) * smoothstep(0.01, 0.05, vWave);
+          col = mix(col, shimmer, sparkle * 0.6);
+          /* soft bright edge on wave crests */
+          float crest = smoothstep(0.04, 0.065, vWave);
+          col = mix(col, shimmer, crest * 0.3);
+          gl_FragColor = vec4(col, 0.55);
         }
       `}),He=new we.Mesh(Ce,De);He.position.set((l+c)/2,Qt,(u+d)/2),He.userData.isWaterSurface=!0,He.renderOrder=Uu,s.add(He)}if(o&&o.edges){let pe=ju("#6a6a5e"),Ce=o.edges,De=(p+h)/2,He=(m+E)/2,lt=h-p,ft=E-m;if(Ce.north){let _e=new we.Mesh(new we.BoxGeometry(lt+2,12,2),pe);_e.position.set(De,12/2-1,E+1),s.add(_e)}if(Ce.south){let _e=new we.Mesh(new we.BoxGeometry(lt+2,12,2),pe);_e.position.set(De,12/2-1,m-1),s.add(_e)}if(Ce.east){let _e=new we.Mesh(new we.BoxGeometry(2,12,ft+2),pe);_e.position.set(h+1,12/2-1,He),s.add(_e)}if(Ce.west){let _e=new we.Mesh(new we.BoxGeometry(2,12,ft+2),pe);_e.position.set(p-1,12/2-1,He),s.add(_e)}}return s}function Pm(e,n){let t=new we.Group;t.name="props";let o=Bm(42),a=(h,m)=>h+o()*(m-h);function s(h,m,E,_,R){let L=e[h];if(!L)return;let w=L.clone();w.scale.setScalar(mt*_),w.position.set(m,j1(m,E),E),w.rotation.y=R,t.add(w)}let i=["grassClump1","grassClump2","grassClump3","grassClump4"],r=["flowerDaisy","flowerRose","flowerSunflower","flowerTulip"],l=["cattail1","cattail2"],c=["mushroom1","mushroom2"],u=["shell1","shell2","starfish1","starfish2"],d=["palmTree1","palmTree2"];for(let h=0;h<80;h++){let m=a(-36,28),E=a(-34,36),_=Go(m,E);_.dist<_.width+1.5||Ec(m,E)||Wu(m,E,3)||wc(m,E)||s(i[h%i.length],m,E,a(.7,1.1),o()*Math.PI*2)}for(let h=0;h<40;h++){let m=a(-34,26),E=a(-30,34),_=Go(m,E);_.dist<_.width+2||Ec(m,E)||Wu(m,E,4)||wc(m,E)||s(r[h%r.length],m,E,a(.6,1),o()*Math.PI*2)}for(let h=0;h<15;h++){let m=a(-10,30),E=a(-16,38),_=Go(m,E);_.dist<_.width||_.dist>_.width+3||s(l[h%l.length],m,E,a(.8,1.2),o()*Math.PI*2)}for(let h=0;h<10;h++){let m=a(-32,34),E=a(10,34),_=Go(m,E);_.dist<_.width+1||wc(m,E)||s(c[h%c.length],m,E,a(.6,1),o()*Math.PI*2)}for(let h=0;h<8;h++){let m=a(32,46),E=a(-22,2);bc(m,E)||s(u[h%u.length],m,E,a(.5,.9),o()*Math.PI*2)}for(let h=0;h<4;h++){let m=a(34,44),E=a(-20,0);bc(m,E)||s(d[h%d.length],m,E,a(.8,1.2),o()*Math.PI*2)}let p=[[22,20],[26,26],[-24,20],[-18,24],[30,24]];for(let[h,m]of p){let E=h+a(-2,2),_=m+a(-2,2);s("stump",E,_,a(.7,1),o()*Math.PI*2)}return s("hollowTrunk",-28,18,.9,a(0,Math.PI*2)),n.add(t),t}function Lm(e){let n=new we.Group;n.name="bridge";let t=8,o=Qt+.35,a=[-4,-2,0,2,4];for(let d=0;d<a.length;d++){let p=d===0||d===a.length-1,h=d===a.length-1,m=p?e.bridgeEnd:e.bridgeMid;if(m){let _=m.clone();_.scale.setScalar(mt),_.position.set(a[d],o,t),_.rotation.y=h?-Math.PI/2:Math.PI/2,n.add(_)}let E=p?e.bridgeEndE:e.bridgeMidE;if(E){let _=p&&h?-1:1;for(let R of[1,-1]){let L=E.clone();L.scale.set(R*mt,mt,_*mt),L.position.set(a[d],o,t+R*mt*.5),L.rotation.y=Math.PI/2,n.add(L)}}}let s=[a[0],a[a.length-1]];for(let d=0;d<s.length;d++){let p=s[d],h=d===1?-1:1;for(let m of[1,-1]){if(e.bridgePost){let E=e.bridgePost.clone();E.scale.set(m*mt,mt,h*mt),E.position.set(p,Qt-.3,t+m*mt*.4),E.rotation.y=Math.PI/2,n.add(E)}if(e.bridgePostT){let E=e.bridgePostT.clone();E.scale.set(m*mt,mt,h*mt),E.position.set(p,o,t+m*mt*.4),E.rotation.y=Math.PI/2,n.add(E)}}}let i=a[a.length-1]-a[0]+mt,r=(a[0]+a[a.length-1])/2,l=new we.BoxGeometry(i+3,.4,mt*2.5),c=new we.MeshBasicMaterial({colorWrite:!1,depthWrite:!1}),u=new we.Mesh(l,c);return u.position.set(r,o+.1,t),u.name="bridge_deck",n.add(u),n.renderOrder=Vu,n}function Im(){let e=new we.Group;e.name="stepping_stones";let n=new we.CylinderGeometry(.55,.65,.25,8),t=ju("#8a8a82");for(let[o,a]of[[0,20],[-1,18],[1,16],[4,-1],[8,-4],[12,-7]]){let s=new we.Mesh(n,t);s.position.set(o,Qt-.05,a),s.rotation.y=Math.random()*Math.PI,s.renderOrder=Uu+1,e.add(s)}return e}function Om(e,n){let s=Rr(0,40)+4.8,i=Qt+.16,r=(40.9+34.4)/2,l=s*.58+i*.42,c=(h,m=1)=>new we.ShaderMaterial({transparent:!0,depthWrite:!1,side:we.DoubleSide,uniforms:{uTime:n.uTime,uPhase:{value:h},uAlpha:{value:m}},vertexShader:"varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }",fragmentShader:`varying vec2 vUv; uniform float uTime,uPhase,uAlpha;
       void main(){
