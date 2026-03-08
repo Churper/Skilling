@@ -281,29 +281,62 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   groundMesh.renderOrder = R_GND;
   group.add(groundMesh);
 
-  /* ── water plane — always show so rivers/lakes within land chunks have a surface ── */
-  const showWater = true;
-  if (showWater) {
-    /* use unpadded data bounds so neighbor water planes meet exactly (no overlap) */
+  /* ── water plane — toon water with waves + highlights ── */
+  {
     const ww = dxMax - dxMin, wh = dzMax - dzMin;
-    const wSegs = step <= 1 ? 32 : 6;
+    const wSegs = step <= 1 ? 48 : 12;
     const waterGeo = new THREE.PlaneGeometry(ww, wh, wSegs, wSegs);
     waterGeo.rotateX(-Math.PI / 2);
-    const waterMat = new THREE.MeshBasicMaterial({
-      color: "#93d8f6", transparent: true, opacity: 0.62,
-      depthWrite: false, depthTest: true,
+    const waterMat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, depthTest: true,
+      uniforms: {
+        uTime: waterUniforms.uTime,
+        uDeep: { value: new THREE.Color("#1a5276") },
+        uMid:  { value: new THREE.Color("#2e86c1") },
+        uFoam: { value: new THREE.Color("#aed6f1") },
+      },
+      vertexShader: `
+        uniform float uTime;
+        varying vec3 vWorldPos;
+        varying float vWaveH;
+        void main() {
+          vec3 pos = position;
+          vec4 wp = modelMatrix * vec4(pos, 1.0);
+          float w1 = sin(wp.x*0.12 + wp.z*0.08 + uTime*0.6)*0.04;
+          float w2 = cos(wp.x*0.07 + wp.z*0.18 - uTime*0.45)*0.03;
+          float w3 = sin(wp.x*0.22 - wp.z*0.14 + uTime*0.9)*0.015;
+          pos.y += w1 + w2 + w3;
+          vWaveH = w1 + w2 + w3;
+          vWorldPos = wp.xyz;
+          gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uDeep;
+        uniform vec3 uMid;
+        uniform vec3 uFoam;
+        varying vec3 vWorldPos;
+        varying float vWaveH;
+        void main() {
+          /* toon bands based on wave height */
+          float h = smoothstep(-0.04, 0.06, vWaveH);
+          vec3 col = mix(uDeep, uMid, h);
+          /* caustic shimmer pattern */
+          float c1 = sin(vWorldPos.x*0.3 + vWorldPos.z*0.2 + uTime*0.8);
+          float c2 = cos(vWorldPos.x*0.2 - vWorldPos.z*0.35 + uTime*0.6);
+          float caustic = smoothstep(0.6, 0.95, c1*c2 + 0.5);
+          col += uFoam * caustic * 0.15;
+          /* foam/highlight on wave peaks */
+          float foam = smoothstep(0.03, 0.065, vWaveH);
+          col = mix(col, uFoam, foam * 0.35);
+          /* subtle specular highlight */
+          float spec = pow(max(0.0, sin(vWorldPos.x*0.5 + uTime*1.2)*cos(vWorldPos.z*0.4 - uTime*0.8)), 16.0);
+          col += vec3(1.0) * spec * 0.12;
+          gl_FragColor = vec4(col, 0.78);
+        }
+      `,
     });
-    waterMat.onBeforeCompile = shader => {
-      shader.uniforms.uTime = waterUniforms.uTime;
-      shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
-      shader.vertexShader = shader.vertexShader.replace(
-        "#include <begin_vertex>",
-        `#include <begin_vertex>
-         vec4 wp = modelMatrix * vec4(position, 1.0);
-         transformed.y += sin(wp.x*0.14 + wp.z*0.10 + uTime*0.7)*0.025
-                        + cos(wp.x*0.09 + wp.z*0.22 - uTime*0.5)*0.02;`
-      );
-    };
     const waterMesh = new THREE.Mesh(waterGeo, waterMat);
     waterMesh.position.set((dxMin + dxMax) / 2, WATER_Y, (dzMin + dzMax) / 2);
     waterMesh.userData.isWaterSurface = true;
