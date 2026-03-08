@@ -281,7 +281,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   groundMesh.renderOrder = R_GND;
   group.add(groundMesh);
 
-  /* ── water plane — toon water with waves + highlights ── */
+  /* ── water plane — clean toon water ── */
   {
     const ww = dxMax - dxMin, wh = dzMax - dzMin;
     const wSegs = step <= 1 ? 48 : 12;
@@ -291,49 +291,37 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       transparent: true, depthWrite: false, depthTest: true,
       uniforms: {
         uTime: waterUniforms.uTime,
-        uDeep: { value: new THREE.Color("#1a5276") },
-        uMid:  { value: new THREE.Color("#2e86c1") },
-        uFoam: { value: new THREE.Color("#aed6f1") },
       },
       vertexShader: `
         uniform float uTime;
-        varying vec3 vWorldPos;
-        varying float vWaveH;
+        varying vec3 vWP;
+        varying float vWave;
         void main() {
           vec3 pos = position;
           vec4 wp = modelMatrix * vec4(pos, 1.0);
-          float w1 = sin(wp.x*0.12 + wp.z*0.08 + uTime*0.6)*0.04;
-          float w2 = cos(wp.x*0.07 + wp.z*0.18 - uTime*0.45)*0.03;
-          float w3 = sin(wp.x*0.22 - wp.z*0.14 + uTime*0.9)*0.015;
-          pos.y += w1 + w2 + w3;
-          vWaveH = w1 + w2 + w3;
-          vWorldPos = wp.xyz;
+          float w = sin(wp.x*0.10 + wp.z*0.07 + uTime*0.55)*0.035
+                  + cos(wp.x*0.06 + wp.z*0.15 - uTime*0.4)*0.025;
+          pos.y += w;
+          vWave = w;
+          vWP = wp.xyz;
           gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0);
         }
       `,
       fragmentShader: `
         uniform float uTime;
-        uniform vec3 uDeep;
-        uniform vec3 uMid;
-        uniform vec3 uFoam;
-        varying vec3 vWorldPos;
-        varying float vWaveH;
+        varying vec3 vWP;
+        varying float vWave;
         void main() {
-          /* toon bands based on wave height */
-          float h = smoothstep(-0.04, 0.06, vWaveH);
-          vec3 col = mix(uDeep, uMid, h);
-          /* caustic shimmer pattern */
-          float c1 = sin(vWorldPos.x*0.3 + vWorldPos.z*0.2 + uTime*0.8);
-          float c2 = cos(vWorldPos.x*0.2 - vWorldPos.z*0.35 + uTime*0.6);
-          float caustic = smoothstep(0.6, 0.95, c1*c2 + 0.5);
-          col += uFoam * caustic * 0.15;
-          /* foam/highlight on wave peaks */
-          float foam = smoothstep(0.03, 0.065, vWaveH);
-          col = mix(col, uFoam, foam * 0.35);
-          /* subtle specular highlight */
-          float spec = pow(max(0.0, sin(vWorldPos.x*0.5 + uTime*1.2)*cos(vWorldPos.z*0.4 - uTime*0.8)), 16.0);
-          col += vec3(1.0) * spec * 0.12;
-          gl_FragColor = vec4(col, 0.78);
+          /* two-tone toon water — deep base with lighter wave crests */
+          vec3 deep = vec3(0.08, 0.22, 0.42);
+          vec3 mid  = vec3(0.14, 0.38, 0.58);
+          vec3 lite = vec3(0.42, 0.68, 0.82);
+          float t = smoothstep(-0.02, 0.05, vWave);
+          vec3 col = mix(deep, mid, t);
+          /* thin bright line on wave peaks — toon highlight */
+          float peak = smoothstep(0.045, 0.058, vWave);
+          col = mix(col, lite, peak * 0.5);
+          gl_FragColor = vec4(col, 0.72);
         }
       `,
     });
