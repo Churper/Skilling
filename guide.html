@@ -862,7 +862,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
   <div class="card">
     <p><strong>XP Formula:</strong> Level L requires <code>34 &times; (L&minus;1)&sup2;</code> total XP. After level 200, progression slows to 10&times;.</p>
-    <p style="margin-top:6px"><strong>Fail Chance:</strong> Gathering starts at 70% fail rate at level 1, dropping by 0.3% per level (minimum 2%).</p>
+    <p style="margin-top:6px"><strong>Fail Chance:</strong> Gathering starts at ~56% fail rate at level 1, drops aggressively early and tapers to 2% at level 200.</p>
   </div>
 
   <div class="tier-strip" style="margin-top:16px">
@@ -1147,7 +1147,7 @@ window.addEventListener("hashchange",_handleHash);
 
   // Data generators
   function xpForLevel(lv){return lv<=1?0:Math.floor(34*(lv-1)*(lv-1))}
-  function gatherRate(lv){return Math.min(100,Math.max(2,30+lv*0.3))}
+  function gatherRate(lv){var t=Math.min(lv/200,1);return Math.max(2,100-100*(0.02+0.68*Math.pow(1-t,0.3)))}
   function maxHp(lv){return lv<=140?lv*10:Math.floor(1400+(lv-140)*15+Math.pow(lv-140,2)*0.8)}
   function burnChance(lv){return Math.max(1,Math.round(30*Math.pow(0.985,lv)))}
 
