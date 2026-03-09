@@ -481,10 +481,16 @@ const OBJ_CATEGORIES = [
     { id: "Svc_WashMachine", dir: TILE_DIR, file: "Washing_Machine.glb", scale: 1.0, label: "Washer" },
     { id: "Svc_Compost", dir: TILE_DIR, file: "Crate.glb", scale: 1.0, label: "Compost" },
     { id: "Svc_Bonfire", dir: TILE_DIR, file: "Bonfire.glb", scale: 1.0, label: "Bonfire" },
+    { id: "Svc_Scribe", dir: TILE_DIR, file: "Pedestal.glb", scale: 1.0, label: "Scribe Desk" },
     { id: "Svc_Bell", dir: TILE_DIR, file: "Bell.glb", scale: 2.0, label: "Bell" },
     { id: "Svc_FoodShop", dir: TILE_DIR, file: "Market_Stall.glb", scale: 1.0, label: "Food Shop" },
     { id: "Svc_Forage_Bush", dir: MODEL_DIR, file: "Bush_2_A_Color1.gltf", scale: 1.0, label: "Forage" },
+    { id: "Svc_Forage_Elder", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Moonberry (50)" },
+    { id: "Svc_Forage_Golden", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Sunberry (80)" },
+    { id: "Svc_Forage_Crystal", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Gooberry (120)" },
+    { id: "Svc_Forage_Shadow", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Dreamberry (160)" },
     { id: "Svc_Flax", dir: TILE_DIR, file: "Prop_Grass_Clump_4.glb", scale: 1.0, label: "Flax" },
+    { id: "Svc_Hemp", dir: TILE_DIR, file: "Suspicious Plant.glb", scale: 1.0, label: "Hemp" },
     { id: "Svc_FarmPatch", dir: TILE_DIR, file: "Farm_Dirt.glb", scale: 1.0, label: "Farm" },
     { id: "Small_Farm", dir: TILE_DIR, file: "Small_Farm.glb", scale: 1.0, label: "Farmhouse" },
     { id: "Silo", dir: TILE_DIR, file: "Silo.glb", scale: 1.0, label: "Silo" },
@@ -1784,7 +1790,7 @@ function updatePreview() {
   obj.renderOrder = 998; previewObj = obj; scene.add(obj);
 }
 
-const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Flax","Svc_FarmPatch","Demon","Goblin","Skeleton","Zombie"]);
+const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Forage_Elder","Svc_Forage_Golden","Svc_Forage_Crystal","Svc_Forage_Shadow","Svc_Flax","Svc_Hemp","Svc_FarmPatch","Demon","Goblin","Skeleton","Zombie"]);
 const _hbMat = new THREE.MeshBasicMaterial({ visible: false });
 function addClickHelper(root) {
   /* add invisible bounding box so thin GLTF meshes are easier to click */

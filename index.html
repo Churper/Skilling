@@ -154,7 +154,7 @@
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-fishing"></div></div>
           </div>
           <div class="ui-skill-tile" data-skill="mining">
-            <span class="ui-skill-tile-icon">&#x1FAA8;</span>
+            <span class="ui-skill-tile-icon">&#x26CF;&#xFE0F;</span>
             <span class="ui-skill-tile-name">Mining</span>
             <strong class="ui-skill-tile-lvl" id="ui-skill-mining">1</strong>
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-mining"></div></div>
@@ -172,7 +172,7 @@
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-cooking"></div></div>
           </div>
           <div class="ui-skill-tile" data-skill="survival">
-            <span class="ui-skill-tile-icon">&#x1F3D5;</span>
+            <span class="ui-skill-tile-icon">&#x1F3D5;&#xFE0F;</span>
             <span class="ui-skill-tile-name">Survival</span>
             <strong class="ui-skill-tile-lvl" id="ui-skill-survival">1</strong>
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-survival"></div></div>
@@ -183,14 +183,20 @@
             <strong class="ui-skill-tile-lvl" id="ui-skill-farming">1</strong>
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-farming"></div></div>
           </div>
+          <div class="ui-skill-tile" data-skill="scribing">
+            <span class="ui-skill-tile-icon">&#x1F4DC;</span>
+            <span class="ui-skill-tile-name">Scribing</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-scribing">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-scribing"></div></div>
+          </div>
           <div class="ui-skill-tile is-combat" data-skill="hitpoints">
-            <span class="ui-skill-tile-icon">&#x2764;</span>
+            <span class="ui-skill-tile-icon">&#x2764;&#xFE0F;</span>
             <span class="ui-skill-tile-name">Hitpoints</span>
             <strong class="ui-skill-tile-lvl" id="ui-skill-hitpoints">10</strong>
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill ui-skill-tile-fill-combat" id="ui-skill-bar-hitpoints"></div></div>
           </div>
           <div class="ui-skill-tile is-combat" data-skill="melee">
-            <span class="ui-skill-tile-icon">&#x1F5E1;</span>
+            <span class="ui-skill-tile-icon">&#x2694;&#xFE0F;</span>
             <span class="ui-skill-tile-name">Melee</span>
             <strong class="ui-skill-tile-lvl" id="ui-skill-melee">1</strong>
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill ui-skill-tile-fill-combat" id="ui-skill-bar-melee"></div></div>
@@ -234,6 +240,7 @@
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="cooking">Cooking</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="survival">Survival</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="farming">Farming</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="scribing">Scribing</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="melee">Melee</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="bow">Ranged</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="mage">Magic</button>
@@ -582,7 +589,7 @@
         <span id="setting-account-label">Guest</span>
         <button type="button" id="setting-account-btn" class="ui-settings-account-btn">Register</button>
       </div>
-      <div class="ui-settings-version">v0.0.1 pre-alpha</div>
+      <div class="ui-settings-version">v0.002 pre-alpha</div>
     </div>
   </div>
   <!-- Star Enhancement overlay -->
@@ -732,6 +739,57 @@
             <button id="ui-bonfire-recipe-go" type="button" class="ui-bonfire-bar-go">Cook</button>
           </div>
           <div id="ui-bonfire-recipes" class="ui-bonfire-recipe-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Spinning Wheel overlay -->
+  <div id="ui-spin-overlay" class="ui-bonfire-overlay" hidden>
+    <div class="ui-bonfire-modal">
+      <div class="ui-bonfire-header">
+        <span class="ui-bonfire-title">🧶 Spinning Wheel</span>
+        <button type="button" id="ui-spin-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-bonfire-body">
+        <div id="ui-spin-bar" class="ui-bonfire-bar">
+          <span id="ui-spin-bar-sel" class="ui-bonfire-bar-sel">Select material</span>
+          <input id="ui-spin-bar-slider" type="range" min="1" max="1" value="1" class="ui-bonfire-bar-slider">
+          <span id="ui-spin-bar-qty" class="ui-bonfire-bar-qty">1</span>
+          <button id="ui-spin-bar-go" type="button" class="ui-bonfire-bar-go">Spin</button>
+        </div>
+        <div id="ui-spin-recipes" class="ui-bonfire-recipe-list"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Scribe Desk overlay -->
+  <div id="ui-scribe-overlay" class="ui-bonfire-overlay" hidden>
+    <div class="ui-bonfire-modal">
+      <div class="ui-bonfire-header">
+        <span class="ui-bonfire-title">📜 Scribe Desk</span>
+        <button type="button" id="ui-scribe-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-bonfire-tabs">
+        <button type="button" class="ui-scribe-tab ui-bonfire-tab is-active" data-tab="craft">Craft Scrolls</button>
+        <button type="button" class="ui-scribe-tab ui-bonfire-tab" data-tab="enchant">Enchant</button>
+      </div>
+      <div class="ui-bonfire-body">
+        <div id="ui-scribe-craft-panel" class="ui-bonfire-panel">
+          <div id="ui-scribe-craft-bar" class="ui-bonfire-bar">
+            <span id="ui-scribe-craft-sel" class="ui-bonfire-bar-sel">Select a recipe</span>
+            <input id="ui-scribe-craft-slider" type="range" min="1" max="1" value="1" class="ui-bonfire-bar-slider">
+            <span id="ui-scribe-craft-qty" class="ui-bonfire-bar-qty">1</span>
+            <button id="ui-scribe-craft-go" type="button" class="ui-bonfire-bar-go">Scribe</button>
+          </div>
+          <div id="ui-scribe-recipes" class="ui-bonfire-recipe-list"></div>
+        </div>
+        <div id="ui-scribe-enchant-panel" class="ui-bonfire-panel" hidden>
+          <div id="ui-enchant-bar" class="ui-bonfire-bar">
+            <span id="ui-enchant-bar-sel" class="ui-bonfire-bar-sel">Select a scroll</span>
+            <input id="ui-enchant-bar-slider" type="range" min="1" max="1" value="1" class="ui-bonfire-bar-slider">
+            <span id="ui-enchant-bar-qty" class="ui-bonfire-bar-qty">1</span>
+            <button id="ui-enchant-bar-go" type="button" class="ui-bonfire-bar-go">Enchant</button>
+          </div>
+          <div id="ui-enchant-recipes" class="ui-bonfire-recipe-list"></div>
         </div>
       </div>
     </div>
