@@ -352,6 +352,7 @@
           <button type="button" class="ui-emote-btn" data-emote="&#x1F95A;" title="Egg">&#x1F95A;</button>
           <button type="button" class="ui-emote-btn" data-emote="&#x1F346;" title="Eggplant">&#x1F346;</button>
           <button type="button" class="ui-emote-btn" data-emote="&#x1F351;" title="Peach">&#x1F351;</button>
+          <button type="button" class="ui-emote-btn" data-emote="&#x267B;&#xFE0F;" title="Refresh">&#x267B;&#xFE0F;</button>
           <button type="button" class="ui-emote-btn" data-emote="&#x1F380;" title="Ribbon">&#x1F380;</button>
           <button type="button" class="ui-emote-btn" data-emote="&#x1F4F1;" title="Phone">&#x1F4F1;</button>
           <!-- Flags -->
@@ -690,8 +691,47 @@
           <div id="ui-compost-tier-btns" class="ui-compost-tier-btns"></div>
         </div>
         <p id="ui-compost-tier-desc" class="ui-compost-tier-desc"></p>
-        <p class="ui-compost-hint">Click an organic item below to add compost.</p>
+        <p class="ui-compost-hint">Click to select, click again to deposit 1.</p>
         <div id="ui-compost-inv" class="ui-compost-inv"></div>
+        <div id="ui-compost-bar" class="ui-compost-deposit-bar">
+          <span id="ui-compost-bar-charges" class="ui-compost-bar-charges"></span>
+          <span id="ui-compost-bar-qty" class="ui-compost-deposit-qty">1</span>
+          <input id="ui-compost-bar-slider" type="range" min="1" max="1" value="1" class="ui-compost-deposit-slider">
+          <button id="ui-compost-bar-go" type="button" class="ui-compost-deposit-go">Deposit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Bonfire cooking overlay -->
+  <div id="ui-bonfire-overlay" class="ui-bonfire-overlay" hidden>
+    <div class="ui-bonfire-modal">
+      <div class="ui-bonfire-header">
+        <span class="ui-bonfire-title">🔥 Bonfire</span>
+        <button type="button" id="ui-bonfire-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-bonfire-tabs">
+        <button type="button" class="ui-bonfire-tab is-active" data-tab="cook">Cook</button>
+        <button type="button" class="ui-bonfire-tab" data-tab="recipes">Recipes</button>
+      </div>
+      <div class="ui-bonfire-body">
+        <div id="ui-bonfire-cook-panel" class="ui-bonfire-panel">
+          <div id="ui-bonfire-cook-bar" class="ui-bonfire-bar">
+            <span id="ui-bonfire-cook-sel" class="ui-bonfire-bar-sel">Select an item</span>
+            <input id="ui-bonfire-cook-slider" type="range" min="1" max="1" value="1" class="ui-bonfire-bar-slider">
+            <span id="ui-bonfire-cook-qty" class="ui-bonfire-bar-qty">1</span>
+            <button id="ui-bonfire-cook-go" type="button" class="ui-bonfire-bar-go">Cook</button>
+          </div>
+          <div id="ui-bonfire-inv" class="ui-bonfire-grid"></div>
+        </div>
+        <div id="ui-bonfire-recipe-panel" class="ui-bonfire-panel" hidden>
+          <div id="ui-bonfire-recipe-bar" class="ui-bonfire-bar">
+            <span id="ui-bonfire-recipe-sel" class="ui-bonfire-bar-sel">Select a recipe</span>
+            <input id="ui-bonfire-recipe-slider" type="range" min="1" max="1" value="1" class="ui-bonfire-bar-slider">
+            <span id="ui-bonfire-recipe-qty" class="ui-bonfire-bar-qty">1</span>
+            <button id="ui-bonfire-recipe-go" type="button" class="ui-bonfire-bar-go">Cook</button>
+          </div>
+          <div id="ui-bonfire-recipes" class="ui-bonfire-recipe-list"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -878,6 +918,9 @@
     <div id="ui-party-members"></div>
     <button type="button" id="ui-party-leave" class="ui-party-leave-btn">Leave</button>
   </div>
+  <!-- Global XP/charge feeds (outside overlays so they persist when closing) -->
+  <div id="ui-bonfire-xp-feed" class="ui-bonfire-xp-feed"></div>
+  <div id="ui-compost-feed" class="ui-compost-feed"></div>
   <script type="importmap">
     {
       "imports": {
