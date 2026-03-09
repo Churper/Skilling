@@ -174,10 +174,12 @@ body.embedded{background:var(--bg-deep)}
   flex-shrink:0;
 }
 .tier-swatch{
-  width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  width:40px;height:40px;border-radius:8px;flex-shrink:0;
   border:2px solid rgba(255,255,255,.1);
   box-shadow:inset 0 -2px 4px rgba(0,0,0,.3);
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
 }
+.tier-swatch img{width:40px;height:40px;image-rendering:pixelated;object-fit:contain}
 .tier-name{font-weight:600;color:var(--ink-1);flex:1}
 .tier-meta{font-size:.78rem;color:var(--ink-3);white-space:nowrap}
 .tier-detail{display:flex;gap:8px;flex-wrap:wrap}
@@ -259,7 +261,8 @@ body.embedded{background:var(--bg-deep)}
   transition:border-color .15s;
 }
 .food-item:hover{border-color:var(--border-glow)}
-.food-icon{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.food-icon{font-size:22px;flex-shrink:0;width:32px;height:32px;text-align:center}
+.food-icon img{width:32px;height:32px;image-rendering:pixelated;vertical-align:middle}
 .food-name{font-weight:500;font-size:.82rem;color:var(--ink-1);flex:1}
 .food-heal{
   font-size:.78rem;font-weight:700;color:var(--accent);white-space:nowrap;
@@ -542,13 +545,16 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
   <div class="tier-strip">
     <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#ff9080"></span><span class="tier-name">Shrimp</span><div class="tier-detail"><span>50 xp</span><span>4c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>85 xp</span><span>12c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>125 xp</span><span>18c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>175 xp</span><span>28c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 70</span><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>240 xp</span><span>35c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#5080c0"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>320 xp</span><span>50c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 130</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>420 xp</span><span>70c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 170</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>530 xp</span><span>100c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 10</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name">Bluefish</span><div class="tier-detail"><span>110 xp</span><span>8c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>170 xp</span><span>12c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>250 xp</span><span>18c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>350 xp</span><span>28c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 70</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>480 xp</span><span>35c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 85</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name">Parrot Fish</span><div class="tier-detail"><span>560 xp</span><span>42c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>640 xp</span><span>50c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 130</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>840 xp</span><span>70c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 150</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">Lionfish</span><div class="tier-detail"><span>950 xp</span><span>85c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 170</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>1060 xp</span><span>100c</span></div></div>
   </div>
   <div class="tip">All fish are cookable! Higher fish = more healing when cooked.</div>
 
@@ -687,7 +693,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
   <div class="sec-head"><div class="sec-icon purple">&#x2728;</div><div><h2>Equipment Tiers</h2><p>11 tiers from Bronze to Celestial</p></div></div>
 
-  <div class="tier-strip">
+  <div class="tier-strip" data-equip-tiers>
     <div class="tier-item"><span class="tier-badge" style="background:rgba(205,127,50,.15);color:#cd7f32">Lv 1</span><span class="tier-swatch" style="background:#cd7f32"></span><span class="tier-name">Bronze</span><div class="tier-detail"><span>4 ATK</span><span>5 DEF</span></div></div>
     <div class="tier-item"><span class="tier-badge" style="background:rgba(168,168,168,.15);color:#c8c8c8">Lv 10</span><span class="tier-swatch" style="background:#a8a8a8"></span><span class="tier-name">Iron</span><div class="tier-detail"><span>8 ATK</span><span>10 DEF</span></div></div>
     <div class="tier-item"><span class="tier-badge" style="background:rgba(176,196,222,.12);color:#b0c4de">Lv 20</span><span class="tier-swatch" style="background:#b0c4de"></span><span class="tier-name">Coral</span><div class="tier-detail"><span>14 ATK</span><span>18 DEF</span></div></div>
@@ -766,14 +772,17 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="sec-head" id="sec-cooking"><div class="sec-icon gold">&#x1F525;</div><div><h2>Cooking Recipes</h2><p>Cook raw food at campfires for better healing</p></div></div>
 
   <div class="tier-strip">
-    <div class="tier-item"><span class="tier-swatch" style="background:#ff8060"></span><span class="tier-name">Shrimp &rarr; Cooked Shrimp</span><div class="tier-detail"><span>25 xp</span><span class="tag tag-green">50 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout &rarr; Cooked Trout</span><div class="tier-detail"><span>35 xp</span><span class="tag tag-green">120 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon &rarr; Cooked Salmon</span><div class="tier-detail"><span>50 xp</span><span class="tag tag-green">160 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster &rarr; Cooked Lobster</span><div class="tier-detail"><span>68 xp</span><span class="tag tag-green">220 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">Mackerel &rarr; Cooked Mackerel</span><div class="tier-detail"><span>85 xp</span><span class="tag tag-green">300 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#5080c0"></span><span class="tier-name">Swordfish &rarr; Cooked Swordfish</span><div class="tier-detail"><span>110 xp</span><span class="tag tag-green">400 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna &rarr; Cooked Tuna</span><div class="tier-detail"><span>140 xp</span><span class="tag tag-green">550 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray &rarr; Cooked Manta Ray</span><div class="tier-detail"><span>180 xp</span><span class="tag tag-gold">750 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#ff8060"></span><span class="tier-name">Shrimp &rarr; Cooked Shrimp</span><div class="tier-detail"><span>75 xp</span><span class="tag tag-green">50 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name">Bluefish &rarr; Cooked Bluefish</span><div class="tier-detail"><span>95 xp</span><span class="tag tag-green">85 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout &rarr; Cooked Trout</span><div class="tier-detail"><span>120 xp</span><span class="tag tag-green">120 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon &rarr; Cooked Salmon</span><div class="tier-detail"><span>180 xp</span><span class="tag tag-green">160 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster &rarr; Cooked Lobster</span><div class="tier-detail"><span>260 xp</span><span class="tag tag-green">220 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Mackerel &rarr; Cooked Mackerel</span><div class="tier-detail"><span>350 xp</span><span class="tag tag-green">300 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name">Parrot Fish &rarr; Cooked Parrot Fish</span><div class="tier-detail"><span>410 xp</span><span class="tag tag-green">350 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Swordfish &rarr; Cooked Swordfish</span><div class="tier-detail"><span>480 xp</span><span class="tag tag-green">400 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna &rarr; Cooked Tuna</span><div class="tier-detail"><span>650 xp</span><span class="tag tag-green">550 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">Lionfish &rarr; Cooked Lionfish</span><div class="tier-detail"><span>780 xp</span><span class="tag tag-green">650 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray &rarr; Cooked Manta Ray</span><div class="tier-detail"><span>900 xp</span><span class="tag tag-gold">750 HP</span></div></div>
     <div class="tier-item"><span class="tier-swatch" style="background:#d4a060"></span><span class="tier-name">Raw Chicken &rarr; Cooked Chicken</span><div class="tier-detail"><span>25 xp</span><span class="tag tag-green">80 HP</span></div></div>
     <div class="tier-item"><span class="tier-swatch" style="background:#c08070"></span><span class="tier-name">Raw Pork &rarr; Cooked Pork</span><div class="tier-detail"><span>22 xp</span><span class="tag tag-green">70 HP</span></div></div>
     <div class="tier-item" style="border-color:rgba(212,168,48,.2)"><span class="tier-swatch" style="background:linear-gradient(135deg,#ffd700,#ffed4a)"></span><span class="tier-name">Golden Fish &rarr; Sushi</span><div class="tier-detail"><span>50 xp</span><span class="tag tag-gold">300 HP</span></div></div>
@@ -784,17 +793,21 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="tip">&#x1F4A1; <strong>Modular Ingredients:</strong> Recipes use categories &mdash; any <strong>Cooked Fish</strong>, <strong>Fruit</strong>, or <strong>Vegetable</strong> works. Higher-tier ingredients give <strong>bonus XP</strong> (+12% per tier). Low-tier items fall off at higher recipe levels.</div>
 
   <div class="tier-strip">
-    <div class="tier-item"><span class="tier-swatch" style="background:#ff8060"></span><span class="tier-name">Lv1 &mdash; Fruit Bowl</span><div class="tier-detail"><span>2x Fruit &bull; 30 xp</span><span class="tag tag-green">80 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#d06090"></span><span class="tier-name">Lv1 &mdash; Berry Bowl</span><div class="tier-detail"><span>3x Berries &bull; 30 xp</span><span class="tag tag-green">30 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#8a40b0"></span><span class="tier-name">Lv20 &mdash; Moonberry Bowl</span><div class="tier-detail"><span>3x Moonberries &bull; 55 xp</span><span class="tag tag-green">60 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#c8a020"></span><span class="tier-name">Lv40 &mdash; Sunberry Bowl</span><div class="tier-detail"><span>3x Sunberries &bull; 90 xp</span><span class="tag tag-green">110 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#40a8d0"></span><span class="tier-name">Lv65 &mdash; Gooberry Bowl</span><div class="tier-detail"><span>3x Gooberries &bull; 140 xp</span><span class="tag tag-green">175 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#c02020"></span><span class="tier-name">Lv100 &mdash; Dreamberry Bowl</span><div class="tier-detail"><span>3x Dreamberries &bull; 200 xp</span><span class="tag tag-gold">280 HP</span></div></div>
     <div class="tier-item"><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Lv5 &mdash; Fish Stew</span><div class="tier-detail"><span>Cooked Fish + Fruit &bull; 60 xp</span><span class="tag tag-green">350 HP</span></div></div>
     <div class="tier-item"><span class="tier-swatch" style="background:#64a050"></span><span class="tier-name">Lv12 &mdash; Garden Stew</span><div class="tier-detail"><span>Vegetable + Cooked Fish &bull; 100 xp</span><span class="tag tag-green">45 HP</span></div></div>
     <div class="tier-item"><span class="tier-swatch" style="background:#90c060"></span><span class="tier-name">Lv20 &mdash; Veggie Plate</span><div class="tier-detail"><span>Vegetable + Fruit &bull; 150 xp</span><span class="tag tag-green">200 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#50a0c8"></span><span class="tier-name">Lv30 &mdash; Seafood Salad</span><div class="tier-detail"><span>Cooked Fish (Salmon+) + Vegetable (Onion+) &bull; 220 xp</span><span class="tag tag-green">500 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#ffaa33"></span><span class="tier-name">Lv40 &mdash; Tropical Stew</span><div class="tier-detail"><span>Fruit (Orange+) + Vegetable (Beet+) &bull; 300 xp</span><span class="tag tag-green">700 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Lv55 &mdash; Sushi</span><div class="tier-detail"><span>Cooked Fish (Lobster+) + Fruit (Grapes+) + Vegetable (Radish+) &bull; 420 xp</span><span class="tag tag-gold">300 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#cc4400"></span><span class="tier-name">Lv68 &mdash; Seafood Bisque</span><div class="tier-detail"><span>2x Cooked Fish (Mackerel+) + Fruit (Watermelon+) &bull; 550 xp</span><span class="tag tag-gold">900 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#dc8c32"></span><span class="tier-name">Lv82 &mdash; Harvest Pie</span><div class="tier-detail"><span>2x Vegetable (Swordfish-tier+) + Cooked Fish (Mackerel+) &bull; 700 xp</span><span class="tag tag-gold">650 HP</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:#c8643c"></span><span class="tier-name">Lv100 &mdash; Surf n Turf</span><div class="tier-detail"><span>Cooked Fish (Tuna+) + Fruit (Pineapple+) + Vegetable (high) &bull; 900 xp</span><span class="tag tag-gold">1200 HP</span></div></div>
-    <div class="tier-item" style="border-color:rgba(212,168,48,.2)"><span class="tier-swatch" style="background:linear-gradient(135deg,#ffd700,#ffed4a)"></span><span class="tier-name">Lv130 &mdash; Grand Feast</span><div class="tier-detail"><span>Cooked Fish (Manta+) + Fruit (Banana+) + Vegetable (Leek+) &bull; 1400 xp</span><span class="tag tag-gold">2500 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#50a0c8"></span><span class="tier-name">Lv30 &mdash; Seafood Salad</span><div class="tier-detail"><span>Cooked Fish (Lv30+) + Vegetable (Lv15+) &bull; 220 xp</span><span class="tag tag-green">500 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#ffaa33"></span><span class="tier-name">Lv40 &mdash; Tropical Stew</span><div class="tier-detail"><span>Fruit (Lv40+) + Vegetable (Lv25+) &bull; 300 xp</span><span class="tag tag-green">700 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Lv55 &mdash; Sushi</span><div class="tier-detail"><span>Cooked Fish (Lv50+) + Fruit (Lv55+) + Vegetable (Lv35+) &bull; 420 xp</span><span class="tag tag-gold">300 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#cc4400"></span><span class="tier-name">Lv68 &mdash; Seafood Bisque</span><div class="tier-detail"><span>2x Cooked Fish (Lv60+) + Fruit (Lv65+) &bull; 550 xp</span><span class="tag tag-gold">900 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#dc8c32"></span><span class="tier-name">Lv82 &mdash; Harvest Pie</span><div class="tier-detail"><span>2x Vegetable (Lv75+) + Cooked Fish (Lv70+) &bull; 700 xp</span><span class="tag tag-gold">650 HP</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:#c8643c"></span><span class="tier-name">Lv100 &mdash; Surf n Turf</span><div class="tier-detail"><span>Cooked Fish (Lv85+) + Fruit (Lv95+) + Vegetable (Lv95+) &bull; 900 xp</span><span class="tag tag-gold">1200 HP</span></div></div>
+    <div class="tier-item" style="border-color:rgba(212,168,48,.2)"><span class="tier-swatch" style="background:linear-gradient(135deg,#ffd700,#ffed4a)"></span><span class="tier-name">Lv130 &mdash; Grand Feast</span><div class="tier-detail"><span>Cooked Fish (Lv100+) + Fruit (Lv120+) + Vegetable (Lv130+) &bull; 1400 xp</span><span class="tag tag-gold">2500 HP</span></div></div>
   </div>
 
   <div class="tip">&#x1F4A1; <strong>Tip:</strong> The bonfire auto-picks your highest-tier ingredient for each slot. Dishes sell for 2-3x the raw ingredient value &mdash; always worth cooking!</div>
@@ -812,6 +825,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="food-item"><span class="food-icon">&#x1F950;</span><span class="food-name">Croissant</span><span class="food-heal">40</span></div>
     <div class="food-item"><span class="food-icon">&#x1F9C5;</span><span class="food-name">Onion</span><span class="food-heal">40</span></div>
     <div class="food-item"><span class="food-icon">&#x1F990;</span><span class="food-name">Cooked Shrimp</span><span class="food-heal">50</span></div>
+    <div class="food-item"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Bluefish</span><span class="food-heal">85</span></div>
     <div class="food-item"><span class="food-icon">&#x1F96C;</span><span class="food-name">Beet</span><span class="food-heal">55</span></div>
     <div class="food-item"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Fish</span><span class="food-heal">60</span></div>
     <div class="food-item"><span class="food-icon">&#x1F356;</span><span class="food-name">Cooked Pork</span><span class="food-heal">70</span></div>
@@ -830,6 +844,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="food-item"><span class="food-icon">&#x1F34B;</span><span class="food-name">Lemon</span><span class="food-heal">250</span></div>
     <div class="food-item"><span class="food-icon">&#x1F983;</span><span class="food-name">Turkey</span><span class="food-heal">250</span></div>
     <div class="food-item"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Mackerel</span><span class="food-heal">300</span></div>
+    <div class="food-item"><span class="food-icon">&#x1F420;</span><span class="food-name">Cooked Parrot Fish</span><span class="food-heal">350</span></div>
     <div class="food-item"><span class="food-icon">&#x1F34A;</span><span class="food-name">Orange</span><span class="food-heal">300</span></div>
     <div class="food-item"><span class="food-icon">&#x1F363;</span><span class="food-name">Sushi</span><span class="food-heal">300</span></div>
     <div class="food-item"><span class="food-icon">&#x1F347;</span><span class="food-name">Grapes</span><span class="food-heal">360</span></div>
@@ -839,6 +854,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="food-item"><span class="food-icon">&#x1F346;</span><span class="food-name">Eggplant</span><span class="food-heal">500</span></div>
     <div class="food-item"><span class="food-icon">&#x1F34D;</span><span class="food-name">Pineapple</span><span class="food-heal">500</span></div>
     <div class="food-item"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Tuna</span><span class="food-heal">550</span></div>
+    <div class="food-item"><span class="food-icon">&#x1F420;</span><span class="food-name">Cooked Lionfish</span><span class="food-heal">650</span></div>
     <div class="food-item" style="border-color:rgba(212,168,48,.2)"><span class="food-icon">&#x1F41F;</span><span class="food-name">Cooked Manta Ray</span><span class="food-heal" style="background:var(--gold-dim);color:var(--gold)">750</span></div>
     <div class="food-item" style="border-color:rgba(232,84,84,.15)"><span class="food-icon">&#x2764;&#xFE0F;</span><span class="food-name">Health Potion</span><span class="food-heal" style="background:rgba(232,84,84,.1);color:var(--red)">25%</span></div>
   </div>
@@ -862,7 +878,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
   <div class="card">
     <p><strong>XP Formula:</strong> Level L requires <code>34 &times; (L&minus;1)&sup2;</code> total XP. After level 200, progression slows to 10&times;.</p>
-    <p style="margin-top:6px"><strong>Fail Chance:</strong> Gathering starts at ~56% fail rate at level 1, drops aggressively early and tapers to 2% at level 200.</p>
+    <p style="margin-top:6px"><strong>Fail Chance:</strong> Gathering starts at 70% fail rate at level 1, drops steadily through mid-levels (~26% at 100) and tapers to 2% at level 200.</p>
   </div>
 
   <div class="tier-strip" style="margin-top:16px">
@@ -870,13 +886,16 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="tier-item skill-row" data-skill="sk-fishing"><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">&#x1F3A3; Fishing</span><span class="tier-meta">Fish at water spots &bull; Raw fish for cooking</span></div>
     <div class="skill-collapse" id="sk-fishing"><div class="tier-strip">
       <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#ff9080"></span><span class="tier-name">Shrimp</span><div class="tier-detail"><span>50 xp</span><span>4c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>85 xp</span><span>12c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>125 xp</span><span>18c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>175 xp</span><span>28c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 70</span><span class="tier-swatch" style="background:#6090a0"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>240 xp</span><span>35c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#5080c0"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>320 xp</span><span>50c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 130</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>420 xp</span><span>70c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 170</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>530 xp</span><span>100c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 10</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name">Bluefish</span><div class="tier-detail"><span>110 xp</span><span>8c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>170 xp</span><span>12c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>250 xp</span><span>18c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>350 xp</span><span>28c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 70</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>480 xp</span><span>35c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 85</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name">Parrot Fish</span><div class="tier-detail"><span>560 xp</span><span>42c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>640 xp</span><span>50c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 130</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>840 xp</span><span>70c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 150</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">Lionfish</span><div class="tier-detail"><span>950 xp</span><span>85c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 170</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>1060 xp</span><span>100c</span></div></div>
     </div><div class="tip">Rare drop: Golden Fish (3%). All fish are cookable!</div></div>
 
     <div class="tier-item skill-row" data-skill="sk-mining"><span class="tier-swatch" style="background:#a0a0a0"></span><span class="tier-name">&#x26CF;&#xFE0F; Mining</span><span class="tier-meta">Mine rocks for ore &bull; Sell or craft</span></div>
@@ -910,18 +929,18 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
     <div class="tier-item skill-row" data-skill="sk-farming"><span class="tier-swatch" style="background:#78b43c"></span><span class="tier-name">&#x1F33E; Farming</span><span class="tier-meta">Plant &amp; harvest crops &bull; Passive XP</span></div>
     <div class="skill-collapse" id="sk-farming"><div class="tier-strip">
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-name">Carrot</span><div class="tier-detail"><span>80 xp</span><span>5c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 8</span><span class="tier-name">Cabbage</span><div class="tier-detail"><span>160 xp</span><span>10c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-name">Onion</span><div class="tier-detail"><span>280 xp</span><span>18c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 45</span><span class="tier-name">Tomato</span><div class="tier-detail"><span>1,000 xp</span><span>65c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 95</span><span class="tier-name">Pepper</span><div class="tier-detail"><span>3,300 xp</span><span>220c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 190</span><span class="tier-name">Pineapple</span><div class="tier-detail"><span>17,000 xp</span><span>900c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 205</span><span class="tier-name">Leek</span><div class="tier-detail"><span>20,000 xp</span><span>1,050c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 220</span><span class="tier-name">Green Pepper</span><div class="tier-detail"><span>23,500 xp</span><span>1,220c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-name">Wheat</span><div class="tier-detail"><span>27,500 xp</span><span>1,400c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 250</span><span class="tier-name">Turnip</span><div class="tier-detail"><span>32,000 xp</span><span>1,600c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-name">Banana</span><div class="tier-detail"><span>38,000 xp</span><span>1,850c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 290</span><span class="tier-name">Aloe</span><div class="tier-detail"><span>45,000 xp</span><span>2,150c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e08030"></span><span class="tier-name">Carrot</span><div class="tier-detail"><span>80 xp</span><span>5c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 8</span><span class="tier-swatch" style="background:#6a8a40"></span><span class="tier-name">Cabbage</span><div class="tier-detail"><span>160 xp</span><span>10c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#d0b060"></span><span class="tier-name">Onion</span><div class="tier-detail"><span>280 xp</span><span>18c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 45</span><span class="tier-swatch" style="background:#e04040"></span><span class="tier-name">Tomato</span><div class="tier-detail"><span>1,000 xp</span><span>65c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 95</span><span class="tier-swatch" style="background:#c03030"></span><span class="tier-name">Pepper</span><div class="tier-detail"><span>3,300 xp</span><span>220c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 190</span><span class="tier-swatch" style="background:#d0a020"></span><span class="tier-name">Pineapple</span><div class="tier-detail"><span>17,000 xp</span><span>900c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 205</span><span class="tier-swatch" style="background:#80b060"></span><span class="tier-name">Leek</span><div class="tier-detail"><span>20,000 xp</span><span>1,050c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 220</span><span class="tier-swatch" style="background:#40a030"></span><span class="tier-name">Green Pepper</span><div class="tier-detail"><span>23,500 xp</span><span>1,220c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c8a050"></span><span class="tier-name">Wheat</span><div class="tier-detail"><span>27,500 xp</span><span>1,400c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 250</span><span class="tier-swatch" style="background:#d8c0a0"></span><span class="tier-name">Turnip</span><div class="tier-detail"><span>32,000 xp</span><span>1,600c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#e0c840"></span><span class="tier-name">Banana</span><div class="tier-detail"><span>38,000 xp</span><span>1,850c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 290</span><span class="tier-swatch" style="background:#70b860"></span><span class="tier-name">Aloe</span><div class="tier-detail"><span>45,000 xp</span><span>2,150c</span></div></div>
     </div><div class="tip">21 crops total. Passive — plant &amp; do other things while crops grow!</div></div>
 
     <div class="tier-item skill-row" data-skill="sk-melee"><span class="tier-swatch" style="background:#e05050"></span><span class="tier-name">&#x2694;&#xFE0F; Melee</span><span class="tier-meta">XP from sword attacks &bull; Increases melee damage</span></div>
@@ -946,8 +965,8 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="skill-collapse" id="sk-scribing">
     <div class="tip" style="margin-bottom:6px"><strong>Spinning Wheel</strong></div>
     <div class="tier-strip">
-      <div class="tier-item"><span class="tier-swatch" style="background:#b8a848"></span><span class="tier-name">Flax &rarr; String</span><div class="tier-detail"><span>30 xp</span><span>10% fail</span></div></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:#5a8a3a"></span><span class="tier-name">Hemp &rarr; Fiber</span><div class="tier-detail"><span>25 xp</span><span>8% fail</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#b8a848"></span><span class="tier-name">Flax</span><div class="tier-detail"><span>30 xp</span><span>10% fail</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#5a8a3a"></span><span class="tier-name">Hemp</span><div class="tier-detail"><span>25 xp</span><span>8% fail</span></div></div>
     </div>
     <div class="tip" style="margin-bottom:6px"><strong>Scribe Desk</strong></div>
     <div class="tier-strip">
@@ -985,10 +1004,16 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="tier-item skill-row" data-skill="sk-cooking"><span class="tier-swatch" style="background:#ff8040"></span><span class="tier-name">&#x1F373; Cooking</span><span class="tier-meta">Cook raw food at campfires &bull; Reduces burn chance</span></div>
     <div class="skill-collapse" id="sk-cooking"><div class="tier-strip">
       <div class="tier-item"><span class="tier-swatch" style="background:#ff8060"></span><span class="tier-name">Shrimp &rarr; Cooked</span><div class="tier-detail"><span>25 xp</span><span class="tag tag-green">50 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#4488cc"></span><span class="tier-name">Bluefish &rarr; Cooked</span><div class="tier-detail"><span>30 xp</span><span class="tag tag-green">85 HP</span></div></div>
       <div class="tier-item"><span class="tier-swatch" style="background:#80b0c0"></span><span class="tier-name">Trout &rarr; Cooked</span><div class="tier-detail"><span>35 xp</span><span class="tag tag-green">120 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#dc6464"></span><span class="tier-name">Salmon &rarr; Cooked</span><div class="tier-detail"><span>50 xp</span><span class="tag tag-green">160 HP</span></div></div>
       <div class="tier-item"><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster &rarr; Cooked</span><div class="tier-detail"><span>68 xp</span><span class="tag tag-green">220 HP</span></div></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:#5080c0"></span><span class="tier-name">Swordfish &rarr; Cooked</span><div class="tier-detail"><span>110 xp</span><span class="tag tag-green">400 HP</span></div></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray &rarr; Cooked</span><div class="tier-detail"><span>180 xp</span><span class="tag tag-gold">750 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Mackerel &rarr; Cooked</span><div class="tier-detail"><span>90 xp</span><span class="tag tag-green">300 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name">Parrot Fish &rarr; Cooked</span><div class="tier-detail"><span>110 xp</span><span class="tag tag-green">350 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Swordfish &rarr; Cooked</span><div class="tier-detail"><span>130 xp</span><span class="tag tag-green">400 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna &rarr; Cooked</span><div class="tier-detail"><span>155 xp</span><span class="tag tag-green">550 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">Lionfish &rarr; Cooked</span><div class="tier-detail"><span>180 xp</span><span class="tag tag-green">650 HP</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray &rarr; Cooked</span><div class="tier-detail"><span>210 xp</span><span class="tag tag-gold">750 HP</span></div></div>
     </div><div class="tip">Costs 3 logs per cook. Burn chance decreases with level.</div></div>
 
     <div class="tier-item"><span class="tier-swatch" style="background:#e04040"></span><span class="tier-name">&#x2764;&#xFE0F; Hitpoints</span><span class="tier-meta">XP from all combat &bull; Starts at level 10</span></div>
@@ -1147,7 +1172,7 @@ window.addEventListener("hashchange",_handleHash);
 
   // Data generators
   function xpForLevel(lv){return lv<=1?0:Math.floor(34*(lv-1)*(lv-1))}
-  function gatherRate(lv){var t=Math.min(lv/200,1);return Math.max(2,100-100*(0.02+0.68*Math.pow(1-t,0.3)))}
+  function gatherRate(lv){var t=Math.min(lv/200,1);return Math.max(2,100-100*(0.02+0.68*Math.pow(1-t,1.5)))}
   function maxHp(lv){return lv<=140?lv*10:Math.floor(1400+(lv-140)*15+Math.pow(lv-140,2)*0.8)}
   function burnChance(lv){return Math.max(1,Math.round(30*Math.pow(0.985,lv)))}
 
@@ -1263,6 +1288,101 @@ window.addEventListener("hashchange",_handleHash);
   // Draw immediately if visible, otherwise wait for tab switch
   if(canvas.offsetWidth>0)init();
 })();
+
+/* ── Load cached item icons and replace emoji/swatches ── */
+fetch("icons.json").then(r=>r.ok?r.json():null).then(data=>{
+  if(!data)return;
+  /* Food items — replace emoji with icon */
+  document.querySelectorAll(".food-item").forEach(row=>{
+    const nameEl=row.querySelector(".food-name");
+    const iconEl=row.querySelector(".food-icon");
+    if(!nameEl||!iconEl)return;
+    const name=nameEl.textContent.trim();
+    const url=data[name];
+    if(url){
+      iconEl.textContent="";
+      const img=document.createElement("img");
+      img.src=url;img.alt=name;
+      iconEl.appendChild(img);
+    }
+  });
+  /* Tier strips — replace colored swatches with item icons.
+     Detect section context from nearest sec-head to map names→icon keys. */
+  const sectionMap={
+    "sec-mining":" Ore","sec-woodcutting":" Logs","sec-fishing":"",
+    "sec-farming":"","sec-foraging":""
+  };
+  /* Name overrides for items whose display name differs from icon key */
+  const nameOverrides={
+    "Rock":"ore","Tree":"logs","Birch":"Birch Logs","Oak":"Oak Logs",
+    "Palm":"Palm Logs","Pine":"Pine Logs","Maple":"Maple Logs",
+    "Cedar":"Cedar Logs","Willow":"Willow Logs",
+    "Tin":"Tin Ore","Copper":"Copper Ore","Quartz":"Quartz Ore",
+    "Silver":"Silver Ore","Platinum":"Platinum Ore","Cobalt":"Cobalt Ore",
+    "Jade":"Jade Ore","Titanium":"Titanium Ore","Opal":"Opal Ore","Gem":"Gem Ore",
+    "Berry Bush":"Berries","Moonberry":"Moonberries","Sunberry":"Sunberries",
+    "Gooberry":"Gooberries","Dreamberry":"Dreamberries",
+    "Cactus":"Cactus Wood"
+  };
+  /* Equipment tier → sword icon mapping */
+  const equipTierToSword={
+    "Bronze":"bronze_sword","Iron":"iron_sword","Coral":"steel_sword",
+    "Opal":"mithril_sword","Jade":"adamant_sword","Shell":"rune_sword",
+    "Slime":"slime_sword","Crystal":"crystal_sword","Ember":"ember_sword",
+    "Frost":"frost_sword","Volcanic":"volcanic_sword","Celestial":"celestial_sword"
+  };
+  document.querySelectorAll(".tier-strip").forEach(strip=>{
+    const isEquipTiers=strip.hasAttribute("data-equip-tiers");
+    /* find section context */
+    let sec=strip.previousElementSibling;
+    while(sec&&!sec.classList.contains("sec-head"))sec=sec.previousElementSibling;
+    const secId=sec?.querySelector("[id]")?.id||sec?.id||"";
+    strip.querySelectorAll(".tier-item").forEach(item=>{
+      const swatch=item.querySelector(".tier-swatch");
+      const nameEl=item.querySelector(".tier-name");
+      if(!swatch||!nameEl)return;
+      let name=nameEl.textContent.trim().replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]+\s*/u,"");
+      /* Strip "LvXX — " prefix from bonfire recipe names for lookup */
+      let lookup=name.replace(/^Lv\d+\s*[\u2014\u2013—–-]\s*/,"");
+      /* Strip "Raw X → Cooked X" to just "Cooked X" for cooking entries */
+      if(lookup.includes("\u2192"))lookup=lookup.split("\u2192").pop().trim();
+      /* Equipment tier strip: use sword icon */
+      let key;
+      if(isEquipTiers){
+        key=equipTierToSword[lookup];
+      } else {
+        key=nameOverrides[lookup]||lookup;
+      }
+      const url=data[key];
+      if(url){
+        swatch.style.background="transparent";
+        swatch.style.border="none";
+        swatch.style.boxShadow="none";
+        swatch.innerHTML="";
+        const img=document.createElement("img");
+        img.src=url;img.alt=lookup;
+        swatch.appendChild(img);
+        nameEl.textContent=name;
+      }
+    });
+  });
+  /* Buff potions in tier strip */
+  document.querySelectorAll(".tier-item").forEach(item=>{
+    const swatch=item.querySelector(".tier-swatch");
+    const nameEl=item.querySelector(".tier-name");
+    if(!swatch||!nameEl)return;
+    const name=nameEl.textContent.trim();
+    if(data[name]&&!swatch.querySelector("img")){
+      swatch.style.background="transparent";
+      swatch.style.border="none";
+      swatch.style.boxShadow="none";
+      swatch.innerHTML="";
+      const img=document.createElement("img");
+      img.src=data[name];img.alt=name;
+      swatch.appendChild(img);
+    }
+  });
+}).catch(()=>{});
 </script>
 </body>
 </html>
