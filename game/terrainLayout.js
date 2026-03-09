@@ -327,6 +327,10 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
     if (e.west)  { const m = new THREE.Mesh(new THREE.BoxGeometry(2, wallH, d + 2), wallMat); m.position.set(xMin - 1, wallH / 2 - 1, cz); group.add(m); }
   }
 
+  /* freeze world matrices — terrain is static, skip per-frame recalc */
+  group.updateMatrixWorld(true);
+  group.traverse(o => { o.matrixAutoUpdate = false; });
+
   return group;
 }
 
