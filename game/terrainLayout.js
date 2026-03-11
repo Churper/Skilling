@@ -33,11 +33,20 @@ function _vnoise(x, z) {
   return a + (b - a) * sx + (c - a) * sz + (a - b - c + d) * sx * sz;
 }
 function _fbm(x, z) {
-  /* 4 octaves — big round blobs dominant, fine detail subtle */
-  return _vnoise(x * 0.018 + 7.31, z * 0.018 + 13.77) * 0.45
-       + _vnoise(x * 0.045 + 53.17, z * 0.045 + 97.43) * 0.28
-       + _vnoise(x * 0.10 + 107.89, z * 0.10 + 151.61) * 0.16
-       + _vnoise(x * 0.22 + 199.33, z * 0.22 + 263.07) * 0.11;
+  /* elevation-style: big connected regions with organic wobble */
+  return _vnoise(x * 0.006 + 7.31, z * 0.006 + 13.77) * 0.50
+       + _vnoise(x * 0.015 + 53.17, z * 0.015 + 97.43) * 0.30
+       + _vnoise(x * 0.035 + 107.89, z * 0.035 + 151.61) * 0.20;
+}
+/* soft toon banding — smoothstep transition between bands */
+function _softBand(val, bands) {
+  const scaled = val * bands;
+  const band = Math.floor(scaled);
+  const frac = scaled - band;
+  const edge = 0.85; /* 1 - softness(0.15) */
+  let t = frac < edge ? 0 : (frac - edge) / 0.15;
+  t = t * t * (3 - 2 * t);
+  return (band + t) / bands;
 }
 
 /* ── toon gradient ── */
@@ -299,8 +308,16 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
       const i3 = (iz * nx + ix) * 3;
-      const nv = _fbm(x, z);
-      const shade = 0.45 + nv * 0.75; /* 0.45–1.20: deep darks + bright highlights */
+      /* 180° flip: negate coords */
+      const nv = _fbm(-x, -z);
+      const raw = 0.28 + nv * 0.90; /* 0.28–1.18: tighter range */
+      const banded = _softBand(Math.max(0, Math.min(1, raw)), 8);
+      /* original 4-octave noise on top, visible */
+      const fine = (_vnoise(-x * 0.018 + 7.31, -z * 0.018 + 13.77) * 0.45
+                  + _vnoise(-x * 0.045 + 53.17, -z * 0.045 + 97.43) * 0.28
+                  + _vnoise(-x * 0.10 + 107.89, -z * 0.10 + 151.61) * 0.16
+                  + _vnoise(-x * 0.22 + 199.33, -z * 0.22 + 263.07) * 0.11) * 0.65 - 0.32;
+      const shade = banded + fine;
       col[i3] *= shade; col[i3 + 1] *= shade; col[i3 + 2] *= shade;
     }
   }
