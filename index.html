@@ -73,6 +73,7 @@
     <div id="ui-buff-bar"></div>
     <div id="ui-mock-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(239,68,68,0.9);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:0 0 6px 6px;text-align:center;pointer-events:none;letter-spacing:0.03em">TEST MODE — progress not saved</div>
     <div id="ui-instance-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:#e8c44a;color:#1a1a2e;font-size:12px;font-weight:700;padding:6px 20px;border-radius:0 0 6px 6px;cursor:pointer;text-align:center;pointer-events:auto" title="Click to leave">BOSS ARENA — click to leave</div>
+    <div id="ui-dungeon-wave" hidden style="position:fixed;top:62px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(0,0,0,0.7);color:#fff;font-size:13px;font-weight:700;padding:4px 16px;border-radius:6px;pointer-events:none;letter-spacing:0.04em">Wave: <span id="dungeon-wave-num">0</span></div>
     <div id="ui-boss-hp" hidden>
       <div id="ui-boss-hp-label">Snake Boss</div>
       <div id="ui-boss-hp-track">
@@ -221,6 +222,7 @@
           <div class="ui-kc-item"><span>&#x1F451;</span><strong id="ui-slime-daddy-kc">0</strong></div>
           <div class="ui-kc-item"><span>&#x2744;</span><strong id="ui-yeti-kc">0</strong></div>
           <div class="ui-kc-item"><span>&#x1F409;</span><strong id="ui-dragon-kc">0</strong></div>
+          <div class="ui-kc-item"><span>&#x1F480;</span><strong id="ui-skele-kc">0</strong></div>
         </div>
         <!-- Quest list (hidden by default, toggled by Quests button) -->
         <div id="ui-quest-view" class="ui-quest-view" hidden>
@@ -251,6 +253,7 @@
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="slime_daddy_kc">Slime Daddy KC</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="yeti_kc">Yeti KC</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="dragon_kc">Dragon KC</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="skele_kc">Skele KC</button>
           </div>
           <div id="ui-lb-table" class="ui-lb-table"></div>
         </div>
@@ -856,7 +859,9 @@
         <h3 class="ui-task-section-label">Boss Encounters</h3>
         <div id="ui-boss-list" class="ui-task-list"></div>
         <div id="ui-boss-lockout" hidden style="color:#facc15;font-size:11px;padding:4px 0;text-align:center"></div>
-        <h3 class="ui-task-section-label" style="margin-top:10px">Tasks</h3>
+        <h3 class="ui-task-section-label" style="margin-top:12px;font-size:11px;color:#e06050">Dungeons</h3>
+        <div id="ui-dungeon-list" class="ui-task-list"></div>
+        <h3 class="ui-task-section-label" style="margin-top:12px;font-size:11px;color:#888">Tasks</h3>
         <div id="ui-task-active" class="ui-task-active" hidden>
           <div id="ui-task-active-content"></div>
         </div>

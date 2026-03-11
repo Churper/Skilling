@@ -14,11 +14,37 @@ import {
 
 const R_GND = 0, R_WATER = 2, R_DECOR = 3;
 
+
+/* ── smooth value noise for vertex color variation ── */
+function _vnoise(x, z) {
+  /* hash lattice points — large primes for full decorrelation */
+  const _h = (ix, iz) => {
+    let n = ((ix * 1597334677) ^ (iz * 3812015801)) >>> 0;
+    n = ((n >> 16) ^ n) * 0x45d9f3b >>> 0;
+    n = ((n >> 16) ^ n) >>> 0;
+    return n / 0xffffffff;
+  };
+  const ix = Math.floor(x), iz = Math.floor(z);
+  const fx = x - ix, fz = z - iz;
+  /* smoothstep interpolation */
+  const sx = fx * fx * (3 - 2 * fx), sz = fz * fz * (3 - 2 * fz);
+  const a = _h(ix, iz), b = _h(ix + 1, iz);
+  const c = _h(ix, iz + 1), d = _h(ix + 1, iz + 1);
+  return a + (b - a) * sx + (c - a) * sz + (a - b - c + d) * sx * sz;
+}
+function _fbm(x, z) {
+  /* 4 octaves — big round blobs dominant, fine detail subtle */
+  return _vnoise(x * 0.018 + 7.31, z * 0.018 + 13.77) * 0.45
+       + _vnoise(x * 0.045 + 53.17, z * 0.045 + 97.43) * 0.28
+       + _vnoise(x * 0.10 + 107.89, z * 0.10 + 151.61) * 0.16
+       + _vnoise(x * 0.22 + 199.33, z * 0.22 + 263.07) * 0.11;
+}
+
 /* ── toon gradient ── */
 const TOON_GRAD = (() => {
   const c = document.createElement("canvas"); c.width = 4; c.height = 1;
   const ctx = c.getContext("2d");
-  [25, 95, 185, 255].forEach((v, i) => {
+  [100, 160, 220, 255].forEach((v, i) => {
     ctx.fillStyle = `rgb(${v},${v},${v})`; ctx.fillRect(i, 0, 1, 1);
   });
   const t = new THREE.CanvasTexture(c);
@@ -265,6 +291,17 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         const a = iz * nx + ix, b = a + 1, d = a + nx, e = d + 1;
         idx.push(a, d, b, b, d, e);
       }
+    }
+  }
+
+  /* ── noise pass: apply smooth variation AFTER all blending is done ── */
+  for (let iz = 0; iz < nz; iz++) {
+    for (let ix = 0; ix < nx; ix++) {
+      const x = xMin + ix * step, z = zMin + iz * step;
+      const i3 = (iz * nx + ix) * 3;
+      const nv = _fbm(x, z);
+      const shade = 0.45 + nv * 0.75; /* 0.45–1.20: deep darks + bright highlights */
+      col[i3] *= shade; col[i3 + 1] *= shade; col[i3 + 2] *= shade;
     }
   }
 
