@@ -81,7 +81,7 @@
   .player-meta { font-size: 12px; color: #aaa; margin-top: 3px; }
   .player-skills {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1px 10px;
     font-size: 11px;
     color: #ccc;
@@ -100,6 +100,15 @@
   .btn-unban { background: #6ed998; color: #1a1a2e; }
   .btn-unban:hover { background: #8eedb8; }
   .name-banned { color: #ff6b35; font-size: 11px; font-weight: bold; margin-left: 6px; }
+  .action-log { max-height: 300px; overflow-y: auto; font-size: 12px; font-family: monospace; background: #0f1a2e; border: 1px solid #334; border-radius: 6px; padding: 8px; }
+  .action-log div { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .action-log .ts { color: #666; margin-right: 6px; }
+  .action-log .act-kick { color: #ff6b6b; }
+  .action-log .act-rename { color: #3a86ff; }
+  .action-log .act-ban { color: #ff6b35; }
+  .action-log .act-broadcast { color: #ffd700; }
+  .action-log .act-join { color: #6ed998; }
+  .action-log .act-leave { color: #888; }
 </style>
 </head>
 <body>
@@ -120,6 +129,9 @@
     <button id="kick-all-btn" class="btn-secondary" style="background:#c0392b;color:#fff" disabled>🦶 Kick All</button>
   </div>
   <div id="status" class="status"></div>
+
+  <h2>Action Log</h2>
+  <div id="action-log" class="action-log"><div style="color:#555">No actions yet</div></div>
 
   <h2>Online Players</h2>
   <div id="player-count" class="player-count">—</div>
@@ -142,6 +154,32 @@ const playerListEl = document.getElementById("player-list");
 
 let ws = null;
 let refreshInterval = null;
+
+/* ── Action Log (capped, consolidated) ── */
+const LOG_MAX = 50;
+const logEl = document.getElementById("action-log");
+const _logEntries = []; // { ts, cls, text, count }
+
+function logAction(cls, text) {
+  const last = _logEntries[0];
+  if (last && last.text === text) {
+    last.count++;
+    last.ts = Date.now();
+    renderLog();
+    return;
+  }
+  _logEntries.unshift({ ts: Date.now(), cls, text, count: 1 });
+  if (_logEntries.length > LOG_MAX) _logEntries.length = LOG_MAX;
+  renderLog();
+}
+
+function renderLog() {
+  logEl.innerHTML = _logEntries.map(e => {
+    const t = new Date(e.ts).toLocaleTimeString();
+    const c = e.count > 1 ? ` (x${e.count})` : "";
+    return `<div><span class="ts">${t}</span><span class="${e.cls}">${esc(e.text)}${c}</span></div>`;
+  }).join("");
+}
 
 function connect() {
   if (ws) { ws.close(); ws = null; }
@@ -243,6 +281,7 @@ function doRename(id, currentName) {
   const newName = prompt("New name for " + currentName + ":", currentName);
   if (!newName || !newName.trim()) return;
   adminCmd("admin_rename", { targetId: id, newName: newName.trim() });
+  logAction("act-rename", `Renamed ${currentName} → ${newName.trim()}`);
   setTimeout(requestPlayers, 500);
 }
 
@@ -252,23 +291,27 @@ function doNameBan(id, currentName) {
   const hours = prompt("Ban name changes for how many hours?", "24");
   if (!hours) return;
   adminCmd("admin_nameban", { targetId: id, newName: newName.trim() || "Player", hours: Number(hours) || 24 });
+  logAction("act-ban", `Name-banned ${currentName} → ${newName.trim() || "Player"} (${hours}h)`);
   setTimeout(requestPlayers, 500);
 }
 
 function doNameUnban(id) {
   adminCmd("admin_nameunban", { targetId: id });
+  logAction("act-ban", `Unbanned name for ${id}`);
   setTimeout(requestPlayers, 500);
 }
 
 function doKick(id, name) {
   if (!confirm(`Kick ${name}?`)) return;
   adminCmd("admin_kick", { targetId: id });
+  logAction("act-kick", `Kicked ${name}`);
   setTimeout(requestPlayers, 500);
 }
 
 function doKickAll() {
   if (!confirm("Kick ALL players? They'll need to refresh.")) return;
   adminCmd("admin_kick_all", {});
+  logAction("act-kick", "Kicked ALL players");
   setTimeout(requestPlayers, 1000);
 }
 
@@ -307,6 +350,14 @@ function renderPlayers(players) {
           <span>🏹 Range ${sk.bow || 1}</span>
           <span>🔥 Mage ${sk.mage || 1}</span>
           <span>🍳 Cook ${sk.cooking || 1}</span>
+          <span>❤️ HP ${sk.hitpoints || 10}</span>
+          <span>🌿 Surv ${sk.survival || 1}</span>
+          <span>🔨 Craft ${sk.crafting || 1}</span>
+          <span>🌾 Farm ${sk.farming || 1}</span>
+          <span>🪶 Fletch ${sk.fletching || 1}</span>
+          <span>🙏 Pray ${sk.prayer || 1}</span>
+          <span>🏗 Build ${sk.construction || 1}</span>
+          <span>💀 Slay ${sk.slayer || 1}</span>
         </div>
         <div class="player-activity">${getActivity(s)}${hasCampfire ? ' · 🔥 Campfire' : ''}</div>
         <div class="player-pos">Pos: (${(s.x||0).toFixed(0)}, ${(s.z||0).toFixed(0)})${s.y ? ` Y:${s.y.toFixed(1)}` : ''}</div>
@@ -352,6 +403,7 @@ sendBtn.addEventListener("click", () => {
   const key = keyInput.value.trim();
   if (!text || !key || !ws || ws.readyState !== WebSocket.OPEN) return;
   ws.send(JSON.stringify({ type: "admin_broadcast", key, text }));
+  logAction("act-broadcast", `Broadcast: ${text}`);
   statusEl.textContent = "Sent!";
   statusEl.className = "status ok";
   msgInput.value = "";
