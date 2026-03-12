@@ -117,6 +117,7 @@
   <div class="btn-row">
     <button id="send-btn" disabled>Send Broadcast</button>
     <button id="refresh-btn" class="btn-secondary" disabled>Refresh Players</button>
+    <button id="kick-all-btn" class="btn-secondary" style="background:#c0392b;color:#fff" disabled>🦶 Kick All</button>
   </div>
   <div id="status" class="status"></div>
 
@@ -133,6 +134,7 @@ const keyInput = document.getElementById("admin-key");
 const msgInput = document.getElementById("msg");
 const sendBtn = document.getElementById("send-btn");
 const refreshBtn = document.getElementById("refresh-btn");
+const kickAllBtn = document.getElementById("kick-all-btn");
 const statusEl = document.getElementById("status");
 const connEl = document.getElementById("conn-status");
 const playerCountEl = document.getElementById("player-count");
@@ -154,6 +156,7 @@ function connect() {
     connEl.className = "conn connected";
     sendBtn.disabled = false;
     refreshBtn.disabled = false;
+    kickAllBtn.disabled = false;
     ws.send(JSON.stringify({ type: "hello", room: "main", name: "Admin", color: "#ffd700" }));
   };
   ws.onmessage = (e) => {
@@ -166,6 +169,7 @@ function connect() {
     connEl.className = "conn";
     sendBtn.disabled = true;
     refreshBtn.disabled = true;
+    kickAllBtn.disabled = true;
     clearInterval(refreshInterval);
   };
   ws.onerror = () => {
@@ -256,6 +260,18 @@ function doNameUnban(id) {
   setTimeout(requestPlayers, 500);
 }
 
+function doKick(id, name) {
+  if (!confirm(`Kick ${name}?`)) return;
+  adminCmd("admin_kick", { targetId: id });
+  setTimeout(requestPlayers, 500);
+}
+
+function doKickAll() {
+  if (!confirm("Kick ALL players? They'll need to refresh.")) return;
+  adminCmd("admin_kick_all", {});
+  setTimeout(requestPlayers, 1000);
+}
+
 function renderPlayers(players) {
   const real = players.filter(p => p.name !== "Admin");
   playerCountEl.textContent = `${real.length} player${real.length !== 1 ? "s" : ""} online`;
@@ -300,6 +316,7 @@ function renderPlayers(players) {
             ? `<button class="btn-unban" data-action="unban" data-id="${p.id}">✅ Unban Name</button>`
             : `<button class="btn-nameban" data-action="nameban" data-id="${p.id}" data-name="${esc(p.name)}">🚫 Name Ban</button>`
           }
+          <button class="btn-kick" data-action="kick" data-id="${p.id}" data-name="${esc(p.name)}" style="background:#c0392b">🦶 Kick</button>
         </div>
       </div>`;
     playerListEl.appendChild(card);
@@ -321,12 +338,14 @@ playerListEl.addEventListener("click", (e) => {
   if (action === "rename") doRename(id, name);
   else if (action === "nameban") doNameBan(id, name);
   else if (action === "unban") doNameUnban(id);
+  else if (action === "kick") doKick(id, name);
 });
 
 wsInput.addEventListener("change", connect);
 setTimeout(connect, 300);
 
 refreshBtn.addEventListener("click", requestPlayers);
+kickAllBtn.addEventListener("click", doKickAll);
 
 sendBtn.addEventListener("click", () => {
   const text = msgInput.value.trim();
