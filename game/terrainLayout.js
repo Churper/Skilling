@@ -33,10 +33,39 @@ function _vnoise(x, z) {
   return a + (b - a) * sx + (c - a) * sz + (a - b - c + d) * sx * sz;
 }
 function _fbm(x, z) {
-  /* elevation-style: big connected regions with organic wobble */
   return _vnoise(x * 0.006 + 7.31, z * 0.006 + 13.77) * 0.50
        + _vnoise(x * 0.015 + 53.17, z * 0.015 + 97.43) * 0.30
        + _vnoise(x * 0.035 + 107.89, z * 0.035 + 151.61) * 0.20;
+}
+/* scattered radial hills — smooth round elevation contours */
+const _HILLS = (() => {
+  const hills = [];
+  for (let i = 0; i < 350; i++) {
+    let n = ((i * 1597334677) ^ (i * 7 + 3812015801)) >>> 0;
+    const hx = (n / 0xffffffff) * 2000 - 1000;
+    n = ((n >> 16) ^ n) * 0x45d9f3b >>> 0;
+    const hz = (n / 0xffffffff) * 1600 - 700;
+    n = ((n >> 16) ^ n) >>> 0;
+    const r = 120 + (n / 0xffffffff) * 60; // radius 120–180 (uniform)
+    n = ((n >> 13) ^ n) * 0x27d4eb2d >>> 0;
+    const amp = 0.10 + (n / 0xffffffff) * 0.10; // height 0.10–0.20 (low, even)
+    hills.push({ x: hx, z: hz, r, amp });
+  }
+  return hills;
+})();
+function _hillField(x, z) {
+  let v = 0;
+  for (let i = 0; i < _HILLS.length; i++) {
+    const h = _HILLS[i];
+    const dx = x - h.x, dz = z - h.z;
+    const d2 = dx * dx + dz * dz;
+    const r2 = h.r * h.r;
+    if (d2 < r2) {
+      const t = 1 - d2 / r2;
+      v += h.amp * t * t; // smooth quadratic falloff = round hills
+    }
+  }
+  return v;
 }
 /* soft toon banding — smoothstep transition between bands */
 function _softBand(val, bands) {
@@ -293,6 +322,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       if (colorOverrides) {
         const clKey = `${lx},${lz}`;
         if (clKey in colorOverrides) { const ov = colorOverrides[clKey]; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
+        else if (colorOverrides._default) { const ov = colorOverrides._default; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
       }
       col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
 
@@ -308,16 +338,15 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
       const i3 = (iz * nx + ix) * 3;
-      /* 180° flip: negate coords */
-      const nv = _fbm(-x, -z);
-      const raw = 0.28 + nv * 0.90; /* 0.28–1.18: tighter range */
-      const banded = _softBand(Math.max(0, Math.min(1, raw)), 8);
-      /* original 4-octave noise on top, visible */
+      /* round hills base */
+      const hills = _hillField(-x, -z);
+      const raw = 0.81 - Math.min(hills, 0.49);
+      const banded = _softBand(Math.max(0, Math.min(1, raw)), 14);
       const fine = (_vnoise(-x * 0.018 + 7.31, -z * 0.018 + 13.77) * 0.45
                   + _vnoise(-x * 0.045 + 53.17, -z * 0.045 + 97.43) * 0.28
                   + _vnoise(-x * 0.10 + 107.89, -z * 0.10 + 151.61) * 0.16
-                  + _vnoise(-x * 0.22 + 199.33, -z * 0.22 + 263.07) * 0.11) * 0.65 - 0.32;
-      const shade = banded + fine;
+                  + _vnoise(-x * 0.22 + 199.33, -z * 0.22 + 263.07) * 0.11) * 0.76 - 0.38;
+      const shade = 1.0 + (banded + fine - 1.0) * 0.68;
       col[i3] *= shade; col[i3 + 1] *= shade; col[i3 + 2] *= shade;
     }
   }

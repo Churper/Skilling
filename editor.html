@@ -373,6 +373,10 @@ const OBJ_CATEGORIES = [
     { id: "Crystal_2", file: "Crystal_2.glb", scale: 1.0 },
     { id: "Crystal_3", file: "Crystal_3.glb", scale: 1.0 },
     { id: "Ice_Block", file: "Ice_Block.glb", scale: 1.0 },
+    { id: "Grave", file: "Grave.glb", scale: 1.0 },
+    { id: "Sand_Castle", file: "Sand_Castle.glb", scale: 1.0 },
+    { id: "Column", file: "Column.glb", scale: 1.0 },
+    { id: "Dead_Trees", file: "Dead_Trees.glb", scale: 1.0 },
   ]},
   { name: "Ore Rocks", dir: TILE_DIR, items: [
     { id: "Rocks_Ore_Tin", file: "Rocks_Ore.glb", scale: 1.0 },
@@ -395,6 +399,9 @@ const OBJ_CATEGORIES = [
     { id: "Prop_Tree_Palm_1", file: "Prop_Tree_Palm_1.glb", scale: 1.0 },
     { id: "Prop_Tree_Palm_2", file: "Prop_Tree_Palm_2.glb", scale: 1.0 },
     { id: "Prop_Tree_Palm_3", file: "Prop_Tree_Palm_3.glb", scale: 1.0 },
+    { id: "Palm_Tree", file: "Palm_Tree.glb", scale: 1.0 },
+    { id: "Palm_Tree_1", file: "Palm_Tree_1.glb", scale: 1.0 },
+    { id: "Palm_Tree_2", file: "Palm_Tree_2.glb", scale: 1.0 },
     { id: "Prop_Tree_Pine_1", file: "Prop_Tree_Pine_1.glb", scale: 1.0 },
     { id: "Prop_Tree_Pine_2", file: "Prop_Tree_Pine_2.glb", scale: 1.0 },
     { id: "Prop_Tree_Pine_3", file: "Prop_Tree_Pine_3.glb", scale: 1.0 },
@@ -466,6 +473,7 @@ const OBJ_CATEGORIES = [
     { id: "Goblin", file: "Goblin.glb", scale: 1.0 },
     { id: "Skeleton", file: "Skeleton.glb", scale: 1.0 },
     { id: "Zombie", file: "Zombie.glb", scale: 1.0 },
+    { id: "Ghost_Skull", file: "Ghost_Skull.glb", scale: 1.0 },
     /* T_Rex and Giant reserved for future boss wiring */
   ]},
   { name: "Services", items: [
@@ -503,6 +511,18 @@ const OBJ_CATEGORIES = [
 let currentChunk = [0, 0];       // [cx, cz]
 const chunkDataStore = new Map(); // "cx,cz" → { heightOffsets, colorOverrides, objects, water, edges }
 
+function _expandPalette(d) {
+  if (d.colorPalette && (d.colorMap || d.colorDefault !== undefined)) {
+    const pal = d.colorPalette, out = {};
+    const defIdx = d.colorDefault || 0;
+    if (d.colorMap) {
+      for (const [k, idx] of Object.entries(d.colorMap)) out[k] = pal[idx];
+    }
+    out._default = pal[defIdx];
+    return out;
+  }
+  return null;
+}
 function chunkKey(cx, cz) { return `${cx},${cz}`; }
 function currentChunkKey() { return chunkKey(currentChunk[0], currentChunk[1]); }
 
@@ -720,8 +740,6 @@ function computeColor(x, z, y) {
 }
 function computeBaseColor(x, z, y) {
   const bc = BASE_COLORS[activeBaseType] || cGrass;
-  if (y > GRASS_Y + 3) { tmpC.copy(cCliff); return tmpC; }
-  if (y > GRASS_Y + 0.5) { tmpC.copy(bc).lerp(cCliff, sm(y, GRASS_Y + 0.5, GRASS_Y + 3) * 0.4); return tmpC; }
   return bc;
 }
 
@@ -1096,12 +1114,10 @@ function buildChunkMesh(cx, cz) {
       const ckey = `${Math.max(xMin, Math.min(xMax, lx))},${Math.max(zMin, Math.min(zMax, lz))}`;
       if (co[ckey]) {
         hc[i3] = co[ckey][0]; hc[i3+1] = co[ckey][1]; hc[i3+2] = co[ckey][2];
+      } else if (co._default) {
+        hc[i3] = co._default[0]; hc[i3+1] = co._default[1]; hc[i3+2] = co._default[2];
       } else {
-        let fc;
-        if (y > GRASS_Y + 3) fc = cCliff;
-        else if (y > GRASS_Y + 0.5) { tmpC.copy(bc).lerp(cCliff, sm(y, GRASS_Y+0.5, GRASS_Y+3)*0.4); fc = tmpC; }
-        else fc = bc;
-        hc[i3] = fc.r; hc[i3+1] = fc.g; hc[i3+2] = fc.b;
+        hc[i3] = bc.r; hc[i3+1] = bc.g; hc[i3+2] = bc.b;
       }
       if (ix < mnx-1 && iz < mnz-1) idx.push(vi, vi+mnx, vi+1, vi+1, vi+mnx, vi+mnx+1);
     }
@@ -1236,8 +1252,14 @@ function updateMeshRegion(cx, cz, radius) {
       const x = xMin + ix * hStep, z = zMin + iz * hStep;
       const y = getBaseY(x, z) + heightOffsets[di];
       hPos[mi3 + 1] = y;
-      const fc = vertColor(x, z, y);
-      hCol[mi3] = fc.r; hCol[mi3 + 1] = fc.g; hCol[mi3 + 2] = fc.b;
+      /* only recalc color for non-painted vertices — preserve user paint */
+      const key = `${x},${z}`;
+      if (colorOverrides[key]) {
+        const ov = colorOverrides[key];
+        hCol[mi3] = ov[0]; hCol[mi3 + 1] = ov[1]; hCol[mi3 + 2] = ov[2];
+      } else {
+        /* preserve existing vertex color — don't overwrite generator colors with base type */
+      }
     }
   }
   /* also update padded edge vertices that mirror the data edge */
@@ -1346,18 +1368,21 @@ const gridGroup = new THREE.Group(); gridGroup.name = "grid"; gridGroup.visible 
   scene.add(gridGroup);
 }
 
-/* chunk boundary grid — aligned to actual chunk origins */
+/* chunk boundary grid — aligned to world origin, covers full map */
 const chunkGridGroup = new THREE.Group(); chunkGridGroup.name = "chunkGrid"; chunkGridGroup.visible = false;
 {
   const mat = new THREE.LineBasicMaterial({ color: 0xe8c44a, transparent: true, opacity: 0.45, depthTest: false });
   const pts = [];
-  const cOX = xMin, cOZ = zMin; // chunk grid origin in world coords
-  const far = 12 * CHUNK_SIZE;
-  for (let i = -2; i <= 12; i++) {
-    const vx = cOX + i * CHUNK_SIZE;
-    pts.push(new THREE.Vector3(vx, 0.5, cOZ - CHUNK_SIZE), new THREE.Vector3(vx, 0.5, cOZ + far));
-    const vz = cOZ + i * CHUNK_SIZE;
-    pts.push(new THREE.Vector3(cOX - CHUNK_SIZE, 0.5, vz), new THREE.Vector3(cOX + far, 0.5, vz));
+  const cxMin = -10, cxMax = 9, czMin = -7, czMax = 7; // chunk range with 1 extra margin
+  const worldXMin = cxMin * CHUNK_SIZE + xMin, worldXMax = (cxMax + 1) * CHUNK_SIZE + xMin;
+  const worldZMin = czMin * CHUNK_SIZE + zMin, worldZMax = (czMax + 1) * CHUNK_SIZE + zMin;
+  for (let i = cxMin; i <= cxMax + 1; i++) {
+    const vx = i * CHUNK_SIZE + xMin;
+    pts.push(new THREE.Vector3(vx, 0.5, worldZMin), new THREE.Vector3(vx, 0.5, worldZMax));
+  }
+  for (let j = czMin; j <= czMax + 1; j++) {
+    const vz = j * CHUNK_SIZE + zMin;
+    pts.push(new THREE.Vector3(worldXMin, 0.5, vz), new THREE.Vector3(worldXMax, 0.5, vz));
   }
   chunkGridGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), mat));
   chunkGridGroup.renderOrder = 9999;
@@ -1719,6 +1744,7 @@ function paintColorAt(wx, wz, dt) {
       } else {
         let cr, cg, cb;
         if (colorOverrides[key]) { [cr, cg, cb] = colorOverrides[key]; }
+        else if (colorOverrides._default) { [cr, cg, cb] = colorOverrides._default; }
         else { const pc = computeBaseColor(vx, vz, y); cr = pc.r; cg = pc.g; cb = pc.b; }
         /* falloff: hardness 0 = toon stepped, hardness 1 = flat/uniform */
         const norm = dist / brushRadius;
@@ -1790,7 +1816,7 @@ function updatePreview() {
   obj.renderOrder = 998; previewObj = obj; scene.add(obj);
 }
 
-const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Forage_Elder","Svc_Forage_Golden","Svc_Forage_Crystal","Svc_Forage_Shadow","Svc_Flax","Svc_Hemp","Svc_FarmPatch","Demon","Goblin","Skeleton","Zombie"]);
+const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Forage_Elder","Svc_Forage_Golden","Svc_Forage_Crystal","Svc_Forage_Shadow","Svc_Flax","Svc_Hemp","Svc_FarmPatch","Demon","Goblin","Skeleton","Zombie","Ghost_Skull"]);
 const _hbMat = new THREE.MeshBasicMaterial({ visible: false });
 function addClickHelper(root) {
   /* add invisible bounding box so thin GLTF meshes are easier to click */
@@ -2369,7 +2395,7 @@ function importChunkData(cData, cx, cz) {
   cd.instanceType = cData.instanceType || "";
   cd.instanceName = cData.instanceName || "";
   cd.heightData = cData.heightOffsets || {};
-  cd.colorData = cData.colorOverrides || {};
+  cd.colorData = cData.colorOverrides || _expandPalette(cData) || {};
   cd.objects = (cData.objects || []).filter(o => !STRUCTURAL_TYPES.has(o.type));
 }
 
