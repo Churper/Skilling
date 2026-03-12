@@ -109,6 +109,8 @@
   .action-log .act-broadcast { color: #ffd700; }
   .action-log .act-join { color: #6ed998; }
   .action-log .act-leave { color: #888; }
+  .action-log .act-trade { color: #e8a838; }
+  .action-log .act-drop { color: #c878e8; }
 </style>
 </head>
 <body>
@@ -133,6 +135,9 @@
   <h2>Action Log</h2>
   <div id="action-log" class="action-log"><div style="color:#555">No actions yet</div></div>
 
+  <h2>Player Actions</h2>
+  <div id="player-actions" class="action-log"><div style="color:#555">No player actions yet</div></div>
+
   <h2>Online Players</h2>
   <div id="player-count" class="player-count">—</div>
   <div id="player-list" class="player-list">
@@ -151,6 +156,7 @@ const statusEl = document.getElementById("status");
 const connEl = document.getElementById("conn-status");
 const playerCountEl = document.getElementById("player-count");
 const playerListEl = document.getElementById("player-list");
+const playerActionsEl = document.getElementById("player-actions");
 
 let ws = null;
 let refreshInterval = null;
@@ -201,6 +207,7 @@ function connect() {
     let msg;
     try { msg = JSON.parse(e.data); } catch { return; }
     if (msg.type === "admin_players") renderPlayers(msg.players || []);
+    if (msg.type === "admin_actions") renderPlayerActions(msg.actions || []);
   };
   ws.onclose = () => {
     connEl.textContent = "Disconnected";
@@ -224,10 +231,26 @@ function requestPlayers() {
   playerCountEl.textContent = "Requesting...";
 }
 
+function requestPlayerActions() {
+  const key = keyInput.value.trim();
+  if (!key || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: "admin_actions", key }));
+}
+
+function renderPlayerActions(actions) {
+  if (!actions.length) { playerActionsEl.innerHTML = '<div style="color:#555">No player actions yet</div>'; return; }
+  playerActionsEl.innerHTML = actions.map(a => {
+    const t = new Date(a.ts).toLocaleTimeString();
+    const cls = a.text.startsWith("Traded") ? "act-trade" : a.text.startsWith("Dropped") ? "act-drop" : "";
+    return `<div><span class="ts">${t}</span><strong>${esc(a.name)}</strong> <span class="${cls}">${esc(a.text)}</span></div>`;
+  }).join("");
+}
+
 function startAutoRefresh() {
   clearInterval(refreshInterval);
   requestPlayers();
-  refreshInterval = setInterval(requestPlayers, 5000);
+  requestPlayerActions();
+  refreshInterval = setInterval(() => { requestPlayers(); requestPlayerActions(); }, 5000);
 }
 
 /* start polling once key is entered */
