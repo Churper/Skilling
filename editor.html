@@ -497,6 +497,9 @@ const OBJ_CATEGORIES = [
     { id: "Svc_Forage_Golden", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Sunberry (80)" },
     { id: "Svc_Forage_Crystal", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Gooberry (120)" },
     { id: "Svc_Forage_Shadow", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Dreamberry (160)" },
+    { id: "Svc_Forage_Ember", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Emberberry (200)" },
+    { id: "Svc_Forage_Frost", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Frostberry (250)" },
+    { id: "Svc_Forage_Void", dir: TILE_DIR, file: "Bush.glb", scale: 1.0, label: "Voidberry (300)" },
     { id: "Svc_Flax", dir: TILE_DIR, file: "Prop_Grass_Clump_4.glb", scale: 1.0, label: "Flax" },
     { id: "Svc_Hemp", dir: TILE_DIR, file: "Suspicious Plant.glb", scale: 1.0, label: "Hemp" },
     { id: "Svc_FarmPatch", dir: TILE_DIR, file: "Farm_Dirt.glb", scale: 1.0, label: "Farm" },
@@ -1816,7 +1819,7 @@ function updatePreview() {
   obj.renderOrder = 998; previewObj = obj; scene.add(obj);
 }
 
-const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Forage_Elder","Svc_Forage_Golden","Svc_Forage_Crystal","Svc_Forage_Shadow","Svc_Flax","Svc_Hemp","Svc_FarmPatch","Demon","Goblin","Skeleton","Zombie","Ghost_Skull"]);
+const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Forage_Elder","Svc_Forage_Golden","Svc_Forage_Crystal","Svc_Forage_Shadow","Svc_Forage_Ember","Svc_Forage_Frost","Svc_Forage_Void","Svc_Flax","Svc_Hemp","Svc_FarmPatch","Demon","Goblin","Skeleton","Zombie","Ghost_Skull"]);
 const _hbMat = new THREE.MeshBasicMaterial({ visible: false });
 function addClickHelper(root) {
   /* add invisible bounding box so thin GLTF meshes are easier to click */
