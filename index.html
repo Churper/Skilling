@@ -32,6 +32,9 @@
     <p style="max-width:360px;line-height:1.5;color:#ccc">Your account was logged in on another device. Only one session is allowed at a time.</p>
     <button id="ui-session-kicked-btn" type="button" style="padding:10px 28px;border:none;border-radius:8px;background:#e8c44a;color:#1a1a2e;font-weight:700;font-size:14px;cursor:pointer">Reload</button>
   </div>
+  <div id="ui-update-banner" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99998;background:linear-gradient(135deg,#1a1a2e,#2a1a3e);color:#fff;font-family:'Patrick Hand',cursive;padding:10px 20px;border-radius:0 0 12px 12px;border:1px solid rgba(232,196,74,0.4);border-top:none;box-shadow:0 4px 20px rgba(0,0,0,0.5);text-align:center;gap:10px;align-items:center;cursor:pointer" onclick="location.reload()">
+    <span style="color:#e8c44a;font-weight:700">New update available!</span> <span style="color:#ccc;margin-left:6px">Click here to refresh</span>
+  </div>
   <div id="debug-overlay" aria-hidden="true"></div>
   <!-- Start Menu -->
   <div id="start-menu">
@@ -81,6 +84,18 @@
         <div id="ui-boss-hp-text">1000 / 1000</div>
       </div>
     </div>
+    <!-- Faith channeling bar -->
+    <div id="ui-faith-channel" hidden style="position:fixed;top:120px;left:50%;transform:translateX(-50%);z-index:200;text-align:center;pointer-events:none">
+      <div style="color:#c8e8c8;font:bold 14px 'Patrick Hand',cursive;margin-bottom:4px" id="ui-faith-label">Channeling Faith...</div>
+      <div style="width:260px;height:16px;background:rgba(0,0,0,0.6);border-radius:8px;border:1px solid rgba(100,200,100,0.3);overflow:hidden">
+        <div id="ui-faith-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#2a6a2a,#58df78);border-radius:8px;transition:width 0.3s"></div>
+      </div>
+      <div style="display:none" id="ui-faith-time"></div>
+    </div>
+    <!-- Faith explore buff timer -->
+    <div id="ui-faith-explore" hidden style="position:fixed;top:calc(42px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:119;pointer-events:none;text-align:center">
+      <div style="color:#58df78;font:bold 12px 'Patrick Hand',cursive;text-shadow:0 1px 3px rgba(0,0,0,0.7)">&#x2728; <span id="ui-faith-explore-time">1:30</span></div>
+    </div>
     <div id="ui-coins-chip" aria-live="polite" aria-label="Gold coins" style="display:none">
       <span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span>
       <strong id="ui-coins-value">0</strong>
@@ -129,11 +144,11 @@
       </button>
     </nav>
     <aside id="ui-panel" aria-live="polite">
-      <div id="ui-panel-title-row"><h2 id="ui-panel-title">Inventory</h2></div>
       <div class="ui-panel-resize" data-resize="se" aria-hidden="true"></div>
       <div class="ui-panel-resize" data-resize="sw" aria-hidden="true"></div>
       <div class="ui-panel-resize" data-resize="ne" aria-hidden="true"></div>
       <div class="ui-panel-resize" data-resize="nw" aria-hidden="true"></div>
+      <div id="ui-panel-title-row"><h2 id="ui-panel-title">Inventory</h2><div id="ui-worn-subtabs-inline" class="ui-worn-subtabs" hidden><button type="button" class="ui-worn-subtab is-active" data-worn-view="stats">Worn</button><span class="ui-worn-subtab-divider">|</span><button type="button" class="ui-worn-subtab" data-worn-view="skins">Skins</button></div><button type="button" id="ui-panel-close" class="ui-float-close">&times;</button></div>
       <section class="ui-panel-section" data-tab-panel="inventory">
         <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
         <div id="ui-inv-footer"><div id="ui-coins-inline"><span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span><strong id="ui-coins-value-inline">0</strong></div><p id="ui-status-line" class="ui-status" data-tone="info"></p></div>
@@ -190,6 +205,12 @@
             <strong class="ui-skill-tile-lvl" id="ui-skill-scribing">1</strong>
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-scribing"></div></div>
           </div>
+          <div class="ui-skill-tile" data-skill="faith">
+            <span class="ui-skill-tile-icon">&#x2728;</span>
+            <span class="ui-skill-tile-name">Faith</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-faith">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-faith"></div></div>
+          </div>
           <div class="ui-skill-tile is-combat" data-skill="hitpoints">
             <span class="ui-skill-tile-icon">&#x2764;&#xFE0F;</span>
             <span class="ui-skill-tile-name">Hitpoints</span>
@@ -243,6 +264,7 @@
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="survival">Survival</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="farming">Farming</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="scribing">Scribing</button>
+            <button type="button" class="ui-lb-cat-btn" data-lb-cat="faith">Faith</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="melee">Melee</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="bow">Ranged</button>
             <button type="button" class="ui-lb-cat-btn" data-lb-cat="mage">Magic</button>
@@ -379,21 +401,7 @@
         </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="prayer" hidden>
-        <p class="ui-prayer-heading">Offensive</p>
-        <div class="ui-prayer-grid">
-          <button type="button" class="ui-prayer-btn" data-prayer="clarity" title="Clarity of Thought: +5% melee accuracy">&#x2694;&#xFE0F;<span>Clarity</span></button>
-          <button type="button" class="ui-prayer-btn" data-prayer="sharp_eye" title="Sharp Eye: +5% ranged accuracy">&#x1F3F9;<span>Sharp Eye</span></button>
-          <button type="button" class="ui-prayer-btn" data-prayer="mystic_will" title="Mystic Will: +5% magic accuracy">&#x1F52E;<span>Mystic Will</span></button>
-          <button type="button" class="ui-prayer-btn" data-prayer="burst_str" title="Burst of Strength: +5% melee damage">&#x1F4AA;<span>Burst Str</span></button>
-          <button type="button" class="ui-prayer-btn" data-prayer="superhuman" title="Superhuman Strength: +10% melee damage">&#x26A1;<span>Superhuman</span></button>
-          <button type="button" class="ui-prayer-btn" data-prayer="eagle_eye" title="Eagle Eye: +10% ranged accuracy">&#x1F9E0;<span>Eagle Eye</span></button>
-        </div>
-        <p class="ui-prayer-heading">Overhead Protection</p>
-        <div class="ui-prayer-grid ui-prayer-overhead">
-          <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_mage" title="Protect from Magic"><span class="pray-block pray-block--mage">&#x1F300;</span><span>Magic</span></button>
-          <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_range" title="Protect from Range"><span class="pray-block pray-block--range">&#x27B3;</span><span>Range</span></button>
-          <button type="button" class="ui-prayer-btn ui-prayer-overhead-btn" data-prayer="protect_melee" title="Protect from Melee"><span class="pray-block pray-block--melee">&#x2694;&#xFE0F;</span><span>Melee</span></button>
-        </div>
+        <div id="ui-prayer-container"></div>
         <p id="ui-prayer-active" class="ui-prayer-active-line">No active prayers</p>
       </section>
       <section class="ui-panel-section" data-tab-panel="worn" hidden>
@@ -407,27 +415,31 @@
           <div class="ui-worn-slot" data-worn-slot="bow"><span class="ui-worn-label">Bow</span></div>
           <div class="ui-worn-slot" data-worn-slot="ring2"><span class="ui-worn-label">Ring</span></div>
           <div class="ui-worn-slot" data-worn-slot="ring"><span class="ui-worn-label">Ring</span></div>
-          <div class="ui-worn-stats" id="ui-worn-stats">
-            <span class="ui-worn-stat">Atk: <b id="ui-worn-atk">0</b></span>
-            <span class="ui-worn-stat">Def: <b id="ui-worn-def">0</b></span>
+        </div>
+        <div class="ui-worn-view" data-worn-view-panel="stats">
+          <div class="ui-worn-pot-section">
+            <div class="ui-worn-pot-header">
+              <p class="ui-worn-skin-heading">Potentials</p>
+              <span class="ui-worn-stat">Atk: <b id="ui-worn-atk">0</b></span>
+              <span class="ui-worn-stat">Def: <b id="ui-worn-def">0</b></span>
+            </div>
+            <div id="ui-worn-pot-summary" class="ui-worn-pot-summary"></div>
+          </div>
+          <div class="ui-toolbelt-section">
+            <p class="ui-worn-skin-heading">Toolbelt</p>
+            <div class="ui-toolbelt-grid">
+              <div class="ui-toolbelt-slot" data-toolbelt="axe"><span class="ui-toolbelt-icon">🪓</span><span class="ui-toolbelt-name" id="ui-tb-axe">Wood Axe</span></div>
+              <div class="ui-toolbelt-slot" data-toolbelt="pickaxe"><span class="ui-toolbelt-icon">⛏️</span><span class="ui-toolbelt-name" id="ui-tb-pickaxe">Wood Pickaxe</span></div>
+              <div class="ui-toolbelt-slot" data-toolbelt="fishing"><span class="ui-toolbelt-icon">🎣</span><span class="ui-toolbelt-name" id="ui-tb-fishing">Fishing Pole +0</span></div>
+            </div>
           </div>
         </div>
-        <div class="ui-worn-pot-section">
-          <p class="ui-worn-skin-heading">Potentials</p>
-          <div id="ui-worn-pot-summary" class="ui-worn-pot-summary"></div>
-        </div>
-        <div class="ui-toolbelt-section">
-          <p class="ui-worn-skin-heading">Toolbelt</p>
-          <div class="ui-toolbelt-grid">
-            <div class="ui-toolbelt-slot" data-toolbelt="axe"><span class="ui-toolbelt-icon">🪓</span><span class="ui-toolbelt-name" id="ui-tb-axe">Wood Axe</span></div>
-            <div class="ui-toolbelt-slot" data-toolbelt="pickaxe"><span class="ui-toolbelt-icon">⛏️</span><span class="ui-toolbelt-name" id="ui-tb-pickaxe">Wood Pickaxe</span></div>
-            <div class="ui-toolbelt-slot" data-toolbelt="fishing"><span class="ui-toolbelt-icon">🎣</span><span class="ui-toolbelt-name" id="ui-tb-fishing">Fishing Pole +0</span></div>
+        <div class="ui-worn-view" data-worn-view-panel="skins" hidden>
+          <div class="ui-worn-skin-section">
+            <p class="ui-worn-skin-heading">Skin</p>
+            <div id="ui-worn-skin-slot" class="ui-worn-skin-slot"></div>
+            <div id="ui-worn-skin-grid" class="ui-worn-skin-grid"></div>
           </div>
-        </div>
-        <div class="ui-worn-skin-section">
-          <p class="ui-worn-skin-heading">Skin</p>
-          <div id="ui-worn-skin-slot" class="ui-worn-skin-slot"></div>
-          <div id="ui-worn-skin-grid" class="ui-worn-skin-grid"></div>
         </div>
       </section>
     </aside>
@@ -526,6 +538,10 @@
       <label class="ui-settings-row">
         <span>Mute Peer Effects</span>
         <input type="checkbox" id="setting-mute-peers">
+      </label>
+      <label class="ui-settings-row">
+        <span>Reduced Particles</span>
+        <input type="checkbox" id="setting-reduced-particles">
       </label>
       <hr class="ui-settings-divider">
       <!-- ─── Debug ─── -->
