@@ -256,26 +256,32 @@
         <!-- Hiscores inline (hidden by default, toggled by Hiscores button) -->
         <div id="ui-lb-inline" class="ui-lb-inline" hidden>
           <div class="ui-lb-categories">
-            <button type="button" class="ui-lb-cat-btn is-active" data-lb-cat="total_level">Overall</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="fishing">Fishing</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="mining">Mining</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="woodcutting">Woodcutting</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="cooking">Cooking</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="survival">Survival</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="farming">Farming</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="scribing">Scribing</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="faith">Faith</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="melee">Melee</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="bow">Ranged</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="mage">Magic</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="hitpoints">Hitpoints</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="boss_kc">Boss KC</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="snake_kc">Snake KC</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="golem_kc">Golem KC</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="slime_daddy_kc">Slime Daddy KC</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="yeti_kc">Yeti KC</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="dragon_kc">Dragon KC</button>
-            <button type="button" class="ui-lb-cat-btn" data-lb-cat="skele_kc">Skele KC</button>
+            <button type="button" class="ui-lb-cat-btn is-active" data-lb-cat="total_level">&#x1F3C6; Overall</button>
+            <select class="ui-lb-cat-select" id="lb-select-skills">
+              <option value="" disabled selected>Skills</option>
+              <option value="fishing">&#x1F41F; Fishing</option>
+              <option value="mining">&#x26CF;&#xFE0F; Mining</option>
+              <option value="woodcutting">&#x1FAB5; Woodcutting</option>
+              <option value="cooking">&#x1F373; Cooking</option>
+              <option value="melee">&#x2694;&#xFE0F; Melee</option>
+              <option value="bow">&#x1F3F9; Ranged</option>
+              <option value="mage">&#x1FA84; Magic</option>
+              <option value="hitpoints">&#x2764;&#xFE0F; Hitpoints</option>
+              <option value="survival">&#x1F3D5;&#xFE0F; Survival</option>
+              <option value="farming">&#x1F331; Farming</option>
+              <option value="scribing">&#x1F4DC; Scribing</option>
+              <option value="faith">&#x1F54A;&#xFE0F; Faith</option>
+            </select>
+            <select class="ui-lb-cat-select" id="lb-select-boss">
+              <option value="" disabled selected>Boss KC</option>
+              <option value="boss_kc">&#x1F451; Total Boss KC</option>
+              <option value="snake_kc">&#x1F40D; Snake</option>
+              <option value="golem_kc">&#x1FAA8; Golem</option>
+              <option value="slime_daddy_kc">&#x1F7E2; Slime Daddy</option>
+              <option value="yeti_kc">&#x2744;&#xFE0F; Yeti</option>
+              <option value="dragon_kc">&#x1F525; Dragon</option>
+              <option value="skele_kc">&#x1F480; Skele</option>
+            </select>
           </div>
           <div id="ui-lb-table" class="ui-lb-table"></div>
         </div>
@@ -435,6 +441,11 @@
           </div>
         </div>
         <div class="ui-worn-view" data-worn-view-panel="skins" hidden>
+          <div class="ui-cosmetic-slots">
+            <div class="ui-cosmetic-slot" data-cosmetic-slot="face"><span class="ui-worn-label">Face</span></div>
+            <div class="ui-cosmetic-slot" data-cosmetic-slot="hat"><span class="ui-worn-label">Hat</span></div>
+            <div class="ui-cosmetic-slot" data-cosmetic-slot="effect"><span class="ui-worn-label">Effect</span></div>
+          </div>
           <div class="ui-worn-skin-section">
             <p class="ui-worn-skin-heading">Skin</p>
             <div id="ui-worn-skin-slot" class="ui-worn-skin-slot"></div>
@@ -542,6 +553,10 @@
       <label class="ui-settings-row">
         <span>Reduced Particles</span>
         <input type="checkbox" id="setting-reduced-particles">
+      </label>
+      <label class="ui-settings-row" id="setting-hat-row" hidden>
+        <span>Party Hat</span>
+        <input type="checkbox" id="setting-hat">
       </label>
       <hr class="ui-settings-divider">
       <!-- ─── Debug ─── -->
