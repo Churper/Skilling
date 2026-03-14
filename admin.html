@@ -138,6 +138,9 @@
   <h2>Player Actions</h2>
   <div id="player-actions" class="action-log"><div style="color:#555">No player actions yet</div></div>
 
+  <h2>Faith Circle</h2>
+  <div id="faith-status" style="font-size:14px;padding:8px 12px;background:#16213e;border:1px solid #334;border-radius:8px;margin-bottom:16px;color:#aaa;">—</div>
+
   <h2>Online Players</h2>
   <div id="player-count" class="player-count">—</div>
   <div id="player-list" class="player-list">
@@ -206,7 +209,7 @@ function connect() {
   ws.onmessage = (e) => {
     let msg;
     try { msg = JSON.parse(e.data); } catch { return; }
-    if (msg.type === "admin_players") renderPlayers(msg.players || []);
+    if (msg.type === "admin_players") { renderPlayers(msg.players || []); renderFaith(msg.faith); }
     if (msg.type === "admin_actions") renderPlayerActions(msg.actions || []);
   };
   ws.onclose = () => {
@@ -336,6 +339,18 @@ function doKickAll() {
   adminCmd("admin_kick_all", {});
   logAction("act-kick", "Kicked ALL players");
   setTimeout(requestPlayers, 1000);
+}
+
+function renderFaith(f) {
+  const el = document.getElementById("faith-status");
+  if (!f) { el.textContent = "No data"; return; }
+  if (f.active) {
+    const m = Math.floor(f.despawnIn / 60), s = f.despawnIn % 60;
+    el.innerHTML = `🌿 <span style="color:#6ed998;font-weight:bold">ACTIVE</span> at (${f.spot.x}, ${f.spot.z}) — despawns in <strong>${m}:${String(s).padStart(2,"0")}</strong>`;
+  } else {
+    const m = Math.floor(f.spawnIn / 60), s = f.spawnIn % 60;
+    el.innerHTML = `💤 Next spawn in <strong style="color:#ffd700">${m}:${String(s).padStart(2,"0")}</strong>`;
+  }
 }
 
 function renderPlayers(players) {
