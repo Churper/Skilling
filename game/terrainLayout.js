@@ -318,8 +318,8 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       if (y > GRASS_Y + 3) { c = cCliff; }
       else if (y > GRASS_Y + 0.5) { tmp.copy(cHill).lerp(cGrass, 1 - sm(y, GRASS_Y + 0.5, HILL_Y)); c = tmp; }
       else { c = cGrass; }
-      /* editor color overrides — skip pad verts so overlapping chunks don't fight */
-      if (colorOverrides && !isPad) {
+      /* editor color overrides */
+      if (colorOverrides) {
         const clKey = `${lx},${lz}`;
         if (clKey in colorOverrides) { const ov = colorOverrides[clKey]; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
         else if (colorOverrides._default) { const ov = colorOverrides._default; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
