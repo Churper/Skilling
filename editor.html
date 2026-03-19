@@ -228,6 +228,11 @@ canvas{display:block}
         <input type="range" id="p-hard" min="0" max="1.0" value="0" step="0.1">
         <span class="val" id="p-hard-val">0.0</span>
       </div>
+      <div class="row" style="gap:4px;margin-top:4px">
+        <button id="btn-paint-mode" style="flex:1;font-size:10px;padding:3px 0;background:#3a6;color:#fff;border:1px solid #2a2a3e;border-radius:3px;cursor:pointer">Paint</button>
+        <button id="btn-smooth-mode" style="flex:1;font-size:10px;padding:3px 0;background:#555;color:#ccc;border:1px solid #2a2a3e;border-radius:3px;cursor:pointer">Smooth</button>
+        <button id="btn-eyedrop-mode" style="flex:1;font-size:10px;padding:3px 0;background:#555;color:#ccc;border:1px solid #2a2a3e;border-radius:3px;cursor:pointer">Pick</button>
+      </div>
     </div>
   </div>
 
@@ -694,14 +699,14 @@ const TOON_GRAD = (() => {
   return t;
 })();
 
-const hStep = 1.0;
-const MESH_PAD = 1; // extend mesh 1 unit past chunk edge to cover gaps
+const hStep = 4;   // must match STEP in rebuild_terrain.mjs + lodStep in terrainLayout.js
+const MESH_PAD = 0; // no overlap — matches renderer
 const xMin = (GX_MIN - 1) * TILE_S, xMax = (GX_MAX + 1) * TILE_S;
 const zMin = (GZ_MIN - 1) * TILE_S, zMax = (GZ_MAX + 1) * TILE_S;
 const hnx = Math.ceil((xMax - xMin) / hStep) + 1;
 const hnz = Math.ceil((zMax - zMin) / hStep) + 1;
-/* padded mesh grid (1 extra vertex on each side) */
-const PAD_V = Math.round(MESH_PAD / hStep); // padding in vertices
+/* padded mesh grid (no padding — MESH_PAD=0) */
+const PAD_V = Math.round(MESH_PAD / hStep); // padding in vertices (0)
 const mnx = hnx + PAD_V * 2;
 const mnz = hnz + PAD_V * 2;
 function mvi(ix, iz) { return (iz + PAD_V) * mnx + (ix + PAD_V); } // data-grid ix,iz → mesh vertex index
@@ -1653,10 +1658,13 @@ const PAINT_COLORS = [
   { name: "Snow", hex: "#e8eef0", color: new THREE.Color("#e8eef0") },
   { name: "Slush", hex: "#b8ccd0", color: new THREE.Color("#b8ccd0") },
   { name: "Water", hex: "#0f2e7a", color: new THREE.Color("#0f2e7a") },
+  { name: "Wet Sand", hex: "#7a5e2a", color: new THREE.Color("#7a5e2a") },
+  { name: "Waterbed", hex: "#0e2535", color: new THREE.Color("#0e2535") },
+  { name: "Beach Sand", hex: "#c2a055", color: new THREE.Color("#c2a055") },
 ];
 let selectedPaintColor = PAINT_COLORS[0].color;
 let paintStrength = 0.50;
-let colorPainting = false, colorPaintSign = 1, lastColorPaintTime = 0;
+let colorPainting = false, colorPaintSign = 1, lastColorPaintTime = 0, _colorSmoothing = false;
 let _prevColorStrokeX = null, _prevColorStrokeZ = null;
 const pUndoStack = [];
 let pUndoSnap = null;
@@ -1683,91 +1691,185 @@ function strokeInterp(prevX, prevZ, wx, wz, r, fn, dt) {
 }
 
 /* ═══════════════════════════════════════════
+   Cross-chunk brush helpers
+   ═══════════════════════════════════════════ */
+
+/** Returns all chunkMesh entries whose bounds overlap the brush circle */
+function getBrushChunks(wx, wz, radius) {
+  const result = [];
+  for (const entry of chunkMeshes.values()) {
+    const bxMin = entry.cx * CHUNK_SIZE + xMin, bxMax = entry.cx * CHUNK_SIZE + xMax;
+    const bzMin = entry.cz * CHUNK_SIZE + zMin, bzMax = entry.cz * CHUNK_SIZE + zMax;
+    const nearX = Math.max(bxMin, Math.min(bxMax, wx));
+    const nearZ = Math.max(bzMin, Math.min(bzMax, wz));
+    if (Math.hypot(nearX - wx, nearZ - wz) <= radius) result.push(entry);
+  }
+  return result;
+}
+
+/** Temporarily swap all brush globals to point at `entry`, call fn(), then restore */
+function withChunkEntry(entry, fn) {
+  const prevHO = heightOffsets, prevCO = colorOverrides;
+  const prevHP = hPos, prevHC = hCol;
+  const prevGM = groundMesh, prevGG = groundGeo;
+  const prevAEC = activeEditChunk;
+  heightOffsets = entry.heightOffsets; colorOverrides = entry.colorOverrides;
+  hPos = entry.hPos; hCol = entry.hCol;
+  groundMesh = entry.mesh; groundGeo = entry.geo;
+  activeEditChunk = [entry.cx, entry.cz];
+  fn();
+  heightOffsets = prevHO; colorOverrides = prevCO;
+  hPos = prevHP; hCol = prevHC;
+  groundMesh = prevGM; groundGeo = prevGG;
+  activeEditChunk = prevAEC;
+}
+
+/* ═══════════════════════════════════════════
    Height painting
    ═══════════════════════════════════════════ */
 function paintAt(wx, wz, dt) {
   _lastBrushWX = wx; _lastBrushWZ = wz; _lastBrushR = brushRadius;
-  /* convert world coords to local (chunk-relative) coords */
-  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
-  const lx = wx - chOx, lz = wz - chOz;
-  const [cx, cz] = worldToHGrid(lx, lz);
-  const r = Math.ceil(brushRadius / hStep);
-  for (let dz = -r; dz <= r; dz++) {
-    for (let dx = -r; dx <= r; dx++) {
-      const ix = cx + dx, iz = cz + dz;
-      if (ix < 0 || ix >= hnx || iz < 0 || iz >= hnz) continue;
-      const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
-      const dist = Math.hypot(vx - lx, vz - lz);
-      if (dist > brushRadius) continue;
-      const softFalloff = 1 - sm(dist, 0, brushRadius);
-      const falloff = softFalloff + (1 - softFalloff) * brushHardness * (dist < brushRadius ? 1 : 0);
-      const vi = hvi(ix, iz);
-      const curY = getBaseY(vx, vz) + heightOffsets[vi];
-      if (brushMode === "raise") {
-        heightOffsets[vi] += paintSign * brushStrength * falloff * dt * 8;
-      } else if (brushMode === "flatten") {
-        const diff = flattenY - curY;
-        const step = diff * brushStrength * falloff * dt * 4;
-        /* clamp so we never overshoot the target */
-        heightOffsets[vi] += Math.abs(step) > Math.abs(diff) ? diff : step;
-      } else if (brushMode === "stamp") {
-        heightOffsets[vi] = flattenY - getBaseY(vx, vz);
-      } else if (brushMode === "smooth") {
-        let sum = 0, cnt = 0;
-        for (const [ox, oz] of [[-1,0],[1,0],[0,-1],[0,1]]) {
-          const ni = ix + ox, nj = iz + oz;
-          if (ni >= 0 && ni < hnx && nj >= 0 && nj < hnz) {
-            sum += getBaseY(xMin + ni * hStep, zMin + nj * hStep) + heightOffsets[hvi(ni, nj)]; cnt++;
+  for (const entry of getBrushChunks(wx, wz, brushRadius)) {
+    withChunkEntry(entry, () => {
+      const chOx = entry.cx * CHUNK_SIZE, chOz = entry.cz * CHUNK_SIZE;
+      const lx = wx - chOx, lz = wz - chOz;
+      const [gcx, gcz] = worldToHGrid(lx, lz);
+      const r = Math.ceil(brushRadius / hStep);
+      for (let dz = -r; dz <= r; dz++) {
+        for (let dx = -r; dx <= r; dx++) {
+          const ix = gcx + dx, iz = gcz + dz;
+          if (ix < 0 || ix >= hnx || iz < 0 || iz >= hnz) continue;
+          const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
+          /* distance in WORLD space so cross-chunk strokes are seamless */
+          const dist = Math.hypot(vx + chOx - wx, vz + chOz - wz);
+          if (dist > brushRadius) continue;
+          const softFalloff = 1 - sm(dist, 0, brushRadius);
+          const falloff = softFalloff + (1 - softFalloff) * brushHardness * (dist < brushRadius ? 1 : 0);
+          const vi = hvi(ix, iz);
+          const curY = getBaseY(vx, vz) + heightOffsets[vi];
+          if (brushMode === "raise") {
+            heightOffsets[vi] += paintSign * brushStrength * falloff * dt * 8;
+          } else if (brushMode === "flatten") {
+            const diff = flattenY - curY;
+            const step = diff * brushStrength * falloff * dt * 4;
+            heightOffsets[vi] += Math.abs(step) > Math.abs(diff) ? diff : step;
+          } else if (brushMode === "stamp") {
+            heightOffsets[vi] = flattenY - getBaseY(vx, vz);
+          } else if (brushMode === "smooth") {
+            let sum = 0, cnt = 0;
+            for (const [ox, oz] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+              const ni = ix + ox, nj = iz + oz;
+              if (ni >= 0 && ni < hnx && nj >= 0 && nj < hnz) {
+                sum += getBaseY(xMin + ni * hStep, zMin + nj * hStep) + heightOffsets[hvi(ni, nj)]; cnt++;
+              }
+            }
+            if (cnt) heightOffsets[vi] += (sum / cnt - curY) * brushStrength * falloff * dt * 4;
           }
         }
-        if (cnt) heightOffsets[vi] += (sum / cnt - curY) * brushStrength * falloff * dt * 4;
       }
-    }
+      updateMeshRegion(gcx, gcz, brushRadius);
+    });
   }
-  updateMeshRegion(cx, cz, brushRadius);
 }
 
 function hSaveUndo() { hUndoSnap = new Float32Array(heightOffsets); }
 function hPushUndo() { if (hUndoSnap) { hUndoStack.push(hUndoSnap); if (hUndoStack.length > 50) hUndoStack.shift(); hUndoSnap = null; } resnapObjectsNearBrush(); }
 function hUndo() { if (!hUndoStack.length) return; heightOffsets.set(hUndoStack.pop()); rebuildAllVerts(); resnapObjects(); }
 
+/* ── Color smoothing at step=2 resolution — writes intermediate overrides ── */
+function _getColorAt(lx, lz) {
+  /* Read color from override or mesh interpolation */
+  const key = `${lx},${lz}`;
+  if (colorOverrides[key]) return colorOverrides[key];
+  /* Bilinear from step-4 mesh grid */
+  const fx = (lx - xMin) / hStep, fz = (lz - zMin) / hStep;
+  const ix0 = Math.floor(fx), iz0 = Math.floor(fz);
+  const ix1 = Math.min(ix0 + 1, hnx - 1), iz1 = Math.min(iz0 + 1, hnz - 1);
+  const sx = fx - ix0, sz = fz - iz0;
+  const v00 = hvi(ix0,iz0)*3, v10 = hvi(ix1,iz0)*3, v01 = hvi(ix0,iz1)*3, v11 = hvi(ix1,iz1)*3;
+  return [
+    hCol[v00]*(1-sx)*(1-sz) + hCol[v10]*sx*(1-sz) + hCol[v01]*(1-sx)*sz + hCol[v11]*sx*sz,
+    hCol[v00+1]*(1-sx)*(1-sz) + hCol[v10+1]*sx*(1-sz) + hCol[v01+1]*(1-sx)*sz + hCol[v11+1]*sx*sz,
+    hCol[v00+2]*(1-sx)*(1-sz) + hCol[v10+2]*sx*(1-sz) + hCol[v01+2]*(1-sx)*sz + hCol[v11+2]*sx*sz,
+  ];
+}
+function smoothColorAt(wx, wz, dt) {
+  const half = hStep / 2;
+  for (const entry of getBrushChunks(wx, wz, brushRadius)) {
+    withChunkEntry(entry, () => {
+      const chOx = entry.cx * CHUNK_SIZE, chOz = entry.cz * CHUNK_SIZE;
+      const rSteps = Math.ceil(brushRadius / half);
+      const updates = [];
+      for (let dz = -rSteps; dz <= rSteps; dz++) {
+        for (let dx = -rSteps; dx <= rSteps; dx++) {
+          const lx = Math.round((wx - chOx) / half) * half + dx * half;
+          const lz = Math.round((wz - chOz) / half) * half + dz * half;
+          if (lx < xMin + half || lx > xMax - half || lz < zMin + half || lz > zMax - half) continue;
+          const vwx = lx + chOx, vwz = lz + chOz;
+          const dist = Math.hypot(vwx - wx, vwz - wz);
+          if (dist > brushRadius) continue;
+          const cur = _getColorAt(lx, lz);
+          const nb = [
+            _getColorAt(lx - half, lz), _getColorAt(lx + half, lz),
+            _getColorAt(lx, lz - half), _getColorAt(lx, lz + half),
+          ];
+          const ar = (nb[0][0]+nb[1][0]+nb[2][0]+nb[3][0])/4;
+          const ag = (nb[0][1]+nb[1][1]+nb[2][1]+nb[3][1])/4;
+          const ab = (nb[0][2]+nb[1][2]+nb[2][2]+nb[3][2])/4;
+          const norm = dist / brushRadius;
+          const falloff = Math.max(0, 1 - norm * norm);
+          const t = Math.min(paintStrength * falloff * dt * 20, 0.5);
+          const key = `${lx},${lz}`;
+          updates.push({ key, r: cur[0]+(ar-cur[0])*t, g: cur[1]+(ag-cur[1])*t, b: cur[2]+(ab-cur[2])*t });
+        }
+      }
+      for (const u of updates) colorOverrides[u.key] = [u.r, u.g, u.b];
+      updateMeshRegion(gcx, gcz, brushRadius);
+    });
+  }
+}
+
 /* ── Color painting ── */
 function paintColorAt(wx, wz, dt) {
-  /* convert world coords to local (chunk-relative) coords */
-  const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
-  const lx = wx - chOx, lz = wz - chOz;
-  const [cx, cz] = worldToHGrid(lx, lz);
-  const r = Math.ceil(brushRadius / hStep);
-  for (let dz = -r; dz <= r; dz++) {
-    for (let dx = -r; dx <= r; dx++) {
-      const ix = cx + dx, iz = cz + dz;
-      if (ix < 0 || ix >= hnx || iz < 0 || iz >= hnz) continue;
-      const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
-      const dist = Math.hypot(vx - lx, vz - lz);
-      if (dist > brushRadius) continue;
-      const key = `${vx},${vz}`;
-      const vi = hvi(ix, iz);
-      const y = getBaseY(vx, vz) + heightOffsets[vi];
-      if (colorPaintSign < 0) {
-        delete colorOverrides[key];
-      } else {
-        let cr, cg, cb;
-        if (colorOverrides[key]) { [cr, cg, cb] = colorOverrides[key]; }
-        else if (colorOverrides._default) { [cr, cg, cb] = colorOverrides._default; }
-        else { const pc = computeBaseColor(vx, vz, y); cr = pc.r; cg = pc.g; cb = pc.b; }
-        /* falloff: hardness 0 = toon stepped, hardness 1 = flat/uniform */
-        const norm = dist / brushRadius;
-        const toonFalloff = norm < 0.6 ? 1.0 : norm < 0.85 ? 0.35 : 0.0;
-        const colorFalloff = toonFalloff + (1 - toonFalloff) * brushHardness;
-        const t = Math.min(paintStrength * colorFalloff * dt * 25, 1);
-        cr += (selectedPaintColor.r - cr) * t;
-        cg += (selectedPaintColor.g - cg) * t;
-        cb += (selectedPaintColor.b - cb) * t;
-        colorOverrides[key] = [cr, cg, cb];
+  for (const entry of getBrushChunks(wx, wz, brushRadius)) {
+    withChunkEntry(entry, () => {
+      const chOx = entry.cx * CHUNK_SIZE, chOz = entry.cz * CHUNK_SIZE;
+      const lx = wx - chOx, lz = wz - chOz;
+      const [gcx, gcz] = worldToHGrid(lx, lz);
+      const r = Math.ceil(brushRadius / hStep);
+      for (let dz = -r; dz <= r; dz++) {
+        for (let dx = -r; dx <= r; dx++) {
+          const ix = gcx + dx, iz = gcz + dz;
+          if (ix < 0 || ix >= hnx || iz < 0 || iz >= hnz) continue;
+          const vx = xMin + ix * hStep, vz = zMin + iz * hStep;
+          const dist = Math.hypot(vx + chOx - wx, vz + chOz - wz);
+          if (dist > brushRadius) continue;
+          const key = `${vx},${vz}`;
+          const vi = hvi(ix, iz);
+          const y = getBaseY(vx, vz) + heightOffsets[vi];
+          if (colorPaintSign < 0) {
+            delete colorOverrides[key];
+          } else {
+            let cr, cg, cb;
+            if (colorOverrides[key]) { [cr, cg, cb] = colorOverrides[key]; }
+            else if (colorOverrides._default) { [cr, cg, cb] = colorOverrides._default; }
+            else { const pc = computeBaseColor(vx, vz, y); cr = pc.r; cg = pc.g; cb = pc.b; }
+            const norm = dist / brushRadius;
+            /* smooth Gaussian-like falloff: full center, gradual fade to edge */
+            const smoothFalloff = Math.max(0, 1 - norm * norm);
+            const hardFalloff = norm < 0.6 ? 1.0 : norm < 0.85 ? 0.35 : 0.0;
+            const colorFalloff = smoothFalloff * (1 - brushHardness) + hardFalloff * brushHardness;
+            const t = Math.min(paintStrength * colorFalloff * dt * 25, 1);
+            cr += (selectedPaintColor.r - cr) * t;
+            cg += (selectedPaintColor.g - cg) * t;
+            cb += (selectedPaintColor.b - cb) * t;
+            colorOverrides[key] = [cr, cg, cb];
+          }
+        }
       }
-    }
+      updateMeshRegion(gcx, gcz, brushRadius);
+    });
   }
-  updateMeshRegion(cx, cz, brushRadius);
 }
 function pSaveUndo() { pUndoSnap = JSON.parse(JSON.stringify(colorOverrides)); }
 function pPushUndo() { if (pUndoSnap !== null) { pUndoStack.push(pUndoSnap); if (pUndoStack.length > 50) pUndoStack.shift(); pUndoSnap = null; } }
@@ -1993,11 +2095,33 @@ canvas.addEventListener("mousedown", e => {
     if (pt) { paintAt(pt.x, pt.z, 0.016); _prevStrokeX = pt.x; _prevStrokeZ = pt.z; }
   }
   if (mode === "paint" && (e.button === 0 || e.button === 2)) {
+    const tool = e.altKey ? "pick" : e.shiftKey ? "smooth" : _paintSubTool;
+    /* Eyedropper */
+    if (tool === "pick" && e.button === 0) {
+      const pt = raycastGround(e);
+      if (pt) {
+        const chOx = activeEditChunk[0] * CHUNK_SIZE, chOz = activeEditChunk[1] * CHUNK_SIZE;
+        const lx = pt.x - chOx, lz = pt.z - chOz;
+        const [gcx, gcz] = worldToHGrid(lx, lz);
+        const vi = hvi(gcx, gcz);
+        if (vi >= 0 && vi * 3 + 2 < hCol.length) {
+          selectedPaintColor = new THREE.Color(hCol[vi * 3], hCol[vi * 3 + 1], hCol[vi * 3 + 2]);
+          document.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
+          console.log("Eyedropper picked:", selectedPaintColor);
+        }
+      }
+      return;
+    }
     colorPainting = true;
     colorPaintSign = e.button === 0 ? 1 : -1;
+    _colorSmoothing = tool === "smooth";
     pSaveUndo(); lastColorPaintTime = performance.now();
     const pt = raycastGround(e);
-    if (pt) { paintColorAt(pt.x, pt.z, 0.016); _prevColorStrokeX = pt.x; _prevColorStrokeZ = pt.z; }
+    if (pt) {
+      if (_colorSmoothing) smoothColorAt(pt.x, pt.z, 0.016);
+      else paintColorAt(pt.x, pt.z, 0.016);
+      _prevColorStrokeX = pt.x; _prevColorStrokeZ = pt.z;
+    }
   }
   /* Start drag if clicking an existing object (only when no palette item selected) */
   if (mode === "objects" && e.button === 0) {
@@ -2088,8 +2212,9 @@ canvas.addEventListener("mousemove", e => {
           const now = performance.now();
           const dt = Math.min((now - lastColorPaintTime) / 1000, 0.05);
           lastColorPaintTime = now;
-          if (_prevColorStrokeX != null) strokeInterp(_prevColorStrokeX, _prevColorStrokeZ, pt.x, pt.z, brushRadius, paintColorAt, dt);
-          else paintColorAt(pt.x, pt.z, dt);
+          const cfn = _colorSmoothing ? smoothColorAt : paintColorAt;
+          if (_prevColorStrokeX != null) strokeInterp(_prevColorStrokeX, _prevColorStrokeZ, pt.x, pt.z, brushRadius, cfn, dt);
+          else cfn(pt.x, pt.z, dt);
           _prevColorStrokeX = pt.x; _prevColorStrokeZ = pt.z;
         }
       }
@@ -2304,6 +2429,17 @@ for (const btn of document.querySelectorAll(".flat-preset")) {
 document.getElementById("p-size").addEventListener("input", e => { brushRadius = +e.target.value; document.getElementById("p-size-val").textContent = e.target.value; document.getElementById("h-size").value = brushRadius; document.getElementById("h-size-val").textContent = brushRadius; updateBrushGeo(); });
 document.getElementById("p-str").addEventListener("input", e => { paintStrength = +e.target.value; document.getElementById("p-str-val").textContent = (+e.target.value).toFixed(2); });
 document.getElementById("p-hard").addEventListener("input", e => { brushHardness = +e.target.value; document.getElementById("p-hard-val").textContent = (+e.target.value).toFixed(1); document.getElementById("h-hard").value = brushHardness; document.getElementById("h-hard-val").textContent = (+e.target.value).toFixed(1); });
+
+/* Paint sub-tool buttons */
+let _paintSubTool = "paint"; // "paint" | "smooth" | "pick"
+function _updatePaintButtons() {
+  document.getElementById("btn-paint-mode").style.background = _paintSubTool === "paint" ? "#3a6" : "#555";
+  document.getElementById("btn-smooth-mode").style.background = _paintSubTool === "smooth" ? "#3a6" : "#555";
+  document.getElementById("btn-eyedrop-mode").style.background = _paintSubTool === "pick" ? "#3a6" : "#555";
+}
+document.getElementById("btn-paint-mode").addEventListener("click", () => { _paintSubTool = "paint"; _updatePaintButtons(); });
+document.getElementById("btn-smooth-mode").addEventListener("click", () => { _paintSubTool = "smooth"; _updatePaintButtons(); });
+document.getElementById("btn-eyedrop-mode").addEventListener("click", () => { _paintSubTool = "pick"; _updatePaintButtons(); });
 
 /* Build paint color palette */
 {

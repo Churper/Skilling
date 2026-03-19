@@ -250,79 +250,85 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   group.name = "terrain";
 
   /* ── ground mesh ── */
-  const step = lodStep || 1.0;
-  const MESH_PAD = Math.max(step * 3, 4); // extend mesh past chunk edge — must match generator MARGIN
+  /* step=4 default — matches the rebuild_terrain.mjs grid density.
+     All chunks load at the same step; no per-chunk LOD switching needed. */
+  const step = lodStep || 4;
   const dxMin = bounds ? bounds.xMin : (GX_MIN - 1) * TILE_S;
   const dxMax = bounds ? bounds.xMax : (GX_MAX + 1) * TILE_S;
   const dzMin = bounds ? bounds.zMin : (GZ_MIN - 1) * TILE_S;
   const dzMax = bounds ? bounds.zMax : (GZ_MAX + 1) * TILE_S;
-  /* padded mesh bounds */
-  const xMin = dxMin - MESH_PAD, xMax = dxMax + MESH_PAD;
-  const zMin = dzMin - MESH_PAD, zMax = dzMax + MESH_PAD;
+  /* exact chunk bounds — no overlap so adjacent meshes never z-fight */
+  const xMin = dxMin, xMax = dxMax;
+  const zMin = dzMin, zMax = dzMax;
   const nx = Math.ceil((xMax - xMin) / step) + 1;
   const nz = Math.ceil((zMax - zMin) / step) + 1;
-  /* data grid dimensions (unpadded) */
-  const dnx = Math.ceil((dxMax - dxMin) / step) + 1;
-  const dnz = Math.ceil((dzMax - dzMin) / step) + 1;
+
   const pos = new Float32Array(nx * nz * 3);
   const col = new Float32Array(nx * nz * 3);
   const idx = [];
 
-  /* palette */
-  const BASE_COLORS = {
-    grass: "#4dad38", dirt: "#8B7355", sand: "#e2d098",
-    stone: "#8a8a7a", snow: "#e8eef0", ice: "#a8d8ea", dark: "#3a3a42",
-  };
-  const baseType = bounds && bounds.baseType || "grass";
-  const cGrass = new THREE.Color(BASE_COLORS[baseType] || BASE_COLORS.grass);
-  const cHill  = new THREE.Color(baseType === "grass" ? "#3d8a2e" : cGrass.clone().multiplyScalar(0.85));
-  const cCliff = new THREE.Color("#8a8a7a");
-  const tmp = new THREE.Color();
-  const sm = THREE.MathUtils.smoothstep;
+  /* biome palette — grass → sand → deep (water handles the transition now) */
+  const cGrass   = new THREE.Color("#4dad38");   // standard grass
+  const cSand    = new THREE.Color("#F0D28A");   // warm sand
+  const cDeep    = new THREE.Color("#3d6b5e");   // muted dark teal waterbed
+  const tmp      = new THREE.Color();
+  const sm       = THREE.MathUtils.smoothstep;   // hoisted — used in every vertex
 
-  /* chunk local offset — heightOffset/colorOverride keys are stored in local coords */
+  /* chunk local offset — heightOffset/colorOverride keys are in local coords */
   const loX = bounds && bounds.localOffsetX || 0;
   const loZ = bounds && bounds.localOffsetZ || 0;
 
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
-      /* local coords for data lookup — use actual position, fall back to clamped edge */
-      let lx = x - loX;
-      let lz = z - loZ;
+      let lx = x - loX, lz = z - loZ;
       const isPad = x < dxMin || x > dxMax || z < dzMin || z > dzMax;
       let y = GRASS_Y;
-      /* apply editor height offsets */
+
+      /* height from chunk data (step-4 grid, bilinear for objects) */
       if (heightOffsets) {
         let key = `${lx},${lz}`;
         if (!(key in heightOffsets) && isPad) {
-          /* fallback: clamp to data grid edge for chunks without margin data */
           lx = Math.max(dxMin, Math.min(dxMax, x)) - loX;
           lz = Math.max(dzMin, Math.min(dzMax, z)) - loZ;
           key = `${lx},${lz}`;
         }
         if (key in heightOffsets) y += heightOffsets[key];
       }
-      /* no y nudge on pad verts — adjacent chunks share these positions, nudging causes seams */
+
       const i3 = (iz * nx + ix) * 3;
 
-      /* low-poly jitter (don't jitter edges) */
-      const jit = (ix === 0 || ix === nx - 1 || iz === 0 || iz === nz - 1)
-        ? 0 : (hash21(x, z) - 0.5) * 0.12;
-      pos[i3] = x + jit;
+      /* low-poly vertex jitter — suppressed at chunk boundary edges to keep seams closed */
+      const isEdgeX = ix === 0 || ix === nx - 1;
+      const isEdgeZ = iz === 0 || iz === nz - 1;
+      const jit = (isEdgeX || isEdgeZ) ? 0 : (hash21(x, z) - 0.5) * (step * 0.03);
+      /* no edge nudge — nudging outward caused cracks visible under transparent water */
+      pos[i3]     = x + jit;
       pos[i3 + 1] = y;
       pos[i3 + 2] = z + jit * 0.7;
 
-      /* base color with height variation */
+      /* Biome color — smooth 4-stop gradient keyed on water fraction.
+         wf=0: full land, wf=1: deep water. Smoothstep at every zone boundary
+         so consecutive shore vertices blend without visible bands. */
+      // wf = sRemap = (GRASS_Y - y) / 1.5  (inverted transfer, 0=land 1=deep)
+      // Zone boundaries derived from SHORE_T=0.42:
+      //   s=0.575 → wf=(0.575-0.42)/0.58=0.267  (dry sand → wet sand)
+      //   s=0.72  → wf=(0.72-0.42)/0.58=0.517   (wet sand → deep)
+      const wf = Math.max(0, Math.min(1, (GRASS_Y - y) / 1.5));
       let c;
-      if (y > GRASS_Y + 3) { c = cCliff; }
-      else if (y > GRASS_Y + 0.5) { tmp.copy(cHill).lerp(cGrass, 1 - sm(y, GRASS_Y + 0.5, HILL_Y)); c = tmp; }
-      else { c = cGrass; }
-      /* editor color overrides */
+      if (wf < 0.001) {
+        c = cGrass;
+      } else if (wf < 0.35) {
+        c = tmp.copy(cGrass).lerp(cSand, sm(wf, 0.0, 0.35));
+      } else {
+        c = tmp.copy(cSand).lerp(cDeep, sm(wf, 0.35, 1.0));
+      }
+
+      /* editor color overrides — specific keys always win, _default only for non-padded verts */
       if (colorOverrides) {
         const clKey = `${lx},${lz}`;
         if (clKey in colorOverrides) { const ov = colorOverrides[clKey]; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
-        else if (colorOverrides._default) { const ov = colorOverrides._default; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
+        else if (!isPad && colorOverrides._default) { const ov = colorOverrides._default; tmp.setRGB(ov[0], ov[1], ov[2]); c = tmp; }
       }
       col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b;
 
@@ -333,60 +339,176 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
     }
   }
 
-  /* ── noise pass: apply smooth variation AFTER all blending is done ── */
+  /* color blur removed — DataTexture LinearFilter handles smooth gradients */
+
+  /* no runtime blur — smooth applied in fix_shorelines on the actual data */
+
+  /* ── 4x resolution DataTexture — padded 2 texels for seamless chunk edges ── */
+  const texStep = 1;
+  const tPad = 2;
+  const tnxI = Math.ceil((xMax - xMin) / texStep) + 1;  // inner (101)
+  const tnzI = Math.ceil((zMax - zMin) / texStep) + 1;
+  const tnx = tnxI + tPad * 2;  // padded (105)
+  const tnz = tnzI + tPad * 2;
+  const texData = new Uint8Array(tnx * tnz * 4);
+
+  for (let tz = 0; tz < tnz; tz++) {
+    for (let tx = 0; tx < tnx; tx++) {
+      const x = xMin + (tx - tPad) * texStep, z = zMin + (tz - tPad) * texStep;
+      const ti = (tz * tnx + tx) * 4;
+
+      /* Check for colorOverride at this position */
+      let lx = x - loX, lz = z - loZ;
+      let r, g, b;
+      const coKey = `${lx},${lz}`;
+      if (colorOverrides && colorOverrides[coKey]) {
+        const ov = colorOverrides[coKey];
+        r = ov[0]; g = ov[1]; b = ov[2];
+      } else {
+        /* bilinear interpolation from the step-4 col[] grid — clamped for padding */
+        const fx = (x - xMin) / step, fz = (z - zMin) / step;
+        const ix0 = Math.max(0, Math.min(Math.floor(fx), nx - 2));
+        const iz0 = Math.max(0, Math.min(Math.floor(fz), nz - 2));
+        const ix1 = Math.min(ix0 + 1, nx - 1), iz1 = Math.min(iz0 + 1, nz - 1);
+        const sx = Math.max(0, Math.min(1, fx - ix0)), sz = Math.max(0, Math.min(1, fz - iz0));
+        const i00 = (iz0 * nx + ix0) * 3, i10 = (iz0 * nx + ix1) * 3;
+        const i01 = (iz1 * nx + ix0) * 3, i11 = (iz1 * nx + ix1) * 3;
+        r = col[i00]*(1-sx)*(1-sz) + col[i10]*sx*(1-sz) + col[i01]*(1-sx)*sz + col[i11]*sx*sz;
+        g = col[i00+1]*(1-sx)*(1-sz) + col[i10+1]*sx*(1-sz) + col[i01+1]*(1-sx)*sz + col[i11+1]*sx*sz;
+        b = col[i00+2]*(1-sx)*(1-sz) + col[i10+2]*sx*(1-sz) + col[i01+2]*(1-sx)*sz + col[i11+2]*sx*sz;
+      }
+
+      /* apply noise/shade at this position */
+      const hills = _hillField(-x, -z);
+      const raw   = 0.81 - Math.min(hills, 0.49);
+      const banded = _softBand(Math.max(0, Math.min(1, raw)), 14);
+      const fine  = (_vnoise(-x * 0.018 + 7.31,  -z * 0.018 + 13.77) * 0.45
+                   + _vnoise(-x * 0.045 + 53.17,  -z * 0.045 + 97.43) * 0.28
+                   + _vnoise(-x * 0.10  + 107.89, -z * 0.10  + 151.61) * 0.16
+                   + _vnoise(-x * 0.22  + 199.33, -z * 0.22  + 263.07) * 0.11) * 0.76 - 0.38;
+      const shade = 1.0 + (banded + fine - 1.0) * 0.45;
+      r *= shade; g *= shade; b *= shade;
+
+      texData[ti]     = Math.min(255, Math.max(0, r * 255 + 0.5));
+      texData[ti + 1] = Math.min(255, Math.max(0, g * 255 + 0.5));
+      texData[ti + 2] = Math.min(255, Math.max(0, b * 255 + 0.5));
+      texData[ti + 3] = 255;
+    }
+  }
+  const colorTex = new THREE.DataTexture(texData, tnx, tnz, THREE.RGBAFormat);
+  colorTex.magFilter = THREE.LinearFilter;
+  colorTex.minFilter = THREE.LinearFilter;
+  colorTex.wrapS = THREE.ClampToEdgeWrapping;
+  colorTex.wrapT = THREE.ClampToEdgeWrapping;
+  colorTex.colorSpace = THREE.LinearSRGBColorSpace;
+  colorTex.needsUpdate = true;
+
+  const uvs = new Float32Array(nx * nz * 2);
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
-      const x = xMin + ix * step, z = zMin + iz * step;
-      const i3 = (iz * nx + ix) * 3;
-      /* round hills base */
-      const hills = _hillField(-x, -z);
-      const raw = 0.81 - Math.min(hills, 0.49);
-      const banded = _softBand(Math.max(0, Math.min(1, raw)), 14);
-      const fine = (_vnoise(-x * 0.018 + 7.31, -z * 0.018 + 13.77) * 0.45
-                  + _vnoise(-x * 0.045 + 53.17, -z * 0.045 + 97.43) * 0.28
-                  + _vnoise(-x * 0.10 + 107.89, -z * 0.10 + 151.61) * 0.16
-                  + _vnoise(-x * 0.22 + 199.33, -z * 0.22 + 263.07) * 0.11) * 0.76 - 0.38;
-      const shade = 1.0 + (banded + fine - 1.0) * 0.68;
-      col[i3] *= shade; col[i3 + 1] *= shade; col[i3 + 2] *= shade;
+      const ui = (iz * nx + ix) * 2;
+      const txPos = (ix * step) / texStep + tPad;
+      const tzPos = (iz * step) / texStep + tPad;
+      uvs[ui]     = (txPos + 0.5) / tnx;
+      uvs[ui + 1] = (tzPos + 0.5) / tnz;
     }
   }
 
   const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  geo.setAttribute("uv",       new THREE.BufferAttribute(uvs, 2));
   geo.setIndex(idx);
   geo.computeVertexNormals();
+  /* Force boundary vertex normals to (0,1,0) so adjacent chunks match lighting */
+  {
+    const nrm = geo.attributes.normal.array;
+    for (let iz = 0; iz < nz; iz++) {
+      for (let ix = 0; ix < nx; ix++) {
+        if (ix === 0 || ix === nx-1 || iz === 0 || iz === nz-1) {
+          const i3 = (iz * nx + ix) * 3;
+          nrm[i3] = 0; nrm[i3+1] = 1; nrm[i3+2] = 0;
+        }
+      }
+    }
+    geo.attributes.normal.needsUpdate = true;
+  }
   geo.computeBoundingBox();
   geo.computeBoundingSphere();
-  const groundMesh = new THREE.Mesh(geo, new THREE.MeshToonMaterial({
-    vertexColors: true, gradientMap: TOON_GRAD,
-  }));
+  const groundMat  = new THREE.MeshToonMaterial({ map: colorTex, gradientMap: TOON_GRAD });
+  const groundMesh = new THREE.Mesh(geo, groundMat);
   groundMesh.renderOrder = R_GND;
   group.add(groundMesh);
 
-  /* ── water plane — clean toon water ── */
+  /* ── pre-baked water alpha texture (from global spline) ── */
   {
     const ww = dxMax - dxMin, wh = dzMax - dzMin;
-    const wSegs = step <= 1 ? 48 : 12;
-    const waterGeo = new THREE.PlaneGeometry(ww, wh, wSegs, wSegs);
+    const aNx = dxMax - dxMin + 1, aNz = dzMax - dzMin + 1; // 101x101
+
+    const PAD = 8;
+    const pNx = aNx + PAD * 2, pNz = aNz + PAD * 2; // padded dims (105x105)
+
+    let aTex;
+    if (bounds && bounds._chunkData && bounds._chunkData.waterAlpha) {
+      const b64 = bounds._chunkData.waterAlpha;
+      const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      aTex = new THREE.DataTexture(bin, pNx, pNz, THREE.RGBAFormat);
+    } else {
+      /* Fallback: flat water color */
+      const flat = new Uint8Array(aNx * aNz * 4);
+      for (let i = 0; i < aNx * aNz; i++) {
+        flat[i*4] = 107; flat[i*4+1] = 189; flat[i*4+2] = 235; flat[i*4+3] = 112; // ~0.44
+      }
+      aTex = new THREE.DataTexture(flat, aNx, aNz, THREE.RGBAFormat);
+    }
+    aTex.magFilter = THREE.LinearFilter; aTex.minFilter = THREE.LinearFilter;
+    aTex.wrapS = THREE.ClampToEdgeWrapping; aTex.wrapT = THREE.ClampToEdgeWrapping;
+    aTex.needsUpdate = true;
+
+    const waterGeo = new THREE.PlaneGeometry(ww, wh, 8, 8);
     waterGeo.rotateX(-Math.PI / 2);
+    /* Sample exact texel centers at chunk edges to avoid cross-chunk seam blending. */
+    const uvMinX = (PAD + 0.5) / pNx;
+    const uvMinY = (PAD + 0.5) / pNz;
+    const uvMaxX = (PAD + aNx - 0.5) / pNx;
+    const uvMaxY = (PAD + aNz - 0.5) / pNz;
     const waterMat = new THREE.ShaderMaterial({
-      transparent: true, depthWrite: false, depthTest: true,
+      transparent: true, depthWrite: true, depthTest: true,
+      premultipliedAlpha: true,
       uniforms: {
+        uTex: { value: aTex },
         uTime: waterUniforms.uTime,
+        uUvMin: { value: new THREE.Vector2(uvMinX, uvMinY) },
+        uUvMax: { value: new THREE.Vector2(uvMaxX, uvMaxY) },
       },
       vertexShader: `
         uniform float uTime;
+        varying vec2 vUv;
         void main() {
+          vUv = uv;
           vec3 pos = position;
-          /* gentle uniform bob — whole surface rises/falls together */
           pos.y += sin(uTime * 0.5) * 0.025;
           gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1.0);
         }
       `,
       fragmentShader: `
+        uniform sampler2D uTex;
+        uniform vec2 uUvMin;
+        uniform vec2 uUvMax;
+        varying vec2 vUv;
         void main() {
-          gl_FragColor = vec4(0.32, 0.65, 0.82, 0.38);
+          vec2 uv = mix(uUvMin, uUvMax, vUv);
+          vec4 c = texture2D(uTex, vec2(uv.x, 1.0 - uv.y));
+          float rawA = c.a;
+          if (rawA < 0.04) discard;
+
+          /* depth bands — hard toon steps, no blending */
+          vec3 shallow = vec3(0.357, 0.745, 0.890);  /* #5BBEE3 */
+          vec3 mid     = vec3(0.247, 0.561, 0.757);  /* #3F8FC1 */
+          vec3 deep    = vec3(0.165, 0.435, 0.631);  /* #2A6FA1 */
+          vec3 col = rawA < 0.15 ? shallow : rawA < 0.35 ? mid : deep;
+
+          float alpha = smoothstep(0.04, 0.12, rawA) * 0.93;
+          gl_FragColor = vec4(col * alpha, alpha);
         }
       `,
     });
@@ -408,6 +530,48 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
     if (e.south) { const m = new THREE.Mesh(new THREE.BoxGeometry(w + 2, wallH, 2), wallMat); m.position.set(cx, wallH / 2 - 1, zMin - 1); group.add(m); }
     if (e.east)  { const m = new THREE.Mesh(new THREE.BoxGeometry(2, wallH, d + 2), wallMat); m.position.set(xMax + 1, wallH / 2 - 1, cz); group.add(m); }
     if (e.west)  { const m = new THREE.Mesh(new THREE.BoxGeometry(2, wallH, d + 2), wallMat); m.position.set(xMin - 1, wallH / 2 - 1, cz); group.add(m); }
+  }
+
+  /* ── Foam strip from pre-computed shoreline normals (no seams) ── */
+  if (window._enableFoam !== false && window._shorelineChains && !(bounds && bounds.isInstance)) {
+    const FOAM_W = 1.5, foamY = WATER_Y + 0.06;
+    const foamMat = new THREE.MeshBasicMaterial({
+      color: 0x9AD4EE, transparent: true, opacity: 0.42,
+      depthWrite: false, side: THREE.DoubleSide,
+      polygonOffset: true, polygonOffsetFactor: -8, polygonOffsetUnits: -8,
+    });
+    /* owns: this chunk renders a triangle if its midpoint falls inside chunk bounds.
+       Exactly one chunk owns each triangle — no overlap, no gaps. */
+    const owns = (a, b) => {
+      const mx = (a[0] + b[0]) * 0.5, mz = (a[1] + b[1]) * 0.5;
+      return mx >= xMin && mx < xMax && mz >= zMin && mz < zMax;
+    };
+    const PAD = 4;
+    const inPad = p => p[0] >= xMin - PAD && p[0] <= xMax + PAD && p[1] >= zMin - PAD && p[1] <= zMax + PAD;
+    for (const chain of window._shorelineChains) {
+      const verts = [], indices = [];
+      for (let i = 0; i < chain.length; i++) {
+        if (!inPad(chain[i])) continue;
+        const [x, z, nx, nz] = chain[i];
+        const vi = verts.length / 3;
+        verts.push(x - nx * 0.5, foamY, z - nz * 0.5);
+        verts.push(x + nx * FOAM_W, foamY, z + nz * FOAM_W);
+        /* look back to find previous vert that was also in pad zone */
+        if (i > 0 && inPad(chain[i - 1]) && owns(chain[i - 1], chain[i])) {
+          const b = vi - 2;
+          indices.push(b, b + 2, b + 1, b + 1, b + 2, b + 3);
+        }
+      }
+      if (verts.length >= 6 && indices.length > 0) {
+        const fGeo = new THREE.BufferGeometry();
+        fGeo.setAttribute("position", new THREE.Float32BufferAttribute(verts, 3));
+        fGeo.setIndex(indices);
+        const fMesh = new THREE.Mesh(fGeo, foamMat);
+        fMesh.renderOrder = R_WATER + 1;
+        fMesh.raycast = () => {};
+        group.add(fMesh);
+      }
+    }
   }
 
   /* freeze world matrices — terrain is static, skip per-frame recalc */

@@ -49,19 +49,19 @@
       <button type="button" id="start-logout-btn" class="start-logout-btn" hidden>Log Out</button>
       <span id="start-auth-status" hidden></span>
     </div>
-    <div id="start-auth-form" class="start-auth-box" hidden>
-      <p id="start-auth-form-title" class="start-auth-form-title">Log In</p>
+    <form id="start-auth-form" class="start-auth-box" hidden autocomplete="on" action="javascript:void(0)">
+      <p id="start-auth-form-title" class="start-auth-form-title">Log In to SlimeVille</p>
       <p id="start-auth-form-hint" class="start-auth-form-hint" hidden></p>
-      <input type="text" id="start-auth-user" class="start-auth-input" placeholder="Username" maxlength="20" autocomplete="username" spellcheck="false">
-      <input type="password" id="start-auth-pw" class="start-auth-input" placeholder="Password" autocomplete="current-password">
-      <input type="email" id="start-auth-recovery" class="start-auth-input" placeholder="Recovery email (optional)" autocomplete="email" hidden>
+      <input type="text" id="start-auth-user" class="start-auth-input" placeholder="Username" maxlength="20" autocomplete="username" spellcheck="false" name="username">
+      <input type="password" id="start-auth-pw" class="start-auth-input" placeholder="Password" autocomplete="current-password" name="password">
+      <input type="email" id="start-auth-recovery" class="start-auth-input" placeholder="Recovery email (optional)" autocomplete="email" name="recovery" hidden>
       <label class="start-auth-remember"><input type="checkbox" id="start-auth-save" checked> Remember me</label>
       <div class="start-auth-actions">
         <button type="button" id="start-auth-submit" class="start-auth-submit-btn">Submit</button>
         <button type="button" id="start-auth-back" class="start-auth-back-btn">Back</button>
       </div>
       <p id="start-auth-error" class="start-auth-error" hidden></p>
-    </div>
+    </form>
     <a href="./guide.html" target="_blank" class="start-guide-link">Game Guide</a>
     <div class="start-credits">
       <p class="start-credits-line">Models: <a href="https://quaternius.com/" target="_blank" class="start-credits-link">Quaternius</a> · <a href="https://fertile-soil-productions.itch.io/" target="_blank" class="start-credits-link">Fertile Soil</a> · <a href="https://kaylousberg.itch.io/" target="_blank" class="start-credits-link">Kay Kit</a> · Testing: <strong>Kalish</strong> · <strong>Sap</strong> · <strong>Tony</strong> · <strong>Swaay</strong> · <strong>Treeman</strong></p>
@@ -577,6 +577,18 @@
         <span>Show Position</span>
         <input type="checkbox" id="setting-position">
       </label>
+      <label class="ui-settings-row">
+        <span>Show Triangles</span>
+        <input type="checkbox" id="setting-triangles">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Grid (Wireframe)</span>
+        <input type="checkbox" id="setting-grid">
+      </label>
+      <label class="ui-settings-row">
+        <span>Show Shoreline Spline</span>
+        <input type="checkbox" id="setting-spline">
+      </label>
       <hr class="ui-settings-divider">
       <!-- ─── Hotkeys ─── -->
       <div class="ui-settings-row ui-hotkey-header"><span>Tab Hotkeys</span></div>
@@ -623,7 +635,7 @@
         <span id="setting-account-label">Guest</span>
         <button type="button" id="setting-account-btn" class="ui-settings-account-btn">Register</button>
       </div>
-      <div class="ui-settings-version">v0.003 pre-alpha</div>
+      <div class="ui-settings-version">v0.004 pre-alpha</div>
     </div>
   </div>
   <!-- Star Enhancement overlay -->
