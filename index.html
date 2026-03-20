@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=30">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -475,7 +475,7 @@
     </aside>
     <!-- Standalone combat style panel -->
     <div id="ui-combat-panel">
-      <div id="ui-combat-panel-title">Combat</div>
+      <div id="ui-combat-panel-title"></div>
       <div class="ui-combat-panel-resize" data-resize="se" aria-hidden="true"></div>
       <div id="ui-combat-styles">
         <button type="button" class="ui-combat-btn is-active" data-combat-style="melee" title="Melee"><img src="icons/combat_melee.png" alt="Melee" style="pointer-events:none;display:block;width:75%;height:75%;object-fit:contain;margin:auto"></button>
@@ -852,6 +852,13 @@
         </div>
       </div>
     </div>
+  </div>
+  <!-- Chat box -->
+  <div id="ui-chat" hidden>
+    <div id="ui-chat-log"></div>
+    <form id="ui-chat-form" autocomplete="off">
+      <input id="ui-chat-input" type="text" placeholder="Press Enter to chat..." maxlength="200" autocomplete="off">
+    </form>
   </div>
   <!-- Bank overlay (outside ui-root so it's not clipped) -->
   <div id="ui-bank-overlay" class="ui-bank-overlay" hidden>
