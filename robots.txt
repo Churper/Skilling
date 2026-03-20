@@ -4,4 +4,4 @@ Disallow: /chunks/
 Disallow: /models/
 Disallow: /fish/
 
-Sitemap: https://slime.online/sitemap.xml
+Sitemap: https://slimeville.online/sitemap.xml
