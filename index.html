@@ -562,6 +562,10 @@
         <input type="checkbox" id="setting-hd-terrain">
       </label>
       <label class="ui-settings-row">
+        <span>Show Chatbox</span>
+        <input type="checkbox" id="setting-chat" checked>
+      </label>
+      <label class="ui-settings-row">
         <span>Multi-Window Mode</span>
         <input type="checkbox" id="setting-multi-window">
       </label>
@@ -855,10 +859,14 @@
   </div>
   <!-- Chat box -->
   <div id="ui-chat" hidden>
-    <div id="ui-chat-log"></div>
-    <form id="ui-chat-form" autocomplete="off">
-      <input id="ui-chat-input" type="text" placeholder="Press Enter to chat..." maxlength="200" autocomplete="off">
-    </form>
+    <div id="ui-chat-header"><button type="button" id="ui-chat-toggle">&times;</button></div>
+    <div id="ui-chat-body">
+      <div id="ui-chat-log"></div>
+      <form id="ui-chat-form" autocomplete="off">
+        <input id="ui-chat-input" type="text" placeholder="Press Enter to chat..." maxlength="200" autocomplete="off">
+      </form>
+    </div>
+    <div id="ui-chat-resize" class="ui-panel-resize" style="bottom:0;right:0;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,rgba(255,255,255,0.25) 50%);border-radius:0 0 8px 0"></div>
   </div>
   <!-- Bank overlay (outside ui-root so it's not clipped) -->
   <div id="ui-bank-overlay" class="ui-bank-overlay" hidden>
