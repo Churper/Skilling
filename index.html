@@ -55,11 +55,6 @@
     <span style="color:#e8c44a;font-weight:700">New update available!</span> <span style="color:#ccc;margin-left:6px">Press Ctrl+Shift+R to update</span>
   </div>
   <div id="debug-overlay" aria-hidden="true"></div>
-  <!-- Hidden login form for Chrome password autofill detection -->
-  <form style="position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none" aria-hidden="true" autocomplete="on" method="post" action="javascript:void(0)">
-    <input type="text" name="username" autocomplete="username" tabindex="-1">
-    <input type="password" name="password" autocomplete="current-password" tabindex="-1">
-  </form>
   <!-- Start Menu -->
   <div id="start-menu">
     <h1 class="start-title">SlimeVille</h1>
@@ -78,8 +73,7 @@
         <button type="button" id="start-auth-status" class="start-auth-link-btn start-link-profile" hidden></button>
         <button type="button" id="start-logout-btn" class="start-auth-link-btn start-link-logout" hidden>Log Out</button>
       </div>
-      <div id="start-auth-wrap" class="start-auth-wrap is-hidden">
-      <form id="start-auth-form" class="start-auth-box" autocomplete="on" action="javascript:void(0)">
+      <form id="start-auth-form" class="start-auth-box" hidden autocomplete="on" action="javascript:void(0)">
         <p id="start-auth-form-title" class="start-auth-form-title">Log In to SlimeVille</p>
         <p id="start-auth-form-hint" class="start-auth-form-hint" hidden></p>
         <input type="text" id="start-auth-user" class="start-auth-input" placeholder="Username" maxlength="20" autocomplete="username" spellcheck="false" name="username">
@@ -92,7 +86,6 @@
         </div>
         <p id="start-auth-error" class="start-auth-error" hidden></p>
       </form>
-      </div>
     </div>
     <div class="start-bottom-links">
       <button type="button" class="start-link-btn start-link-guide" id="start-guide-btn">&#x1F4D6; Guide</button>
