@@ -301,7 +301,8 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       /* low-poly vertex jitter — suppressed at chunk boundary edges to keep seams closed */
       const isEdgeX = ix === 0 || ix === nx - 1;
       const isEdgeZ = iz === 0 || iz === nz - 1;
-      const jit = (isEdgeX || isEdgeZ) ? 0 : (hash21(x, z) - 0.5) * (step * 0.03);
+      const isInstance = bounds && bounds.isInstance;
+      const jit = (isEdgeX || isEdgeZ || isInstance) ? 0 : (hash21(x, z) - 0.5) * (step * 0.03);
       /* no edge nudge — nudging outward caused cracks visible under transparent water */
       pos[i3]     = x + jit;
       pos[i3 + 1] = y;
