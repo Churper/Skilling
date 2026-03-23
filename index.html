@@ -193,7 +193,7 @@
       <div class="ui-panel-resize" data-resize="sw" aria-hidden="true"></div>
       <div class="ui-panel-resize" data-resize="ne" aria-hidden="true"></div>
       <div class="ui-panel-resize" data-resize="nw" aria-hidden="true"></div>
-      <div id="ui-panel-title-row"><h2 id="ui-panel-title">Inventory</h2><div id="ui-worn-subtabs-inline" class="ui-worn-subtabs" hidden><button type="button" class="ui-worn-subtab is-active" data-worn-view="stats">Worn</button><span class="ui-worn-subtab-divider">|</span><button type="button" class="ui-worn-subtab" data-worn-view="skins">Skins</button></div><button type="button" id="ui-panel-close" class="ui-float-close">&times;</button></div>
+      <div id="ui-panel-title-row"><h2 id="ui-panel-title">Inventory</h2><div id="ui-worn-subtabs-inline" class="ui-worn-subtabs" hidden><button type="button" class="ui-worn-subtab is-active" data-worn-view="stats">Worn</button><span class="ui-worn-subtab-divider">|</span><button type="button" class="ui-worn-subtab" data-worn-view="skins">Skins</button></div><div id="ui-emote-subtabs-inline" class="ui-worn-subtabs" hidden><button type="button" class="ui-worn-subtab ui-emote-subtab is-active" data-emote-view="emotes">Emotes</button><span class="ui-worn-subtab-divider">|</span><button type="button" class="ui-worn-subtab ui-emote-subtab" data-emote-view="chat">Chat</button></div><button type="button" id="ui-panel-close" class="ui-float-close">&times;</button></div>
       <section class="ui-panel-section" data-tab-panel="inventory">
         <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
         <div id="ui-inv-footer"><div id="ui-coins-inline"><span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span><strong id="ui-coins-value-inline">0</strong></div><p id="ui-status-line" class="ui-status" data-tone="info"></p></div>
@@ -335,6 +335,7 @@
         </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="emotes" hidden>
+        <div class="ui-emote-view" data-emote-view-panel="emotes">
         <div id="ui-emote-list">
           <!-- Happy / Positive -->
           <button type="button" class="ui-emote-btn" data-emote="&#x1F60A;" title="Smile">&#x1F60A;</button>
@@ -453,6 +454,13 @@
           <span id="ui-friends-online">Offline</span>
           <span id="ui-friends-count">Players online: 0</span>
         </div>
+        </div>
+        <div class="ui-emote-view" data-emote-view-panel="chat" hidden>
+          <div id="ui-panel-chat-log" class="ui-panel-chat-log"></div>
+          <form id="ui-panel-chat-form" class="ui-panel-chat-form" autocomplete="off">
+            <input id="ui-panel-chat-input" type="text" placeholder="Type a message..." maxlength="200" autocomplete="off">
+          </form>
+        </div>
       </section>
       <section class="ui-panel-section" data-tab-panel="prayer" hidden>
         <div id="ui-prayer-container"></div>
@@ -559,6 +567,10 @@
           <input type="range" id="setting-chat-size" min="80" max="200" value="100" class="ui-volume-slider">
         </div>
       </div>
+      <label class="ui-settings-row">
+        <span>Show Chat Overlay</span>
+        <input type="checkbox" id="setting-chat-overlay" checked>
+      </label>
       <hr class="ui-settings-divider">
       <!-- ─── Video ─── -->
       <div class="ui-settings-row ui-hotkey-header"><span>Video</span></div>
