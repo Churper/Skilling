@@ -1220,7 +1220,8 @@ window.addEventListener("hashchange",_handleHash);
   let dpr=window.devicePixelRatio||1;
 
   // Data generators
-  function xpForLevel(lv){return lv<=1?0:Math.floor(34*(lv-1)*(lv-1))}
+  function _rawForLv(lv){if(lv<=100)return lv;let r=100;for(let l=100;l<lv;l++)r+=Math.min(10,1+Math.pow((l-100)/60,1.8));return Math.round(r)}
+  const _xpCache={};function xpForLevel(lv){if(lv<=1)return 0;if(_xpCache[lv])return _xpCache[lv];const r=_rawForLv(lv);return _xpCache[lv]=Math.floor(34*(r-1)*(r-1))}
   function gatherRate(lv){var t=Math.min(lv/200,1);return Math.max(2,100-100*(0.02+0.48*Math.pow(1-t,1.5)))}
   function maxHp(lv){return lv<=140?lv*10:Math.floor(1400+(lv-140)*15+Math.pow(lv-140,2)*0.8)}
   function burnChance(lv){return Math.max(1,Math.round(30*Math.pow(0.985,lv)))}
