@@ -1214,14 +1214,14 @@ window.addEventListener("hashchange",_handleHash);
   if(!canvas)return;
   const ctx=canvas.getContext("2d");
   const tooltip=document.getElementById("graph-tooltip");
-  const MAX_LV=250;
+  const MAX_LV=400;
   const PAD={t:20,r:16,b:32,l:56};
   let activeGraph="xp";
   let dpr=window.devicePixelRatio||1;
 
   // Data generators
   function xpForLevel(lv){return lv<=1?0:Math.floor(34*(lv-1)*(lv-1))}
-  function gatherRate(lv){var t=Math.min(lv/200,1);return Math.max(2,100-100*(0.02+0.68*Math.pow(1-t,1.5)))}
+  function gatherRate(lv){var t=Math.min(lv/200,1);return Math.max(2,100-100*(0.02+0.48*Math.pow(1-t,1.5)))}
   function maxHp(lv){return lv<=140?lv*10:Math.floor(1400+(lv-140)*15+Math.pow(lv-140,2)*0.8)}
   function burnChance(lv){return Math.max(1,Math.round(30*Math.pow(0.985,lv)))}
 
