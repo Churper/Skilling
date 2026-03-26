@@ -51,7 +51,7 @@ const RP = [
 
 /* spatial cache for riverQuery — keyed by rounded coords */
 const _riverCache = new Map();
-const _RIVER_CACHE_MAX = 2048;
+const _RIVER_CACHE_MAX = 8192;
 
 export function riverQuery(px, pz) {
   const kx = Math.round(px * 2) | 0, kz = Math.round(pz * 2) | 0;
@@ -108,7 +108,7 @@ const PATH_CLS = [
 
 /* spatial cache for distToPath */
 const _pathCache = new Map();
-const _PATH_CACHE_MAX = 2048;
+const _PATH_CACHE_MAX = 8192;
 
 export function distToPath(x, z) {
   const kx = Math.round(x * 2) | 0, kz = Math.round(z * 2) | 0;
