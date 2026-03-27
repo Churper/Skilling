@@ -303,7 +303,11 @@
         <!-- Hiscores inline (hidden by default, toggled by Hiscores button) -->
         <div id="ui-lb-inline" class="ui-lb-inline" hidden>
           <div class="ui-lb-categories">
-            <button type="button" class="ui-lb-cat-btn is-active" data-lb-cat="total_level">&#x1F3C6; Overall</button>
+            <select class="ui-lb-cat-select is-active" id="lb-select-overall">
+              <option value="total_level" selected>&#x1F3C6; All</option>
+              <option value="total_level__og">&#x1F3C6; OG</option>
+              <option value="total_level__sapling">&#x1F331; Saplings</option>
+            </select>
             <select class="ui-lb-cat-select" id="lb-select-skills">
               <option value="" disabled selected>Skills</option>
               <option value="fishing">&#x1F41F; Fishing</option>
