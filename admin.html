@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a2536">
+<title>SlimeVille — Admin Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Tokens (lifted from the game's style.css so it feels of-a-piece) ── */
+  :root {
+    --font-display: "Patrick Hand", cursive;
+    --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Consolas, monospace;
+
+    --bg-deep: #0e1622;
+    --bg-1:   #16213a;
+    --bg-2:   #1d2b46;
+    --bg-3:   #243657;
+    --line:   rgba(255,255,255,0.10);
+    --line-2: rgba(255,255,255,0.18);
+
+    --ink-1: #f3f6fb;
+    --ink-2: rgba(243,246,251,0.75);
+    --ink-3: rgba(243,246,251,0.50);
+    --ink-4: rgba(243,246,251,0.32);
+
+    --accent:   #4a9fd4;
+    --accent-2: #6fb8e6;
+    --ok:       #5cff8a;
+    --warn:     #ffb854;
+    --hot:      #ff6b6b;
+    --gold:     #ffd97a;
+
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 16px;
+    --r-xl: 20px;
+
+    --shadow-lift: 0 10px 30px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font-body);
+    color: var(--ink-1);
+    font-size: 14px;
+    line-height: 1.45;
+    background:
+      radial-gradient(900px 60% at 100% -10%, rgba(74,159,212,0.18), transparent 60%),
+      radial-gradient(900px 60% at -10% 100%, rgba(74,159,212,0.10), transparent 60%),
+      var(--bg-deep);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { cursor: pointer; border: none; background: none; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }
+
+  /* ── App shell ── */
+  .app {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-rows: 60px minmax(0, 1fr);
+    grid-template-areas:
+      "topbar topbar"
+      "side   main";
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .topbar {
+    grid-area: topbar;
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(29,43,70,0.85), rgba(29,43,70,0.55));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    position: sticky; top: 0; z-index: 30;
+    padding-top: env(safe-area-inset-top);
+    box-sizing: content-box;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: linear-gradient(140deg, var(--accent), #2d6f9e);
+    display: grid; place-items: center;
+    font-family: var(--font-display);
+    font-size: 22px; color: #0e1622;
+    box-shadow: 0 6px 14px rgba(74,159,212,0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .brand-text { font-family: var(--font-display); font-size: 22px; line-height: 1; letter-spacing: 0.02em; }
+  .brand-text small { display: block; font-family: var(--font-body); font-size: 10px; color: var(--ink-3); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2px; }
+
+  .topbar-spacer { flex: 1; }
+
+  .conn-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 34px; padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    font-size: 12px; color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .conn-pill .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--ink-4);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
+  }
+  .conn-pill.connecting .dot { background: var(--warn); animation: pulse 1.2s infinite; }
+  .conn-pill.connected  .dot { background: var(--ok);   box-shadow: 0 0 0 3px rgba(92,255,138,0.18); }
+  .conn-pill.error      .dot { background: var(--hot); }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+
+  .key-field {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 34px; padding: 0 4px 0 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    transition: border-color .15s;
+  }
+  .key-field:focus-within { border-color: var(--accent); background: rgba(74,159,212,0.08); }
+  .key-field svg { width: 14px; height: 14px; color: var(--ink-3); }
+  .key-field input {
+    width: 150px; height: 100%; background: transparent; border: none; outline: none;
+    font-size: 13px; letter-spacing: 0.05em;
+  }
+  .key-field input::placeholder { color: var(--ink-4); }
+  .key-field .key-eye {
+    width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-3);
+  }
+  .key-field .key-eye:hover { background: rgba(255,255,255,0.06); color: var(--ink-1); }
+
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: grid; place-items: center;
+    color: var(--ink-2);
+    border: 1px solid transparent;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--ink-1); }
+  .icon-btn svg { width: 18px; height: 18px; }
+
+  .side {
+    grid-area: side;
+    border-right: 1px solid var(--line);
+    padding: 18px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    background: rgba(14,22,34,0.4);
+    overflow-y: auto;
+  }
+  .side-label {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-4); padding: 12px 12px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    height: 40px; padding: 0 12px;
+    border-radius: 10px;
+    color: var(--ink-2);
+    font-size: 14px; font-weight: 500;
+    transition: background .12s, color .12s;
+    text-align: left; width: 100%;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--ink-1); }
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .nav-item.active {
+    background: linear-gradient(90deg, rgba(74,159,212,0.18), rgba(74,159,212,0.04));
+    color: var(--ink-1);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  .nav-item .badge {
+    margin-left: auto;
+    min-width: 22px; height: 20px; padding: 0 6px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    color: var(--ink-2);
+    font-size: 11px; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .nav-item.active .badge { background: var(--accent); color: #0e1622; }
+  .nav-item .badge.hot { background: var(--hot); color: #fff; }
+
+  .main {
+    grid-area: main;
+    padding: 22px 26px 80px;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; margin-bottom: 18px;
+  }
+  .page-head h1 {
+    font-family: var(--font-display);
+    font-size: 32px; letter-spacing: 0.02em;
+    color: var(--ink-1);
+    font-weight: 400;
+  }
+  .page-head .page-sub { color: var(--ink-3); font-size: 13px; }
+
+  .card {
+    background: linear-gradient(180deg, rgba(36,54,87,0.55), rgba(29,43,70,0.55));
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    box-shadow: var(--shadow-lift);
+  }
+  .card h2 {
+    font-family: var(--font-display);
+    font-size: 20px; font-weight: 400;
+    color: var(--ink-1);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card h2 .h2-pill {
+    margin-left: auto;
+    font-family: var(--font-body);
+    font-size: 11px; color: var(--ink-3);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line);
+    padding: 3px 8px; border-radius: 999px;
+    letter-spacing: 0.04em;
+  }
+
+  .grid { display: grid; gap: 14px; }
+  .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+
+  .kpi {
+    background: linear-gradient(160deg, rgba(74,159,212,0.10), rgba(74,159,212,0.02));
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .kpi-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+  .kpi-value { font-family: var(--font-display); font-size: 34px; line-height: 1; color: var(--ink-1); }
+  .kpi-foot { font-size: 12px; color: var(--ink-3); }
+  .kpi.warn { background: linear-gradient(160deg, rgba(255,184,84,0.12), rgba(255,184,84,0.02)); }
+  .kpi.warn .kpi-value { color: var(--warn); }
+  .kpi.hot  { background: linear-gradient(160deg, rgba(255,107,107,0.12), rgba(255,107,107,0.02)); }
+  .kpi.hot  .kpi-value { color: var(--hot); }
+  .kpi.ok   .kpi-value { color: var(--ok); }
+
+  .input, .textarea, .select {
+    width: 100%;
+    background: rgba(14,22,34,0.6);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 10px 12px;
+    color: var(--ink-1);
+    font-size: 14px;
+    outline: none;
+    transition: border-color .15s, background .15s;
+  }
+  .input:focus, .textarea:focus, .select:focus { border-color: var(--accent); background: rgba(14,22,34,0.85); }
+  .input::placeholder, .textarea::placeholder { color: var(--ink-4); }
+  .textarea { min-height: 80px; resize: vertical; }
+  .field-label {
+    display: block; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 6px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 38px; padding: 0 16px;
+    border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    background: rgba(255,255,255,0.06);
+    color: var(--ink-1);
+    border: 1px solid var(--line);
+    transition: background .12s, transform .05s, border-color .12s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: rgba(255,255,255,0.10); border-color: var(--line-2); }
+  .btn:active { transform: translateY(1px); }
+  .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary {
+    background: linear-gradient(180deg, var(--accent), #3a87b9);
+    border-color: rgba(255,255,255,0.18);
+    color: #0e1622;
+  }
+  .btn-primary:hover { filter: brightness(1.08); background: linear-gradient(180deg, var(--accent-2), var(--accent)); }
+  .btn-danger {
+    background: linear-gradient(180deg, #d65454, #a93636);
+    border-color: rgba(255,255,255,0.10);
+    color: #fff;
+  }
+  .btn-danger:hover { filter: brightness(1.1); }
+  .btn-ghost { background: transparent; }
+  .btn-sm { height: 30px; padding: 0 10px; font-size: 12px; border-radius: 8px; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .status { font-size: 12px; min-height: 18px; }
+  .status.ok  { color: var(--ok); }
+  .status.err { color: var(--hot); }
+
+  .faith {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--r-md);
+    background: rgba(74,159,212,0.06);
+    border: 1px solid var(--line);
+  }
+  .faith-icon {
+    width: 42px; height: 42px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 22px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+  }
+  .faith.active .faith-icon { background: rgba(92,255,138,0.10); border-color: rgba(92,255,138,0.35); }
+  .faith-body { flex: 1; min-width: 0; }
+  .faith-body .lab { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+  .faith-body .val { font-family: var(--font-display); font-size: 22px; color: var(--ink-1); }
+  .faith.active .faith-body .val { color: var(--ok); }
+  .faith-foot { font-size: 12px; color: var(--ink-3); }
+
+  .feed {
+    max-height: 360px; overflow-y: auto;
+    display: flex; flex-direction: column;
+    border-radius: var(--r-sm);
+  }
+  .feed-row {
+    display: grid; grid-template-columns: 70px 1fr;
+    gap: 10px; padding: 8px 10px;
+    border-bottom: 1px dashed rgba(255,255,255,0.06);
+    font-size: 13px;
+  }
+  .feed-row:last-child { border-bottom: none; }
+  .feed-row .ts { color: var(--ink-4); font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 11px; padding-top: 2px; }
+  .feed-row .msg { color: var(--ink-2); word-wrap: break-word; min-width: 0; }
+  .feed-row .msg strong { color: var(--ink-1); font-weight: 600; }
+  .feed-row .msg .tag { font-size: 10px; padding: 1px 6px; border-radius: 999px; margin-right: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .feed-row .tag.kick { background: rgba(255,107,107,0.15); color: var(--hot); }
+  .feed-row .tag.rename { background: rgba(74,159,212,0.15); color: var(--accent-2); }
+  .feed-row .tag.ban { background: rgba(255,107,53,0.15); color: #ff8855; }
+  .feed-row .tag.broadcast { background: rgba(255,217,122,0.15); color: var(--gold); }
+  .feed-row .tag.join { background: rgba(92,255,138,0.15); color: var(--ok); }
+  .feed-row .tag.leave { background: rgba(255,255,255,0.08); color: var(--ink-3); }
+  .feed-row .tag.trade { background: rgba(232,168,56,0.15); color: var(--warn); }
+  .feed-row .tag.drop { background: rgba(200,120,232,0.15); color: #c878e8; }
+  .feed-row .tag.flag { background: rgba(255,184,84,0.18); color: var(--warn); }
+  .feed-empty { text-align: center; padding: 24px; color: var(--ink-4); font-size: 13px; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .search { position: relative; flex: 1; min-width: 200px; }
+  .search input { padding-left: 36px; height: 38px; }
+  .search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--ink-3); }
+
+  .chip {
+    height: 32px; padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    font-size: 12px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+  .chip:hover { background: rgba(255,255,255,0.08); }
+  .chip.active { background: rgba(74,159,212,0.20); border-color: var(--accent); color: var(--ink-1); }
+  .chip .ct { color: var(--ink-3); font-size: 11px; }
+  .chip.active .ct { color: var(--ink-2); }
+
+  .player-list { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  .pcard {
+    background: linear-gradient(180deg, rgba(36,54,87,0.55), rgba(29,43,70,0.55));
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    min-width: 0;
+  }
+  .pcard.flagged { border-color: rgba(255,107,107,0.45); box-shadow: 0 0 0 1px rgba(255,107,107,0.15) inset; }
+  .pcard.banned  { border-color: rgba(255,107,53,0.45); }
+  .pcard-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .swatch {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.18);
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  }
+  .pname-wrap { flex: 1; min-width: 0; }
+  .pname { font-weight: 600; font-size: 15px; color: var(--ink-1); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .pname .room { font-size: 11px; color: var(--ink-3); font-weight: 400; }
+  .ptags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+  .ptag {
+    font-size: 10px; padding: 2px 7px; border-radius: 999px;
+    letter-spacing: 0.05em; text-transform: uppercase; font-weight: 600;
+    background: rgba(255,255,255,0.06); color: var(--ink-2);
+  }
+  .ptag.guest { background: rgba(255,107,107,0.15); color: var(--hot); }
+  .ptag.flag  { background: rgba(255,107,107,0.18); color: var(--hot); }
+  .ptag.banned { background: rgba(255,107,53,0.18); color: #ff8855; }
+  .ptag.skin  { background: rgba(255,217,122,0.18); color: var(--gold); }
+
+  .pmeta { font-size: 12px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .pmeta b { color: var(--ink-2); font-weight: 500; }
+
+  .pskills {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 4px 8px;
+    font-size: 11px; color: var(--ink-3);
+    background: rgba(0,0,0,0.18);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 8px 10px;
+  }
+  .pskills span { display: flex; align-items: center; gap: 3px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pskills span b { color: var(--ink-1); font-weight: 600; }
+
+  .pactivity { font-size: 12px; color: var(--ok); }
+  .ppos { font-size: 11px; color: var(--ink-4); font-family: var(--font-mono); }
+
+  .pactions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+
+  .ac-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 14px;
+    align-items: start;
+  }
+  .ac-list { display: flex; flex-direction: column; gap: 10px; max-height: 720px; overflow-y: auto; padding-right: 4px; }
+  .ac-card {
+    background: rgba(14,22,34,0.45);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    transition: border-color .12s, background .12s;
+  }
+  .ac-card:hover { background: rgba(14,22,34,0.65); border-color: var(--line-2); }
+  .ac-card.flagged { border-color: rgba(255,184,84,0.45); }
+  .ac-card.selected { border-color: var(--accent); background: rgba(74,159,212,0.10); }
+  .ac-head { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; }
+  .ac-name { color: var(--ink-1); font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+  .ac-uid { color: var(--ink-4); font-family: var(--font-mono); font-size: 10px; margin-top: 2px; overflow-wrap: anywhere; }
+  .ac-score {
+    font-family: var(--font-display); font-size: 22px; line-height: 1;
+    color: var(--warn); text-align: right;
+  }
+  .ac-score.hot { color: var(--hot); }
+  .ac-score small { display: block; font-family: var(--font-body); font-size: 10px; color: var(--ink-3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+
+  .ac-badges { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+  .ac-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: rgba(255,255,255,0.06); color: var(--ink-2);
+    border: 1px solid var(--line);
+  }
+  .ac-badge.hot { background: rgba(255,107,107,0.12); color: var(--hot); border-color: rgba(255,107,107,0.30); }
+  .ac-badge.warn { background: rgba(255,184,84,0.12); color: var(--warn); border-color: rgba(255,184,84,0.30); }
+  .ac-badge.ok { background: rgba(92,255,138,0.12); color: var(--ok); border-color: rgba(92,255,138,0.30); }
+  .ac-meta { color: var(--ink-3); font-size: 12px; line-height: 1.5; }
+  .ac-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+  .dossier { position: sticky; top: 78px; }
+  .dossier h3 {
+    font-family: var(--font-display); font-size: 16px; font-weight: 400;
+    color: var(--accent-2); letter-spacing: 0.04em; text-transform: uppercase;
+    margin: 14px 0 8px;
+  }
+  .dossier h3:first-child { margin-top: 0; }
+  .kv { display: grid; grid-template-columns: 110px 1fr; gap: 4px 10px; font-size: 12px; }
+  .kv .k { color: var(--ink-3); }
+  .kv .v { color: var(--ink-1); }
+  .ac-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ac-table th, .ac-table td { text-align: left; padding: 6px 6px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+  .ac-table th { color: var(--ink-3); font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .ac-table td { color: var(--ink-1); }
+  .ac-timeline { display: flex; flex-direction: column; gap: 6px; }
+  .ac-event {
+    position: relative;
+    border-left: 3px solid var(--line-2);
+    padding: 4px 28px 4px 10px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--ink-2);
+    overflow-wrap: anywhere;
+  }
+  .ac-event.hot { border-color: var(--hot); }
+  .ac-event.warn { border-color: var(--warn); }
+  .ac-event small { display: block; color: var(--ink-4); font-family: var(--font-body); margin-bottom: 2px; }
+  .ac-event.reviewed { opacity: 0.45; }
+  /* v452: one line per signal when a save carries multiple flags.
+     Subtle indent + spacing so a triage card with 3+ flags reads vertically. */
+  .ac-sig-line {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink-2);
+    padding: 2px 0;
+    line-height: 1.45;
+  }
+  .ac-sig-line + .ac-sig-line {
+    border-top: 1px dashed rgba(255,255,255,0.06);
+  }
+  .ac-sig-line b { color: var(--ink-1); font-weight: 600; }
+  /* v453: prominent player name + dim timestamp in event headers */
+  .ac-event-name {
+    color: var(--accent-2, #79b8ff);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 6px rgba(121, 184, 255, 0.25);
+  }
+  .ac-event-time {
+    color: var(--ink-4);
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+  /* v453: repeat-count pill next to each signal line */
+  .ac-repeat-pill {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    margin-left: 4px;
+    border-radius: 8px;
+    background: rgba(255,140,64,0.18);
+    color: #ffb37a;
+    border: 1px solid rgba(255,140,64,0.35);
+    letter-spacing: 0.02em;
+    vertical-align: 1px;
+    cursor: help;
+  }
+  /* v453: when a single player has 5+ saves in the visible feed = heavy hitter badge */
+  .ac-user-burst {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 5px;
+    margin-left: 6px;
+    border-radius: 3px;
+    background: var(--hot, #ff4d4d);
+    color: #0d0c1a;
+    letter-spacing: 0.04em;
+    vertical-align: 1px;
+    cursor: help;
+  }
+  .ac-event-review-btn {
+    position: absolute; top: 4px; right: 4px;
+    width: 20px; height: 20px;
+    border-radius: 4px;
+    display: grid; place-items: center;
+    color: var(--ink-3);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line);
+    font-size: 11px; cursor: pointer;
+    transition: background .12s, color .12s;
+  }
+  .ac-event-review-btn:hover { background: rgba(92,255,138,0.18); color: var(--ok); border-color: rgba(92,255,138,0.35); }
+  .ac-event-review-badge {
+    display: inline-block;
+    font-size: 9px; padding: 1px 6px; border-radius: 999px;
+    background: rgba(92,255,138,0.12); color: var(--ok); border: 1px solid rgba(92,255,138,0.30);
+    margin-left: 6px;
+    font-family: var(--font-body);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* Flag confirmation modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(4, 12, 20, 0.7);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    z-index: 999;
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-card {
+    width: min(420px, 96vw);
+    background: linear-gradient(180deg, rgba(36,54,87,0.95), rgba(29,43,70,0.95));
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    color: var(--ink-1);
+  }
+  .modal-card h3 {
+    font-family: var(--font-display); font-size: 22px; font-weight: 400;
+    color: var(--hot); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .modal-card .modal-target {
+    font-size: 13px; color: var(--ink-2); margin-bottom: 14px;
+    word-wrap: break-word;
+  }
+  .modal-card .modal-target b { color: var(--ink-1); }
+  .modal-warn {
+    background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.25);
+    border-radius: var(--r-sm);
+    padding: 10px 12px; font-size: 12px; color: var(--ink-2);
+    margin-bottom: 14px;
+  }
+  .modal-warn ul { margin: 6px 0 0 18px; }
+  .modal-warn li { margin-bottom: 2px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+  .empty { color: var(--ink-4); text-align: center; padding: 20px; font-size: 13px; }
+  .ac-empty-state { padding: 40px 20px; text-align: center; color: var(--ink-3); }
+  .ac-empty-state svg { width: 48px; height: 48px; opacity: 0.4; margin-bottom: 8px; }
+
+  .bottom-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 40;
+    background: rgba(14,22,34,0.92);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line);
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+  }
+  .bottom-nav .nav-item {
+    flex: 1; height: 52px; padding: 0;
+    flex-direction: column; gap: 2px;
+    border-radius: 10px;
+    font-size: 10px; font-weight: 500; letter-spacing: 0.04em;
+    color: var(--ink-3);
+    position: relative;
+  }
+  .bottom-nav .nav-item svg { width: 20px; height: 20px; }
+  .bottom-nav .nav-item.active { background: transparent; color: var(--accent-2); box-shadow: none; }
+  .bottom-nav .nav-item .badge {
+    position: absolute; top: 6px; right: calc(50% - 18px);
+    min-width: 16px; height: 16px; padding: 0 4px;
+    font-size: 9px; border-radius: 8px;
+    background: var(--hot); color: #fff;
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .ac-grid { grid-template-columns: 1fr; }
+    .dossier { position: static; }
+  }
+  @media (max-width: 860px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-rows: 56px minmax(0, 1fr);
+      grid-template-areas: "topbar" "main";
+    }
+    .side { display: none; }
+    .bottom-nav { display: flex; }
+    .main { padding: 16px 14px calc(80px + env(safe-area-inset-bottom)); }
+    .page-head h1 { font-size: 26px; }
+    .topbar { padding: 0 12px; gap: 8px; }
+    .brand-text small { display: none; }
+    .key-field input { width: 100px; }
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr 1fr; }
+    .player-list { grid-template-columns: 1fr; }
+    .pskills { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .topbar .key-field,
+    .topbar #reconnect-btn { display: none; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .kpi-value { font-size: 26px; }
+    .brand-text { font-size: 18px; }
+    .brand-mark { width: 28px; height: 28px; font-size: 18px; }
+    #ac-refresh-btn { margin-top: 0 !important; }
+    #ac-status { margin-top: 0 !important; flex-basis: 100%; }
+    .card h2 .h2-pill { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div class="brand-text">SlimeVille<small>Admin Console</small></div>
+    </div>
+    <div class="topbar-spacer"></div>
+
+    <div id="conn-pill" class="conn-pill">
+      <span class="dot"></span><span id="conn-text">Disconnected</span>
+    </div>
+
+    <label class="key-field" title="Admin key">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      <input id="admin-key" type="password" placeholder="Admin key" autocomplete="off" spellcheck="false">
+      <button class="key-eye" id="key-eye" type="button" aria-label="Toggle visibility">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </label>
+
+    <button class="icon-btn" id="reconnect-btn" title="Reconnect">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    </button>
+  </header>
+
+  <nav class="side">
+    <div class="side-label">Console</div>
+    <button class="nav-item active" data-page="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" data-page="players">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Players <span id="nav-players-count" class="badge">0</span>
+    </button>
+    <button class="nav-item" data-page="anticheat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Anti-Cheat <span id="nav-flag-count" class="badge hot" hidden>0</span>
+    </button>
+    <button class="nav-item" data-page="logs">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Activity Log
+    </button>
+    <button class="nav-item" data-page="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Server &amp; Keys
+    </button>
+  </nav>
+
+  <main class="main">
+
+    <section class="page active" id="page-dashboard">
+      <div class="page-head">
+        <div>
+          <h1>Dashboard</h1>
+          <div class="page-sub">Live overview &amp; quick actions</div>
+        </div>
+      </div>
+
+      <div class="grid grid-4" style="margin-bottom: 14px;">
+        <div class="kpi"><div class="kpi-label">Players online</div><div class="kpi-value" id="kpi-players">—</div><div class="kpi-foot" id="kpi-players-foot">·</div></div>
+        <div class="kpi warn"><div class="kpi-label">Suspects</div><div class="kpi-value" id="kpi-suspects">—</div><div class="kpi-foot" id="kpi-suspects-foot">refresh on Anti-Cheat</div></div>
+        <div class="kpi hot"><div class="kpi-label">Flagged</div><div class="kpi-value" id="kpi-flagged">—</div><div class="kpi-foot">accounts under review</div></div>
+        <div class="kpi"><div class="kpi-label">Events scanned</div><div class="kpi-value" id="kpi-events">—</div><div class="kpi-foot">last refresh window</div></div>
+      </div>
+
+      <div class="grid grid-2" style="margin-bottom: 14px;">
+        <div class="card">
+          <h2>📣 Broadcast<span class="h2-pill" id="broadcast-pill">To all players</span></h2>
+          <textarea id="msg" class="textarea" placeholder="Type a message for everyone in-game…"></textarea>
+          <div class="btn-row" style="margin-top: 10px;">
+            <button id="send-btn" class="btn btn-primary" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send Broadcast
+            </button>
+            <button id="refresh-btn" class="btn" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg>
+              Refresh
+            </button>
+            <button id="kick-all-btn" class="btn btn-danger" disabled style="margin-left: auto;">
+              🦶 Kick All
+            </button>
+          </div>
+          <div id="status" class="status" style="margin-top: 6px;"></div>
+        </div>
+
+        <div class="card">
+          <h2>🌿 Faith Circle</h2>
+          <div id="faith-status" class="faith">
+            <div class="faith-icon">💤</div>
+            <div class="faith-body">
+              <div class="lab">Status</div>
+              <div class="val">—</div>
+              <div class="faith-foot">Connect to view spawn timer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h2>📋 Admin Actions<span class="h2-pill">latest 50</span></h2>
+          <div id="action-log" class="feed"><div class="feed-empty">No actions yet</div></div>
+        </div>
+        <div class="card">
+          <h2>🎮 Player Actions<span class="h2-pill">live feed</span></h2>
+          <div id="player-actions" class="feed"><div class="feed-empty">No player actions yet</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-players">
+      <div class="page-head">
+        <div>
+          <h1>Players</h1>
+          <div class="page-sub" id="players-subtitle">Connect to see who's online</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="players-search" class="input" placeholder="Search by name, room, UID…">
+        </div>
+        <button class="chip active" data-filter="all">All <span class="ct" id="ct-all">0</span></button>
+        <button class="chip" data-filter="guests">Guests <span class="ct" id="ct-guests">0</span></button>
+        <button class="chip" data-filter="flagged">Flagged <span class="ct" id="ct-flagged">0</span></button>
+        <button class="chip" data-filter="banned">Name-banned <span class="ct" id="ct-banned">0</span></button>
+      </div>
+
+      <div id="player-list" class="player-list">
+        <div class="empty">Connect to see players</div>
+      </div>
+    </section>
+
+    <section class="page" id="page-anticheat">
+      <div class="page-head">
+        <div>
+          <h1>Anti-Cheat</h1>
+          <div class="page-sub">Scan recent violations &amp; review suspect dossiers</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 14px;">
+        <div class="toolbar" style="margin: 0;">
+          <label style="display:flex;flex-direction:column;gap:4px;">
+            <span class="field-label">Days back</span>
+            <input id="ac-days" class="input" type="number" min="1" max="90" value="30" style="width: 100px;">
+          </label>
+          <label style="display:flex;flex-direction:column;gap:4px;">
+            <span class="field-label">Event limit</span>
+            <input id="ac-limit" class="input" type="number" min="50" max="3000" value="1200" style="width: 120px;">
+          </label>
+          <button id="ac-refresh-btn" class="btn btn-primary" disabled style="margin-top: 18px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg>
+            Refresh Evidence
+          </button>
+          <div id="ac-status" class="status" style="margin-top: 18px;"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-4" style="margin-bottom: 14px;">
+        <div class="kpi"><div class="kpi-label">Suspects</div><div class="kpi-value" id="ac-metric-suspects">—</div></div>
+        <div class="kpi hot"><div class="kpi-label">Flagged</div><div class="kpi-value" id="ac-metric-flagged">—</div></div>
+        <div class="kpi"><div class="kpi-label">Events scanned</div><div class="kpi-value" id="ac-metric-events">—</div></div>
+        <div class="kpi warn"><div class="kpi-label">Violations</div><div class="kpi-value" id="ac-metric-violations">—</div></div>
+      </div>
+
+      <div class="ac-grid">
+        <div id="ac-list" class="ac-list">
+          <div class="ac-empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div>Refresh evidence to load suspects</div>
+          </div>
+        </div>
+        <div class="card dossier">
+          <div id="ac-dossier"><div class="empty">Select a suspect to view dossier</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-logs">
+      <div class="page-head">
+        <div>
+          <h1>Activity Log</h1>
+          <div class="page-sub">Combined admin &amp; player action feed</div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h2>📋 Admin Actions<span class="h2-pill">latest 50</span></h2>
+          <div id="action-log-2" class="feed"><div class="feed-empty">No actions yet</div></div>
+        </div>
+        <div class="card">
+          <h2>🎮 Player Actions<span class="h2-pill">live feed</span></h2>
+          <div id="player-actions-2" class="feed"><div class="feed-empty">No player actions yet</div></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h2>🚨 Recent Violations
+          <span class="h2-pill" id="recent-v-count">0</span>
+          <label style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3);font-weight:400">
+            <input type="checkbox" id="recent-v-unreviewed" style="margin:0"> Unreviewed only
+          </label>
+          <button id="recent-v-refresh" class="btn btn-sm" style="margin-left:8px">↻</button>
+        </h2>
+        <div class="page-sub" style="margin-bottom:10px">Live firehose of V events across all players. Click ✓ to mark false alarm (shift+click for note).</div>
+        <div class="btn-row" style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <button id="recent-v-clear-visible" class="btn btn-sm">✓ Clear visible as false alarm</button>
+          <button id="recent-v-clear-all" class="btn btn-sm btn-danger">⚠ Clear ALL unreviewed (global)</button>
+        </div>
+        <div id="recent-v-feed" class="ac-timeline"><div class="empty">Connect to load…</div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-settings">
+      <div class="page-head">
+        <div>
+          <h1>Server &amp; Keys</h1>
+          <div class="page-sub">Connection &amp; authentication</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 14px;">
+        <h2>🔌 Server</h2>
+        <label class="field-label">WebSocket URL</label>
+        <input id="ws-url" class="input" value="wss://skilling.onrender.com" style="margin-bottom: 12px;">
+
+        <label class="field-label">Admin Key</label>
+        <input id="admin-key-2" class="input" type="password" placeholder="Paste admin key" autocomplete="off">
+        <div class="page-sub" style="margin-top: 6px;">Stored locally — only sent over the WebSocket connection above.</div>
+
+        <div class="btn-row" style="margin-top: 14px;">
+          <button id="reconnect-btn-2" class="btn btn-primary">Reconnect</button>
+          <button id="clear-key-btn" class="btn">Forget key</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="color: var(--hot);">⚠️ Danger Zone</h2>
+        <p style="color: var(--ink-3); font-size: 13px; margin-bottom: 12px;">
+          Kick everyone currently connected to the main room. Players will need to refresh.
+        </p>
+        <button id="kick-all-btn-2" class="btn btn-danger" disabled>🦶 Kick All Players</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" data-page="dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+    Home
+  </button>
+  <button class="nav-item" data-page="players">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    Players
+  </button>
+  <button class="nav-item" data-page="anticheat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Cheat
+  </button>
+  <button class="nav-item" data-page="logs">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Log
+  </button>
+  <button class="nav-item" data-page="settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Settings
+  </button>
+</nav>
+
+<script>
+/* =========================================================
+   Skilling Admin Console — wiring
+   Protocol identical to the original admin.html.
+   ========================================================= */
+
+const wsInput = document.getElementById("ws-url");
+const keyInput = document.getElementById("admin-key");
+const keyInput2 = document.getElementById("admin-key-2");
+const keyEyeBtn = document.getElementById("key-eye");
+const msgInput = document.getElementById("msg");
+const sendBtn = document.getElementById("send-btn");
+const refreshBtn = document.getElementById("refresh-btn");
+const kickAllBtn = document.getElementById("kick-all-btn");
+const kickAllBtn2 = document.getElementById("kick-all-btn-2");
+const reconnectBtn = document.getElementById("reconnect-btn");
+const reconnectBtn2 = document.getElementById("reconnect-btn-2");
+const clearKeyBtn = document.getElementById("clear-key-btn");
+const statusEl = document.getElementById("status");
+const connPill = document.getElementById("conn-pill");
+const connText = document.getElementById("conn-text");
+const playersSubtitleEl = document.getElementById("players-subtitle");
+const playerListEl = document.getElementById("player-list");
+const playersSearch = document.getElementById("players-search");
+
+const acDaysInput = document.getElementById("ac-days");
+const acLimitInput = document.getElementById("ac-limit");
+const acRefreshBtn = document.getElementById("ac-refresh-btn");
+const acStatusEl = document.getElementById("ac-status");
+const acListEl = document.getElementById("ac-list");
+const acDossierEl = document.getElementById("ac-dossier");
+const acMetricSuspects = document.getElementById("ac-metric-suspects");
+const acMetricFlagged = document.getElementById("ac-metric-flagged");
+const acMetricEvents = document.getElementById("ac-metric-events");
+const acMetricViolations = document.getElementById("ac-metric-violations");
+
+const kpiPlayers = document.getElementById("kpi-players");
+const kpiPlayersFoot = document.getElementById("kpi-players-foot");
+const kpiSuspects = document.getElementById("kpi-suspects");
+const kpiFlagged = document.getElementById("kpi-flagged");
+const kpiEvents = document.getElementById("kpi-events");
+
+const navPlayersCount = document.getElementById("nav-players-count");
+const navFlagCount = document.getElementById("nav-flag-count");
+
+let ws = null;
+let refreshInterval = null;
+let acSuspects = [];
+let acSelectedUid = null;
+let lastPlayers = [];
+/* v457 egress: cached Recent Violations rows so incremental polls can
+   merge new event_ids into the displayed feed without losing already-
+   rendered older rows. Keyed by event_id; render sorts by ts desc. */
+const recentVCache = new Map();
+let recentVHadInitial = false;
+let playerFilter = "all";
+
+const LS_KEY = "skilling_admin_key";
+const LS_URL = "skilling_ws_url";
+
+try {
+  const savedKey = localStorage.getItem(LS_KEY);
+  if (savedKey) { keyInput.value = savedKey; keyInput2.value = savedKey; }
+  const savedUrl = localStorage.getItem(LS_URL);
+  if (savedUrl) wsInput.value = savedUrl;
+} catch {}
+
+function syncKey(value) {
+  keyInput.value = value;
+  keyInput2.value = value;
+  try { localStorage.setItem(LS_KEY, value); } catch {}
+}
+keyInput.addEventListener("input", e => {
+  keyInput2.value = e.target.value;
+  try { localStorage.setItem(LS_KEY, e.target.value); } catch {}
+  maybeStartPolling();
+});
+keyInput2.addEventListener("input", e => {
+  keyInput.value = e.target.value;
+  try { localStorage.setItem(LS_KEY, e.target.value); } catch {}
+  maybeStartPolling();
+});
+wsInput.addEventListener("change", () => {
+  try { localStorage.setItem(LS_URL, wsInput.value); } catch {}
+  connect();
+});
+clearKeyBtn?.addEventListener("click", () => {
+  syncKey("");
+  try { localStorage.removeItem(LS_KEY); } catch {}
+});
+keyEyeBtn?.addEventListener("click", () => {
+  const t = keyInput.type === "password" ? "text" : "password";
+  keyInput.type = t;
+});
+
+document.querySelectorAll("[data-page]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = btn.dataset.page;
+    document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === `page-${target}`));
+    document.querySelectorAll("[data-page]").forEach(b => b.classList.toggle("active", b.dataset.page === target));
+    document.querySelector(".main").scrollTo?.({ top: 0, behavior: "instant" });
+    window.scrollTo({ top: 0 });
+  });
+});
+
+document.querySelectorAll("[data-filter]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-filter]").forEach(b => b.classList.toggle("active", b === btn));
+    playerFilter = btn.dataset.filter;
+    renderPlayers(lastPlayers);
+  });
+});
+playersSearch?.addEventListener("input", () => renderPlayers(lastPlayers));
+
+const LOG_MAX = 50;
+const logEntries = [];
+const logEls = [document.getElementById("action-log"), document.getElementById("action-log-2")].filter(Boolean);
+
+function logAction(cls, text) {
+  const last = logEntries[0];
+  if (last && last.text === text && last.cls === cls) {
+    last.count++;
+    last.ts = Date.now();
+    renderLog();
+    return;
+  }
+  logEntries.unshift({ ts: Date.now(), cls, text, count: 1 });
+  if (logEntries.length > LOG_MAX) logEntries.length = LOG_MAX;
+  renderLog();
+}
+
+const TAG_LABEL = {
+  "act-kick": ["kick", "kick"],
+  "act-rename": ["rename", "rename"],
+  "act-ban": ["ban", "ban"],
+  "act-broadcast": ["broadcast", "broadcast"],
+  "act-join": ["ok", "join"],
+  "act-leave": ["leave", "leave"],
+  "act-trade": ["trade", "trade"],
+  "act-drop": ["drop", "drop"],
+};
+
+function renderLog() {
+  if (!logEntries.length) {
+    logEls.forEach(el => el.innerHTML = '<div class="feed-empty">No actions yet</div>');
+    return;
+  }
+  const html = logEntries.map(e => {
+    const t = new Date(e.ts).toLocaleTimeString([], { hour12: false });
+    const cnt = e.count > 1 ? ` <span style="color:var(--ink-4)">×${e.count}</span>` : "";
+    const [tagCls, tagText] = TAG_LABEL[e.cls] || ["", ""];
+    const tag = tagText ? `<span class="tag ${tagCls}">${tagText}</span>` : "";
+    return `<div class="feed-row"><span class="ts">${t}</span><span class="msg">${tag}${esc(e.text)}${cnt}</span></div>`;
+  }).join("");
+  logEls.forEach(el => el.innerHTML = html);
+}
+
+const playerActionsEls = [document.getElementById("player-actions"), document.getElementById("player-actions-2")].filter(Boolean);
+
+function renderPlayerActions(actions) {
+  if (!actions.length) {
+    playerActionsEls.forEach(el => el.innerHTML = '<div class="feed-empty">No player actions yet</div>');
+    return;
+  }
+  const html = actions.map(a => {
+    const t = new Date(a.ts).toLocaleTimeString([], { hour12: false });
+    const text = a.text || "";
+    let tag = "";
+    if (text.startsWith("Traded")) tag = '<span class="tag trade">trade</span>';
+    else if (text.startsWith("Dropped")) tag = '<span class="tag drop">drop</span>';
+    return `<div class="feed-row"><span class="ts">${t}</span><span class="msg">${tag}<strong>${esc(a.name)}</strong> ${esc(text)}</span></div>`;
+  }).join("");
+  playerActionsEls.forEach(el => el.innerHTML = html);
+}
+
+function setConn(state, label) {
+  connPill.className = `conn-pill ${state}`;
+  connText.textContent = label;
+}
+
+function connect() {
+  if (ws) { try { ws.close(); } catch {} ws = null; }
+  clearInterval(refreshInterval);
+  const url = wsInput.value.trim();
+  if (!url) return;
+  setConn("connecting", "Connecting…");
+  try { ws = new WebSocket(url); } catch (err) { setConn("error", "Bad URL"); return; }
+
+  ws.onopen = () => {
+    setConn("connected", "Connected");
+    setBtnsConnected(true);
+    ws.send(JSON.stringify({ type: "hello", room: "main", name: "Admin", color: "#ffd700" }));
+    maybeStartPolling();
+  };
+  ws.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
+    if (msg.type === "admin_players") { renderPlayers(msg.players || []); renderFaith(msg.faith); }
+    if (msg.type === "admin_actions") renderPlayerActions(msg.actions || []);
+    if (msg.type === "admin_anticheat") renderAntiCheat(msg);
+    if (msg.type === "admin_anticheat_dossier") renderDossier(msg);
+    if (msg.type === "admin_anticheat_ack") handleAntiCheatAck(msg);
+    if (msg.type === "admin_anticheat_review_ack") handleReviewAck(msg);
+    if (msg.type === "admin_anticheat_recent_v") {
+      if (msg.ok && Array.isArray(msg.rows)) renderRecentV(msg.rows);
+      else if (!msg.ok) setAcStatus(`Recent V load failed: ${msg.error || "unknown"}`, "err");
+    }
+    if (msg.type === "admin_anticheat_bulk_review") {
+      if (msg.ok) {
+        const mode = msg.mode === "global" ? "global" : "scoped";
+        setAcStatus(`Bulk clear (${mode}): ${msg.reviewed_count || 0} reviewed, ${msg.strikes_zeroed || 0} strikes zeroed`, "ok");
+        logAction("act-join", `Bulk clear (${mode}): ${msg.reviewed_count || 0} events`);
+        /* v457: full reset (not incremental) so cleared rows drop out
+           of the unreviewed-only filter immediately. */
+        _resetRecentV();
+        requestAntiCheat();
+      } else {
+        setAcStatus(`Bulk clear failed: ${msg.error || "unknown"}`, "err");
+      }
+    }
+  };
+  ws.onclose = () => {
+    setConn("", "Disconnected");
+    setBtnsConnected(false);
+    clearInterval(refreshInterval);
+  };
+  ws.onerror = () => { setConn("error", "Error"); };
+}
+
+function setBtnsConnected(on) {
+  [sendBtn, refreshBtn, kickAllBtn, kickAllBtn2, acRefreshBtn].forEach(b => { if (b) b.disabled = !on; });
+}
+
+/* v457 egress: which pages actually use the live player roster.
+   Anti-cheat/Logs/Settings don't, so we pause the poll there. */
+function _playersPageActive() {
+  return !!document.querySelector('#page-dashboard.active, #page-players.active');
+}
+
+function _tickPlayersPoll() {
+  if (document.hidden) return;
+  if (!_playersPageActive()) return;
+  requestPlayers(); requestPlayerActions();
+}
+
+function maybeStartPolling() {
+  if (keyInput.value.trim() && ws && ws.readyState === WebSocket.OPEN) {
+    clearInterval(refreshInterval);
+    /* v457: kick an immediate fetch only if the current page actually
+       displays the data; otherwise wait for the user to navigate. */
+    if (_playersPageActive() && !document.hidden) { requestPlayers(); requestPlayerActions(); }
+    /* v457 egress: was 5s. Raised to 15s + page-gated + hidden-paused.
+       Combined ~4-6× egress reduction on idle admin tabs. */
+    refreshInterval = setInterval(_tickPlayersPoll, 15000);
+  }
+}
+
+reconnectBtn?.addEventListener("click", connect);
+reconnectBtn2?.addEventListener("click", connect);
+
+function getKey() { return keyInput.value.trim(); }
+
+function requestPlayers() {
+  const key = getKey();
+  if (!key) { playersSubtitleEl.textContent = "Enter admin key on Settings → Server & Keys"; return; }
+  if (!ws || ws.readyState !== WebSocket.OPEN) { playersSubtitleEl.textContent = "Not connected"; return; }
+  ws.send(JSON.stringify({ type: "admin_players", key }));
+}
+
+function requestPlayerActions() {
+  const key = getKey();
+  if (!key || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: "admin_actions", key }));
+}
+
+function requestAntiCheat() {
+  const key = getKey();
+  if (!key) { setAcStatus("Enter admin key first", "err"); return; }
+  if (!ws || ws.readyState !== WebSocket.OPEN) { setAcStatus("Not connected", "err"); return; }
+  const days = Math.max(1, Math.min(90, Number(acDaysInput.value) || 30));
+  const limit = Math.max(50, Math.min(3000, Number(acLimitInput.value) || 1200));
+  setAcStatus("Loading anti-cheat evidence…", "");
+  ws.send(JSON.stringify({ type: "admin_anticheat", key, days, limit }));
+}
+
+function requestDossier(uid) {
+  const key = getKey();
+  if (!key || !uid || !ws || ws.readyState !== WebSocket.OPEN) return;
+  acSelectedUid = uid;
+  document.querySelectorAll(".ac-card").forEach(c => c.classList.toggle("selected", c.dataset.uid === uid));
+  acDossierEl.innerHTML = '<div class="empty">Loading dossier…</div>';
+  ws.send(JSON.stringify({ type: "admin_anticheat_dossier", key, uid }));
+  if (window.innerWidth < 1100) {
+    setTimeout(() => acDossierEl.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+  }
+}
+
+function setAcStatus(text, kind) {
+  acStatusEl.textContent = text || "";
+  acStatusEl.className = kind ? `status ${kind}` : "status";
+}
+
+function adminCmd(type, data) {
+  const key = getKey();
+  if (!key || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type, key, ...data }));
+}
+
+function esc(str) {
+  const d = document.createElement("div");
+  d.textContent = (str == null ? "" : String(str));
+  return d.innerHTML;
+}
+function fmtTime(ts) {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString();
+}
+function fmtNum(n) { return Number(n || 0).toLocaleString(); }
+function sigBadgeClass(sig) {
+  /* v434: stackable_rate replaces stackable_spike; checksum_stale + label_spoof retired (back-compat kept). */
+  if (sig === "xp_megaspike" || sig === "stackable_rate" || sig === "stackable_spike" || sig === "uid_spike" || sig === "coin_spike" || sig === "stack_at_cap" || sig === "multi_skill_burst") return "hot";
+  if (sig === "xp_rate" || sig === "lvl_burst" || sig === "label_spoof" || sig === "tl_mismatch" || sig === "xp_level" || sig === "item_rate_exceeded" || sig === "unlogged_coin_gain") return "warn";
+  return "";
+}
+
+/* v452: human-readable signal renderer. Takes a raw signal string like
+   "xp_ceiling_exceeded:farming rate=12982860/min over=104751 ..." and
+   returns HTML with friendly text + emoji prefix + formatted numbers.
+   Falls back to esc() if parsing fails so nothing is ever blank. */
+function _shortNum(n) {
+  const x = Number(n);
+  if (!isFinite(x)) return n;
+  const a = Math.abs(x);
+  if (a >= 1e9) return (x / 1e9).toFixed(2) + "B";
+  if (a >= 1e6) return (x / 1e6).toFixed(2) + "M";
+  if (a >= 1e3) return (x / 1e3).toFixed(1) + "K";
+  return x.toLocaleString("en-US");
+}
+/* Severity coloring — wraps an "N× over" badge in red/orange/yellow based on
+   magnitude, so 1000× cheats are visually obvious vs 1.2× borderline saves. */
+function _overBadge(ratio) {
+  const r = Number(ratio);
+  if (!isFinite(r) || r <= 1) return "";
+  const txt = r >= 100 ? r.toLocaleString() + "×" : r.toFixed(1) + "×";
+  let color;
+  if (r >= 100) color = "var(--hot)";       // 100× = cheat-tier
+  else if (r >= 10) color = "#ff8c40";      // 10× = bot-tier
+  else if (r >= 3) color = "var(--warn)";   // 3× = sus
+  else color = "rgba(255,200,90,0.8)";      // <3× = borderline
+  return ` (<span style="color:${color};font-weight:700">${txt} over</span>)`;
+}
+/* v453: tag pill at the start of each line — instant severity scan */
+function _tag(kind) {
+  const styles = {
+    cheat: ["CHEAT", "var(--hot)"],
+    bot:   ["BOT",   "#ff8c40"],
+    sus:   ["SUS",   "var(--warn)"],
+    quiet: ["LOW",   "rgba(200,200,200,0.55)"],
+    info:  ["INFO",  "rgba(120,180,255,0.7)"],
+    audit: ["AUDIT", "rgba(180,180,180,0.6)"],
+  };
+  const [label, color] = styles[kind] || styles.info;
+  return `<span style="display:inline-block;min-width:42px;text-align:center;font-size:9px;font-weight:800;letter-spacing:0.06em;padding:1px 5px;margin-right:6px;border-radius:3px;background:${color};color:#0d0c1a;vertical-align:1px">${label}</span>`;
+}
+/* Per-skill icon */
+const _SKILL_ICON = {
+  farming: "🌾", mining: "⛏️", woodcutting: "🪓", fishing: "🎣",
+  survival: "🌿", cooking: "🍳", scribing: "📜", faith: "✨",
+  explorer: "🧭", melee: "⚔️", bow: "🏹", mage: "🔮", hitpoints: "❤️",
+};
+function _skillTag(s) {
+  return (_SKILL_ICON[s] || "📊") + " <b style='color:var(--ink-1);text-transform:capitalize'>" + esc(s) + "</b>";
+}
+/* Severity classifier for rate-based signals */
+function _rateSeverity(rate, baseline) {
+  const r = rate / Math.max(1, baseline);
+  if (r >= 100) return "cheat";
+  if (r >= 10) return "bot";
+  if (r >= 3) return "sus";
+  return "quiet";
+}
+/* Human-friendly duration: 89s → "1m 29s", 300s → "5m" */
+function _fmtDur(sec) {
+  const s = Number(sec);
+  if (!isFinite(s) || s < 0) return sec + "s";
+  if (s < 60) return s.toFixed(0) + "s";
+  const m = Math.floor(s / 60), rem = Math.round(s % 60);
+  return rem ? `${m}m ${rem}s` : `${m}m`;
+}
+/* Verdict snippet — short italic explanation at the end of each line */
+function _verdict(txt, color) {
+  return ` <span style="color:${color || "rgba(255,255,255,0.5)"};font-style:italic;font-size:11px">⟶ ${txt}</span>`;
+}
+function _prettySignal(text) {
+  if (typeof text !== "string" || !text) return esc(text || "");
+  try {
+    let m;
+    // xp_ceiling_exceeded:farming rate=X/min over=Y allowance=Z strikes=N potion_row=f
+    if ((m = text.match(/^xp_ceiling_exceeded:(\w+) rate=(\d+)\/min over=(\d+) allowance=(\d+) strikes=(\d+) potion_row=(\w)/))) {
+      const skill = m[1], rateNum = Number(m[2]), over = Number(m[3]), alw = Number(m[4]);
+      const delta = over + alw;
+      const elapsed = delta / Math.max(1, rateNum) * 60;
+      const artifact = elapsed < 2 && over < 10_000_000;
+      const potion = m[6] === "t" ? ` <span style="color:var(--warn)">+POT</span>` : "";
+      const gatherSkill = ["fishing","mining","woodcutting","survival"].includes(skill);
+      if (artifact) {
+        return `${_tag("info")}${_skillTag(skill)} +${_shortNum(delta)} XP in <1s save${potion}${_verdict("tick-math noise — same save fired twice, look at the paired event", "rgba(160,160,160,0.6)")}`;
+      }
+      /* BOT/CHEAT reserved for MILLIONS only. Single-save bursts (any
+         elapsed) under 1M XP delta = legit harvest range. Above 1M-5M
+         deserves a look (SUS). 5M+ is clearly injection (CHEAT).
+         Sustained-rate cheat: 1M/min for 60s+ = millions, also CHEAT. */
+      let sev, verdict, verdictColor;
+      if (delta >= 5_000_000) {
+        sev = "cheat"; verdict = `+${_shortNum(delta)} XP one save — impossible without injection`; verdictColor = "var(--hot)";
+      } else if (delta >= 1_000_000) {
+        sev = "sus"; verdict = `+${_shortNum(delta)} XP one save — heavy but possibly extreme legit grind`; verdictColor = "var(--warn)";
+      } else if (skill !== "farming" && gatherSkill && elapsed <= 60 && rateNum >= 500_000) {
+        sev = "bot"; verdict = `${_shortNum(rateNum)}/min short-window gather XP — speedhack-tier, check paired item-rate signal`; verdictColor = "#ff8c40";
+      } else if (skill !== "farming" && gatherSkill && elapsed <= 60 && rateNum >= 200_000) {
+        sev = "sus"; verdict = `${_shortNum(rateNum)}/min short-window gather XP — too hot for normal chopping/mining/fishing`; verdictColor = "var(--warn)";
+      } else if (elapsed > 60 && rateNum >= 1_000_000) {
+        sev = "cheat"; verdict = `${_shortNum(rateNum)}/min sustained — injection-tier`; verdictColor = "var(--hot)";
+      } else if (elapsed > 60 && rateNum >= 200_000) {
+        sev = "sus"; verdict = `${_shortNum(rateNum)}/min sustained — fast power grind`; verdictColor = "var(--warn)";
+      } else {
+        sev = "quiet";
+        verdict = elapsed <= 60
+          ? `single-save burst — legit harvest range, check repeat count →`
+          : `slightly over ceiling — likely AFK gather or frenzy`;
+      }
+      return `${_tag(sev)}${_skillTag(skill)} ${_shortNum(rateNum)}/min for ${_fmtDur(elapsed)}${potion}${_verdict(verdict, verdictColor)}`;
+    }
+    // xp_rate:farming +N in 0.25m = R/min
+    if ((m = text.match(/^xp_rate:(\w+) \+(\d+) in ([\d.]+)m = (\d+)\/min/))) {
+      const skill = m[1], delta = Number(m[2]), rate = Number(m[4]);
+      const elapsedSec = Number(m[3]) * 60;
+      const gatherSkill = ["fishing","mining","woodcutting","survival"].includes(skill);
+      let sev, verdict, verdictColor;
+      if (delta >= 5_000_000) {
+        sev = "cheat"; verdict = `+${_shortNum(delta)} XP — impossible without injection`; verdictColor = "var(--hot)";
+      } else if (delta >= 1_000_000) {
+        sev = "sus"; verdict = `+${_shortNum(delta)} XP — heavy, extreme grind or bot`; verdictColor = "var(--warn)";
+      } else if (skill !== "farming" && gatherSkill && elapsedSec <= 60 && rate >= 500_000) {
+        sev = "bot"; verdict = `short-window gather XP — speedhack-tier, check paired item-rate signal`; verdictColor = "#ff8c40";
+      } else if (skill !== "farming" && gatherSkill && elapsedSec <= 60 && rate >= 200_000) {
+        sev = "sus"; verdict = `short-window gather XP — too hot for normal gather pace`; verdictColor = "var(--warn)";
+      } else if (elapsedSec > 60 && rate >= 1_000_000) {
+        sev = "cheat"; verdict = `sustained million-per-minute — injection`; verdictColor = "var(--hot)";
+      } else if (elapsedSec > 60 && rate >= 200_000) {
+        sev = "sus"; verdict = `fast sustained grind`; verdictColor = "var(--warn)";
+      } else {
+        sev = "quiet"; verdict = elapsedSec <= 60 ? `single-save burst — legit harvest` : `borderline — AFK or frenzy`;
+      }
+      return `${_tag(sev)}${_skillTag(skill)} +${_shortNum(delta)} XP / ${_fmtDur(elapsedSec)} (${_shortNum(rate)}/min)${_verdict(verdict, verdictColor)}`;
+    }
+    // xp_megaspike:farming +N in one save
+    if ((m = text.match(/^xp_megaspike:(\w+) \+(\d+) in one save/))) {
+      const delta = Number(m[2]);
+      const sev = delta >= 100_000_000 ? "cheat" : delta >= 50_000_000 ? "bot" : "sus";
+      /* Largest legit single-action XP ≈ 6K (top recipe cook). 132M is ~22,000× one action. */
+      const xActions = Math.round(delta / 6000);
+      return `${_tag(sev)}${_skillTag(m[1])} <b style="color:var(--hot)">+${_shortNum(delta)} XP one save</b>${_verdict(`= ${_shortNum(xActions)} max-actions in one save tick — impossible without injection`, "var(--hot)")}`;
+    }
+    // item_rate_exceeded:Pitaya +N in Xs = R/min ceiling=C
+    if ((m = text.match(/^item_rate_exceeded:([^+]+?)\s+\+(\d+) in ([\d.]+)s = (\d+)\/min ceiling=(\d+)/))) {
+      const itemName = m[1].trim();
+      const qty = Number(m[2]), dur = Number(m[3]), rate = Number(m[4]), ceiling = Number(m[5]);
+      /* Farming crops are BURST-class: one Ultra-compost harvest-all
+         legitimately drops 50-150 items in a single save tick. Rate-
+         per-minute extrapolates 200-600/min but it's actually one click.
+         For crops we judge by absolute QUANTITY, not /min.
+         Other items (fish/ore/logs/forage) get /min judging since each
+         action = 1 item — sustained rate IS truth. */
+      const cropSet = new Set([
+        "Carrot","Cabbage","Onion","Beet","Radish","Tomato","Corn","Cauliflower","Broccoli",
+        "Pepper","Lemon","Orange","Grapes","Pumpkin","Watermelon","Pineapple","Leek","Green Pepper",
+        "Wheat","Turnip","Banana","Aloe","Plum","Mushroom","Cherries","Beans","Garlic",
+        "Sunflower","Potato","Avocado","Mango","Pomegranate","Pitaya"
+      ]);
+      const isCrop = cropSet.has(itemName);
+      let sev, verdict, verdictColor;
+      if (qty >= 100_000) {
+        sev = "cheat"; verdict = `+${_shortNum(qty)} items one save — fake item gain`; verdictColor = "var(--hot)";
+      } else if (qty >= 5_000) {
+        sev = "cheat"; verdict = `+${_shortNum(qty)} in ${_fmtDur(dur)} — impossible click rate`; verdictColor = "var(--hot)";
+      } else if (qty >= 1_000) {
+        sev = "sus"; verdict = `+${_shortNum(qty)} in ${_fmtDur(dur)} — heavy bulk, watch`; verdictColor = "var(--warn)";
+      } else if (isCrop) {
+        /* Sub-1000 crop count: any single-save burst is a harvest. */
+        sev = "quiet";
+        verdict = `${qty} items / ${_fmtDur(dur)} — multi-plot harvest burst (legit)`;
+      } else {
+        /* Sub-1000 gather item: judge by sustained rate per min */
+        const ratio = rate / Math.max(1, ceiling);
+        /* v461 (renderer): tighter bands. The 2-4× ceiling range is
+           where subtle speedhacks live (HTML5 universal hack at 2× =
+           ~2-2.8× ceiling depending on luck variance). Legit luck-stack
+           tops out at ~1.5× for sustained windows; >2× sustained is
+           almost always either a script or a clock hack. */
+        if (ratio >= 100) { sev = "cheat"; verdict = `${_shortNum(Math.round(ratio))}× ceiling sustained — fake gain`; verdictColor = "var(--hot)"; }
+        else if (ratio >= 4)  { sev = "bot"; verdict = `${ratio.toFixed(1)}× ceiling sustained — speedhack / scripted clicker`; verdictColor = "#ff8c40"; }
+        else if (rate >= 10000) { sev = "sus"; verdict = `${_shortNum(rate)}/min — far above expected gather pace`; verdictColor = "var(--warn)"; }
+        else if (ratio >= 2)  { sev = "sus"; verdict = `${ratio.toFixed(1)}× ceiling — speedhack-tier rate, watch for repeats`; verdictColor = "var(--warn)"; }
+        else if (ratio >= 1.5) { sev = "quiet"; verdict = `${ratio.toFixed(1)}× ceiling — borderline (luck-stack or short frenzy)`; }
+        else                  { sev = "quiet"; verdict = `${ratio.toFixed(1)}× ceiling — within legit AFK/frenzy range`; }
+      }
+      return `${_tag(sev)}📦 <b>${esc(itemName)}</b> +${_shortNum(qty)} / ${_fmtDur(dur)} (${_shortNum(rate)}/min, cap ${ceiling})${_verdict(verdict, verdictColor)}`;
+    }
+    // stackable_rate:Pitaya +N in Xs = R/min
+    if ((m = text.match(/^stackable_rate:([^+]+?)\s+\+(\d+) in ([\d.]+)s = (\d+)\/min/))) {
+      const qty = Number(m[2]), dur = Number(m[3]), rate = Number(m[4]);
+      const sev = rate >= 1_000_000 ? "cheat" : rate >= 100_000 ? "bot" : "sus";
+      const verdict = rate >= 1_000_000 ? `${_shortNum(rate)} items/min — fake item gain`
+                    : rate >= 100_000   ? `${_shortNum(rate)} items/min — bot pace`
+                    : `crossed 5K/save threshold — heavy grind`;
+      const vcolor = rate >= 100_000 ? "var(--hot)" : "var(--warn)";
+      return `${_tag(sev)}🔥 <b>${esc(m[1].trim())}</b> +${_shortNum(qty)} / ${_fmtDur(dur)}${_verdict(verdict, vcolor)}`;
+    }
+    // stackable_spike:Item (legacy)
+    if ((m = text.match(/^stackable_spike:(.+)$/))) {
+      return `${_tag("sus")}🔥 <b>${esc(m[1])}</b>${_verdict("rare-item single spike — investigate")}`;
+    }
+    // lvl_burst:farming gap=Xs lvl=N
+    if ((m = text.match(/^lvl_burst:(\w+) gap=(-?[\d.]+)s lvl=(\d+)/))) {
+      const gap = Number(m[2]), lvl = m[3];
+      /* gap < 0.5s = two level-ups same instant = single huge XP dump.
+         legit at endgame with multi-plot harvest. cheaters chain 30+ in 1m. */
+      const sev = gap < 0.1 ? "sus" : "quiet";
+      const verdict = gap < 0.1
+        ? `same-save double-level — multi-plot harvest or injection`
+        : `endgame XP cliff — legit for high levels`;
+      return `${_tag(sev)}${_skillTag(m[1])} → <b>Lv ${lvl}</b> (gap ${gap.toFixed(2)}s)${_verdict(verdict)}`;
+    }
+    // coin_spike:+N gold
+    if ((m = text.match(/^coin_spike:\+?(\d+)\s*gold?/))) {
+      const c = Number(m[1]);
+      const sev = c >= 100_000_000 ? "cheat" : c >= 50_000_000 ? "bot" : "sus";
+      /* Top-tier crop Pitaya sells ~4K each. 140M = 35K Pitayas in one save. */
+      const equiv = Math.round(c / 4000);
+      return `${_tag(sev)}💰 <b style="color:var(--hot)">+${_shortNum(c)} gold</b> one save${_verdict(`≈ ${_shortNum(equiv)} top-tier crops sold instantly — impossible`, "var(--hot)")}`;
+    }
+    // uid_spike:+N items
+    if ((m = text.match(/^uid_spike:\+?(\d+)\s*items/))) {
+      const c = Number(m[1]);
+      const sev = c >= 50_000 ? "cheat" : c >= 10_000 ? "bot" : "sus";
+      return `${_tag(sev)}🔢 <b>+${_shortNum(c)} new item UIDs</b> one save${_verdict("each unique-mint = 1 UID; legit max ~50/save", c >= 10_000 ? "var(--hot)" : undefined)}`;
+    }
+    // unlogged_coin_gain:delta=X logged_sells=Y
+    if ((m = text.match(/^unlogged_coin_gain:delta=(\d+) logged_sells=(\d+)/))) {
+      const delta = Number(m[1]), logged = Number(m[2]);
+      const unexplained = delta - logged;
+      return `${_tag("sus")}💸 <b>+${_shortNum(unexplained)}c unexplained</b> (gained ${_shortNum(delta)}, sells logged ${_shortNum(logged)})${_verdict("Sell-All bug or other coin path that skips sell_item RPC")}`;
+    }
+    // stack_at_cap:Marlin qty=X
+    if ((m = text.match(/^stack_at_cap:(.+?)\s+qty=(\d+)/))) {
+      return `${_tag("cheat")}🏔 <b>${esc(m[1].trim())}</b> at 10M stack cap${_verdict("max possible stack — only reached via dupe or item injection", "var(--hot)")}`;
+    }
+    // multi_skill_burst:N skills [a:+X | b:+Y | c:+Z]
+    if ((m = text.match(/^multi_skill_burst:(\d+) skills \[(.+)\]/))) {
+      const n = Number(m[1]);
+      const skills = m[2].split(" | ").map(s => {
+        const sm = s.match(/(\w+):\+(\d+)/);
+        return sm ? `${_SKILL_ICON[sm[1]] || ""}${esc(sm[1])} +${_shortNum(sm[2])}` : esc(s);
+      }).join(" · ");
+      const sev = n >= 5 ? "cheat" : n >= 4 ? "bot" : "sus";
+      return `${_tag(sev)}🤖 <b>${n} skills XP'd same save</b>: ${skills}${_verdict("humans train 1 skill at a time — bot signature", "var(--hot)")}`;
+    }
+    // farm_patch_burst:Plum +480500 xp = 4.40 patch-equiv in 15.0s (grow_window=16min, window_total=4.40 patches)
+    if ((m = text.match(/^farm_patch_burst:(\w[\w ]*?) \+(\d+) xp = ([\d.]+) patch-equiv in ([\d.]+)s \(grow_window=(\d+)min, window_total=([\d.]+) patches\)/))) {
+      const crop = m[1], xp = Number(m[2]), patches = Number(m[3]), elapsed = Number(m[4]);
+      const growMin = Number(m[5]), windowPatches = Number(m[6]);
+      let sev, verdict, verdictColor;
+      /* v459 (renderer): sliding-window overlap from optimal rotations
+         can legitimately catch a tail-of-old-cycle + start-of-new-cycle
+         pair inside one grow window. Friend's tuned bands:
+           ≤16 in window  → quiet / LOW (overlap noise, no signal)
+           16-20 in window → SUS (repeat-harvest overlap, watch)
+           >20 in window   → CHEAT (impossible regrowth — forged/injected)
+         Single-save catches (patches > 12 in one save, >8 in 30s, etc.)
+         stay sharp. SQL evidence in event_log is unchanged. */
+      const MAX_PLOTS = 12;
+      const WIN_CHEAT = 20;
+      const WIN_SUS = 16;
+      if (windowPatches > WIN_CHEAT) {
+        sev = "cheat";
+        verdict = `${windowPatches.toFixed(1)} patches-worth in ${growMin}min grow window — exceeds 2× max plots, regrowth physically impossible`;
+        verdictColor = "var(--hot)";
+      } else if (windowPatches > WIN_SUS) {
+        sev = "sus";
+        verdict = `${windowPatches.toFixed(1)} patches-worth in ${growMin}min window — heavy repeat-harvest overlap, watch`;
+        verdictColor = "var(--warn)";
+      } else if (patches > MAX_PLOTS) {
+        sev = "cheat";
+        verdict = `${patches.toFixed(1)} patches in one save — beyond board max`;
+        verdictColor = "var(--hot)";
+      } else if (elapsed <= 30 && patches > 8) {
+        sev = "bot";
+        verdict = `${patches.toFixed(1)} patches in ${elapsed.toFixed(0)}s — too many to harvest by hand`;
+        verdictColor = "#ff8c40";
+      } else if (elapsed <= 15 && patches > 5) {
+        sev = "sus";
+        verdict = `${patches.toFixed(1)} patches in ${elapsed.toFixed(0)}s — fast multi-plot burst`;
+        verdictColor = "var(--warn)";
+      } else {
+        sev = "quiet";
+        verdict = `${patches.toFixed(1)} patches-worth — single harvest tick`;
+      }
+      return `${_tag(sev)}🌾 <b>${esc(crop)}</b> harvest — +${_shortNum(xp)} XP = <b>${patches.toFixed(1)} patches</b> in ${_fmtDur(elapsed)}${_verdict(verdict, verdictColor)}`;
+    }
+    // farm_patch_state_invalid:30 patches (legit max 25)
+    if ((m = text.match(/^farm_patch_state_invalid:(\d+) patches \(legit max (\d+)\)/))) {
+      return `${_tag("cheat")}🌾 <b>Forged farm state</b> — save claims ${m[1]} farm patches, game max ${m[2]}${_verdict("player faked patch state — forged save", "var(--hot)")}`;
+    }
+    // v461: clock_skew:state_rate=20.0/sec mult=2.00x
+    if ((m = text.match(/^clock_skew:state_rate=([\d.]+)\/sec mult=([\d.]+)x/))) {
+      const rate = Number(m[1]), mult = Number(m[2]);
+      const sev = mult >= 3 ? "cheat" : mult >= 1.8 ? "bot" : "sus";
+      const color = mult >= 3 ? "var(--hot)" : mult >= 1.8 ? "#ff8c40" : "var(--warn)";
+      return `${_tag(sev)}⏱ <b>Clock skew</b> — state ${rate.toFixed(1)}/sec = <b>${mult.toFixed(2)}× client clock</b>${_verdict("HTML5 speedhack / browser timer manipulation — invariant to movement", color)}`;
+    }
+    // xp_level:farming lvl=N xp=X expected<=M
+    if ((m = text.match(/^xp_level:(\w+) lvl=(\d+) xp=(\d+) expected<=(\d+)/))) {
+      return `${_tag("cheat")}${_skillTag(m[1])} <b>Lv ${m[2]}</b> claimed, XP only supports <b>Lv ≤${m[4]}</b>${_verdict("client-side level forge", "var(--hot)")}`;
+    }
+    // tl_mismatch:claimed=X computed=Y
+    if ((m = text.match(/^tl_mismatch:claimed=(\d+) computed=(\d+)/))) {
+      const diff = Math.abs(Number(m[1]) - Number(m[2]));
+      const sev = diff >= 100 ? "cheat" : diff >= 20 ? "sus" : "info";
+      return `${_tag(sev)}⚠ Total level: claimed <b>${m[1]}</b> vs computed <b>${m[2]}</b>${_verdict(diff >= 20 ? "forged or out-of-sync client" : "minor sync drift, usually safe")}`;
+    }
+    // checksum_stale:base=...
+    if ((m = text.match(/^checksum_stale:base=(.+)/))) {
+      return `${_tag("audit")}🪙 Checksum stale${_verdict("two tabs open / refresh / network glitch — not a cheat alone")}`;
+    }
+    // single tokens
+    if (text.startsWith("negative_coins")) return `${_tag("cheat")}🚫 Negative coins attempted${_verdict("save tried to write coin < 0", "var(--hot)")}`;
+    if (text.startsWith("uid_decrease_blocked")) return `${_tag("cheat")}🚫 UID counter decrease blocked${_verdict("stale save rejected", "var(--hot)")}`;
+    if ((m = text.match(/^star>15:(.+)=(\d+)/))) return `${_tag("cheat")}⭐ <b>${esc(m[1])}</b> at ${m[2]}★${_verdict("max legit is 15★ — client-side forge", "var(--hot)")}`;
+    // ac_err:... code=...
+    if ((m = text.match(/^ac_err:(.+) code=(\w+)/))) {
+      return `${_tag("audit")}❌ <span style="color:var(--ink-3)">AC helper error — ${esc(m[1])} (code ${m[2]})</span>`;
+    }
+  } catch { /* fall through */ }
+  return esc(text);
+}
+
+const PATTERN_CSS = {
+  fire: "linear-gradient(135deg, #ff4500, #ff8c00, #ffd700)",
+  ice: "linear-gradient(135deg, #88cfff, #d0eaff, #b0d4f1)",
+  galaxy: "linear-gradient(135deg, #1a0533, #6b2fa0, #ff6ec7)",
+  toxic: "linear-gradient(135deg, #39ff14, #7fff00, #2e8b57)",
+  lava: "linear-gradient(135deg, #ff2200, #ff6600, #331100)",
+  ocean: "linear-gradient(135deg, #006994, #00b4d8, #90e0ef)",
+  rainbow: "linear-gradient(135deg, red, orange, yellow, green, blue, violet)",
+  gold: "linear-gradient(135deg, #ffd700, #ffed4a, #b8860b)",
+  stained: "conic-gradient(#d91e30, #2690e8, #f2c010, #35c759, #b32dc9, #fb7310, #1accc8, #e64099)",
+};
+function swatchStyle(color) {
+  if (PATTERN_CSS[color]) return `background:${PATTERN_CSS[color]}`;
+  return `background:${color || '#58df78'}`;
+}
+function getActivity(state) {
+  if (!state) return "💤 Idle";
+  if (state.attacking) return `⚔️ Fighting (${state.combatStyle || "melee"})`;
+  if (state.gathering) return `⛏️ Skilling (${state.tool || "?"})`;
+  if (state.crouching) return "🦆 Crouching";
+  if (state.jumping) return "🦘 Jumping";
+  if (state.moving) return "🚶 Walking";
+  return "💤 Idle";
+}
+function getEquip(state) {
+  if (!state) return "";
+  const toolIcons = { fishing: "🎣", axe: "🪓", pickaxe: "⛏️", sword: "🗡️", bow: "🏹", staff: "🔮" };
+  const tool = state.tool || "fishing";
+  return `${toolIcons[tool] || "🔧"} ${tool}`;
+}
+
+function renderFaith(f) {
+  const el = document.getElementById("faith-status");
+  if (!el) return;
+  if (!f) {
+    el.className = "faith";
+    el.innerHTML = `<div class="faith-icon">❔</div><div class="faith-body"><div class="lab">Status</div><div class="val">No data</div><div class="faith-foot">—</div></div>`;
+    return;
+  }
+  if (f.active) {
+    const m = Math.floor(f.despawnIn / 60), s = f.despawnIn % 60;
+    el.className = "faith active";
+    el.innerHTML = `
+      <div class="faith-icon">🌿</div>
+      <div class="faith-body">
+        <div class="lab">Active circle</div>
+        <div class="val">${m}:${String(s).padStart(2,"0")} <small style="font-size:13px;color:var(--ink-3);font-family:var(--font-body)">remaining</small></div>
+        <div class="faith-foot">Spot (${f.spot.x}, ${f.spot.z})</div>
+      </div>`;
+  } else {
+    const m = Math.floor(f.spawnIn / 60), s = f.spawnIn % 60;
+    el.className = "faith";
+    el.innerHTML = `
+      <div class="faith-icon">💤</div>
+      <div class="faith-body">
+        <div class="lab">Next spawn</div>
+        <div class="val">${m}:${String(s).padStart(2,"0")}</div>
+        <div class="faith-foot">Idle — waiting for spawn window</div>
+      </div>`;
+  }
+}
+
+function renderPlayers(players) {
+  lastPlayers = players || [];
+  const real = lastPlayers.filter(p => p.name !== "Admin");
+
+  const guests  = real.filter(p => !p.hasAccount).length;
+  const flagged = real.filter(p => p.isFlagged).length;
+  const banned  = real.filter(p => p.nameBanned).length;
+
+  document.getElementById("ct-all").textContent = real.length;
+  document.getElementById("ct-guests").textContent = guests;
+  document.getElementById("ct-flagged").textContent = flagged;
+  document.getElementById("ct-banned").textContent = banned;
+
+  kpiPlayers.textContent = real.length;
+  kpiPlayersFoot.textContent = guests ? `${guests} guest${guests !== 1 ? "s" : ""}` : "all signed-in";
+  navPlayersCount.textContent = real.length;
+  navPlayersCount.hidden = real.length === 0;
+  if (flagged > 0) { navFlagCount.textContent = flagged; navFlagCount.hidden = false; }
+  else { navFlagCount.hidden = true; }
+
+  playersSubtitleEl.textContent = `${real.length} player${real.length !== 1 ? "s" : ""} online`;
+
+  const q = (playersSearch?.value || "").trim().toLowerCase();
+  const filtered = real.filter(p => {
+    if (playerFilter === "guests"  && p.hasAccount) return false;
+    if (playerFilter === "flagged" && !p.isFlagged) return false;
+    if (playerFilter === "banned"  && !p.nameBanned) return false;
+    if (q && !(`${p.name||""} ${p.room||""} ${p.uid||""}`).toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    playerListEl.innerHTML = `<div class="empty" style="grid-column: 1 / -1;">${real.length === 0 ? "No players online" : "No players match this filter"}</div>`;
+    return;
+  }
+
+  playerListEl.innerHTML = filtered.map(p => {
+    const s = p.state || {};
+    const sk = s.skills || {};
+    const hasCampfire = s.campfireX != null && s.campfireZ != null;
+    const tags = [];
+    if (!p.hasAccount) tags.push('<span class="ptag guest">Guest</span>');
+    if (p.isFlagged) tags.push('<span class="ptag flag">⚑ Flagged</span>');
+    if (p.nameBanned) tags.push(`<span class="ptag banned">Name-banned</span>`);
+    if (PATTERN_CSS[p.color]) tags.push(`<span class="ptag skin">${esc(p.color)}</span>`);
+
+    return `
+      <div class="pcard ${p.isFlagged ? 'flagged' : ''} ${p.nameBanned ? 'banned' : ''}">
+        <div class="pcard-top">
+          <div class="swatch" style="${swatchStyle(p.color)}"></div>
+          <div class="pname-wrap">
+            <div class="pname">${esc(p.name)} <span class="room">· ${esc(p.room || "")}</span></div>
+            <div class="ptags">${tags.join("")}</div>
+          </div>
+        </div>
+        <div class="pmeta">
+          <span>Total <b>Lv ${s.totalLevel || 6}</b></span>
+          <span>${getEquip(s)}</span>
+          <span class="pactivity">${getActivity(s)}${hasCampfire ? ' · 🔥 Camp' : ''}</span>
+        </div>
+        <div class="pskills">
+          <span>🐟 <b>${sk.fishing || 1}</b></span>
+          <span>🪨 <b>${sk.mining || 1}</b></span>
+          <span>🪵 <b>${sk.woodcutting || 1}</b></span>
+          <span>🗡 <b>${sk.melee || 1}</b></span>
+          <span>🏹 <b>${sk.bow || 1}</b></span>
+          <span>🔥 <b>${sk.mage || 1}</b></span>
+          <span>🍳 <b>${sk.cooking || 1}</b></span>
+          <span>❤️ <b>${sk.hitpoints || 10}</b></span>
+          <span>🌿 <b>${sk.survival || 1}</b></span>
+          <span>🌾 <b>${sk.farming || 1}</b></span>
+          <span>📜 <b>${sk.scribing || 1}</b></span>
+          <span>🙏 <b>${sk.faith || 1}</b></span>
+          <span>⛵ <b>${sk.explorer || 1}</b></span>
+        </div>
+        <div class="ppos">(${(s.x||0).toFixed(0)}, ${(s.z||0).toFixed(0)})${s.y ? ` · Y ${s.y.toFixed(1)}` : ''}</div>
+        <div class="pactions">
+          <button class="btn btn-sm" data-action="rename" data-id="${p.id}" data-name="${esc(p.name)}">✏️ Rename</button>
+          ${p.nameBanned
+            ? `<button class="btn btn-sm" data-action="unban" data-id="${p.id}">✅ Unban</button>`
+            : `<button class="btn btn-sm" data-action="nameban" data-id="${p.id}" data-name="${esc(p.name)}">🚫 Name ban</button>`
+          }
+          <button class="btn btn-sm btn-danger" data-action="kick" data-id="${p.id}" data-name="${esc(p.name)}">🦶 Kick</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function doRename(id, currentName) {
+  const newName = prompt("New name for " + currentName + ":", currentName);
+  if (!newName || !newName.trim()) return;
+  adminCmd("admin_rename", { targetId: id, newName: newName.trim() });
+  logAction("act-rename", `Renamed ${currentName} → ${newName.trim()}`);
+  setTimeout(requestPlayers, 500);
+}
+function doNameBan(id, currentName) {
+  const newName = prompt("Force name to:", "Player");
+  if (newName === null) return;
+  const hours = prompt("Ban name changes for how many hours?", "24");
+  if (!hours) return;
+  adminCmd("admin_nameban", { targetId: id, newName: newName.trim() || "Player", hours: Number(hours) || 24 });
+  logAction("act-ban", `Name-banned ${currentName} → ${newName.trim() || "Player"} (${hours}h)`);
+  setTimeout(requestPlayers, 500);
+}
+function doNameUnban(id) {
+  adminCmd("admin_nameunban", { targetId: id });
+  logAction("act-ban", `Unbanned name for ${id}`);
+  setTimeout(requestPlayers, 500);
+}
+function doKick(id, name) {
+  if (!confirm(`Kick ${name}?`)) return;
+  adminCmd("admin_kick", { targetId: id });
+  logAction("act-kick", `Kicked ${name}`);
+  setTimeout(requestPlayers, 500);
+}
+function doKickAll() {
+  if (!confirm("Kick ALL players? They'll need to refresh.")) return;
+  adminCmd("admin_kick_all", {});
+  logAction("act-kick", "Kicked ALL players");
+  setTimeout(requestPlayers, 1000);
+}
+
+playerListEl.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+  const name = btn.dataset.name || "";
+  if (action === "rename") doRename(id, name);
+  else if (action === "nameban") doNameBan(id, name);
+  else if (action === "unban") doNameUnban(id);
+  else if (action === "kick") doKick(id, name);
+});
+
+function renderAntiCheat(msg) {
+  if (!msg.ok) {
+    setAcStatus(msg.error || "Anti-cheat load failed", "err");
+    acListEl.innerHTML = `<div class="ac-empty-state"><div>Could not load anti-cheat evidence</div></div>`;
+    return;
+  }
+  acSuspects = msg.suspects || [];
+  acMetricSuspects.textContent = fmtNum(msg.suspectCount);
+  acMetricFlagged.textContent = fmtNum(msg.flaggedCount);
+  acMetricEvents.textContent = fmtNum(msg.totalEvents);
+  acMetricViolations.textContent = fmtNum(msg.totalViolations);
+
+  kpiSuspects.textContent = fmtNum(msg.suspectCount);
+  kpiFlagged.textContent = fmtNum(msg.flaggedCount);
+  kpiEvents.textContent = fmtNum(msg.totalEvents);
+
+  setAcStatus(`Updated ${fmtTime(msg.generatedAt)}`, "ok");
+  if (!acSuspects.length) {
+    acListEl.innerHTML = `<div class="ac-empty-state"><div>No violation history in this window 🎉</div></div>`;
+    return;
+  }
+  acListEl.innerHTML = acSuspects.map(renderSuspectCard).join("");
+  if (acSelectedUid) {
+    document.querySelectorAll(".ac-card").forEach(c => c.classList.toggle("selected", c.dataset.uid === acSelectedUid));
+  }
+}
+
+function renderSuspectCard(s) {
+  const sigs = Object.entries(s.sigs || {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([sig, count]) => `<span class="ac-badge ${sigBadgeClass(sig)}">${esc(sig)} ${fmtNum(count)}</span>`)
+    .join("");
+  const save = s.save || {};
+  const online = s.online ? `<span class="ac-badge ok">online · ${esc(s.online.room || "")}</span>` : "";
+  const flag = s.flagged ? `<span class="ac-badge warn">⚑ flagged</span>` : "";
+  const reason = s.flagReason ? `<div class="ac-meta" style="margin-top:6px"><b style="color:var(--ink-2)">Reason:</b> ${esc(s.flagReason)}</div>` : "";
+  const scoreHot = s.score > 250;
+  return `
+    <div class="ac-card ${s.flagged ? "flagged" : ""}" data-uid="${esc(s.uid)}">
+      <div class="ac-head">
+        <div style="min-width:0">
+          <div class="ac-name">${esc(s.name)}</div>
+          <div class="ac-uid">${esc(s.uid)}</div>
+        </div>
+        <div class="ac-score ${scoreHot ? 'hot' : ''}"><small>Score</small>${fmtNum(s.score)}</div>
+      </div>
+      <div class="ac-badges">${flag}${online}${sigs}${s.cleared ? `<span class="ac-badge">✓ ${fmtNum(s.cleared)} cleared</span>` : ""}</div>
+      <div class="ac-meta">
+        ${fmtNum(s.count)} hits${s.count === 0 && s.cleared ? " (all cleared)" : s.latest ? " · latest " + fmtTime(s.latest) : ""}<br>
+        Lv ${fmtNum(save.totalLevel)} · ${fmtNum(save.coins)} coins · bank ${fmtNum(save.bankTotal)} / ${fmtNum(save.bankDistinct)} items
+      </div>
+      ${reason}
+      <div class="ac-actions">
+        <button class="btn btn-sm btn-primary" data-ac-action="view" data-uid="${esc(s.uid)}">View dossier</button>
+        ${s.flagged
+          ? `<button class="btn btn-sm" data-ac-action="unflag" data-uid="${esc(s.uid)}" data-name="${esc(s.name)}">Unflag</button>`
+          : `<button class="btn btn-sm btn-danger" data-ac-action="flag" data-uid="${esc(s.uid)}" data-name="${esc(s.name)}">⚑ Flag</button>`
+        }
+        ${s.online ? `<button class="btn btn-sm" data-ac-action="kick-online" data-id="${esc(s.online.id)}" data-name="${esc(s.name)}">Kick</button>` : ""}
+      </div>
+    </div>`;
+}
+
+function renderDossier(msg) {
+  if (!msg.ok) {
+    acDossierEl.innerHTML = `<div class="empty">${esc(msg.error || "Dossier failed")}</div>`;
+    return;
+  }
+  const save = msg.save || {};
+  const counts = Object.entries(msg.counts || {}).sort((a, b) => b[1] - a[1]);
+  const flag = msg.flagged;
+  acDossierEl.innerHTML = `
+    <div class="ac-head" style="margin-bottom:8px">
+      <div style="min-width:0">
+        <div class="ac-name" style="font-size:16px">${esc(save.name || "Unknown")}</div>
+        <div class="ac-uid">${esc(msg.uid)}</div>
+      </div>
+    </div>
+    <div class="ac-badges">
+      ${flag ? `<span class="ac-badge warn">⚑ flagged</span>` : `<span class="ac-badge">not flagged</span>`}
+      ${msg.online ? `<span class="ac-badge ok">online · ${esc(msg.online.room || "")}</span>` : ""}
+    </div>
+    ${flag ? `<div class="ac-meta" style="margin-top:6px"><b style="color:var(--ink-2)">Reason:</b> ${esc(flag.reason || "")}<br><b style="color:var(--ink-2)">Added:</b> ${fmtTime(flag.added_at)}</div>` : ""}
+
+    <h3>Save</h3>
+    <div class="kv">
+      <span class="k">Total level</span><span class="v">${fmtNum(save.totalLevel)}</span>
+      <span class="k">Coins</span><span class="v">${fmtNum(save.coins)}</span>
+      <span class="k">Last save</span><span class="v">${fmtTime(save.updatedAt)}</span>
+      <span class="k">Bank</span><span class="v">${fmtNum(save.bankTotal)} across ${fmtNum(save.bankDistinct)} items</span>
+    </div>
+
+    <h3>Violation mix</h3>
+    ${counts.length ? `<div class="ac-badges">${counts.map(([sig, count]) => `<span class="ac-badge ${sigBadgeClass(sig)}">${esc(sig)} ${fmtNum(count)}</span>`).join("")}</div>` : '<div class="empty">No violation rows</div>'}
+
+    <h3>Top skills</h3>
+    ${renderSmallTable(["Skill", "Level", "XP"], (save.topSkills || []).map(s => [s.key, fmtNum(s.level), fmtNum(s.xp)]))}
+
+    <h3>Top bank</h3>
+    ${renderSmallTable(["Item", "Qty"], (save.topBank || []).map(i => [i.key, fmtNum(i.qty)]))}
+
+    <h3>Exchange offers</h3>
+    ${renderSmallTable(["Side", "Item", "Qty", "Status"], (msg.offers || []).map(o => [o.side, o.item_label || o.item_key, `${fmtNum(o.qty_filled || 0)} / ${fmtNum(o.qty_total || 0)}`, o.status]))}
+
+    <h3>Latest violations
+      ${(() => {
+        const all = msg.violations || [];
+        const fa = all.filter(v => v.review && v.review.action === "false_alarm").length;
+        return fa ? `<label style="margin-left:10px;font-size:11px;font-weight:400;color:var(--ink-3);display:inline-flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="ac-show-reviewed" style="margin:0"> show ${fa} reviewed</label>` : "";
+      })()}
+    </h3>
+    <div class="ac-timeline" id="ac-violations-list">
+      ${(msg.violations || []).slice(0, 80).map(v => {
+        const reviewed = v.review && v.review.action === "false_alarm";
+        const badge = reviewed
+          ? `<span class="ac-event-review-badge">✓ false alarm${v.review.notes ? `: ${esc(v.review.notes)}` : ""}</span>`
+          : "";
+        const btn = !reviewed && v.event_id
+          ? `<button class="ac-event-review-btn" data-ac-review="${v.event_id}" title="Click: mark false alarm. Shift+click: add a note.">✓</button>`
+          : "";
+        const hidden = reviewed ? ' style="display:none"' : "";
+        return `<div class="ac-event ${sigBadgeClass(v.sig)} ${reviewed ? "reviewed" : ""}" data-event-id="${v.event_id || ""}" data-reviewed="${reviewed ? "1" : "0"}"${hidden}><small>${fmtTime(v.ts)} · ${esc(v.sig)}${badge}</small>${_prettySignal(v.text)}${btn}</div>`;
+      }).join("") || '<div class="empty">No violations</div>'}
+    </div>
+  `;
+}
+
+function renderSmallTable(headers, rows) {
+  if (!rows.length) return '<div class="empty">No data</div>';
+  return `<table class="ac-table"><thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(row => `<tr>${row.map(cell => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+
+function handleReviewAck(msg) {
+  if (!msg.ok) {
+    setAcStatus(`Review failed: ${msg.error || "unknown"}`, "err");
+    return;
+  }
+  setAcStatus(`Event ${msg.event_id} marked ${msg.action || "false alarm"}`, "ok");
+  logAction("act-join", `Reviewed event ${msg.event_id} → ${msg.action || "false_alarm"}`);
+  /* Re-fetch dossier so the row's reviewed badge + strike counters update.
+     Also re-run the evidence pass so the suspect list reflects the new
+     strike counts. */
+  if (acSelectedUid) requestDossier(acSelectedUid);
+  requestAntiCheat();
+  /* v445: refresh the Activity Log Recent Violations feed if it's open.
+     v457: hard-reset the cache so reviewed rows actually drop out in
+     unreviewed-only mode (incremental merges would otherwise keep
+     showing the just-reviewed row indefinitely). */
+  if (document.getElementById("page-logs")?.classList.contains("active")) _resetRecentV();
+}
+
+/* ── v445: Recent Violations live feed (Activity Log page) ────────── */
+const recentVFeedEl   = document.getElementById("recent-v-feed");
+const recentVCountEl  = document.getElementById("recent-v-count");
+const recentVUnrevEl  = document.getElementById("recent-v-unreviewed");
+const recentVRefreshEl = document.getElementById("recent-v-refresh");
+let recentVPollTimer = null;
+
+function requestRecentV() {
+  if (ws?.readyState !== WebSocket.OPEN) return;
+  const key = getKey();
+  if (!key) return;
+  /* v457 egress: initial load pulls 60, repeat polls pull 20 and merge.
+     Older rows already on screen survive via recentVCache so admins
+     don't lose context between polls. Filter/manual-refresh resets
+     recentVHadInitial → next call goes back to 60. */
+  const limit = recentVHadInitial ? 20 : 60;
+  ws.send(JSON.stringify({
+    type: "admin_anticheat_recent_v",
+    key,
+    limit,
+    unreviewed_only: !!recentVUnrevEl?.checked,
+  }));
+}
+
+function renderRecentV(rows) {
+  if (!recentVFeedEl) return;
+  /* v457 egress: merge incoming rows into the cache so incremental polls
+     (limit:20) don't drop the older rows already on screen from the
+     initial limit:60 load. Cache is bounded to 200 rows so the feed
+     can't grow without limit. */
+  for (const r of rows) {
+    const id = r.event_id ?? `${r.ts}:${r.user_uid || r.uid || ""}`;
+    recentVCache.set(id, r);
+  }
+  if (!recentVHadInitial && rows.length) recentVHadInitial = true;
+  rows = [...recentVCache.values()]
+    .sort((a, b) => String(b.ts || "").localeCompare(String(a.ts || "")))
+    .slice(0, 200);
+  /* Trim cache to match displayed window so it doesn't balloon over time */
+  if (recentVCache.size > 200) {
+    const keep = new Set(rows.map(r => r.event_id ?? `${r.ts}:${r.user_uid || r.uid || ""}`));
+    for (const k of recentVCache.keys()) if (!keep.has(k)) recentVCache.delete(k);
+  }
+  if (recentVCountEl) recentVCountEl.textContent = String(rows.length);
+  if (!rows.length) {
+    recentVFeedEl.innerHTML = `<div class="empty">No violations${recentVUnrevEl?.checked ? " (unreviewed)" : ""}</div>`;
+    return;
+  }
+  /* v453: pre-pass — count repeats of each (uid + signature key) across
+     the visible feed so each line can carry a "×N" pill. Signature key
+     uses the prefix + first colon-segment so e.g. all
+     "item_rate_exceeded:Aloe..." count together but separate from Pitaya. */
+  const repeatCounts = new Map();
+  for (const r of rows) {
+    const uid = r.user_uid || r.uid || "?";
+    for (const v of (Array.isArray(r.violations) ? r.violations : [])) {
+      const key = uid + "|" + _sigKey(v);
+      repeatCounts.set(key, (repeatCounts.get(key) || 0) + 1);
+    }
+  }
+  /* Also count total events per user across visible feed */
+  const userEventCounts = new Map();
+  for (const r of rows) {
+    const uid = r.user_uid || r.uid || "?";
+    userEventCounts.set(uid, (userEventCounts.get(uid) || 0) + 1);
+  }
+  recentVFeedEl.innerHTML = rows.map(r => {
+    const vList = Array.isArray(r.violations) ? r.violations : [];
+    const uid = r.user_uid || r.uid || "?";
+    const prettyLines = vList.length
+      ? vList.map(t => {
+          const count = repeatCounts.get(uid + "|" + _sigKey(t)) || 1;
+          const pill = count > 1 ? ` <span class="ac-repeat-pill" title="This signature fired ${count}× for this player in the visible feed">×${count}</span>` : "";
+          return `<div class="ac-sig-line">${_prettySignal(t)}${pill}</div>`;
+        }).join("")
+      : `<div class="ac-sig-line">(empty)</div>`;
+    const sig = (vList[0] || "").split(":")[0] || "v";
+    const reviewed = r.review_action === "false_alarm";
+    const badge = reviewed
+      ? `<span class="ac-event-review-badge">✓ false alarm</span>`
+      : "";
+    const btn = !reviewed && r.event_id
+      ? `<button class="ac-event-review-btn" data-ac-review="${r.event_id}" title="Click: mark false alarm. Shift+click: add a note.">✓</button>`
+      : "";
+    const eventTotal = userEventCounts.get(uid) || 1;
+    const userBurst = eventTotal >= 5
+      ? ` <span class="ac-user-burst" title="${eventTotal} events from this player in the visible feed">${eventTotal}× saves</span>`
+      : "";
+    return `<div class="ac-event ${sigBadgeClass(sig)} ${reviewed ? "reviewed" : ""}" data-event-id="${r.event_id || ""}"><small><span class="ac-event-time">${fmtTime(r.ts)}</span> · <span class="ac-event-name">${esc(r.name || "Unknown")}</span>${userBurst} · ${vList.length} signal${vList.length===1?"":"s"}${badge}</small>${prettyLines}${btn}</div>`;
+  }).join("");
+}
+
+/* Compress a raw signal string into a signature key for repeat counting.
+   "xp_ceiling_exceeded:farming rate=..." → "xp_ceiling_exceeded:farming"
+   "item_rate_exceeded:Aloe +..."           → "item_rate_exceeded:Aloe"
+   "lvl_burst:farming gap=..."              → "lvl_burst:farming" */
+function _sigKey(text) {
+  if (typeof text !== "string") return "?";
+  const colon = text.indexOf(":");
+  if (colon < 0) return text.split(" ")[0];
+  const prefix = text.slice(0, colon);
+  const rest = text.slice(colon + 1).split(/[\s+=]/)[0];
+  return prefix + ":" + rest;
+}
+
+/* v457 egress: manual refresh + filter change should pull a full window
+   again, not an incremental sliver. Clearing the cache + flag forces
+   the next requestRecentV() to use limit:60. */
+function _resetRecentV() {
+  recentVCache.clear();
+  recentVHadInitial = false;
+  requestRecentV();
+}
+recentVRefreshEl?.addEventListener("click", _resetRecentV);
+recentVUnrevEl?.addEventListener("change", _resetRecentV);
+
+/* v446: bulk-clear buttons. "visible" sends just the rendered event IDs;
+   "global" omits the array, triggering the nuke path on the RPC. */
+const recentVClearVisibleEl = document.getElementById("recent-v-clear-visible");
+const recentVClearAllEl     = document.getElementById("recent-v-clear-all");
+
+function sendBulkReview(eventIds, notes) {
+  const key = getKey();
+  if (!key) { setAcStatus("Enter admin key first", "err"); return; }
+  if (ws?.readyState !== WebSocket.OPEN) { setAcStatus("Not connected", "err"); return; }
+  const payload = { type: "admin_anticheat_bulk_review", key };
+  if (Array.isArray(eventIds)) payload.event_ids = eventIds;
+  if (notes) payload.notes = notes;
+  ws.send(JSON.stringify(payload));
+}
+
+recentVClearVisibleEl?.addEventListener("click", () => {
+  const ids = Array.from(recentVFeedEl.querySelectorAll(".ac-event:not(.reviewed)[data-event-id]"))
+    .map(el => Number(el.dataset.eventId))
+    .filter(n => Number.isFinite(n) && n > 0);
+  if (!ids.length) { setAcStatus("Nothing to clear", "info"); return; }
+  if (!confirm(`Mark ${ids.length} visible violation(s) as false alarm?`)) return;
+  sendBulkReview(ids, "bulk clear visible from admin feed");
+});
+
+recentVClearAllEl?.addEventListener("click", () => {
+  const ok = confirm(
+    "⚠ NUKE WARNING\n\n" +
+    "This marks EVERY unreviewed V event in the database as false alarm AND zeros every strike counter for every player.\n\n" +
+    "Use this only after a bad threshold deploy. Reviews are appended (audit trail kept) — but you can't easily undo the strike reset.\n\n" +
+    "Type the word CLEAR to confirm."
+  );
+  if (!ok) return;
+  const typed = prompt("Type CLEAR to confirm global wipe:", "");
+  if (typed !== "CLEAR") { setAcStatus("Bulk clear cancelled", "info"); return; }
+  sendBulkReview(null, "global nuke from admin feed");
+});
+
+/* Reuse the same false-alarm pipe as the dossier — sends the existing
+   admin_anticheat_review message. Optimistic UI update mirrors dossier. */
+recentVFeedEl?.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-ac-review]");
+  if (!btn) return;
+  const eventId = Number(btn.dataset.acReview);
+  if (!Number.isFinite(eventId) || eventId <= 0) return;
+  const key = getKey();
+  if (!key) { setAcStatus("Enter admin key first", "err"); return; }
+  let notes = "";
+  if (e.shiftKey) {
+    const n = prompt("Note for this false alarm (optional):", "");
+    if (n === null) return;
+    notes = n.slice(0, 240);
+  }
+  ws.send(JSON.stringify({
+    type: "admin_anticheat_review",
+    key,
+    event_id: eventId,
+    action: "false_alarm",
+    notes,
+  }));
+  const eventEl = btn.closest(".ac-event");
+  if (eventEl) { eventEl.classList.add("reviewed"); btn.remove(); }
+  setAcStatus(`Marked event ${eventId} as false alarm${notes ? " (with note)" : ""}`, "ok");
+});
+
+/* v457 egress: 30s poll (was 15s) + skip ticks when tab is hidden.
+   Cache merge keeps older rows visible between polls. */
+function _tickRecentV() {
+  if (document.hidden) return;
+  requestRecentV();
+}
+function startRecentVPoll() {
+  if (recentVPollTimer) return;
+  if (!document.hidden) requestRecentV();
+  recentVPollTimer = setInterval(_tickRecentV, 30000);
+}
+function stopRecentVPoll() {
+  if (recentVPollTimer) { clearInterval(recentVPollTimer); recentVPollTimer = null; }
+}
+document.querySelectorAll("[data-page]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.dataset.page === "logs") startRecentVPoll();
+    else stopRecentVPoll();
+  });
+});
+
+/* v457 egress: when the tab becomes visible again, fire a single immediate
+   refresh of whatever poll(s) are eligible so the admin sees fresh data
+   without waiting for the next interval tick. */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  if (refreshInterval && _playersPageActive()) { requestPlayers(); requestPlayerActions(); }
+  if (recentVPollTimer) requestRecentV();
+});
+
+function handleAntiCheatAck(msg) {
+  if (!msg.ok) {
+    setAcStatus(`${msg.action || "action"} failed: ${msg.error || "unknown error"}`, "err");
+    return;
+  }
+  const label = msg.name || msg.uid || "account";
+  setAcStatus(`${msg.action === "unflag" ? "Unflagged" : "Flagged"} ${label}`, "ok");
+  logAction(msg.action === "unflag" ? "act-join" : "act-ban", `${msg.action === "unflag" ? "Unflagged" : "Flagged"} ${label}`);
+  requestAntiCheat();
+  if (acSelectedUid) requestDossier(acSelectedUid);
+}
+
+acRefreshBtn.addEventListener("click", requestAntiCheat);
+acListEl.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-ac-action]");
+  if (!btn) return;
+  const action = btn.dataset.acAction;
+  const uid = btn.dataset.uid || "";
+  const name = btn.dataset.name || "";
+  const key = getKey();
+  if (!key) { setAcStatus("Enter admin key first", "err"); return; }
+  if (action === "view") {
+    requestDossier(uid);
+  } else if (action === "flag") {
+    openFlagModal(uid, name);
+  } else if (action === "unflag") {
+    if (!confirm(`Unflag ${name || uid}?`)) return;
+    ws.send(JSON.stringify({ type: "admin_anticheat_unflag", key, uid, name }));
+    setAcStatus(`Unflagging ${name || uid}…`, "");
+  } else if (action === "kick-online") {
+    doKick(btn.dataset.id || "", name || "player");
+  }
+});
+
+/* v447: "show reviewed" toggle inside the dossier — hides false-alarm
+   rows by default so the timeline stays scannable after a bulk clear. */
+acDossierEl.addEventListener("change", (e) => {
+  if (e.target.id !== "ac-show-reviewed") return;
+  const show = e.target.checked;
+  acDossierEl.querySelectorAll('[data-reviewed="1"]').forEach(el => {
+    el.style.display = show ? "" : "none";
+  });
+});
+
+/* v438: per-event "false alarm" button inside the dossier timeline.
+   Marks ONE event_log row as reviewed without deleting it. For
+   xp_ceiling_exceeded events the corresponding skill's strike counter
+   is decremented server-side. v442: shift+click adds notes via prompt,
+   plain click is instant (no popup) since the notes field is optional. */
+acDossierEl.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-ac-review]");
+  if (!btn) return;
+  const eventId = Number(btn.dataset.acReview);
+  if (!Number.isFinite(eventId) || eventId <= 0) return;
+  const key = getKey();
+  if (!key) { setAcStatus("Enter admin key first", "err"); return; }
+  /* Shift+click → prompt for note. Plain click → instant false alarm. */
+  let notes = "";
+  if (e.shiftKey) {
+    const n = prompt("Note for this false alarm (optional):", "");
+    if (n === null) return;
+    notes = n.slice(0, 240);
+  }
+  ws.send(JSON.stringify({
+    type: "admin_anticheat_review",
+    key,
+    event_id: eventId,
+    action: "false_alarm",
+    notes,
+  }));
+  /* Optimistic visual update — server ack will refresh the dossier */
+  const eventEl = btn.closest(".ac-event");
+  if (eventEl) {
+    eventEl.classList.add("reviewed");
+    btn.remove();
+  }
+  setAcStatus(`Marked event ${eventId} as false alarm${notes ? " (with note)" : ""}`, "ok");
+});
+
+/* ── Flag confirmation modal ────────────────────────────────────── */
+let _pendingFlagTarget = null;
+
+function openFlagModal(uid, name) {
+  _pendingFlagTarget = { uid, name };
+  const targetEl = document.getElementById("flag-modal-target");
+  if (targetEl) targetEl.innerHTML = `Flagging <b>${esc(name || "this account")}</b><br><span style="color:var(--ink-4);font-family:var(--font-mono);font-size:11px">${esc(uid)}</span>`;
+  const reasonEl = document.getElementById("flag-modal-reason");
+  if (reasonEl) reasonEl.value = "anti-cheat exploit testing";
+  document.getElementById("flag-modal").classList.add("open");
+  setTimeout(() => reasonEl?.focus(), 50);
+}
+function closeFlagModal() {
+  document.getElementById("flag-modal").classList.remove("open");
+  _pendingFlagTarget = null;
+}
+function confirmFlag() {
+  if (!_pendingFlagTarget) return closeFlagModal();
+  const key = getKey();
+  if (!key) { setAcStatus("Enter admin key first", "err"); closeFlagModal(); return; }
+  const reason = (document.getElementById("flag-modal-reason")?.value || "").trim();
+  if (!reason) return;
+  const { uid, name } = _pendingFlagTarget;
+  ws.send(JSON.stringify({ type: "admin_anticheat_flag", key, uid, name, reason }));
+  setAcStatus(`Flagging ${name || uid}…`, "");
+  closeFlagModal();
+}
+document.getElementById("flag-modal-cancel")?.addEventListener("click", closeFlagModal);
+document.getElementById("flag-modal-confirm")?.addEventListener("click", confirmFlag);
+document.getElementById("flag-modal")?.addEventListener("click", (e) => {
+  if (e.target.id === "flag-modal") closeFlagModal();
+});
+
+refreshBtn.addEventListener("click", requestPlayers);
+kickAllBtn.addEventListener("click", doKickAll);
+kickAllBtn2?.addEventListener("click", doKickAll);
+
+sendBtn.addEventListener("click", () => {
+  const text = msgInput.value.trim();
+  const key = getKey();
+  if (!text || !key || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: "admin_broadcast", key, text }));
+  logAction("act-broadcast", `Broadcast: ${text}`);
+  statusEl.textContent = "✓ Sent!";
+  statusEl.className = "status ok";
+  msgInput.value = "";
+  setTimeout(() => { statusEl.textContent = ""; statusEl.className = "status"; }, 3000);
+});
+
+setTimeout(connect, 200);
+</script>
+
+<!-- v438: Flag confirmation modal — replaces prompt()-based flag flow.
+     Deliberate two-step: click flag → modal opens → confirm to send. -->
+<div id="flag-modal" class="modal-overlay">
+  <div class="modal-card">
+    <h3>⚑ Flag this account?</h3>
+    <div id="flag-modal-target" class="modal-target">Flagging <b>this account</b></div>
+    <div class="modal-warn">
+      Flagging an account will:
+      <ul>
+        <li>Remove them from leaderboards + dojo scores</li>
+        <li>Block them from posting trades on the exchange</li>
+        <li>Block them from sending mail</li>
+        <li>Hide their drops from other players</li>
+        <li>Strip their sapling badge</li>
+      </ul>
+      They can still play & save normally. Unflag any time from the suspect list.
+    </div>
+    <label class="field-label">Reason</label>
+    <input id="flag-modal-reason" class="input" type="text" placeholder="anti-cheat exploit testing" maxlength="240">
+    <div class="modal-actions" style="margin-top:14px">
+      <button id="flag-modal-cancel" class="btn">Cancel</button>
+      <button id="flag-modal-confirm" class="btn btn-danger">⚑ Confirm Flag</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

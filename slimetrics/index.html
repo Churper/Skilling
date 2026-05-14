@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Slimetrics — Slimeville XP tracker</title>
+  <meta name="description" content="XP tracking, hiscores, gains, and records for Slimeville Online." />
+  <meta name="generation-start" content="" />
+
+  <!-- Open Graph / social share preview -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://slimeville.online/slimetrics/" />
+  <meta property="og:title" content="Slimetrics — Slimeville XP Tracker" />
+  <meta property="og:description" content="Hiscores, gainers, records, and per-slime history for Slimeville Online." />
+  <meta property="og:image" content="https://slimeville.online/slimetrics/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content="Slimetrics" />
+
+  <!-- Twitter card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Slimetrics — Slimeville XP Tracker" />
+  <meta name="twitter:description" content="Hiscores, gainers, records, and per-slime history for Slimeville Online." />
+  <meta name="twitter:image" content="https://slimeville.online/slimetrics/og-image.png" />
+
+  <!-- Theme color (browsers + Discord embed accent) -->
+  <meta name="theme-color" content="#50e878" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=JetBrains+Mono:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+</head>
+<body>
+  <header id="st-header"></header>
+  <main id="page-content"><div class="st-loading">Loading…</div></main>
+  <footer id="st-footer"></footer>
+  <div class="update-toast" id="update-toast"></div>
+  <script>document.querySelector("meta[name='generation-start']").content = String(performance.now());</script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

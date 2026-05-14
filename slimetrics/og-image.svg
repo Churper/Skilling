@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d0c1a"/>
+      <stop offset="100%" stop-color="#1a1738"/>
+    </linearGradient>
+    <radialGradient id="goo" cx="40%" cy="35%">
+      <stop offset="0%"  stop-color="#a4ffc8"/>
+      <stop offset="55%" stop-color="#50e878"/>
+      <stop offset="100%" stop-color="#1f8240"/>
+    </radialGradient>
+    <linearGradient id="grid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(80,232,120,0.10)"/>
+      <stop offset="100%" stop-color="rgba(80,232,120,0)"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(80,232,120,0.4)"/>
+      <stop offset="100%" stop-color="rgba(80,232,120,0)"/>
+    </radialGradient>
+    <clipPath id="tubeClip">
+      <path d="M922 132 V356 a85 85 0 0 0 170 0 V132 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.06" stroke="#b4d2ff" stroke-width="1">
+    <path d="M0 80 H1200 M0 160 H1200 M0 240 H1200 M0 320 H1200 M0 400 H1200 M0 480 H1200 M0 560 H1200"/>
+    <path d="M80 0 V630 M160 0 V630 M240 0 V630 M320 0 V630 M400 0 V630 M480 0 V630 M560 0 V630 M640 0 V630 M720 0 V630 M800 0 V630 M880 0 V630 M960 0 V630 M1040 0 V630 M1120 0 V630"/>
+  </g>
+
+  <!-- Glow behind tube -->
+  <ellipse cx="1010" cy="315" rx="280" ry="200" fill="url(#glow)"/>
+
+  <!-- Tube + slime, shifted further right so it doesn't crowd the text -->
+  <g>
+    <g clip-path="url(#tubeClip)">
+      <path d="M918 280
+               Q955 250 1010 268
+               Q1065 286 1094 254
+               L1094 530 L918 530 Z" fill="url(#goo)"/>
+      <path d="M925 282 Q965 258 1010 274 Q1055 290 1090 264"
+            fill="none" stroke="#dafff0" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+      <ellipse cx="955" cy="380" rx="22" ry="60" fill="#ffffff" opacity="0.18"/>
+      <circle cx="965" cy="438" r="9" fill="#dafff0" opacity="0.85"/>
+      <circle cx="1055" cy="470" r="7" fill="#dafff0" opacity="0.7"/>
+      <circle cx="998" cy="498" r="6" fill="#dafff0" opacity="0.55"/>
+      <circle cx="975" cy="368" r="14" fill="#0d0c1a"/>
+      <circle cx="1037" cy="368" r="14" fill="#0d0c1a"/>
+      <circle cx="980" cy="362" r="5" fill="#ffffff"/>
+      <circle cx="1042" cy="362" r="5" fill="#ffffff"/>
+      <path d="M980 412 Q1007 432 1034 412" fill="none" stroke="#0d0c1a" stroke-width="11" stroke-linecap="round"/>
+    </g>
+    <path d="M922 132 V356 a85 85 0 0 0 170 0 V132 Z" fill="rgba(255,255,255,0.04)"/>
+    <path d="M922 132 V356 a85 85 0 0 0 170 0 V132"
+          fill="none" stroke="#e8e8f0" stroke-width="6"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="888" y1="132" x2="1126" y2="132"
+          stroke="#e8e8f0" stroke-width="9" stroke-linecap="round"/>
+    <line x1="895" y1="148" x2="1119" y2="148"
+          stroke="rgba(0,0,0,0.3)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="935" y1="158" x2="935" y2="350"
+          stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
+  </g>
+
+  <!-- Sparkles -->
+  <g fill="#ffd840">
+    <path d="M1140 100 L1146 116 L1162 122 L1146 128 L1140 144 L1134 128 L1118 122 L1134 116 Z"/>
+    <path d="M120 510 L124 521 L135 525 L124 529 L120 540 L116 529 L105 525 L116 521 Z" opacity="0.85"/>
+  </g>
+
+  <!-- Left text block — sized to clear the tube (which now starts at x=888) -->
+  <g transform="translate(80 200)">
+    <text font-family="ui-rounded, system-ui, 'Patrick Hand'" font-weight="800" font-size="26" fill="#79f0b2" letter-spacing="3">
+      <tspan>SLIMEVILLE  ·  XP TRACKER</tspan>
+    </text>
+    <text y="100" font-family="ui-rounded, system-ui, 'Patrick Hand'" font-weight="900" font-size="120" fill="#ffffff" letter-spacing="-2">
+      <tspan>Sli</tspan><tspan fill="#ffd840">metrics</tspan>
+    </text>
+    <text y="158" font-family="ui-rounded, system-ui, 'Patrick Hand'" font-weight="500" font-size="26" fill="#aab">
+      <tspan>Hiscores · Gainers · Records · Player history</tspan>
+    </text>
+    <g transform="translate(0 200)">
+      <rect width="440" height="58" rx="14" fill="#50e878"/>
+      <text x="220" y="38" text-anchor="middle" font-family="ui-rounded, system-ui, 'Patrick Hand'" font-weight="800" font-size="24" fill="#0a1a10">slimeville.online/slimetrics</text>
+    </g>
+  </g>
+</svg>
