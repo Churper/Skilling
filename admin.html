@@ -1350,13 +1350,37 @@ function _prettySignal(text) {
   if (typeof text !== "string" || !text) return esc(text || "");
   try {
     let m;
-    // xp_ceiling_exceeded:farming rate=X/min over=Y allowance=Z strikes=N potion_row=f
-    if ((m = text.match(/^xp_ceiling_exceeded:(\w+) rate=(\d+)\/min over=(\d+) allowance=(\d+) strikes=(\d+) potion_row=(\w)/))) {
+    // xp_ceiling_exceeded:farming rate=X/min over=Y allowance=Z strikes=N potion_row=f [max_rate=M]
+    if ((m = text.match(/^xp_ceiling_exceeded:(\w+) rate=(\d+)\/min over=(\d+) allowance=(\d+) strikes=(\d+) potion_row=(\w)(?: max_rate=(\d+))?/))) {
       const skill = m[1], rateNum = Number(m[2]), over = Number(m[3]), alw = Number(m[4]);
+      const maxRate = m[7] ? Number(m[7]) : 0;  // v477: honest cap for this player
       const delta = over + alw;
       const elapsed = delta / Math.max(1, rateNum) * 60;
       const potion = m[6] === "t" ? ` <span style="color:var(--warn)">+POT</span>` : "";
       const gatherSkill = ["fishing","mining","woodcutting","survival"].includes(skill);
+      /* v477: ratio-based severity — observed rate vs the player's
+         honest tier cap. This is the strict per-save check friend
+         designed. Catches Test33 at 5.7K/min Shrimp (cap ~880) =
+         6.5× → CHEAT, while a high-level player at 5K/min Anglerfish
+         (cap ~3500) = 1.4× stays LOW. potion buff doubles the cap
+         to absorb legit 2× boost. xp_boost lines on worn gear add
+         a smaller cushion (~15% expected). */
+      if (maxRate > 0 && gatherSkill) {
+        const potMult = m[6] === "t" ? 2.0 : 1.0;
+        const effCap = maxRate * potMult * 1.15;  /* +15% xp_boost cushion */
+        const ratio = rateNum / effCap;
+        if (ratio >= 5) {
+          return `${_tag("cheat")}${_skillTag(skill)} <b>${_shortNum(rateNum)}/min vs honest cap ${_shortNum(Math.round(effCap))}/min</b> for ${_fmtDur(elapsed)}${potion}${_verdict(`${ratio.toFixed(1)}× honest rate — impossible without injection or speedhack`, "var(--hot)")}`;
+        }
+        if (ratio >= 3) {
+          return `${_tag("bot")}${_skillTag(skill)} <b>${_shortNum(rateNum)}/min vs honest cap ${_shortNum(Math.round(effCap))}/min</b> for ${_fmtDur(elapsed)}${potion}${_verdict(`${ratio.toFixed(1)}× honest rate — scripted clicker or 3×+ speedhack`, "#ff8c40")}`;
+        }
+        if (ratio >= 2) {
+          return `${_tag("sus")}${_skillTag(skill)} <b>${_shortNum(rateNum)}/min vs honest cap ${_shortNum(Math.round(effCap))}/min</b> for ${_fmtDur(elapsed)}${potion}${_verdict(`${ratio.toFixed(1)}× honest rate — subtle speedhack-tier`, "var(--warn)")}`;
+        }
+        /* ratio < 2: fall through to existing absolute-rate bands
+           (still want to catch megaspikes regardless of tier cap) */
+      }
       /* v473: artifact detection requires LOW delta — legit tick-math
          noise is the same small save fired twice, not 1-5M XP in <1s.
          A cheater hammering sub-second saves with huge deltas (e.g.
