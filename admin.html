@@ -1365,10 +1365,16 @@ function _prettySignal(text) {
          elapsed) under 1M XP delta = legit harvest range. Above 1M-5M
          deserves a look (SUS). 5M+ is clearly injection (CHEAT).
          Sustained-rate cheat: 1M/min for 60s+ = millions, also CHEAT. */
+      /* v463: farming has legit max-board harvest ≈ 1.8M XP (12 plots ×
+         Mushroom max). Skill-aware thresholds: farming SUS at 2.5M,
+         CHEAT at 6M. Other skills keep 1M/5M. */
+      const farmSkill = skill === "farming";
+      const susXp = farmSkill ? 2_500_000 : 1_000_000;
+      const cheatXp = farmSkill ? 6_000_000 : 5_000_000;
       let sev, verdict, verdictColor;
-      if (delta >= 5_000_000) {
+      if (delta >= cheatXp) {
         sev = "cheat"; verdict = `+${_shortNum(delta)} XP one save — impossible without injection`; verdictColor = "var(--hot)";
-      } else if (delta >= 1_000_000) {
+      } else if (delta >= susXp) {
         sev = "sus"; verdict = `+${_shortNum(delta)} XP one save — heavy but possibly extreme legit grind`; verdictColor = "var(--warn)";
       } else if (skill !== "farming" && gatherSkill && elapsed <= 60 && rateNum >= 500_000) {
         sev = "bot"; verdict = `${_shortNum(rateNum)}/min short-window gather XP — speedhack-tier, check paired item-rate signal`; verdictColor = "#ff8c40";
@@ -1391,10 +1397,14 @@ function _prettySignal(text) {
       const skill = m[1], delta = Number(m[2]), rate = Number(m[4]);
       const elapsedSec = Number(m[3]) * 60;
       const gatherSkill = ["fishing","mining","woodcutting","survival"].includes(skill);
+      /* v463: farming legit max-board harvest ≈ 1.8M. Skill-aware delta */
+      const farmSkill = skill === "farming";
+      const susXp = farmSkill ? 2_500_000 : 1_000_000;
+      const cheatXp = farmSkill ? 6_000_000 : 5_000_000;
       let sev, verdict, verdictColor;
-      if (delta >= 5_000_000) {
+      if (delta >= cheatXp) {
         sev = "cheat"; verdict = `+${_shortNum(delta)} XP — impossible without injection`; verdictColor = "var(--hot)";
-      } else if (delta >= 1_000_000) {
+      } else if (delta >= susXp) {
         sev = "sus"; verdict = `+${_shortNum(delta)} XP — heavy, extreme grind or bot`; verdictColor = "var(--warn)";
       } else if (skill !== "farming" && gatherSkill && elapsedSec <= 60 && rate >= 500_000) {
         sev = "bot"; verdict = `short-window gather XP — speedhack-tier, check paired item-rate signal`; verdictColor = "#ff8c40";
@@ -1433,7 +1443,20 @@ function _prettySignal(text) {
         "Wheat","Turnip","Banana","Aloe","Plum","Mushroom","Cherries","Beans","Garlic",
         "Sunflower","Potato","Avocado","Mango","Pomegranate","Pitaya"
       ]);
+      /* v463: fish frenzy bursts are ALSO BURST-class — one fishing frenzy
+         legitimately drops 5-10 fish per click. Treat fish items the same
+         way as crops (judge by quantity, not /min) so legit frenzies don't
+         get tagged BOT. Sustained speedhack on fishing still shows in the
+         clock_skew signal + repeat count across many saves. */
+      const fishBurstSet = new Set([
+        "Shrimp","Sardine","Anchovy","Trout","Salmon","Bass","Pike","Tuna","Mackerel",
+        "Lobster","Crab","Eel","Pufferfish","Anglerfish","Swordfish","Snapper","Squid",
+        "Octopus","Oarfish","Gulper Eel","Anglerking","Betta","Trophy Cowfish",
+        "Golden Fish","Manta","Marlin","Carp","Catfish","Stingray","Cooked Shrimp",
+        "Cooked Trout","Cooked Salmon","Cooked Tuna","Cooked Lobster"
+      ]);
       const isCrop = cropSet.has(itemName);
+      const isFish = fishBurstSet.has(itemName);
       let sev, verdict, verdictColor;
       if (qty >= 100_000) {
         sev = "cheat"; verdict = `+${_shortNum(qty)} items one save — fake item gain`; verdictColor = "var(--hot)";
@@ -1445,6 +1468,15 @@ function _prettySignal(text) {
         /* Sub-1000 crop count: any single-save burst is a harvest. */
         sev = "quiet";
         verdict = `${qty} items / ${_fmtDur(dur)} — multi-plot harvest burst (legit)`;
+      } else if (isFish) {
+        /* v463: fishing frenzy bursts — same legit-burst pattern as crops.
+           Sub-1000 fish in a single save = one frenzy or a normal grind
+           tick. Cap repeat detection via the user-burst pill catches
+           sustained patterns. Anything BOT/CHEAT-grade should come from
+           clock_skew or stackable_rate, not this signal. */
+        const ratio = rate / Math.max(1, ceiling);
+        sev = "quiet";
+        verdict = `${qty} items / ${_fmtDur(dur)} (${ratio.toFixed(1)}× rate) — fishing frenzy burst (legit)`;
       } else {
         /* Sub-1000 gather item: judge by sustained rate per min */
         const ratio = rate / Math.max(1, ceiling);
