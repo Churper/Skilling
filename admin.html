@@ -1529,17 +1529,18 @@ function _prettySignal(text) {
       } else {
         /* Sub-1000 gather item: judge by sustained rate per min */
         const ratio = rate / Math.max(1, ceiling);
-        /* v461 (renderer): tighter bands. The 2-4× ceiling range is
-           where subtle speedhacks live (HTML5 universal hack at 2× =
-           ~2-2.8× ceiling depending on luck variance). Legit luck-stack
-           tops out at ~1.5× for sustained windows; >2× sustained is
-           almost always either a script or a clock hack. */
-        if (ratio >= 100) { sev = "cheat"; verdict = `${_shortNum(Math.round(ratio))}× ceiling sustained — fake gain`; verdictColor = "var(--hot)"; }
-        else if (ratio >= 4)  { sev = "bot"; verdict = `${ratio.toFixed(1)}× ceiling sustained — speedhack / scripted clicker`; verdictColor = "#ff8c40"; }
-        else if (rate >= 10000) { sev = "sus"; verdict = `${_shortNum(rate)}/min — far above expected gather pace`; verdictColor = "var(--warn)"; }
-        else if (ratio >= 2)  { sev = "sus"; verdict = `${ratio.toFixed(1)}× ceiling — speedhack-tier rate, watch for repeats`; verdictColor = "var(--warn)"; }
-        else if (ratio >= 1.5) { sev = "quiet"; verdict = `${ratio.toFixed(1)}× ceiling — borderline (luck-stack or short frenzy)`; }
-        else                  { sev = "quiet"; verdict = `${ratio.toFixed(1)}× ceiling — within legit AFK/frenzy range`; }
+        /* v481: tightened bands per user insight — stackable resource
+           counts are PURELY cycle-bound. Frenzy gives DIFFERENT item
+           keys (Bonus Fish, Bird Nest); luck rolls separate drop
+           tables. So a sustained 1.3×+ ratio over the per-tier cap
+           is the speedhack signature, not luck/frenzy. */
+        if (ratio >= 100) { sev = "cheat"; verdict = `${_shortNum(Math.round(ratio))}× honest cap sustained — fake gain`; verdictColor = "var(--hot)"; }
+        else if (ratio >= 4)  { sev = "cheat"; verdict = `${ratio.toFixed(1)}× honest cap one save — impossible without injection / speedhack`; verdictColor = "var(--hot)"; }
+        else if (ratio >= 2.5) { sev = "bot"; verdict = `${ratio.toFixed(1)}× honest cap — scripted clicker or 2.5×+ speedhack`; verdictColor = "#ff8c40"; }
+        else if (rate >= 10000) { sev = "bot"; verdict = `${_shortNum(rate)}/min — far above any tier's gather pace`; verdictColor = "#ff8c40"; }
+        else if (ratio >= 1.5) { sev = "sus"; verdict = `${ratio.toFixed(1)}× honest cap — speedhack-tier rate, watch for repeats`; verdictColor = "var(--warn)"; }
+        else if (ratio >= 1.2) { sev = "sus"; verdict = `${ratio.toFixed(1)}× honest cap — over cap but borderline; watch repeat count`; verdictColor = "var(--warn)"; }
+        else                  { sev = "quiet"; verdict = `${ratio.toFixed(1)}× honest cap — at-cap legit gather`; }
       }
       return `${_tag(sev)}📦 <b>${esc(itemName)}</b> +${_shortNum(qty)} / ${_fmtDur(dur)} (${_shortNum(rate)}/min, cap ${ceiling})${_verdict(verdict, verdictColor)}`;
     }
@@ -1557,23 +1558,22 @@ function _prettySignal(text) {
     if ((m = text.match(/^stackable_spike:(.+)$/))) {
       return `${_tag("sus")}🔥 <b>${esc(m[1])}</b>${_verdict("rare-item single spike — investigate")}`;
     }
-    // v478/v479: gather_speedhack:skill rate=X/min cap=Y ratio=N elapsed=Ws [streak=N]
-    // v479: rate + cap are ITEMS/min (cycle-based). Friend ladder:
-    //   ratio >= 5  one save  → CHEAT
-    //   ratio >= 3  one save  → BOT
-    //   ratio >= 2.25 streak  → SUS
-    if ((m = text.match(/^gather_speedhack:(\w+) rate=(\d+)\/min cap=(\d+) ratio=([\d.]+) elapsed=([\d.]+)s(?:\s+streak=(\d+))?/))) {
+    // v478/v479/v480/v482: gather_speedhack:skill rate=X/min cap=Y ratio=N elapsed=Ws [streak=N] [tier=T]
+    // v482: cap is now tier-aware (multiplied by player's tool tier speed)
+    if ((m = text.match(/^gather_speedhack:(\w+) rate=(\d+)\/min cap=(\d+) ratio=([\d.]+) elapsed=([\d.]+)s(?:\s+streak=(\d+))?(?:\s+tier=(\w+))?/))) {
       const skill = m[1], rate = Number(m[2]), cap = Number(m[3]);
       const ratio = Number(m[4]), elapsed = Number(m[5]);
       const streak = m[6] ? Number(m[6]) : 0;
-      const sev = ratio >= 5 ? "cheat" : ratio >= 3 ? "bot" : "sus";
-      const color = ratio >= 5 ? "var(--hot)" : ratio >= 3 ? "#ff8c40" : "var(--warn)";
-      const reason = ratio >= 5
+      const tier = m[7] || "";
+      const tierTag = tier ? ` <span style="color:var(--ink-4);font-size:11px">[${tier} tool]</span>` : "";
+      const sev = ratio >= 4 ? "cheat" : ratio >= 2.5 ? "bot" : "sus";
+      const color = ratio >= 4 ? "var(--hot)" : ratio >= 2.5 ? "#ff8c40" : "var(--warn)";
+      const reason = ratio >= 4
         ? `${ratio.toFixed(1)}× honest cap one save — impossible without injection / speedhack`
-        : ratio >= 3
-        ? `${ratio.toFixed(1)}× honest cap one save — scripted clicker or heavy speedhack`
+        : ratio >= 2.5
+        ? `${ratio.toFixed(1)}× honest cap one save — scripted clicker or 2.5×+ speedhack`
         : `${ratio.toFixed(1)}× honest cap${streak ? ` for ${streak} saves` : ``} — sustained speedhack pattern`;
-      return `${_tag(sev)}${_skillTag(skill)} <b>${_shortNum(rate)} items/min vs honest ${_shortNum(cap)}/min</b> for ${_fmtDur(elapsed)}${_verdict(reason, color)}`;
+      return `${_tag(sev)}${_skillTag(skill)} <b>${_shortNum(rate)} items/min vs honest ${_shortNum(cap)}/min</b>${tierTag} for ${_fmtDur(elapsed)}${_verdict(reason, color)}`;
     }
     // v474: lvl_burst:skill from=X to=Y delta=N gap=Zs  (multi-level jump)
     if ((m = text.match(/^lvl_burst:(\w+) from=(\d+) to=(\d+) delta=(\d+) gap=(-?[\d.]+)s/))) {
