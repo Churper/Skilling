@@ -1355,11 +1355,25 @@ function _prettySignal(text) {
       const skill = m[1], rateNum = Number(m[2]), over = Number(m[3]), alw = Number(m[4]);
       const delta = over + alw;
       const elapsed = delta / Math.max(1, rateNum) * 60;
-      const artifact = elapsed < 2 && over < 10_000_000;
       const potion = m[6] === "t" ? ` <span style="color:var(--warn)">+POT</span>` : "";
       const gatherSkill = ["fishing","mining","woodcutting","survival"].includes(skill);
+      /* v473: artifact detection requires LOW delta — legit tick-math
+         noise is the same small save fired twice, not 1-5M XP in <1s.
+         A cheater hammering sub-second saves with huge deltas (e.g.
+         Candy Wood spammer) was being labeled INFO "tick-math noise"
+         which buried the cheat in the feed. Cap the artifact band at
+         100K delta. Above that, fall through to severity bands. */
+      const artifact = elapsed < 2 && delta < 100_000;
       if (artifact) {
         return `${_tag("info")}${_skillTag(skill)} +${_shortNum(delta)} XP in <1s save${potion}${_verdict("tick-math noise — same save fired twice, look at the paired event", "rgba(160,160,160,0.6)")}`;
+      }
+      /* v473: sub-second saves with large deltas = forged save spam.
+         This is the script-spammer cheat signature — call it out loud
+         instead of letting it fall into the legit-grind SUS bucket. */
+      if (elapsed < 2 && delta >= 500_000) {
+        const subSev = delta >= 2_000_000 ? "cheat" : "bot";
+        const subColor = delta >= 2_000_000 ? "var(--hot)" : "#ff8c40";
+        return `${_tag(subSev)}${_skillTag(skill)} <b>+${_shortNum(delta)} XP in <1s save</b>${potion}${_verdict("forged save spam — script hammering cloud_save with fake deltas", subColor)}`;
       }
       /* BOT/CHEAT reserved for MILLIONS only. Single-save bursts (any
          elapsed) under 1M XP delta = legit harvest range. Above 1M-5M
