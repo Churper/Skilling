@@ -1547,11 +1547,21 @@ function _prettySignal(text) {
     // stackable_rate:Pitaya +N in Xs = R/min
     if ((m = text.match(/^stackable_rate:([^+]+?)\s+\+(\d+) in ([\d.]+)s = (\d+)\/min/))) {
       const qty = Number(m[2]), dur = Number(m[3]), rate = Number(m[4]);
-      const sev = rate >= 1_000_000 ? "cheat" : rate >= 100_000 ? "bot" : "sus";
+      /* v489: elapsed-aware classification. The 5K-per-save threshold
+         SQL emits regardless of window length — 5K in 60s is a clear
+         cheat, but 5K over 60 minutes (~83/min) is a legit AFK
+         survival/forage session. Use sustained rate as the truth. */
+      const sev = rate >= 1_000_000 ? "cheat"
+                : rate >= 100_000   ? "bot"
+                : rate >= 5_000     ? "sus"
+                : rate >= 500       ? "sus"
+                : "quiet";
       const verdict = rate >= 1_000_000 ? `${_shortNum(rate)} items/min — fake item gain`
                     : rate >= 100_000   ? `${_shortNum(rate)} items/min — bot pace`
-                    : `crossed 5K/save threshold — heavy grind`;
-      const vcolor = rate >= 100_000 ? "var(--hot)" : "var(--warn)";
+                    : rate >= 5_000     ? `${_shortNum(rate)} items/min sustained — high grind, check repeats`
+                    : rate >= 500       ? `${_shortNum(rate)} items/min sustained — heavy gather pace`
+                    : `+${_shortNum(qty)} in ${_fmtDur(dur)} — ${_shortNum(rate)}/min sustained, legit AFK gather`;
+      const vcolor = rate >= 100_000 ? "var(--hot)" : rate >= 5_000 ? "#ff8c40" : "var(--warn)";
       return `${_tag(sev)}🔥 <b>${esc(m[1].trim())}</b> +${_shortNum(qty)} / ${_fmtDur(dur)}${_verdict(verdict, vcolor)}`;
     }
     // stackable_spike:Item (legacy)
@@ -1635,10 +1645,29 @@ function _prettySignal(text) {
     if ((m = text.match(/^lvl_climb:(\w+) from=(\d+) to=(\d+) delta=(\d+) elapsed=([\d.]+)s/))) {
       const skill = m[1], from = Number(m[2]), to = Number(m[3]);
       const delta = Number(m[4]), elapsed = Number(m[5]);
-      const sev = delta >= 20 ? "cheat" : delta >= 10 ? "bot" : "sus";
-      const color = delta >= 20 ? "var(--hot)" : delta >= 10 ? "#ff8c40" : "var(--warn)";
       const rate = delta / Math.max(elapsed, 1) * 60;
-      return `${_tag(sev)}${_skillTag(skill)} <b>Lv ${from} → ${to}</b> (+${delta} in ${_fmtDur(elapsed)})${_verdict(`${rate.toFixed(1)} levels/min — ${delta >= 20 ? "impossible without XP injection" : delta >= 10 ? "scripted XP gain" : "very fast climb, watch"}`, color)}`;
+      /* v489: skill-aware + rate-aware bands. Burst-class skills
+         (farming/cooking/scribing/faith) batch multiple levels in
+         one save legit. Slow climbs over many minutes are normal
+         progression even at +5 delta. Use levels/min not just delta. */
+      const burstSkill = ["cooking","farming","scribing","faith"].includes(skill);
+      let sev, color, verdict;
+      if (rate >= 60 && delta >= 10) {
+        sev = "cheat"; color = "var(--hot)";
+        verdict = `${rate.toFixed(1)} levels/min — impossible without XP injection`;
+      } else if (rate >= 30 && delta >= 8) {
+        sev = "bot"; color = "#ff8c40";
+        verdict = `${rate.toFixed(1)} levels/min — scripted XP gain`;
+      } else if (rate >= 15 && delta >= (burstSkill ? 10 : 5)) {
+        sev = "sus"; color = "var(--warn)";
+        verdict = `${rate.toFixed(1)} levels/min — very fast climb, watch`;
+      } else {
+        sev = "quiet"; color = null;
+        verdict = burstSkill
+          ? `${rate.toFixed(1)} levels/min — batch action (legit for ${skill})`
+          : `${rate.toFixed(1)} levels/min — normal progression`;
+      }
+      return `${_tag(sev)}${_skillTag(skill)} <b>Lv ${from} → ${to}</b> (+${delta} in ${_fmtDur(elapsed)})${_verdict(verdict, color)}`;
     }
     // v472: lvl_climb_multi:total=15 elapsed=30s top=bow+5
     if ((m = text.match(/^lvl_climb_multi:total=(\d+) elapsed=([\d.]+)s top=(\w+)\+(\d+)/))) {
