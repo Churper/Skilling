@@ -1919,6 +1919,13 @@ function renderDossier(msg) {
       ${msg.online ? `<span class="ac-badge ok">online · ${esc(msg.online.room || "")}</span>` : ""}
     </div>
     ${flag ? `<div class="ac-meta" style="margin-top:6px"><b style="color:var(--ink-2)">Reason:</b> ${esc(flag.reason || "")}<br><b style="color:var(--ink-2)">Added:</b> ${fmtTime(flag.added_at)}</div>` : ""}
+    <div class="ac-actions" style="margin-top:10px">
+      ${flag
+        ? `<button class="btn btn-sm" data-ac-action="unflag" data-uid="${esc(msg.uid)}" data-name="${esc(save.name || '')}">Unflag</button>`
+        : `<button class="btn btn-sm btn-danger" data-ac-action="flag" data-uid="${esc(msg.uid)}" data-name="${esc(save.name || '')}">⚑ Flag account</button>`
+      }
+      ${msg.online ? `<button class="btn btn-sm" data-ac-action="kick-online" data-id="${esc(msg.online.id)}" data-name="${esc(save.name || '')}">Kick</button>` : ""}
+    </div>
 
     <h3>Save</h3>
     <div class="kv">
@@ -2246,7 +2253,28 @@ acDossierEl.addEventListener("change", (e) => {
    xp_ceiling_exceeded events the corresponding skill's strike counter
    is decremented server-side. v442: shift+click adds notes via prompt,
    plain click is instant (no popup) since the notes field is optional. */
+/* v469: dossier flag/unflag/kick buttons. Same handler shape as the
+   suspect list — opens the same modal so the existing send path
+   handles it. */
 acDossierEl.addEventListener("click", (e) => {
+  const actionBtn = e.target.closest("[data-ac-action]");
+  if (actionBtn) {
+    const action = actionBtn.dataset.acAction;
+    const uid = actionBtn.dataset.uid || "";
+    const name = actionBtn.dataset.name || "";
+    const key = getKey();
+    if (!key) { setAcStatus("Enter admin key first", "err"); return; }
+    if (action === "flag") {
+      openFlagModal(uid, name);
+    } else if (action === "unflag") {
+      if (!confirm(`Unflag ${name || uid}?`)) return;
+      ws.send(JSON.stringify({ type: "admin_anticheat_unflag", key, uid, name }));
+      setAcStatus(`Unflagging ${name || uid}…`, "");
+    } else if (action === "kick-online") {
+      doKick(actionBtn.dataset.id || "", name || "player");
+    }
+    return;
+  }
   const btn = e.target.closest("[data-ac-review]");
   if (!btn) return;
   const eventId = Number(btn.dataset.acReview);
