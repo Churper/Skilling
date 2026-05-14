@@ -1646,21 +1646,25 @@ function _prettySignal(text) {
       const skill = m[1], from = Number(m[2]), to = Number(m[3]);
       const delta = Number(m[4]), elapsed = Number(m[5]);
       const rate = delta / Math.max(elapsed, 1) * 60;
-      /* v489: skill-aware + rate-aware bands. Burst-class skills
-         (farming/cooking/scribing/faith) batch multiple levels in
-         one save legit. Slow climbs over many minutes are normal
-         progression even at +5 delta. Use levels/min not just delta. */
+      /* v493: skill-aware + rate-aware + window-aware bands. Short
+         windows (<30s) are force-save bursts where rate extrapolation
+         is unreliable; downgrade max severity to SUS. CHEAT requires
+         sustained >=30s window so a Slime5502-style mass-cook of
+         thousands of fish (batch action, save fires mid-burst) doesn't
+         get labeled CHEAT just because the per-minute extrapolation
+         spikes. */
       const burstSkill = ["cooking","farming","scribing","faith"].includes(skill);
+      const longWindow = elapsed >= 30;
       let sev, color, verdict;
-      if (rate >= 60 && delta >= 10) {
+      if (longWindow && rate >= 60 && delta >= 10) {
         sev = "cheat"; color = "var(--hot)";
         verdict = `${rate.toFixed(1)} levels/min — impossible without XP injection`;
-      } else if (rate >= 30 && delta >= 8) {
+      } else if (longWindow && rate >= 30 && delta >= 8) {
         sev = "bot"; color = "#ff8c40";
         verdict = `${rate.toFixed(1)} levels/min — scripted XP gain`;
       } else if (rate >= 15 && delta >= (burstSkill ? 10 : 5)) {
         sev = "sus"; color = "var(--warn)";
-        verdict = `${rate.toFixed(1)} levels/min — very fast climb, watch`;
+        verdict = `${rate.toFixed(1)} levels/min — very fast climb${longWindow ? "" : " (short window — burst-extrapolated)"}, watch`;
       } else {
         sev = "quiet"; color = null;
         verdict = burstSkill
