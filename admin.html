@@ -2321,21 +2321,41 @@ function closeFlagModal() {
   _pendingFlagTarget = null;
 }
 function confirmFlag() {
-  if (!_pendingFlagTarget) return closeFlagModal();
+  if (!_pendingFlagTarget) { setAcStatus("No flag target — reopen the modal", "err"); return closeFlagModal(); }
   const key = getKey();
   if (!key) { setAcStatus("Enter admin key first", "err"); closeFlagModal(); return; }
   const reason = (document.getElementById("flag-modal-reason")?.value || "").trim();
-  if (!reason) return;
+  if (!reason) { setAcStatus("Reason required to flag", "err"); return; }
+  if (!ws || ws.readyState !== WebSocket.OPEN) { setAcStatus("Not connected — reconnect first", "err"); return; }
   const { uid, name } = _pendingFlagTarget;
   ws.send(JSON.stringify({ type: "admin_anticheat_flag", key, uid, name, reason }));
   setAcStatus(`Flagging ${name || uid}…`, "");
   closeFlagModal();
 }
-document.getElementById("flag-modal-cancel")?.addEventListener("click", closeFlagModal);
-document.getElementById("flag-modal-confirm")?.addEventListener("click", confirmFlag);
-document.getElementById("flag-modal")?.addEventListener("click", (e) => {
-  if (e.target.id === "flag-modal") closeFlagModal();
-});
+/* v470: the flag-modal HTML lives BELOW this <script> tag, so
+   getElementById returned null at script-parse time and the
+   optional-chaining `?.` silently swallowed the missing listener.
+   Confirm flag button was dead since v438. Defer attachment until
+   DOMContentLoaded (or fire immediately if doc already parsed). */
+function _bindFlagModalHandlers() {
+  document.getElementById("flag-modal-cancel")?.addEventListener("click", closeFlagModal);
+  document.getElementById("flag-modal-confirm")?.addEventListener("click", confirmFlag);
+  const modalEl = document.getElementById("flag-modal");
+  if (modalEl) {
+    modalEl.addEventListener("click", (e) => {
+      if (e.target.id === "flag-modal") closeFlagModal();
+    });
+  }
+  /* Enter key in reason field submits */
+  document.getElementById("flag-modal-reason")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); confirmFlag(); }
+  });
+}
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", _bindFlagModalHandlers);
+} else {
+  _bindFlagModalHandlers();
+}
 
 refreshBtn.addEventListener("click", requestPlayers);
 kickAllBtn.addEventListener("click", doKickAll);
