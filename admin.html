@@ -1557,6 +1557,18 @@ function _prettySignal(text) {
     if ((m = text.match(/^stackable_spike:(.+)$/))) {
       return `${_tag("sus")}🔥 <b>${esc(m[1])}</b>${_verdict("rare-item single spike — investigate")}`;
     }
+    // v478: gather_speedhack:skill rate=X/min cap=Y ratio=N elapsed=Ws [streak=N]
+    if ((m = text.match(/^gather_speedhack:(\w+) rate=(\d+)\/min cap=(\d+) ratio=([\d.]+) elapsed=([\d.]+)s(?:\s+streak=(\d+))?/))) {
+      const skill = m[1], rate = Number(m[2]), cap = Number(m[3]);
+      const ratio = Number(m[4]), elapsed = Number(m[5]);
+      const streak = m[6] ? Number(m[6]) : 0;
+      const sev = ratio >= 3 ? "cheat" : ratio >= 2.25 ? "bot" : "sus";
+      const color = ratio >= 3 ? "var(--hot)" : ratio >= 2.25 ? "#ff8c40" : "var(--warn)";
+      const reason = ratio >= 3
+        ? `${ratio.toFixed(1)}× honest cap one save — impossible without injection / speedhack`
+        : `${ratio.toFixed(1)}× honest cap for ${streak} saves — sustained speedhack pattern`;
+      return `${_tag(sev)}${_skillTag(skill)} <b>${_shortNum(rate)}/min vs honest ${_shortNum(cap)}/min</b> for ${_fmtDur(elapsed)}${_verdict(reason, color)}`;
+    }
     // v474: lvl_burst:skill from=X to=Y delta=N gap=Zs  (multi-level jump)
     if ((m = text.match(/^lvl_burst:(\w+) from=(\d+) to=(\d+) delta=(\d+) gap=(-?[\d.]+)s/))) {
       const skill = m[1], from = Number(m[2]), to = Number(m[3]);
