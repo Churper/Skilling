@@ -1519,6 +1519,22 @@ function _prettySignal(text) {
         : `endgame XP cliff — legit for high levels`;
       return `${_tag(sev)}${_skillTag(m[1])} → <b>Lv ${lvl}</b> (gap ${gap.toFixed(2)}s)${_verdict(verdict)}`;
     }
+    // v472: lvl_climb:bow from=200 to=214 delta=14 elapsed=30s
+    if ((m = text.match(/^lvl_climb:(\w+) from=(\d+) to=(\d+) delta=(\d+) elapsed=([\d.]+)s/))) {
+      const skill = m[1], from = Number(m[2]), to = Number(m[3]);
+      const delta = Number(m[4]), elapsed = Number(m[5]);
+      const sev = delta >= 20 ? "cheat" : delta >= 10 ? "bot" : "sus";
+      const color = delta >= 20 ? "var(--hot)" : delta >= 10 ? "#ff8c40" : "var(--warn)";
+      const rate = delta / Math.max(elapsed, 1) * 60;
+      return `${_tag(sev)}${_skillTag(skill)} <b>Lv ${from} → ${to}</b> (+${delta} in ${_fmtDur(elapsed)})${_verdict(`${rate.toFixed(1)} levels/min — ${delta >= 20 ? "impossible without XP injection" : delta >= 10 ? "scripted XP gain" : "very fast climb, watch"}`, color)}`;
+    }
+    // v472: lvl_climb_multi:total=15 elapsed=30s top=bow+5
+    if ((m = text.match(/^lvl_climb_multi:total=(\d+) elapsed=([\d.]+)s top=(\w+)\+(\d+)/))) {
+      const total = Number(m[1]), elapsed = Number(m[2]), topSkill = m[3], topDelta = Number(m[4]);
+      const sev = total >= 30 ? "cheat" : total >= 15 ? "bot" : "sus";
+      const color = total >= 30 ? "var(--hot)" : total >= 15 ? "#ff8c40" : "var(--warn)";
+      return `${_tag(sev)}⚡ <b>Multi-skill climb +${total} levels</b> in ${_fmtDur(elapsed)} (top: ${_skillTag(topSkill)} +${topDelta})${_verdict(`many skills gained levels in one save — bot-tier breadth`, color)}`;
+    }
     // coin_spike:+N gold
     if ((m = text.match(/^coin_spike:\+?(\d+)\s*gold?/))) {
       const c = Number(m[1]);
