@@ -1606,6 +1606,13 @@ function _prettySignal(text) {
       const color = mult >= 3 ? "var(--hot)" : mult >= 1.8 ? "#ff8c40" : "var(--warn)";
       return `${_tag(sev)}⏱ <b>Clock skew</b> — state ${rate.toFixed(1)}/sec = <b>${mult.toFixed(2)}× client clock</b>${_verdict("HTML5 speedhack / browser timer manipulation — invariant to movement", color)}`;
     }
+    // v464: clock_skew_save:gap=20.0s mult=1.50x
+    if ((m = text.match(/^clock_skew_save:gap=([\d.]+)s mult=([\d.]+)x/))) {
+      const gap = Number(m[1]), mult = Number(m[2]);
+      const sev = mult >= 2.5 ? "cheat" : mult >= 1.7 ? "bot" : "sus";
+      const color = mult >= 2.5 ? "var(--hot)" : mult >= 1.7 ? "#ff8c40" : "var(--warn)";
+      return `${_tag(sev)}⏱ <b>Save cadence skew</b> — saves every <b>${gap.toFixed(1)}s</b> (normal ≥30s) = <b>${mult.toFixed(2)}× client clock</b>${_verdict("save-throttle accelerated by HTML5 timer hack — catches AFK speedhackers too", color)}`;
+    }
     // xp_level:farming lvl=N xp=X expected<=M
     if ((m = text.match(/^xp_level:(\w+) lvl=(\d+) xp=(\d+) expected<=(\d+)/))) {
       return `${_tag("cheat")}${_skillTag(m[1])} <b>Lv ${m[2]}</b> claimed, XP only supports <b>Lv ≤${m[4]}</b>${_verdict("client-side level forge", "var(--hot)")}`;
