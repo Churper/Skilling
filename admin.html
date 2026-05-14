@@ -1466,11 +1466,22 @@ function _prettySignal(text) {
         "Shrimp","Sardine","Anchovy","Trout","Salmon","Bass","Pike","Tuna","Mackerel",
         "Lobster","Crab","Eel","Pufferfish","Anglerfish","Swordfish","Snapper","Squid",
         "Octopus","Oarfish","Gulper Eel","Anglerking","Betta","Trophy Cowfish",
-        "Golden Fish","Manta","Marlin","Carp","Catfish","Stingray","Cooked Shrimp",
-        "Cooked Trout","Cooked Salmon","Cooked Tuna","Cooked Lobster"
+        "Golden Fish","Manta","Marlin","Carp","Catfish","Stingray"
+      ]);
+      /* v476: cooking batch-cook is BURST-class. Player cooks whole
+         bag (~28 items) in one tick → bursts the rate ceiling but is
+         legit. Treat all "Cooked X" items as burst-class like crops
+         and fish. */
+      const cookedBurstSet = new Set([
+        "Cooked Shrimp","Cooked Sardine","Cooked Anchovy","Cooked Trout",
+        "Cooked Salmon","Cooked Bass","Cooked Pike","Cooked Tuna","Cooked Mackerel",
+        "Cooked Lobster","Cooked Crab","Cooked Eel","Cooked Pufferfish",
+        "Cooked Anglerfish","Cooked Swordfish","Cooked Snapper","Cooked Squid",
+        "Cooked Octopus","Cooked Oarfish","Cooked Gulper Eel","Cooked Anglerking",
+        "Cooked Betta","Cooked Carp","Cooked Catfish"
       ]);
       const isCrop = cropSet.has(itemName);
-      const isFish = fishBurstSet.has(itemName);
+      const isFish = fishBurstSet.has(itemName) || cookedBurstSet.has(itemName);
       let sev, verdict, verdictColor;
       if (qty >= 100_000) {
         sev = "cheat"; verdict = `+${_shortNum(qty)} items one save — fake item gain`; verdictColor = "var(--hot)";
@@ -1526,13 +1537,30 @@ function _prettySignal(text) {
     if ((m = text.match(/^lvl_burst:(\w+) from=(\d+) to=(\d+) delta=(\d+) gap=(-?[\d.]+)s/))) {
       const skill = m[1], from = Number(m[2]), to = Number(m[3]);
       const delta = Number(m[4]), gap = Number(m[5]);
-      const sev = delta >= 20 ? "cheat" : delta >= 5 ? "bot" : "sus";
-      const color = delta >= 20 ? "var(--hot)" : delta >= 5 ? "#ff8c40" : "var(--warn)";
-      const verdict = delta >= 20
-        ? `+${delta} levels in ${gap.toFixed(1)}s — impossible without injection`
-        : delta >= 5
-        ? `+${delta} levels in ${gap.toFixed(1)}s — scripted level claim`
-        : `+${delta} levels in ${gap.toFixed(1)}s — suspicious multi-level`;
+      /* v476: skill-aware bands. Burst-class skills (cooking, farming,
+         scribing, faith) can legit climb 20-30 levels in one batch
+         action at low/mid levels. Combat + gather climb slower so
+         keep the tight thresholds there. */
+      const burstSkill = ["cooking","farming","scribing","faith"].includes(skill);
+      const susAt   = burstSkill ? 10 : 2;
+      const botAt   = burstSkill ? 25 : 5;
+      const cheatAt = burstSkill ? 50 : 20;
+      let sev, verdict, color;
+      if (delta >= cheatAt) {
+        sev = "cheat"; color = "var(--hot)";
+        verdict = `+${delta} levels in ${gap.toFixed(1)}s — impossible without injection`;
+      } else if (delta >= botAt) {
+        sev = "bot"; color = "#ff8c40";
+        verdict = `+${delta} levels in ${gap.toFixed(1)}s — scripted level claim`;
+      } else if (delta >= susAt) {
+        sev = "sus"; color = "var(--warn)";
+        verdict = `+${delta} levels in ${gap.toFixed(1)}s — suspicious multi-level`;
+      } else {
+        sev = "quiet"; color = null;
+        verdict = burstSkill
+          ? `+${delta} levels in ${gap.toFixed(1)}s — batch action (legit for ${skill})`
+          : `+${delta} levels in ${gap.toFixed(1)}s — multi-level burst`;
+      }
       return `${_tag(sev)}${_skillTag(skill)} <b>Lv ${from} → ${to}</b> (+${delta} in ${gap.toFixed(1)}s)${_verdict(verdict, color)}`;
     }
     // lvl_burst:farming gap=Xs lvl=N  (legacy single-level cliff path)
