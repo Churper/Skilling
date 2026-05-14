@@ -1522,7 +1522,20 @@ function _prettySignal(text) {
     if ((m = text.match(/^stackable_spike:(.+)$/))) {
       return `${_tag("sus")}🔥 <b>${esc(m[1])}</b>${_verdict("rare-item single spike — investigate")}`;
     }
-    // lvl_burst:farming gap=Xs lvl=N
+    // v474: lvl_burst:skill from=X to=Y delta=N gap=Zs  (multi-level jump)
+    if ((m = text.match(/^lvl_burst:(\w+) from=(\d+) to=(\d+) delta=(\d+) gap=(-?[\d.]+)s/))) {
+      const skill = m[1], from = Number(m[2]), to = Number(m[3]);
+      const delta = Number(m[4]), gap = Number(m[5]);
+      const sev = delta >= 20 ? "cheat" : delta >= 5 ? "bot" : "sus";
+      const color = delta >= 20 ? "var(--hot)" : delta >= 5 ? "#ff8c40" : "var(--warn)";
+      const verdict = delta >= 20
+        ? `+${delta} levels in ${gap.toFixed(1)}s — impossible without injection`
+        : delta >= 5
+        ? `+${delta} levels in ${gap.toFixed(1)}s — scripted level claim`
+        : `+${delta} levels in ${gap.toFixed(1)}s — suspicious multi-level`;
+      return `${_tag(sev)}${_skillTag(skill)} <b>Lv ${from} → ${to}</b> (+${delta} in ${gap.toFixed(1)}s)${_verdict(verdict, color)}`;
+    }
+    // lvl_burst:farming gap=Xs lvl=N  (legacy single-level cliff path)
     if ((m = text.match(/^lvl_burst:(\w+) gap=(-?[\d.]+)s lvl=(\d+)/))) {
       const gap = Number(m[2]), lvl = m[3];
       /* gap < 0.5s = two level-ups same instant = single huge XP dump.
