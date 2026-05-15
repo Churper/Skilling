@@ -1367,7 +1367,7 @@ function _prettySignal(text) {
          a smaller cushion (~15% expected). */
       if (maxRate > 0 && gatherSkill) {
         const potMult = m[6] === "t" ? 2.0 : 1.0;
-        const effCap = maxRate * potMult * 1.15;  /* +15% xp_boost cushion */
+        const effCap = maxRate * potMult * 1.27;  /* v496: 27% xp_boost cushion (9 slots × 3 lines × 1%); v495 server-side reads exact gear */
         const ratio = rateNum / effCap;
         if (ratio >= 5) {
           return `${_tag("cheat")}${_skillTag(skill)} <b>${_shortNum(rateNum)}/min vs honest cap ${_shortNum(Math.round(effCap))}/min</b> for ${_fmtDur(elapsed)}${potion}${_verdict(`${ratio.toFixed(1)}× honest rate — impossible without injection or speedhack`, "var(--hot)")}`;
@@ -1424,9 +1424,18 @@ function _prettySignal(text) {
         sev = "sus"; verdict = `${_shortNum(rateNum)}/min sustained — fast power grind`; verdictColor = "var(--warn)";
       } else {
         sev = "quiet";
-        verdict = elapsed <= 60
-          ? `single-save burst — legit harvest range, check repeat count →`
-          : `slightly over ceiling — likely AFK gather or frenzy`;
+        /* v496: show actual numbers in the LOW band instead of "slightly
+           over ceiling". The signal already carries rate + max_rate; just
+           print them so the dossier is actionable instead of vague. */
+        if (elapsed <= 60) {
+          verdict = `single-save burst — legit harvest range, check repeat count →`;
+        } else if (maxRate > 0) {
+          const effCap = maxRate * (m[6] === "t" ? 2.0 : 1.0) * 1.27;
+          const ratio = rateNum / effCap;
+          verdict = `${_shortNum(rateNum)}/min vs cap ${_shortNum(Math.round(effCap))}/min (${ratio.toFixed(2)}× cap) — AFK gather / frenzy / gear xp_boost cushion`;
+        } else {
+          verdict = `${_shortNum(rateNum)}/min — over ceiling, likely AFK gather or frenzy`;
+        }
       }
       return `${_tag(sev)}${_skillTag(skill)} ${_shortNum(rateNum)}/min for ${_fmtDur(elapsed)}${potion}${_verdict(verdict, verdictColor)}`;
     }
