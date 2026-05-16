@@ -1527,14 +1527,39 @@ function _prettySignal(text) {
         sev = "quiet";
         verdict = `${qty} items / ${_fmtDur(dur)} — multi-plot harvest burst (legit)`;
       } else if (isFish) {
-        /* v463: fishing frenzy bursts — same legit-burst pattern as crops.
-           Sub-1000 fish in a single save = one frenzy or a normal grind
-           tick. Cap repeat detection via the user-burst pill catches
-           sustained patterns. Anything BOT/CHEAT-grade should come from
-           clock_skew or stackable_rate, not this signal. */
+        /* v516: only label as "fishing frenzy burst (legit)" if the SQL
+           signal actually carries frenzy evidence (`frenzy_procs=N +M
+           fish` tail from _ac_item_rate_check) AND the observed qty is
+           within the per-proc plausibility envelope (≤ 10 fish per proc,
+           covering 5-fish base + 4-fish bonusBaseFish + slack). Without
+           proof, a +443 Shrimp / 60s row is NOT frenzy (pet garden
+           claim, sailing reward, bulk grant, or speedhack) — treat as
+           SUS so it doesn't masquerade as legit. */
         const ratio = rate / Math.max(1, ceiling);
-        sev = "quiet";
-        verdict = `${qty} items / ${_fmtDur(dur)} (${ratio.toFixed(1)}× rate) — fishing frenzy burst (legit)`;
+        const fm = text.match(/frenzy_procs=(\d+)\s+\+(\d+)\s+fish/);
+        const frenzyProcs = fm ? Number(fm[1]) : 0;
+        const frenzyBonusFish = fm ? Number(fm[2]) : 0;
+        const perProcMax = 10; /* base + bonusBaseFish + slack */
+        const frenzyExplains = frenzyProcs > 0 && qty <= frenzyProcs * perProcMax;
+        if (frenzyExplains) {
+          sev = "quiet";
+          verdict = `${qty} items / ${_fmtDur(dur)} (${ratio.toFixed(1)}× rate, ${frenzyProcs} procs +${frenzyBonusFish} bonus) — fishing frenzy burst (legit)`;
+        } else if (qty >= 200) {
+          sev = "sus";
+          verdict = `${qty} fish / ${_fmtDur(dur)} (${ratio.toFixed(1)}× cap)${frenzyProcs ? ` — ${frenzyProcs} procs only explain ≤${frenzyProcs * perProcMax}` : ` — no frenzy evidence`} — bulk gain, check pet garden / mail / sailing / speedhack`;
+          verdictColor = "var(--warn)";
+        } else if (ratio >= 4) {
+          sev = "bot";
+          verdict = `${ratio.toFixed(1)}× honest cap, no frenzy proof — scripted clicker or speedhack`;
+          verdictColor = "#ff8c40";
+        } else if (ratio >= 2.5) {
+          sev = "sus";
+          verdict = `${ratio.toFixed(1)}× honest cap, no frenzy proof — watch repeat count`;
+          verdictColor = "var(--warn)";
+        } else {
+          sev = "quiet";
+          verdict = `${qty} items / ${_fmtDur(dur)} (${ratio.toFixed(1)}× cap) — small burst, no frenzy claimed`;
+        }
       } else {
         /* Sub-1000 gather item: judge by sustained rate per min */
         const ratio = rate / Math.max(1, ceiling);

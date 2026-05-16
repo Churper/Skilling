@@ -278,6 +278,29 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   /* chunk local offset — heightOffset/colorOverride keys are in local coords */
   const loX = bounds && bounds.localOffsetX || 0;
   const loZ = bounds && bounds.localOffsetZ || 0;
+  const caveHoles = Array.isArray(bounds?.caveHoles) ? bounds.caveHoles : [];
+  const triHitsCaveHole = caveHoles.length
+    ? (ax, az, bx, bz, cx, cz) => {
+        for (const h of caveHoles) {
+          const hr = h.r || 2.2;
+          const hr2 = hr * hr;
+          const mx = (ax + bx + cx) / 3 - h.x;
+          const mz = (az + bz + cz) / 3 - h.z;
+          if (mx * mx + mz * mz < hr2) return true;
+          /* Any near-center vertex removes the face too. This prevents
+             little terrain shards from spanning across the cave mouth. */
+          const vHr = hr * 0.72;
+          const vHr2 = vHr * vHr;
+          const adx = ax - h.x, adz = az - h.z;
+          const bdx = bx - h.x, bdz = bz - h.z;
+          const cdx = cx - h.x, cdz = cz - h.z;
+          if (adx * adx + adz * adz < vHr2) return true;
+          if (bdx * bdx + bdz * bdz < vHr2) return true;
+          if (cdx * cdx + cdz * cdz < vHr2) return true;
+        }
+        return false;
+      }
+    : null;
 
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
@@ -380,7 +403,10 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
 
       if (ix < nx - 1 && iz < nz - 1) {
         const a = iz * nx + ix, b = a + 1, d = a + nx, e = d + 1;
-        idx.push(a, d, b, b, d, e);
+        const x0 = xMin + ix * step, z0 = zMin + iz * step;
+        const x1 = xMin + (ix + 1) * step, z1 = zMin + (iz + 1) * step;
+        if (!triHitsCaveHole || !triHitsCaveHole(x0, z0, x0, z1, x1, z0)) idx.push(a, d, b);
+        if (!triHitsCaveHole || !triHitsCaveHole(x1, z0, x0, z1, x1, z1)) idx.push(b, d, e);
       }
     }
   }
@@ -410,6 +436,25 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       const c = geo.attributes.color.array;
       const p = geo.attributes.position.array;
       const _isMainland = !_isProcgenChunk;
+      /* Cave-mouth black paint runs as a FINAL face pass — the
+         OSRS toon shade multiplier above will crush vertex-color black
+         to a barely-dark mid-band otherwise. caveSpots is set by
+         loadChunk in world coords (x, z, r). */
+      const caveSpots = Array.isArray(bounds?.caveSpots) ? bounds.caveSpots : [];
+      const _caveColorAt = (wx, wz) => {
+        for (const s of caveSpots) {
+          const dx = wx - s.x, dz = wz - s.z;
+          const d = Math.hypot(dx, dz);
+          if (d > s.r) continue;
+          /* Pure pitch black — no edge gradient. The rim shading
+             ended up reading as a second "ring color" instead of a
+             subtle blend, so we drop it: every painted face is just
+             (0, 0, 0). The terrain mound + the abrupt black still
+             reads as a real hole. */
+          return [0, 0, 0];
+        }
+        return null;
+      };
       for (let f = 0; f < c.length; f += 9) {
         let r = (c[f]   + c[f+3] + c[f+6]) / 3;
         let g = (c[f+1] + c[f+4] + c[f+7]) / 3;
@@ -458,12 +503,83 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
           g = g * _mult + _bias;
           b = b * _mult + _bias;
         }
-        const rj = Math.max(0, r), gj = Math.max(0, g), bj = Math.max(0, b);
+        let rj = Math.max(0, r), gj = Math.max(0, g), bj = Math.max(0, b);
+        /* FINAL: cave-mouth black paint — overrides ALL prior shading
+           so the painted hole reads as pure black no matter what the
+           toon shade multiplier did.
+           Also tracks which caveSpot owns each painted face so the
+           click-mesh emitter below can duplicate just those tris.
+
+           IMPORTANT: c[] is a Uint8Array with normalized=true on its
+           BufferAttribute — values must be 0..255, not 0..1. The
+           per-vertex/per-face math above keeps r,g,b in 0..1 and
+           multiplies by 255 immediately before the write. We do the
+           same for the cave-override values; otherwise tiny floats
+           like 0.24 truncate to 0 in the Uint8 store → pure black
+           patches, which is the bug the user diagnosed. */
+        if (caveSpots.length) {
+          for (let si = 0; si < caveSpots.length; si++) {
+            const s = caveSpots[si];
+            const ddx = fx - s.x, ddz = fz - s.z;
+            if (ddx * ddx + ddz * ddz < s.r * s.r) {
+              const cv = _caveColorAt(fx, fz);
+              if (cv) {
+                rj = cv[0] * 255;
+                gj = cv[1] * 255;
+                bj = cv[2] * 255;
+              }
+              /* Record this face for the click-mesh duplicate. */
+              if (!s._faceIdx) s._faceIdx = [];
+              s._faceIdx.push(f);
+              break;
+            }
+          }
+        }
         c[f] = c[f+3] = c[f+6] = rj;
         c[f+1] = c[f+4] = c[f+7] = gj;
         c[f+2] = c[f+5] = c[f+8] = bj;
       }
       geo.attributes.color.needsUpdate = true;
+
+      /* Emit one click-mesh per cave spot using a DUPLICATE of the
+         painted triangles. Mesh TRANSFORM is set to the cave anchor
+         and vertices are stored RELATIVE — without this, the mesh's
+         transform stays at (0,0,0) and getWorldPosition() returns the
+         chunk origin, which is far from the cave on islands. The
+         distance filter in input.js rejects nodes >200u from camera,
+         so absolute-vertex click meshes silently never receive any
+         clicks. Relative storage keeps the bounding sphere local + the
+         transform near the actual painted area. */
+      for (const s of caveSpots) {
+        if (!s._faceIdx || !s._faceIdx.length) continue;
+        const src = geo.attributes.position.array;
+        const dup = new Float32Array(s._faceIdx.length * 9);
+        for (let i = 0; i < s._faceIdx.length; i++) {
+          const f = s._faceIdx[i];
+          for (let j = 0; j < 3; j++) {
+            dup[i * 9 + j * 3]     = src[f + j * 3]     - s.x;
+            dup[i * 9 + j * 3 + 1] = src[f + j * 3 + 1];
+            dup[i * 9 + j * 3 + 2] = src[f + j * 3 + 2] - s.z;
+          }
+        }
+        const cmGeo = new THREE.BufferGeometry();
+        cmGeo.setAttribute("position", new THREE.BufferAttribute(dup, 3));
+        cmGeo.computeBoundingSphere();
+        const cmMat = new THREE.MeshBasicMaterial({
+          transparent: true, opacity: 0,
+          depthTest: false, depthWrite: false, colorWrite: false,
+        });
+        const clickMesh = new THREE.Mesh(cmGeo, cmMat);
+        clickMesh.position.set(s.x, 0, s.z);
+        clickMesh.name = `cave_click_${s.seed}`;
+        clickMesh.userData.serviceType = "cave";
+        clickMesh.userData.caveSeed = s.seed;
+        clickMesh.userData.resourceLabel = "Cave Entrance";
+        clickMesh.userData._caveClickMesh = true;
+        clickMesh.renderOrder = R_GND + 5;
+        group.add(clickMesh);
+        s._faceIdx = null;
+      }
     }
     geo.computeVertexNormals();
     geo.computeBoundingBox();

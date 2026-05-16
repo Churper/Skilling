@@ -1,0 +1,10 @@
+{
+  "type": "cave",
+  "baseType": "dark",
+  "water": false,
+  "objects": [
+    { "type": "Tiny_Slime",  "x":  -8, "z":  -5, "rot": 0 },
+    { "type": "Tiny_Slime",  "x":   5, "z":  -8, "rot": 1.2 },
+    { "type": "Stone_Slime", "x":   8, "z":   6, "rot": 2.5 }
+  ]
+}
