@@ -1444,14 +1444,10 @@ function _prettySignal(text) {
       const skill = m[1], delta = Number(m[2]), rate = Number(m[4]);
       const elapsedSec = Number(m[3]) * 60;
       const gatherSkill = ["fishing","mining","woodcutting","survival"].includes(skill);
-      /* v463: farming legit max-board harvest ≈ 1.8M. Skill-aware delta
-         v492: cooking batch-bank (whole stack at once) legit to ~5M+;
-         scribing recipe batch similar. Bump their thresholds so legit
-         batch-bank players don't generate SUS noise. */
+      /* v463: farming legit max-board harvest ≈ 1.8M. Skill-aware delta */
       const farmSkill = skill === "farming";
-      const batchBank = skill === "cooking" || skill === "scribing" || skill === "survival";
-      const susXp   = batchBank ? 5_000_000  : (farmSkill ? 2_500_000 : 1_000_000);
-      const cheatXp = batchBank ? 15_000_000 : (farmSkill ? 6_000_000 : 5_000_000);
+      const susXp = farmSkill ? 2_500_000 : 1_000_000;
+      const cheatXp = farmSkill ? 6_000_000 : 5_000_000;
       let sev, verdict, verdictColor;
       if (delta >= cheatXp) {
         sev = "cheat"; verdict = `+${_shortNum(delta)} XP — impossible without injection`; verdictColor = "var(--hot)";
