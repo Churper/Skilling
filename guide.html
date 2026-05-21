@@ -698,6 +698,19 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="tier-item"><span class="tier-swatch" style="background:linear-gradient(135deg,#6040c0,#8060e0);display:flex;align-items:center;justify-content:center;font-size:22px">&#x1F52E;</span><span class="tier-name">Magic (Staff)</span><span class="tier-meta">Distance &bull; Elemental power</span></div>
   </div>
 
+  <!-- COMBAT LEVEL FORMULA -->
+  <div class="card">
+    <h3 style="margin-top:0">&#x2694;&#xFE0F; Combat Level</h3>
+    <p>Your combat level is a single number that summarizes your overall combat readiness. It&rsquo;s shown on your name tag, in the lobby, and on the leaderboard.</p>
+    <p><strong>Formula:</strong></p>
+    <pre style="background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px;font-size:12px;line-height:1.55;overflow-x:auto;margin:6px 0">combat   = Melee + Bow + Mage + Hitpoints + Faith                  <span style="color:#9bb">(full weight)</span>
+skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
+            + Farming + Scribing + Explorer) &times; 0.25                  <span style="color:#9bb">(quarter weight)</span>
+<strong style="color:#7af0ff">Combat Level = floor((combat + skilling) / 5)</strong></pre>
+    <p style="margin-top:8px;font-size:12px;color:#9bb">Combat skills count 4&times; more than skilling skills. <strong>Faith</strong> counts as combat. <strong>Sailing Master</strong> doesn&rsquo;t affect combat level.</p>
+    <div class="tip" style="margin-top:8px">Quickest way to bump combat level early: train Hitpoints (passive from any combat) and one combat style to 20+. The skilling fraction barely moves until you&rsquo;re grinding several gather skills past 100.</div>
+  </div>
+
   <!-- ANIMALS -->
   <div class="sec-head"><div class="sec-icon" style="background:rgba(255,180,80,.08);border-color:rgba(255,180,80,.15)">&#x1F43E;</div><div><h2>Animals</h2><p>Fight these creatures across the world</p></div></div>
 
