@@ -1737,13 +1737,38 @@ export function placePOIs(hm, dist, opts) {
   /* Bank offset PERPENDICULAR to the radial-from-center direction —
      i.e. tangent to the shoreline contour. This keeps both structures
      at the SAME distance from shore (true side-by-side, not bank-
-     in-front-of-statue). 10u gap so they read as separate buildings. */
+     in-front-of-statue). 10u gap so they read as separate buildings.
+     Falls back to opposite-perpendicular then radial-inland if the
+     primary direction lands in water (narrow / curvy island edge
+     cases like "Shoals" formations where one tangent shoots offshore). */
   const BANK_GAP = 10;
   const radialMag = Math.hypot(c.x, c.z) || 1;
   const radX = c.x / radialMag, radZ = c.z / radialMag;
-  /* Perpendicular = rotate radial 90° CCW in XZ: (-z, x) */
-  const bankOffX = -radZ * BANK_GAP;
-  const bankOffZ =  radX * BANK_GAP;
+  /* Heightmap sampler at island-local (x, z) — used to verify the bank's
+     candidate position is on land (h > WATER_Y + 0.1). */
+  const _sampleHm = (lx, lz) => {
+    const fx = (lx + halfSize) / step;
+    const fz = (lz + halfSize) / step;
+    const i = Math.max(0, Math.min(W - 1, Math.round(fx)));
+    const j = Math.max(0, Math.min(H - 1, Math.round(fz)));
+    return hm.heights[j * W + i];
+  };
+  /* Candidate bank offsets in priority order: perpendicular(+10),
+     perpendicular(-10), radial-inland(10). First one that lands on
+     dry land wins. If all three fail (extremely narrow island), fall
+     back to the original perpendicular(+10) and accept the visual. */
+  const _bankOffsets = [
+    [-radZ * BANK_GAP,  radX * BANK_GAP],  // +perpendicular (original)
+    [ radZ * BANK_GAP, -radX * BANK_GAP],  // -perpendicular (opposite side)
+    [-radX * BANK_GAP, -radZ * BANK_GAP],  // radial-inland
+  ];
+  let bankOffX = _bankOffsets[0][0], bankOffZ = _bankOffsets[0][1];
+  for (const [ox, oz] of _bankOffsets) {
+    if (_sampleHm(c.x + ox, c.z + oz) > WATER_Y + 0.1) {
+      bankOffX = ox; bankOffZ = oz;
+      break;
+    }
+  }
   const out = [{
     type: 'Slime_Statue',
     x: +c.x.toFixed(2),
