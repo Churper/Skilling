@@ -1,0 +1,52 @@
+Copyright (c) 2026 Churper / slimeville.online
+All Rights Reserved.
+
+This repository and its contents — including but not limited to the
+JavaScript source bundles, HTML pages, CSS, 3D model files (.glb), images,
+textures, audio, configuration data (JSON), SQL migrations, build scripts,
+documentation, and every other asset present in this repository — are the
+proprietary work of the copyright holder.
+
+NO LICENSE OR PERMISSION IS GRANTED, expressly or by implication, estoppel,
+or otherwise, to any party to do any of the following:
+
+  1. Copy, reproduce, redistribute, mirror, host, or republish any part of
+     this work, in whole or in part, in any form or medium.
+
+  2. Modify, adapt, translate, port, decompile, disassemble, reverse-engineer
+     the compiled bundle, or create derivative works based on this work.
+
+  3. Use any code, model, texture, sound, configuration, or other asset
+     contained herein in any other project, public or private, commercial
+     or non-commercial.
+
+  4. Use this work, in whole or in part, as training data, fine-tuning
+     material, embedding source, retrieval-augmented context, or any other
+     input for machine-learning models, language models, image-generation
+     models, or any other automated system that produces derivative output.
+
+  5. Sublicense, sell, lease, rent, or otherwise transfer any rights in this
+     work to any third party.
+
+  6. Remove, alter, or obscure this copyright notice or any other proprietary
+     legend or attribution attached to this work.
+
+This repository is published publicly solely as the deployment artifact for
+the game hosted at https://slimeville.online and for transparency to players
+and authorized collaborators. Public visibility on GitHub does NOT constitute
+a grant of any rights under copyright, trademark, trade secret, or any other
+intellectual property law. The copyright holder reserves all rights not
+expressly granted in writing.
+
+The names "Slimeville", "slimeville.online", and any associated marks,
+logos, or in-game branding are trademarks of the copyright holder and may
+not be used without prior written permission.
+
+THIS WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY
+ARISING FROM, OUT OF, OR IN CONNECTION WITH THIS WORK OR THE USE OR OTHER
+DEALINGS IN THIS WORK.
+
+For licensing inquiries, contact the copyright holder via GitHub.

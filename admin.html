@@ -1405,10 +1405,16 @@ function _prettySignal(text) {
          Sustained-rate cheat: 1M/min for 60s+ = millions, also CHEAT. */
       /* v463: farming has legit max-board harvest ≈ 1.8M XP (12 plots ×
          Mushroom max). Skill-aware thresholds: farming SUS at 2.5M,
-         CHEAT at 6M. Other skills keep 1M/5M. */
+         CHEAT at 6M. Other skills keep 1M/5M.
+         v542: farming + active XP potion legitimately doubles harvest XP
+         (Ultra compost xpMult 1.5 × potion 2 × max-board top-tier crops can
+         hit 3-4M XP/save). Bump thresholds when potion_row is true so legit
+         max-board POT harvests fall into LOW. A real farming injection at
+         12M+ with POT still trips CHEAT. */
       const farmSkill = skill === "farming";
-      const susXp = farmSkill ? 2_500_000 : 1_000_000;
-      const cheatXp = farmSkill ? 6_000_000 : 5_000_000;
+      const hasPot = m[6] === "t";
+      const susXp = farmSkill ? (hasPot ? 5_000_000 : 2_500_000) : 1_000_000;
+      const cheatXp = farmSkill ? (hasPot ? 12_000_000 : 6_000_000) : 5_000_000;
       let sev, verdict, verdictColor;
       if (delta >= cheatXp) {
         sev = "cheat"; verdict = `+${_shortNum(delta)} XP one save — impossible without injection`; verdictColor = "var(--hot)";
@@ -1728,11 +1734,14 @@ function _prettySignal(text) {
       const sev = c >= 50_000 ? "cheat" : c >= 10_000 ? "bot" : "sus";
       return `${_tag(sev)}🔢 <b>+${_shortNum(c)} new item UIDs</b> one save${_verdict("each unique-mint = 1 UID; legit max ~50/save", c >= 10_000 ? "var(--hot)" : undefined)}`;
     }
-    // unlogged_coin_gain:delta=X logged_sells=Y
-    if ((m = text.match(/^unlogged_coin_gain:delta=(\d+) logged_sells=(\d+)/))) {
+    // unlogged_coin_gain:delta=X logged_sells=Y [clan_withdraw=Z raw_delta=R]
+    if ((m = text.match(/^unlogged_coin_gain:delta=(\d+) logged_sells=(\d+)(?: clan_withdraw=(\d+))?(?: raw_delta=(\d+))?/))) {
       const delta = Number(m[1]), logged = Number(m[2]);
+      const clanWithdraw = Number(m[3] || 0);
+      const rawDelta = Number(m[4] || delta);
       const unexplained = delta - logged;
-      return `${_tag("sus")}💸 <b>+${_shortNum(unexplained)}c unexplained</b> (gained ${_shortNum(delta)}, sells logged ${_shortNum(logged)})${_verdict("Sell-All bug or other coin path that skips sell_item RPC")}`;
+      const clanNote = clanWithdraw > 0 ? `, clan withdraw credited ${_shortNum(clanWithdraw)}` : "";
+      return `${_tag("sus")}💸 <b>+${_shortNum(unexplained)}c unexplained</b> (gained ${_shortNum(rawDelta)}, sells logged ${_shortNum(logged)}${clanNote})${_verdict("Sell-All bug or other coin path that skips sell_item RPC")}`;
     }
     // stack_at_cap:Marlin qty=X
     if ((m = text.match(/^stack_at_cap:(.+?)\s+qty=(\d+)/))) {
