@@ -382,6 +382,7 @@
           <div class="ui-kc-item"><span>&#x1F577;&#xFE0F;</span><strong id="ui-spider-kc">0</strong></div>
           <div class="ui-kc-item"><span>&#x1F9D9;</span><strong id="ui-wizard-kc">0</strong></div>
           <div class="ui-kc-item"><span>&#x1F47D;</span><strong id="ui-alien-kc">0</strong></div>
+          <div class="ui-kc-item ui-kc-rep" data-tip="Reputation"><span>&#x1F44D;</span><strong id="ui-player-rep">-</strong></div>
           <div class="ui-kc-item" style="opacity:0.7" data-tip="Combat Level — avg of combat skills (Melee, Bow, Mage, HP, Faith) + 25% from skilling"><span style="font-size:10px">&#x2694;&#xFE0F;</span><strong id="ui-combat-level" style="color:#ff9966">3</strong></div>
           <div class="ui-kc-item" style="opacity:0.7" data-tip="Total Level — sum of all skill levels"><span style="font-size:10px">&#x2B50;</span><strong id="ui-total-level" style="color:#88ccff">11</strong></div>
         </div>
@@ -1373,6 +1374,13 @@
           </div>
           <span id="ui-travel-zoom-hint" class="tv-zhint">100%</span>
           <div id="ui-travel-map-tiers" class="tv-map-tiers tv-tier-tabs"></div>
+        </div>
+      </div>
+      <div class="tv-search" id="ui-travel-search-wrap">
+        <div class="tv-search-box">
+          <svg class="tv-search-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
+          <input id="ui-travel-search" type="search" placeholder="Search islands" autocomplete="off" spellcheck="false">
+          <button type="button" class="tv-search-clear" id="ui-travel-search-clear" aria-label="Clear search" hidden>×</button>
         </div>
       </div>
       <div id="ui-travel-action" class="tv-action">
