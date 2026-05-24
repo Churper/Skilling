@@ -441,8 +441,67 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
          to a barely-dark mid-band otherwise. caveSpots is set by
          loadChunk in world coords (x, z, r). */
       const caveSpots = Array.isArray(bounds?.caveSpots) ? bounds.caveSpots : [];
-      const _caveColorAt = (wx, wz) => {
+      const _caveCrackSample = (s, wx, wz, pad = 0) => {
+        const rot = s.rot || -0.55;
+        const dx = wx - s.x, dz = wz - s.z;
+        const cA = Math.cos(-rot), sA = Math.sin(-rot);
+        const lx = dx * cA - dz * sA;
+        const lz = dx * sA + dz * cA;
+        const halfLen = s.len || Math.max(5.5, (s.r || 7) * 0.86);
+        const alongRaw = Math.abs(lx) / Math.max(0.001, halfLen);
+        const along = Math.abs(lx) / Math.max(0.001, halfLen + pad * 1.2);
+        if (along > 1) return null;
+        const wiggle = Math.sin(lx * 0.78 + 0.91) * 0.42
+          + Math.sin(lx * 1.72 + 2.3) * 0.16;
+        const baseW = s.width || 1.06;
+        const width = baseW * (0.62 + Math.max(0, 1 - Math.min(alongRaw, 1)) * 0.78) + pad;
+        const cross = Math.abs(lz - wiggle) / Math.max(0.18, width);
+        if (cross > 1) return null;
+        const endFade = 1 - Math.max(0, (alongRaw - 0.74) / 0.26);
+        const core = Math.max(0, 1 - cross) * Math.max(0, Math.min(1, endFade));
+        return { core, edge: cross, along };
+      };
+      const _caveSpotContains = (s, wx, wz, pad = 0.35) => {
+        if (s.shape === "crack") return !!_caveCrackSample(s, wx, wz, pad);
+        const dx = wx - s.x, dz = wz - s.z;
+        return dx * dx + dz * dz < s.r * s.r;
+      };
+      const _caveSpotFaceHit = (s, fx, fz, ax, az, bx, bz, cx, cz) => {
+        if (s.shape !== "crack") {
+          return _caveSpotContains(s, fx, fz) ? { wx: fx, wz: fz, pad: 0.35 } : null;
+        }
+        const pad = 0.72;
+        const samples = [
+          [fx, fz],
+          [ax, az], [bx, bz], [cx, cz],
+          [(ax + bx) * 0.5, (az + bz) * 0.5],
+          [(bx + cx) * 0.5, (bz + cz) * 0.5],
+          [(cx + ax) * 0.5, (cz + az) * 0.5],
+        ];
+        let best = null;
+        for (const pnt of samples) {
+          const crack = _caveCrackSample(s, pnt[0], pnt[1], pad);
+          if (!crack) continue;
+          if (!best || crack.core > best.crack.core) {
+            best = { wx: pnt[0], wz: pnt[1], pad, crack };
+          }
+        }
+        return best;
+      };
+      const _caveColorAt = (wx, wz, pad = 0.35) => {
         for (const s of caveSpots) {
+          const crack = s.shape === "crack" ? _caveCrackSample(s, wx, wz, pad) : null;
+          if (s.shape === "crack") {
+            if (!crack) continue;
+            const rimGlow = Math.max(0, 1 - Math.abs(crack.edge - 0.64) / 0.36)
+              * (1 - Math.min(1, crack.along) * 0.25)
+              * (1 - crack.core * 0.72);
+            return [
+              0.006 + rimGlow * 0.15,
+              0.001 + rimGlow * 0.005,
+              0.001 + rimGlow * 0.004,
+            ];
+          }
           const dx = wx - s.x, dz = wz - s.z;
           const d = Math.hypot(dx, dz);
           if (d > s.r) continue;
@@ -462,6 +521,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         const fx = (p[f]     + p[f + 3] + p[f + 6]) / 3;
         const fy = (p[f + 1] + p[f + 4] + p[f + 7]) / 3;
         const fz = (p[f + 2] + p[f + 5] + p[f + 8]) / 3;
+        const ax = p[f],     az = p[f + 2];
+        const bx = p[f + 3], bz = p[f + 5];
+        const cx = p[f + 6], cz = p[f + 8];
         /* Underwater seabed faces stay UNIFORM — no jitter, no toon-band
            shade, no fine noise. The deep band must read as one continuous
            color across procgen islands, mainland coast, and global ocean
@@ -520,9 +582,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         if (caveSpots.length) {
           for (let si = 0; si < caveSpots.length; si++) {
             const s = caveSpots[si];
-            const ddx = fx - s.x, ddz = fz - s.z;
-            if (ddx * ddx + ddz * ddz < s.r * s.r) {
-              const cv = _caveColorAt(fx, fz);
+            const faceHit = _caveSpotFaceHit(s, fx, fz, ax, az, bx, bz, cx, cz);
+            if (faceHit) {
+              const cv = _caveColorAt(faceHit.wx, faceHit.wz, faceHit.pad);
               if (cv) {
                 rj = cv[0] * 255;
                 gj = cv[1] * 255;
@@ -572,10 +634,11 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         const clickMesh = new THREE.Mesh(cmGeo, cmMat);
         clickMesh.position.set(s.x, 0, s.z);
         clickMesh.name = `cave_click_${s.seed}`;
-        clickMesh.userData.serviceType = "cave";
+        clickMesh.userData.serviceType = s.serviceType || "cave";
         clickMesh.userData.caveSeed = s.seed;
-        clickMesh.userData.resourceLabel = "Cave Entrance";
+        clickMesh.userData.resourceLabel = s.label || "Cave Entrance";
         clickMesh.userData._caveClickMesh = true;
+        if (s.shape === "crack") clickMesh.userData._caveCrackClickMesh = true;
         clickMesh.renderOrder = R_GND + 5;
         group.add(clickMesh);
         s._faceIdx = null;
@@ -776,6 +839,45 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         return 1.0;
       }
     `;
+    const _waterCracks = (Array.isArray(bounds?.caveSpots) ? bounds.caveSpots : [])
+      .filter(s => s && s.shape === "crack")
+      .slice(0, 4);
+    const _waterCrackData = Array.from({ length: 4 }, (_, i) => {
+      const s = _waterCracks[i];
+      return new THREE.Vector4(
+        s?.x || 0,
+        s?.z || 0,
+        s?.len || Math.max(5.5, (s?.r || 7) * 0.86),
+        s?.width || 1.06
+      );
+    });
+    const _waterCrackRot = Array.from({ length: 4 }, (_, i) => _waterCracks[i]?.rot || -0.55);
+    const _crackWaterDiscardGLSL = `
+      uniform int uCrackCount;
+      uniform vec4 uCracks[4];
+      uniform float uCrackRot[4];
+      bool inCrackWaterMask(vec2 worldXZ) {
+        for (int i = 0; i < 4; i++) {
+          if (i >= uCrackCount) break;
+          vec4 c = uCracks[i];
+          float rot = uCrackRot[i];
+          vec2 d = worldXZ - c.xy;
+          float ca = cos(-rot);
+          float sa = sin(-rot);
+          float lx = d.x * ca - d.y * sa;
+          float lz = d.x * sa + d.y * ca;
+          float halfLen = max(0.001, c.z);
+          float alongRaw = abs(lx) / halfLen;
+          if (alongRaw > 1.03) continue;
+          float wiggle = sin(lx * 0.78 + 0.91) * 0.42
+                       + sin(lx * 1.72 + 2.30) * 0.16;
+          float width = c.w * (0.62 + max(0.0, 1.0 - min(alongRaw, 1.0)) * 0.78) + 0.95;
+          float endFade = 1.0 - max(0.0, (alongRaw - 0.80) / 0.23);
+          if (endFade > 0.0 && abs(lz - wiggle) <= width) return true;
+        }
+        return false;
+      }
+    `;
     const _waterFrag = _chunkProcgen
       ? `
         uniform sampler2D uTex;
@@ -787,7 +889,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         varying vec2 vUv;
         varying float vWave;
         varying vec3 vWorldPos;
+        ${_crackWaterDiscardGLSL}
         void main() {
+          if (inCrackWaterMask(vWorldPos.xz)) discard;
           vec2 uv = mix(uUvMin, uUvMax, vUv);
           vec4 c = texture2D(uTex, vec2(uv.x, 1.0 - uv.y));
           /* Procgen alpha texture encodes signed distance in the alpha
@@ -870,7 +974,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         uniform vec2 uUvMax;
         varying vec2 vUv;
         varying vec3 vWorldPos;
+        ${_crackWaterDiscardGLSL}
         void main() {
+          if (inCrackWaterMask(vWorldPos.xz)) discard;
           vec2 uv = mix(uUvMin, uUvMax, vUv);
           vec4 c = texture2D(uTex, vec2(uv.x, 1.0 - uv.y));
           float rawA = c.a;
@@ -1014,6 +1120,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         uFancyFx: waterUniforms.uFancyFx,
         uUvMin: { value: new THREE.Vector2(uvMinX, uvMinY) },
         uUvMax: { value: new THREE.Vector2(uvMaxX, uvMaxY) },
+        uCrackCount: { value: _waterCracks.length },
+        uCracks: { value: _waterCrackData },
+        uCrackRot: { value: _waterCrackRot },
       },
       vertexShader: _waterVert,
       fragmentShader: _waterFrag,
