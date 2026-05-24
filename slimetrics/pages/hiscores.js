@@ -6,6 +6,27 @@ import { ACCOUNT_TYPES } from "../lib/config.js";
 import { xpToLevel } from "../lib/progression.js";
 
 const PAGE_SIZE = 50;
+const BOSS_KCS = [
+  { id: "boss_kc", label: "Total Boss KC", icon: "👑" },
+  { id: "snake_kc", label: "Snake", icon: "🐍" },
+  { id: "golem_kc", label: "Golem", icon: "🪨" },
+  { id: "slime_daddy_kc", label: "Slime Daddy", icon: "🟢" },
+  { id: "cave_slime_kc", label: "Cave Slime", icon: "🟢" },
+  { id: "yeti_kc", label: "Yeti", icon: "❄️" },
+  { id: "dragon_kc", label: "Dragon", icon: "🐉" },
+  { id: "skele_kc", label: "Skele", icon: "💀" },
+  { id: "spider_kc", label: "Spider", icon: "🕷️" },
+  { id: "wizard_kc", label: "Wizard", icon: "🧙" },
+  { id: "alien_kc", label: "Alien", icon: "👽" },
+];
+const BOSS_KC_BY_ID = Object.fromEntries(BOSS_KCS.map(b => [b.id, b]));
+
+function isBossKc(id) { return !!BOSS_KC_BY_ID[id]; }
+function hiscoreLabel(id) {
+  if (id === "overall") return "Total level leaderboard";
+  if (isBossKc(id)) return `${BOSS_KC_BY_ID[id].label} KC leaderboard`;
+  return `${skillLabel(id)} XP leaderboard`;
+}
 
 export async function renderHiscores($page, params = {}) {
   const state = {
@@ -27,14 +48,15 @@ function paint($page, state, res) {
   $page.innerHTML = `
     <div class="shell">
       <h1 class="st-page-title">Hiscores</h1>
-      <p class="st-page-sub">${state.skill === "overall" ? "Total level" : skillLabel(state.skill) + " XP"} leaderboard.</p>
+      <p class="st-page-sub">${escapeHtml(hiscoreLabel(state.skill))}.</p>
 
       <div class="st-card">
         <div class="st-card-head">
-          <div class="st-card-title">Skill</div>
+          <div class="st-card-title">Category</div>
           <div class="st-pills right">${[
             { id: "overall", label: "Overall", icon: "📊" },
-            ...SKILLS.map(s => ({ id: s.id, label: s.label, icon: s.icon }))
+            ...SKILLS.map(s => ({ id: s.id, label: s.label, icon: s.icon })),
+            ...BOSS_KCS
           ].map(s => `<button class="st-pill ${s.id === state.skill ? "is-active" : ""}" data-skill="${s.id}">${escapeHtml(s.icon)} ${escapeHtml(s.label)}</button>`).join("")}</div>
         </div>
         <div class="st-card-head" style="border-top:1px solid var(--line)">
@@ -64,6 +86,22 @@ function renderTable(rows, state) {
           <td class="rank-cell ${cls}">#${nf(rank)}</td>
           <td>${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
           <td class="num">${nf(r.total_level)}</td>
+        </tr>`;
+      }).join("")}
+      </tbody>
+    </table>`;
+  }
+  if (isBossKc(state.skill)) {
+    return `<table class="st-table">
+      <thead><tr><th>Rank</th><th>Slime</th><th class="num">KC</th></tr></thead>
+      <tbody>${rows.map(r => {
+        const rank = r.rk + state.offset;
+        const cls = rank === 1 ? "rank-r1" : rank === 2 ? "rank-r2" : rank === 3 ? "rank-r3" : "";
+        return `
+        <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
+          <td class="rank-cell ${cls}">#${nf(rank)}</td>
+          <td>${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
+          <td class="num">${nf(r.kc_val || 0)}</td>
         </tr>`;
       }).join("")}
       </tbody>

@@ -580,11 +580,12 @@ if (typeof window !== "undefined" && !window._srvChartHover) {
 const BOSS_ICONS = {
   snake_boss: "🐍", rock_golem: "🪨", slime_daddy: "🟢", frost_yeti: "❄️",
   dragon: "🐉", skele: "💀", spider: "🕷️", wizard: "🧙", alien: "👽",
+  giant_cave_slime: "🟢",
 };
 const BOSS_LABELS = {
   snake_boss: "Snake Boss", rock_golem: "Rock Golem", slime_daddy: "Slime Daddy",
   frost_yeti: "Frost Yeti", dragon: "Dragon", skele: "Skele", spider: "Spider",
-  wizard: "Wizard", alien: "Alien",
+  wizard: "Wizard", alien: "Alien", giant_cave_slime: "Giant Cave Slime",
 };
 const SKILL_LABELS = {
   fishing: "Fishing 🎣", mining: "Mining ⛏️", woodcutting: "Woodcutting 🪓",
