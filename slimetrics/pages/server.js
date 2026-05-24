@@ -14,7 +14,7 @@ export async function renderServer($page, params = {}) {
       api.serverOverview(),
       api.serverChart(period),
       api.serverHeatmap(),
-      api.recentBosses(12),
+      api.recentBosses(50),
       api.recentIslands(12),
       api.welcomeBanner(5),
       api.signupChart(),
@@ -51,7 +51,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       <div class="srv-stat-grid" style="margin-top:14px">
         ${statCard("XP Today", nfShort(o.xp_today), "across all slimes", "var(--slime)")}
         ${statCard("Levels Up Today", nf(o.levels_today), "summed gains", "#7dffc1")}
-        ${statCard("Bosses Killed Today", nf(o.bosses_today), `${nf(bosses?.length || 0)} in ticker`, "#ff6b9d")}
+        ${statCard("Bosses Killed Today", nf(o.bosses_today), `${nf(compactBossRows(bosses).length)} in ticker`, "#ff6b9d")}
         ${statCard("Islands Charted Today", nf(o.islands_today), "first-time discoveries", "#79c7ff")}
       </div>
 
@@ -597,13 +597,28 @@ const SKILL_LABELS = {
 function prettySkill(key) { return SKILL_LABELS[key] || (key[0]?.toUpperCase() + key.slice(1)); }
 function prettyBoss(key)  { return BOSS_LABELS[key] || key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()); }
 
+function compactBossRows(rows, maxRows = 12) {
+  const compact = [];
+  for (const r of rows || []) {
+    const prev = compact[compact.length - 1];
+    if (prev && prev.name === r.name && prev.boss === r.boss) {
+      prev.count++;
+      prev.firstT = r.t;
+      continue;
+    }
+    compact.push({ ...r, count: 1, firstT: r.t });
+  }
+  return compact.slice(0, maxRows);
+}
+
 function renderBossList(rows) {
-  if (!rows?.length) return `<div class="st-empty">No boss kills yet today.</div>`;
-  return rows.map(r => `
+  const compact = compactBossRows(rows);
+  if (!compact.length) return `<div class="st-empty">No boss kills yet today.</div>`;
+  return compact.map(r => `
     <div class="srv-feed-row">
       <div class="srv-feed-icon">${BOSS_ICONS[r.boss] || "👹"}</div>
       <div class="srv-feed-body">
-        <div class="srv-feed-line"><a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> killed <b>${escapeHtml(BOSS_LABELS[r.boss] || r.boss)}</b></div>
+        <div class="srv-feed-line"><a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> killed <b>${escapeHtml(BOSS_LABELS[r.boss] || r.boss)}</b>${r.count > 1 ? ` <b>×${nf(r.count)}</b>` : ""}</div>
         <div class="srv-feed-meta">${timeAgo(Number(r.t) * 1000)}</div>
       </div>
     </div>`).join("");

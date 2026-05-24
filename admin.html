@@ -888,7 +888,6 @@
         <div class="page-sub" style="margin-bottom:10px">Live firehose of V events across all players. Click ✓ to mark false alarm (shift+click for note).</div>
         <div class="btn-row" style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap">
           <button id="recent-v-clear-visible" class="btn btn-sm">✓ Clear visible as false alarm</button>
-          <button id="recent-v-clear-all" class="btn btn-sm btn-danger">⚠ Clear ALL unreviewed (global)</button>
         </div>
         <div id="recent-v-feed" class="ac-timeline"><div class="empty">Connect to load…</div></div>
       </div>
@@ -1274,7 +1273,7 @@ function fmtNum(n) { return Number(n || 0).toLocaleString(); }
 function sigBadgeClass(sig) {
   /* v434: stackable_rate replaces stackable_spike; checksum_stale + label_spoof retired (back-compat kept). */
   if (sig === "xp_megaspike" || sig === "stackable_rate" || sig === "stackable_spike" || sig === "uid_spike" || sig === "coin_spike" || sig === "stack_at_cap" || sig === "multi_skill_burst") return "hot";
-  if (sig === "xp_rate" || sig === "lvl_burst" || sig === "label_spoof" || sig === "tl_mismatch" || sig === "xp_level" || sig === "item_rate_exceeded" || sig === "unlogged_coin_gain") return "warn";
+  if (sig === "xp_rate" || sig === "lvl_burst" || sig === "label_spoof" || sig === "tl_mismatch" || sig === "xp_level" || sig === "item_rate_exceeded") return "warn";
   return "";
 }
 
@@ -1741,7 +1740,7 @@ function _prettySignal(text) {
       const rawDelta = Number(m[4] || delta);
       const unexplained = delta - logged;
       const clanNote = clanWithdraw > 0 ? `, clan withdraw credited ${_shortNum(clanWithdraw)}` : "";
-      return `${_tag("sus")}💸 <b>+${_shortNum(unexplained)}c unexplained</b> (gained ${_shortNum(rawDelta)}, sells logged ${_shortNum(logged)}${clanNote})${_verdict("Sell-All bug or other coin path that skips sell_item RPC")}`;
+      return `${_tag("audit")}💸 <b>+${_shortNum(unexplained)}c coin audit gap</b> (gained ${_shortNum(rawDelta)}, sells logged ${_shortNum(logged)}${clanNote})${_verdict("store/Sell-All logging coverage gap — not cheat proof by itself")}`;
     }
     // stack_at_cap:Marlin qty=X
     if ((m = text.match(/^stack_at_cap:(.+?)\s+qty=(\d+)/))) {
@@ -1833,7 +1832,7 @@ function _prettySignal(text) {
     }
     // single tokens
     if (text.startsWith("negative_coins")) return `${_tag("cheat")}🚫 Negative coins attempted${_verdict("save tried to write coin < 0", "var(--hot)")}`;
-    if (text.startsWith("uid_decrease_blocked")) return `${_tag("cheat")}🚫 UID counter decrease blocked${_verdict("stale save rejected", "var(--hot)")}`;
+    if (text.startsWith("uid_decrease_blocked")) return `${_tag("audit")}🚫 UID counter decrease blocked${_verdict("stale save rejected — usually old tab / retry / network ordering")}`;
     if ((m = text.match(/^star>15:(.+)=(\d+)/))) return `${_tag("cheat")}⭐ <b>${esc(m[1])}</b> at ${m[2]}★${_verdict("max legit is 15★ — client-side forge", "var(--hot)")}`;
     // ac_err:... code=...
     if ((m = text.match(/^ac_err:(.+) code=(\w+)/))) {
@@ -2317,7 +2316,6 @@ recentVUnrevEl?.addEventListener("change", _resetRecentV);
 /* v446: bulk-clear buttons. "visible" sends just the rendered event IDs;
    "global" omits the array, triggering the nuke path on the RPC. */
 const recentVClearVisibleEl = document.getElementById("recent-v-clear-visible");
-const recentVClearAllEl     = document.getElementById("recent-v-clear-all");
 
 function sendBulkReview(eventIds, notes) {
   const key = getKey();
@@ -2336,19 +2334,6 @@ recentVClearVisibleEl?.addEventListener("click", () => {
   if (!ids.length) { setAcStatus("Nothing to clear", "info"); return; }
   if (!confirm(`Mark ${ids.length} visible violation(s) as false alarm?`)) return;
   sendBulkReview(ids, "bulk clear visible from admin feed");
-});
-
-recentVClearAllEl?.addEventListener("click", () => {
-  const ok = confirm(
-    "⚠ NUKE WARNING\n\n" +
-    "This marks EVERY unreviewed V event in the database as false alarm AND zeros every strike counter for every player.\n\n" +
-    "Use this only after a bad threshold deploy. Reviews are appended (audit trail kept) — but you can't easily undo the strike reset.\n\n" +
-    "Type the word CLEAR to confirm."
-  );
-  if (!ok) return;
-  const typed = prompt("Type CLEAR to confirm global wipe:", "");
-  if (typed !== "CLEAR") { setAcStatus("Bulk clear cancelled", "info"); return; }
-  sendBulkReview(null, "global nuke from admin feed");
 });
 
 /* Reuse the same false-alarm pipe as the dossier — sends the existing
