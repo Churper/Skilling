@@ -74,6 +74,18 @@ function paint($page, home) {
 function renderFeed(rows) {
   if (!rows.length) return `<div class="st-empty">No recent levelups.</div>`;
   return `<div class="hl-list">${rows.map(r => {
+    if (r.kind === "pvp_kill") {
+      const c = "#ff6b9d";
+      const dropped = Number(r.dropped || 0);
+      return `
+    <a class="hl-row" href="#player?name=${encodeURIComponent(r.name)}" style="--accent:${c}">
+      <div class="hl-icon" aria-hidden="true">⚔️</div>
+      <div class="hl-body">
+        <div class="hl-line">${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<b>${escapeHtml(r.name)}</b> downed <b>${escapeHtml(r.victim_name || "a player")}</b> in the Crucible${dropped > 0 ? ` <span style="color:${c}">(${nf(dropped)} drop${dropped === 1 ? "" : "s"})</span>` : ""}</div>
+        <div class="hl-meta">${timeAgo(r.ts)}</div>
+      </div>
+    </a>`;
+    }
     const c = skillColor(r.skill);
     return `
     <a class="hl-row" href="#player?name=${encodeURIComponent(r.name)}" style="--accent:${c}">

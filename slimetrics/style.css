@@ -214,6 +214,57 @@ main { padding: 6px 0 80px; }
 }
 .st-pills { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 
+/* Procedural boss pixels from the Slimetrics boss-sprite design bundle. */
+.boss-sprite-frame {
+  width: 36px;
+  height: 36px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(180,210,255,0.18);
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255,255,255,0.10), transparent 42%),
+    linear-gradient(180deg, rgba(20,18,42,0.88), rgba(9,8,18,0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.45),
+    0 2px 8px rgba(0,0,0,0.22);
+  image-rendering: pixelated;
+  overflow: hidden;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.boss-sprite-frame .boss-sprite {
+  width: 32px;
+  height: 32px;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.boss-sprite-frame.is-pill {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+.boss-sprite-frame.is-pill .boss-sprite {
+  width: 20px;
+  height: 20px;
+}
+.st-pill.is-active .boss-sprite-frame.is-pill {
+  border-color: rgba(10,26,16,0.32);
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255,255,255,0.18), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.30), rgba(10,26,16,0.14));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 1px 0 rgba(10,26,16,0.22);
+}
+.boss-sprite-fallback {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+}
+
 /* ---------- table ---------- */
 .st-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .st-table th {

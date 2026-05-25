@@ -5,6 +5,7 @@
 import { escapeHtml } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { nf, nfShort, timeAgo } from "../lib/format.js";
+import { bossLabel, bossSpriteHtml, renderBossSprites } from "../lib/bossSprites.js";
 
 export async function renderServer($page, params = {}) {
   const period = (params.period === "7d" || params.period === "30d") ? params.period : "24h";
@@ -309,6 +310,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
         font-size: 22px; width: 32px; height: 32px;
         display: flex; align-items: center; justify-content: center; flex-shrink: 0;
       }
+      .srv-feed-icon.is-boss { width: 36px; height: 36px; }
       .srv-feed-body { flex: 1; min-width: 0; }
       .srv-feed-line { font-size: 14px; line-height: 1.4; color: var(--srv-muted-strong); }
       .srv-feed-line b { color: var(--fg); font-weight: 700; }
@@ -350,6 +352,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       }
     </style>
   `;
+  renderBossSprites($page);
   $page.querySelectorAll(".srv-period a").forEach(a => {
     a.addEventListener("click", (e) => {
       e.preventDefault();
@@ -577,16 +580,6 @@ if (typeof window !== "undefined" && !window._srvChartHover) {
   };
 }
 
-const BOSS_ICONS = {
-  snake_boss: "🐍", rock_golem: "🪨", slime_daddy: "🟢", frost_yeti: "❄️",
-  dragon: "🐉", skele: "💀", spider: "🕷️", wizard: "🧙", alien: "👽",
-  giant_cave_slime: "🟢",
-};
-const BOSS_LABELS = {
-  snake_boss: "Snake Boss", rock_golem: "Rock Golem", slime_daddy: "Slime Daddy",
-  frost_yeti: "Frost Yeti", dragon: "Dragon", skele: "Skele", spider: "Spider",
-  wizard: "Wizard", alien: "Alien", giant_cave_slime: "Giant Cave Slime",
-};
 const SKILL_LABELS = {
   fishing: "Fishing 🎣", mining: "Mining ⛏️", woodcutting: "Woodcutting 🪓",
   melee: "Melee ⚔️", bow: "Bow 🏹", mage: "Mage ✨",
@@ -595,7 +588,7 @@ const SKILL_LABELS = {
   explorer: "Explorer 🧭",
 };
 function prettySkill(key) { return SKILL_LABELS[key] || (key[0]?.toUpperCase() + key.slice(1)); }
-function prettyBoss(key)  { return BOSS_LABELS[key] || key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()); }
+function prettyBoss(key)  { return bossLabel(key); }
 
 function compactBossRows(rows, maxRows = 12) {
   const compact = new Map();
@@ -620,9 +613,9 @@ function renderBossList(rows) {
   if (!compact.length) return `<div class="st-empty">No boss kills yet today.</div>`;
   return compact.map(r => `
     <div class="srv-feed-row">
-      <div class="srv-feed-icon">${BOSS_ICONS[r.boss] || "👹"}</div>
+      <div class="srv-feed-icon is-boss">${bossSpriteHtml(r.boss, "is-feed")}</div>
       <div class="srv-feed-body">
-        <div class="srv-feed-line"><a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> killed <b>${escapeHtml(BOSS_LABELS[r.boss] || r.boss)}</b>${r.count > 1 ? ` <b>×${nf(r.count)}</b>` : ""}</div>
+        <div class="srv-feed-line"><a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> killed <b>${escapeHtml(prettyBoss(r.boss))}</b>${r.count > 1 ? ` <b>×${nf(r.count)}</b>` : ""}</div>
         <div class="srv-feed-meta">${timeAgo(Number(r.t) * 1000)}${r.count > 1 && Number(r.firstT) !== Number(r.t) ? ` · since ${timeAgo(Number(r.firstT) * 1000)}` : ""}</div>
       </div>
     </div>`).join("");

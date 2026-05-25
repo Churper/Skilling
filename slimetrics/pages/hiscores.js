@@ -4,20 +4,21 @@ import { nf } from "../lib/format.js";
 import { SKILLS, skillLabel } from "../lib/skills.js";
 import { ACCOUNT_TYPES } from "../lib/config.js";
 import { xpToLevel } from "../lib/progression.js";
+import { bossKeyForKc, bossSpriteHtml, renderBossSprites } from "../lib/bossSprites.js";
 
 const PAGE_SIZE = 50;
 const BOSS_KCS = [
   { id: "boss_kc", label: "Total Boss KC", icon: "👑" },
-  { id: "snake_kc", label: "Snake", icon: "🐍" },
-  { id: "golem_kc", label: "Golem", icon: "🪨" },
-  { id: "slime_daddy_kc", label: "Slime Daddy", icon: "🟢" },
-  { id: "cave_slime_kc", label: "Cave Slime", icon: "🟢" },
-  { id: "yeti_kc", label: "Yeti", icon: "❄️" },
-  { id: "dragon_kc", label: "Dragon", icon: "🐉" },
-  { id: "skele_kc", label: "Skele", icon: "💀" },
-  { id: "spider_kc", label: "Spider", icon: "🕷️" },
-  { id: "wizard_kc", label: "Wizard", icon: "🧙" },
-  { id: "alien_kc", label: "Alien", icon: "👽" },
+  { id: "snake_kc", label: "Snake", bossKey: bossKeyForKc("snake_kc") },
+  { id: "golem_kc", label: "Golem", bossKey: bossKeyForKc("golem_kc") },
+  { id: "slime_daddy_kc", label: "Slime Daddy", bossKey: bossKeyForKc("slime_daddy_kc") },
+  { id: "cave_slime_kc", label: "Cave Slime", bossKey: bossKeyForKc("cave_slime_kc") },
+  { id: "yeti_kc", label: "Yeti", bossKey: bossKeyForKc("yeti_kc") },
+  { id: "dragon_kc", label: "Dragon", bossKey: bossKeyForKc("dragon_kc") },
+  { id: "skele_kc", label: "Skele", bossKey: bossKeyForKc("skele_kc") },
+  { id: "spider_kc", label: "Spider", bossKey: bossKeyForKc("spider_kc") },
+  { id: "wizard_kc", label: "Wizard", bossKey: bossKeyForKc("wizard_kc") },
+  { id: "alien_kc", label: "Alien", bossKey: bossKeyForKc("alien_kc") },
 ];
 const BOSS_KC_BY_ID = Object.fromEntries(BOSS_KCS.map(b => [b.id, b]));
 
@@ -26,6 +27,10 @@ function hiscoreLabel(id) {
   if (id === "overall") return "Total level leaderboard";
   if (isBossKc(id)) return `${BOSS_KC_BY_ID[id].label} KC leaderboard`;
   return `${skillLabel(id)} XP leaderboard`;
+}
+function categoryIcon(s) {
+  if (s.bossKey) return bossSpriteHtml(s.bossKey, "is-pill");
+  return `<span class="st-pill-emoji">${escapeHtml(s.icon || "")}</span>`;
 }
 
 export async function renderHiscores($page, params = {}) {
@@ -57,7 +62,7 @@ function paint($page, state, res) {
             { id: "overall", label: "Overall", icon: "📊" },
             ...SKILLS.map(s => ({ id: s.id, label: s.label, icon: s.icon })),
             ...BOSS_KCS
-          ].map(s => `<button class="st-pill ${s.id === state.skill ? "is-active" : ""}" data-skill="${s.id}">${escapeHtml(s.icon)} ${escapeHtml(s.label)}</button>`).join("")}</div>
+          ].map(s => `<button class="st-pill ${s.id === state.skill ? "is-active" : ""}" data-skill="${s.id}">${categoryIcon(s)} ${escapeHtml(s.label)}</button>`).join("")}</div>
         </div>
         <div class="st-card-head" style="border-top:1px solid var(--line)">
           <div class="st-card-title">Account</div>
@@ -71,6 +76,7 @@ function paint($page, state, res) {
       </div>
     </div>
   `;
+  renderBossSprites($page);
   wire($page, state);
 }
 
