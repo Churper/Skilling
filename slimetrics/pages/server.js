@@ -15,7 +15,7 @@ export async function renderServer($page, params = {}) {
       api.serverChart(period),
       api.serverHeatmap(),
       api.recentBosses(50),
-      api.recentIslands(12),
+      api.recentIslands(50),
       api.welcomeBanner(5),
       api.signupChart(),
     ]);
@@ -598,17 +598,21 @@ function prettySkill(key) { return SKILL_LABELS[key] || (key[0]?.toUpperCase() +
 function prettyBoss(key)  { return BOSS_LABELS[key] || key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()); }
 
 function compactBossRows(rows, maxRows = 12) {
-  const compact = [];
+  const compact = new Map();
   for (const r of rows || []) {
-    const prev = compact[compact.length - 1];
-    if (prev && prev.name === r.name && prev.boss === r.boss) {
-      prev.count++;
-      prev.firstT = r.t;
-      continue;
+    const key = `${r.name || ""}|${r.boss || ""}`;
+    const existing = compact.get(key);
+    if (existing) {
+      existing.count++;
+      existing.t = Math.max(Number(existing.t) || 0, Number(r.t) || 0);
+      existing.firstT = Math.min(Number(existing.firstT) || Number(r.t) || 0, Number(r.t) || 0);
+    } else {
+      compact.set(key, { ...r, count: 1, firstT: r.t });
     }
-    compact.push({ ...r, count: 1, firstT: r.t });
   }
-  return compact.slice(0, maxRows);
+  return [...compact.values()]
+    .sort((a, b) => (Number(b.t) || 0) - (Number(a.t) || 0))
+    .slice(0, maxRows);
 }
 
 function renderBossList(rows) {
@@ -619,18 +623,39 @@ function renderBossList(rows) {
       <div class="srv-feed-icon">${BOSS_ICONS[r.boss] || "👹"}</div>
       <div class="srv-feed-body">
         <div class="srv-feed-line"><a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> killed <b>${escapeHtml(BOSS_LABELS[r.boss] || r.boss)}</b>${r.count > 1 ? ` <b>×${nf(r.count)}</b>` : ""}</div>
-        <div class="srv-feed-meta">${timeAgo(Number(r.t) * 1000)}</div>
+        <div class="srv-feed-meta">${timeAgo(Number(r.t) * 1000)}${r.count > 1 && Number(r.firstT) !== Number(r.t) ? ` · since ${timeAgo(Number(r.firstT) * 1000)}` : ""}</div>
       </div>
     </div>`).join("");
 }
+
+function compactIslandRows(rows, maxRows = 12) {
+  const compact = new Map();
+  for (const r of rows || []) {
+    const key = r.name || "Slime";
+    const existing = compact.get(key);
+    if (existing) {
+      existing.count++;
+      existing.t = Math.max(Number(existing.t) || 0, Number(r.t) || 0);
+      existing.firstT = Math.min(Number(existing.firstT) || Number(r.t) || 0, Number(r.t) || 0);
+      if (r.island && existing.islands.length < 3 && !existing.islands.includes(r.island)) existing.islands.push(r.island);
+    } else {
+      compact.set(key, { ...r, count: 1, firstT: r.t, islands: r.island ? [r.island] : [] });
+    }
+  }
+  return [...compact.values()]
+    .sort((a, b) => (Number(b.t) || 0) - (Number(a.t) || 0))
+    .slice(0, maxRows);
+}
+
 function renderIslandList(rows) {
-  if (!rows?.length) return `<div class="st-empty">No islands charted yet this week.</div>`;
-  return rows.map(r => `
+  const compact = compactIslandRows(rows);
+  if (!compact.length) return `<div class="st-empty">No islands charted yet this week.</div>`;
+  return compact.map(r => `
     <div class="srv-feed-row">
       <div class="srv-feed-icon">🗺️</div>
       <div class="srv-feed-body">
-        <div class="srv-feed-line"><a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> charted a new island</div>
-        <div class="srv-feed-meta">${timeAgo(Number(r.t) * 1000)} <span class="srv-feed-key">· ${escapeHtml(r.island)}</span></div>
+        <div class="srv-feed-line"><a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> charted <b>${r.count > 1 ? `${nf(r.count)} islands` : "a new island"}</b></div>
+        <div class="srv-feed-meta">${timeAgo(Number(r.t) * 1000)}${r.count > 1 && Number(r.firstT) !== Number(r.t) ? ` · since ${timeAgo(Number(r.firstT) * 1000)}` : ""}${r.islands?.length ? ` <span class="srv-feed-key">· ${escapeHtml(r.islands.join(", "))}</span>` : ""}</div>
       </div>
     </div>`).join("");
 }
