@@ -46,7 +46,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       <div class="srv-stat-grid" style="margin-top:14px">
         ${flexCard("🌱 Top Sapling Today", o.top_grinder ? escapeHtml(o.top_grinder.name) : "—", o.top_grinder ? `+${nfShort(o.top_grinder.xp_gained || 0)} XP today` : "no data yet", "#ff6b9d")}
         ${flexCard("🎯 Skill of the Day", o.skill_of_day ? prettySkill(o.skill_of_day.skill) : "—", o.skill_of_day ? `+${nfShort(o.skill_of_day.xp || 0)} XP today` : "no data yet", "#79c7ff")}
-        ${flexCard("⚔️ Boss of the Day", o.boss_of_day ? prettyBoss(o.boss_of_day.boss) : "—", o.boss_of_day ? `${nf(o.boss_of_day.count || 0)} kills today` : "no kills yet", "#ff5e8a")}
+        ${bossOfDayCard(o.boss_of_day)}
       </div>
 
       <div class="srv-stat-grid" style="margin-top:14px">
@@ -72,7 +72,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       </div>
 
       <div class="grid-2" style="margin-top:14px">
-        <div class="st-card">
+        <div class="st-card srv-boss-card">
           <div class="st-card-head">
             <div class="st-card-title">Recent Boss Kills</div>
             <div class="eyebrow">last 24h</div>
@@ -177,6 +177,16 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       .srv-stat.is-live:hover { border-color: rgba(80,232,120,0.7); }
       .srv-stat.is-live::before { background: var(--slime); box-shadow: 0 0 12px rgba(80,232,120,0.55); }
       .srv-stat.is-live .srv-stat-value { color: #d8ffe5; }
+      .srv-stat.is-boss-day { min-height: 124px; }
+      .srv-boss-day-main {
+        display: flex; align-items: center; gap: 12px;
+        margin-top: 8px; min-width: 0;
+      }
+      .srv-boss-day-main .srv-stat-value {
+        margin-top: 0; font-size: 22px; min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .srv-boss-day-copy { min-width: 0; }
 
       .srv-stat-label {
         font-size: 12px; color: var(--srv-muted-strong);
@@ -310,7 +320,10 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
         font-size: 22px; width: 32px; height: 32px;
         display: flex; align-items: center; justify-content: center; flex-shrink: 0;
       }
-      .srv-feed-icon.is-boss { width: 36px; height: 36px; }
+      .srv-feed-icon.is-boss { width: 52px; height: 52px; overflow: visible; background: none; }
+      .srv-boss-card .st-card-head { margin-bottom: 2px; }
+      .srv-boss-card .srv-feed-row { padding-top: 8px; padding-bottom: 8px; }
+      .srv-boss-card .srv-feed-row:first-child { padding-top: 0; }
       .srv-feed-body { flex: 1; min-width: 0; }
       .srv-feed-line { font-size: 14px; line-height: 1.4; color: var(--srv-muted-strong); }
       .srv-feed-line b { color: var(--fg); font-weight: 700; }
@@ -375,6 +388,19 @@ function flexCard(label, value, sub, accent) {
     <div class="srv-stat-label">${label}</div>
     <div class="srv-stat-value" style="font-size:22px">${value}</div>
     <div class="srv-stat-sub">${escapeHtml(sub)}</div>
+  </div>`;
+}
+function bossOfDayCard(row) {
+  const hasBoss = !!row?.boss;
+  return `<div class="srv-stat is-boss-day" style="--accent:#ff5e8a">
+    <div class="srv-stat-label">⚔️ Boss of the Day</div>
+    <div class="srv-boss-day-main">
+      ${hasBoss ? bossSpriteHtml(row.boss, "is-stat") : ""}
+      <div class="srv-boss-day-copy">
+        <div class="srv-stat-value">${hasBoss ? escapeHtml(prettyBoss(row.boss)) : "—"}</div>
+        <div class="srv-stat-sub">${hasBoss ? `${nf(row.count || 0)} kills today` : "no kills yet"}</div>
+      </div>
+    </div>
   </div>`;
 }
 

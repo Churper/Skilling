@@ -135,6 +135,7 @@
       <div id="ui-hp-bar-fill"></div>
       <span id="ui-hp-bar-text">HP 100/100</span>
     </div>
+    <button type="button" id="ui-bell-btn" hidden title="Ring Boss Bell" aria-label="Ring Boss Bell">&#x1F514;</button>
     <div id="ui-buff-bar"></div>
     <div id="ui-mock-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(239,68,68,0.9);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:0 0 6px 6px;text-align:center;pointer-events:none;letter-spacing:0.03em">TEST MODE — progress not saved</div>
     <div id="ui-net-badge" style="position:fixed;top:calc(8px + env(safe-area-inset-top));left:8px;z-index:201;background:rgba(0,0,0,0.55);color:#7cff7c;font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:0.04em;text-transform:uppercase;pointer-events:auto;cursor:pointer;user-select:none;display:none" title="Click to reconnect"><span id="ui-net-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#7cff7c;margin-right:5px;vertical-align:middle"></span><span id="ui-net-label">LIVE</span></div>
@@ -145,6 +146,13 @@
       <div id="ui-boss-hp-track">
         <div id="ui-boss-hp-fill"></div>
         <div id="ui-boss-hp-text">1000 / 1000</div>
+      </div>
+    </div>
+    <div id="ui-pvp-target-hp" hidden>
+      <div id="ui-pvp-target-hp-label">Enemy</div>
+      <div id="ui-pvp-target-hp-track">
+        <div id="ui-pvp-target-hp-fill"></div>
+        <div id="ui-pvp-target-hp-text">0 / 0</div>
       </div>
     </div>
     <!-- Faith channeling bar -->
@@ -741,6 +749,7 @@
           </div>
           <div class="stg-row"><span class="stg-label">Disable Emote Bubbles</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-no-emote-bubbles"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Auto-Ring Boss Bell</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-ring-bell"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label">Boss Bell Button</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-show-boss-bell-button"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-section-title">World Effects</div>
           <div class="stg-row-pair">
             <div class="stg-row"><span class="stg-label">Disable Click Marks</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-no-ground-fx"><span class="stg-tog-track"></span></label></span></div>
