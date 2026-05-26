@@ -39,7 +39,10 @@
   --rad-sm: 8px;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 html, body {
   margin: 0;
   background: var(--bg-base);
@@ -63,7 +66,18 @@ body {
 
 a { color: inherit; text-decoration: none; }
 a:hover { color: var(--slime); }
-button { font-family: inherit; cursor: pointer; }
+button {
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+@media (hover: none), (pointer: coarse) {
+  a:focus:not(:focus-visible),
+  button:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
 
 .num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
 .muted { color: var(--fg-muted); }
@@ -224,39 +238,39 @@ main { padding: 6px 0 80px; }
   background: transparent;
   box-shadow: none;
   image-rendering: pixelated;
-  overflow: visible;
+  overflow: hidden;
   vertical-align: middle;
   flex-shrink: 0;
+  line-height: 0;
 }
 .boss-sprite-frame .boss-sprite {
-  width: auto;
-  height: auto;
+  width: 100%;
+  height: 100%;
   display: block;
-  transform: scale(0.68);
-  transform-origin: center;
+  transform: none;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
 .boss-sprite-frame.is-pill {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
 }
 .boss-sprite-frame.is-pill .boss-sprite {
-  transform: scale(0.43);
+  transform: none;
 }
 .boss-sprite-frame.is-feed {
   width: 52px;
   height: 52px;
 }
 .boss-sprite-frame.is-feed .boss-sprite {
-  transform: scale(0.9);
+  transform: none;
 }
 .boss-sprite-frame.is-stat {
   width: 76px;
   height: 76px;
 }
 .boss-sprite-frame.is-stat .boss-sprite {
-  transform: scale(1.08);
+  transform: none;
 }
 .st-pill.is-active .boss-sprite-frame.is-pill {
   filter: drop-shadow(0 1px 0 rgba(10,26,16,0.24));
@@ -267,6 +281,11 @@ main { padding: 6px 0 80px; }
   width: 32px;
   height: 32px;
   font-size: 20px;
+}
+.st-pill .boss-sprite-fallback {
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
 }
 
 /* ---------- table ---------- */

@@ -90,6 +90,53 @@ function tMat(color, opts = {}) {
   return new THREE.MeshToonMaterial({ color, gradientMap: TOON_GRAD, ...opts });
 }
 
+const _PET_GARDEN_BIOMES = {
+  lush: {
+    sand: [0.72, 0.64, 0.42],
+    grass: [0.31, 0.66, 0.25],
+    hill: [0.25, 0.55, 0.22],
+    peak: [0.20, 0.45, 0.20],
+  },
+  sand: {
+    sand: [0.86, 0.73, 0.45],
+    grass: [0.78, 0.66, 0.40],
+    hill: [0.69, 0.58, 0.35],
+    peak: [0.58, 0.50, 0.32],
+  },
+  dirt: {
+    sand: [0.54, 0.43, 0.30],
+    grass: [0.46, 0.36, 0.25],
+    hill: [0.34, 0.30, 0.25],
+    peak: [0.27, 0.24, 0.20],
+  },
+  mulch: {
+    sand: [0.50, 0.38, 0.25],
+    grass: [0.40, 0.31, 0.20],
+    hill: [0.32, 0.25, 0.16],
+    peak: [0.25, 0.20, 0.14],
+  },
+  path: {
+    sand: [0.63, 0.51, 0.35],
+    grass: [0.56, 0.45, 0.30],
+    hill: [0.48, 0.38, 0.25],
+    peak: [0.40, 0.32, 0.22],
+  },
+};
+
+function _petGardenBiomeAt(x, z) {
+  const pondD = Math.hypot((x + 15) / 13, (z + 8) / 8.6);
+  if (pondD < 1.55) return _PET_GARDEN_BIOMES.sand;
+  if (Math.hypot((x + 24) / 11, (z - 17) / 9) < 1.08) return _PET_GARDEN_BIOMES.dirt;
+  if (Math.hypot((x - 23) / 13, (z + 12) / 10) < 1.12) return _PET_GARDEN_BIOMES.mulch;
+  if (Math.abs(x) < 3.2 && z > 4 && z < 30) return _PET_GARDEN_BIOMES.path;
+  return _PET_GARDEN_BIOMES.lush;
+}
+
+function _terrainBiomeAt(bounds, x, z) {
+  if (bounds?.instanceBiome === "pet_garden") return _petGardenBiomeAt(x, z);
+  return _mainlandBiomeAt(x, z);
+}
+
 /* ── tile catalogue ── */
 const TILE_DIR = "models/terrain/";
 const TILES = {
@@ -279,6 +326,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   const loX = bounds && bounds.localOffsetX || 0;
   const loZ = bounds && bounds.localOffsetZ || 0;
   const caveHoles = Array.isArray(bounds?.caveHoles) ? bounds.caveHoles : [];
+  const isPetGardenTerrain = bounds?.instanceBiome === "pet_garden";
   const triHitsCaveHole = caveHoles.length
     ? (ax, az, bx, bz, cx, cz) => {
         for (const h of caveHoles) {
@@ -343,7 +391,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
          uniformly across r/g/b (preserves saturation; brightens or
          darkens each vertex differently so adjacent faces vary). Same
          look as procgen islands. */
-      const _bi = _mainlandBiomeAt(x, z);
+      const _bi = _terrainBiomeAt(bounds, x, z);
       const _S = _bi.sand, _G = _bi.grass, _H = _bi.hill, _P = _bi.peak;
       /* Underwater seabed shares the SAME color as procgen islands and
          the global ocean floor (procgen_island.mjs `_SEABED_COLOR` =
@@ -388,10 +436,23 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         const _surfN = _vnoise(x * 0.09 + 31.7, z * 0.09 + 17.3) - 0.5;
         const _macroN = _vnoise(x * 0.025 + 81.4, z * 0.025 + 53.7) - 0.5;
         const _tonalN = _vnoise(x * 0.012 + 121.1, z * 0.012 + 199.5) - 0.5;
-        const _nv = _surfN * 0.09 + _macroN * 0.05 + _tonalN * 0.06;
+        const _nv = isPetGardenTerrain
+          ? _surfN * 0.15 + _macroN * 0.08 + _tonalN * 0.09
+          : _surfN * 0.09 + _macroN * 0.05 + _tonalN * 0.06;
         _r += _nv; _g += _nv; _b += _nv;
+        if (isPetGardenTerrain) {
+          const _heightTone = Math.max(-0.035, Math.min(0.13, (y - GRASS_Y) * 0.034));
+          const _speck = (hash21(x * 1.73 + 19.7, z * 1.73 + 41.9) - 0.5) * 0.042;
+          _r += _heightTone * 0.55 + _speck * 0.72;
+          _g += _heightTone * 0.80 + _speck * 0.62;
+          _b += _heightTone * 0.38 + _speck * 0.42;
+        }
       }
-      c.setRGB(_r, _g, _b);
+      c.setRGB(
+        Math.max(0, Math.min(1, _r)),
+        Math.max(0, Math.min(1, _g)),
+        Math.max(0, Math.min(1, _b))
+      );
 
       /* editor color overrides — specific keys always win, _default only for non-padded verts */
       if (colorOverrides) {
@@ -435,7 +496,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
     {
       const c = geo.attributes.color.array;
       const p = geo.attributes.position.array;
-      const _isMainland = !_isProcgenChunk;
+      const _isMainland = !_isProcgenChunk && !isPetGardenTerrain;
       /* Cave-mouth black paint runs as a FINAL face pass — the
          OSRS toon shade multiplier above will crush vertex-color black
          to a barely-dark mid-band otherwise. caveSpots is set by
@@ -535,9 +596,18 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
            Reduced amp so triangles don't clash. */
         const h = Math.sin(fx * 12.9898 + fz * 78.233) * 43758.5453;
         const jitterBase = ((h - Math.floor(h)) - 0.5);
-        const amp = 0.025;
+        const amp = isPetGardenTerrain ? 7.5 : 0.025;
         const j = jitterBase * amp;
         r += j; g += j; b += j;
+        }
+        if (isPetGardenTerrain && !_underwater) {
+          const patch =
+            (_vnoise(fx * 0.18 + 14.1, fz * 0.18 + 27.6) - 0.5) * 10.0 +
+            (_vnoise(fx * 0.47 + 68.4, fz * 0.47 + 3.9) - 0.5) * 4.5;
+          const heightTone = Math.max(-8, Math.min(16, (fy - GRASS_Y) * 5.5));
+          r += patch * 0.85 + heightTone * 0.62;
+          g += patch * 0.72 + heightTone * 0.92;
+          b += patch * 0.50 + heightTone * 0.46;
         }
         /* Toon shade map — mainland-only. Soft-banded hills + multi-octave
            fbm gives the cool gradient look the live site shipped with.
@@ -565,7 +635,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
           g = g * _mult + _bias;
           b = b * _mult + _bias;
         }
-        let rj = Math.max(0, r), gj = Math.max(0, g), bj = Math.max(0, b);
+        let rj = Math.min(255, Math.max(0, r));
+        let gj = Math.min(255, Math.max(0, g));
+        let bj = Math.min(255, Math.max(0, b));
         /* FINAL: cave-mouth black paint — overrides ALL prior shading
            so the painted hole reads as pure black no matter what the
            toon shade multiplier did.

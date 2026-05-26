@@ -151,8 +151,8 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: var(--gap-md);
       }
-      @media (max-width: 480px) {
-        .srv-stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      @media (max-width: 560px) {
+        .srv-stat-grid { grid-template-columns: 1fr; gap: 10px; }
       }
       .srv-stat {
         background: var(--srv-card); border: 1px solid var(--srv-border);

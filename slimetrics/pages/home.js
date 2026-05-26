@@ -72,17 +72,17 @@ function paint($page, home) {
 }
 
 function renderFeed(rows) {
-  if (!rows.length) return `<div class="st-empty">No recent levelups.</div>`;
-  return `<div class="hl-list">${rows.map(r => {
+  const feedRows = compactFeedRows(rows);
+  if (!feedRows.length) return `<div class="st-empty">No recent levelups.</div>`;
+  return `<div class="hl-list">${feedRows.map(r => {
     if (r.kind === "pvp_kill") {
       const c = "#ff6b9d";
-      const dropped = Number(r.dropped || 0);
       return `
     <a class="hl-row" href="#player?name=${encodeURIComponent(r.name)}" style="--accent:${c}">
       <div class="hl-icon" aria-hidden="true">⚔️</div>
       <div class="hl-body">
-        <div class="hl-line">${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<b>${escapeHtml(r.name)}</b> downed <b>${escapeHtml(r.victim_name || "a player")}</b> in the Crucible${dropped > 0 ? ` <span style="color:${c}">(${nf(dropped)} drop${dropped === 1 ? "" : "s"})</span>` : ""}</div>
-        <div class="hl-meta">${timeAgo(r.ts)}</div>
+        <div class="hl-line">${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<b>${escapeHtml(r.name)}</b> killed <b>${escapeHtml(r.victim_name || "a player")}</b> in PvP cave${r.count > 1 ? ` <span style="color:${c}">×${nf(r.count)}</span>` : ""}</div>
+        <div class="hl-meta">${timeAgo(r.ts)}${r.count > 1 && rowTime(r.firstTs) !== rowTime(r.ts) ? ` · since ${timeAgo(r.firstTs)}` : ""}</div>
       </div>
     </a>`;
     }
@@ -96,6 +96,35 @@ function renderFeed(rows) {
       </div>
     </a>`;
   }).join("")}</div>`;
+}
+
+function rowTime(rowOrTs) {
+  const ts = rowOrTs && typeof rowOrTs === "object" ? rowOrTs.ts : rowOrTs;
+  if (typeof ts === "number") return Number.isFinite(ts) ? ts : 0;
+  const t = Date.parse(ts || "");
+  return Number.isFinite(t) ? t : 0;
+}
+
+function compactFeedRows(rows) {
+  const pvp = new Map();
+  const others = [];
+  for (const r of rows || []) {
+    if (r?.kind !== "pvp_kill") {
+      others.push(r);
+      continue;
+    }
+    const key = `${r.name || ""}|${r.victim_name || ""}`;
+    const existing = pvp.get(key);
+    if (existing) {
+      existing.count += 1;
+      existing.is_sapling = existing.is_sapling || r.is_sapling;
+      if (rowTime(r) > rowTime(existing)) existing.ts = r.ts;
+      if (!existing.firstTs || rowTime(r) < rowTime(existing.firstTs)) existing.firstTs = r.ts;
+    } else {
+      pvp.set(key, { ...r, count: 1, firstTs: r.ts });
+    }
+  }
+  return [...others, ...pvp.values()].sort((a, b) => rowTime(b) - rowTime(a));
 }
 
 function renderNewUsers(rows) {
