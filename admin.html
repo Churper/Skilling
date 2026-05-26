@@ -254,6 +254,34 @@
   .kpi.hot  { background: linear-gradient(160deg, rgba(255,107,107,0.12), rgba(255,107,107,0.02)); }
   .kpi.hot  .kpi-value { color: var(--hot); }
   .kpi.ok   .kpi-value { color: var(--ok); }
+  .metric-detail {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .metric-chip {
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: rgba(14,22,34,0.42);
+    padding: 9px 10px;
+    min-width: 0;
+  }
+  .metric-chip .lab {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+  }
+  .metric-chip .val {
+    margin-top: 2px;
+    color: var(--ink-1);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   .input, .textarea, .select {
     width: 100%;
@@ -658,6 +686,7 @@
     .brand-text small { display: none; }
     .key-field input { width: 100px; }
     .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr 1fr; }
+    .metric-detail { grid-template-columns: 1fr 1fr; }
     .player-list { grid-template-columns: 1fr; }
     .pskills { grid-template-columns: repeat(3, 1fr); }
   }
@@ -666,6 +695,7 @@
     .topbar #reconnect-btn { display: none; }
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
+    .metric-detail { grid-template-columns: 1fr; }
     .kpi-value { font-size: 26px; }
     .brand-text { font-size: 18px; }
     .brand-mark { width: 28px; height: 28px; font-size: 18px; }
@@ -741,6 +771,33 @@
         <div class="kpi warn"><div class="kpi-label">Suspects</div><div class="kpi-value" id="kpi-suspects">—</div><div class="kpi-foot" id="kpi-suspects-foot">refresh on Anti-Cheat</div></div>
         <div class="kpi hot"><div class="kpi-label">Flagged</div><div class="kpi-value" id="kpi-flagged">—</div><div class="kpi-foot">accounts under review</div></div>
         <div class="kpi"><div class="kpi-label">Events scanned</div><div class="kpi-value" id="kpi-events">—</div><div class="kpi-foot">last refresh window</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 14px;">
+        <h2>Relay Health
+          <span class="h2-pill" id="relay-metrics-pill">not loaded</span>
+          <button id="relay-metrics-refresh" class="btn btn-sm" disabled>Refresh</button>
+        </h2>
+        <div class="grid grid-4">
+          <div class="kpi"><div class="kpi-label">Clients</div><div class="kpi-value" id="relay-metric-clients">—</div><div class="kpi-foot" id="relay-metric-stateful">stateful —</div></div>
+          <div class="kpi"><div class="kpi-label">Rooms</div><div class="kpi-value" id="relay-metric-rooms">—</div><div class="kpi-foot" id="relay-metric-caps">cull/map —</div></div>
+          <div class="kpi ok"><div class="kpi-label">Map Idle Skips</div><div class="kpi-value" id="relay-metric-map-skips">—</div><div class="kpi-foot">should climb while idle</div></div>
+          <div class="kpi warn"><div class="kpi-label">Map Egress</div><div class="kpi-value" id="relay-metric-map-rate">—</div><div class="kpi-foot" id="relay-metric-map-total">total —</div></div>
+        </div>
+        <div class="metric-detail" id="relay-metrics-detail">
+          <div class="metric-chip"><div class="lab">Cull Sends</div><div class="val" id="relay-detail-cull-sends">—</div></div>
+          <div class="metric-chip"><div class="lab">Map Packets</div><div class="val" id="relay-detail-map-packets">—</div></div>
+          <div class="metric-chip"><div class="lab">Map Config</div><div class="val" id="relay-detail-map-config">—</div></div>
+          <div class="metric-chip"><div class="lab">Compression</div><div class="val" id="relay-detail-compression">—</div></div>
+          <div class="metric-chip"><div class="lab">Socket Buffer</div><div class="val" id="relay-detail-buffer">—</div></div>
+          <div class="metric-chip"><div class="lab">CPU / Lag</div><div class="val" id="relay-detail-cpu">—</div></div>
+          <div class="metric-chip"><div class="lab">Memory</div><div class="val" id="relay-detail-memory">—</div></div>
+          <div class="metric-chip"><div class="lab">Build</div><div class="val" id="relay-detail-build">—</div></div>
+        </div>
+        <div id="relay-metrics-status" class="status" style="margin-top: 8px;"></div>
+        <div id="relay-health-log" class="feed" style="max-height: 180px; margin-top: 8px;">
+          <div class="feed-empty">No relay health warnings this session</div>
+        </div>
       </div>
 
       <div class="grid grid-2" style="margin-bottom: 14px;">
@@ -996,8 +1053,30 @@ const kpiEvents = document.getElementById("kpi-events");
 const navPlayersCount = document.getElementById("nav-players-count");
 const navFlagCount = document.getElementById("nav-flag-count");
 
+const relayMetricsRefreshBtn = document.getElementById("relay-metrics-refresh");
+const relayMetricsPill = document.getElementById("relay-metrics-pill");
+const relayMetricsStatus = document.getElementById("relay-metrics-status");
+const relayHealthLog = document.getElementById("relay-health-log");
+const relayMetricClients = document.getElementById("relay-metric-clients");
+const relayMetricStateful = document.getElementById("relay-metric-stateful");
+const relayMetricRooms = document.getElementById("relay-metric-rooms");
+const relayMetricCaps = document.getElementById("relay-metric-caps");
+const relayMetricMapSkips = document.getElementById("relay-metric-map-skips");
+const relayMetricMapRate = document.getElementById("relay-metric-map-rate");
+const relayMetricMapTotal = document.getElementById("relay-metric-map-total");
+const relayDetailCullSends = document.getElementById("relay-detail-cull-sends");
+const relayDetailMapPackets = document.getElementById("relay-detail-map-packets");
+const relayDetailMapConfig = document.getElementById("relay-detail-map-config");
+const relayDetailCompression = document.getElementById("relay-detail-compression");
+const relayDetailBuffer = document.getElementById("relay-detail-buffer");
+const relayDetailCpu = document.getElementById("relay-detail-cpu");
+const relayDetailMemory = document.getElementById("relay-detail-memory");
+const relayDetailBuild = document.getElementById("relay-detail-build");
+
 let ws = null;
 let refreshInterval = null;
+let metricsInterval = null;
+let relayMetricsSample = null;
 let acSuspects = [];
 let acSelectedUid = null;
 let lastPlayers = [];
@@ -1053,6 +1132,10 @@ document.querySelectorAll("[data-page]").forEach(btn => {
     document.querySelectorAll("[data-page]").forEach(b => b.classList.toggle("active", b.dataset.page === target));
     document.querySelector(".main").scrollTo?.({ top: 0, behavior: "instant" });
     window.scrollTo({ top: 0 });
+    if (!document.hidden && ws?.readyState === WebSocket.OPEN) {
+      if (_playersPageActive()) { requestPlayers(); requestPlayerActions(); }
+      if (_metricsPageActive()) requestRelayMetrics(false);
+    }
   });
 });
 
@@ -1134,6 +1217,9 @@ function setConn(state, label) {
 function connect() {
   if (ws) { try { ws.close(); } catch {} ws = null; }
   clearInterval(refreshInterval);
+  clearInterval(metricsInterval);
+  refreshInterval = null;
+  metricsInterval = null;
   const url = wsInput.value.trim();
   if (!url) return;
   setConn("connecting", "Connecting…");
@@ -1150,6 +1236,7 @@ function connect() {
     try { msg = JSON.parse(e.data); } catch { return; }
     if (msg.type === "admin_players") { renderPlayers(msg.players || []); renderFaith(msg.faith); }
     if (msg.type === "admin_actions") renderPlayerActions(msg.actions || []);
+    if (msg.type === "admin_metrics") renderRelayMetrics(msg);
     if (msg.type === "admin_anticheat") renderAntiCheat(msg);
     if (msg.type === "admin_anticheat_dossier") renderDossier(msg);
     if (msg.type === "admin_anticheat_ack") handleAntiCheatAck(msg);
@@ -1176,12 +1263,15 @@ function connect() {
     setConn("", "Disconnected");
     setBtnsConnected(false);
     clearInterval(refreshInterval);
+    clearInterval(metricsInterval);
+    refreshInterval = null;
+    metricsInterval = null;
   };
   ws.onerror = () => { setConn("error", "Error"); };
 }
 
 function setBtnsConnected(on) {
-  [sendBtn, refreshBtn, kickAllBtn, kickAllBtn2, acRefreshBtn].forEach(b => { if (b) b.disabled = !on; });
+  [sendBtn, refreshBtn, kickAllBtn, kickAllBtn2, acRefreshBtn, relayMetricsRefreshBtn].forEach(b => { if (b) b.disabled = !on; });
 }
 
 /* v457 egress: which pages actually use the live player roster.
@@ -1189,22 +1279,38 @@ function setBtnsConnected(on) {
 function _playersPageActive() {
   return !!document.querySelector('#page-dashboard.active, #page-players.active');
 }
+function _metricsPageActive() {
+  return !!document.querySelector('#page-dashboard.active, #page-settings.active');
+}
 
 function _tickPlayersPoll() {
   if (document.hidden) return;
   if (!_playersPageActive()) return;
   requestPlayers(); requestPlayerActions();
 }
+function _tickMetricsPoll() {
+  if (document.hidden) return;
+  if (!_metricsPageActive()) return;
+  requestRelayMetrics(false);
+}
 
 function maybeStartPolling() {
   if (keyInput.value.trim() && ws && ws.readyState === WebSocket.OPEN) {
     clearInterval(refreshInterval);
+    clearInterval(metricsInterval);
     /* v457: kick an immediate fetch only if the current page actually
        displays the data; otherwise wait for the user to navigate. */
     if (_playersPageActive() && !document.hidden) { requestPlayers(); requestPlayerActions(); }
+    if (_metricsPageActive() && !document.hidden) requestRelayMetrics(false);
     /* v457 egress: was 5s. Raised to 15s + page-gated + hidden-paused.
        Combined ~4-6× egress reduction on idle admin tabs. */
     refreshInterval = setInterval(_tickPlayersPoll, 15000);
+    metricsInterval = setInterval(_tickMetricsPoll, 30000);
+  } else {
+    clearInterval(refreshInterval);
+    clearInterval(metricsInterval);
+    refreshInterval = null;
+    metricsInterval = null;
   }
 }
 
@@ -1224,6 +1330,117 @@ function requestPlayerActions() {
   const key = getKey();
   if (!key || !ws || ws.readyState !== WebSocket.OPEN) return;
   ws.send(JSON.stringify({ type: "admin_actions", key }));
+}
+
+function requestRelayMetrics(showStatus = true) {
+  const key = getKey();
+  if (!key) {
+    if (showStatus && relayMetricsStatus) {
+      relayMetricsStatus.textContent = "Enter admin key first";
+      relayMetricsStatus.className = "status err";
+    }
+    return;
+  }
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    if (showStatus && relayMetricsStatus) {
+      relayMetricsStatus.textContent = "Not connected";
+      relayMetricsStatus.className = "status err";
+    }
+    return;
+  }
+  if (showStatus && relayMetricsStatus) {
+    relayMetricsStatus.textContent = "Loading relay metrics...";
+    relayMetricsStatus.className = "status";
+  }
+  ws.send(JSON.stringify({ type: "admin_metrics", key }));
+}
+
+function fmtBytes(n) {
+  const x = Math.max(0, Number(n) || 0);
+  if (x >= 1024 * 1024) return `${(x / 1024 / 1024).toFixed(2)} MB`;
+  if (x >= 1024) return `${(x / 1024).toFixed(1)} KB`;
+  return `${Math.round(x)} B`;
+}
+
+function renderRelayMetrics(msg) {
+  if (!msg || msg.ok === false) {
+    if (relayMetricsStatus) {
+      relayMetricsStatus.textContent = `Relay metrics failed: ${msg?.error || "unknown"}`;
+      relayMetricsStatus.className = "status err";
+    }
+    return;
+  }
+  const now = Date.now();
+  const rooms = Array.isArray(msg.rooms) ? msg.rooms : [];
+  const totals = msg.totals || {};
+  const peerMap = msg.peerMap || {};
+  const wsDeflate = msg.websocketDeflate || {};
+  const wsInfo = msg.websocket || {};
+  const health = msg.health || {};
+  const clients = Number(msg.clients || 0);
+  const stateful = rooms.reduce((sum, r) => sum + Number(r.stateful || 0), 0);
+  const cullCapable = rooms.reduce((sum, r) => sum + Number(r.cullCapable || 0), 0);
+  const mapCapable = rooms.reduce((sum, r) => sum + Number(r.mapCapable || 0), 0);
+  const legacy = rooms.reduce((sum, r) => sum + Number(r.legacyStateFanout || 0), 0);
+  const mapBytes = Number(totals.peerMapBytes || 0);
+  let mapRate = "watching";
+  if (relayMetricsSample && mapBytes >= relayMetricsSample.bytes) {
+    const elapsedMin = Math.max((now - relayMetricsSample.ts) / 60000, 1 / 60);
+    mapRate = `${fmtBytes((mapBytes - relayMetricsSample.bytes) / elapsedMin)}/m`;
+  }
+  relayMetricsSample = { ts: now, bytes: mapBytes };
+
+  if (relayMetricClients) relayMetricClients.textContent = fmtNum(clients);
+  if (relayMetricStateful) relayMetricStateful.textContent = `stateful ${fmtNum(stateful)}`;
+  if (relayMetricRooms) relayMetricRooms.textContent = fmtNum(rooms.length);
+  if (relayMetricCaps) relayMetricCaps.textContent = `cull ${fmtNum(cullCapable)} / map ${fmtNum(mapCapable)} / legacy ${fmtNum(legacy)}`;
+  if (relayMetricMapSkips) relayMetricMapSkips.textContent = fmtNum(totals.peerMapSkippedIdle || 0);
+  if (relayMetricMapRate) relayMetricMapRate.textContent = mapRate;
+  if (relayMetricMapTotal) relayMetricMapTotal.textContent = `total ${fmtBytes(mapBytes)}`;
+  if (relayDetailCullSends) relayDetailCullSends.textContent = `${fmtNum(totals.peerStateCullSends || 0)} cull / ${fmtNum(totals.peerStateLegacySends || 0)} legacy`;
+  if (relayDetailMapPackets) relayDetailMapPackets.textContent = `${fmtNum(totals.peerMapPackets || 0)} packets / ${fmtNum(totals.peerMapPeers || 0)} peers`;
+  if (relayDetailMapConfig) relayDetailMapConfig.textContent = `${Math.round(Number(peerMap.intervalMs || 0) / 1000)}s tick / ${peerMap.positionStep || "?"}u bucket`;
+  if (relayDetailCompression) relayDetailCompression.textContent = `${wsDeflate.enabled ? "on" : "off"} / ${fmtBytes(wsDeflate.threshold || 0)} threshold`;
+  if (relayDetailBuffer) relayDetailBuffer.textContent = `${fmtBytes(wsInfo.bufferedBytes || 0)} queued / ${fmtNum(totals.wsSlowTerminated || 0)} slow closed`;
+  if (relayDetailCpu) relayDetailCpu.textContent = `${Number(health.cpuPct || 0).toFixed(1)}% / ${fmtNum(health.eventLoopLagMs || 0)}ms lag`;
+  if (relayDetailMemory) relayDetailMemory.textContent = `${fmtBytes(health.memoryRssBytes || 0)} RSS / ${fmtBytes(health.heapUsedBytes || 0)} heap`;
+  if (relayDetailBuild) relayDetailBuild.textContent = msg.build || "unknown";
+  if (relayMetricsPill) relayMetricsPill.textContent = new Date(now).toLocaleTimeString([], { hour12: false });
+  if (relayMetricsStatus) {
+    const warnings = Array.isArray(health.warnings) ? health.warnings.slice() : [];
+    if (!wsDeflate.enabled) warnings.push("compression is off");
+    const idleSkips = Number(totals.peerMapSkippedIdle || 0);
+    if (warnings.length) {
+      relayMetricsStatus.textContent = warnings.join(" · ");
+      relayMetricsStatus.className = "status err";
+    } else {
+      relayMetricsStatus.textContent = idleSkips > 0
+        ? "Relay looks healthy. Compression is on, idle map suppression is active, and socket backlog is low."
+        : "Relay looks healthy. Waiting for idle map samples; this updates every 30 seconds while open.";
+      relayMetricsStatus.className = "status ok";
+    }
+  }
+  renderRelayHealthLog(Array.isArray(health.events) ? health.events : []);
+}
+
+function renderRelayHealthLog(events) {
+  if (!relayHealthLog) return;
+  if (!events.length) {
+    relayHealthLog.innerHTML = '<div class="feed-empty">No relay health warnings this session</div>';
+    return;
+  }
+  relayHealthLog.innerHTML = events.slice(0, 20).map(ev => {
+    const t = new Date(ev.ts || Date.now()).toLocaleTimeString([], { hour12: false });
+    const msg = Array.isArray(ev.messages) ? ev.messages.join(" · ") : String(ev.messages || "health warning");
+    const detail = [
+      `cpu ${Number(ev.cpuPct || 0).toFixed(1)}%`,
+      `lag ${fmtNum(ev.eventLoopLagMs || 0)}ms`,
+      `rss ${fmtBytes(ev.memoryRssBytes || 0)}`,
+      `queued ${fmtBytes(ev.bufferedBytes || 0)}`,
+      `${fmtNum(ev.clients || 0)} clients`,
+    ].join(" / ");
+    return `<div class="feed-row"><span class="ts">${t}</span><span class="msg"><span class="tag flag">health</span>${esc(msg)}<br><span style="color:var(--ink-4);font-family:var(--font-mono);font-size:11px">${esc(detail)}</span></span></div>`;
+  }).join("");
 }
 
 function requestAntiCheat() {
@@ -2390,6 +2607,7 @@ document.querySelectorAll("[data-page]").forEach(btn => {
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) return;
   if (refreshInterval && _playersPageActive()) { requestPlayers(); requestPlayerActions(); }
+  if (metricsInterval && _metricsPageActive()) requestRelayMetrics(false);
   if (recentVPollTimer) requestRecentV();
 });
 
@@ -2406,6 +2624,7 @@ function handleAntiCheatAck(msg) {
 }
 
 acRefreshBtn.addEventListener("click", requestAntiCheat);
+relayMetricsRefreshBtn?.addEventListener("click", () => requestRelayMetrics(true));
 acListEl.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-ac-action]");
   if (!btn) return;
