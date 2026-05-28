@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Slime Giant Editor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a140a;font-family:'Segoe UI',system-ui,sans-serif;color:#cfd5e0}
+canvas{display:block}
+#stage{position:fixed;left:300px;right:0;top:0;bottom:0}
+#sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:300px;background:#0d180d;
+  border-right:1px solid #234023;display:flex;flex-direction:column;z-index:10;
+}
+#sidebar h1{
+  padding:11px 14px;font-size:13px;font-weight:700;color:#a8ffd0;letter-spacing:2px;
+  text-align:center;border-bottom:1px solid #234023;background:linear-gradient(180deg,#143514,#0d180d);
+}
+#sidebar h1 small{font-weight:400;color:#557;font-size:9px;letter-spacing:1px;display:block;margin-top:2px}
+
+#top-row{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid #1a2a1a;background:#0a140a}
+#top-row button{
+  flex:1;background:#1c3a1c;color:#a8ffd0;border:1px solid #2c5030;padding:6px 8px;border-radius:4px;
+  cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.5px;
+}
+#top-row button:hover{background:#244824}
+#top-row button.alt{background:#1a2a3a;color:#a8d0ff;border-color:#2c4050}
+#top-row button.alt:hover{background:#243a55}
+
+#panels{flex:1;overflow-y:auto;padding:6px 12px 12px}
+.cat{
+  color:#7a9a7a;font-size:9px;text-transform:uppercase;padding:10px 0 5px;letter-spacing:1.5px;
+  font-weight:700;border-bottom:1px solid #1c2a1c;margin-bottom:5px;
+}
+.row{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:11px}
+.row label{flex:0 0 80px;color:#7a9a7a;text-transform:capitalize;font-size:10px}
+.row input[type=range]{flex:1;height:4px;accent-color:#a8ffd0}
+.row input[type=number]{width:50px;background:#0a1a0a;color:#cfd5e0;border:1px solid #234023;padding:3px 5px;border-radius:3px;font-size:10px;font-family:monospace}
+.row input[type=color]{width:32px;height:24px;background:transparent;border:1px solid #234023;border-radius:3px;cursor:pointer;padding:0}
+.row .val{font-family:monospace;font-size:10px;color:#a8ffd0;min-width:38px;text-align:right}
+
+#bottom{padding:8px 10px;border-top:1px solid #234023;background:#0a140a;display:flex;gap:6px;flex-wrap:wrap}
+#bottom button{
+  flex:1;min-width:90px;background:#1c2a1c;color:#a8ffd0;border:1px solid #2c4030;padding:7px;border-radius:4px;
+  cursor:pointer;font-size:10px;font-weight:600;letter-spacing:.5px;
+}
+#bottom button:hover{background:#243a24}
+#bottom button.primary{background:#1c3a2a;border-color:#2c5040;color:#80ffc0}
+
+#status{position:fixed;bottom:8px;left:308px;font-size:11px;color:#7a9a7a;font-family:monospace;
+  background:rgba(10,20,10,.7);padding:4px 8px;border-radius:3px;pointer-events:none}
+#hud{position:fixed;top:10px;right:14px;font-size:10px;color:#557;text-align:right;font-family:monospace;
+  background:rgba(10,20,10,.6);padding:6px 10px;border-radius:4px}
+#hud kbd{background:#253a25;padding:1px 5px;border-radius:3px;color:#a8ffd0;font-size:9px}
+
+#dialog-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:none;align-items:center;justify-content:center}
+#dialog-bg.open{display:flex}
+#dialog{background:#0d180d;border:1px solid #234023;border-radius:6px;width:540px;max-width:90vw;display:flex;flex-direction:column}
+#dialog h2{padding:11px 16px;color:#a8ffd0;font-size:13px;border-bottom:1px solid #234023;letter-spacing:1px}
+#dialog textarea{width:100%;min-height:300px;background:#0a140a;color:#a8ffd0;border:none;padding:14px;
+  font-family:'Consolas',monospace;font-size:11px;resize:none;outline:none}
+#dialog .actions{padding:10px 14px;border-top:1px solid #234023;display:flex;gap:8px;justify-content:flex-end}
+#dialog button{background:#1c2a1c;color:#cfd5e0;border:1px solid #2c4030;padding:7px 14px;border-radius:4px;cursor:pointer;font-size:11px}
+#dialog button.primary{background:#1c3a2a;border-color:#2c5040;color:#80ffc0}
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <h1>SLIME GIANT EDITOR<small>farmable mob · player-slime DNA</small></h1>
+  <div id="top-row">
+    <button id="btn-random">🎲 Randomize</button>
+    <button id="btn-reset" class="alt">Reset</button>
+  </div>
+  <div id="type-tabs" style="display:flex;border-bottom:1px solid #234023;background:#0a140a">
+    <div class="ttab active" data-type="slime"   style="flex:1;padding:8px 4px;text-align:center;font-size:10px;font-weight:700;cursor:pointer;color:#a8ffd0;background:#143514;border-right:1px solid #1a2a1a;letter-spacing:1.2px">SLIME</div>
+    <div class="ttab"        data-type="dragon"  style="flex:1;padding:8px 4px;text-align:center;font-size:10px;font-weight:700;cursor:pointer;color:#557;background:#0a140a;border-right:1px solid #1a2a1a;letter-spacing:1.2px">DRAGON</div>
+    <div class="ttab"        data-type="chicken" style="flex:1;padding:8px 4px;text-align:center;font-size:10px;font-weight:700;cursor:pointer;color:#557;background:#0a140a;letter-spacing:1.2px">CHICKEN</div>
+  </div>
+  <div id="panels"></div>
+  <div id="bottom">
+    <button id="btn-herd">👥 Herd</button>
+    <button id="btn-export" class="primary">📋 Export JSON</button>
+  </div>
+</div>
+
+<div id="stage"></div>
+<div id="status">ready</div>
+<div id="hud"><kbd>drag</kbd> orbit · <kbd>wheel</kbd> zoom</div>
+
+<div id="dialog-bg">
+  <div id="dialog">
+    <h2>Slime Giant — JSON</h2>
+    <textarea id="dialog-text" spellcheck="false"></textarea>
+    <div class="actions">
+      <button id="dialog-copy">Copy</button>
+      <button id="dialog-close" class="primary">Done</button>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { buildSlimeGiant, DEFAULT_OPTS, MOUTH_STYLES, COLOR_PALETTES, randomColor, randomMouthStyle } from "./game/slimeGiant.js";
+
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setClearColor(0x0a140a, 1);
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
+camera.position.set(5, 4, 8);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.5, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const key = new THREE.DirectionalLight(0xfff0d0, 1.0);
+key.position.set(5, 9, 4); scene.add(key);
+const rim = new THREE.DirectionalLight(0x80d0ff, 0.4);
+rim.position.set(-5, 6, -6); scene.add(rim);
+
+const floor = new THREE.Mesh(
+  new THREE.CircleGeometry(14, 48),
+  new THREE.MeshPhongMaterial({ color: 0x1a2a1a, shininess: 4 })
+);
+floor.rotation.x = -Math.PI / 2; scene.add(floor);
+const grid = new THREE.GridHelper(20, 20, 0x305030, 0x203020);
+grid.material.opacity = 0.3; grid.material.transparent = true; scene.add(grid);
+
+/* reference: player-sized slime next to giant for scale comparison */
+const refGeo = (() => {
+  const g = new THREE.SphereGeometry(0.51, 10, 8);
+  const pos = g.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+    if (y < 0) y *= 0.52;
+    const yN = (y + 0.5);
+    const b = 1 + 0.2 * Math.sin(yN * Math.PI);
+    x *= b * 1.02; y *= 1.08; z *= b * 1.02;
+    pos.setXYZ(i, x, y, z);
+  }
+  g.computeVertexNormals();
+  return g;
+})();
+const refSlime = new THREE.Mesh(refGeo, new THREE.MeshPhongMaterial({
+  color: 0x58df78, transparent: true, opacity: 0.85,
+  shininess: 28, flatShading: true,
+}));
+refSlime.position.set(-3, 0.55 * 0.52, 0);
+scene.add(refSlime);
+
+let opts = structuredClone(DEFAULT_OPTS);
+let active = null;
+let herdMode = false;
+let herd = [];
+
+function disposeTree(o) {
+  o.traverse(c => {
+    if (c.geometry) c.geometry.dispose();
+    if (c.material) {
+      if (Array.isArray(c.material)) c.material.forEach(m => m.dispose());
+      else c.material.dispose();
+    }
+  });
+}
+function clearStage() {
+  if (active) { scene.remove(active.root); disposeTree(active.root); active = null; }
+  for (const h of herd) { scene.remove(h.root); disposeTree(h.root); }
+  herd = [];
+}
+
+function rebuild() {
+  clearStage();
+  if (herdMode) {
+    const seeds = [1, 7, 19, 42, 88, 144];
+    let i = 0;
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 3; col++) {
+        const p = { ...opts, seed: seeds[i++] };
+        const built = buildSlimeGiant(p);
+        built.root.position.set((col - 1) * 5.5, 0, (row - 0.5) * 5);
+        herd.push(built); scene.add(built.root);
+      }
+    }
+    setStatus(`herd · ${herd.length} variants`);
+  } else {
+    active = buildSlimeGiant(opts);
+    active.root.position.set(0, 0, 0);
+    scene.add(active.root);
+    setStatus(`seed ${opts.seed} · r=${opts.radius.toFixed(2)} · h×${opts.heightMult.toFixed(2)}`);
+  }
+}
+function setStatus(s) { document.getElementById("status").textContent = s; }
+
+const clock = new THREE.Clock();
+function tick() {
+  const dt = Math.min(0.05, clock.getDelta());
+  if (active) active.update(dt);
+  for (const h of herd) h.update(dt);
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+window.addEventListener("resize", resize);
+resize(); tick();
+
+/* ───── Controls ───── */
+const COMMON_CTRLS = [
+  { cat: "Size" },
+  { path: "radius",        label: "radius",       min: 0.4,  max: 2.5,  step: 0.05 },
+  { path: "heightMult",    label: "height",       min: 0.6,  max: 2.5,  step: 0.05 },
+  { path: "bodyStretchX",  label: "stretch X",    min: 0.5,  max: 1.5,  step: 0.02 },
+  { path: "bodyStretchZ",  label: "stretch Z",    min: 0.5,  max: 2.0,  step: 0.02 },
+  { path: "squat",         label: "squat",        min: 0.3,  max: 0.9,  step: 0.02 },
+  { path: "bottomBias",    label: "egg shape",    min: 0.0,  max: 0.6,  step: 0.02 },
+  { path: "frontBias",     label: "front bias",   min: 0.0,  max: 0.5,  step: 0.02 },
+
+  { cat: "Shape variation" },
+  { path: "baseBulge",   label: "base bulge",   min: 0.0,  max: 0.45, step: 0.01 },
+  { path: "rumpAmp",        label: "rump amp",     min: 0.0,  max: 0.45, step: 0.01 },
+  { path: "rumpFreq",       label: "rump freq",    min: 1.0,  max: 6.0,  step: 0.5 },
+  { path: "rumpBiasLower",  label: "rump bottom",  min: 0.0,  max: 1.0,  step: 0.05 },
+  { path: "curveAmp",    label: "curve amp",    min: 0.0,  max: 0.25, step: 0.01 },
+  { path: "curveFreq",   label: "curve freq",   min: 1.0,  max: 8.0,  step: 0.5 },
+  { path: "microAmp",    label: "micro amp",    min: 0.0,  max: 0.10, step: 0.005 },
+  { path: "microFreq",   label: "micro freq",   min: 3.0,  max: 16.0, step: 0.5 },
+  { path: "seed",        label: "seed",         min: 1,    max: 999,  step: 1 },
+
+  { cat: "Mesh" },
+  { path: "widthSeg",    label: "w segs",       min: 8,    max: 24,   step: 1 },
+  { path: "heightSeg",   label: "h segs",       min: 6,    max: 20,   step: 1 },
+
+  { cat: "Look" },
+  { path: "color",       label: "color",        type: "color" },
+  { path: "opacity",     label: "opacity",      min: 0.4,  max: 1.0,  step: 0.02 },
+  { path: "shininess",   label: "shininess",    min: 0,    max: 120,  step: 2 },
+
+  { cat: "Face" },
+  { path: "eyeSize",        label: "eye size",     min: 0.03, max: 0.18, step: 0.005 },
+  { path: "eyeAzimuth",     label: "eye spread",   min: 0.10, max: 0.70, step: 0.01 },
+  { path: "eyePhi",         label: "eye height",   min: -0.20, max: 0.60, step: 0.01 },
+  { path: "eyeOutOffset",   label: "eye poke",     min: 0.0,  max: 0.03, step: 0.001 },
+  { path: "mouthStyle",     label: "mouth style",  type: "select", options: MOUTH_STYLES },
+  { path: "mouthSize",      label: "mouth size",   min: 0.08, max: 0.50, step: 0.01 },
+  { path: "mouthPhi",       label: "mouth height", min: -0.60, max: 0.30, step: 0.01 },
+  { path: "mouthOutOffset", label: "mouth poke",   min: 0.0,  max: 0.03, step: 0.001 },
+
+  { cat: "Animation" },
+  { path: "idleSpeed",   label: "idle speed",   min: 0.4,  max: 4.0,  step: 0.1 },
+  { path: "idleSquish",  label: "idle squish",  min: 0.0,  max: 0.15, step: 0.005 },
+];
+
+const DRAGON_CTRLS = [
+  { cat: "Dragon — horns" },
+  { path: "hornHeight",   label: "horn height",  min: 0.0, max: 1.0, step: 0.02 },
+  { path: "hornSpread",   label: "horn spread",  min: 0.10, max: 0.55, step: 0.01 },
+  { path: "hornWidth",    label: "horn width",   min: 0.05, max: 0.45, step: 0.01 },
+  { cat: "Dragon — head" },
+  { path: "headDomeHeight", label: "head dome",    min: 0.0,  max: 0.7,  step: 0.02 },
+  { path: "headDomeWidth",  label: "head width",   min: 0.20, max: 0.80, step: 0.02 },
+  { path: "neckDepth",      label: "neck depth",   min: 0.0,  max: 0.40, step: 0.02 },
+  { path: "neckWidth",      label: "neck width",   min: 0.10, max: 0.60, step: 0.02 },
+  { path: "snoutHeight",    label: "snout height", min: 0.0,  max: 0.8,  step: 0.02 },
+  { path: "snoutWidth",     label: "snout width",  min: 0.20, max: 1.10, step: 0.02 },
+  { path: "jawRumpHeight",label: "jaw rumps",    min: 0.0, max: 0.5, step: 0.01 },
+  { path: "jawRumpCount", label: "jaw count",    min: 0,   max: 6,   step: 1 },
+  { cat: "Dragon — stego plates (built into body)" },
+  { path: "stegoCount",     label: "plate count",   min: 0,   max: 10,  step: 1 },
+  { path: "stegoHeight",    label: "plate height",  min: 0.1, max: 1.2, step: 0.02 },
+  { path: "stegoSigmaT",    label: "plate length",  min: 0.04, max: 0.30, step: 0.01 },
+  { path: "stegoSigmaP",    label: "plate width",   min: 0.02, max: 0.20, step: 0.01 },
+  { cat: "Dragon — mouth (built in, vertex colored)" },
+  { path: "dragonBuiltInMouth", label: "built-in",   type: "check" },
+  { path: "mouthCarveDepth",    label: "carve depth", min: 0.0, max: 0.40, step: 0.01 },
+  { path: "mouthCarveWidth",    label: "mouth width", min: 0.05, max: 0.40, step: 0.01 },
+  { path: "mouthCarveHeight",   label: "mouth height",min: 0.02, max: 0.20, step: 0.01 },
+  { path: "dragonUpperJawHeight", label: "upper jaw", min: 0.0, max: 0.45, step: 0.01 },
+  { path: "dragonLowerJawHeight", label: "lower jaw", min: 0.0, max: 0.55, step: 0.01 },
+  { path: "dragonJawSeparation",  label: "jaw gap",   min: 0.0, max: 0.18, step: 0.01 },
+  { path: "mouthInsideColor",   label: "inside color",type: "color" },
+  { cat: "Dragon — horn tips" },
+  { path: "dragonHornMeshes",    label: "horn tips",   type: "check" },
+  { path: "dragonHornColor",     label: "horn color",  type: "color" },
+  { path: "dragonHornMeshHeight",label: "tip height",  min: 0.05, max: 0.80, step: 0.01 },
+  { path: "dragonHornMeshRadius",label: "tip width",   min: 0.03, max: 0.25, step: 0.005 },
+  { cat: "Dragon — brow" },
+  { path: "browHeight",   label: "brow height", min: 0.0, max: 0.30, step: 0.01 },
+  { path: "browWidth",    label: "brow width",  min: 0.05, max: 0.30, step: 0.01 },
+  { cat: "Dragon — muscle carves" },
+  { path: "shoulderBulge",label: "shoulders",    min: 0.0, max: 0.5, step: 0.01 },
+  { path: "hipBulge",     label: "hips",         min: 0.0, max: 0.5, step: 0.01 },
+  { path: "chestBulge",   label: "chest",        min: 0.0, max: 0.5, step: 0.01 },
+  { path: "bellyFold",    label: "belly fold",   min: 0.0, max: 0.4, step: 0.01 },
+  { cat: "Dragon — wings" },
+  { path: "wings",        label: "wings",        type: "check" },
+  { path: "wingSpan",     label: "wing span",    min: 0.4, max: 1.8, step: 0.02 },
+  { path: "wingFingers",  label: "wing fingers", min: 2,   max: 7,   step: 1 },
+  { path: "wingColor",    label: "wing color",   type: "color" },
+  { cat: "Dragon — tail" },
+  { path: "dragonTail",          label: "tail",       type: "check" },
+  { path: "dragonTailLength",    label: "tail length",min: 0.20, max: 2.20, step: 0.02 },
+  { path: "dragonTailThickness", label: "tail thick", min: 0.05, max: 0.45, step: 0.01 },
+  { path: "dragonTailLift",      label: "tail lift",  min: -0.20,max: 0.60, step: 0.02 },
+];
+
+const CHICKEN_CTRLS = [
+  { cat: "Chicken — beak" },
+  { path: "beakHeight",     label: "beak height",  min: 0.0, max: 1.0, step: 0.02 },
+  { path: "beakWidth",      label: "beak width",   min: 0.05, max: 0.40, step: 0.01 },
+  { path: "beakColor",      label: "beak color",   type: "color" },
+  { path: "beakMesh",       label: "solid beak",   type: "check" },
+  { path: "beakMeshLength", label: "beak length",  min: 0.10, max: 0.80, step: 0.01 },
+  { path: "beakMeshWidth",  label: "beak width 2", min: 0.05, max: 0.45, step: 0.01 },
+  { path: "beakMeshHeight", label: "beak height 2",min: 0.05, max: 0.35, step: 0.01 },
+  { cat: "Chicken — comb" },
+  { path: "combHeight",     label: "comb height",  min: 0.0, max: 0.25, step: 0.01 },
+  { path: "combWidth",      label: "comb width",   min: 0.05, max: 0.30, step: 0.01 },
+  { path: "combCount",      label: "comb lobes",   min: 0,   max: 4,   step: 1 },
+  { path: "combColor",      label: "comb color",   type: "color" },
+  { path: "combMesh",       label: "comb mesh",    type: "check" },
+  { path: "wattleHeight",   label: "gobbler",      min: 0.0, max: 0.4, step: 0.01 },
+  { path: "wattleMesh",     label: "extra gobbler",type: "check" },
+  { cat: "Chicken — wings + tail" },
+  { path: "chickenWings",        label: "extra wings", type: "check" },
+  { path: "chickenWingMeshSize", label: "wing size",   min: 0.20, max: 1.00, step: 0.02 },
+  { path: "stubWingHeight",      label: "stub bumps",  min: 0.0, max: 0.5, step: 0.01 },
+  { path: "tailNubHeight",       label: "tail height", min: 0.0, max: 0.5, step: 0.01 },
+  { path: "tailNubCount",        label: "tail nubs",   min: 0,   max: 6,   step: 1 },
+  { path: "tailNubColor",        label: "tail color",  type: "color" },
+  { path: "chickenTailMesh",      label: "tail mesh",   type: "check" },
+  { path: "chickenTailLength",    label: "tail length", min: 0.10, max: 0.70, step: 0.01 },
+];
+
+function currentCtrls() {
+  const extra = opts.type === "dragon" ? DRAGON_CTRLS
+              : opts.type === "chicken" ? CHICKEN_CTRLS
+              : [];
+  return [...COMMON_CTRLS, ...extra];
+}
+
+const panels = document.getElementById("panels");
+function makeControls() {
+  panels.innerHTML = "";
+  for (const c of currentCtrls()) {
+    if (c.cat) {
+      const d = document.createElement("div");
+      d.className = "cat"; d.textContent = c.cat;
+      panels.appendChild(d);
+      continue;
+    }
+    const row = document.createElement("div");
+    row.className = "row";
+    const lab = document.createElement("label");
+    lab.textContent = c.label;
+    row.appendChild(lab);
+
+    if (c.type === "color") {
+      const inp = document.createElement("input");
+      inp.type = "color"; inp.value = opts[c.path] || "#ffffff";
+      inp.addEventListener("input", () => { opts[c.path] = inp.value; rebuild(); });
+      row.appendChild(inp);
+    } else if (c.type === "select") {
+      const sel = document.createElement("select");
+      sel.style.flex = "1";
+      sel.style.background = "#0a1a0a"; sel.style.color = "#cfd5e0";
+      sel.style.border = "1px solid #234023"; sel.style.padding = "3px 5px";
+      sel.style.borderRadius = "3px"; sel.style.fontSize = "10px";
+      for (const o of c.options) {
+        const opt = document.createElement("option");
+        opt.value = o; opt.textContent = o;
+        if (opts[c.path] === o) opt.selected = true;
+        sel.appendChild(opt);
+      }
+      sel.addEventListener("change", () => { opts[c.path] = sel.value; rebuild(); });
+      row.appendChild(sel);
+    } else if (c.type === "check") {
+      const inp = document.createElement("input");
+      inp.type = "checkbox"; inp.checked = !!opts[c.path];
+      inp.style.accentColor = "#a8ffd0";
+      inp.addEventListener("change", () => { opts[c.path] = inp.checked; rebuild(); });
+      row.appendChild(inp);
+    } else {
+      const inp = document.createElement("input");
+      inp.type = "range"; inp.min = c.min; inp.max = c.max; inp.step = c.step;
+      inp.value = opts[c.path];
+      const num = document.createElement("input");
+      num.type = "number"; num.min = c.min; num.max = c.max; num.step = c.step;
+      num.value = opts[c.path];
+      const sync = (v) => {
+        const n = Number(v);
+        opts[c.path] = n;
+        inp.value = n; num.value = n;
+        rebuild();
+      };
+      inp.addEventListener("input", () => sync(inp.value));
+      num.addEventListener("input", () => sync(num.value));
+      row.appendChild(inp);
+      row.appendChild(num);
+    }
+    panels.appendChild(row);
+  }
+}
+makeControls();
+rebuild();
+
+/* per-type defaults — each variant has its own proportions, not just bumps */
+const TYPE_DEFAULTS = {
+  slime: {
+    radius: 1.05, heightMult: 1.45, squat: 0.30,
+    bodyStretchX: 1.0, bodyStretchZ: 1.0,
+    bottomBias: 0.0, frontBias: 0.0,
+    rumpAmp: 0.22, rumpBiasLower: 1.0, curveAmp: 0.11, baseBulge: 0.20,
+    eyeAzimuth: 0.36, eyePhi: 0.24, eyeOutOffset: 0.0,
+    mouthPhi: -0.06, mouthOutOffset: 0.004,
+    chickenWings: false, stegoPlateCount: 0, spineCount: 0,
+  },
+  dragon: {
+    /* squat muscular dragon: readable head, tail, horns, wings, still slimey */
+    radius: 0.56, heightMult: 1.18, squat: 0.62,
+    bodyStretchX: 1.10, bodyStretchZ: 1.34,
+    bottomBias: 0.03, frontBias: 0.12,
+    baseBulge: 0.45, rumpAmp: 0.45, rumpFreq: 1.5, rumpBiasLower: 0.0,
+    curveAmp: 0.14, curveFreq: 1.5, microAmp: 0.0, microFreq: 7.5,
+    eyeSize: 0.115, eyeAzimuth: 0.18, eyePhi: 0.44, eyeOutOffset: 0,
+    mouthStyle: "smile", mouthSize: 0.08, mouthPhi: -0.01, mouthOutOffset: 0.10,
+    headDomeHeight: 0.70, headDomeWidth: 0.28,
+    neckDepth: 0.40, neckWidth: 0.32,
+    snoutHeight: 0.08, snoutWidth: 0.42,
+    hornHeight: 0.18, hornSpread: 0.30, hornWidth: 0.14,
+    jawRumpHeight: 0.18, jawRumpCount: 3,
+    shoulderBulge: 0.0, hipBulge: 0.07,
+    bellyFold: 0.24, chestBulge: 0.08,
+    spineCount: 0, widthSeg: 18, heightSeg: 14, dragonWidthSeg: 18, dragonHeightSeg: 14,
+    /* stego plates baked into body */
+    stegoCount: 0, stegoHeight: 0.32, stegoSigmaT: 0.11, stegoSigmaP: 0.055,
+    /* built-in mouth */
+    dragonBuiltInMouth: true,
+    mouthCarveDepth: 0.40, mouthCarveWidth: 0.38, mouthCarveHeight: 0.135,
+    dragonUpperJawHeight: 0.28, dragonLowerJawHeight: 0.38, dragonJawSeparation: 0.085,
+    mouthInsideColor: "#b51d1d",
+    dragonHornMeshes: true, dragonHornMeshHeight: 0.54, dragonHornMeshRadius: 0.095,
+    browHeight: 0.0, browWidth: 0.30,
+    wings: true, wingSpan: 1.80, wingFingers: 7,
+    dragonTail: true, dragonTailLength: 2.20, dragonTailThickness: 0.20, dragonTailLift: 0.18,
+    chickenWings: false,
+  },
+  chicken: {
+    /* upright egg chicken: beak/wattle/wings are mostly built into body */
+    radius: 0.40, heightMult: 1.20, squat: 0.30,
+    bodyStretchX: 0.80, bodyStretchZ: 0.88,
+    bottomBias: 0.13, frontBias: 0.0,
+    rumpAmp: 0.03, rumpBiasLower: 0.08, curveAmp: 0.026, baseBulge: 0.10,
+    eyeAzimuth: 0.40, eyePhi: 0.30, eyeOutOffset: 0.0,
+    mouthPhi: -0.02, mouthOutOffset: 0.004,
+    chickenMouth: false,
+    beakHeight: 0.48, beakWidth: 0.15,
+    beakMesh: false, beakMeshLength: 0.48, beakMeshWidth: 0.30, beakMeshHeight: 0.19,
+    combHeight: 0.12, combWidth: 0.105, combCount: 3, combMesh: true,
+    wattleHeight: 0.055, wattleMesh: false,
+    chickenWings: false, chickenWingMeshSize: 0.24, stubWingHeight: 0.20,
+    tailNubHeight: 0.0, tailNubCount: 0, chickenTailMesh: false, chickenTailLength: 0.28,
+    stegoPlateCount: 0,
+  },
+};
+
+document.querySelectorAll(".ttab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".ttab").forEach(t => {
+      t.classList.remove("active");
+      t.style.color = "#557";
+      t.style.background = "#0a140a";
+    });
+    tab.classList.add("active");
+    tab.style.color = "#a8ffd0";
+    tab.style.background = "#143514";
+    const newType = tab.dataset.type;
+    opts.type = newType;
+    Object.assign(opts, TYPE_DEFAULTS[newType] || {});
+    makeControls();
+    rebuild();
+  });
+});
+
+document.getElementById("btn-random").addEventListener("click", () => {
+  const rand = () => Math.random();
+  const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+  const spread = (v, pct, lo, hi) => clamp(v * (1 - pct + rand() * pct * 2), lo, hi);
+  const around = (v, amt, lo, hi) => clamp(v + (rand() - 0.5) * amt * 2, lo, hi);
+  const base = TYPE_DEFAULTS[opts.type] || {};
+
+  opts.seed = 1 + ((rand() * 998) | 0);
+  /* color from palette for current type */
+  opts.color = randomColor(rand, opts.type);
+  /* random mouth */
+  opts.mouthStyle = randomMouthStyle(rand);
+  /* shape variation — clamped to type-appropriate ranges */
+  opts.radius     = (base.radius     || 1.05) * (0.85 + rand() * 0.30);
+  opts.heightMult = (base.heightMult || 1.45) * (0.85 + rand() * 0.30);
+  opts.rumpAmp    = (base.rumpAmp    || 0.16) * (0.7 + rand() * 0.8);
+  opts.rumpFreq   = 1.5  + rand() * 3.5;
+  opts.curveAmp   = (base.curveAmp   || 0.07) * (0.6 + rand() * 1.0);
+  opts.curveFreq  = 2.0  + rand() * 5.0;
+  opts.baseBulge  = (base.baseBulge  || 0.18) * (0.7 + rand() * 0.6);
+  /* per-type extras */
+  if (opts.type === "dragon") {
+    opts.radius = spread(base.radius, 0.42, 0.38, 0.92);
+    opts.heightMult = spread(base.heightMult, 0.24, 0.96, 1.58);
+    opts.bodyStretchX = spread(base.bodyStretchX, 0.24, 0.80, 1.46);
+    opts.bodyStretchZ = spread(base.bodyStretchZ, 0.24, 1.02, 1.78);
+    opts.squat = around(base.squat, 0.12, 0.50, 0.82);
+    opts.bottomBias = rand() < 0.70 ? rand() * 0.12 : rand() * 0.34;
+    opts.frontBias = around(base.frontBias, 0.18, 0.0, 0.50);
+
+    opts.baseBulge = spread(base.baseBulge, 0.42, 0.14, 0.45);
+    opts.rumpAmp = spread(base.rumpAmp, 0.55, 0.08, 0.45);
+    opts.rumpFreq = around(base.rumpFreq, 1.15, 1.0, 4.2);
+    opts.rumpBiasLower = rand() < 0.62 ? rand() * 0.22 : rand() * 0.95;
+    opts.curveAmp = spread(base.curveAmp, 0.65, 0.02, 0.25);
+    opts.curveFreq = around(base.curveFreq, 1.7, 1.0, 5.5);
+    opts.microAmp = rand() < 0.58 ? 0 : rand() * 0.05;
+    opts.microFreq = around(base.microFreq, 2.5, 3.0, 16.0);
+
+    opts.eyeSize = spread(base.eyeSize, 0.35, 0.05, 0.18);
+    opts.eyeAzimuth = around(base.eyeAzimuth, 0.08, 0.06, 0.24);
+    opts.eyePhi = around(base.eyePhi, 0.22, -0.05, 0.60);
+    opts.eyeOutOffset = rand() < 0.70 ? 0 : rand() * 0.08;
+    opts.mouthStyle = "smile";
+    opts.mouthSize = around(base.mouthSize, 0.08, 0.04, 0.24);
+    opts.mouthPhi = around(base.mouthPhi, 0.12, -0.22, 0.18);
+
+    opts.hornHeight = around(base.hornHeight, 0.12, 0.0, 0.42);
+    opts.hornSpread = around(base.hornSpread, 0.16, 0.12, 0.55);
+    opts.hornWidth = around(base.hornWidth, 0.08, 0.05, 0.32);
+    opts.dragonHornMeshes = true;
+    opts.dragonHornMeshHeight = spread(base.dragonHornMeshHeight, 0.45, 0.12, 0.80);
+    opts.dragonHornMeshRadius = spread(base.dragonHornMeshRadius, 0.38, 0.03, 0.18);
+
+    opts.headDomeHeight = spread(base.headDomeHeight, 0.32, 0.22, 0.70);
+    opts.headDomeWidth = around(base.headDomeWidth, 0.16, 0.20, 0.70);
+    opts.neckDepth = spread(base.neckDepth, 0.35, 0.08, 0.40);
+    opts.neckWidth = around(base.neckWidth, 0.18, 0.10, 0.60);
+    opts.snoutHeight = rand() < 0.72 ? rand() * 0.18 : 0.18 + rand() * 0.42;
+    opts.snoutWidth = around(base.snoutWidth, 0.22, 0.20, 0.82);
+    opts.jawRumpHeight = spread(base.jawRumpHeight, 0.55, 0.0, 0.42);
+    opts.jawRumpCount = rand() < 0.75 ? 3 : 1 + ((rand() * 6) | 0);
+
+    opts.stegoCount = rand() < 0.68 ? 0 : 1 + ((rand() * 7) | 0);
+    opts.stegoHeight = around(base.stegoHeight, 0.34, 0.10, 1.00);
+    opts.stegoSigmaT = around(base.stegoSigmaT, 0.08, 0.04, 0.30);
+    opts.stegoSigmaP = around(base.stegoSigmaP, 0.05, 0.02, 0.16);
+
+    opts.mouthCarveDepth = spread(base.mouthCarveDepth, 0.28, 0.20, 0.40);
+    opts.mouthCarveWidth = spread(base.mouthCarveWidth, 0.30, 0.18, 0.40);
+    opts.mouthCarveHeight = spread(base.mouthCarveHeight, 0.34, 0.075, 0.20);
+    opts.dragonUpperJawHeight = spread(base.dragonUpperJawHeight, 0.42, 0.10, 0.45);
+    opts.dragonLowerJawHeight = spread(base.dragonLowerJawHeight, 0.42, 0.14, 0.55);
+    opts.dragonJawSeparation = around(base.dragonJawSeparation, 0.050, 0.025, 0.18);
+    opts.browHeight = rand() < 0.62 ? 0 : rand() * 0.20;
+    opts.browWidth = around(base.browWidth, 0.16, 0.05, 0.30);
+
+    opts.shoulderBulge = rand() < 0.70 ? 0 : rand() * 0.28;
+    opts.hipBulge = around(base.hipBulge, 0.16, 0.0, 0.38);
+    opts.chestBulge = rand() < 0.50 ? 0 : rand() * 0.28;
+    opts.bellyFold = spread(base.bellyFold, 0.45, 0.02, 0.34);
+
+    opts.spineCount  = 0;
+    opts.widthSeg = rand() < 0.70 ? 18 : 16 + ((rand() * 10) | 0);
+    opts.heightSeg = rand() < 0.70 ? 14 : 12 + ((rand() * 8) | 0);
+    opts.dragonWidthSeg = opts.widthSeg;
+    opts.dragonHeightSeg = opts.heightSeg;
+
+    opts.wingSpan = spread(base.wingSpan, 0.35, 0.60, 1.80);
+    opts.wingFingers = rand() < 0.58 ? 7 : 2 + ((rand() * 6) | 0);
+    opts.dragonTail = true;
+    opts.dragonTailLength = spread(base.dragonTailLength, 0.42, 0.60, 2.20);
+    opts.dragonTailThickness = spread(base.dragonTailThickness, 0.45, 0.06, 0.45);
+    opts.dragonTailLift = around(base.dragonTailLift, 0.28, -0.20, 0.60);
+  } else if (opts.type === "chicken") {
+    opts.radius = spread(base.radius, 0.34, 0.28, 0.58);
+    opts.heightMult = spread(base.heightMult, 0.32, 0.82, 1.62);
+    opts.bodyStretchX = spread(base.bodyStretchX, 0.30, 0.55, 1.12);
+    opts.bodyStretchZ = spread(base.bodyStretchZ, 0.34, 0.58, 1.25);
+    opts.squat = 0.30;
+    opts.bottomBias = around(base.bottomBias, 0.20, 0.0, 0.45);
+    opts.baseBulge = spread(base.baseBulge, 0.70, 0.02, 0.22);
+    opts.rumpAmp = rand() < 0.45 ? 0 : rand() * 0.14;
+    opts.rumpFreq = 1.0 + rand() * 5.0;
+    opts.curveAmp = rand() * 0.09;
+    opts.curveFreq = 1.0 + rand() * 6.5;
+    opts.microAmp = rand() < 0.65 ? 0 : rand() * 0.035;
+    opts.chickenMouth = false;
+
+    opts.beakHeight = 0.30 + rand() * 0.30;
+    opts.beakWidth = 0.09 + rand() * 0.14;
+    opts.beakMesh = false;
+    opts.beakMeshLength = 0.32 + rand() * 0.30;
+    opts.beakMeshWidth  = 0.20 + rand() * 0.22;
+    opts.beakMeshHeight = 0.12 + rand() * 0.13;
+    opts.combHeight  = 0.05 + rand() * 0.14;
+    opts.combMesh = true;
+    opts.combCount   = rand() < 0.15 ? 0 : 2 + ((rand() * 3) | 0);
+    opts.wattleMesh = false;
+    opts.wattleHeight = rand() < 0.55 ? 0 : 0.025 + rand() * 0.08;
+    opts.tailNubHeight = 0;
+    opts.tailNubCount  = 0;
+    opts.chickenTailMesh = false;
+    opts.chickenTailLength = 0.24 + rand() * 0.22;
+    opts.chickenWings = false;
+    opts.chickenWingMeshSize = 0.16 + rand() * 0.18;
+    opts.stubWingHeight = rand() < 0.25 ? 0 : 0.10 + rand() * 0.28;
+  }
+  makeControls();
+  rebuild();
+});
+document.getElementById("btn-reset").addEventListener("click", () => {
+  opts = structuredClone(DEFAULT_OPTS);
+  makeControls(); rebuild();
+});
+document.getElementById("btn-herd").addEventListener("click", () => {
+  herdMode = !herdMode; rebuild();
+});
+
+const dlg = document.getElementById("dialog-bg");
+const dlgText = document.getElementById("dialog-text");
+document.getElementById("btn-export").addEventListener("click", () => {
+  dlgText.value = JSON.stringify(opts, null, 2);
+  dlg.classList.add("open");
+});
+document.getElementById("dialog-copy").addEventListener("click", () => {
+  dlgText.select(); document.execCommand("copy");
+  setStatus("copied to clipboard");
+});
+document.getElementById("dialog-close").addEventListener("click", () => dlg.classList.remove("open"));
+dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.classList.remove("open"); });
+</script>
+</body>
+</html>
