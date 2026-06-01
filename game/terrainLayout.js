@@ -327,6 +327,8 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
   const loZ = bounds && bounds.localOffsetZ || 0;
   const caveHoles = Array.isArray(bounds?.caveHoles) ? bounds.caveHoles : [];
   const isPetGardenTerrain = bounds?.instanceBiome === "pet_garden";
+  const isInstanceTerrain = !!(bounds && bounds.isInstance);
+  const isProcgenTerrain = !!(bounds && bounds._chunkData && bounds._chunkData.procgen);
   const triHitsCaveHole = caveHoles.length
     ? (ax, az, bx, bz, cx, cz) => {
         for (const h of caveHoles) {
@@ -368,8 +370,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         if (key in heightOffsets) y += heightOffsets[key];
       }
       /* Mainland height anchors — additive on top of chunk heightOffsets */
-      const _isProcgenH = bounds && bounds._chunkData && bounds._chunkData.procgen;
-      if (!_isProcgenH) y += _mainlandHeightAt(x, z);
+      if (!isProcgenTerrain && !isInstanceTerrain) y += _mainlandHeightAt(x, z);
 
       const i3 = (iz * nx + ix) * 3;
 

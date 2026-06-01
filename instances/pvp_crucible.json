@@ -34,7 +34,6 @@
     { "type": "Petrified_Tree", "x": -42, "z": -24, "rot": 2.1 },
     { "type": "Emberheart_Tree", "x": -24, "z": -34, "rot": 2.8 },
     { "type": "Dusk_Tree", "x": -20, "z": 50, "rot": 5.1 },
-    { "type": "Meat_Tree", "x": -42, "z": 56, "rot": 4.8 },
 
     { "type": "Rock_1_A", "x": 34, "z": 18, "rot": 2.2 },
     { "type": "Rocks_Ore_Tin", "x": 48, "z": 32, "rot": 2.7 },
