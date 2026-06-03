@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=36">
+  <link rel="stylesheet" href="./style.css?v=900">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -280,9 +280,6 @@
     </nav>
     <aside id="ui-panel" aria-live="polite">
       <div class="ui-panel-resize" data-resize="se" aria-hidden="true"></div>
-      <div class="ui-panel-resize" data-resize="sw" aria-hidden="true"></div>
-      <div class="ui-panel-resize" data-resize="ne" aria-hidden="true"></div>
-      <div class="ui-panel-resize" data-resize="nw" aria-hidden="true"></div>
       <div id="ui-panel-title-row"><h2 id="ui-panel-title">Inventory</h2><div id="ui-worn-subtabs-inline" class="ui-worn-subtabs" hidden><button type="button" class="ui-worn-subtab is-active" data-worn-view="stats">Worn</button><span class="ui-worn-subtab-divider">|</span><button type="button" class="ui-worn-subtab" data-worn-view="skins">Kit</button></div><div id="ui-emote-subtabs-inline" class="ui-worn-subtabs" hidden><button type="button" class="ui-worn-subtab ui-emote-subtab is-active" data-emote-view="emotes">Emotes</button><span class="ui-worn-subtab-divider">|</span><button type="button" class="ui-worn-subtab ui-emote-subtab" data-emote-view="pets">Pets</button></div><button type="button" id="ui-panel-close" class="ui-float-close">&times;</button></div>
       <section class="ui-panel-section" data-tab-panel="inventory">
         <div id="ui-inventory-grid" aria-label="Inventory slots"></div>
@@ -381,19 +378,9 @@
           </div>
         </div>
         <div class="ui-kc-strip">
-          <div class="ui-kc-item"><span>&#x1F40D;</span><strong id="ui-snake-kc">0</strong></div>
-          <div class="ui-kc-item"><span>&#x1FAA8;</span><strong id="ui-golem-kc">0</strong></div>
-          <div class="ui-kc-item"><span>&#x1F451;</span><strong id="ui-slime-daddy-kc">0</strong></div>
-          <div class="ui-kc-item"><span>&#x1F7E2;</span><strong id="ui-cave-slime-kc">0</strong></div>
-          <div class="ui-kc-item"><span>&#x2744;</span><strong id="ui-yeti-kc">0</strong></div>
-          <div class="ui-kc-item"><span>&#x1F409;</span><strong id="ui-dragon-kc">0</strong></div>
-          <div class="ui-kc-item"><span>&#x1F480;</span><strong id="ui-skele-kc">0</strong></div>
-          <div class="ui-kc-item"><span>&#x1F577;&#xFE0F;</span><strong id="ui-spider-kc">0</strong></div>
-          <div class="ui-kc-item"><span>&#x1F9D9;</span><strong id="ui-wizard-kc">0</strong></div>
-          <div class="ui-kc-item"><span>&#x1F47D;</span><strong id="ui-alien-kc">0</strong></div>
-          <div class="ui-kc-item ui-kc-rep" data-tip="Reputation"><span>&#x1F44D;</span><strong id="ui-player-rep">-</strong></div>
-          <div class="ui-kc-item" style="opacity:0.7" data-tip="Combat Level — avg of combat skills (Melee, Bow, Mage, HP, Faith) + 25% from skilling"><span style="font-size:10px">&#x2694;&#xFE0F;</span><strong id="ui-combat-level" style="color:#ff9966">3</strong></div>
-          <div class="ui-kc-item" style="opacity:0.7" data-tip="Total Level — sum of all skill levels"><span style="font-size:10px">&#x2B50;</span><strong id="ui-total-level" style="color:#88ccff">11</strong></div>
+          <div class="ui-kc-item" data-tip="Total Level — sum of all skill levels"><span>&#x2B50;</span><span class="ui-kc-label">Total</span><strong id="ui-total-level">11</strong></div>
+          <div class="ui-kc-item" data-tip="Combat Level — avg of combat skills (Melee, Bow, Mage, HP, Faith) + 25% from skilling"><span>&#x2694;&#xFE0F;</span><span class="ui-kc-label">Combat</span><strong id="ui-combat-level">3</strong></div>
+          <div class="ui-kc-item ui-kc-rep" data-tip="Fame"><span>&#x1F44D;</span><span class="ui-kc-label">Fame</span><strong id="ui-player-rep">-</strong></div>
         </div>
         <!-- Quest list (hidden by default, toggled by Quests button) -->
         <div id="ui-quest-view" class="ui-quest-view" hidden>
@@ -591,10 +578,10 @@
           <div class="ui-worn-slot" data-worn-slot="ring2"><span class="ui-worn-label">Ring</span></div>
           <div class="ui-worn-slot" data-worn-slot="ring"><span class="ui-worn-label">Ring</span></div>
         </div>
+        <div id="ui-worn-quick-host" class="ui-worn-quick-host"></div>
         <div class="ui-worn-view" data-worn-view-panel="stats">
           <div class="ui-worn-pot-section">
             <div class="ui-worn-pot-header">
-              <p class="ui-worn-skin-heading">Potentials</p>
               <span class="ui-worn-stat">Atk: <b id="ui-worn-atk">0</b></span>
               <span class="ui-worn-stat">Def: <b id="ui-worn-def">0</b></span>
             </div>
@@ -736,6 +723,7 @@
           <div class="stg-section-title">Show / Hide UI</div>
           <div class="stg-row"><span class="stg-label">Show Chat Overlay</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-overlay" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Show Server Status Badge</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-net-badge"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label">Show Inventory Status</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-inventory-status" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-section-title">Combat &amp; Body</div>
           <div class="stg-row"><span class="stg-label">Combat Bar</span><span class="stg-ctrl"><select id="setting-combat-bar" class="stg-sel"><option value="all" selected>All Styles</option><option value="melee">Melee Only</option><option value="bow">Range Only</option><option value="mage">Mage Only</option><option value="melee_bow">Melee + Range</option><option value="melee_mage">Melee + Mage</option><option value="bow_mage">Range + Mage</option></select></span></div>
           <div class="stg-row"><span class="stg-label">Slime Armor Display</span><span class="stg-ctrl"><select id="setting-armor-display" class="stg-sel"><option value="all">Everyone</option><option value="self">Just Me</option><option value="off">Off</option></select></span></div>
@@ -843,7 +831,7 @@
           <div class="ui-sp-crate-strip" id="ui-sp-strip"></div>
         </div>
         <div class="ui-star-actions">
-          <button type="button" id="ui-star-enhance-btn" class="ui-star-enhance-btn">Enhance</button>
+          <button type="button" id="ui-star-enhance-btn" class="ui-star-enhance-btn">SlimePower</button>
         </div>
         <button type="button" id="ui-star-unequip-btn" class="ui-star-unequip-btn" hidden>Unequip Item</button>
         <p id="ui-star-result" class="ui-star-result"></p>
@@ -1150,6 +1138,7 @@
       <div class="ui-bank-main">
       <div class="ui-bank-modal-header">
         <span class="ui-bank-modal-title">&#x1F4E6; Bank</span>
+        <button type="button" id="ui-bank-organize" class="ui-bank-organize-btn" title="Auto-organize bank" hidden>&#x1F9F9;</button>
         <button type="button" id="ui-bank-combine" class="ui-bank-organize-btn" title="Combine all tabs into first tab" hidden>&#x1F4E6;</button>
         <button type="button" id="ui-bank-close" class="ui-bank-close-btn">&times;</button>
       </div>
@@ -1163,6 +1152,9 @@
         <button type="button" class="ui-bank-tab" data-bank-tab="6">7</button>
         <button type="button" class="ui-bank-tab" data-bank-tab="7">8</button>
         <button type="button" class="ui-bank-tab" data-bank-tab="8">9</button>
+        <button type="button" class="ui-bank-tab" data-bank-tab="9">10</button>
+        <button type="button" class="ui-bank-tab" data-bank-tab="10">11</button>
+        <button type="button" class="ui-bank-tab" data-bank-tab="11">12</button>
       </div>
       <div class="ui-bank-modal-body">
         <div id="ui-bank-vault-grid" class="ui-bank-grid"></div>
@@ -1443,6 +1435,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=875"></script>
+  <script type="module" src="./main.js?v=900"></script>
 </body>
 </html>

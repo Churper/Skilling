@@ -435,6 +435,7 @@
   .ptag.flag  { background: rgba(255,107,107,0.18); color: var(--hot); }
   .ptag.banned { background: rgba(255,107,53,0.18); color: #ff8855; }
   .ptag.skin  { background: rgba(255,217,122,0.18); color: var(--gold); }
+  .ptag.mod   { background: rgba(92,166,255,0.18); color: #8fc8ff; }
 
   .pmeta { font-size: 12px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 4px 12px; }
   .pmeta b { color: var(--ink-2); font-weight: 500; }
@@ -1240,6 +1241,7 @@ function connect() {
     if (msg.type === "admin_anticheat") renderAntiCheat(msg);
     if (msg.type === "admin_anticheat_dossier") renderDossier(msg);
     if (msg.type === "admin_anticheat_ack") handleAntiCheatAck(msg);
+    if (msg.type === "admin_mod_ack") handleModAck(msg);
     if (msg.type === "admin_anticheat_review_ack") handleReviewAck(msg);
     if (msg.type === "admin_anticheat_recent_v") {
       if (msg.ok && Array.isArray(msg.rows)) renderRecentV(msg.rows);
@@ -2164,6 +2166,7 @@ function renderPlayers(players) {
     const tags = [];
     if (!p.hasAccount) tags.push('<span class="ptag guest">Guest</span>');
     if (p.isFlagged) tags.push('<span class="ptag flag">⚑ Flagged</span>');
+    if (p.isModerator) tags.push('<span class="ptag mod">Mod</span>');
     if (p.nameBanned) tags.push(`<span class="ptag banned">Name-banned</span>`);
     if (PATTERN_CSS[p.color]) tags.push(`<span class="ptag skin">${esc(p.color)}</span>`);
 
@@ -2202,6 +2205,10 @@ function renderPlayers(players) {
           ${p.nameBanned
             ? `<button class="btn btn-sm" data-action="unban" data-id="${p.id}">✅ Unban</button>`
             : `<button class="btn btn-sm" data-action="nameban" data-id="${p.id}" data-name="${esc(p.name)}">🚫 Name ban</button>`
+          }
+          ${p.hasAccount
+            ? `<button class="btn btn-sm" data-action="${p.isModerator ? "unmod" : "mod"}" data-uid="${esc(p.uid || p.accountId || "")}" data-name="${esc(p.name)}">${p.isModerator ? "Unmod" : "Mod"}</button>`
+            : ""
           }
           <button class="btn btn-sm btn-danger" data-action="kick" data-id="${p.id}" data-name="${esc(p.name)}">🦶 Kick</button>
         </div>
@@ -2243,6 +2250,16 @@ function doKickAll() {
   setTimeout(requestPlayers, 1000);
 }
 
+function doSetMod(uid, name, enabled) {
+  if (!uid) return;
+  const label = name || uid;
+  const verb = enabled ? "make" : "remove";
+  if (!confirm(`${enabled ? "Make" : "Remove"} ${label} ${enabled ? "a moderator" : "as moderator"}?`)) return;
+  adminCmd("admin_set_mod", { uid, enabled, note: enabled ? `Granted from admin panel for ${label}` : "" });
+  logAction("act-join", `${verb} moderator: ${label}`);
+  setTimeout(requestPlayers, 700);
+}
+
 playerListEl.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-action]");
   if (!btn) return;
@@ -2253,6 +2270,8 @@ playerListEl.addEventListener("click", (e) => {
   else if (action === "nameban") doNameBan(id, name);
   else if (action === "unban") doNameUnban(id);
   else if (action === "kick") doKick(id, name);
+  else if (action === "mod") doSetMod(btn.dataset.uid || "", name, true);
+  else if (action === "unmod") doSetMod(btn.dataset.uid || "", name, false);
 });
 
 function renderAntiCheat(msg) {
@@ -2621,6 +2640,19 @@ function handleAntiCheatAck(msg) {
   logAction(msg.action === "unflag" ? "act-join" : "act-ban", `${msg.action === "unflag" ? "Unflagged" : "Flagged"} ${label}`);
   requestAntiCheat();
   if (acSelectedUid) requestDossier(acSelectedUid);
+}
+
+function handleModAck(msg) {
+  const label = msg.uid || "account";
+  if (!msg.ok) {
+    statusEl.textContent = `Moderator update failed: ${msg.error || "unknown error"}`;
+    statusEl.className = "status err";
+    return;
+  }
+  statusEl.textContent = `${msg.enabled ? "Moderator enabled" : "Moderator removed"} for ${label}`;
+  statusEl.className = "status ok";
+  requestPlayers();
+  setTimeout(() => { statusEl.textContent = ""; statusEl.className = "status"; }, 3000);
 }
 
 acRefreshBtn.addEventListener("click", requestAntiCheat);
