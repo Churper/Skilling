@@ -129,11 +129,11 @@ function compactFeedRows(rows) {
 
 function renderNewUsers(rows) {
   if (!rows.length) return `<div class="st-empty">No tracked slimes yet.</div>`;
-  return `<table class="st-table">
+  return `<table class="st-table st-new-users-table">
     <thead><tr><th>Slime</th><th class="num">Total Lvl</th><th class="num">Tracked</th></tr></thead>
     <tbody>${rows.map(r => `
       <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
-        <td>${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
+        <td class="st-new-user-cell"><span class="st-new-user-name">${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></span></td>
         <td class="num">${nf(r.total_level || 0)}</td>
         <td class="num muted">${timeAgo(r.first_tracked)}</td>
       </tr>`).join("")}

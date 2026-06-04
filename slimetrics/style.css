@@ -317,6 +317,23 @@ main { padding: 6px 0 80px; }
 .st-table .skill-cell .icon { font-size: 16px; width: 22px; text-align: center; }
 .st-table .gain-pos { color: var(--slime); }
 .st-table .gain-neg { color: var(--warn); }
+.st-new-users-table { table-layout: fixed; }
+.st-new-users-table th:nth-child(1) { width: 46%; }
+.st-new-users-table th:nth-child(2) { width: 24%; }
+.st-new-users-table th:nth-child(3) { width: 30%; }
+.st-new-user-cell { min-width: 0; }
+.st-new-user-name {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+}
+.st-new-user-name a {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* ---------- progress bar ---------- */
 .st-prog {
