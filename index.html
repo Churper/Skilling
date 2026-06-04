@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=921">
+  <link rel="stylesheet" href="./style.css?v=922">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -755,7 +755,7 @@
           <div class="stg-section-title">Performance</div>
           <div class="stg-row"><span class="stg-label">Render Scale</span><span class="stg-ctrl"><select id="setting-dpr" class="stg-sel"><option value="0.5">0.5x (Fast)</option><option value="0.75">0.75x</option><option value="1" selected>1x (Default)</option><option value="1.5">1.5x</option><option value="2">2x (Sharp)</option></select></span></div>
           <div class="stg-row"><span class="stg-label">Render Distance</span><span class="stg-ctrl"><select id="setting-render-dist" class="stg-sel"><option value="0">Potato (1 chunk)</option><option value="1" selected>Normal (3×3)</option><option value="2">Extra (5×5)</option><option value="3">GTX (7×7)</option><option value="4">NASA (9×9)</option><option value="5">Don't (11×11)</option><option value="6">Stop (13×13)</option><option value="7">RIP (15×15)</option></select></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Lighting Quality</span><span class="stg-hint">High lights trees; Ultra+ adds player and key hubs</span></span><span class="stg-ctrl"><select id="setting-light-quality" class="stg-sel"><option value="max">Max (Cinematic)</option><option value="ultra">Ultra</option><option value="high" selected>High (Default)</option><option value="low">Low (Perf)</option><option value="off">Off (No Lights)</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Lighting Quality</span><span class="stg-hint">Ultra adds hero light for player and key NPCs</span></span><span class="stg-ctrl"><select id="setting-light-quality" class="stg-sel"><option value="max">Max (Cinematic)</option><option value="ultra" selected>Ultra (Default)</option><option value="high">High</option><option value="low">Low (Perf)</option><option value="off">Off (No Lights)</option></select></span></div>
           <div class="stg-row"><span class="stg-label">Particles</span><span class="stg-ctrl"><select id="setting-particle-level" class="stg-sel"><option value="full">Full</option><option value="reduced">Reduced</option><option value="minimal">Minimal</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Simple Lighting</span><span class="stg-hint">Removes secondary fill + world reflections</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-simple-light"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Cull Distant Animations</span><span class="stg-hint">Skip anims on far players (&gt;40u)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-cull-dist-anim"><span class="stg-tog-track"></span></label></span></div>
@@ -1436,6 +1436,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=921"></script>
+  <script type="module" src="./main.js?v=922"></script>
 </body>
 </html>
