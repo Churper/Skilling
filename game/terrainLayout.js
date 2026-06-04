@@ -288,6 +288,67 @@ export function getMeshSurfaceY(x, z) {
    buildTerrainMesh — vertex-colored ground + water plane
    ═══════════════════════════════════════════ */
 
+/* ── Baked sun ("cooked" lighting) ───────────────────────────────────────
+   Fold a FIXED-direction warm sun into terrain vertex colours ONCE at build,
+   so the ground reads warm + directionally shaded with NO dynamic light and
+   thus NO per-frame cost and NO shader relink (the thing that hitched on camera
+   pan). SUN_DIR matches the scene hero-sun (scene.js sun.position 42,18,18) so
+   baked terrain and the dynamically-lit player agree. Per-face flat normals
+   (from toNonIndexed) give crisp toon-style facets. Ground uses this by default;
+   heavier prop/model baking must opt in by passing defaultOn=false and setting
+   window._bakedSun = true before loading. */
+const _SUN_DIR = (() => { const x = 42, y = 18, z = 18, m = Math.hypot(x, y, z); return [x / m, y / m, z / m]; })();
+/* Defaults — clearly visible warm golden cast + directional shine. Live-tune via
+   window._sunBake = { amb, str, wr, wg, wb } then reload to re-bake. */
+const _SUN_AMB = 0.80;   // flat floor — shadowed faces stay readable
+const _SUN_STR = 0.55;   // directional punch on sun-facing faces
+const _SUN_WR = 1.18, _SUN_WG = 1.00, _SUN_WB = 0.80; // warm tint (more red, less blue)
+function _sunBakeEnabled(defaultOn) {
+  if (typeof window === "undefined") return !!defaultOn;
+  if (window._bakedSun === false) return false;
+  if (window._bakedSun === true) return true;
+  return !!defaultOn;
+}
+function _sunBakeParams(dir) {
+  const o = (typeof window !== "undefined" && window._sunBake) || null;
+  const d = dir || _SUN_DIR;
+  return {
+    amb: o?.amb ?? _SUN_AMB,
+    str: o?.str ?? _SUN_STR,
+    wr: o?.wr ?? _SUN_WR,
+    wg: o?.wg ?? _SUN_WG,
+    wb: o?.wb ?? _SUN_WB,
+    sx: d[0],
+    sy: d[1],
+    sz: d[2],
+  };
+}
+export function bakeSunColors(geo, dir, defaultOn = false) {
+  if (!_sunBakeEnabled(defaultOn)) return false;
+  if (geo.userData && geo.userData._sunBaked) return false; /* never double-bake (esp. shared template geometry) */
+  const nrm = geo.attributes.normal, col = geo.attributes.color;
+  if (!nrm || !col || !col.array) return false;
+  const sun = _sunBakeParams(dir);
+  /* Operate directly on the colour array. Terrain stores normalized Uint8
+     (0-255); merged static props store Float32 (0-1). Detect the range so ONE
+     baker serves both — single source of truth, no per-quality double-apply
+     (this runs once at geometry build, independent of light-quality mode).
+     nrm is a Float32 normal attribute so getX returns the real component. */
+  const arr = col.array, n = col.count;
+  const MAX = (arr instanceof Uint8Array || arr instanceof Uint8ClampedArray) ? 255 : 1;
+  for (let i = 0, v = 0; i < n; i++, v += 3) {
+    const ndl = Math.max(0, nrm.getX(i) * sun.sx + nrm.getY(i) * sun.sy + nrm.getZ(i) * sun.sz);
+    const f = sun.amb + sun.str * ndl;
+    arr[v]     = Math.min(MAX, arr[v]     * f * sun.wr);
+    arr[v + 1] = Math.min(MAX, arr[v + 1] * f * sun.wg);
+    arr[v + 2] = Math.min(MAX, arr[v + 2] * f * sun.wb);
+  }
+  col.needsUpdate = true;
+  geo.userData = geo.userData || {};
+  geo.userData._sunBaked = true; /* probe flag — see window._sunProbe() */
+  return true;
+}
+
 export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, bounds, lodStep) {
   const group = new THREE.Group();
   group.name = "terrain";
@@ -352,6 +413,10 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       }
     : null;
 
+  /* lowest real terrain vertex (GRASS_Y + offset + mainland anchors) — used
+     after the loop to skip the water plane on chunks that never dip below the
+     water line (dry inland chunks otherwise draw + animate hidden water). */
+  let _minTerrainY = Infinity;
   for (let iz = 0; iz < nz; iz++) {
     for (let ix = 0; ix < nx; ix++) {
       const x = xMin + ix * step, z = zMin + iz * step;
@@ -371,6 +436,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       }
       /* Mainland height anchors — additive on top of chunk heightOffsets */
       if (!isProcgenTerrain && !isInstanceTerrain) y += _mainlandHeightAt(x, z);
+      if (!isPad && y < _minTerrainY) _minTerrainY = y;
 
       const i3 = (iz * nx + ix) * 3;
 
@@ -498,6 +564,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       const c = geo.attributes.color.array;
       const p = geo.attributes.position.array;
       const _isMainland = !_isProcgenChunk && !isPetGardenTerrain;
+      const _groundSun = (!(bounds && bounds.isInstance) && _sunBakeEnabled(true)) ? _sunBakeParams() : null;
       /* Cave-mouth black paint runs as a FINAL face pass — the
          OSRS toon shade multiplier above will crush vertex-color black
          to a barely-dark mid-band otherwise. caveSpots is set by
@@ -584,8 +651,9 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         const fy = (p[f + 1] + p[f + 4] + p[f + 7]) / 3;
         const fz = (p[f + 2] + p[f + 5] + p[f + 8]) / 3;
         const ax = p[f],     az = p[f + 2];
-        const bx = p[f + 3], bz = p[f + 5];
-        const cx = p[f + 6], cz = p[f + 8];
+        const ay = p[f + 1];
+        const bx = p[f + 3], by = p[f + 4], bz = p[f + 5];
+        const cx = p[f + 6], cy = p[f + 7], cz = p[f + 8];
         /* Underwater seabed faces stay UNIFORM — no jitter, no toon-band
            shade, no fine noise. The deep band must read as one continuous
            color across procgen islands, mainland coast, and global ocean
@@ -670,11 +738,29 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
             }
           }
         }
+        if (_groundSun) {
+          const ux = bx - ax, uy = by - ay, uz = bz - az;
+          const vx = cx - ax, vy = cy - ay, vz = cz - az;
+          let nx = uy * vz - uz * vy;
+          let ny = uz * vx - ux * vz;
+          let nz = ux * vy - uy * vx;
+          const invLen = 1 / Math.max(1e-6, Math.hypot(nx, ny, nz));
+          nx *= invLen; ny *= invLen; nz *= invLen;
+          const ndl = Math.max(0, nx * _groundSun.sx + ny * _groundSun.sy + nz * _groundSun.sz);
+          const sf = _groundSun.amb + _groundSun.str * ndl;
+          rj = Math.min(255, rj * sf * _groundSun.wr);
+          gj = Math.min(255, gj * sf * _groundSun.wg);
+          bj = Math.min(255, bj * sf * _groundSun.wb);
+        }
         c[f] = c[f+3] = c[f+6] = rj;
         c[f+1] = c[f+4] = c[f+7] = gj;
         c[f+2] = c[f+5] = c[f+8] = bj;
       }
       geo.attributes.color.needsUpdate = true;
+      if (_groundSun) {
+        geo.userData = geo.userData || {};
+        geo.userData._sunBaked = true;
+      }
 
       /* Emit one click-mesh per cave spot using a DUPLICATE of the
          painted triangles. Mesh TRANSFORM is set to the cave anchor
@@ -720,6 +806,8 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
     geo.computeVertexNormals();
     geo.computeBoundingBox();
     geo.computeBoundingSphere();
+    /* Ground sun is folded into the existing per-face color pass above, so
+       terrain keeps the baked look without a second full geometry walk here. */
     /* Toon-banded flat-shaded ground: vertex colors per face + toon gradient
        map quantizes the diffuse into 3 bands, giving each polygon-flat face
        the OSRS polygonal silhouette plus the cel-shaded brightness banding. */
@@ -851,8 +939,10 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
      procgen_island.mjs), so they render through the same chunk-water
      shader path as hand-authored mainland chunks — no skip needed.
      Boss instance arenas (bounds.isInstance) skip the water plane to
-     save a draw call. Mainland chunks with water:false STILL build it
-     since the alpha texture controls where water is actually visible. */
+     save a draw call. Dry chunks (terrain never below the water line) ALSO
+     skip it below via the _dryNoWater / _minTerrainY check — the `water`
+     flag is unreliable (water:false chunks can still dip below WATER_Y), so
+     the real per-vertex min height is the authority. */
   if (!bounds || !bounds.isInstance || bounds.water === true) {
     const ww = dxMax - dxMin, wh = dzMax - dzMin;
     const aNx = dxMax - dxMin + 1, aNz = dzMax - dzMin + 1; // 101x101
@@ -860,7 +950,16 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
     const PAD = 8;
     const pNx = aNx + PAD * 2, pNz = aNz + PAD * 2; // padded dims (105x105)
 
+    /* Dry-chunk water cull: skip the whole water plane on chunks whose terrain
+       never dips below the water line. _minTerrainY is the lowest ACTUAL vertex
+       height (GRASS_Y + chunk offset + mainland anchors) measured in the build
+       loop above — the authoritative signal (mainland carries no waterAlpha and
+       the `water` flag is unreliable). Otherwise a 100%-dry inland chunk draws +
+       animates a full water surface hidden under solid land every frame. The
+       +0.1 margin keeps water on any borderline coastal/river chunk. */
+    const _dryNoWater = (_minTerrainY < Infinity && _minTerrainY >= WATER_Y + 0.1);
     let aTex;
+    if (!_dryNoWater) {
     if (bounds && bounds._chunkData && bounds._chunkData.waterAlpha) {
       const b64 = bounds._chunkData.waterAlpha;
       const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
@@ -1205,6 +1304,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
     waterMesh.userData.isWaterSurface = true;
     waterMesh.renderOrder = R_WATER;
     group.add(waterMesh);
+    } /* end !_dryNoWater (dry inland chunks skip the water plane) */
   }
 
   /* ── edge walls (tall cliff boundaries per side) ── */
