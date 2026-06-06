@@ -306,19 +306,23 @@ const TILE_DIR = "models/terrain/";
 const sm = THREE.MathUtils.smoothstep;
 
 const OBJ_CATEGORIES = [
-  { name: "Trees", items: [
-    { id: "Tree_1_A", file: "Tree_1_A_Color1.gltf", scale: 2.0 },
-    { id: "Tree_1_B", file: "Tree_1_B_Color1.gltf", scale: 2.0 },
-    { id: "Tree_1_C", file: "Tree_1_C_Color1.gltf", scale: 2.0 },
-    { id: "Tree_2_A", file: "Tree_2_A_Color1.gltf", scale: 2.0 },
-    { id: "Tree_2_B", file: "Tree_2_B_Color1.gltf", scale: 2.0 },
-    { id: "Tree_2_C", file: "Tree_2_C_Color1.gltf", scale: 2.0 },
-    { id: "Tree_3_A", file: "Tree_3_A_Color1.gltf", scale: 2.0 },
-    { id: "Tree_3_B", file: "Tree_3_B_Color1.gltf", scale: 2.0 },
-    { id: "Tree_4_A", file: "Tree_4_A_Color1.gltf", scale: 2.0 },
-    { id: "Tree_4_B", file: "Tree_4_B_Color1.gltf", scale: 2.0 },
-    { id: "Tree_Bare_1_A", file: "Tree_Bare_1_A_Color1.gltf", scale: 2.0 },
-    { id: "Tree_Bare_2_A", file: "Tree_Bare_2_A_Color1.gltf", scale: 2.0 },
+  /* Trees preview the SAME low-poly GLBs the game renders. The engine remaps
+     these legacy ids → Tree_01/03/04.glb (world.js REGULAR_TREE_MODEL_BY_TYPE);
+     ids are kept so existing placements stay compatible. dir is the terrain
+     folder since these are .glb, not the old _Color1.gltf in models/. */
+  { name: "Trees", dir: TILE_DIR, items: [
+    { id: "Tree_1_A", file: "Tree_01.glb", scale: 2.0 },
+    { id: "Tree_1_B", file: "Tree_03.glb", scale: 2.0 },
+    { id: "Tree_1_C", file: "Tree_04.glb", scale: 2.0 },
+    { id: "Tree_2_A", file: "Tree_01.glb", scale: 2.0 },
+    { id: "Tree_2_B", file: "Tree_03.glb", scale: 2.0 },
+    { id: "Tree_2_C", file: "Tree_04.glb", scale: 2.0 },
+    { id: "Tree_3_A", file: "Tree_01.glb", scale: 2.0 },
+    { id: "Tree_3_B", file: "Tree_03.glb", scale: 2.0 },
+    { id: "Tree_4_A", file: "Tree_04.glb", scale: 2.0 },
+    { id: "Tree_4_B", file: "Tree_03.glb", scale: 2.0 },
+    { id: "Tree_Bare_1_A", file: "Tree_03.glb", scale: 2.0 },
+    { id: "Tree_Bare_2_A", file: "Tree_04.glb", scale: 2.0 },
   ]},
   { name: "Rocks", items: [
     { id: "Rock_1_A", file: "Rock_1_A_Color1.gltf", scale: 1.0 },
@@ -493,6 +497,8 @@ const OBJ_CATEGORIES = [
     { id: "Raccoon", file: "Raccoon.glb", scale: 1.0 },
     { id: "Dog", file: "Dog.glb", scale: 1.0 },
     { id: "Cat", file: "Cat.glb", scale: 1.0 },
+    { id: "Cow", file: "Cow.glb", scale: 1.0 },
+    { id: "Zebra", file: "Zebra.glb", scale: 1.0 },
     { id: "Chicken", file: "Chicken.glb", scale: 1.0 },
     { id: "Chick", file: "Chick.glb", scale: 1.0 },
     { id: "Pig", file: "Pig.glb", scale: 1.0 },
