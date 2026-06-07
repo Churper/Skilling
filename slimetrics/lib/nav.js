@@ -135,3 +135,20 @@ export function mountFooter() {
 
 function escapeHtml(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 export { escapeHtml };
+
+/* Build one tic-tac-toe filter row: a label cell + a shared-edge button
+   matrix. `items` are {id, label, icon?|iconHtml?}; `attr` is the data
+   attribute the page wires (e.g. "data-skill"). Pass {row:true} for a few
+   evenly-stretched buttons on a single line (account/window/period). */
+export function filterRow(label, items, activeId, attr, opts = {}) {
+  const cells = items.map(it => {
+    const ico = it.iconHtml != null
+      ? it.iconHtml
+      : (it.icon ? `<span class="st-cell-ico">${escapeHtml(it.icon)}</span>` : "");
+    return `<button class="st-cell${it.id === activeId ? " is-active" : ""}" ${attr}="${escapeHtml(it.id)}">${ico}<span>${escapeHtml(it.label)}</span></button>`;
+  }).join("");
+  return `<div class="st-filter-row">
+    <div class="st-filter-label">${escapeHtml(label)}</div>
+    <div class="st-filter-cells${opts.row ? " is-row" : ""}">${cells}</div>
+  </div>`;
+}

@@ -112,8 +112,8 @@ function renderHero(o) {
   const [c1, c2, c3] = palette[seed % palette.length];
   return `
     <div class="st-hero">
-      <div class="st-pills st-hero-pills" id="st-period-pills">
-        ${PERIODS.map(p => `<button class="st-pill ${p.id === _state.period ? "is-active" : ""}" data-period="${p.id}">${escapeHtml(p.label)}</button>`).join("")}
+      <div class="st-seg st-hero-pills" id="st-period-pills">
+        ${PERIODS.map(p => `<button class="st-cell ${p.id === _state.period ? "is-active" : ""}" data-period="${p.id}"><span>${escapeHtml(p.label)}</span></button>`).join("")}
       </div>
       <div class="st-hero-avatar">
         ${slimeAvatar(c1, c2, c3)}
@@ -290,7 +290,7 @@ function renderHeat() {
 function periodLabel(id) { return PERIODS.find(p => p.id === id)?.label || id; }
 
 function wire($page, NAME) {
-  $page.querySelectorAll("#st-period-pills .st-pill").forEach(b => {
+  $page.querySelectorAll("#st-period-pills .st-cell").forEach(b => {
     b.addEventListener("click", async () => {
       const p = b.dataset.period;
       if (!p || p === _state.period) return;

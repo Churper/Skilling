@@ -1,4 +1,4 @@
-import { escapeHtml } from "../lib/nav.js";
+import { escapeHtml, filterRow } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { nf, dateLabel } from "../lib/format.js";
 import { SKILLS, skillLabel } from "../lib/skills.js";
@@ -25,18 +25,12 @@ function paint($page, state, res) {
       <h1 class="st-page-title">Records</h1>
       <p class="st-page-sub">Best single-day ${state.skill === "overall" ? "total" : skillLabel(state.skill)} XP gain across all of history.</p>
 
-      <div class="st-card">
-        <div class="st-card-head">
-          <div class="st-card-title">Skill</div>
-          <div class="st-pills right">${[
-            { id: "overall", label: "Overall", icon: "📊" },
-            ...SKILLS.map(s => ({ id: s.id, label: s.label, icon: s.icon }))
-          ].map(s => `<button class="st-pill ${s.id===state.skill?"is-active":""}" data-skill="${s.id}">${escapeHtml(s.icon)} ${escapeHtml(s.label)}</button>`).join("")}</div>
-        </div>
-        <div class="st-card-head" style="border-top:1px solid var(--line)">
-          <div class="st-card-title">Account</div>
-          <div class="st-pills right">${ACCOUNT_TYPES.map(t => `<button class="st-pill ${t.id===state.type?"is-active":""}" data-type="${t.id}">${escapeHtml(t.label)}</button>`).join("")}</div>
-        </div>
+      <div class="st-filters">
+        ${filterRow("Skill", [
+          { id: "overall", label: "Overall", icon: "📊" },
+          ...SKILLS.map(s => ({ id: s.id, label: s.label, icon: s.icon }))
+        ], state.skill, "data-skill")}
+        ${filterRow("Account", ACCOUNT_TYPES, state.type, "data-type", { row: true })}
       </div>
 
       <div class="st-card" style="margin-top:18px">

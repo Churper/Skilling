@@ -228,6 +228,80 @@ main { padding: 6px 0 80px; }
 }
 .st-pills { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 
+/* ---------- tic-tac-toe filter panel ----------
+   In-game-panel look: a single bordered frame where the group label and
+   every button are cells sharing 1px edges (no gaps, no per-button radius).
+   The shared lines come from a line-colored background showing through 1px
+   gaps. Packs many filters (skills/bosses/account/window) into far less
+   vertical space than stacked pill rows. */
+.st-filters {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-elev1);
+  box-shadow: var(--shadow-md);
+}
+.st-filter-row { display: flex; align-items: stretch; border-top: 1px solid var(--line); }
+.st-filter-row:first-child { border-top: 0; }
+.st-filter-label {
+  flex: 0 0 92px;
+  display: flex; align-items: center;
+  padding: 0 12px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  font-weight: 700; color: var(--fg-muted);
+  background: rgba(0,0,0,0.18);
+  border-right: 1px solid var(--line);
+}
+/* The button matrix. Equal-width auto-fill columns = true grid alignment.
+   gap:1px over a line-colored bg draws the tic-tac-toe separators. */
+.st-filter-cells {
+  flex: 1; min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 1px;
+  background: var(--line);
+}
+/* Few, evenly-stretched buttons on one line (account / window / period). */
+.st-filter-cells.is-row { grid-auto-flow: column; grid-auto-columns: 1fr; grid-template-columns: none; }
+.st-filter-cells.is-row .st-cell { justify-content: center; }
+
+.st-cell {
+  border: 0; border-radius: 0;
+  background: var(--bg-elev1);
+  color: var(--fg-dim);
+  font: inherit; font-size: 13px;
+  padding: 9px 10px;
+  display: inline-flex; align-items: center; gap: 6px;
+  justify-content: flex-start;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0;
+  transition: background .12s, color .12s;
+}
+.st-cell > span { overflow: hidden; text-overflow: ellipsis; }
+.st-cell:hover { background: var(--bg-elev3); color: var(--fg); }
+.st-cell.is-active {
+  background: var(--slime); color: #0a1a10; font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35) inset;
+}
+
+/* Compact inline segmented control (no labels) — e.g. the player hero
+   time-period buttons. Same shared-edge treatment, smaller cells. */
+.st-seg {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--line);
+  gap: 1px;
+}
+.st-seg .st-cell { padding: 6px 12px; font-size: 12px; justify-content: center; }
+
+@media (max-width: 640px) {
+  .st-filter-label { flex-basis: 64px; padding: 0 8px; font-size: 10px; }
+  .st-filter-cells { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); }
+  .st-cell { padding: 8px; font-size: 12px; }
+}
+
 /* Procedural boss pixels from the Slimetrics boss-sprite design bundle. */
 .boss-sprite-frame {
   width: 44px;
@@ -594,7 +668,7 @@ main { padding: 6px 0 80px; }
   z-index: 1;
 }
 @media (max-width: 700px) {
-  .st-hero-pills { position: static; justify-content: center; margin: 0 0 10px; }
+  .st-hero-pills { position: static; justify-content: center; margin: 0 auto 10px; }
 }
 /* Headless variant for stat cards that don't need a title (highlights). */
 .st-card-headless > .st-card-body { padding-top: 14px; }
