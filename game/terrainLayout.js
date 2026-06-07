@@ -564,7 +564,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       const c = geo.attributes.color.array;
       const p = geo.attributes.position.array;
       const _isMainland = !_isProcgenChunk && !isPetGardenTerrain;
-      const _groundSun = (!(bounds && bounds.isInstance) && _sunBakeEnabled(true)) ? _sunBakeParams() : null;
+      const _groundSun = _sunBakeEnabled(true) ? _sunBakeParams() : null;
       /* Cave-mouth black paint runs as a FINAL face pass — the
          OSRS toon shade multiplier above will crush vertex-color black
          to a barely-dark mid-band otherwise. caveSpots is set by
