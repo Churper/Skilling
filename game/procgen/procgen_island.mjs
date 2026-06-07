@@ -343,7 +343,7 @@ export const BIOMES = {
     rareProps: [
       'Elder_Tree', 'Elder_Tree', 'Star_Ore', 'Star_Ore',
       'Astral_Tree', 'Astral_Berry_Bush',
-      'Shroombark',
+      'Shroombark', 'Emberheart_Tree', 'Dusk_Tree',
       'Nebula_Fruit_Plant', 'Void_Blossom_Bush',
       'Rocks_Ore_Twilight', 'Rocks_Ore_Void',
     ],
@@ -1565,49 +1565,90 @@ export function placeProps(hm, dist, opts) {
       rot: +(rand() * Math.PI * 2).toFixed(2),
     });
   }
-  /* Guaranteed-spawn pass for rare RESOURCE props (ores, foragables).
+  /* Guaranteed-spawn pass for rare RESOURCE props (ores, logs, foragables).
      Without this, sailing tasks can ask "Mine 35x Moonstone on Slick
      Shoals" but the rareChance roll only spawns ~0.5 Moonstones per
      island — task is unwinnable. Each rare resource type is force-
      placed N times so every catalogued biome rock/forage is reliably
      gatherable. Decorative rares (Ice_Spire, Sandstone_Arch, etc) are
      skipped — only spawn-on-resource items matter. */
-  const _isResourceRare = (t) => t.startsWith('Rocks_Ore_') || t.startsWith('Svc_Forage_');
-  const resourceRares = rareList.filter(_isResourceRare);
+  const _extraResourceRares = new Set([
+    'Star_Ore',
+    'Coral_Rock', 'Mossy_Rock', 'Glacial_Rock', 'Sandstone_Pillar', 'Spore_Rock',
+    'Berry_Bush', 'Bush', 'Tropical_Fern', 'Frost_Bush', 'Pineapple_Plant',
+    'Coconut_Pile', 'Pineapple_Bush', 'Yucca_Bush', 'Glow_Cap_Prop', 'Wildflower_Patch',
+    'Birch_Tree', 'Ice_Stump',
+    'Volcanic_Tree', 'Candy_Spire', 'Roots', 'Steelbark', 'Shroombark', 'Spiritwood',
+    'Astral_Tree', 'Elder_Tree', 'Petrified_Tree', 'Emberheart_Tree', 'Dusk_Tree',
+    'Starbloom_Bush', 'Nebula_Fruit_Plant', 'Void_Blossom_Bush', 'Astral_Berry_Bush',
+  ]);
+  const _isResourceRare = (t) => t.startsWith('Rocks_Ore_') || t.startsWith('Svc_Forage_') || _extraResourceRares.has(t);
+  const resourceRares = [...new Set([...(B.props || []), ...rareList].filter(_isResourceRare))];
   if (resourceRares.length) {
     /* Pull from the SAME poisson-disk candidate stream so positions
        remain deterministic and don't overlap each other. Skip cells
-       already used by the random pass above — track via a dist² check. */
+       already used by the random pass above when there is room. On small
+       islands, relax spacing so every task-relevant resource exists at
+       least once instead of being starved by decorative props. */
     const minSpawnsPerType = 6;          /* enough headroom for collect tasks */
     const usedXZ = props.map(p => [p.x, p.z]);
-    const _farFromUsed = (x, z) => {
+    const _farFromUsed = (x, z, minSpace = 6) => {
+      const minSpaceSq = minSpace * minSpace;
       for (let k = 0; k < usedXZ.length; k++) {
         const dx = usedXZ[k][0] - x, dz = usedXZ[k][1] - z;
-        if (dx * dx + dz * dz < 36) return false;   /* 6u min spacing */
+        if (dx * dx + dz * dz < minSpaceSq) return false;
       }
       return true;
     };
-    let candIdx = 0;
+    const _candidateOk = (x, z, minSpace) => {
+      const y = sampleHeight(hm, x, z);
+      if (y < WATER_Y + 0.15) return null;
+      const d = sampleDist(hm, dist, x, z);
+      if (d < 2) return null;
+      if (!_farFromUsed(x, z, minSpace)) return null;
+      return { x, z, y };
+    };
+    const _placeResource = (rType, c) => {
+      usedXZ.push([+c.x.toFixed(2), +c.z.toFixed(2)]);
+      props.push({
+        type: rType,
+        x: +c.x.toFixed(2),
+        z: +c.z.toFixed(2),
+        y: +c.y.toFixed(2),
+        scale: +(0.85 + rand() * 0.30).toFixed(2),
+        rot: +(rand() * Math.PI * 2).toFixed(2),
+      });
+    };
+    const _findCandidate = (startPair, minSpace) => {
+      const pairCount = raw.length / 2;
+      for (let n = 0; n < pairCount; n++) {
+        const pair = (startPair + n) % pairCount;
+        const x = raw[pair * 2], z = raw[pair * 2 + 1];
+        const c = _candidateOk(x, z, minSpace);
+        if (c) return { c, nextPair: pair + 1 };
+      }
+      return null;
+    };
+
+    let nextPair = 0;
+    const placedByType = new Map(resourceRares.map(t => [t, 0]));
     for (const rType of resourceRares) {
-      let placed = 0;
-      while (placed < minSpawnsPerType && candIdx < raw.length) {
-        const x = raw[candIdx], z = raw[candIdx + 1];
-        candIdx += 2;
-        const y = sampleHeight(hm, x, z);
-        if (y < WATER_Y + 0.15) continue;
-        const d = sampleDist(hm, dist, x, z);
-        if (d < 2) continue;
-        if (!_farFromUsed(x, z)) continue;
-        usedXZ.push([+x.toFixed(2), +z.toFixed(2)]);
-        props.push({
-          type: rType,
-          x: +x.toFixed(2),
-          z: +z.toFixed(2),
-          y: +y.toFixed(2),
-          scale: +(0.85 + rand() * 0.30).toFixed(2),
-          rot: +(rand() * Math.PI * 2).toFixed(2),
-        });
+      const found = _findCandidate(nextPair, 6) || _findCandidate(nextPair, 3) ||
+        _findCandidate(nextPair, 1.25) || _findCandidate(nextPair, 0);
+      if (!found) continue;
+      _placeResource(rType, found.c);
+      nextPair = found.nextPair;
+      placedByType.set(rType, 1);
+    }
+    for (const rType of resourceRares) {
+      let placed = placedByType.get(rType) || 0;
+      while (placed < minSpawnsPerType) {
+        const found = _findCandidate(nextPair, 6);
+        if (!found) break;
+        _placeResource(rType, found.c);
+        nextPair = found.nextPair;
         placed++;
+        placedByType.set(rType, placed);
       }
     }
   }

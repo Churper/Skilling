@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=989">
+  <link rel="stylesheet" href="./style.css?v=990">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -293,7 +293,7 @@
           <button type="button" id="ui-hiscores-btn" class="ui-skills-header-btn hiscores">&#x1F3C6; Hiscores</button>
           <button type="button" id="ui-quest-tab-btn" class="ui-skills-header-btn quest">&#x1F4DC; Quests</button>
         </div>
-        <div style="display:flex;gap:6px;margin-bottom:6px">
+        <div class="ui-skills-secondary-actions" style="display:flex;gap:6px;margin-bottom:6px">
           <button type="button" id="ui-guide-btn" class="ui-skills-header-btn guide" style="flex:1">&#x1F4D6; Guide</button>
           <button type="button" id="ui-adventure-btn" class="ui-skills-header-btn guide" style="flex:1;background:rgba(200,160,80,.12);color:#e8c870">&#x1F4D6; Adventure</button>
         </div>
@@ -392,6 +392,10 @@
         </div>
         <!-- Hiscores inline (hidden by default, toggled by Hiscores button) -->
         <div id="ui-lb-inline" class="ui-lb-inline" hidden>
+          <div class="ui-skill-subview-head ui-lb-inline-head">
+            <button type="button" id="ui-lb-back" class="ui-skill-subview-back" aria-label="Back to skills">&larr;</button>
+            <span class="ui-skill-subview-title">Hiscores</span>
+          </div>
           <div class="ui-lb-categories">
             <select class="ui-lb-cat-select is-active" id="lb-select-overall">
               <option value="total_level">&#x1F3C6; All</option>
@@ -1438,6 +1442,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=989"></script>
+  <script type="module" src="./main.js?v=990"></script>
 </body>
 </html>
