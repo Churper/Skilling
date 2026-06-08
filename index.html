@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1040">
+  <link rel="stylesheet" href="./style.css?v=1043">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -715,6 +715,7 @@
           <div class="stg-row"><span class="stg-label">Camera FOV</span><span class="stg-ctrl"><input type="range" id="setting-camera-fov" min="-15" max="20" step="1" value="0" class="stg-range"><span class="stg-range-val" id="setting-camera-fov-label">+0°</span></span></div>
           <label class="stg-row" id="setting-hat-row" hidden><span class="stg-label">Party Hat</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hat"><span class="stg-tog-track"></span></label></span></label>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Indicator</span><span class="stg-hint">Visual countdown of your 12 min / 6 hr gather AFK limit (sound plays when it expires)</span></span><span class="stg-ctrl"><select id="setting-afk-indicator" class="stg-sel"><option value="bar">Bar above tabs</option><option value="ring">Ring on node</option><option value="both">Both</option><option value="off">Off</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Low Detail Full Map</span><span class="stg-hint">Use simple circles for tiny far-zoom islands</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-minimap-low-detail"><span class="stg-tog-track"></span></label></span></div>
           <button type="button" id="setting-reset-ui" class="stg-reset-btn">Reset UI to Default</button>
         </div>
         <!-- Toggles -->
@@ -1443,6 +1444,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=1040"></script>
+  <script type="module" src="./main.js?v=1043"></script>
 </body>
 </html>
