@@ -1826,12 +1826,14 @@ function _prettySignal(text) {
     if ((m = text.match(/^stackable_spike:(.+)$/))) {
       return `${_tag("sus")}🔥 <b>${esc(m[1])}</b>${_verdict("rare-item single spike — investigate")}`;
     }
-    // v485: gather_xp_speedhack:skill xp_rate=X/min cap=Y ratio=N elapsed=Ws [streak=N] res=R tier=T
-    if ((m = text.match(/^gather_xp_speedhack:(\w+) xp_rate=(\d+)\/min cap=(\d+) ratio=([\d.]+) elapsed=([\d.]+)s(?:\s+streak=(\d+))?\s+res=([\w ]+?)\s+tier=(\w+)/))) {
+    // v485/v600: gather_xp_speedhack:skill xp_rate=X/min cap=Y [base=... frenzy_procs=...] ratio=N elapsed=Ws [streak=N] res=R tier=T
+    if ((m = text.match(/^gather_xp_speedhack:(\w+) xp_rate=(\d+)\/min cap=(\d+)(?:\s+base=(\d+)\s+frenzy_procs=(\d+)\s+\+(\d+)\s+xp)?\s+ratio=([\d.]+)\s+elapsed=([\d.]+)s(?:\s+streak=(\d+))?\s+res=([\w ]+?)\s+tier=(\w+)/))) {
       const skill = m[1], rate = Number(m[2]), cap = Number(m[3]);
-      const ratio = Number(m[4]), elapsed = Number(m[5]);
-      const streak = m[6] ? Number(m[6]) : 0;
-      const res = m[7], tier = m[8];
+      const frenzyProcs = m[5] ? Number(m[5]) : 0;
+      const frenzyXp = m[6] ? Number(m[6]) : 0;
+      const ratio = Number(m[7]), elapsed = Number(m[8]);
+      const streak = m[9] ? Number(m[9]) : 0;
+      const res = m[10], tier = m[11];
       const sev = ratio >= 4 ? "cheat" : ratio >= 2.5 ? "bot" : ratio >= 2.0 ? "sus" : "quiet";
       const color = ratio >= 4 ? "var(--hot)" : ratio >= 2.5 ? "#ff8c40" : ratio >= 2.0 ? "var(--warn)" : null;
       const reason = ratio >= 4
@@ -1840,6 +1842,8 @@ function _prettySignal(text) {
         ? `${ratio.toFixed(1)}× honest XP cap — scripted clicker or 2.5×+ speedhack`
         : ratio >= 2.0
         ? `${ratio.toFixed(1)}× honest XP cap${streak ? ` for ${streak} saves` : ``} — sustained speedhack XP signature`
+        : frenzyProcs
+        ? `${ratio.toFixed(1)}× honest XP cap with ${frenzyProcs} frenzy procs (+${_shortNum(frenzyXp)} XP) — low-confidence telemetry`
         : `${ratio.toFixed(1)}× honest XP cap${streak ? ` for ${streak} saves` : ``} — low-confidence telemetry`;
       return `${_tag(sev)}${_skillTag(skill)} <b>${_shortNum(rate)} XP/min vs honest ${_shortNum(cap)}/min</b> on ${esc(res)} <span style="color:var(--ink-4);font-size:11px">[${tier} tool]</span> for ${_fmtDur(elapsed)}${_verdict(reason, color)}`;
     }
