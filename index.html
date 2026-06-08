@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=998">
+  <link rel="stylesheet" href="./style.css?v=1018">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -894,17 +894,17 @@
   </div>
   <!-- Boat Shop overlay (reuses ui-horse-* CSS classes) -->
   <div id="ui-boat-overlay" class="ui-horse-overlay" hidden>
-    <div class="ui-horse-modal" style="max-height:96vh;width:min(380px,92vw)">
+    <div class="ui-horse-modal ui-boat-modal" style="max-height:96vh;width:min(380px,92vw)">
       <div class="ui-horse-header">
         <span class="ui-horse-title">&#x26F5; Port</span>
         <button type="button" id="ui-boat-close" class="ui-bank-close-btn">&times;</button>
       </div>
-      <div style="position:relative;width:340px;max-width:calc(100% - 24px);margin:8px auto 4px">
+      <div class="ui-boat-preview-wrap" style="position:relative;width:340px;max-width:calc(100% - 24px);margin:8px auto 4px">
         <canvas id="ui-boat-canvas" width="340" height="220" style="display:block;width:100%;background:linear-gradient(180deg,#0a1828 0%,#1a3a55 60%,#0f2540 100%);border-radius:10px;border:1px solid rgba(122,240,255,0.3);box-shadow:inset 0 0 30px rgba(0,0,0,0.5)"></canvas>
         <div id="ui-boat-overlay-label" style="position:absolute;left:0;right:0;bottom:8px;text-align:center;pointer-events:none;text-shadow:0 2px 6px rgba(0,0,0,0.95),0 0 12px rgba(0,0,0,0.7)"></div>
       </div>
       <div id="ui-boat-body" class="ui-horse-body" style="overflow:visible;padding-bottom:6px"></div>
-      <div style="padding:10px 14px 14px;flex-shrink:0">
+      <div class="ui-boat-action-row" style="padding:10px 14px 14px;flex-shrink:0">
         <button type="button" id="ui-boat-sail" class="ui-boat-sail-btn" style="width:100%">
           <span class="ui-boat-sail-icon">&#x26F5;</span>
           <span class="ui-boat-sail-text">Set Sail</span>
@@ -918,7 +918,7 @@
     <div class="ui-horse-modal">
       <div class="ui-horse-header">
         <span class="ui-horse-title">&#x1F40E; Horse Ranch</span>
-        <div style="display:flex; gap:6px; align-items:center;">
+        <div class="ui-horse-actions" style="display:flex; gap:6px; align-items:center;">
           <button type="button" id="ui-horse-customize-btn" class="ui-horse-editor-btn" title="Customize colors">&#x1F3A8;</button>
           <button type="button" id="ui-horse-close" class="ui-bank-close-btn">&times;</button>
         </div>
@@ -1443,6 +1443,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=998"></script>
+  <script type="module" src="./main.js?v=1018"></script>
 </body>
 </html>
