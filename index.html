@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1072">
+  <link rel="stylesheet" href="./style.css?v=1098">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -662,6 +662,7 @@
         <button type="button" class="stg-tab is-active" data-stg-tab="profile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="stg-tab-nm">Profile</span></button>
         <button type="button" class="stg-tab" data-stg-tab="audio"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2M7 8v8M11 4v16M15 8v8M19 12h2"/></svg><span class="stg-tab-nm">Audio</span></button>
         <button type="button" class="stg-tab" data-stg-tab="interface"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><span class="stg-tab-nm">Interface</span></button>
+        <button type="button" class="stg-tab" data-stg-tab="chat"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a7.5 7.5 0 0 1-7.5 7.5H7l-4 2 1.4-4A7.5 7.5 0 1 1 21 12Z"/><path d="M8 11h8M8 15h5"/></svg><span class="stg-tab-nm">Chat</span></button>
         <button type="button" class="stg-tab" data-stg-tab="toggles"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="5" rx="2.5"/><circle cx="7.5" cy="8" r="1.1"/><rect x="3" y="13.5" width="18" height="5" rx="2.5"/><circle cx="16.5" cy="16" r="1.1"/></svg><span class="stg-tab-nm">Toggles</span></button>
         <button type="button" class="stg-tab" data-stg-tab="video"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M19 15l.8 2 2 .8-2 .8L19 21l-.8-1.4-2-.8 2-.8z"/></svg><span class="stg-tab-nm">Video</span></button>
         <button type="button" class="stg-tab" data-stg-tab="debug"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M3 10l3 2M3 17l3-1M21 10l-3 2M21 17l-3-1M9 6V4M15 6V4M12 10v8"/></svg><span class="stg-tab-nm">Debug</span></button>
@@ -707,9 +708,8 @@
           <div class="stg-row"><span class="stg-label">UI Theme</span><span class="stg-ctrl"><select id="setting-classic-theme" class="stg-sel"><option value="default">Default</option><option value="wood">Wood</option><option value="glass">Glass</option><option value="stained">Stained Glass</option><option value="frost">Frost</option><option value="verdant">Verdant</option><option value="sunset">Sunset</option><option value="arcane">Arcane</option><option value="volcanic">Volcanic</option><option value="royal">Royal</option><option value="cyber">Cyber</option><option value="bone">Bone</option></select></span></div>
           <div class="stg-row"><span class="stg-label">UI Scale</span><span class="stg-ctrl"><input type="range" id="setting-ui-scale" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-ui-scale-label">100%</span></span></div>
           <div class="stg-row"><span class="stg-label">Panel Scale</span><span class="stg-ctrl"><input type="range" id="setting-panel-scale" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-panel-scale-label">100%</span></span></div>
-          <div class="stg-row"><span class="stg-label">Chat Size</span><span class="stg-ctrl"><input type="range" id="setting-chat-size" min="80" max="200" value="100" class="stg-range"><span class="stg-range-val" id="setting-chat-size-label">100%</span></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat Timestamps</span><span class="stg-hint">Subtle [h:mm] before each message</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-timestamps"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Click Horse to Dismount</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-click-dismount"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Right-Click Examine</span><span class="stg-hint">Add Examine to item and world context menus</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-right-click-examine" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Cursor</span><span class="stg-ctrl"><select id="setting-cursor" class="stg-sel"><option value="default">Default</option><option value="leaf">Leaf</option><option value="slime">Slime</option><option value="crosshair">Crosshair</option></select></span></div>
           <div class="stg-row"><span class="stg-label">Camera Angle</span><span class="stg-ctrl"><select id="setting-camera-angle" class="stg-sel"><option value="default">Isometric (Default)</option><option value="high">High Angle</option><option value="low">Low Angle</option><option value="close">Close-up</option><option value="shoulder">Over Shoulder</option><option value="first">First Person</option></select></span></div>
           <div class="stg-row"><span class="stg-label">Camera FOV</span><span class="stg-ctrl"><input type="range" id="setting-camera-fov" min="-15" max="20" step="1" value="0" class="stg-range"><span class="stg-range-val" id="setting-camera-fov-label">+0°</span></span></div>
@@ -717,6 +717,17 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Indicator</span><span class="stg-hint">Visual countdown of your 12 min / 6 hr gather AFK limit (sound plays when it expires)</span></span><span class="stg-ctrl"><select id="setting-afk-indicator" class="stg-sel"><option value="bar">Bar above tabs</option><option value="ring">Ring on node</option><option value="both">Both</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Low Detail Full Map</span><span class="stg-hint">Use simple circles for tiny far-zoom islands</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-minimap-low-detail"><span class="stg-tog-track"></span></label></span></div>
           <button type="button" id="setting-reset-ui" class="stg-reset-btn">Reset UI to Default</button>
+        </div>
+        <!-- Chat -->
+        <div class="stg-pane" data-stg-pane="chat" hidden>
+          <div class="stg-pane-head"><h3>Chat</h3></div>
+          <div class="stg-row"><span class="stg-label">Chat Size</span><span class="stg-ctrl"><input type="range" id="setting-chat-size" min="80" max="200" value="100" class="stg-range"><span class="stg-range-val" id="setting-chat-size-label">100%</span></span></div>
+          <div class="stg-row"><span class="stg-label">Chat Transparency</span><span class="stg-ctrl"><input type="range" id="setting-chat-transparency" min="20" max="95" value="78" class="stg-range"><span class="stg-range-val" id="setting-chat-transparency-label">78%</span></span></div>
+          <div class="stg-row"><span class="stg-label">Show Chat Overlay</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-overlay" checked><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Readable Chat</span><span class="stg-hint">Keep compact overlay messages visible</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-readable"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat Timestamps</span><span class="stg-hint">Subtle [h:mm] before each message</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-timestamps"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat Auto-Collapse</span><span class="stg-hint">Collapse chat after idle or outside clicks</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-auto-collapse"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Game Updates In Chat</span><span class="stg-hint">Mirror inventory status updates into the Game chat channel</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-game-updates"><span class="stg-tog-track"></span></label></span></div>
         </div>
         <!-- Toggles -->
         <div class="stg-pane" data-stg-pane="toggles" hidden>
@@ -729,8 +740,6 @@
             <div class="stg-row"><span class="stg-label">Skip Skin Animation</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-skip-skin-anim"><span class="stg-tog-track"></span></label></span></div>
           </div>
           <div class="stg-section-title">Show / Hide UI</div>
-          <div class="stg-row"><span class="stg-label">Show Chat Overlay</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-overlay" checked><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Readable Chat</span><span class="stg-hint">Keep compact overlay messages visible</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-readable"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Show Server Status Badge</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-net-badge"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Show Inventory Status</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-inventory-status" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-section-title">Combat &amp; Body</div>
@@ -1135,11 +1144,24 @@
   </div>
   <!-- Chat -->
   <div id="ui-chat" hidden>
-    <div id="ui-chat-log"></div>
-    <form id="ui-chat-form" autocomplete="off">
-      <span class="ui-chat-icon">&#x1F4AC;</span>
-      <input id="ui-chat-input" type="text" placeholder="" maxlength="200" autocomplete="off">
-    </form>
+    <div id="ui-chat-head">
+      <button id="ui-chat-toggle" type="button" aria-expanded="false" title="Open chat">&#9650;</button>
+    </div>
+    <div id="ui-chat-panel">
+      <div id="ui-chat-log"></div>
+      <form id="ui-chat-form" autocomplete="off">
+        <span class="ui-chat-icon">&#x1F4AC;</span>
+        <div id="ui-chat-tabs" aria-label="Chat channel">
+          <select id="ui-chat-channel-select" class="ui-chat-channel-select" aria-label="Chat channel">
+            <option value="all">All</option>
+            <option value="global">Global</option>
+            <option value="game">Game</option>
+            <option value="clan">Clan</option>
+          </select>
+        </div>
+        <input id="ui-chat-input" type="text" placeholder="" maxlength="200" autocomplete="off">
+      </form>
+    </div>
   </div>
   <!-- Bank overlay (outside ui-root so it's not clipped) -->
   <div id="ui-bank-overlay" class="ui-bank-overlay" hidden>
@@ -1444,6 +1466,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=1072"></script>
+  <script type="module" src="./main.js?v=1098"></script>
 </body>
 </html>

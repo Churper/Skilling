@@ -535,6 +535,47 @@
     border-top: 1px dashed rgba(255,255,255,0.06);
   }
   .ac-sig-line b { color: var(--ink-1); font-weight: 600; }
+  .ac-signal-evidence {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+    gap: 4px;
+    margin: 5px 0 2px 48px;
+    font-family: var(--font-body);
+  }
+  .ac-signal-chip {
+    min-width: 0;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.035);
+    border-radius: 4px;
+    padding: 3px 6px;
+    line-height: 1.2;
+  }
+  .ac-signal-chip .lab {
+    display: block;
+    color: var(--ink-4);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .ac-signal-chip .val {
+    display: block;
+    color: var(--ink-1);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+  .ac-signal-chip.warn { border-color: rgba(255,204,102,0.22); background: rgba(255,204,102,0.055); }
+  .ac-signal-chip.hot { border-color: rgba(255,91,91,0.25); background: rgba(255,91,91,0.06); }
+  .ac-signal-chip.ok { border-color: rgba(92,255,138,0.18); background: rgba(92,255,138,0.045); }
+  .ac-signal-note {
+    grid-column: 1 / -1;
+    color: var(--ink-3);
+    font-size: 11px;
+    line-height: 1.35;
+    border-left: 2px solid rgba(121,184,255,0.35);
+    padding-left: 7px;
+  }
   /* v453: prominent player name + dim timestamp in event headers */
   .ac-event-name {
     color: var(--accent-2, #79b8ff);
@@ -1492,7 +1533,7 @@ function fmtNum(n) { return Number(n || 0).toLocaleString(); }
 function sigBadgeClass(sig) {
   /* v434: stackable_rate replaces stackable_spike; checksum_stale + label_spoof retired (back-compat kept). */
   if (sig === "xp_megaspike" || sig === "stackable_rate" || sig === "stackable_spike" || sig === "uid_spike" || sig === "coin_spike" || sig === "stack_at_cap" || sig === "multi_skill_burst") return "hot";
-  if (sig === "xp_rate" || sig === "lvl_burst" || sig === "label_spoof" || sig === "tl_mismatch" || sig === "xp_level" || sig === "item_rate_exceeded") return "warn";
+  if (sig === "xp_rate" || sig === "xp_ceiling_exceeded" || sig === "gather_xp_speedhack" || sig === "gather_speedhack" || sig === "lvl_burst" || sig === "label_spoof" || sig === "tl_mismatch" || sig === "xp_level" || sig === "item_rate_exceeded") return "warn";
   return "";
 }
 
@@ -1563,6 +1604,21 @@ function _fmtDur(sec) {
 /* Verdict snippet — short italic explanation at the end of each line */
 function _verdict(txt, color) {
   return ` <span style="color:${color || "rgba(255,255,255,0.5)"};font-style:italic;font-size:11px">⟶ ${txt}</span>`;
+}
+function _signalMetric(label, value, tone = "") {
+  return `<span class="ac-signal-chip ${tone}"><span class="lab">${esc(label)}</span><span class="val">${esc(value)}</span></span>`;
+}
+function _signalEvidence(metrics, note = "") {
+  const chips = metrics.filter(Boolean).join("");
+  const noteHtml = note ? `<div class="ac-signal-note">${esc(note)}</div>` : "";
+  return chips || noteHtml ? `<div class="ac-signal-evidence">${chips}${noteHtml}</div>` : "";
+}
+function _ratioTone(ratio) {
+  const r = Number(ratio);
+  if (!isFinite(r)) return "";
+  if (r >= 4) return "hot";
+  if (r >= 2) return "warn";
+  return "ok";
 }
 function _prettySignal(text) {
   if (typeof text !== "string" || !text) return esc(text || "");
@@ -1661,7 +1717,21 @@ function _prettySignal(text) {
           verdict = `${_shortNum(rateNum)}/min — over ceiling, likely AFK gather or frenzy`;
         }
       }
-      return `${_tag(sev)}${_skillTag(skill)} ${_shortNum(rateNum)}/min for ${_fmtDur(elapsed)}${potion}${_verdict(verdict, verdictColor)}`;
+      const capText = maxRate > 0 ? `${_shortNum(maxRate)}/min base` : "not logged";
+      const potionText = m[6] === "t" ? "active" : "none";
+      const tuneNote = gatherSkill
+        ? "Rolling XP allowance tripped. For gather skills with potion evidence, short-window rows under 2M XP should be skipped by v1013; if they still appear, check whether the migration is live or whether max_rate is missing a woodcutting multiplier."
+        : "Rolling XP allowance tripped after this save spent more XP than the refill model allowed.";
+      return `${_tag(sev)}${_skillTag(skill)} ${_shortNum(rateNum)}/min for ${_fmtDur(elapsed)}${potion}${_verdict(verdict, verdictColor)}${_signalEvidence([
+        _signalMetric("tripped", "XP allowance"),
+        _signalMetric("observed", `${_shortNum(rateNum)}/min`, _ratioTone(maxRate ? rateNum / Math.max(1, maxRate) : 1)),
+        _signalMetric("base limit", capText),
+        _signalMetric("delta", `+${_shortNum(delta)} XP`),
+        _signalMetric("over", _shortNum(over), over > 0 ? "warn" : ""),
+        _signalMetric("left", _shortNum(alw)),
+        _signalMetric("strikes", m[5], Number(m[5]) >= 10 ? "hot" : Number(m[5]) >= 3 ? "warn" : ""),
+        _signalMetric("potion", potionText, m[6] === "t" ? "ok" : ""),
+      ], tuneNote)}`;
     }
     // xp_rate:farming +N in 0.25m = R/min
     if ((m = text.match(/^xp_rate:(\w+) \+(\d+) in ([\d.]+)m = (\d+)\/min/))) {
@@ -1688,7 +1758,17 @@ function _prettySignal(text) {
       } else {
         sev = "quiet"; verdict = elapsedSec <= 60 ? `single-save burst — legit harvest` : `borderline — AFK or frenzy`;
       }
-      return `${_tag(sev)}${_skillTag(skill)} +${_shortNum(delta)} XP / ${_fmtDur(elapsedSec)} (${_shortNum(rate)}/min)${_verdict(verdict, verdictColor)}`;
+      const tuneNote = gatherSkill
+        ? "Generic cloud_save XP-rate row. Gather skills are supposed to be owned by gather-specific item/XP detectors; v1013 skips gather deltas under 2M XP, so sub-2M rows are likely old/live-migration drift or missing source credit."
+        : "Generic cloud_save XP-rate row. Use this for large injected XP deltas; smaller repeated rows usually need a skill-specific source explanation.";
+      return `${_tag(sev)}${_skillTag(skill)} +${_shortNum(delta)} XP / ${_fmtDur(elapsedSec)} (${_shortNum(rate)}/min)${_verdict(verdict, verdictColor)}${_signalEvidence([
+        _signalMetric("tripped", "generic XP rate"),
+        _signalMetric("delta", `+${_shortNum(delta)} XP`, delta >= cheatXp ? "hot" : delta >= susXp ? "warn" : ""),
+        _signalMetric("window", _fmtDur(elapsedSec)),
+        _signalMetric("observed", `${_shortNum(rate)}/min`, rate >= 500000 ? "warn" : ""),
+        _signalMetric("SUS floor", `+${_shortNum(susXp)}`),
+        _signalMetric("CHEAT floor", `+${_shortNum(cheatXp)}`),
+      ], tuneNote)}`;
     }
     // xp_megaspike:farming +N in one save
     if ((m = text.match(/^xp_megaspike:(\w+) \+(\d+) in one save/))) {
@@ -1702,6 +1782,7 @@ function _prettySignal(text) {
     if ((m = text.match(/^item_rate_exceeded:([^+]+?)\s+\+(\d+) in ([\d.]+)s = (\d+)\/min ceiling=(\d+)/))) {
       const itemName = m[1].trim();
       const qty = Number(m[2]), dur = Number(m[3]), rate = Number(m[4]), ceiling = Number(m[5]);
+      const overallRatio = rate / Math.max(1, ceiling);
       /* Farming crops are BURST-class: one Ultra-compost harvest-all
          legitimately drops 50-150 items in a single save tick. Rate-
          per-minute extrapolates 200-600/min but it's actually one click.
@@ -1800,7 +1881,21 @@ function _prettySignal(text) {
         else if (ratio >= 1.2) { sev = "quiet"; verdict = `${ratio.toFixed(1)}× honest cap — low-confidence telemetry`; }
         else                  { sev = "quiet"; verdict = `${ratio.toFixed(1)}× honest cap — at-cap legit gather`; }
       }
-      return `${_tag(sev)}📦 <b>${esc(itemName)}</b> +${_shortNum(qty)} / ${_fmtDur(dur)} (${_shortNum(rate)}/min, cap ${ceiling})${_verdict(verdict, verdictColor)}`;
+      const woodLike = /\b(Log|Logs|Wood|Duskwood|Bamboo)\b/i.test(itemName);
+      const tuneNote = woodLike
+        ? "Item-rate compares new stack count against the honest item cap. Planted tree chopping should receive derived source credit up to 500 logs per save in v1014; uncredited wood rows point to migration drift, a patch-shape miss, or real item injection."
+        : isCrop || isFish
+        ? "Burst-class item. Judge mostly by total quantity and source context; /min can exaggerate one-click harvest, cooking, or frenzy batches."
+        : "Gather item-rate row. This is hard evidence when no source credit explains the item delta and the observed rate is 2.5x+ the honest cap.";
+      return `${_tag(sev)}📦 <b>${esc(itemName)}</b> +${_shortNum(qty)} / ${_fmtDur(dur)} (${_shortNum(rate)}/min, cap ${ceiling})${_verdict(verdict, verdictColor)}${_signalEvidence([
+        _signalMetric("tripped", "item rate"),
+        _signalMetric("item", itemName),
+        _signalMetric("gained", `+${_shortNum(qty)}`),
+        _signalMetric("window", _fmtDur(dur)),
+        _signalMetric("observed", `${_shortNum(rate)}/min`, _ratioTone(overallRatio)),
+        _signalMetric("limit", `${_shortNum(ceiling)}/min`),
+        _signalMetric("ratio", `${overallRatio.toFixed(2)}x`, _ratioTone(overallRatio)),
+      ], tuneNote)}`;
     }
     // stackable_rate:Pitaya +N in Xs = R/min
     if ((m = text.match(/^stackable_rate:([^+]+?)\s+\+(\d+) in ([\d.]+)s = (\d+)\/min/))) {
@@ -1834,6 +1929,9 @@ function _prettySignal(text) {
       const ratio = Number(m[7]), elapsed = Number(m[8]);
       const streak = m[9] ? Number(m[9]) : 0;
       const res = m[10], tier = m[11];
+      const potMult = (text.match(/\spot=([\d.]+)x/) || [])[1] || "1.00";
+      const gatherPotMult = (text.match(/\sgather_pot=([\d.]+)x/) || [])[1] || "1.00";
+      const instSpeed = (text.match(/\sinst_speed=([\d.]+)x/) || [])[1] || "1.00";
       const sev = ratio >= 4 ? "cheat" : ratio >= 2.5 ? "bot" : ratio >= 2.0 ? "sus" : "quiet";
       const color = ratio >= 4 ? "var(--hot)" : ratio >= 2.5 ? "#ff8c40" : ratio >= 2.0 ? "var(--warn)" : null;
       const reason = ratio >= 4
@@ -1845,7 +1943,22 @@ function _prettySignal(text) {
         : frenzyProcs
         ? `${ratio.toFixed(1)}× honest XP cap with ${frenzyProcs} frenzy procs (+${_shortNum(frenzyXp)} XP) — low-confidence telemetry`
         : `${ratio.toFixed(1)}× honest XP cap${streak ? ` for ${streak} saves` : ``} — low-confidence telemetry`;
-      return `${_tag(sev)}${_skillTag(skill)} <b>${_shortNum(rate)} XP/min vs honest ${_shortNum(cap)}/min</b> on ${esc(res)} <span style="color:var(--ink-4);font-size:11px">[${tier} tool]</span> for ${_fmtDur(elapsed)}${_verdict(reason, color)}`;
+      const tuneNote = frenzyProcs && ratio < 2.0
+        ? "Frenzy-backed gather XP telemetry below 2.0x is low-confidence cap-model noise under v1013. Tune cap math/source credit before treating these as cheating."
+        : ratio >= 4
+        ? "Hard gather XP speed row: observed XP rate is at least 4x the modeled honest cap."
+        : "Gather XP speed row. Compare observed XP/min to the cap after potion, gather potion, instant-speed, tier, and frenzy context.";
+      return `${_tag(sev)}${_skillTag(skill)} <b>${_shortNum(rate)} XP/min vs honest ${_shortNum(cap)}/min</b> on ${esc(res)} <span style="color:var(--ink-4);font-size:11px">[${tier} tool]</span> for ${_fmtDur(elapsed)}${_verdict(reason, color)}${_signalEvidence([
+        _signalMetric("tripped", "gather XP speed"),
+        _signalMetric("resource", res),
+        _signalMetric("observed", `${_shortNum(rate)}/min`, _ratioTone(ratio)),
+        _signalMetric("limit", `${_shortNum(cap)}/min`),
+        _signalMetric("ratio", `${ratio.toFixed(2)}x`, _ratioTone(ratio)),
+        _signalMetric("window", _fmtDur(elapsed)),
+        streak ? _signalMetric("streak", `${streak} saves`, streak >= 3 ? "warn" : "") : "",
+        frenzyProcs ? _signalMetric("frenzy", `${frenzyProcs} procs, +${_shortNum(frenzyXp)} XP`, ratio < 2 ? "ok" : "warn") : _signalMetric("frenzy", "none"),
+        _signalMetric("multipliers", `XP ${potMult}x / gather ${gatherPotMult}x / instant ${instSpeed}x`),
+      ], tuneNote)}`;
     }
     // v478/v479/v480/v482: gather_speedhack:skill rate=X/min cap=Y ratio=N elapsed=Ws [streak=N] [tier=T]
     // v482: cap is now tier-aware (multiplied by player's tool tier speed)
@@ -1854,6 +1967,9 @@ function _prettySignal(text) {
       const ratio = Number(m[4]), elapsed = Number(m[5]);
       const streak = m[6] ? Number(m[6]) : 0;
       const tier = m[7] || "";
+      const res = (text.match(/\sres=([\w ]+?)(?:\s+gather_pot=|\s+inst_speed=|$)/) || [])[1] || "";
+      const gatherPotMult = (text.match(/\sgather_pot=([\d.]+)x/) || [])[1] || "1.00";
+      const instSpeed = (text.match(/\sinst_speed=([\d.]+)x/) || [])[1] || "1.00";
       const tierTag = tier ? ` <span style="color:var(--ink-4);font-size:11px">[${tier} tool]</span>` : "";
       const sev = ratio >= 4 ? "cheat" : ratio >= 2.5 ? "bot" : ratio >= 2.0 ? "sus" : "quiet";
       const color = ratio >= 4 ? "var(--hot)" : ratio >= 2.5 ? "#ff8c40" : ratio >= 2.0 ? "var(--warn)" : null;
@@ -1864,7 +1980,19 @@ function _prettySignal(text) {
         : ratio >= 2.0
         ? `${ratio.toFixed(1)}× honest cap${streak ? ` for ${streak} saves` : ``} — sustained speedhack pattern`
         : `${ratio.toFixed(1)}× honest cap${streak ? ` for ${streak} saves` : ``} — low-confidence telemetry`;
-      return `${_tag(sev)}${_skillTag(skill)} <b>${_shortNum(rate)} items/min vs honest ${_shortNum(cap)}/min</b>${tierTag} for ${_fmtDur(elapsed)}${_verdict(reason, color)}`;
+      const tuneNote = ratio >= 2.5
+        ? "Gather item speed row. This is strong when the paired item_rate_exceeded row has no source-credit explanation."
+        : "Gather item speed row below bot tier. Use repeat count, source grants, and paired item deltas before tuning.";
+      return `${_tag(sev)}${_skillTag(skill)} <b>${_shortNum(rate)} items/min vs honest ${_shortNum(cap)}/min</b>${tierTag} for ${_fmtDur(elapsed)}${_verdict(reason, color)}${_signalEvidence([
+        _signalMetric("tripped", "gather item speed"),
+        res ? _signalMetric("resource", res) : "",
+        _signalMetric("observed", `${_shortNum(rate)}/min`, _ratioTone(ratio)),
+        _signalMetric("limit", `${_shortNum(cap)}/min`),
+        _signalMetric("ratio", `${ratio.toFixed(2)}x`, _ratioTone(ratio)),
+        _signalMetric("window", _fmtDur(elapsed)),
+        streak ? _signalMetric("streak", `${streak} saves`, streak >= 3 ? "warn" : "") : "",
+        _signalMetric("multipliers", `gather ${gatherPotMult}x / instant ${instSpeed}x`),
+      ], tuneNote)}`;
     }
     // v474: lvl_burst:skill from=X to=Y delta=N gap=Zs  (multi-level jump)
     if ((m = text.match(/^lvl_burst:(\w+) from=(\d+) to=(\d+) delta=(\d+) gap=(-?[\d.]+)s/))) {
