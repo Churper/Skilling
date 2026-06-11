@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1124">
+  <link rel="stylesheet" href="./style.css?v=1125">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -68,6 +68,7 @@
     <div class="ui-pony-fuel-track">
       <div id="ui-boat-boost-fill" class="ui-pony-fuel-fill" style="background:linear-gradient(90deg,#4dd2ff,#7af0ff);"></div>
     </div>
+    <button id="ui-boat-boost-btn" type="button" aria-label="Hold to boost">&#x26A1;</button>
   </div>
   <!-- Hidden login form for Chrome password autofill detection -->
   <form style="position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none" aria-hidden="true" autocomplete="on" method="post" action="javascript:void(0)">
@@ -749,7 +750,6 @@
         <div class="stg-pane" data-stg-pane="interface" hidden>
           <div class="stg-pane-head"><h3>Interface</h3></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Multi-Window Mode</span><span class="stg-hint">Pop panels like Inventory into separate draggable windows</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-multi-window"><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Inventory Reflow Animation</span><span class="stg-hint">Animate inventory boxes when resizing changes the grid</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-inventory-reflow-anim"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Classic Layout</span><span class="stg-hint">Locked OSRS-style fixed layout (right column with minimap, panel, tabs)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-classic-layout"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">UI Theme</span><span class="stg-ctrl"><select id="setting-classic-theme" class="stg-sel"><option value="default">Default</option><option value="wood">Wood</option><option value="glass">Glass</option><option value="stained">Stained Glass</option><option value="frost">Frost</option><option value="verdant">Verdant</option><option value="sunset">Sunset</option><option value="arcane">Arcane</option><option value="volcanic">Volcanic</option><option value="royal">Royal</option><option value="cyber">Cyber</option><option value="bone">Bone</option></select></span></div>
           <div class="stg-row"><span class="stg-label">UI Scale</span><span class="stg-ctrl"><input type="range" id="setting-ui-scale" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-ui-scale-label">100%</span></span></div>
@@ -759,6 +759,7 @@
           <div class="stg-row"><span class="stg-label">Cursor</span><span class="stg-ctrl"><select id="setting-cursor" class="stg-sel"><option value="default">Default</option><option value="leaf">Leaf</option><option value="slime">Slime</option><option value="crosshair">Crosshair</option></select></span></div>
           <div class="stg-row"><span class="stg-label">Camera Angle</span><span class="stg-ctrl"><select id="setting-camera-angle" class="stg-sel"><option value="default">Isometric (Default)</option><option value="high">High Angle</option><option value="low">Low Angle</option><option value="close">Close-up</option><option value="shoulder">Over Shoulder</option><option value="first">First Person</option></select></span></div>
           <div class="stg-row"><span class="stg-label">Camera FOV</span><span class="stg-ctrl"><input type="range" id="setting-camera-fov" min="-15" max="20" step="1" value="0" class="stg-range"><span class="stg-range-val" id="setting-camera-fov-label">+0°</span></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Keys</span><span class="stg-hint">Arrow keys / WASD rotate the camera instead of walking (click-to-walk stays on)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-camera-keys"><span class="stg-tog-track"></span></label></span></div>
           <label class="stg-row" id="setting-hat-row" hidden><span class="stg-label">Party Hat</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hat"><span class="stg-tog-track"></span></label></span></label>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Indicator</span><span class="stg-hint">Visual countdown of your 12 min / 6 hr gather AFK limit (sound plays when it expires)</span></span><span class="stg-ctrl"><select id="setting-afk-indicator" class="stg-sel"><option value="bar">Bar above tabs</option><option value="ring">Ring on node</option><option value="both">Both</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Low Detail Full Map</span><span class="stg-hint">Use simple circles for tiny far-zoom islands</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-minimap-low-detail"><span class="stg-tog-track"></span></label></span></div>
@@ -1514,6 +1515,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=1124"></script>
+  <script type="module" src="./main.js?v=1125"></script>
 </body>
 </html>

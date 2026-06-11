@@ -1532,8 +1532,8 @@ function fmtTime(ts) {
 function fmtNum(n) { return Number(n || 0).toLocaleString(); }
 function sigBadgeClass(sig) {
   /* v434: stackable_rate replaces stackable_spike; checksum_stale + label_spoof retired (back-compat kept). */
-  if (sig === "xp_megaspike" || sig === "stackable_rate" || sig === "stackable_spike" || sig === "uid_spike" || sig === "coin_spike" || sig === "stack_at_cap" || sig === "multi_skill_burst") return "hot";
-  if (sig === "xp_rate" || sig === "xp_ceiling_exceeded" || sig === "gather_xp_speedhack" || sig === "gather_speedhack" || sig === "lvl_burst" || sig === "label_spoof" || sig === "tl_mismatch" || sig === "xp_level" || sig === "item_rate_exceeded") return "warn";
+  if (sig === "xp_megaspike" || sig === "stackable_rate" || sig === "stackable_spike" || sig === "uid_spike" || sig === "coin_spike" || sig === "stack_at_cap" || sig === "multi_skill_burst" || sig === "negative_item_qty" || sig === "farm_patch_state_invalid") return "hot";
+  if (sig === "xp_rate" || sig === "xp_ceiling_exceeded" || sig === "gather_xp_speedhack" || sig === "gather_speedhack" || sig === "lvl_burst" || sig === "label_spoof" || sig === "tl_mismatch" || sig === "xp_level" || sig === "item_rate_exceeded" || sig === "xp_rate_anomaly" || sig === "sustained_rate_anomaly" || sig === "gather_rate_excess" || sig === "level_jump" || sig === "first_save_oversized") return "warn";
   return "";
 }
 
@@ -2189,6 +2189,63 @@ function _prettySignal(text) {
     if (text.startsWith("negative_coins")) return `${_tag("cheat")}🚫 Negative coins attempted${_verdict("save tried to write coin < 0", "var(--hot)")}`;
     if (text.startsWith("uid_decrease_blocked")) return `${_tag("audit")}🚫 UID counter decrease blocked${_verdict("stale save rejected — usually old tab / retry / network ordering")}`;
     if ((m = text.match(/^star>15:(.+)=(\d+)/))) return `${_tag("cheat")}⭐ <b>${esc(m[1])}</b> at ${m[2]}★${_verdict("max legit is 15★ — client-side forge", "var(--hot)")}`;
+    // ── AC v2 legacy-message formats (0177+ repro pipeline) ──
+    // gather_rate_excess:skill rate=N/min cap=M res=Item ratio=R tier=T (0185)
+    if ((m = text.match(/^gather_rate_excess:(\w+) rate=([\d.]+)\/min cap=([\d.]+) res=([^=]*?) ratio=([\d.]*) tier=(\w*)/))) {
+      const skill = m[1], rate = Number(m[2]), cap = Number(m[3]), res = m[4].trim(), ratio = Number(m[5]) || (rate / Math.max(1, cap));
+      const sev = ratio >= 5 ? "cheat" : ratio >= 3 ? "bot" : "sus";
+      const color = ratio >= 5 ? "var(--hot)" : ratio >= 3 ? "#ff8c40" : "var(--warn)";
+      return `${_tag(sev)}${_skillTag(skill)} <b>${esc(res || "?")}</b> ${_shortNum(rate)}/min vs cap ${_shortNum(cap)}/min${m[6] ? ` (${esc(m[6])} tool)` : ""}${_verdict(`${ratio.toFixed(1)}× the per-resource gather cap — small-multiplier speedhack tier`, color)}`;
+    }
+    // sustained_rate_anomaly:skill seen=N cap=M (v2 rate window; skill may be "_items")
+    if ((m = text.match(/^sustained_rate_anomaly:(\w+) seen=([\d.]+) cap=([\d.]+)/))) {
+      const skill = m[1], seen = Number(m[2]), cap = Number(m[3]);
+      const ratio = seen / Math.max(1, cap);
+      const sev = ratio >= 5 ? "cheat" : ratio >= 2 ? "bot" : "sus";
+      const color = ratio >= 5 ? "var(--hot)" : ratio >= 2 ? "#ff8c40" : "var(--warn)";
+      const label = skill === "_items" ? "🎒 <b>item gain</b>" : _skillTag(skill);
+      return `${_tag(sev)}${label} <b>${_shortNum(seen)}</b> in rate window vs cap <b>${_shortNum(cap)}</b>${_verdict(`${ratio.toFixed(1)}× sustained window cap`, color)}`;
+    }
+    // xp_rate_anomaly:skill +N allowed=M (v2 generic per-save XP guard)
+    if ((m = text.match(/^xp_rate_anomaly:(\w+) \+(\d+) allowed=(\d+)/))) {
+      const skill = m[1], delta = Number(m[2]), allowed = Number(m[3]);
+      const ratio = delta / Math.max(1, allowed);
+      const sev = ratio >= 10 ? "cheat" : ratio >= 3 ? "bot" : "sus";
+      const color = ratio >= 10 ? "var(--hot)" : ratio >= 3 ? "#ff8c40" : "var(--warn)";
+      return `${_tag(sev)}${_skillTag(skill)} <b>+${_shortNum(delta)} XP</b> one save vs allowance ${_shortNum(allowed)}${_verdict(`${ratio.toFixed(1)}× the save-window XP allowance`, color)}`;
+    }
+    // level_jump:skill +N levels (v2)
+    if ((m = text.match(/^level_jump:(\w+) \+(\d+) levels/))) {
+      const n = Number(m[2]);
+      const sev = n >= 10 ? "cheat" : n >= 5 ? "bot" : "sus";
+      const color = n >= 10 ? "var(--hot)" : n >= 5 ? "#ff8c40" : "var(--warn)";
+      return `${_tag(sev)}${_skillTag(m[1])} <b>+${n} levels in one save</b>${_verdict(n >= 5 ? "multi-level single-save jump — injection unless batch turn-in (cooking/scribing)" : "level jump — check paired XP signal", color)}`;
+    }
+    // stackable_rate:Item +N uncredited (v2 — no source credit covers the gain)
+    if ((m = text.match(/^stackable_rate:([^+]+?)\s+\+(\d+) uncredited/))) {
+      const qty = Number(m[2]);
+      const sev = qty >= 10_000 ? "cheat" : qty >= 1_000 ? "bot" : "sus";
+      const color = qty >= 10_000 ? "var(--hot)" : qty >= 1_000 ? "#ff8c40" : "var(--warn)";
+      return `${_tag(sev)}🔥 <b>${esc(m[1].trim())}</b> +${_shortNum(qty)} with no source credit${_verdict("item gain not covered by any logged source (gather/trade/market/mail)", color)}`;
+    }
+    // negative_item_qty:N items (v2 — forged save)
+    if ((m = text.match(/^negative_item_qty:(\d+) items/))) {
+      return `${_tag("cheat")}🚫 <b>${m[1]} item stack(s) with negative quantity</b>${_verdict("forged save — quantities can never go below 0", "var(--hot)")}`;
+    }
+    // multi_skill_burst:N skills (v2 bare form — no bracket list)
+    if ((m = text.match(/^multi_skill_burst:(\d+) skills/))) {
+      const n = Number(m[1]);
+      const sev = n >= 5 ? "cheat" : n >= 4 ? "bot" : "sus";
+      return `${_tag(sev)}🤖 <b>${n} skills XP'd same save</b>${_verdict("humans train 1 skill at a time — bot signature", "var(--hot)")}`;
+    }
+    // farm_patch_state_invalid:N patches (v2 bare form)
+    if ((m = text.match(/^farm_patch_state_invalid:(\d+) patches/))) {
+      return `${_tag("cheat")}🌾 <b>Forged farm state</b> — save claims ${m[1]} farm patches${_verdict("more patches than the game can place — forged save", "var(--hot)")}`;
+    }
+    // first_save_oversized:tl=N coins=M uid=K (v2 — flag-only on first cloud save)
+    if ((m = text.match(/^first_save_oversized:tl=(\d+) coins=(\d+) uid=(\d+)/))) {
+      return `${_tag("sus")}🆕 <b>First cloud save arrived big</b> — TL ${m[1]}, ${_shortNum(Number(m[2]))} coins, ${_shortNum(Number(m[3]))} item UIDs${_verdict("can be legit guest-progress import — compare against local-play history before acting")}`;
+    }
     // ac_err:... code=...
     if ((m = text.match(/^ac_err:(.+) code=(\w+)/))) {
       return `${_tag("audit")}❌ <span style="color:var(--ink-3)">AC helper error — ${esc(m[1])} (code ${m[2]})</span>`;

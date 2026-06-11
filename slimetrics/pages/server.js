@@ -38,8 +38,8 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       ${newSlimesStrip(welcome)}
 
       <div class="srv-stat-grid" style="margin-top:18px">
-        ${statCard("Online Now", nf(o.online_now), `peak today ${nf(o.peak_today)} · all-time ${nf(o.peak_alltime)}`, "var(--slime)", "", "is-live")}
-        ${statCard("Total Slimes", nf(o.total_accounts), `${nf(o.signups_today || 0)} joined today`, "#b692ff", sparkline(signups))}
+        ${statCard("Online Now", nf(o.online_now), `peak today <span class="num">${nf(o.peak_today)}</span> · all-time <span class="num">${nf(o.peak_alltime)}</span>`, "var(--slime)", "", "is-live")}
+        ${statCard("Total Slimes", nf(o.total_accounts), `<span class="num">${nf(o.signups_today || 0)}</span> joined today`, "#b692ff", sparkline(signups))}
         ${statCard("Sapling vs Legacy", nf((o.saplings || 0) + (o.legacy || 0)), "all registered slimes", "#5ee7e0", saplingsBar(o))}
       </div>
 
@@ -52,7 +52,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       <div class="srv-stat-grid" style="margin-top:14px">
         ${statCard("XP Today", nfShort(o.xp_today), "across all slimes", "var(--slime)")}
         ${statCard("Levels Up Today", nf(o.levels_today), "summed gains", "#7dffc1")}
-        ${statCard("Bosses Killed Today", nf(o.bosses_today), `${nf(compactBossRows(bosses).length)} in ticker`, "#ff6b9d")}
+        ${statCard("Bosses Killed Today", nf(o.bosses_today), `<span class="num">${nf(compactBossRows(bosses).length)}</span> in ticker`, "#ff6b9d")}
         ${statCard("Islands Charted Today", nf(o.islands_today), "first-time discoveries", "#79c7ff")}
       </div>
 
@@ -398,7 +398,7 @@ function bossOfDayCard(row) {
       ${hasBoss ? bossSpriteHtml(row.boss, "is-stat") : ""}
       <div class="srv-boss-day-copy">
         <div class="srv-stat-value">${hasBoss ? escapeHtml(prettyBoss(row.boss)) : "—"}</div>
-        <div class="srv-stat-sub">${hasBoss ? `${nf(row.count || 0)} kills today` : "no kills yet"}</div>
+        <div class="srv-stat-sub">${hasBoss ? `<span class="num">${nf(row.count || 0)}</span> kills today` : "no kills yet"}</div>
       </div>
     </div>
   </div>`;
