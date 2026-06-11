@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1127">
+  <link rel="stylesheet" href="./style.css?v=1128">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -753,6 +753,7 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Classic Layout</span><span class="stg-hint">Locked OSRS-style fixed layout (right column with minimap, panel, tabs)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-classic-layout"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Control</span><span class="stg-hint">Camera Keys: arrows/WASD rotate the camera (click-to-walk). Follow: camera turns behind your slime as it moves. Both: WASD walks, arrows rotate, camera follows.</span></span><span class="stg-ctrl"><select id="setting-camera-mode" class="stg-sel"><option value="off">Off</option><option value="keys">Camera Keys</option><option value="follow">Follow Slime</option><option value="both">Both</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Keys</span><span class="stg-hint">Which keys rotate the camera when Camera Control is on — the rest keep walking</span></span><span class="stg-ctrl"><select id="setting-camera-keybind" class="stg-sel"><option value="both">Arrows + WASD</option><option value="arrows">Arrows Only</option><option value="wasd">WASD Only</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mouse Camera</span><span class="stg-hint">Turn off camera rotate (right/middle drag) or zoom (scroll wheel) from the mouse</span></span><span class="stg-ctrl"><select id="setting-mouse-camera" class="stg-sel"><option value="on">On</option><option value="no-rotate">No Rotate</option><option value="no-zoom">No Zoom</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label">UI Theme</span><span class="stg-ctrl"><select id="setting-classic-theme" class="stg-sel"><option value="default">Default</option><option value="wood">Wood</option><option value="glass">Glass</option><option value="stained">Stained Glass</option><option value="frost">Frost</option><option value="verdant">Verdant</option><option value="sunset">Sunset</option><option value="arcane">Arcane</option><option value="volcanic">Volcanic</option><option value="royal">Royal</option><option value="cyber">Cyber</option><option value="bone">Bone</option></select></span></div>
           <div class="stg-row"><span class="stg-label">UI Scale</span><span class="stg-ctrl"><input type="range" id="setting-ui-scale" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-ui-scale-label">100%</span></span></div>
           <div class="stg-row"><span class="stg-label">Panel Scale</span><span class="stg-ctrl"><input type="range" id="setting-panel-scale" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-panel-scale-label">100%</span></span></div>
@@ -1518,6 +1519,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=1127"></script>
+  <script type="module" src="./main.js?v=1128"></script>
 </body>
 </html>
