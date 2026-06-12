@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1128">
+  <link rel="stylesheet" href="./style.css?v=1131">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -709,11 +709,12 @@
         <button type="button" class="stg-tab is-active" data-stg-tab="profile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="stg-tab-nm">Profile</span></button>
         <button type="button" class="stg-tab" data-stg-tab="audio"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2M7 8v8M11 4v16M15 8v8M19 12h2"/></svg><span class="stg-tab-nm">Audio</span></button>
         <button type="button" class="stg-tab" data-stg-tab="interface"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><span class="stg-tab-nm">Interface</span></button>
+        <button type="button" class="stg-tab" data-stg-tab="camera"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 8l-7 4 7 4V8z"/><rect x="1" y="6" width="15" height="12" rx="2"/></svg><span class="stg-tab-nm">Camera</span></button>
         <button type="button" class="stg-tab" data-stg-tab="chat"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a7.5 7.5 0 0 1-7.5 7.5H7l-4 2 1.4-4A7.5 7.5 0 1 1 21 12Z"/><path d="M8 11h8M8 15h5"/></svg><span class="stg-tab-nm">Chat</span></button>
         <button type="button" class="stg-tab" data-stg-tab="toggles"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="5" rx="2.5"/><circle cx="7.5" cy="8" r="1.1"/><rect x="3" y="13.5" width="18" height="5" rx="2.5"/><circle cx="16.5" cy="16" r="1.1"/></svg><span class="stg-tab-nm">Toggles</span></button>
         <button type="button" class="stg-tab" data-stg-tab="video"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M19 15l.8 2 2 .8-2 .8L19 21l-.8-1.4-2-.8 2-.8z"/></svg><span class="stg-tab-nm">Video</span></button>
         <button type="button" class="stg-tab" data-stg-tab="debug"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M3 10l3 2M3 17l3-1M21 10l-3 2M21 17l-3-1M9 6V4M15 6V4M12 10v8"/></svg><span class="stg-tab-nm">Debug</span></button>
-        <button type="button" class="stg-tab" data-stg-tab="binds"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg><span class="stg-tab-nm">Hotkeys</span></button>
+        <button type="button" class="stg-tab" data-stg-tab="binds"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg><span class="stg-tab-nm">Keybinds</span></button>
       </div>
       <div class="stg-body">
         <!-- Profile -->
@@ -751,9 +752,6 @@
           <div class="stg-pane-head"><h3>Interface</h3></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Multi-Window Mode</span><span class="stg-hint">Pop panels like Inventory into separate draggable windows</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-multi-window"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Classic Layout</span><span class="stg-hint">Locked OSRS-style fixed layout (right column with minimap, panel, tabs)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-classic-layout"><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Control</span><span class="stg-hint">Camera Keys: arrows/WASD rotate the camera (click-to-walk). Follow: camera turns behind your slime as it moves. Both: WASD walks, arrows rotate, camera follows.</span></span><span class="stg-ctrl"><select id="setting-camera-mode" class="stg-sel"><option value="off">Off</option><option value="keys">Camera Keys</option><option value="follow">Follow Slime</option><option value="both">Both</option></select></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Keys</span><span class="stg-hint">Which keys rotate the camera when Camera Control is on — the rest keep walking</span></span><span class="stg-ctrl"><select id="setting-camera-keybind" class="stg-sel"><option value="both">Arrows + WASD</option><option value="arrows">Arrows Only</option><option value="wasd">WASD Only</option></select></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mouse Camera</span><span class="stg-hint">Turn off camera rotate (right/middle drag) or zoom (scroll wheel) from the mouse</span></span><span class="stg-ctrl"><select id="setting-mouse-camera" class="stg-sel"><option value="on">On</option><option value="no-rotate">No Rotate</option><option value="no-zoom">No Zoom</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label">UI Theme</span><span class="stg-ctrl"><select id="setting-classic-theme" class="stg-sel"><option value="default">Default</option><option value="wood">Wood</option><option value="glass">Glass</option><option value="stained">Stained Glass</option><option value="frost">Frost</option><option value="verdant">Verdant</option><option value="sunset">Sunset</option><option value="arcane">Arcane</option><option value="volcanic">Volcanic</option><option value="royal">Royal</option><option value="cyber">Cyber</option><option value="bone">Bone</option></select></span></div>
           <div class="stg-row"><span class="stg-label">UI Scale</span><span class="stg-ctrl"><input type="range" id="setting-ui-scale" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-ui-scale-label">100%</span></span></div>
           <div class="stg-row"><span class="stg-label">Panel Scale</span><span class="stg-ctrl"><input type="range" id="setting-panel-scale" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-panel-scale-label">100%</span></span></div>
@@ -761,12 +759,19 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Right-Click Examine</span><span class="stg-hint">Add Examine to item and world context menus</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-right-click-examine" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Auto-Retaliate</span><span class="stg-hint">Fight back automatically when attacked. Off: keep walking when hit</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-retaliate" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Cursor</span><span class="stg-ctrl"><select id="setting-cursor" class="stg-sel"><option value="default">Default</option><option value="leaf">Leaf</option><option value="slime">Slime</option><option value="crosshair">Crosshair</option></select></span></div>
-          <div class="stg-row"><span class="stg-label">Camera Angle</span><span class="stg-ctrl"><select id="setting-camera-angle" class="stg-sel"><option value="default">Isometric (Default)</option><option value="high">High Angle</option><option value="low">Low Angle</option><option value="close">Close-up</option><option value="shoulder">Over Shoulder</option><option value="first">First Person</option></select></span></div>
-          <div class="stg-row"><span class="stg-label">Camera FOV</span><span class="stg-ctrl"><input type="range" id="setting-camera-fov" min="-15" max="20" step="1" value="0" class="stg-range"><span class="stg-range-val" id="setting-camera-fov-label">+0°</span></span></div>
           <label class="stg-row" id="setting-hat-row" hidden><span class="stg-label">Party Hat</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hat"><span class="stg-tog-track"></span></label></span></label>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Indicator</span><span class="stg-hint">Visual countdown of your 12 min / 6 hr gather AFK limit (sound plays when it expires)</span></span><span class="stg-ctrl"><select id="setting-afk-indicator" class="stg-sel"><option value="bar">Bar above tabs</option><option value="ring">Ring on node</option><option value="both">Both</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Low Detail Full Map</span><span class="stg-hint">Use simple circles for tiny far-zoom islands</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-minimap-low-detail"><span class="stg-tog-track"></span></label></span></div>
           <button type="button" id="setting-reset-ui" class="stg-reset-btn">Reset UI to Default</button>
+        </div>
+        <!-- Camera -->
+        <div class="stg-pane" data-stg-pane="camera" hidden>
+          <div class="stg-pane-head"><h3>Camera</h3></div>
+          <div class="stg-row"><span class="stg-label">Camera Angle</span><span class="stg-ctrl"><select id="setting-camera-angle" class="stg-sel"><option value="default">Isometric (Default)</option><option value="high">High Angle</option><option value="low">Low Angle</option><option value="close">Close-up</option><option value="shoulder">Over Shoulder</option><option value="first">First Person</option></select></span></div>
+          <div class="stg-row"><span class="stg-label">Camera FOV</span><span class="stg-ctrl"><input type="range" id="setting-camera-fov" min="-15" max="20" step="1" value="0" class="stg-range"><span class="stg-range-val" id="setting-camera-fov-label">+0°</span></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Control</span><span class="stg-hint">Camera Keys: arrows/WASD rotate the camera (click-to-walk). Follow: camera turns behind your slime as it moves. Both: WASD walks, arrows rotate, camera follows.</span></span><span class="stg-ctrl"><select id="setting-camera-mode" class="stg-sel"><option value="off">Off</option><option value="keys">Camera Keys</option><option value="follow">Follow Slime</option><option value="both">Both</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Keys</span><span class="stg-hint">Which keys rotate the camera when Camera Control is on — the rest keep walking</span></span><span class="stg-ctrl"><select id="setting-camera-keybind" class="stg-sel"><option value="both">Arrows + WASD</option><option value="arrows">Arrows Only</option><option value="wasd">WASD Only</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mouse Camera</span><span class="stg-hint">Turn off camera rotate (right/middle drag) or zoom (scroll wheel) from the mouse</span></span><span class="stg-ctrl"><select id="setting-mouse-camera" class="stg-sel"><option value="on">On</option><option value="no-rotate">No Rotate</option><option value="no-zoom">No Zoom</option><option value="off">Off</option></select></span></div>
         </div>
         <!-- Chat -->
         <div class="stg-pane" data-stg-pane="chat" hidden>
@@ -851,21 +856,39 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Hide Foam Ribbons</span><span class="stg-hint">Shore foam geometry strips</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-dbg-hide-foam"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Flat Terrain Color</span><span class="stg-hint">Strip vertex colors — see pure mesh</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-dbg-flat-color"><span class="stg-tog-track"></span></label></span></div>
         </div>
-        <!-- Hotkeys -->
+        <!-- Keybinds -->
         <div class="stg-pane" data-stg-pane="binds" hidden>
-          <div class="stg-pane-head"><h3>Hotkeys</h3></div>
+          <div class="stg-pane-head"><h3>Keybinds</h3></div>
+          <div class="stg-section-title">Movement</div>
+          <div class="stg-row-pair">
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="move_forward"><span class="stg-label">Move Forward</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="move_back"><span class="stg-label">Move Backward</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="move_left"><span class="stg-label">Move Left</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="move_right"><span class="stg-label">Move Right</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+          </div>
           <div class="stg-section-title">Tab Hotkeys</div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-tab="inventory"><span class="stg-label">Inventory</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-tab="prayer"><span class="stg-label">Prayer</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-tab="emotes"><span class="stg-label">Emotes</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-tab="skills"><span class="stg-label">Skills</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-tab="worn"><span class="stg-label">Worn</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+          <div class="stg-row-pair">
+            <div class="stg-row ui-hotkey-row" data-hotkey-tab="inventory"><span class="stg-label">Inventory</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-tab="prayer"><span class="stg-label">Prayer</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-tab="emotes"><span class="stg-label">Emotes</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-tab="skills"><span class="stg-label">Skills</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-tab="worn"><span class="stg-label">Worn</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+          </div>
           <div class="stg-section-title">Action Binds</div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-action="jump"><span class="stg-label">Jump</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-action="crouch"><span class="stg-label">Crouch</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-action="protect_melee"><span class="stg-label">Protect Melee</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-action="protect_range"><span class="stg-label">Protect Ranged</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
-          <div class="stg-row ui-hotkey-row" data-hotkey-action="protect_mage"><span class="stg-label">Protect Magic</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+          <div class="stg-row-pair">
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="jump"><span class="stg-label">Jump</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="crouch"><span class="stg-label">Crouch</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="protect_melee"><span class="stg-label">Protect Melee</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="protect_range"><span class="stg-label">Protect Ranged</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="protect_mage"><span class="stg-label">Protect Magic</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+          </div>
+          <div class="stg-section-title">Interface</div>
+          <div class="stg-row-pair">
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="map"><span class="stg-label">World Map</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="guide"><span class="stg-label">Guide / Wiki</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="quick_inventory"><span class="stg-label">Quick Inventory</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="quick_worn"><span class="stg-label">Quick Worn</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+          </div>
         </div>
       </div>
       <div class="stg-foot">
@@ -1519,6 +1542,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=1128"></script>
+  <script type="module" src="./main.js?v=1131"></script>
 </body>
 </html>

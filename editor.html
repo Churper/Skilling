@@ -293,7 +293,7 @@ import {
   riverQuery, distToPath, terrainH,
 } from "./game/terrainHeight.js";
 import {
-  getMeshSurfaceY, loadTiles, buildBridge, buildDock, buildFences,
+  getMeshSurfaceY, loadTiles, buildDock,
   buildSteppingStones, addWaterfall, buildProps,
   TREE_SPOTS, ROCK_MAJOR_SPOTS, ROCK_SMALL_SPOTS, BUSH_SPOTS, CLIFF_ROCK_SPOTS,
 } from "./game/terrainLayout.js";
@@ -448,40 +448,10 @@ const OBJ_CATEGORIES = [
     { id: "Bamboo", file: "Bamboo.glb", scale: 0.8 },
     { id: "Meat_Tree", file: "Meat_Tree.glb", scale: 1.0 },
   ]},
-  { name: "Fences", dir: TILE_DIR, items: [
-    { id: "Prop_Fence_Boards_1", file: "Prop_Fence_Boards_1.glb", scale: 1.0 },
-    { id: "Prop_Fence_Boards_2", file: "Prop_Fence_Boards_2.glb", scale: 1.0 },
-    { id: "Prop_Fence_Boards_3", file: "Prop_Fence_Boards_3.glb", scale: 1.0 },
-    { id: "Prop_Fence_Boards_4", file: "Prop_Fence_Boards_4.glb", scale: 1.0 },
-    { id: "Prop_Fence_Post_1", file: "Prop_Fence_Post_1.glb", scale: 1.0 },
-    { id: "Prop_Fence_Post_2", file: "Prop_Fence_Post_2.glb", scale: 1.0 },
-    { id: "Prop_Fence_Post_3", file: "Prop_Fence_Post_3.glb", scale: 1.0 },
-    { id: "Prop_Fence_Post_4", file: "Prop_Fence_Post_4.glb", scale: 1.0 },
-    { id: "Prop_Fence_Curve_1x1", file: "Prop_Fence_Curve_1x1.glb", scale: 1.0 },
-    { id: "Prop_Fence_Curve_2x2", file: "Prop_Fence_Curve_2x2.glb", scale: 1.0 },
-    { id: "Prop_Fence_Curve_3x3", file: "Prop_Fence_Curve_3x3.glb", scale: 1.0 },
-    { id: "Prop_Fence_Gate_1", file: "Prop_Fence_Gate_1.glb", scale: 1.0 },
-    { id: "Prop_Fence_Gate_2", file: "Prop_Fence_Gate_2.glb", scale: 1.0 },
-    { id: "Prop_Fence_Hill_Gentle", file: "Prop_Fence_Hill_Gentle.glb", scale: 1.0 },
-    { id: "Prop_Fence_Hill_Sharp", file: "Prop_Fence_Hill_Sharp.glb", scale: 1.0 },
-  ]},
-  { name: "Bridge", dir: TILE_DIR, items: [
-    { id: "Prop_Bridge_Log_End", file: "Prop_Bridge_Log_End.glb", scale: 1.0 },
-    { id: "Prop_Bridge_Log_End_Edge", file: "Prop_Bridge_Log_End_Edge.glb", scale: 1.0 },
-    { id: "Prop_Bridge_Log_Middle", file: "Prop_Bridge_Log_Middle.glb", scale: 1.0 },
-    { id: "Prop_Bridge_Log_Middle_Edge", file: "Prop_Bridge_Log_Middle_Edge.glb", scale: 1.0 },
-    { id: "Prop_Bridge_Log_Post_Support", file: "Prop_Bridge_Log_Post_Support.glb", scale: 1.0 },
-    { id: "Prop_Bridge_Log_Post_Top", file: "Prop_Bridge_Log_Post_Top.glb", scale: 1.0 },
-    { id: "Prop_Bridge_Rope_End", file: "Prop_Bridge_Rope_End.glb", scale: 1.0 },
-    { id: "Prop_Bridge_Rope_Middle", file: "Prop_Bridge_Rope_Middle.glb", scale: 1.0 },
-    { id: "Prop_Bridge_Rope_Rope_Support", file: "Prop_Bridge_Rope_Rope_Support.glb", scale: 1.0 },
-  ]},
   { name: "Dock", dir: TILE_DIR, items: [
     { id: "Prop_Docks_Straight", file: "Prop_Docks_Straight.glb", scale: 1.0 },
     { id: "Prop_Docks_Straight_Supports", file: "Prop_Docks_Straight_Supports.glb", scale: 1.0 },
     { id: "Prop_Docks_Steps", file: "Prop_Docks_Steps.glb", scale: 1.0 },
-    { id: "Prop_Docks_Corner", file: "Prop_Docks_Corner.glb", scale: 1.0 },
-    { id: "Prop_Docks_Corner_Supports", file: "Prop_Docks_Corner_Supports.glb", scale: 1.0 },
   ]},
   { name: "Buildings", dir: TILE_DIR, items: [
     { id: "Farm", file: "Farm.glb", scale: 1.0 },
@@ -1541,7 +1511,7 @@ async function loadGameStructures() {
     if (tileLib[tk] && !objLib[ok]) objLib[ok] = tileLib[tk];
   }
 
-  /* ── Bridge / Dock / Fences — register whole group as single editable object ── */
+  /* ── Dock / stepping stones — register whole group as single editable object ── */
   function groupAsObject(group, typeLabel) {
     scene.add(group);
     group.updateMatrixWorld(true);
@@ -1550,9 +1520,7 @@ async function loadGameStructures() {
     const id = nextObjId++;
     objects.push({ id, type: typeLabel, x: center.x, z: center.z, y: center.y, scale: 1, rot: 0, mesh: group });
   }
-  groupAsObject(buildBridge(tileLib), "bridge");
   groupAsObject(buildDock(tileLib), "dock");
-  groupAsObject(buildFences(tileLib), "fence");
   groupAsObject(buildSteppingStones(), "stepping_stones");
 
   /* ── Props — replicate scatter using objLib keys for proper export ── */

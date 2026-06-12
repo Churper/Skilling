@@ -140,26 +140,12 @@ function _terrainBiomeAt(bounds, x, z) {
 /* ── tile catalogue ── */
 const TILE_DIR = "models/terrain/";
 const TILES = {
-  /* structure */
-  bridgeEnd:   "Prop_Bridge_Log_End.glb",
-  bridgeEndE:  "Prop_Bridge_Log_End_Edge.glb",
-  bridgeMid:   "Prop_Bridge_Log_Middle.glb",
-  bridgeMidE:  "Prop_Bridge_Log_Middle_Edge.glb",
-  bridgePost:  "Prop_Bridge_Log_Post_Support.glb",
-  bridgePostT: "Prop_Bridge_Log_Post_Top.glb",
-  fenceBoard1: "Prop_Fence_Boards_1.glb",
-  fenceBoard2: "Prop_Fence_Boards_2.glb",
-  fenceBoard3: "Prop_Fence_Boards_3.glb",
-  fenceBoard4: "Prop_Fence_Boards_4.glb",
-  fencePost1:  "Prop_Fence_Post_1.glb",
-  fencePost2:  "Prop_Fence_Post_2.glb",
-  fencePost3:  "Prop_Fence_Post_3.glb",
-  fencePost4:  "Prop_Fence_Post_4.glb",
+  /* structure — these 3 dock pieces are LIVE (procgen island boat-travel
+     docks + editor mainland dock). Rest of the tilepack (bridge/fence/
+     dock corners/hill/path/sand tiles) purged 2026-06 — unused. */
   dockStr:     "Prop_Docks_Straight.glb",
   dockStrSup:  "Prop_Docks_Straight_Supports.glb",
   dockSteps:   "Prop_Docks_Steps.glb",
-  dockCorner:  "Prop_Docks_Corner.glb",
-  dockCornerSup: "Prop_Docks_Corner_Supports.glb",
   /* props */
   grassClump1:     "Prop_Grass_Clump_1.glb",
   grassClump2:     "Prop_Grass_Clump_2.glb",
@@ -1467,89 +1453,6 @@ export function buildProps(lib, scene) {
 }
 
 /* ═══════════════════════════════════════════
-   buildBridge — log bridge crossing the river
-   ═══════════════════════════════════════════ */
-
-export function buildBridge(lib) {
-  const group = new THREE.Group();
-  group.name = "bridge";
-  const bz = 8;
-  const deckY = WATER_Y + 0.35;
-
-  /*  Bridge runs along X at z=8.  All pieces use rotation.y = π/2.
-      Model defaults: ramp descends toward local -Z, railing on local -X.
-      After π/2 rotation: ramp → west (-X), railing → north (+Z).
-      scale.x flips railing side:  +1 = north,  -1 = south
-      scale.z flips ramp direction: +1 = west (left end), -1 = east (right end) */
-
-  const xs = [-4, -2, 0, 2, 4];
-  for (let i = 0; i < xs.length; i++) {
-    const isEnd = i === 0 || i === xs.length - 1;
-    const isRightEnd = i === xs.length - 1;
-
-    /* main plank — only end pieces have a ramp to flip */
-    const tmpl = isEnd ? lib.bridgeEnd : lib.bridgeMid;
-    if (tmpl) {
-      const m = tmpl.clone();
-      m.scale.setScalar(TILE_S);
-      m.position.set(xs[i], deckY, bz);
-      m.rotation.y = isRightEnd ? -Math.PI / 2 : Math.PI / 2;
-      group.add(m);
-    }
-
-    /* edge railings — scale.x for side, scale.z for ramp direction */
-    const eTmpl = isEnd ? lib.bridgeEndE : lib.bridgeMidE;
-    if (eTmpl) {
-      const flipZ = (isEnd && isRightEnd) ? -1 : 1;
-      for (const side of [1, -1]) {
-        const e = eTmpl.clone();
-        e.scale.set(side * TILE_S, TILE_S, flipZ * TILE_S);
-        e.position.set(xs[i], deckY, bz + side * TILE_S * 0.5);
-        e.rotation.y = Math.PI / 2;
-        group.add(e);
-      }
-    }
-  }
-
-  /* support posts at each end */
-  const endXs = [xs[0], xs[xs.length - 1]];
-  for (let ei = 0; ei < endXs.length; ei++) {
-    const px = endXs[ei];
-    const flipZ = ei === 1 ? -1 : 1;
-    for (const side of [1, -1]) {
-      if (lib.bridgePost) {
-        const p = lib.bridgePost.clone();
-        p.scale.set(side * TILE_S, TILE_S, flipZ * TILE_S);
-        p.position.set(px, WATER_Y - 0.3, bz + side * TILE_S * 0.4);
-        p.rotation.y = Math.PI / 2;
-        group.add(p);
-      }
-      if (lib.bridgePostT) {
-        const pt = lib.bridgePostT.clone();
-        pt.scale.set(side * TILE_S, TILE_S, flipZ * TILE_S);
-        pt.position.set(px, deckY, bz + side * TILE_S * 0.4);
-        pt.rotation.y = Math.PI / 2;
-        group.add(pt);
-      }
-    }
-  }
-
-  /* invisible walkable deck */
-  const span = (xs[xs.length - 1] - xs[0]) + TILE_S;
-  const cx = (xs[0] + xs[xs.length - 1]) / 2;
-  const deckGeo = new THREE.BoxGeometry(span + 3, 0.4, TILE_S * 2.5);
-  const deckMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
-  const deck = new THREE.Mesh(deckGeo, deckMat);
-  deck.position.set(cx, deckY + 0.1, bz);
-  deck.name = "bridge_deck";
-  group.add(deck);
-
-  group.renderOrder = R_DECOR;
-  group.traverse(o => { if (o.isMesh) o.renderOrder = R_DECOR; });
-  return group;
-}
-
-/* ═══════════════════════════════════════════
    buildDock — wooden dock on the beach
    ═══════════════════════════════════════════ */
 
@@ -1614,66 +1517,6 @@ export function buildDock(lib) {
      you have to set it on every renderable. Without this, dock planks/supports
      render at default 0 (before water at order 2), so water + foam paints
      over them. */
-  group.traverse(o => { if (o.isMesh) o.renderOrder = R_DECOR; });
-  return group;
-}
-
-/* ═══════════════════════════════════════════
-   buildFences — wooden fences along paths
-   ═══════════════════════════════════════════ */
-
-export function buildFences(lib) {
-  const group = new THREE.Group();
-  group.name = "fences";
-  const boardTmpl = lib.fenceBoard1 || lib.fenceBoard2;
-  const postTmpl  = lib.fencePost1 || lib.fencePost2;
-  if (!boardTmpl) return group;
-
-  /* fence runs — none currently */
-  const runs = [
-  ];
-
-  for (const run of runs) {
-    for (let i = 0; i < run.length - 1; i++) {
-      const [ax, az] = run[i], [bx, bz] = run[i + 1];
-      const dx = bx - ax, dz = bz - az;
-      const segLen = Math.hypot(dx, dz);
-      const steps = Math.max(1, Math.round(segLen / TILE_S));
-      const rot = Math.atan2(dx, dz);
-
-      for (let s = 0; s < steps; s++) {
-        const t = s / steps;
-        const x = ax + dx * t, z = az + dz * t;
-        const y = getMeshSurfaceY(x, z);
-
-        /* board at this position, extending forward one tile */
-        const b = boardTmpl.clone();
-        b.scale.setScalar(TILE_S);
-        b.position.set(x, y, z);
-        b.rotation.y = rot + Math.PI / 2;
-        group.add(b);
-
-        /* post at same position */
-        if (postTmpl) {
-          const p = postTmpl.clone();
-          p.scale.setScalar(TILE_S);
-          p.position.set(x, y, z);
-          p.rotation.y = rot + Math.PI / 2;
-          group.add(p);
-        }
-      }
-      /* final post at end of segment */
-      if (postTmpl && i === run.length - 2) {
-        const p = postTmpl.clone();
-        p.scale.setScalar(TILE_S);
-        p.position.set(bx, getMeshSurfaceY(bx, bz), bz);
-        p.rotation.y = rot + Math.PI / 2;
-        group.add(p);
-      }
-    }
-  }
-
-  group.renderOrder = R_DECOR;
   group.traverse(o => { if (o.isMesh) o.renderOrder = R_DECOR; });
   return group;
 }

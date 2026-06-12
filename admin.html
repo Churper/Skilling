@@ -842,6 +842,17 @@
         </div>
       </div>
 
+      <div class="card" style="margin-bottom: 14px;">
+        <h2>💬 Chat Log
+          <span class="h2-pill">last 24h · survives mod clears</span>
+          <button id="chat-log-refresh" class="btn btn-sm" disabled>Refresh</button>
+        </h2>
+        <div id="chat-log-rooms" class="btn-row" style="margin-bottom: 8px; flex-wrap: wrap;"></div>
+        <div id="chat-log-feed" class="feed" style="max-height: 340px;">
+          <div class="feed-empty">Refresh to list rooms with chat, then pick one</div>
+        </div>
+      </div>
+
       <div class="grid grid-2" style="margin-bottom: 14px;">
         <div class="card">
           <h2>📣 Broadcast<span class="h2-pill" id="broadcast-pill">To all players</span></h2>
@@ -1251,6 +1262,59 @@ function renderPlayerActions(actions) {
   playerActionsEls.forEach(el => el.innerHTML = html);
 }
 
+/* ── Chat log (relay mod buffer — survives clears, includes muted/filtered) ── */
+const chatLogRefreshBtn = document.getElementById("chat-log-refresh");
+const chatLogRoomsEl = document.getElementById("chat-log-rooms");
+const chatLogFeedEl = document.getElementById("chat-log-feed");
+let chatLogRoom = "";
+
+function requestChatLog(room) {
+  const key = getKey();
+  if (!key || !ws || ws.readyState !== WebSocket.OPEN) return;
+  ws.send(JSON.stringify({ type: "admin_chat_log", key, ...(room ? { room } : {}) }));
+}
+
+function renderChatLog(msg) {
+  if (msg.rooms) {
+    if (!msg.rooms.length) {
+      chatLogRoomsEl.innerHTML = "";
+      chatLogFeedEl.innerHTML = '<div class="feed-empty">No chat in the last 24h</div>';
+      return;
+    }
+    chatLogRoomsEl.innerHTML = msg.rooms.map(r =>
+      `<button class="btn btn-sm${r.room === chatLogRoom ? " active" : ""}" data-chat-room="${esc(r.room)}">${esc(r.room)} · ${r.count} msg${r.online ? ` · ${r.online} online` : ""}</button>`
+    ).join("");
+    /* re-pull the selected room's messages; otherwise prompt */
+    if (chatLogRoom && msg.rooms.some(r => r.room === chatLogRoom)) requestChatLog(chatLogRoom);
+    else chatLogFeedEl.innerHTML = '<div class="feed-empty">Pick a room above</div>';
+    return;
+  }
+  if (msg.room) chatLogRoom = msg.room;
+  const list = msg.messages || [];
+  if (!list.length) {
+    chatLogFeedEl.innerHTML = '<div class="feed-empty">No messages in this room</div>';
+    return;
+  }
+  chatLogFeedEl.innerHTML = list.slice().reverse().map(m => {
+    const t = new Date(m.ts).toLocaleTimeString([], { hour12: false });
+    let tag = "";
+    if (m.dropped) tag += '<span class="tag" style="background:#5a1f1f;color:#ff8d8d">filtered</span>';
+    if (m.flagged) tag += '<span class="tag" style="background:#5a431f;color:#ffc98d">muted</span>';
+    if (m.cleared) tag += '<span class="tag" style="background:#3a2a4a;color:#cfa8ff">cleared</span>';
+    const txtStyle = m.cleared ? ' style="opacity:.55;text-decoration:line-through"' : "";
+    return `<div class="feed-row"><span class="ts">${t}</span><span class="msg">${tag}<strong>${esc(m.name || "?")}</strong> <span${txtStyle}>${esc(m.text || "")}</span></span></div>`;
+  }).join("");
+}
+
+chatLogRefreshBtn?.addEventListener("click", () => requestChatLog(""));
+chatLogRoomsEl?.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-chat-room]");
+  if (!b) return;
+  chatLogRoom = b.dataset.chatRoom;
+  chatLogRoomsEl.querySelectorAll("[data-chat-room]").forEach(x => x.classList.toggle("active", x === b));
+  requestChatLog(chatLogRoom);
+});
+
 function setConn(state, label) {
   connPill.className = `conn-pill ${state}`;
   connText.textContent = label;
@@ -1279,6 +1343,7 @@ function connect() {
     if (msg.type === "admin_players") { renderPlayers(msg.players || []); renderFaith(msg.faith); }
     if (msg.type === "admin_actions") renderPlayerActions(msg.actions || []);
     if (msg.type === "admin_metrics") renderRelayMetrics(msg);
+    if (msg.type === "admin_chat_log") renderChatLog(msg);
     if (msg.type === "admin_anticheat") renderAntiCheat(msg);
     if (msg.type === "admin_anticheat_dossier") renderDossier(msg);
     if (msg.type === "admin_anticheat_ack") handleAntiCheatAck(msg);
@@ -1314,7 +1379,7 @@ function connect() {
 }
 
 function setBtnsConnected(on) {
-  [sendBtn, refreshBtn, kickAllBtn, kickAllBtn2, acRefreshBtn, relayMetricsRefreshBtn].forEach(b => { if (b) b.disabled = !on; });
+  [sendBtn, refreshBtn, kickAllBtn, kickAllBtn2, acRefreshBtn, relayMetricsRefreshBtn, chatLogRefreshBtn].forEach(b => { if (b) b.disabled = !on; });
 }
 
 /* v457 egress: which pages actually use the live player roster.

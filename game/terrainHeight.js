@@ -11,9 +11,9 @@ import * as THREE from "three";
 /* ── Constants ── */
 export const TILE_S     = 2;          // world-units per tile
 export const WATER_Y    = 0.00;       // water surface at tile base level (tiles placed at y=0)
-export const GRASS_Y    = 0.40;       // grass surface (Grass_Flat top 0.20 × TILE_S)
+export const GRASS_Y    = 0.40;       // grass surface (0.20 × TILE_S, from the old grass tile top)
 export const HILL_Y     = 2.40;       // hilltop surface (1.20 × TILE_S)
-export const PATH_Y     = 0.00;       // path surface (Path_Center top 0.00 × TILE_S)
+export const PATH_Y     = 0.00;       // path surface (0.00 × TILE_S, from the old path tile top)
 
 /* grid extents (inclusive) — chunk 0,0 defaults */
 export const GX_MIN = -24, GX_MAX = 24;
@@ -185,7 +185,7 @@ export function terrainH(x, z) {
   flat = Math.max(flat, 1 - s(pd, 0, 2.8));
   if (flat > 0) h = THREE.MathUtils.lerp(h, GRASS_Y, flat);
 
-  /* ─ river channel + bank carve (narrow — visual bank is Hill_Side tiles) ─ */
+  /* ─ river channel + bank carve (narrow — banks read as hill sides) ─ */
   const bankLo = rq.width;
   const bankHi = rq.width + TILE_S;          // only 1 tile beyond river edge
   if (rq.dist < bankHi) {
