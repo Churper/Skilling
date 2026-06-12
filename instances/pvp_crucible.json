@@ -35,6 +35,12 @@
     { "type": "Emberheart_Tree", "x": -24, "z": -34, "rot": 2.8 },
     { "type": "Dusk_Tree", "x": -20, "z": 50, "rot": 5.1 },
 
+    { "type": "Stormwood_Tree", "x": -90, "z": 52, "rot": 0 },
+    { "type": "Leviathan_Kelp_Tree", "x": -56, "z": 60, "rot": 0 },
+    { "type": "Gooey_Tree", "x": -36, "z": -72, "rot": 0 },
+    { "type": "Prismwood_Tree", "x": -52, "z": -62, "rot": 0 },
+    { "type": "Infinity_Tree", "x": -86, "z": -46, "rot": 0 },
+
     { "type": "Rock_1_A", "x": 34, "z": 18, "rot": 2.2 },
     { "type": "Rocks_Ore_Tin", "x": 48, "z": 32, "rot": 2.7 },
     { "type": "Rocks_Ore_Copper", "x": 63, "z": 47, "rot": 3.1 },

@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1131">
+  <link rel="stylesheet" href="./style.css?v=1132">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -213,6 +213,11 @@
     <!-- Faith explore buff timer -->
     <div id="ui-faith-explore" hidden style="position:fixed;top:calc(42px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:119;pointer-events:none;text-align:center">
       <div style="color:#58df78;font:bold 12px 'Patrick Hand',cursive;text-shadow:0 1px 3px rgba(0,0,0,0.7)">&#x2728; <span id="ui-faith-explore-time">1:30</span></div>
+    </div>
+    <!-- Skill tracker chip — right-click a skill tile to track; draggable, click cycles view -->
+    <div id="ui-skill-tracker" hidden>
+      <span id="ui-skill-tracker-icon" aria-hidden="true"></span>
+      <span id="ui-skill-tracker-text">&mdash;</span>
     </div>
     <div id="ui-coins-chip" aria-live="polite" aria-label="Gold coins" style="display:none">
       <span class="ui-coin-icon" aria-hidden="true">&#x1FA99;</span>
@@ -1542,6 +1547,6 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=1131"></script>
+  <script type="module" src="./main.js?v=1132"></script>
 </body>
 </html>
