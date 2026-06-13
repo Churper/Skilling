@@ -346,6 +346,11 @@ export const BIOMES = {
       'Shroombark', 'Emberheart_Tree', 'Dusk_Tree',
       'Nebula_Fruit_Plant', 'Void_Blossom_Bush',
       'Rocks_Ore_Twilight', 'Rocks_Ore_Void',
+      /* Lvl 600-1000 PvP-cave berry bushes also grow on the outermost
+         (T6) endgame islands — the only non-Crucible way to gather them.
+         Gated by TIER_MAX_LEVEL[6]=1000; rare picks on elder islands. */
+      'Stormberry_Bush', 'Leviathan_Berry_Bush', 'Sludgeberry_Bush',
+      'Prismberry_Bush', 'Infinity_Berry_Bush',
     ],
   },
 };
@@ -363,8 +368,30 @@ export const BIOME_WEIGHTS = {
      T4 (mid):   up to 400 — adds Steelbark(350), Moonstone(350), Starbloom(350),
                               Emberheart(375), Twilight(375), Shroombark(400), Glowstone(400), Nebula(400)
      T5:        up to 450 — adds Dusk(425), Void Ore(425), Spiritwood(450), Holystone(450), Void Blossom(450)
-     T6 (outer): up to 500 — adds Astral(475), Elder(500), Star Ore(500), Astral Berry(500) */
-const TIER_MAX_LEVEL = [0, 200, 270, 325, 400, 450, 500, 500, 500, 500, 500];
+     T6 (outer): up to 1000 — adds Astral(475), Elder(500), Star Ore(500),
+                 Astral Berry(500), and the lvl 600-1000 endgame berry bushes
+                 (Stormberry→Infinity Berry). Only the 5 bushes live above 500
+                 in any biome's prop list, so raising the cap exposes only them
+                 (the 600-1000 trees are Crucible-only, not in procgen). */
+const TIER_MAX_LEVEL = [0, 200, 270, 325, 400, 450, 1000, 1000, 1000, 1000, 1000];
+
+/* Exclusive fishing-spot fish — MIRROR of FISH_TIERS in docs/game/config.js
+   (level + item only; keep in sync). Procgen must not import config.js —
+   the public repo ships procgen .mjs raw as editor deps, config stays
+   bundle-only. */
+const FISH_SPOT_FISH = [
+  { level: 1,   item: 'Shrimp' },       { level: 15,  item: 'Trout' },
+  { level: 30,  item: 'Salmon' },       { level: 50,  item: 'Lobster' },
+  { level: 75,  item: 'Mackerel' },     { level: 100, item: 'Swordfish' },
+  { level: 135, item: 'Tuna' },         { level: 170, item: 'Lionfish' },
+  { level: 185, item: 'Manta Ray' },    { level: 200, item: 'Pufferfish' },
+  { level: 235, item: 'Piranha' },      { level: 270, item: 'Anglerfish' },
+  { level: 310, item: 'Humphead' },     { level: 325, item: 'Oarfish' },
+  { level: 350, item: 'Mandarin Fish' },{ level: 375, item: 'Gulper Eel' },
+  { level: 400, item: 'Koi' },          { level: 425, item: 'Anglerking' },
+  { level: 450, item: 'Betta' },        { level: 475, item: 'Parrot Fish' },
+  { level: 500, item: 'Bluefish' },
+];
 
 const PROP_GATHER_LEVEL = {
   'Rocks_Ore_Tin': 1, 'Rocks_Ore_Copper': 15, 'Rocks_Ore_Quartz': 30,
@@ -384,6 +411,9 @@ const PROP_GATHER_LEVEL = {
   'Svc_Forage_Void': 300,
   'Starbloom_Bush': 350, 'Nebula_Fruit_Plant': 400,
   'Void_Blossom_Bush': 450, 'Astral_Berry_Bush': 500,
+  'Stormberry_Bush': 600, 'Leviathan_Berry_Bush': 700,
+  'Sludgeberry_Bush': 800, 'Prismberry_Bush': 900,
+  'Infinity_Berry_Bush': 1000,
 };
 
 /* Tier-aligned biome boosts. Practical procgen range is tiers 1-8 (worldRadius=
@@ -397,7 +427,8 @@ const PROP_GATHER_LEVEL = {
      mushroom owns: Shroombark(400) (also has Roots/Steelbark/Candy as rare)
      elder    owns: Emberheart(375), Twilight(375), Dusk(425), Void Ore(425),
                     Void Blossom(450), Elder Tree(500), Star Ore(500),
-                    Nebula(400), Astral Berry(500)
+                    Nebula(400), Astral Berry(500), and the lvl 600-1000
+                    endgame berry bushes (Stormberry→Infinity Berry)
      desert  owns: Sunstone(310) — base weight 1.5 already gives ~12%, OK
      snow    owns: Moonstone(350) — base weight 1.5, OK
      temperate owns: Roots(310), Steelbark(350) as rares — base 4 gives ~33%, OK
@@ -1739,7 +1770,7 @@ export function placeMobs(hm, dist, opts) {
 // facing INLAND (eyes toward island center). Used as the teleport-back-
 // to-mainland anchor — clickable, channels 4s, then teleports.
 export function placePOIs(hm, dist, opts) {
-  const { seed } = opts;
+  const { seed, tier = 1, exFish = null } = opts;
   const rand = mulberry32(hash32(seed, 0x5EA7A7EE));
 
   const { W, H, step, halfSize } = hm;
@@ -1919,10 +1950,25 @@ export function placePOIs(hm, dist, opts) {
       fishCandidates.push({ x, z });
     }
   }
-  /* 1-2 spots, sampled with min separation so they don't overlap. */
-  const fishCount = 1 + Math.floor(fRand() * 2);
+  /* 2 spots, sampled with min separation so they don't overlap:
+     spot 0 = mixed best-fish-for-level spot (legacy behavior),
+     spot 1 = exclusive single-fish spot — EVERY island carries one.
+     The exclusive fish normally arrives via opts.exFish — assigned
+     globally in generateWorldCatalog (greedy least-covered per tier cap)
+     so every fish has a spot somewhere. Fallback for direct callers
+     (island_editor/preview/cli) without exFish: seeded per-island pick,
+     banded to the island tier. */
+  let _exFish = exFish ? FISH_SPOT_FISH.find(t => t.item === exFish) : null;
+  if (!_exFish) {
+    const _fishMaxLv = TIER_MAX_LEVEL[tier] || 200;
+    const _fishPrevLv = TIER_MAX_LEVEL[tier - 1] || 0;
+    const _fishAllowed = FISH_SPOT_FISH.filter(t => t.level <= _fishMaxLv);
+    const _fishInBand = _fishAllowed.filter(t => t.level > _fishPrevLv);
+    const _fishPool = (_fishInBand.length && fRand() < 0.6) ? _fishInBand : _fishAllowed;
+    _exFish = _fishPool[Math.floor(fRand() * _fishPool.length)] || FISH_SPOT_FISH[0];
+  }
   const placedFish = [];
-  for (let n = 0; n < fishCount && fishCandidates.length > 0; n++) {
+  for (let n = 0; n < 2 && fishCandidates.length > 0; n++) {
     let pick = null, picksTried = 0;
     while (picksTried < 24 && !pick) {
       const c = fishCandidates[Math.floor(fRand() * fishCandidates.length)];
@@ -1936,7 +1982,7 @@ export function placePOIs(hm, dist, opts) {
     if (!pick) break;
     placedFish.push(pick);
     out.push({
-      type: 'Svc_FishingSpot',
+      type: n === 1 ? 'Svc_FishingSpot_' + _exFish.item.replace(/\s+/g, '_') : 'Svc_FishingSpot',
       x: +pick.x.toFixed(2),
       z: +pick.z.toFixed(2),
       y: +WATER_Y.toFixed(2),
@@ -1981,6 +2027,7 @@ export async function generateIsland(opts) {
     shape = 'round',
     tier = 1,
     worldX = 0, worldZ = 0,
+    exFish = null,
   } = opts;
 
   const _pSeed = _phaseStart(`island-${seed}-hm`);
@@ -2039,7 +2086,7 @@ export async function generateIsland(opts) {
      starfish and no services. placeProps returns biome-appropriate
      prop records; placePOIs returns bank/store/shop positions. */
   const props = placeProps(hm, dist, { seed, biome, tier });
-  const pois = placePOIs(hm, dist, { seed, biome, tier });
+  const pois = placePOIs(hm, dist, { seed, biome, tier, exFish });
   /* Per-biome combat slimes — bundled into POI list so they ride the same
      chunk-loading path as Slime_Statue. */
   const mobs = placeMobs(hm, dist, { seed, biome, tier });
@@ -2947,6 +2994,26 @@ export function generateWorldCatalog(worldSeed) {
       seed: islandSeed,
       biome, shape, size: sizeKey, sizeChunks, tier,
     });
+  }
+  /* Exclusive fishing spot per island — GLOBAL greedy least-covered
+     assignment (capped at the island tier's max gather level) so every
+     fish gets at least one exclusive spot somewhere in the archipelago.
+     Per-island random left gaps (live seed: zero Pufferfish spots, one
+     Shrimp). Deterministic: catalog order + worldSeed-seeded tiebreak. */
+  const exRand = mulberry32(hash32(worldSeed, 0xF15CA7A1));
+  const exCounts = new Array(FISH_SPOT_FISH.length).fill(0);
+  for (const isl of islands) {
+    const maxLv = TIER_MAX_LEVEL[isl.tier] || 200;
+    let best = [], bestC = Infinity;
+    for (let i = 0; i < FISH_SPOT_FISH.length; i++) {
+      if (FISH_SPOT_FISH[i].level > maxLv) continue;
+      const c = exCounts[i];
+      if (c < bestC) { bestC = c; best = [i]; }
+      else if (c === bestC) best.push(i);
+    }
+    const pick = best[Math.floor(exRand() * best.length)] ?? 0;
+    exCounts[pick]++;
+    isl.exFish = FISH_SPOT_FISH[pick].item;
   }
   return islands;
 }

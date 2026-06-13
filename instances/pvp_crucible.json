@@ -84,6 +84,11 @@
     { "type": "Nebula_Fruit_Plant", "x": 18, "z": 62, "rot": 2.2 },
     { "type": "Void_Blossom_Bush", "x": -34, "z": -12, "rot": 5.8 },
     { "type": "Astral_Berry_Bush", "x": 34, "z": -12, "rot": 3.4 },
+    { "type": "Stormberry_Bush", "x": -82, "z": 44, "rot": 0.6 },
+    { "type": "Leviathan_Berry_Bush", "x": -64, "z": 68, "rot": 1.8 },
+    { "type": "Sludgeberry_Bush", "x": -28, "z": -78, "rot": 3.6 },
+    { "type": "Prismberry_Bush", "x": -60, "z": -54, "rot": 4.4 },
+    { "type": "Infinity_Berry_Bush", "x": -78, "z": -52, "rot": 5.2 },
     { "type": "Svc_Flax", "x": -36, "z": 24, "rot": 0.1 },
     { "type": "Svc_Hemp", "x": 36, "z": 24, "rot": 3.0 }
   ]

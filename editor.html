@@ -452,6 +452,11 @@ const OBJ_CATEGORIES = [
     { id: "Gooey_Tree", file: "Gooey_Tree.glb", scale: 1.0 },
     { id: "Prismwood_Tree", file: "Prismwood_Tree.glb", scale: 1.0 },
     { id: "Infinity_Tree", file: "Infinity_Tree.glb", scale: 1.0 },
+    { id: "Stormberry_Bush", file: "Stormberry_Bush.glb", scale: 1.0, label: "Stormberry (600)" },
+    { id: "Leviathan_Berry_Bush", file: "Leviathan_Berry_Bush.glb", scale: 1.0, label: "Leviathan Berry (700)" },
+    { id: "Sludgeberry_Bush", file: "Sludgeberry_Bush.glb", scale: 1.0, label: "Sludgeberry (800)" },
+    { id: "Prismberry_Bush", file: "Prismberry_Bush.glb", scale: 1.0, label: "Prismberry (900)" },
+    { id: "Infinity_Berry_Bush", file: "Infinity_Berry_Bush.glb", scale: 1.0, label: "Infinity Berry (1000)" },
   ]},
   { name: "Dock", dir: TILE_DIR, items: [
     { id: "Prop_Docks_Straight", file: "Prop_Docks_Straight.glb", scale: 1.0 },
@@ -522,6 +527,20 @@ const OBJ_CATEGORIES = [
     { id: "Silo", dir: TILE_DIR, file: "Silo.glb", scale: 1.0, label: "Silo" },
   ]},
 ];
+/* Exclusive fishing spots — one per fish, mirrors FISH_TIERS in game/config.js
+   (id must stay "Svc_FishingSpot_" + item with spaces → underscores). */
+OBJ_CATEGORIES.push({ name: "Fish Spots", items: [
+  ["Shrimp", 1], ["Trout", 15], ["Salmon", 30], ["Lobster", 50], ["Mackerel", 75],
+  ["Swordfish", 100], ["Tuna", 135], ["Lionfish", 170], ["Manta Ray", 185],
+  ["Pufferfish", 200], ["Piranha", 235], ["Anglerfish", 270], ["Humphead", 310],
+  ["Oarfish", 325], ["Mandarin Fish", 350], ["Gulper Eel", 375], ["Koi", 400],
+  ["Anglerking", 425], ["Betta", 450], ["Parrot Fish", 475], ["Bluefish", 500],
+].map(([fish, lvl]) => ({
+  id: "Svc_FishingSpot_" + fish.replace(/\s+/g, "_"),
+  placeholder: true,
+  color: "#5ec8e6",
+  label: `${fish} (${lvl})`,
+})) });
 
 /* ═══════════════════════════════════════════
    Chunk System
