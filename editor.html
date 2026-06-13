@@ -391,6 +391,7 @@ const OBJ_CATEGORIES = [
     { id: "Slime_Statue_Fountain", file: "Slime_Statue_Fountain.glb", scale: 1.0 },
     { id: "Slime_Birdbath", file: "Slime_Birdbath.glb", scale: 1.0 },
     { id: "Stone_Bench", file: "Stone_Bench.glb", scale: 1.0 },
+    { id: "Torch", file: "Torch.glb", scale: 1.0, label: "Torch (night light)" },
   ]},
   { name: "Ore Rocks", dir: TILE_DIR, items: [
     { id: "Rocks_Ore_Tin", file: "Rocks_Ore.glb", scale: 1.0 },
@@ -446,7 +447,7 @@ const OBJ_CATEGORIES = [
     { id: "Shroombark", file: "Roots.glb", scale: 1.0 },
     { id: "Spiritwood", file: "Roots.glb", scale: 1.0 },
     { id: "Bamboo", file: "Bamboo.glb", scale: 0.8 },
-    { id: "Meat_Tree", file: "Meat_Tree.glb", scale: 1.0 },
+    { id: "Meat_Tree", file: "Brother_Meat_Tree.glb", scale: 1.0 },
     { id: "Stormwood_Tree", file: "Stormwood_Tree.glb", scale: 1.0 },
     { id: "Leviathan_Kelp_Tree", file: "Leviathan_Kelp_Tree.glb", scale: 1.0 },
     { id: "Gooey_Tree", file: "Gooey_Tree.glb", scale: 1.0 },
@@ -477,8 +478,6 @@ const OBJ_CATEGORIES = [
     { id: "Raccoon", file: "Raccoon.glb", scale: 1.0 },
     { id: "Dog", file: "Dog.glb", scale: 1.0 },
     { id: "Cat", file: "Cat.glb", scale: 1.0 },
-    { id: "Cow", file: "Cow.glb", scale: 1.0 },
-    { id: "Zebra", file: "Zebra.glb", scale: 1.0 },
     { id: "Chicken", file: "Chicken.glb", scale: 1.0 },
     { id: "Chick", file: "Chick.glb", scale: 1.0 },
     { id: "Pig", file: "Pig.glb", scale: 1.0 },
@@ -506,7 +505,6 @@ const OBJ_CATEGORIES = [
     { id: "Svc_Bonfire", dir: TILE_DIR, file: "Bonfire.glb", scale: 1.0, label: "Bonfire" },
     { id: "Svc_Scribe", dir: TILE_DIR, file: "Pedestal.glb", scale: 1.0, label: "Scribe Desk" },
     { id: "Svc_Bell", dir: TILE_DIR, file: "Bell.glb", scale: 2.0, label: "Bell" },
-    { id: "Svc_FoodShop", dir: TILE_DIR, file: "Market_Stall.glb", scale: 1.0, label: "Food Shop" },
     { id: "Svc_MarketStand", dir: TILE_DIR, file: "Market_Stand.glb", scale: 1.0, label: "Market Stand" },
     { id: "Svc_Exchange", dir: TILE_DIR, file: "Gazebo.glb", scale: 1.0, label: "Exchange" },
     { id: "Svc_ClanHub", dir: MODEL_DIR, file: "Clan_Hub.glb", scale: 1.0, label: "Clan Hub" },
@@ -523,6 +521,7 @@ const OBJ_CATEGORIES = [
     { id: "Svc_Hemp", dir: TILE_DIR, file: "Suspicious Plant.glb", scale: 1.0, label: "Hemp" },
     { id: "Svc_FarmPatch", dir: TILE_DIR, file: "Farm_Dirt.glb", scale: 1.0, label: "Crop Patch" },
     { id: "Svc_TreePatch", dir: TILE_DIR, file: "Tree_Patch.glb", scale: 1.0, label: "Tree Patch" },
+    { id: "Svc_BushPatch", dir: TILE_DIR, file: "Tree_Patch.glb", scale: 1.0, label: "Bush Patch" },
     { id: "Small_Farm", dir: TILE_DIR, file: "Small_Farm.glb", scale: 1.0, label: "Farmhouse" },
     { id: "Silo", dir: TILE_DIR, file: "Silo.glb", scale: 1.0, label: "Silo" },
   ]},
@@ -1948,7 +1947,7 @@ function updatePreview() {
   obj.renderOrder = 998; previewObj = obj; scene.add(obj);
 }
 
-const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","CamelBrother","Yak","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Forage_Elder","Svc_Forage_Golden","Svc_Forage_Crystal","Svc_Forage_Shadow","Svc_Forage_Ember","Svc_Forage_Frost","Svc_Forage_Void","Svc_Flax","Svc_Hemp","Svc_FarmPatch","Svc_TreePatch","Demon","Goblin","Skeleton","Zombie","Ghost_Skull"]);
+const CLICK_HELPER_TYPES = new Set(["Wolf","Horse","Sheep","Raccoon","Dog","Cat","Chicken","Chick","Pig","CamelBrother","Yak","Farm","Market_Stalls","Svc_Forage_Bush","Svc_Forage_Elder","Svc_Forage_Golden","Svc_Forage_Crystal","Svc_Forage_Shadow","Svc_Forage_Ember","Svc_Forage_Frost","Svc_Forage_Void","Svc_Flax","Svc_Hemp","Svc_FarmPatch","Svc_TreePatch","Svc_BushPatch","Demon","Goblin","Skeleton","Zombie","Ghost_Skull"]);
 const _hbMat = new THREE.MeshBasicMaterial({ visible: false });
 function addClickHelper(root) {
   /* add invisible bounding box so thin GLTF meshes are easier to click */

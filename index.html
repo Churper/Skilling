@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1135">
+  <link rel="stylesheet" href="./style.css?v=1136">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -792,6 +792,7 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Control</span><span class="stg-hint">Camera Keys: arrows/WASD rotate the camera (click-to-walk). Follow: camera turns behind your slime as it moves. Both: WASD walks, arrows rotate, camera follows.</span></span><span class="stg-ctrl"><select id="setting-camera-mode" class="stg-sel"><option value="off">Off</option><option value="keys">Camera Keys</option><option value="follow">Follow Slime</option><option value="both">Both</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Keys</span><span class="stg-hint">Which keys rotate the camera when Camera Control is on — the rest keep walking</span></span><span class="stg-ctrl"><select id="setting-camera-keybind" class="stg-sel"><option value="both">Arrows + WASD</option><option value="arrows">Arrows Only</option><option value="wasd">WASD Only</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mouse Camera</span><span class="stg-hint">Turn off camera rotate (right/middle drag) or zoom (scroll wheel) from the mouse</span></span><span class="stg-ctrl"><select id="setting-mouse-camera" class="stg-sel"><option value="on">On</option><option value="no-rotate">No Rotate</option><option value="no-zoom">No Zoom</option><option value="off">Off</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Day/Night Cycle</span><span class="stg-hint">Animated sky — sunrise/sunset, moon &amp; stars on your local clock</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-day-night" checked><span class="stg-tog-track"></span></label></span></div>
         </div>
         <!-- Chat -->
         <div class="stg-pane" data-stg-pane="chat" hidden>
@@ -1573,6 +1574,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1135"></script>
+  <script type="module" src="./main.js?v=1136"></script>
 </body>
 </html>
