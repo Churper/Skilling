@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1135",
+    "date": "2026-06-13",
+    "title": "Slimetrics Stats Site Fixes",
+    "entries": [
+      "Slimetrics (the stats site) 'Recent Highlights' feed is fixed — it had been stuck for a few days and stopped showing new level-ups. They'll start showing again as players hit level milestones.",
+      "Slimetrics is faster and lighter: player profiles, leaderboards and the Server page do a lot less work to load, and pages you've already opened come back instantly.",
+      "No in-game changes this update — it's all stats-site improvements."
+    ]
+  },
+  {
     "version": "v1134",
     "date": "2026-06-13",
     "title": "EXP Tracker Rebuilt & Fixes",

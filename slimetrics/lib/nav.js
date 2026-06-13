@@ -12,6 +12,7 @@ const NAV_ITEMS = [
 ];
 
 let _searchDebounce = null;
+let _docClickWired = false;
 
 export function mountHeader(currentPage) {
   const host = document.getElementById("st-header");
@@ -93,9 +94,20 @@ function _wireSearch() {
       else if (input.value.trim()) go(input.value.trim());
     }
   });
-  document.addEventListener("click", (e) => {
-    if (!results.contains(e.target) && e.target !== input) close();
-  });
+  /* Close-on-outside-click: wire the document listener ONCE for the app's
+     lifetime. mountHeader()/_wireSearch() run on every route, so adding the
+     listener here each time leaked one document listener per navigation. The
+     handler re-queries the live DOM so it keeps working across re-renders. */
+  if (!_docClickWired) {
+    document.addEventListener("click", (e) => {
+      const r = document.getElementById("st-search-results");
+      const inp = document.getElementById("st-search-input");
+      if (r && !r.hidden && !r.contains(e.target) && e.target !== inp) {
+        r.hidden = true;
+      }
+    });
+    _docClickWired = true;
+  }
 }
 function _markActive(i) {
   const rows = document.querySelectorAll(".st-search-row");
