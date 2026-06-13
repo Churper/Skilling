@@ -1,0 +1,53 @@
+[
+  {
+    "version": "v1134",
+    "date": "2026-06-13",
+    "title": "EXP Tracker Rebuilt & Fixes",
+    "entries": [
+      "EXP Tracker rebuilt: a proper bar again — current level on the left, next level on the right, filling as you train (plus a Compact Ring view). XP/hour and 'actions to level' are now accurate — no more giant fake numbers after logging in or alt-tabbing. Renamed 'EXP Tracker (Auto)' in Settings.",
+      "Pet Treats now work — feeding one to a slimelet was broken (the button greyed out even with treats in your bag). They also show their proper candy icon now.",
+      "AFK timers: Hemp, Flax and all the Lvl 600+ berries now use the full 6-hour gather timer like every other berry; the Lvl 600+ trees get a new 1-hour timer (slow chop, 12 min was too short).",
+      "World Map: fishing spots show the right level + a fish icon, every berry has its own icon, and Farm patches now live under a new Farming section.",
+      "New 'What's New' button on the login screen — patch notes in-game (this very thing!).",
+      "Pet Garden now respects your graphics settings (Potato Mode trims the decorations), runs smoother, and a stale browser tab can no longer wipe your pouch + Pet Treats.",
+      "Fixes: removing a farmed tree no longer walks you to spawn; remote players load smoother; fixed rare overlapping trees/rocks on some far islands; new Hide Hover Ring setting."
+    ]
+  },
+  {
+    "version": "v1133",
+    "date": "2026-06-13",
+    "title": "Pet Garden Rework & Polish",
+    "entries": [
+      "Pet Garden \"Miscellania\" rework: one shared pouch for the whole crew, slimelet levels now boost gather RATE (not bag size), a feeding trough fueled by Tree Meat, and hunger/happiness that actually affects how much they gather.",
+      "New Pet Treat (SlimeCoin shop): permanently boosts a slimelet's gather rate and lets well-fed pets look after themselves.",
+      "Brand-new Pet Garden scene: fresh terrain, a real river + waterfall, a bouncy diving board, a climbable summit, butterflies and more.",
+      "Exclusive fishing spots: some spots now only yield one species — and you can see the fish swimming as a shadow in the water.",
+      "EXP Tracker overhaul: cleaner bar that fills toward your next level with the current/next level on each end, plus a Compact Ring view. XP/hour and \"actions to level\" are now accurate (no more giant fake numbers after logging in or alt-tabbing).",
+      "World Map resource list: fishing spots show the right level + a fitting icon, berries got their own icons, and farm patches now live under a Farming section.",
+      "New setting: Hide Hover Ring. Redesigned scrolls and staves/wands, two-tone wood log icons, and remade fruit + crop models."
+    ]
+  },
+  {
+    "version": "v1132",
+    "date": "2026-06-12",
+    "title": "Endgame Trees & Skill Tracker",
+    "entries": [
+      "New level 600–1000 woodcutting trees in the PvP Crucible: a high-risk, high-reward treasure-log haul loop.",
+      "New top-tier woodcutting frenzy: Enchanted Relic at level 600.",
+      "New Skill Tracker HUD chip — right-click a skill to track your progress (now reworked further in v1133).",
+      "Fixed a pet garden double-claim issue when a pet's cache was full."
+    ]
+  },
+  {
+    "version": "v1131",
+    "date": "2026-06-12",
+    "title": "World Overhaul & Keybinds",
+    "entries": [
+      "World model overhaul: trees, bushes, rocks and props remodeled across the map.",
+      "New Keybinds tab — rebind movement, map, guide, quick-inventory and quick-worn.",
+      "New Camera settings tab.",
+      "Chat history now replays recent messages when you join, so you don't miss the room.",
+      "Mobile tap-through fix and an admin chat-log tool."
+    ]
+  }
+]

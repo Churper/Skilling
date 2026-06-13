@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1133">
+  <link rel="stylesheet" href="./style.css?v=1134">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -77,6 +77,7 @@
   </form>
   <!-- Start Menu -->
   <div id="start-menu">
+    <button type="button" id="start-whatsnew-btn" class="start-whatsnew-btn" title="Changelog" aria-label="Changelog">📜</button>
     <svg class="start-title" viewBox="0 0 760 175" role="img" aria-label="SlimeVille">
       <defs>
         <path id="sv-arc" d="M 10 128 Q 380 92 750 128" fill="none"></path>
@@ -123,8 +124,7 @@
         <a href="#" id="start-login-link" class="start-auth-link-btn">Log In</a>
         <a href="#" id="start-signup-link" class="start-auth-link-btn">Register</a>
         <button type="button" id="start-auth-status" class="start-auth-link-btn start-link-profile" hidden></button>
-        <button type="button" id="start-logout-btn" class="start-auth-link-btn start-link-logout" hidden>Log Out</button>
-      </div>
+        <button type="button" id="start-logout-btn" class="start-auth-link-btn start-link-logout" hidden>Log Out</button>      </div>
 <div id="start-auth-wrap" class="start-auth-wrap is-hidden">
       <form id="start-auth-form" class="start-auth-box" autocomplete="on" method="post" action="#">
         <p id="start-auth-form-title" class="start-auth-form-title">Log In to SlimeVille</p>
@@ -1564,6 +1564,15 @@
       }
     }
   </script>
-  <script type="module" src="./main.js?v=1133"></script>
+  <div id="changelog-modal" class="changelog-modal" hidden role="dialog" aria-modal="true" aria-label="What's New">
+    <div class="changelog-card">
+      <div class="changelog-head">
+        <span class="changelog-title">📜 What's New</span>
+        <button type="button" id="changelog-close" class="changelog-close" aria-label="Close">&times;</button>
+      </div>
+      <div id="changelog-body" class="changelog-body"></div>
+    </div>
+  </div>
+  <script type="module" src="./main.js?v=1134"></script>
 </body>
 </html>

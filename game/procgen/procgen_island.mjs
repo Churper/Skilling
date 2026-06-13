@@ -1559,6 +1559,11 @@ export function placeProps(hm, dist, opts) {
 
   const maxProps = 80;
   const props = [];
+  /* Poisson-disk cells already consumed (by pass 1 AND the guaranteed-rare
+     pass below). The forced-rare pass must never re-stamp a taken cell — that
+     was the d=0 "tree inside a tree" overlap bug (a relaxed-spacing ladder
+     that bottomed out at minSpace=0, which let everything through). */
+  const usedPairs = new Set();
   for (let i = 0; i < raw.length; i += 2) {
     if (props.length >= maxProps) break;
     const x = raw[i], z = raw[i + 1];
@@ -1595,6 +1600,7 @@ export function placeProps(hm, dist, opts) {
       scale: +(scaleMin + rand() * scaleRange).toFixed(2),
       rot: +(rand() * Math.PI * 2).toFixed(2),
     });
+    usedPairs.add(i / 2);
   }
   /* Guaranteed-spawn pass for rare RESOURCE props (ores, logs, foragables).
      Without this, sailing tasks can ask "Mine 35x Moonstone on Slick
@@ -1654,21 +1660,25 @@ export function placeProps(hm, dist, opts) {
       const pairCount = raw.length / 2;
       for (let n = 0; n < pairCount; n++) {
         const pair = (startPair + n) % pairCount;
+        if (usedPairs.has(pair)) continue; /* cell already taken — never reuse */
         const x = raw[pair * 2], z = raw[pair * 2 + 1];
         const c = _candidateOk(x, z, minSpace);
-        if (c) return { c, nextPair: pair + 1 };
+        if (c) return { c, pair };
       }
       return null;
     };
+    const _consume = (found) => { usedPairs.add(found.pair); return found.pair + 1; };
 
     let nextPair = 0;
     const placedByType = new Map(resourceRares.map(t => [t, 0]));
     for (const rType of resourceRares) {
+      /* relax spacing down to 1.25u, but NOT to 0 — if no free cell remains,
+         skip the forced spawn (a missing 6th ore beats a stacked overlap) */
       const found = _findCandidate(nextPair, 6) || _findCandidate(nextPair, 3) ||
-        _findCandidate(nextPair, 1.25) || _findCandidate(nextPair, 0);
+        _findCandidate(nextPair, 1.25);
       if (!found) continue;
       _placeResource(rType, found.c);
-      nextPair = found.nextPair;
+      nextPair = _consume(found);
       placedByType.set(rType, 1);
     }
     for (const rType of resourceRares) {
@@ -1677,7 +1687,7 @@ export function placeProps(hm, dist, opts) {
         const found = _findCandidate(nextPair, 6);
         if (!found) break;
         _placeResource(rType, found.c);
-        nextPair = found.nextPair;
+        nextPair = _consume(found);
         placed++;
         placedByType.set(rType, placed);
       }
