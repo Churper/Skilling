@@ -1042,14 +1042,18 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         uniform float uTime;
         uniform float uDim;
         uniform float uFancyFx;
+        uniform float uShape; uniform vec2 uCenter; uniform float uRadius; /* CHUNKSTREAM carve */
         uniform vec2 uUvMin;
         uniform vec2 uUvMax;
         varying vec2 vUv;
         varying float vWave;
         varying vec3 vWorldPos;
+        uniform float uFxNear; uniform float uFxFar; /* PERF: foam/sparkle distance LOD */
         ${_crackWaterDiscardGLSL}
+        #include <fog_pars_fragment>
         void main() {
           if (inCrackWaterMask(vWorldPos.xz)) discard;
+          if (uShape > 0.5) { vec2 _e = abs(vWorldPos.xz - uCenter); float _d = (uShape < 1.5) ? length(vWorldPos.xz - uCenter) : max(_e.x, _e.y); if (_d > uRadius) discard; } /* CHUNKSTREAM: skybox past the edge */
           vec2 uv = mix(uUvMin, uUvMax, vUv);
           vec4 c = texture2D(uTex, vec2(uv.x, 1.0 - uv.y));
           /* Procgen alpha texture encodes signed distance in the alpha
@@ -1066,6 +1070,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
             vec3 flatCol = vec3(0.18, 0.52, 0.72);
             float flatA = edge * 0.62;
             gl_FragColor = vec4(flatCol * flatA * uDim, flatA);
+            #include <fog_fragment>
             return;
           }
 
@@ -1097,7 +1102,11 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
           vec3 wp = vWorldPos;
           float tt = uTime * speedMul;  /* lake-slowed time */
 
-          /* Sparse foam crests — speed dampened on lakes via tt. */
+          /* Sparse foam crests — speed dampened on lakes via tt. PERF LOD: skip
+             foam + sparkle past uFxFar and fade across [uFxNear, uFxFar] by viewer
+             distance (same coverage-relative cut as the global ocean). */
+          float _fxLod = 1.0 - smoothstep(uFxNear, uFxFar, length(wp.xz - cameraPosition.xz));
+          if (_fxLod > 0.003) {
           float w1 = sin(wp.x * 0.43 + wp.z * 0.11 + tt * 1.8) * 0.5 + 0.5;
           float w2 = sin(wp.z * 0.37 + wp.x * 0.07 - tt * 1.4) * 0.5 + 0.5;
           float w3 = sin(wp.x * 0.31 + wp.z * 0.47 + tt * 1.1) * 0.5 + 0.5;
@@ -1106,7 +1115,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
           float w6 = sin(wp.x * 0.67 - wp.z * 0.43 - tt * 0.5) * 0.5 + 0.5;
           float foam = w1 * w2 * w3 + w4 * w5 * w6 * 0.4;
           foam = 1.0 - smoothstep(0.002, 0.012, foam);
-          col += foamCol * foam * 0.22 * liveMul * uFancyFx;
+          col += foamCol * foam * 0.22 * liveMul * uFancyFx * _fxLod;
 
           float sp1 = sin(wp.x * 0.40 + wp.z * 0.09 + tt * 1.7);
           float sp2 = sin(wp.z * 0.35 + wp.x * 0.13 - tt * 1.4);
@@ -1117,10 +1126,12 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
           sparkleMask = smoothstep(0.15, 0.55, sparkleMask);
           float sparkle = sp1 * sp2 * sp3 * sp4;
           sparkle = smoothstep(0.7, 0.97, sparkle) * sparkleMask;
-          col += vec3(1.0) * sparkle * 0.22 * liveMul * uFancyFx;
+          col += vec3(1.0) * sparkle * 0.22 * liveMul * uFancyFx * _fxLod;
+          }
 
           float alpha = edge * 0.62;
           gl_FragColor = vec4(col * alpha * uDim, alpha);
+          #include <fog_fragment>
         }
       `
       : `
@@ -1128,13 +1139,17 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         uniform float uTime;
         uniform float uDim;
         uniform float uFancyFx;
+        uniform float uShape; uniform vec2 uCenter; uniform float uRadius; /* CHUNKSTREAM carve */
         uniform vec2 uUvMin;
         uniform vec2 uUvMax;
         varying vec2 vUv;
         varying vec3 vWorldPos;
+        uniform float uFxNear; uniform float uFxFar; /* PERF: foam/sparkle distance LOD */
         ${_crackWaterDiscardGLSL}
+        #include <fog_pars_fragment>
         void main() {
           if (inCrackWaterMask(vWorldPos.xz)) discard;
+          if (uShape > 0.5) { vec2 _e = abs(vWorldPos.xz - uCenter); float _d = (uShape < 1.5) ? length(vWorldPos.xz - uCenter) : max(_e.x, _e.y); if (_d > uRadius) discard; } /* CHUNKSTREAM: skybox past the edge */
           vec2 uv = mix(uUvMin, uUvMax, vUv);
           vec4 c = texture2D(uTex, vec2(uv.x, 1.0 - uv.y));
           float rawA = c.a;
@@ -1145,6 +1160,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
             vec3 flatCol = vec3(0.18, 0.52, 0.72);
             float flatA = smoothstep(0.04, 0.12, rawA) * 0.62;
             gl_FragColor = vec4(flatCol * flatA * uDim, flatA);
+            #include <fog_fragment>
             return;
           }
 
@@ -1186,6 +1202,10 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
           vec3 wp = vWorldPos;
           float tt = uTime * speedMul;
 
+          /* PERF LOD: skip foam + sparkle past uFxFar, fade across [uFxNear, uFxFar]
+             by viewer distance (same coverage-relative cut as the global ocean). */
+          float _fxLod = 1.0 - smoothstep(uFxNear, uFxFar, length(wp.xz - cameraPosition.xz));
+          if (_fxLod > 0.003) {
           float w1 = sin(wp.x * 0.43 + wp.z * 0.11 + tt * 1.8) * 0.5 + 0.5;
           float w2 = sin(wp.z * 0.37 + wp.x * 0.07 - tt * 1.4) * 0.5 + 0.5;
           float w3 = sin(wp.x * 0.31 + wp.z * 0.47 + tt * 1.1) * 0.5 + 0.5;
@@ -1194,7 +1214,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
           float w6 = sin(wp.x * 0.67 - wp.z * 0.43 - tt * 0.5) * 0.5 + 0.5;
           float foam = w1 * w2 * w3 + w4 * w5 * w6 * 0.4;
           foam = 1.0 - smoothstep(0.002, 0.012, foam);
-          col += foamCol * foam * 0.22 * liveMul * uFancyFx;
+          col += foamCol * foam * 0.22 * liveMul * uFancyFx * _fxLod;
 
           float sp1 = sin(wp.x * 0.40 + wp.z * 0.09 + tt * 1.7);
           float sp2 = sin(wp.z * 0.35 + wp.x * 0.13 - tt * 1.4);
@@ -1205,10 +1225,12 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
           sparkleMask = smoothstep(0.15, 0.55, sparkleMask);
           float sparkle = sp1 * sp2 * sp3 * sp4;
           sparkle = smoothstep(0.7, 0.97, sparkle) * sparkleMask;
-          col += vec3(1.0) * sparkle * 0.22 * liveMul * uFancyFx;
+          col += vec3(1.0) * sparkle * 0.22 * liveMul * uFancyFx * _fxLod;
+          }
 
           float alpha = smoothstep(0.04, 0.12, a) * 0.62;
           gl_FragColor = vec4(col * alpha * uDim, alpha);
+          #include <fog_fragment>
         }
       `;
     /* Subtle sin wave on the water plane — same for mainland and procgen.
@@ -1230,11 +1252,14 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       varying vec2 vUv;
       varying float vWave;
       varying vec3 vWorldPos;
+      #include <fog_pars_vertex>
       void main() {
         vUv = uv;
         vWave = 0.0;
         vec4 wp = modelMatrix * vec4(position, 1.0);
         vWorldPos = wp.xyz;
+        vec4 mvPosition = viewMatrix * wp; /* CHUNKSTREAM: for fog depth */
+        #include <fog_vertex>
         gl_Position = projectionMatrix * viewMatrix * wp;
       }
     ` : `
@@ -1242,6 +1267,7 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
       varying vec2 vUv;
       varying float vWave;
       varying vec3 vWorldPos;
+      #include <fog_pars_vertex>
       void main() {
         vUv = uv;
         vec3 pos = position;
@@ -1250,15 +1276,23 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         vWave = w;
         vec4 wp = modelMatrix * vec4(pos, 1.0);
         vWorldPos = wp.xyz;
+        vec4 mvPosition = viewMatrix * wp; /* CHUNKSTREAM: for fog depth */
+        #include <fog_vertex>
         gl_Position = projectionMatrix * viewMatrix * wp;
       }
     `;
     /* Add uFancyFx uniform if not already present (shared across chunks).
        1.0 = full ripple/foam/sparkle, 0.0 = flat color only (perf mode). */
     if (!waterUniforms.uFancyFx) waterUniforms.uFancyFx = { value: 1.0 };
+    /* PERF: foam/sparkle distance LOD, driven per-frame from ocean coverage by
+       world.js updateWorld. Default 9e8/9e9 = no fade until world.js sets them
+       (so instance/cave water with no driver always stays full-fancy). */
+    if (!waterUniforms.uFxNear) waterUniforms.uFxNear = { value: 9e8 };
+    if (!waterUniforms.uFxFar)  waterUniforms.uFxFar  = { value: 9e9 };
     const waterMat = new THREE.ShaderMaterial({
       transparent: true, depthWrite: true, depthTest: true,
       premultipliedAlpha: true,
+      fog: true, /* CHUNKSTREAM: coast water hazes with the land at the horizon */
       /* Polygon offset pushes chunk water's rasterized depth slightly
          BACK (away from camera). Combined with global ocean's depthWrite,
          chunk water consistently FAILS LESS depthTest in the chunk-vs-
@@ -1276,11 +1310,17 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
         uTime: waterUniforms.uTime,
         uDim: waterUniforms.uDim || (waterUniforms.uDim = { value: 1.0 }),
         uFancyFx: waterUniforms.uFancyFx,
+        uFxNear: waterUniforms.uFxNear, uFxFar: waterUniforms.uFxFar, /* PERF: foam/sparkle LOD */
         uUvMin: { value: new THREE.Vector2(uvMinX, uvMinY) },
         uUvMax: { value: new THREE.Vector2(uvMaxX, uvMaxY) },
         uCrackCount: { value: _waterCracks.length },
         uCracks: { value: _waterCrackData },
         uCrackRot: { value: _waterCrackRot },
+        fogColor: { value: new THREE.Color(0x9fc4dd) }, fogNear: { value: 9e8 }, fogFar: { value: 9e8 }, /* CHUNKSTREAM: refreshed from scene.fog */
+        /* CHUNKSTREAM carve — refs attached by world.js (default off) */
+        uShape: waterUniforms.uShape || { value: 0 },
+        uCenter: waterUniforms.uCenter || { value: new THREE.Vector2(0, 0) },
+        uRadius: waterUniforms.uRadius || { value: 1e9 },
       },
       vertexShader: _waterVert,
       fragmentShader: _waterFrag,

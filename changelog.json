@@ -1,19 +1,34 @@
 [
   {
+    "version": "v1138",
+    "date": "2026-06-14",
+    "title": "World Streaming, Slime Restyle & Smoother Play",
+    "entries": [
+      "New World Streaming 'Edge Reveal' (Settings - Camera): the world becomes a clean slab that slides with you, with sky beyond the edge - on by default (Circle) and sized to show your whole render-distance area.",
+      "Restyle your slimelets: recolor and reshape any slimelet right from the Pet Garden. Pets also get hungry and unhappy far more slowly, and the Pet Treat costs less.",
+      "Smoother camera panning and lighter distant water, plus scroll icons are now tinted by family and tier so they are easy to tell apart.",
+      "New 'Hide Combat Style Panel' setting, ground items are bigger and sit on the ground, Spellstones now have clear color names, and Home Teleport works while you are gathering.",
+      "Home Teleport and dropped items now save right away - teleporting or dropping something and quickly refreshing no longer sends you back to the old spot or returns the item.",
+      "Fixed false 'logged in from another browser' and 'Reload Required - progress continued while asleep' warnings that could interrupt normal single-device and AFK play.",
+      "PvP in the Crucible feels tighter - your hit splat appears the instant you swing, you attack at your normal speed, and damage is unchanged; also fixed PvP damage on guest accounts.",
+      "Fixes: a rare graphics console error is gone, and these patch notes use a clearer, larger font."
+    ]
+  },
+  {
     "version": "v1137",
     "date": "2026-06-14",
     "title": "Minimized Combat, UI Refresh & Fixes",
     "entries": [
-      "Combat keeps going while the game is minimized: your slime keeps fighting, monsters respawn, and you automatically re-engage the next one — for all styles (melee, bow and magic), with sounds. It runs at true real-time speed (no faster XP than playing normally) for up to 15 minutes after your last input.",
+      "Combat now keeps going while the game is minimized — your slime keeps fighting and chains kills as monsters respawn, for all styles, with sounds. It runs at normal speed with no bonus XP, for up to 15 minutes after your last input.",
       "Monsters now make a soft little grunt when they die.",
-      "Fixed a bug where some monsters (like raccoons and wolves) were counted twice — which caused double loot drops and roughly double the damage you took from them. Also fixed a double-swing that could happen the moment you tabbed back into the game.",
-      "Farm bushes now grow into the right plant: newly grown berry bushes (and Voidberry bushes) were showing the wrong or invisible models, and now appear correctly for everyone.",
-      "The Bank and General Store have a clean new look with edge-to-edge panels, and the Farm and Compost windows no longer overflow the screen.",
-      "World Map: selecting a resource that's found in the PvP cave now pings the cave entrance so you can find it.",
-      "Nights are smoother and warmer now — less red, with a gentler glow — and torches, campfires and bonfires share one improved flame.",
-      "The day/night cycle is optimized to run smoothly with no stutter as the sky changes, and its extra night detail (twinkling stars, drifting clouds and the sunset glow) scales to your graphics quality so lower-end machines stay smooth.",
-      "The Ghost Slime spot is back — its monsters have returned to the world and the map.",
-      "Security & anti-cheat: PvP damage is now capped using your real, server-verified combat level (no more level-spoof one-shots), kill bounties are set by the server, and being kicked no longer leaves you stuck on a 'game already open' message."
+      "Fixed some monsters (like raccoons and wolves) being counted twice — which doubled their loot drops and the damage they dealt you. Also fixed a double-swing when tabbing back in.",
+      "Farm bushes now grow into the right plant — berry and Voidberry bushes were showing wrong or invisible models.",
+      "The Bank and General Store have a clean new edge-to-edge look. The Farm and Compost windows no longer overflow the screen.",
+      "World Map: picking a resource found in the PvP cave now pings the cave entrance.",
+      "Nights are smoother and warmer — less red with a gentler glow. Torches, campfires and bonfires now share one improved flame.",
+      "The day/night cycle is optimized for no stutter, and its extra night detail (stars, clouds and the sunset glow) scales to your graphics quality.",
+      "The Ghost Slime spot is back, in the world and on the map.",
+      "Security: PvP damage is capped by your real, server-verified level to stop level-spoof one-shots, bounties are set by the server, and being kicked no longer locks you out."
     ]
   },
   {
