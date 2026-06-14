@@ -1,14 +1,31 @@
 [
   {
+    "version": "v1137",
+    "date": "2026-06-14",
+    "title": "Minimized Combat, UI Refresh & Fixes",
+    "entries": [
+      "Combat keeps going while the game is minimized: your slime keeps fighting, monsters respawn, and you automatically re-engage the next one — for all styles (melee, bow and magic), with sounds. It runs at true real-time speed (no faster XP than playing normally) for up to 15 minutes after your last input.",
+      "Monsters now make a soft little grunt when they die.",
+      "Fixed a bug where some monsters (like raccoons and wolves) were counted twice — which caused double loot drops and roughly double the damage you took from them. Also fixed a double-swing that could happen the moment you tabbed back into the game.",
+      "Farm bushes now grow into the right plant: newly grown berry bushes (and Voidberry bushes) were showing the wrong or invisible models, and now appear correctly for everyone.",
+      "The Bank and General Store have a clean new look with edge-to-edge panels, and the Farm and Compost windows no longer overflow the screen.",
+      "World Map: selecting a resource that's found in the PvP cave now pings the cave entrance so you can find it.",
+      "Nights are smoother and warmer now — less red, with a gentler glow — and torches, campfires and bonfires share one improved flame.",
+      "The day/night cycle is optimized to run smoothly with no stutter as the sky changes, and its extra night detail (twinkling stars, drifting clouds and the sunset glow) scales to your graphics quality so lower-end machines stay smooth.",
+      "The Ghost Slime spot is back — its monsters have returned to the world and the map.",
+      "Security & anti-cheat: PvP damage is now capped using your real, server-verified combat level (no more level-spoof one-shots), kill bounties are set by the server, and being kicked no longer leaves you stuck on a 'game already open' message."
+    ]
+  },
+  {
     "version": "v1136",
     "date": "2026-06-13",
-    "title": "Day/Night Cycle, Torches & Bush Patches",
+    "title": "Day/Night Cycle, Torches, Iceberg & Bush Patches",
     "entries": [
       "New Day/Night Cycle: the overworld sky now moves through a full day on your local clock — sunrise and sunset color shifts, the sun arcing and setting behind the hills, a moon, twinkling stars and drifting clouds, with nights gently dimming the world. On by default; toggle it in Camera settings (Day/Night Cycle).",
-      "Ambient torches now glow and flicker around the world at night for cozier after-dark exploring.",
-      "Combat: attack-speed (Tempo) retuned — deep Tempo lines keep adding real attack speed instead of trailing off, while early lines still hit hardest. Glass-cannon builds reach about 6 attacks/sec (~6.7 with Comet).",
-      "Camera: the Isometric view is the default again (no forced over-shoulder), and you can now tilt the iso camera up to the sky and lower than before for better framing. If you'd already picked a camera, your choice is kept.",
+      "Torches you can place light up at night: ambient torches around the world now glow and flicker after dark for cozier night-time exploring.",
+      "New floating Iceberg: walk out onto the drifting ice floe off the coast — it gently rocks and tips toward whichever side everyone crowds onto.",
       "New Bush Patches for farming: plant a berry bush, watch it grow, and pick berries for Foraging XP plus a first-pick Farming bonus — 16 tiers from Berry Bush up to Astral Berry Bush. Right-click Remove salvages the remaining berries (with a chance at an Apple).",
+      "Combat: attack-speed (Tempo) retuned — deep Tempo lines keep adding real attack speed instead of trailing off, while early lines still hit hardest. Glass-cannon builds reach about 6 attacks/sec (~6.7 with Comet).",
       "Fixes: the Acorn Cap cosmetic's shading is corrected, procgen-island fishing pins on the World Map now line up with the real world, and in Classic Layout the night dimming no longer darkens your sidebar/minimap/HUD.",
       "Security & anti-cheat: closed an item-duplication hole and hardened PvP loot and hit detection so cheaters can't dupe or launder items or spoof teleport/dodge hits."
     ]
