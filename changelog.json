@@ -1,6 +1,6 @@
 [
   {
-    "version": "v1176",
+    "version": "v1178",
     "date": "2026-06-15",
     "title": "Respawn Hotfix",
     "entries": [
@@ -19,7 +19,7 @@
       "The shared pouch step now highlights Collect and lets you press it even if the pouch is empty, so you learn the action without waiting for +1 item.",
       "Crafting now shows a lightweight result toast inside the crafting UI with the crafted item icon and rarity, without closing your inventory.",
       "Deaths now wait for you to click Respawn instead of instantly snapping you back.",
-      "Fixes and polish: party boss entry crashes are fixed, stacked mobs can be chosen from the right-click menu, mailbox sale payouts can show which items sold, buff rings were polished, prayer tooltips no longer stick, nearby Rat Slimes were added, and Garden music was updated."
+      "Fixes and polish: party boss entry crashes are fixed, stacked mobs can be chosen from the right-click menu, mailbox sale payouts can show which items sold, buff rings were polished, prayer tooltips no longer stick, Rat Slimes are back near the early mainland path, and Garden music was updated."
     ]
   },
   {
