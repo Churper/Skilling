@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1176",
+    "date": "2026-06-15",
+    "title": "Respawn Hotfix",
+    "entries": [
+      "Fixed deaths where the ghost could fade out before you clicked Respawn in boss, dungeon, or PvP-style death states.",
+      "Refreshed the Garden Helper changelog wording so it describes the final release cleanly instead of an internal tuning pass."
+    ]
+  },
+  {
     "version": "v1175",
     "date": "2026-06-15",
     "title": "Garden Helper, Respawn Choice & Crafting Feedback",
