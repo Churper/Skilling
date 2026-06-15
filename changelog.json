@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1169",
+    "date": "2026-06-15",
+    "title": "HUD Ring Polish",
+    "entries": [
+      "The buff and boost timer ring now matches the XP tracker ring. It is the same size by default and drains clockwise the same way.",
+      "In the compact ring, the number now sits centered directly under the skill icon, with the percent sign tucked neatly beside it."
+    ]
+  },
+  {
     "version": "v1168",
     "date": "2026-06-15",
     "title": "Pet Garden Overhaul, HUD Customization & New Fruits",
