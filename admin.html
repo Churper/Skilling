@@ -2837,19 +2837,32 @@ function sendBulkReview(eventIds, notes) {
 }
 
 recentVClearVisibleEl?.addEventListener("click", () => {
-  const ids = Array.from(recentVFeedEl.querySelectorAll(".ac-event:not(.reviewed)[data-event-id]"))
-    .map(el => Number(el.dataset.eventId))
-    .filter(n => Number.isFinite(n) && n > 0);
-  if (!ids.length) { setAcStatus("Nothing to clear", "info"); return; }
-  if (!confirm(`Mark ${ids.length} visible violation(s) as false alarm?`)) return;
-  /* Optimistically hide the cleared rows immediately so the button visibly
-     does something right where you clicked — independent of the ack round-trip
-     and the off-screen status line. Restored on ack failure (see line ~1356). */
-  recentVLastClearBatch = ids.slice();
-  ids.forEach(id => recentVCleared.add(id));
-  renderRecentV([]);
-  setAcStatus(`Clearing ${ids.length} violation(s)…`, "info");
-  sendBulkReview(ids, "bulk clear visible from admin feed");
+  const items = Array.from(recentVFeedEl.querySelectorAll(".ac-event:not(.reviewed)[data-event-id]"))
+    .map(el => ({ el, id: Number(el.dataset.eventId) }))
+    .filter(it => Number.isFinite(it.id) && it.id > 0);
+  if (!items.length) { setAcStatus("Nothing to clear", "info"); return; }
+  const key = getKey();
+  if (!key) { setAcStatus("Enter admin key first", "err"); return; }
+  if (ws?.readyState !== WebSocket.OPEN) { setAcStatus("Not connected", "err"); return; }
+  if (!confirm(`Mark ${items.length} visible violation(s) as false alarm?`)) return;
+  /* Mark each row via the SAME proven single-✓ pipe (admin_anticheat_review →
+     admin_review_event RPC) rather than the bulk RPC (admin_bulk_review_violations),
+     which wasn't actually recording the reviews. Apply the identical per-row dim +
+     ✓-removal so the feedback matches the single button exactly. */
+  for (const { el, id } of items) {
+    ws.send(JSON.stringify({
+      type: "admin_anticheat_review",
+      key,
+      event_id: id,
+      action: "false_alarm",
+      notes: "bulk clear visible from admin feed",
+    }));
+    el.classList.add("reviewed");
+    const reviewBtn = el.querySelector("[data-ac-review]");
+    if (reviewBtn) reviewBtn.remove();
+    recentVCleared.add(id);
+  }
+  setAcStatus(`Marked ${items.length} violation(s) as false alarm`, "ok");
 });
 
 /* Reuse the same false-alarm pipe as the dossier — sends the existing
