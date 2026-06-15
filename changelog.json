@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1170",
+    "date": "2026-06-15",
+    "title": "Combat & Drop Fixes",
+    "entries": [
+      "Minimized AFK combat no longer wanders off to attack peaceful animals like cats, and giant slimes can no longer path through safespots while your game tab is in the background.",
+      "Rare fruit drops such as Sun Peach now show a clean center-screen popup instead of a floating label that could streak across the screen and look like a camera jerk at certain camera angles."
+    ]
+  },
+  {
     "version": "v1169",
     "date": "2026-06-15",
     "title": "HUD Ring Polish",
