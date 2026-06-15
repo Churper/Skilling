@@ -1,5 +1,19 @@
 [
   {
+    "version": "v1174",
+    "date": "2026-06-15",
+    "title": "Garden Helper, Respawn Choice & Crafting Feedback",
+    "entries": [
+      "New Garden Helper quest: Farmer Sprout now walks you through the Pet Garden with dialogue, quest markers, highlighted buttons, and rewards. If you already have a slimelet, he recognizes it and skips the forced hatch.",
+      "Garden onboarding is lighter: the first slimelet is free, Sprout gives 100 Tree Meat, Meat Trees unlock at Woodcutting 30 with level-scaled XP, and the starter scroll reward is only one tier-I scroll.",
+      "Farmer Sprout has a proper baked portrait and a cleaner dialogue panel with the portrait on the left and edge-to-edge dialogue controls.",
+      "The shared pouch step now highlights Collect and lets you press it even if the pouch is empty, so you learn the action without waiting for +1 item.",
+      "Crafting now shows a lightweight result toast inside the crafting UI with the crafted item icon and rarity, without closing your inventory.",
+      "Deaths now wait for you to click Respawn instead of instantly snapping you back.",
+      "Fixes and polish: party boss entry crashes are fixed, stacked mobs can be chosen from the right-click menu, mailbox sale payouts can show which items sold, buff rings were polished, prayer tooltips no longer stick, nearby Rat Slimes were added, and Garden music was updated."
+    ]
+  },
+  {
     "version": "v1170",
     "date": "2026-06-15",
     "title": "Combat & Drop Fixes",

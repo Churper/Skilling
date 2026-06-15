@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1170">
+  <link rel="stylesheet" href="./style.css?v=1174">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -304,6 +304,20 @@
       </div>
       <button type="button" id="ui-tut-skip" class="ui-tut-skip" hidden>Skip Step</button>
     </div>
+    <!-- Pet Garden ("Garden Helper") quest tracker -->
+    <div id="ui-garden-quest" hidden>
+      <div class="ui-tut-head">
+        <span class="ui-tut-quest">Garden Helper</span>
+        <span id="ui-gq-progress" class="ui-tut-progress">1/7</span>
+        <button type="button" id="ui-gq-dismiss" class="ui-tut-dismiss" title="Dismiss">&times;</button>
+      </div>
+      <div class="ui-tut-bar"><div class="ui-tut-bar-fill" id="ui-gq-fill"></div></div>
+      <div class="ui-tut-body">
+        <strong id="ui-gq-title" class="ui-tut-title">Meet Farmer Sprout</strong>
+        <p id="ui-gq-text" class="ui-tut-text">Head to the Pet Garden and talk to Farmer Sprout.</p>
+      </div>
+      <button type="button" id="ui-gq-skip" class="ui-tut-skip" hidden>Skip Step</button>
+    </div>
     <!-- guide button moved into skills panel -->
     <button type="button" id="ui-mobile-toggle" aria-expanded="false" aria-controls="ui-dock ui-panel">
       Menu
@@ -442,7 +456,7 @@
         <!-- Quest list (hidden by default, toggled by Quests button) -->
         <div id="ui-quest-view" class="ui-quest-view" hidden>
           <div class="ui-quest-view-head">
-            <span class="ui-quest-view-title">Getting Started</span>
+            <span class="ui-quest-view-title">Quests</span>
             <span id="ui-quest-view-progress" class="ui-quest-view-progress"></span>
           </div>
           <div id="ui-quest-step-list" class="ui-quest-step-list"></div>
@@ -1579,6 +1593,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1170"></script>
+  <script type="module" src="./main.js?v=1174"></script>
 </body>
 </html>
