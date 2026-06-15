@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1139",
+    "date": "2026-06-14",
+    "title": "Meteor Frenzy Glow-Up, PvP Polish & Fixes",
+    "entries": [
+      "Meteor frenzy is a spectacle now: the meteor glows molten-orange while it lasts, you earn 10x XP, and you scoop up a burst of bonus Meteor Shards.",
+      "Break down Meteor Cores: right-click a Meteor Core to turn each one into 10 Meteor Shards for binding Spellstones.",
+      "PvP in the Crucible now attacks at a smooth, continuous speed that matches your normal PvM rhythm - the old start-stop stutter is gone, and damage is unchanged.",
+      "On mobile, reconnecting after your phone has been locked for a while now brings other players back onto the map and minimap right away, instead of showing an empty world while you appear online.",
+      "Spellstones now show their proper color names everywhere in the Spellstone Pool menu and its status messages.",
+      "Shoreline foam now lines up cleanly with the water when viewed from a distance, and Torches are properly lit and shaded to match the world."
+    ]
+  },
+  {
     "version": "v1138",
     "date": "2026-06-14",
     "title": "World Streaming, Slime Restyle & Smoother Play",

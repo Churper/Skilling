@@ -1348,7 +1348,14 @@ export function buildTerrainMesh(waterUniforms, heightOffsets, colorOverrides, b
 
   /* ── Foam strip from pre-computed shoreline normals (no seams) ── */
   if (window._enableFoam !== false && window._shorelineChains && !(bounds && bounds.isInstance)) {
-    const FOAM_W = 1.5, FOAM_INLAND = 0.5, foamY = WATER_Y + 0.06;
+    const FOAM_W = 1.5, FOAM_INLAND = 0.5;
+    /* Foam sits just above the water surface. The old 0.06 lift looked fine up
+       close (steep angle) but at far/grazing angles projected to a visible gap —
+       the strip appeared to hover / not touch the waterline. Nudged down to 0.02
+       so it reads as sitting ON the water from any distance; polygonOffset below
+       still keeps it off the water plane in depth (no z-fight). Live-tune the
+       exact seamless value via window._foamY (e.g. 0.0–0.03), then rebake. */
+    const foamY = WATER_Y + (typeof window._foamY === "number" ? window._foamY : 0.02);
     const foamMat = new THREE.MeshBasicMaterial({
       color: 0x9AD4EE, transparent: true, opacity: 0.42,
       depthWrite: false, side: THREE.DoubleSide,

@@ -1137,6 +1137,12 @@ let lastPlayers = [];
    merge new event_ids into the displayed feed without losing already-
    rendered older rows. Keyed by event_id; render sorts by ts desc. */
 const recentVCache = new Map();
+/* Event IDs cleared this session. renderRecentV hides these so "Clear
+   visible" (and single ✓) actually make rows disappear and KEEP them gone
+   across the 30s poll / _resetRecentV refetch — even when "Unreviewed only"
+   is unchecked and the server keeps returning the now-reviewed rows. */
+const recentVCleared = new Set();
+let recentVLastClearBatch = [];
 let recentVHadInitial = false;
 let playerFilter = "all";
 
@@ -1358,11 +1364,19 @@ function connect() {
         const mode = msg.mode === "global" ? "global" : "scoped";
         setAcStatus(`Bulk clear (${mode}): ${msg.reviewed_count || 0} reviewed, ${msg.strikes_zeroed || 0} strikes zeroed`, "ok");
         logAction("act-join", `Bulk clear (${mode}): ${msg.reviewed_count || 0} events`);
+        recentVLastClearBatch = [];
         /* v457: full reset (not incremental) so cleared rows drop out
-           of the unreviewed-only filter immediately. */
+           of the unreviewed-only filter immediately. The optimistically-hidden
+           rows stay hidden via recentVCleared even though the refetch re-returns
+           them (when "Unreviewed only" is unchecked). */
         _resetRecentV();
         requestAntiCheat();
       } else {
+        /* Server rejected the clear — un-hide the optimistically removed rows
+           so the failure is visible, then surface the error. */
+        recentVLastClearBatch.forEach(id => recentVCleared.delete(id));
+        recentVLastClearBatch = [];
+        renderRecentV([]);
         setAcStatus(`Bulk clear failed: ${msg.error || "unknown"}`, "err");
       }
     }
@@ -2727,6 +2741,7 @@ function renderRecentV(rows) {
   }
   if (!recentVHadInitial && rows.length) recentVHadInitial = true;
   rows = [...recentVCache.values()]
+    .filter(r => !recentVCleared.has(r.event_id))
     .sort((a, b) => String(b.ts || "").localeCompare(String(a.ts || "")))
     .slice(0, 200);
   /* Trim cache to match displayed window so it doesn't balloon over time */
@@ -2827,6 +2842,13 @@ recentVClearVisibleEl?.addEventListener("click", () => {
     .filter(n => Number.isFinite(n) && n > 0);
   if (!ids.length) { setAcStatus("Nothing to clear", "info"); return; }
   if (!confirm(`Mark ${ids.length} visible violation(s) as false alarm?`)) return;
+  /* Optimistically hide the cleared rows immediately so the button visibly
+     does something right where you clicked — independent of the ack round-trip
+     and the off-screen status line. Restored on ack failure (see line ~1356). */
+  recentVLastClearBatch = ids.slice();
+  ids.forEach(id => recentVCleared.add(id));
+  renderRecentV([]);
+  setAcStatus(`Clearing ${ids.length} violation(s)…`, "info");
   sendBulkReview(ids, "bulk clear visible from admin feed");
 });
 
@@ -2854,6 +2876,8 @@ recentVFeedEl?.addEventListener("click", (e) => {
   }));
   const eventEl = btn.closest(".ac-event");
   if (eventEl) { eventEl.classList.add("reviewed"); btn.remove(); }
+  /* Keep it gone across the 30s poll / refetch, not just this render. */
+  recentVCleared.add(eventId);
   setAcStatus(`Marked event ${eventId} as false alarm${notes ? " (with note)" : ""}`, "ok");
 });
 
