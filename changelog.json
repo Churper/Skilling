@@ -1,5 +1,20 @@
 [
   {
+    "version": "v1167",
+    "date": "2026-06-15",
+    "title": "Pet Garden Overhaul, HUD Customization & New Fruits",
+    "entries": [
+      "The Pet Garden is now a shared space - you'll meet other players there, see their slimelets wander in and out through a new cave entrance, and you can pet them.",
+      "Plant in the garden: Tree and Bush patches are real farm patches now, and the new Magic Patch lets you plant Magic Seeds - each one is 10 hours of crew feed that keeps your pets working even when the meat trough is empty.",
+      "The garden now has its own Bank Chest, you can roam much farther out into the meadow, and you keep your horse after boss, dungeon, and PvP runs instead of losing it.",
+      "Make the HUD yours: drag any HUD piece to move it, Alt-drag to resize, and shift-right-click to reset. The buff/boost bar has a fresh look with a right-click menu to change its ring style, color, font, and size.",
+      "The XP tracker has a new 'Compact Ring (Level)' mode and is colored by skill, the buff bar and XP tracker swapped default spots, there's a new 'Hide Game Hub Button' setting, and 'Reset UI to Default' now snaps everything back instantly.",
+      "Five new legendary fruits drop from the high-tier berry bushes - Storm Guava, Leviathan Mango, Sludge Papaya, Prism Kiwi, and Infinity Plum - each with a new bonfire dish to cook.",
+      "Binding Spellstones is much cheaper: 1 Meteor Shard plus 1 catalyst now makes 10 Spellstones.",
+      "Chat polish: clearing chat sticks after reconnecting, you can right-click to copy selected chat text, and right-click a chat box to paste."
+    ]
+  },
+  {
     "version": "v1139",
     "date": "2026-06-14",
     "title": "Meteor Frenzy Glow-Up, PvP Polish & Fixes",
