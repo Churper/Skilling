@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1194",
+    "date": "2026-06-16",
+    "title": "Moderation Panel",
+    "entries": [
+      "Moderators now see every online player in the in-game moderation panel, not just the ones standing near them."
+    ]
+  },
+  {
     "version": "v1193",
     "date": "2026-06-16",
     "title": "Friends List Fixes",
