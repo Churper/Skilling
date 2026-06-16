@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1191",
+    "date": "2026-06-16",
+    "title": "Friend Presence & Inspect Polish",
+    "entries": [
+      "Friends can now show as online even when they are in another world. Msg, Game, and Party actions still only send when that friend is in your current world.",
+      "Friend action status text now says when someone is offline or in another world, so failed invites are clearer.",
+      "Right-click player inspect now has a cleaner duration picker and in-game moderation actions with confirmations where the action needs an extra check.",
+      "Equipment comparison tooltips now show a small equals sign when Attack or Defense matches your currently equipped item."
+    ]
+  },
+  {
     "version": "v1188",
     "date": "2026-06-16",
     "title": "Social Polish & Pet Garden Header",
