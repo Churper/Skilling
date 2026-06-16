@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1191">
+  <link rel="stylesheet" href="./style.css?v=1192">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -738,6 +738,7 @@
         <button type="button" class="stg-tab" data-stg-tab="chat"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a7.5 7.5 0 0 1-7.5 7.5H7l-4 2 1.4-4A7.5 7.5 0 1 1 21 12Z"/><path d="M8 11h8M8 15h5"/></svg><span class="stg-tab-nm">Chat</span></button>
         <button type="button" class="stg-tab" data-stg-tab="toggles"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="5" rx="2.5"/><circle cx="7.5" cy="8" r="1.1"/><rect x="3" y="13.5" width="18" height="5" rx="2.5"/><circle cx="16.5" cy="16" r="1.1"/></svg><span class="stg-tab-nm">Toggles</span></button>
         <button type="button" class="stg-tab" data-stg-tab="debug"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M3 10l3 2M3 17l3-1M21 10l-3 2M21 17l-3-1M9 6V4M15 6V4M12 10v8"/></svg><span class="stg-tab-nm">Debug</span></button>
+        <button type="button" class="stg-tab" data-stg-tab="mod" data-stg-priv="mod" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-2.8 8.2-7 10-4.2-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg><span class="stg-tab-nm">Mod</span></button>
         <button type="button" class="stg-tab" data-stg-tab="binds"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg><span class="stg-tab-nm">Keybinds</span></button>
       </div>
       <div class="stg-body">
@@ -897,6 +898,18 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Hide Global Ocean</span><span class="stg-hint">Solid seabed plane below water</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-dbg-hide-ocean"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Hide Foam Ribbons</span><span class="stg-hint">Shore foam geometry strips</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-dbg-hide-foam"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Flat Terrain Color</span><span class="stg-hint">Strip vertex colors — see pure mesh</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-dbg-flat-color"><span class="stg-tog-track"></span></label></span></div>
+        </div>
+        <!-- Mod -->
+        <div class="stg-pane" data-stg-pane="mod" data-stg-priv="mod" hidden>
+          <div class="stg-pane-head"><h3>Mod</h3></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Target</span><span class="stg-hint">Currently connected players only</span></span><span class="stg-ctrl"><select id="setting-mod-target" class="stg-sel"><option value="">No players online</option></select><button type="button" id="setting-mod-refresh" class="stg-btn">Refresh</button></span></div>
+          <div class="stg-row"><span class="stg-label">Duration</span><span class="stg-ctrl"><select id="setting-mod-duration" class="stg-sel"><option value="1">1 hour</option><option value="6">6 hours</option><option value="24">24 hours</option><option value="168" data-admin-only="1">7 days</option></select></span></div>
+          <div class="stg-section-title">Chat</div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mute selected player</span><span class="stg-hint">Silences global and clan chat for the selected account</span></span><span class="stg-ctrl"><button type="button" id="setting-mod-mute" class="stg-btn">Mute</button><button type="button" id="setting-mod-unmute" class="stg-btn">Unmute</button></span></div>
+          <div class="stg-section-title" data-admin-only="1">Admin</div>
+          <div class="stg-row" data-admin-only="1"><span class="stg-label-block"><span class="stg-label">Connection actions</span><span class="stg-hint">Use for active session abuse when account chat actions are not enough</span></span><span class="stg-ctrl"><button type="button" id="setting-mod-kick" class="stg-btn stg-btn-danger">Kick</button><button type="button" id="setting-mod-conn-mute" class="stg-btn">Conn Mute</button><button type="button" id="setting-mod-conn-unmute" class="stg-btn">Conn Unmute</button></span></div>
+          <div class="stg-row" data-admin-only="1"><span class="stg-label-block"><span class="stg-label">Connection block</span><span class="stg-hint">Kicks and blocks reconnects for the selected live connection</span></span><span class="stg-ctrl"><button type="button" id="setting-mod-conn-ban" class="stg-btn stg-btn-danger">Block</button><button type="button" id="setting-mod-conn-unban" class="stg-btn">Unblock</button></span></div>
+          <div id="setting-mod-status" class="stg-mod-status"></div>
         </div>
         <!-- Keybinds -->
         <div class="stg-pane" data-stg-pane="binds" hidden>
@@ -1277,6 +1290,7 @@
             <option value="game">Game</option>
             <option value="clan">Clan</option>
             <option value="friends">Friends</option>
+            <option value="social">Social</option>
           </select>
         </div>
         <input id="ui-chat-input" type="text" placeholder="" maxlength="200" autocomplete="off">
@@ -1287,7 +1301,10 @@
   <div id="ui-friendhub-overlay" class="ui-friendhub-overlay" hidden>
     <div class="ui-friendhub-modal">
       <div class="fh-head">
-        <span class="fh-title">Friends</span>
+        <div class="fh-tabs" role="tablist">
+          <button type="button" class="fh-tab is-active" data-fh-tab="friends" role="tab"><span class="fh-tab-face" aria-hidden="true">🙂</span>Friends</button>
+          <button type="button" class="fh-tab" data-fh-tab="ignored" role="tab"><span class="fh-tab-face" aria-hidden="true">🙁</span>Ignored</button>
+        </div>
         <button type="button" class="fh-close" id="ui-friendhub-close" aria-label="Close">&times;</button>
       </div>
       <div class="fh-body" id="ui-friendhub-body"></div>
@@ -1605,6 +1622,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1191"></script>
+  <script type="module" src="./main.js?v=1192"></script>
 </body>
 </html>
