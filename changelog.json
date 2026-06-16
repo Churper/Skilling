@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1181",
+    "date": "2026-06-16",
+    "title": "Friends, Clan Chat & Party XP",
+    "entries": [
+      "New friends list and ignore list, tied to your account. Right-click a player to add or ignore, or add a friend by name from the Friends panel. Mutual requests auto-accept.",
+      "Clan chat works now and reaches only your clan.",
+      "The chat dropdown has a new Friends option: see your friends and send private messages, with replies shown right in chat.",
+      "Invite a friend straight into a game from your friends list, or open the Game Hub from there.",
+      "Party XP sharing: party members in the same area share experience. You keep most of yours, the rest is split nearby, and you never lose XP when you are on your own.",
+      "Fixes: rare drops land in the open near you instead of inside hills or bushes and right-click Pick up walks you over to grab it, resizing a popped-out panel like Emotes is smooth, meteors no longer get stuck after locking your phone mid-mine on mobile, and Roots are easier to click."
+    ]
+  },
+  {
     "version": "v1180",
     "date": "2026-06-15",
     "title": "Respawn Hotfix",

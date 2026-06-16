@@ -866,7 +866,13 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/></svg>
               Refresh
             </button>
-            <button id="kick-all-btn" class="btn btn-danger" disabled style="margin-left: auto;">
+            <button id="chat-lock-btn" class="btn" disabled style="margin-left: auto;" title="When ON, only logged-in accounts can use global chat. Stops guest-tab spam that mute can't (no account to key on).">
+              🔓 Chat: Everyone
+            </button>
+            <button id="ipban-clear-btn" class="btn" disabled title="Lift ALL active IP bans AND IP mutes now (only hashed entries are stored; they auto-expire and clear on relay restart).">
+              ⛔ Clear IP bans/mutes
+            </button>
+            <button id="kick-all-btn" class="btn btn-danger" disabled>
               🦶 Kick All
             </button>
           </div>
@@ -1076,6 +1082,8 @@ const sendBtn = document.getElementById("send-btn");
 const refreshBtn = document.getElementById("refresh-btn");
 const kickAllBtn = document.getElementById("kick-all-btn");
 const kickAllBtn2 = document.getElementById("kick-all-btn-2");
+const chatLockBtn = document.getElementById("chat-lock-btn");
+const ipBanClearBtn = document.getElementById("ipban-clear-btn");
 const reconnectBtn = document.getElementById("reconnect-btn");
 const reconnectBtn2 = document.getElementById("reconnect-btn-2");
 const clearKeyBtn = document.getElementById("clear-key-btn");
@@ -1393,7 +1401,7 @@ function connect() {
 }
 
 function setBtnsConnected(on) {
-  [sendBtn, refreshBtn, kickAllBtn, kickAllBtn2, acRefreshBtn, relayMetricsRefreshBtn, chatLogRefreshBtn].forEach(b => { if (b) b.disabled = !on; });
+  [sendBtn, refreshBtn, kickAllBtn, kickAllBtn2, chatLockBtn, ipBanClearBtn, acRefreshBtn, relayMetricsRefreshBtn, chatLogRefreshBtn].forEach(b => { if (b) b.disabled = !on; });
 }
 
 /* v457 egress: which pages actually use the live player roster.
@@ -2482,7 +2490,10 @@ function renderPlayers(players) {
             ? `<button class="btn btn-sm" data-action="${p.isModerator ? "unmod" : "mod"}" data-uid="${esc(p.uid || p.accountId || "")}" data-name="${esc(p.name)}">${p.isModerator ? "Unmod" : "Mod"}</button>`
             : ""
           }
+          ${p.hasAccount ? `<button class="btn btn-sm" data-action="mute" data-id="${p.id}" data-name="${esc(p.name)}">🔇 Mute</button>` : ""}
           <button class="btn btn-sm btn-danger" data-action="kick" data-id="${p.id}" data-name="${esc(p.name)}">🦶 Kick</button>
+          <button class="btn btn-sm" data-action="ipmute" data-id="${p.id}" data-name="${esc(p.name)}">🔇 IP Mute</button>
+          <button class="btn btn-sm btn-danger" data-action="ipban" data-id="${p.id}" data-name="${esc(p.name)}">⛔ IP Ban</button>
         </div>
       </div>`;
   }).join("");
@@ -2521,6 +2532,33 @@ function doKickAll() {
   logAction("act-kick", "Kicked ALL players");
   setTimeout(requestPlayers, 1000);
 }
+function doMute(id, name) {
+  const hours = prompt(`Mute ${name}? Shadow-mute: their chat (global + clan) stops reaching others, but they still see their own lines so they don't just re-log. Hours:`, "24");
+  if (hours === null) return;
+  adminCmd("admin_mute", { targetId: id, hours: Number(hours) || 24 });
+  logAction("act-ban", `Muted ${name} (${Number(hours) || 24}h)`);
+  setTimeout(requestPlayers, 500);
+}
+function doIpBan(id, name) {
+  const hours = prompt(`IP-ban ${name}? Bans their connection IP and kicks all their tabs — works on GUESTS too (the case account-mute can't catch). Privacy: only a one-way HASH of the IP is kept (never the raw IP), and it clears on relay restart. To lift early, use "Clear IP bans". Hours:`, "168");
+  if (hours === null) return;
+  adminCmd("admin_ipban", { targetId: id, hours: Number(hours) || 168 });
+  logAction("act-ban", `IP-banned ${name} (${Number(hours) || 168}h)`);
+  setTimeout(requestPlayers, 500);
+}
+function doIpMute(id, name) {
+  const hours = prompt(`IP-mute ${name}? Shadow-mutes their connection's chat (global + clan + DMs) WITHOUT kicking — works on GUESTS too; they keep a self-echo so they don't relog to evade. Privacy: only a one-way HASH of the IP is kept (never the raw IP). Hours:`, "24");
+  if (hours === null) return;
+  adminCmd("admin_ipmute", { targetId: id, hours: Number(hours) || 24 });
+  logAction("act-ban", `IP-muted ${name} (${Number(hours) || 24}h)`);
+  setTimeout(requestPlayers, 500);
+}
+function doIpBanClear() {
+  if (!confirm("Clear ALL IP bans AND IP mutes? (They auto-expire anyway; this lifts every active hashed ban + mute now.)")) return;
+  adminCmd("admin_ipban_clear", {});
+  adminCmd("admin_ipmute_clear", {});
+  logAction("act-ban", "Cleared all IP bans + mutes");
+}
 
 function doSetMod(uid, name, enabled) {
   if (!uid) return;
@@ -2542,6 +2580,9 @@ playerListEl.addEventListener("click", (e) => {
   else if (action === "nameban") doNameBan(id, name);
   else if (action === "unban") doNameUnban(id);
   else if (action === "kick") doKick(id, name);
+  else if (action === "mute") doMute(id, name);
+  else if (action === "ipban") doIpBan(id, name);
+  else if (action === "ipmute") doIpMute(id, name);
   else if (action === "mod") doSetMod(btn.dataset.uid || "", name, true);
   else if (action === "unmod") doSetMod(btn.dataset.uid || "", name, false);
 });
@@ -3095,6 +3136,22 @@ if (document.readyState === "loading") {
 refreshBtn.addEventListener("click", requestPlayers);
 kickAllBtn.addEventListener("click", doKickAll);
 kickAllBtn2?.addEventListener("click", doKickAll);
+
+/* Registered-only chat lockdown toggle (break-glass anti guest-spam). Tracked
+   optimistically; the relay holds the authoritative flag (resets on restart). */
+let chatLockOn = false;
+function updateChatLockBtn() {
+  if (!chatLockBtn) return;
+  chatLockBtn.textContent = chatLockOn ? "🔒 Chat: Registered only" : "🔓 Chat: Everyone";
+  chatLockBtn.classList.toggle("btn-danger", chatLockOn);
+}
+function doToggleChatLock() {
+  chatLockOn = !chatLockOn;
+  adminCmd("admin_chat_lockdown", { on: chatLockOn });
+  updateChatLockBtn();
+}
+chatLockBtn?.addEventListener("click", doToggleChatLock);
+ipBanClearBtn?.addEventListener("click", doIpBanClear);
 
 sendBtn.addEventListener("click", () => {
   const text = msgInput.value.trim();
