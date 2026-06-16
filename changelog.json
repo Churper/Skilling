@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1188",
+    "date": "2026-06-16",
+    "title": "Social Polish & Pet Garden Header",
+    "entries": [
+      "Clan chat messages now show a small Clan badge, and recent clan chat can replay correctly after reconnecting without showing another clan's messages.",
+      "Friend direct messages now appear in chat as clean From/To friend lines instead of generic status updates.",
+      "Friends are easier to manage: the Friends channel opens the picker reliably, the Friend Hub refreshes fresh, and friend rows now use clear Msg, Game, Party, and Remove buttons.",
+      "Removing a friend, declining a request, or canceling a sent request now uses an in-game confirmation.",
+      "The Friend Hub button now flashes and shows a count badge when you have pending friend requests.",
+      "The Pet Garden panel has a bigger draggable header. The pet selector sits under it, and the slimelet color/shape customizer opens in the top empty space above the portrait."
+    ]
+  },
+  {
     "version": "v1181",
     "date": "2026-06-16",
     "title": "Friends, Clan Chat & Party XP",
