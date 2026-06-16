@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1193",
+    "date": "2026-06-16",
+    "title": "Friends List Fixes",
+    "entries": [
+      "Online friends in your friends list show their Game and Party invite buttons, so you can invite them straight to a mini-game or your party.",
+      "After choosing a chat channel from the dropdown, pressing Enter now drops your cursor into the chat box so you can start typing right away."
+    ]
+  },
+  {
     "version": "v1192",
     "date": "2026-06-16",
     "title": "Friend Hub Redesign & Moderation Tools",
