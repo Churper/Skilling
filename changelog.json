@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1201",
+    "date": "2026-06-17",
+    "title": "Performance & Stability",
+    "entries": [
+      "Premium animated skins stay crisp now and no longer flicker or briefly break when other players move out of view.",
+      "Smoother performance and lower memory use over long play sessions, repeated boss fights, and back-to-back cave runs."
+    ]
+  },
+  {
     "version": "v1197",
     "date": "2026-06-16",
     "title": "Messages Always Reach",
