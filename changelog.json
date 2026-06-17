@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1197",
+    "date": "2026-06-16",
+    "title": "Messages Always Reach",
+    "entries": [
+      "Direct messages and game invites now reach an online friend no matter where they are in the game, so a message always goes through when your friend is online."
+    ]
+  },
+  {
     "version": "v1193",
     "date": "2026-06-16",
     "title": "Friends List Fixes",
