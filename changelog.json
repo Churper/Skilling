@@ -1,13 +1,5 @@
 [
   {
-    "version": "v1194",
-    "date": "2026-06-16",
-    "title": "Moderation Panel",
-    "entries": [
-      "Moderators now see every online player in the in-game moderation panel, not just the ones standing near them."
-    ]
-  },
-  {
     "version": "v1193",
     "date": "2026-06-16",
     "title": "Friends List Fixes",
@@ -19,12 +11,11 @@
   {
     "version": "v1192",
     "date": "2026-06-16",
-    "title": "Friend Hub Redesign & Moderation Tools",
+    "title": "Friend Hub Redesign",
     "entries": [
       "The Friends panel has a fresh look with Friends and Ignored tabs. Add a friend or someone to ignore by typing their name right in the panel, with no browser popup, and remove anyone from either list.",
       "Reply to a direct message faster: right-click a friend's message and pick Reply, or press Tab to reply to the most recent one.",
-      "Open the Game Hub from your friends list, and use the new Back to Friends button to return to it.",
-      "Moderators and admins now have in-game chat tools in a Settings tab, so common moderation no longer needs the separate admin page. These tools are only visible to those accounts."
+      "Open the Game Hub from your friends list, and use the new Back to Friends button to return to it."
     ]
   },
   {
