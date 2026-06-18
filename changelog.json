@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1218",
+    "date": "2026-06-18",
+    "title": "Bug Fix Round",
+    "entries": [
+      "Flame Aura and Sparkle Aura now show up in the Slime Shop preview, so you can see them on your slime before you buy.",
+      "Sailing tasks that ask for cedar on a volcanic island now say \"Burnt Logs\" and point you at the burnt trees that actually drop them, instead of sending you hunting for a cedar tree that isn't there.",
+      "Mining at a safespot while the tab is in the background no longer auto-attacks an enemy that can't actually reach you, so it stops cancelling your mining.",
+      "The Adventure Book Forge stats now read \"Enhance coins spent\" and \"Washer coins spent\" instead of showing a leftover bit of code."
+    ]
+  },
+  {
     "version": "v1217",
     "date": "2026-06-18",
     "title": "Auto-Wash & Pickup Fixes",
