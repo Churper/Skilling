@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1217",
+    "date": "2026-06-18",
+    "title": "Auto-Wash & Pickup Fixes",
+    "entries": [
+      "The Washing Machine can now auto-roll for you: pick the potential line you want and a minimum value, then it keeps washing on its own and stops the moment it rolls a match.",
+      "Dropped items sitting behind or under a tree can now be picked up by clicking them, instead of doing nothing and canceling your gathering.",
+      "When you tab back into the game, other players no longer disappear for a second before popping back in."
+    ]
+  },
+  {
     "version": "v1216",
     "date": "2026-06-18",
     "title": "Crafting Fixes & Skele Speedup",

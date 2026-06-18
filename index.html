@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1216">
+  <link rel="stylesheet" href="./style.css?v=1217">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -1136,8 +1136,24 @@
           <div class="ui-wash-cost-row">
             <span>Cost</span><span id="ui-wash-cost" class="ui-wash-cost-val"></span>
           </div>
+          <div id="ui-wash-auto" class="ui-wash-auto">
+            <div class="ui-wash-auto-grid">
+              <div class="ui-wash-auto-cell ui-wash-auto-statcell">
+                <label class="ui-wash-auto-cap">Auto-roll for</label>
+                <select id="ui-wash-auto-stat" class="ui-wash-auto-stat"></select>
+              </div>
+              <div class="ui-wash-auto-cell ui-wash-auto-mincell">
+                <label class="ui-wash-auto-cap" for="ui-wash-auto-min">Min value</label>
+                <div class="ui-wash-auto-mininput">
+                  <input id="ui-wash-auto-min" class="ui-wash-auto-min" type="number" min="0" step="1" value="0" inputmode="numeric">
+                  <span id="ui-wash-auto-unit" class="ui-wash-auto-unit">%</span>
+                </div>
+              </div>
+            </div>
+            <button type="button" id="ui-wash-auto-btn" class="ui-wash-auto-btn">Auto-roll until match</button>
+          </div>
           <div class="ui-wash-actions">
-            <button type="button" id="ui-wash-btn" class="ui-wash-roll-btn">Wash!</button>
+            <button type="button" id="ui-wash-btn" class="ui-wash-roll-btn">Wash once</button>
           </div>
           <p id="ui-wash-result" class="ui-wash-result"></p>
         </div>
@@ -1622,6 +1638,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1216"></script>
+  <script type="module" src="./main.js?v=1217"></script>
 </body>
 </html>
