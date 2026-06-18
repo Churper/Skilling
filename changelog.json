@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1212",
+    "date": "2026-06-18",
+    "title": "Security & Server Upgrades",
+    "entries": [
+      "The SlimeCoin economy has been rebuilt to run server-side end to end, so shop purchases feel fast while staying more reliable.",
+      "A broad security pass now protects more of the economy, saves, combat, XP, item drops, PvP, the Dojo, and leaderboards.",
+      "Server, networking, save-system, database, and backend upgrades make the game sturdier as more players pile in.",
+      "You should also feel the recent improvements: more reliable SlimeCoin purchases, fixed player-to-player trades, smoother performance, and many bug fixes."
+    ]
+  },
+  {
     "version": "v1201",
     "date": "2026-06-17",
     "title": "Performance & Stability",
