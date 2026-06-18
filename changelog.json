@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1216",
+    "date": "2026-06-18",
+    "title": "Crafting Fixes & Skele Speedup",
+    "entries": [
+      "Spinning, cooking, scribing, enchanting, and buying in huge quantities no longer freezes or crashes the game, so giant stacks process instantly.",
+      "Scribing, enchanting, spellstone crafting, and bonfire cooking now have a small chance to award SlimeCoins, while the spin wheel's SlimeCoin rate has been reduced.",
+      "The Skele boss phase transitions are much faster now, so there is far less waiting between phases."
+    ]
+  },
+  {
     "version": "v1212",
     "date": "2026-06-18",
     "title": "Security & Server Upgrades",
