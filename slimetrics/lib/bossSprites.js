@@ -1417,6 +1417,342 @@ function drawCaveSlime(ctx) {
 // ============================================================
 // SLIMETRICS REGISTRY + RENDER
 // ============================================================
+
+// ============================================================
+// 11) PLAGUE RAT — hunched toon rat, big ears, curled tail
+// ============================================================
+function drawRat(ctx) {
+  const fur = '#8a8c96', furD = '#5c5e6c', furDD = '#33343f', furL = '#abadb8', furH = '#cdcfd8';
+  const pink = '#e89aa8', pinkD = '#b05c72', pinkH = '#f6c4cf';
+  const nose = '#d86a86', noseD = '#9a3a54';
+  const blk = '#0a0a10', wht = '#fff8f0';
+  const tooth = '#fdf0d0', toothD = '#c8b078';
+
+  floorShadow(ctx);
+
+  // ---- curled tail (sweeps out to the right, behind body) ----
+  const tail = [[42,48],[50,49],[56,46],[58,40],[55,35],[50,35]];
+  for (let i = 0; i < tail.length - 1; i++) {
+    const [x0,y0] = tail[i], [x1,y1] = tail[i+1];
+    line(ctx, x0, y0, x1, y1, pinkD);
+    line(ctx, x0, y0-1, x1, y1-1, pink);
+    line(ctx, x0, y0+1, x1, y1+1, pinkD);
+  }
+  // tail base thicker
+  ellipse(ctx, 43, 48, 3, 2, pinkD);
+  ellipse(ctx, 43, 48, 2, 1, pink);
+
+  // ---- haunch / back leg (right side) ----
+  ellipse(ctx, 41, 48, 8, 7, furDD);
+  ellipse(ctx, 41, 48, 7, 6, furD);
+  ellipse(ctx, 40, 46, 5, 4, fur);
+  ellipse(ctx, 39, 45, 3, 2, furL);
+  // foot
+  ellipse(ctx, 44, 55, 4, 2, pinkD);
+  ellipse(ctx, 44, 55, 3, 1, pink);
+  px(ctx, 41, 56, pinkD); px(ctx, 44, 57, pinkD); px(ctx, 47, 56, pinkD);
+
+  // ---- body (hunched oval, leaning forward-left) ----
+  ellipse(ctx, 32, 42, 15, 13, furDD);
+  ellipse(ctx, 32, 42, 14, 12, furD);
+  ellipse(ctx, 30, 40, 11, 9, fur);
+  // back highlight
+  ellipse(ctx, 27, 35, 6, 4, furL);
+  px(ctx, 24, 33, furH);
+  // belly (lighter, lower-left)
+  ellipse(ctx, 28, 48, 8, 5, furL);
+  ellipse(ctx, 27, 49, 6, 3, furH);
+
+  // ---- front leg / paw (reaching down center) ----
+  ellipse(ctx, 30, 53, 4, 4, furD);
+  ellipse(ctx, 29, 52, 3, 2, fur);
+  // paw
+  ellipse(ctx, 29, 56, 3, 2, pinkD);
+  ellipse(ctx, 29, 56, 2, 1, pink);
+  px(ctx, 27, 57, pinkD); px(ctx, 29, 58, pinkD); px(ctx, 31, 57, pinkD);
+
+  // ---- HEAD (pointed snout to the lower-left) ----
+  // skull
+  ellipse(ctx, 18, 32, 9, 8, furDD);
+  ellipse(ctx, 18, 32, 8, 7, furD);
+  ellipse(ctx, 17, 31, 6, 5, fur);
+  ellipse(ctx, 15, 29, 3, 2, furL);
+
+  // snout taper (points down-left)
+  for (let i = 0; i < 8; i++) {
+    const x = 12 - i, y = 33 + (i*0.5|0);
+    const w = 4 - (i*0.45|0);
+    rect(ctx, x - w, y - w, w, w*2, furD);
+    rect(ctx, x - w + 1, y - w + 1, w, w, fur);
+  }
+  // nose tip
+  disc(ctx, 5, 36, 2, noseD);
+  disc(ctx, 5, 36, 1, nose);
+  px(ctx, 4, 35, pinkH);
+  // whiskers
+  line(ctx, 6, 36, 1, 33, furDD);
+  line(ctx, 6, 37, 0, 38, furDD);
+  line(ctx, 7, 37, 2, 41, furDD);
+
+  // ---- big round ears ----
+  // back ear
+  disc(ctx, 24, 22, 6, furDD);
+  disc(ctx, 24, 22, 5, furD);
+  disc(ctx, 24, 22, 3, pinkD);
+  disc(ctx, 24, 22, 2, pink);
+  // front ear
+  disc(ctx, 15, 23, 6, furDD);
+  disc(ctx, 15, 23, 5, fur);
+  disc(ctx, 15, 23, 3, pinkD);
+  disc(ctx, 15, 23, 2, pink);
+  px(ctx, 14, 21, pinkH);
+
+  // ---- eye (beady, on the head) ----
+  disc(ctx, 19, 30, 3, blk);
+  disc(ctx, 19, 30, 2, '#1a1a22');
+  px(ctx, 18, 29, wht);
+  // brow furrow (menacing)
+  px(ctx, 16, 27, furDD); px(ctx, 17, 27, furDD); px(ctx, 18, 28, furDD);
+  px(ctx, 21, 28, furDD); px(ctx, 22, 28, furDD);
+
+  // ---- buck teeth under snout ----
+  rect(ctx, 6, 39, 4, 3, toothD);
+  rect(ctx, 6, 39, 4, 2, tooth);
+  px(ctx, 7, 42, toothD); px(ctx, 8, 42, toothD);
+  // gap line between teeth
+  px(ctx, 8, 39, noseD); px(ctx, 8, 40, noseD); px(ctx, 8, 41, noseD);
+
+  // ---- claw hint on front paw ----
+  px(ctx, 27, 58, wht); px(ctx, 31, 58, wht);
+}
+
+// ============================================================
+// 12) STINGER DRONE — chunky toon bee, round body, wings
+// ============================================================
+function drawBee(ctx) {
+  const yel = '#f6c82e', yelD = '#c89414', yelDD = '#8a6208', yelH = '#ffe87a';
+  const blk = '#1a1410', blkL = '#332a1e';
+  const wingC = 'rgba(200,235,255,0.55)', wingE = '#9ad0ec', wingED = '#5a92b0';
+  const wht = '#ffffff', eyeB = '#0a0a12';
+  const sting = '#3a3340', stingL = '#5c5468';
+  const pink = '#ff9ec0';
+
+  floorShadow(ctx);
+
+  // ---- WINGS (behind body, translucent, fluttering up) ----
+  // left wing
+  ctx.save();
+  ctx.fillStyle = wingC;
+  ctx.beginPath();
+  ctx.ellipse(20, 22, 11, 6, -0.5, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+  ellipseOutline(ctx, 20, 22, 10, 6, wingED);
+  // right wing
+  ctx.save();
+  ctx.fillStyle = wingC;
+  ctx.beginPath();
+  ctx.ellipse(44, 22, 11, 6, 0.5, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+  ellipseOutline(ctx, 44, 22, 10, 6, wingED);
+  // wing vein hints
+  line(ctx, 14, 24, 26, 20, 'rgba(154,208,236,0.6)');
+  line(ctx, 38, 20, 50, 24, 'rgba(154,208,236,0.6)');
+
+  // ---- BODY (big round striped abdomen) ----
+  ellipse(ctx, 32, 40, 16, 14, blk);
+  ellipse(ctx, 32, 40, 15, 13, yelDD);
+  // base yellow fill
+  for (let y = 28; y <= 53; y++) {
+    for (let x = 17; x <= 47; x++) {
+      const dx = (x-32)/15, dy = (y-40)/13;
+      if (dx*dx+dy*dy <= 1) px(ctx, x, y, yel);
+    }
+  }
+  // black stripes (3 curved bands)
+  for (const cx of [33, 40]) {
+    for (let y = 28; y <= 53; y++) {
+      for (let x = 17; x <= 47; x++) {
+        const dx = (x-32)/15, dy = (y-40)/13;
+        if (dx*dx+dy*dy <= 1) {
+          // diagonal-ish vertical bands
+          if (Math.abs(x - cx - (y-40)*0.15) < 2.2) px(ctx, x, y, blk);
+        }
+      }
+    }
+  }
+  // first thin stripe near head
+  for (let y = 28; y <= 53; y++) {
+    for (let x = 17; x <= 47; x++) {
+      const dx = (x-32)/15, dy = (y-40)/13;
+      if (dx*dx+dy*dy <= 1 && Math.abs(x - 26 - (y-40)*0.15) < 1.8) px(ctx, x, y, blk);
+    }
+  }
+  // shading: top highlight + bottom shadow
+  for (let y = 28; y <= 53; y++) {
+    for (let x = 17; x <= 47; x++) {
+      const dx = (x-32)/15, dy = (y-40)/13;
+      const d = dx*dx+dy*dy;
+      if (d <= 1 && d > 0.82) {
+        // edge shadow only on yellow pixels
+      }
+    }
+  }
+  // top sheen
+  ellipse(ctx, 27, 32, 6, 3, yelH);
+  px(ctx, 24, 30, '#fff4b0');
+  // belly fuzz line
+  ellipse(ctx, 32, 50, 10, 2, yelDD);
+
+  // ---- STINGER (bottom point) ----
+  px(ctx, 32, 55, sting);
+  px(ctx, 31, 54, sting); px(ctx, 32, 54, stingL); px(ctx, 33, 54, sting);
+  px(ctx, 31, 56, sting); px(ctx, 32, 57, sting);
+
+  // ---- HEAD (round, fuzzy, on top-left) ----
+  disc(ctx, 24, 22, 9, blk);
+  disc(ctx, 24, 22, 8, blkL);
+  disc(ctx, 23, 20, 5, '#42382a');
+  // fuzzy collar between head and body
+  ellipse(ctx, 27, 30, 7, 3, yelD);
+  ellipse(ctx, 27, 30, 6, 2, yelH);
+
+  // ---- antennae (with bobbles) ----
+  line(ctx, 21, 15, 17, 8, blk);
+  line(ctx, 26, 14, 28, 7, blk);
+  disc(ctx, 16, 7, 2, blk); disc(ctx, 16, 7, 1, yelH);
+  disc(ctx, 29, 6, 2, blk); disc(ctx, 29, 6, 1, yelH);
+
+  // ---- big shiny eyes ----
+  disc(ctx, 20, 22, 3, wht);
+  disc(ctx, 20, 22, 2, eyeB);
+  px(ctx, 19, 21, wht);
+  disc(ctx, 28, 21, 3, wht);
+  disc(ctx, 28, 21, 2, eyeB);
+  px(ctx, 27, 20, wht);
+
+  // ---- cute smile + cheeks ----
+  // smile
+  px(ctx, 22, 26, '#000'); px(ctx, 23, 27, '#000'); px(ctx, 24, 27, '#000');
+  px(ctx, 25, 27, '#000'); px(ctx, 26, 26, '#000');
+  // blush cheeks
+  px(ctx, 18, 25, pink); px(ctx, 19, 25, pink);
+  px(ctx, 29, 24, pink); px(ctx, 30, 24, pink);
+
+  // ---- tiny legs dangling ----
+  for (const lx of [26, 32, 38]) {
+    line(ctx, lx, 52, lx-1, 57, blk);
+    px(ctx, lx-2, 58, blk);
+  }
+}
+
+// ============================================================
+// 13) MARSH FROG — fat toon frog, big eyes, wide grin
+// ============================================================
+function drawFrog(ctx) {
+  const grn = '#5cae3a', grnD = '#357a26', grnDD = '#1a4416', grnL = '#86cf52', grnH = '#b4e878';
+  const belly = '#dce89a', bellyD = '#acc066', bellyH = '#f0f6c0';
+  const blk = '#0a1408', wht = '#ffffff';
+  const spot = '#2e6a1e';
+  const mouth = '#7a3a4a', mouthD = '#4a1e2e', tongue = '#e87a90';
+  const cheek = '#ff9a86';
+
+  floorShadow(ctx);
+
+  // ---- back feet (splayed out at sides) ----
+  // left foot
+  ellipse(ctx, 12, 54, 7, 3, grnDD);
+  ellipse(ctx, 12, 53, 6, 2, grn);
+  // toes
+  for (const tx of [6, 10, 14]) { ellipse(ctx, tx, 56, 2, 1, grnD); px(ctx, tx, 56, grnL); }
+  // right foot
+  ellipse(ctx, 52, 54, 7, 3, grnDD);
+  ellipse(ctx, 52, 53, 6, 2, grn);
+  for (const tx of [50, 54, 58]) { ellipse(ctx, tx, 56, 2, 1, grnD); px(ctx, tx, 56, grnL); }
+
+  // ---- BODY (fat squat dome) ----
+  for (let y = 26; y <= 56; y++) {
+    for (let x = 8; x <= 56; x++) {
+      const dx = (x-32)/24, dy = (y-46)/22;
+      const d = dx*dx + dy*dy;
+      if (d > 1) continue;
+      let c = grn;
+      if (d > 0.9) c = grnDD;
+      else if (d > 0.78) c = grnD;
+      // back highlight upper-left
+      if (y < 38 && x < 32 && d < 0.5) c = grnL;
+      px(ctx, x, y, c);
+    }
+  }
+  // belly (big pale patch, lower-center)
+  for (let y = 40; y <= 56; y++) {
+    for (let x = 18; x <= 46; x++) {
+      const dx = (x-32)/13, dy = (y-50)/9;
+      const d = dx*dx + dy*dy;
+      if (d <= 1) {
+        let c = belly;
+        if (d > 0.8) c = bellyD;
+        px(ctx, x, y, c);
+      }
+    }
+  }
+  px(ctx, 26, 46, bellyH); px(ctx, 27, 45, bellyH);
+
+  // back spots
+  disc(ctx, 18, 34, 2, spot); disc(ctx, 44, 36, 2, spot);
+  disc(ctx, 38, 30, 1, spot); px(ctx, 24, 30, spot);
+
+  // ---- front feet (small, in front of belly) ----
+  ellipse(ctx, 22, 56, 4, 2, grnD);
+  for (const tx of [19, 22, 25]) px(ctx, tx, 57, grnDD);
+  ellipse(ctx, 42, 56, 4, 2, grnD);
+  for (const tx of [39, 42, 45]) px(ctx, tx, 57, grnDD);
+
+  // ---- WIDE GRIN (big toon mouth across face) ----
+  // mouth line curving up at corners
+  for (let x = 16; x <= 48; x++) {
+    const t = (x - 32) / 16;
+    const y = 38 - Math.round((1 - t*t) * 3) + 3;  // smile curve
+    px(ctx, x, y, mouthD);
+    px(ctx, x, y+1, mouth);
+  }
+  // mouth corners turn up
+  px(ctx, 15, 37, mouthD); px(ctx, 49, 37, mouthD);
+  // little tongue at center bottom of grin
+  ellipse(ctx, 32, 42, 4, 1, tongue);
+
+  // ---- big bulging EYES on top of head ----
+  // left eye bump
+  disc(ctx, 21, 22, 8, grnDD);
+  disc(ctx, 21, 22, 7, grn);
+  disc(ctx, 21, 21, 5, grnL);
+  // eyeball white
+  disc(ctx, 21, 21, 4, wht);
+  // round black pupil (solid block, rounded corners)
+  rect(ctx, 19, 20, 4, 4, blk);
+  px(ctx, 19, 20, wht); px(ctx, 22, 20, wht);
+  px(ctx, 19, 23, wht); px(ctx, 22, 23, wht);
+  px(ctx, 18, 19, wht); // glint
+
+  // right eye bump
+  disc(ctx, 43, 22, 8, grnDD);
+  disc(ctx, 43, 22, 7, grn);
+  disc(ctx, 43, 21, 5, grnL);
+  disc(ctx, 43, 21, 4, wht);
+  rect(ctx, 41, 20, 4, 4, blk);
+  px(ctx, 41, 20, wht); px(ctx, 44, 20, wht);
+  px(ctx, 41, 23, wht); px(ctx, 44, 23, wht);
+  px(ctx, 40, 19, wht);
+
+  // ---- nostrils ----
+  px(ctx, 30, 32, grnDD); px(ctx, 34, 32, grnDD);
+
+  // ---- blush cheeks (below the grin, out to the sides) ----
+  ellipse(ctx, 13, 44, 2, 1, cheek);
+  ellipse(ctx, 51, 44, 2, 1, cheek);
+}
+
 export const BOSS_SPRITES = {
   snake_boss: { label: 'Snake Boss', draw: drawCobra },
   cobra: { label: 'Snake Boss', draw: drawCobra },
@@ -1439,6 +1775,12 @@ export const BOSS_SPRITES = {
   alien_boss: { label: 'Alien', draw: drawAlien },
   giant_cave_slime: { label: 'Giant Cave Slime', draw: drawCaveSlime },
   cave_slime: { label: 'Giant Cave Slime', draw: drawCaveSlime },
+  rat: { label: 'Rat', draw: drawRat },
+  rat_boss: { label: 'Rat', draw: drawRat },
+  bee: { label: 'Bee', draw: drawBee },
+  bee_boss: { label: 'Bee', draw: drawBee },
+  frog: { label: 'Frog', draw: drawFrog },
+  frog_boss: { label: 'Frog', draw: drawFrog },
 };
 
 const KC_TO_BOSS_KEY = {
@@ -1452,6 +1794,9 @@ const KC_TO_BOSS_KEY = {
   spider_kc: 'spider',
   wizard_kc: 'wizard',
   alien_kc: 'alien',
+  rat_kc: 'rat',
+  bee_kc: 'bee',
+  frog_kc: 'frog',
 };
 
 export function bossKeyForKc(id) {

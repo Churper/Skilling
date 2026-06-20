@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1218">
+  <link rel="stylesheet" href="./style.css?v=1222">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -502,6 +502,9 @@
               <option value="spider_kc">&#x1F577;&#xFE0F; Spider</option>
               <option value="wizard_kc">&#x1F9D9; Wizard</option>
               <option value="alien_kc">&#x1F47D; Alien</option>
+              <option value="frog_kc">&#x1F438; Frog</option>
+              <option value="bee_kc">&#x1F41D; Bee</option>
+              <option value="rat_kc">&#x1F400; Rat</option>
             </select>
           </div>
           <div id="ui-lb-table" class="ui-lb-table"></div>
@@ -770,6 +773,7 @@
           <div class="stg-pane-head"><h3>Audio</h3></div>
           <div class="stg-row"><span class="stg-label">Effects</span><span class="stg-ctrl stg-vol"><button type="button" id="setting-volume-mute" class="stg-icon-btn">&#x1F50A;</button><input type="range" id="setting-volume" min="0" max="100" value="50" class="stg-range"><span class="stg-range-val" data-for="setting-volume">50</span></span></div>
           <div class="stg-row"><span class="stg-label">Music</span><span class="stg-ctrl stg-vol"><button type="button" id="setting-music-mute" class="stg-icon-btn">&#x1F3B5;</button><input type="range" id="setting-music" min="0" max="100" value="35" class="stg-range"><span class="stg-range-val" data-for="setting-music">35</span></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Release Media Keys</span><span class="stg-hint">Stop the game from grabbing your keyboard play/pause key (turns OFF game music so it no longer claims the media controls; sound effects keep playing)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-release-media-keys"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mute Peer Effects</span><span class="stg-hint">Silence other players' sound effects</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mute-peers"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row-pair">
             <div class="stg-row"><span class="stg-label">Level-Up Jingle</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-levelup" checked><span class="stg-tog-track"></span></label></span></div>
@@ -1638,6 +1642,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1218"></script>
+  <script type="module" src="./main.js?v=1222"></script>
 </body>
 </html>

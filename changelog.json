@@ -1,5 +1,23 @@
 [
   {
+    "version": "v1222",
+    "date": "2026-06-19",
+    "title": "New Bosses & Farming Mastery",
+    "entries": [
+      "Three new bosses are here: Giant Rat, Bee, and Swamp Frog, with new arenas, drops, guide entries, kill-count tracking, and leaderboard support.",
+      "New boss loot: Rat Cheese, Honeycomb, Frog Legs, Rat/Bee/Frog paintbrushes, new equipment rolls, and rare Bee/Frog high-tier equipment drops.",
+      "Three new boss scroll perks can now be crafted: Rat Scroll for Def Shred, Flower Scroll for Pet Call, and Swamp Scroll for Giga Mode.",
+      "Farming 1000 now has a Farmer Sprout mastery reward flow with the best-in-slot Farming Cape, Leaf Aura, Golden Sugarplums, and the Sugar Plum Master cape emote.",
+      "The Farming Cape emote can be played from the cape menu and is visible to nearby players.",
+      "Golden Sugarplums are unlocked at Farming 1000 as a premium crop with 120,000 XP, 12-20 yield, and 8,000 coin sell value.",
+      "Swamp Frog can rarely drop the Log Basket, which stores up to 100 high-level treasure logs while chopping.",
+      "Stormwood, Leviathan Kelp, Gooey Wood, Prismwood, and Infinity Wood now have faster chop cycles and doubled sell values.",
+      "Frog's final 5-fly swarm now instakills if you miss the correct prayer, and its tongue punch damage is synced to the punch animation.",
+      "Settings now has a Release Media Keys toggle so game music stops grabbing keyboard play/pause controls while sound effects keep playing.",
+      "Fixed tab-return reconnects blanking other players, fixed inventory icons waiting for an item change, and fixed new bosses giving SlimeCoins from attack rolls."
+    ]
+  },
+  {
     "version": "v1218",
     "date": "2026-06-18",
     "title": "Bug Fix Round",
