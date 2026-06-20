@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1226",
+    "date": "2026-06-20",
+    "title": "DPS Calculator",
+    "entries": [
+      "New DPS Calculator — open it from the small “DPS” button on your equipment panel to see your expected damage per second, max hit, accuracy, attack speed and time-to-kill against any monster, all matching the in-game combat numbers.",
+      "It reads your live worn gear and lets you experiment freely: re-roll potential lines, swap combat style, set tempo stacks, toggle prayers, buffs, potions and pet perks, pick any target, and compare two loadouts side by side — nothing you do in it ever touches your real save or gear.",
+      "Planted farm patches now use much lighter models, so having crops in view is easier on performance."
+    ]
+  },
+  {
     "version": "v1225",
     "date": "2026-06-20",
     "title": "Performance & Crafting Refresh",
