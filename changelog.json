@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1223",
+    "date": "2026-06-19",
+    "title": "Combat & Woodcutting Fixes",
+    "entries": [
+      "Woodcutting frenzies that land on planted tree patches can now always be collected — clicking any part of the patch picks up the frenzy instead of it sometimes feeling dead.",
+      "Clicking to attack a moving or out-of-range enemy now walks you to it and swings once you arrive, instead of standing still and swinging at where it used to be.",
+      "Fixed the Swamp Frog's punch attack so it plays its proper animation."
+    ]
+  },
+  {
     "version": "v1222",
     "date": "2026-06-19",
     "title": "New Bosses & Farming Mastery",
