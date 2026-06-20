@@ -19,6 +19,9 @@ const BOSS_KCS = [
   { id: "spider_kc", label: "Spider", bossKey: bossKeyForKc("spider_kc") },
   { id: "wizard_kc", label: "Wizard", bossKey: bossKeyForKc("wizard_kc") },
   { id: "alien_kc", label: "Alien", bossKey: bossKeyForKc("alien_kc") },
+  { id: "frog_kc", label: "Frog", bossKey: bossKeyForKc("frog_kc") },
+  { id: "bee_kc", label: "Bee", bossKey: bossKeyForKc("bee_kc") },
+  { id: "rat_kc", label: "Rat", bossKey: bossKeyForKc("rat_kc") },
 ];
 const BOSS_KC_BY_ID = Object.fromEntries(BOSS_KCS.map(b => [b.id, b]));
 

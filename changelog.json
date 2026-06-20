@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1224",
+    "date": "2026-06-20",
+    "title": "Performance & Crafting Refresh",
+    "entries": [
+      "Big performance pass for smoother gameplay — frame rate is noticeably better while riding, in crowds, and on high render-distance or max settings, with the worst hitching from nearby slimes and hover/minimap stutter gone.",
+      "The Crafting Table has a fresh look that matches the bank, and arrow recipes now show real arrow icons with their wood and ore ingredients fully readable.",
+      "Cooking now uses your cheapest qualifying ingredient instead of your most valuable one, so batch-cooking no longer quietly burns high-tier crops like Sugar Plums, and recipe requirements now show exactly what is needed (for example 'Fruit (Stormberry+)').",
+      "Giant Rat, Bee, and Swamp Frog now have their own Slimetrics hiscore boards and show up in the Recent Boss Kills feed.",
+      "The in-game Guide now includes the three newest bosses and lists the 1-in-1000 Paintbrush cosmetic that every boss can drop.",
+      "Party XP sharing is now combat-only, so gathering keeps all of its own XP, and shared XP is capped so it can no longer power-level a low character dozens of levels from a single boss kill."
+    ]
+  },
+  {
     "version": "v1223",
     "date": "2026-06-19",
     "title": "Combat & Woodcutting Fixes",

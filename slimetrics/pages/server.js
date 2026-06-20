@@ -620,13 +620,20 @@ function compactBossRows(rows, maxRows = 12) {
   const compact = new Map();
   for (const r of rows || []) {
     const key = `${r.name || ""}|${r.boss || ""}`;
+    /* Honour a pre-aggregated count/firstT: slimetrics_recent_bosses (0247) now
+       dedups server-side (group by user+boss) so the row cap applies AFTER dedup
+       — rarer bosses no longer get pushed past the window by a common-boss
+       farmer. Each row carries count + firstT; fall back to raw-row behaviour
+       (count 1) for any legacy/cached response that lacks them. */
+    const rCount = Number(r.count) || 1;
+    const rFirst = Number(r.firstT) || Number(r.t) || 0;
     const existing = compact.get(key);
     if (existing) {
-      existing.count++;
+      existing.count += rCount;
       existing.t = Math.max(Number(existing.t) || 0, Number(r.t) || 0);
-      existing.firstT = Math.min(Number(existing.firstT) || Number(r.t) || 0, Number(r.t) || 0);
+      existing.firstT = Math.min(Number(existing.firstT) || rFirst, rFirst);
     } else {
-      compact.set(key, { ...r, count: 1, firstT: r.t });
+      compact.set(key, { ...r, count: rCount, firstT: rFirst });
     }
   }
   return [...compact.values()]
