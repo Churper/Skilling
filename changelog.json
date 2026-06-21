@@ -1,6 +1,6 @@
 [
   {
-    "version": "v1241",
+    "version": "v1242",
     "date": "2026-06-21",
     "title": "Cooking, Bank & Ocean QoL",
     "entries": [
@@ -351,7 +351,7 @@
       "New Keybinds tab — rebind movement, map, guide, quick-inventory and quick-worn.",
       "New Camera settings tab.",
       "Chat history now replays recent messages when you join, so you don't miss the room.",
-      "Mobile tap-through fix and an admin chat-log tool."
+      "Mobile tap-through fixes for menus and game controls."
     ]
   }
 ]
