@@ -94,11 +94,11 @@ export const api = {
   newUsers:     (limit = 8)                          => rpc("slimetrics_new_users", { p_limit: limit }, { ttlMs: 60_000 }),
   requestUpdate:(name)                               => rpc("slimetrics_request_update", { p_name: name }, { ttlMs: 0 }),
   /* ── Server tab ── */
-  serverOverview: ()                                 => rpc("slimetrics_server_overview", {}, { ttlMs: 60_000 }),
-  serverChart:    (period)                           => rpc("slimetrics_server_chart", { p_period: period }, { ttlMs: 60_000 }),
+  serverOverview: ()                                 => rpc("slimetrics_server_overview", {}, { ttlMs: 120_000 }),
+  serverChart:    (period)                           => rpc("slimetrics_server_chart", { p_period: period }, { ttlMs: 120_000 }),
   serverHeatmap:  ()                                 => rpc("slimetrics_server_heatmap", {}, { ttlMs: 5 * 60_000 }),
-  recentBosses:   (limit = 10)                       => rpc("slimetrics_recent_bosses", { p_limit: limit }, { ttlMs: 60_000 }),
-  recentIslands:  (limit = 10)                       => rpc("slimetrics_recent_islands", { p_limit: limit }, { ttlMs: 60_000 }),
-  welcomeBanner:  (limit = 5)                        => rpc("slimetrics_welcome_banner", { p_limit: limit }, { ttlMs: 60_000 }),
+  recentBosses:   (limit = 10)                       => rpc("slimetrics_recent_bosses", { p_limit: limit }, { ttlMs: 120_000 }),
+  recentIslands:  (limit = 10)                       => rpc("slimetrics_recent_islands", { p_limit: limit }, { ttlMs: 120_000 }),
+  welcomeBanner:  (limit = 5)                        => rpc("slimetrics_welcome_banner", { p_limit: limit }, { ttlMs: 120_000 }),
   signupChart:    ()                                 => rpc("slimetrics_signup_chart", {}, { ttlMs: 5 * 60_000 }),
 };

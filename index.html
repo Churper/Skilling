@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1228">
+  <link rel="stylesheet" href="./style.css?v=1241">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -777,12 +777,17 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mute Peer Effects</span><span class="stg-hint">Silence other players' sound effects</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mute-peers"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row-pair">
             <div class="stg-row"><span class="stg-label">Level-Up Jingle</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-levelup" checked><span class="stg-tog-track"></span></label></span></div>
-            <div class="stg-row"><span class="stg-label">Action Sounds</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-action" checked><span class="stg-tog-track"></span></label></span></div>
+            <div class="stg-row"><span class="stg-label">Gathering Sounds</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-action" checked><span class="stg-tog-track"></span></label></span></div>
           </div>
           <div class="stg-row-pair">
             <div class="stg-row"><span class="stg-label">Frenzy Alerts</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-frenzy" checked><span class="stg-tog-track"></span></label></span></div>
-            <div class="stg-row"><span class="stg-label">Rare Drop Jingle</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-raredrop" checked><span class="stg-tog-track"></span></label></span></div>
+            <div class="stg-row"><span class="stg-label">Player Combat</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-playercombat" checked><span class="stg-tog-track"></span></label></span></div>
           </div>
+          <div class="stg-row-pair">
+            <div class="stg-row"><span class="stg-label">Boss Combat</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-bosscombat" checked><span class="stg-tog-track"></span></label></span></div>
+            <div class="stg-row"><span class="stg-label">Rare Foraging</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-rareforage" checked><span class="stg-tog-track"></span></label></span></div>
+          </div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Legendary Drops</span><span class="stg-hint">Big fanfare for legendary crafts, boss rares, and legendary forage drops</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-legendarydrop" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Ambush Roar</span><span class="stg-hint">The deep roar when a PvP cave ambush spawns</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-roar" checked><span class="stg-tog-track"></span></label></span></div>
         </div>
         <!-- Interface -->
@@ -1219,6 +1224,7 @@
             <input id="ui-bonfire-recipe-slider" type="range" min="0" max="1" value="1" class="ui-bonfire-bar-slider">
             <button id="ui-bonfire-recipe-go" type="button" class="ui-bonfire-bar-go">Cook <span id="ui-bonfire-recipe-qty">1</span></button>
           </div>
+          <div id="ui-bonfire-recipe-detail" class="ui-bonfire-recipe-detail" hidden></div>
           <div id="ui-bonfire-recipes" class="ui-bonfire-recipe-list"></div>
         </div>
       </div>
@@ -1382,6 +1388,7 @@
           <button type="button" class="ui-preset-tab" data-preset="3" title="Preset 4">4</button>
           <button type="button" class="ui-preset-tab" data-preset="4" title="Preset 5">5</button>
           <button type="button" class="ui-preset-tab ui-preset-best" id="ui-equip-best" title="Equip Best — auto-equip highest DPS gear">B</button>
+          <button type="button" class="ui-preset-tab ui-bank-favorites-btn" id="ui-bank-favorites" title="Favorites">&#x2605;</button>
         </div>
       </div>
     </div>
@@ -1642,6 +1649,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1228"></script>
+  <script type="module" src="./main.js?v=1241"></script>
 </body>
 </html>

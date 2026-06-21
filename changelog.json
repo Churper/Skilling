@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1241",
+    "date": "2026-06-21",
+    "title": "Cooking, Bank & Ocean QoL",
+    "entries": [
+      "The bonfire cooking panel now lets you pick flexible ingredients, cook from your full available supply, and safely batch recipes without losing ingredients when inventory space is tight.",
+      "New cooking options are live, including Farmer Pie, Grand Farmer Pie, and legendary Jelly recipes, with recipe XP now giving fair credit for stronger ingredients.",
+      "Bank favorites now sit on the side below preset B. Right-click items in either the bank item grid or the inventory area while banking to add or remove favorites, then tap the star to filter them.",
+      "Audio settings now split sound effects into Player Combat, Boss Combat, Rare Foraging, and Legendary Drops, so rare foraging chimes and big legendary fanfares can be controlled separately.",
+      "Lucky Duck and Ocean Friend click targets are easier to select, right-click menus include their actions, and the Slime Shop preview now shows the same 2D slime icon style used on the minimap.",
+      "Trading Post buy-offer fills now cap the quantity picker to the matching items you actually own, and login/save handling is more careful when a cloud load fails instead of treating it like a fresh account."
+    ]
+  },
+  {
     "version": "v1226",
     "date": "2026-06-20",
     "title": "DPS Calculator",
