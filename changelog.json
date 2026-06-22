@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1352",
+    "date": "2026-06-22",
+    "title": "Farm Tracker Polish",
+    "entries": [
+      "Farm tracker Pet Slime labels now render as readable tags above the slime instead of a tiny warped box.",
+      "Tracker color picking now stays contextual to the crop, bush, or tree tracker you right-clicked, and tracker slime colors no longer bleed between trackers.",
+      "Farm tracker right-click menus now stay on-screen when the tracker is near the bottom or edge of the window."
+    ]
+  },
+  {
     "version": "v1351",
     "date": "2026-06-22",
     "title": "Friend Teleport and Farming QoL",
