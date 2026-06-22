@@ -1,5 +1,19 @@
 [
   {
+    "version": "v1251",
+    "date": "2026-06-21",
+    "title": "Farming, Friends & QoL Fixes",
+    "entries": [
+      "Farming crop sell values are now documented correctly: the high-tier crop band was lowered in the store, with Sugar Plum selling for 1,330c and Golden Sugarplum selling for 3,200c.",
+      "Golden Sugarplum also uses the intended 2-hour grow time, 0c seed cost, fixed 100 compost charge cost, 120,000 XP, and 12-20 harvest yield.",
+      "Cleaned up stale crop metadata so farming config, generated displays, and store sell values use the same numbers instead of showing old planning values.",
+      "Bank favorites now only appear in bank right-click menus, instead of being added to normal inventory item menus outside the bank.",
+      "Friend Teleport now appears for online friends in both Friends views. The teleport hotkey jumps to your current cursor target, or arms a crosshair map target when the big map is open; the map title updates while armed, and the Arm Teleport button only appears when you have charges.",
+      "If your account is already active somewhere else, the stopped-session screen now includes a safe Kick Other Sessions & Reload option that takes control and reloads fresh cloud progress.",
+      "Throwing logs into Frost Yeti braziers is much lighter now, reducing the hitch from brazier ember effects."
+    ]
+  },
+  {
     "version": "v1242",
     "date": "2026-06-21",
     "title": "Cooking, Bank & Ocean QoL",
