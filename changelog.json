@@ -1,5 +1,22 @@
 [
   {
+    "version": "v1343",
+    "date": "2026-06-22",
+    "title": "Deep Sea Shoals, Island Meteors & Cape Perks",
+    "entries": [
+      "Deep Sea Shoals are now live as long-running ocean events. Ask the Coal Miner for a rough signal, sail out in a boat, then click the live shoal to reveal the exact map marker. Shoals require Fishing 200, last 4 hours, and catch a broad deep-sea fish mix instead of one named fish.",
+      "Island Meteors can now crash out on procgen islands. They use 1,500 shared HP, a new alien palette, server-counted hit progress, rough signal hints, click-to-reveal map markers, improved shard rewards, and a rare Diamond side drop at 1-in-50 base per successful island swing.",
+      "Coal Miner can now point you toward the current island meteor or deep-sea shoal without broadcasting those events to everyone on the mainland.",
+      "Farming Cape now has a patch bind perk. If the cape is equipped or in your inventory, right-click a farm patch to bind or unbind it, then teleport to that saved patch for free with the home-teleport style channel.",
+      "Mining Cape now doubles base Meteor Shard resources from meteor mining. It does not double meteor XP or frenzy rewards.",
+      "Friend Teleport is more reliable when your friend is online but not currently visible nearby, and it now uses a short teleport channel instead of snapping instantly.",
+      "Cooking recipe rows stay usable when you are missing ingredients, show exactly what is missing, stop showing a green Cook button when you cannot cook, and try to fall back to the next valid ingredient choice after a batch uses something up.",
+      "Farm patch tracking now behaves like the other HUD trackers: it can be dragged, resized, restyled from right-click, and switched into a tiny slime mode that jumps when the patch is ready.",
+      "Bank favorites moved into the bank header, the world-map Arm Teleport control moved into the left toolbar, and the old DPS Calc MAX button is hidden until it can be smarter.",
+      "Fixes include the restored horse stable near 269, -160, Spider/boss animation after bell respawn, pet tab reopening on the right view, Crystal Aura gem visuals, Sugar Plum emote eyes, meteor emote cleanup, rare gather fanfare noise, PvP Log Basket contents dropping as notes while the basket stays protected, and pet pouches collecting 5x more slowly into 5x more room."
+    ]
+  },
+  {
     "version": "v1305",
     "date": "2026-06-22",
     "title": "Farming QoL and Mining Mastery Rewards",
