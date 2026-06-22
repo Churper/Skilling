@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1361",
+    "date": "2026-06-22",
+    "title": "Teleport Favorites and Boat Boosts",
+    "entries": [
+      "Teleport favorites are here: right-click the map Teleport arm button to save up to 5 local spots, then use them from the Teleports section while you have Teleport charges.",
+      "Teleport favorite icons are optional from that same right-click menu, and clicking a shown saved spot teleports there.",
+      "Teleport targeting can now be disarmed by clicking the arm button again, and closing the map clears targeting.",
+      "Boat boost power now scales by boat tier, from the old starter feel up to 3.0x boost on the highest-tier boat.",
+      "Banks and other nearby objects stay clickable when zoomed far out, long background graphics recovery is safer, and mobile long-press opens the normal right-click action flow."
+    ]
+  },
+  {
     "version": "v1352",
     "date": "2026-06-22",
     "title": "Farm Tracker Polish",
