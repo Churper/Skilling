@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1305",
+    "date": "2026-06-22",
+    "title": "Farming QoL and Mining Mastery Rewards",
+    "entries": [
+      "Farming patch QoL now includes Quick Plant for crops, trees, and berry bushes with a toggle and context-menu selection, plus right-click setup from both the crop selector and patch menus.",
+      "You can now track any farm patch directly from the patch menu; the tracker HUD mirrors XP/buff timer style and shows the patch icon, timer, and a \"Done\" green state, with a subtle 3-ding completion chime.",
+      "Right-click a growing crop to remove it and clear the patch quickly.",
+      "You can now scroll the Quick Plant menu to choose a seed without it closing.",
+      "The new Mining-1000 reward flow is now live with Mining Cape, Crystal Aura, and Meteor Mine emote support.",
+      "New world helpers and Coal Miner placement are available in the game world and editor."
+    ]
+  },
+  {
     "version": "v1251",
     "date": "2026-06-21",
     "title": "Farming, Friends & QoL Fixes",
