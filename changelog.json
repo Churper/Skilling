@@ -1,41 +1,39 @@
 [
   {
+    "version": "v1347",
+    "date": "2026-06-22",
+    "title": "Island Meteor Reliability",
+    "entries": [
+      "Island Meteors are now separated from regular Meteors, with Coal Miner rough hints, click-to-reveal map markers, and one shared 1,500 HP pool.",
+      "Deep Sea Shoals stay lightweight and discoverable through Coal Miner or by sailing near the live shoal.",
+      "Farm trackers can now track multiple patches at once, with Bar, Compact, Progress Ring, Countdown Clock, and per-tracker Pet Slime colors.",
+      "Bank Favorites now appear in both the bank header and the preset sidebar."
+    ]
+  },
+  {
     "version": "v1346",
     "date": "2026-06-22",
-    "title": "Island Meteor Signal Hotfix",
+    "title": "Island Meteor Prep",
     "entries": [
-      "Island meteor hints should now appear on the map after Coal Miner successfully marks the signal.",
-      "Island meteor reveal and spawn messages are no longer lost if the meteor model is still loading.",
-      "Island meteors now warm their destination terrain, render from farther away, and re-snap to loaded island ground when you get close so the marker is much less likely to lead to an invisible or buried meteor.",
-      "Local roaming debug tools now use the same island-only meteor reveal path as Coal Miner and include a local meteor state readout."
+      "Prepared client-side Island Meteor signal and visibility handling. The full reliable Island Meteor split is in v1347."
     ]
   },
   {
     "version": "v1345",
     "date": "2026-06-22",
-    "title": "Shoal and Island Meteor Signal Fixes",
+    "title": "Shoal Signal Prep",
     "entries": [
-      "Deep Sea Shoal rough signals are now much more findable. The map hint is less wildly rounded, and the shoal becomes visible from farther away so sailing to the signal no longer leaves you staring at empty water.",
-      "Deep Sea Shoals still only switch to an exact map marker after you click the live shoal.",
-      "Coal Miner now gives clear feedback when there is no island meteor signal because the active meteor is currently a mainland meteor, instead of silently leaving the map unmarked.",
-      "Coal Miner now describes island meteor scouting more clearly when you ask him to check for sky rocks."
+      "Improved Deep Sea Shoal rough signals and click-to-reveal behavior while Island Meteors were still under testing."
     ]
   },
   {
     "version": "v1343",
     "date": "2026-06-22",
-    "title": "Deep Sea Shoals, Island Meteors & Cape Perks",
+    "title": "Shoals, Cape Perks & QoL",
     "entries": [
-      "Deep Sea Shoals are now live as long-running ocean events. Ask the Coal Miner for a rough signal, sail out in a boat, then click the live shoal to reveal the exact map marker. Shoals require Fishing 200, last 4 hours, and catch a broad deep-sea fish mix instead of one named fish.",
-      "Island Meteors can now crash out on procgen islands. They use 1,500 shared HP, a new alien palette, server-counted hit progress, rough signal hints, click-to-reveal map markers, improved shard rewards, and a rare Diamond side drop at 1-in-50 base per successful island swing.",
-      "Coal Miner can now point you toward the current island meteor or deep-sea shoal without broadcasting those events to everyone on the mainland.",
-      "Farming Cape now has a patch bind perk. If the cape is equipped or in your inventory, right-click a farm patch to bind or unbind it, then teleport to that saved patch for free with the home-teleport style channel.",
-      "Mining Cape now doubles base Meteor Shard resources from meteor mining. It does not double meteor XP or frenzy rewards.",
-      "Friend Teleport is more reliable when your friend is online but not currently visible nearby, and it now uses a short teleport channel instead of snapping instantly.",
-      "Cooking recipe rows stay usable when you are missing ingredients, show exactly what is missing, stop showing a green Cook button when you cannot cook, and try to fall back to the next valid ingredient choice after a batch uses something up.",
-      "Farm patch tracking now behaves like the other HUD trackers: it can be dragged, resized, restyled from right-click, and switched into a tiny slime mode that jumps when the patch is ready.",
-      "Bank favorites moved into the bank header, the world-map Arm Teleport control moved into the left toolbar, and the old DPS Calc MAX button is hidden until it can be smarter.",
-      "Fixes include the restored horse stable near 269, -160, Spider/boss animation after bell respawn, pet tab reopening on the right view, Crystal Aura gem visuals, Sugar Plum emote eyes, meteor emote cleanup, rare gather fanfare noise, PvP Log Basket contents dropping as notes while the basket stays protected, and pet pouches collecting 5x more slowly into 5x more room."
+      "Added Deep Sea Shoals, Farming Cape patch binding, Mining Cape meteor shard doubling, and improved Friend Teleport.",
+      "Cooking, farm tracking, bank/map UI, pet pouches, and several visual/animation fixes were cleaned up in this batch.",
+      "Initial Island Meteor testing started here; the reliable independent Island Meteor event is in v1347."
     ]
   },
   {

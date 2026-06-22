@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1346">
+  <link rel="stylesheet" href="./style.css?v=1347">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -187,11 +187,11 @@
     </div>
     <button type="button" id="ui-bell-btn" hidden title="Ring Boss Bell" aria-label="Ring Boss Bell">&#x1F514;</button>
     <div id="ui-buff-bar"></div>
-    <div id="ui-farm-track" hidden>
-      <span id="ui-farm-track-icon" aria-hidden="true"></span>
-      <span id="ui-farm-track-main">
-        <span id="ui-farm-track-name"></span>
-        <span id="ui-farm-track-time"></span>
+    <div id="ui-farm-track" class="ui-farm-track" hidden>
+      <span id="ui-farm-track-icon" class="ui-farm-track-icon" aria-hidden="true"></span>
+      <span id="ui-farm-track-main" class="ui-farm-track-main">
+        <span id="ui-farm-track-name" class="ui-farm-track-name"></span>
+        <span id="ui-farm-track-time" class="ui-farm-track-time"></span>
       </span>
     </div>
     <div id="ui-mock-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(239,68,68,0.9);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:0 0 6px 6px;text-align:center;pointer-events:none;letter-spacing:0.03em">TEST MODE — progress not saved</div>
@@ -1351,7 +1351,7 @@
     <div class="ui-bank-modal">
       <div class="ui-bank-main">
       <div class="ui-bank-modal-header">
-        <button type="button" class="ui-bank-favorites-btn" id="ui-bank-favorites" title="Favorites">&#x2605;</button>
+        <button type="button" class="ui-bank-favorites-btn" id="ui-bank-favorites" data-bank-favorites-toggle title="Favorites">&#x2605;</button>
         <span class="ui-bank-modal-title">&#x1F4E6; Bank</span>
         <button type="button" id="ui-bank-organize" class="ui-bank-organize-btn" title="Auto-organize bank" hidden>&#x1F9F9;</button>
         <button type="button" id="ui-bank-combine" class="ui-bank-organize-btn" title="Combine all tabs into first tab" hidden>&#x1F4E6;</button>
@@ -1399,6 +1399,7 @@
           <button type="button" class="ui-preset-tab" data-preset="3" title="Preset 4">4</button>
           <button type="button" class="ui-preset-tab" data-preset="4" title="Preset 5">5</button>
           <button type="button" class="ui-preset-tab ui-preset-best" id="ui-equip-best" title="Equip Best — auto-equip highest DPS gear">B</button>
+          <button type="button" class="ui-preset-tab ui-preset-favorites" id="ui-bank-favorites-side" data-bank-favorites-toggle title="Favorites">&#x2605;</button>
         </div>
       </div>
     </div>
@@ -1659,6 +1660,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1346"></script>
+  <script type="module" src="./main.js?v=1347"></script>
 </body>
 </html>
