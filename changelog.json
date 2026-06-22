@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1345",
+    "date": "2026-06-22",
+    "title": "Shoal and Island Meteor Signal Fixes",
+    "entries": [
+      "Deep Sea Shoal rough signals are now much more findable. The map hint is less wildly rounded, and the shoal becomes visible from farther away so sailing to the signal no longer leaves you staring at empty water.",
+      "Deep Sea Shoals still only switch to an exact map marker after you click the live shoal.",
+      "Coal Miner now gives clear feedback when there is no island meteor signal because the active meteor is currently a mainland meteor, instead of silently leaving the map unmarked.",
+      "Coal Miner now describes island meteor scouting more clearly when you ask him to check for sky rocks."
+    ]
+  },
+  {
     "version": "v1343",
     "date": "2026-06-22",
     "title": "Deep Sea Shoals, Island Meteors & Cape Perks",
