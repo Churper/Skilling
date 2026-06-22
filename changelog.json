@@ -9,7 +9,8 @@
       "Right-click a growing crop to remove it and clear the patch quickly.",
       "You can now scroll the Quick Plant menu to choose a seed without it closing.",
       "The new Mining-1000 reward flow is now live with Mining Cape, Crystal Aura, and Meteor Mine emote support.",
-      "New world helpers and Coal Miner placement are available in the game world and editor."
+      "New world helpers and Coal Miner placement are available in the game world and editor.",
+      "Coal Miner now uses a baked portrait icon in the icon export cache (same format as Farmer Sprout), so mined dialogues use cached art instead of a runtime-only render."
     ]
   },
   {
