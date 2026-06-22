@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1348",
+    "date": "2026-06-22",
+    "title": "Farm Tracker Slots",
+    "entries": [
+      "Farm trackers can now keep one crop, one bush, and one tree tracker active at the same time.",
+      "Tracking another patch of the same type replaces that slot while keeping that slot's position, slime color, and optional custom name.",
+      "Right-click a tracker to rename it, close it, pick its Pet Slime color, or swap between Bar, Compact, Ring, Clock, and Pet Slime modes."
+    ]
+  },
+  {
     "version": "v1347",
     "date": "2026-06-22",
     "title": "Island Meteor Reliability",
