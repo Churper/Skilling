@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1351",
+    "date": "2026-06-22",
+    "title": "Friend Teleport and Farming QoL",
+    "entries": [
+      "Friend Teleport can now find an online friend who is far away, instead of only working when their avatar is already nearby.",
+      "Farm tracker Pet Slime labels are now a simple Crop, Bush, or Tree toggle, with no browser pop-up naming box.",
+      "Quick Plant menus now grey out plant choices you cannot use yet because of level or seed coin cost."
+    ]
+  },
+  {
     "version": "v1348",
     "date": "2026-06-22",
     "title": "Farm Tracker Slots",
