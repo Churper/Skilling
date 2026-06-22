@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1346",
+    "date": "2026-06-22",
+    "title": "Island Meteor Signal Hotfix",
+    "entries": [
+      "Island meteor hints should now appear on the map after Coal Miner successfully marks the signal.",
+      "Island meteor reveal and spawn messages are no longer lost if the meteor model is still loading.",
+      "Island meteors now warm their destination terrain, render from farther away, and re-snap to loaded island ground when you get close so the marker is much less likely to lead to an invisible or buried meteor.",
+      "Local roaming debug tools now use the same island-only meteor reveal path as Coal Miner and include a local meteor state readout."
+    ]
+  },
+  {
     "version": "v1345",
     "date": "2026-06-22",
     "title": "Shoal and Island Meteor Signal Fixes",
