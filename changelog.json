@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1407",
+    "date": "2026-06-23",
+    "title": "Account Session Safety",
+    "entries": [
+      "If your browser remembers a logged-in account but the session is gone, Play now pauses and asks you to log back in instead of starting a fresh guest character.",
+      "Guest play now refuses a confirmed registered account name and asks you to log in to use it."
+    ]
+  },
+  {
     "version": "v1401",
     "date": "2026-06-23",
     "title": "AFK Gather and UI Polish",
