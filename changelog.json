@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1374",
+    "date": "2026-06-23",
+    "title": "Reliability Patch",
+    "entries": [
+      "Background gathering and return-from-away handling are more reliable across long idle sessions, reconnects, and server-timed events.",
+      "This is a stability-focused update with no balance changes."
+    ]
+  },
+  {
     "version": "v1370",
     "date": "2026-06-23",
     "title": "Teleport Animation and Fixes",
