@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1377",
+    "date": "2026-06-23",
+    "title": "Stability and Reliability",
+    "entries": [
+      "Background progress, reconnects, mobile wake, and return-from-away flows are more consistent.",
+      "Combat and boss sessions are steadier when the game is unfocused or recovering from a pause.",
+      "Exchange posting and washer actions handle stale item states more cleanly.",
+      "Backend reward accounting cleanup reduces false alarms without loosening hard protections."
+    ]
+  },
+  {
     "version": "v1374",
     "date": "2026-06-23",
     "title": "Reliability Patch",
