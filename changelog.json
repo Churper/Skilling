@@ -1,11 +1,11 @@
 [
   {
-    "version": "v1399",
+    "version": "v1401",
     "date": "2026-06-23",
     "title": "AFK Gather and UI Polish",
     "entries": [
       "Returning from a hidden, slept, or closed tab now settles active gathering immediately, including meteor and meat-tree wake retries when the world state needs a fresh sync.",
-      "Trade offers now show stack quantities correctly, make offered items disappear from your remaining inventory count, and support right-click Add 1, 5, 10, X, or All.",
+      "Trade offers now show stack quantities correctly, make offered items disappear from your remaining inventory count, support right-click Add 1, 5, 10, X, or All, and use a cleaner completion flash.",
       "The Washing Machine deposit list now uses the same right-click quantity menu and no longer shows the extra instruction paragraph.",
       "The SlimeCoin Shop has a larger, cleaner preview area, clearer tabs, bigger icons and text, centered item text, and safer cosmetic preview swapping."
     ]
