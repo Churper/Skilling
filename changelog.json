@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1370",
+    "date": "2026-06-23",
+    "title": "Teleport Animation and Fixes",
+    "entries": [
+      "Companion Teleport now uses the proper Home Teleport-style cast animation for map clicks, cursor teleports, saved teleport presets, and friend teleports.",
+      "Teleporting from the full map now closes the map first, so the teleport animation is visible.",
+      "Regular daily caves now remember mounted horse state correctly, matching the existing cave and Pet Garden restore behavior.",
+      "Stormwood-tier treasure logs now sort into the Logs bank tab instead of Loot/default.",
+      "Item broadcasts now keep Boss Damage and other current potential stat lines visible."
+    ]
+  },
+  {
     "version": "v1363",
     "date": "2026-06-22",
     "title": "Teleport Favorites, Boat Fuel and Fixes",
