@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1384">
+  <link rel="stylesheet" href="./style.css?v=1399">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -1135,7 +1135,6 @@
       </div>
       <div class="ui-wash-body">
         <div id="ui-wash-select-pane">
-          <p class="ui-wash-hint">Deposit frenzy drops below for ⚡ charges, then select an item to wash.</p>
           <div class="ui-wash-cost-row">
             <span>Charges</span><span id="ui-wash-charges" class="ui-wash-coins-val">0 ⚡</span>
           </div>
@@ -1519,7 +1518,7 @@
           <div id="ui-trade-my-offer" class="ui-trade-grid"></div>
           <div class="ui-trade-coins-row">
             <span class="ui-trade-coins-icon">&#x1FA99;</span>
-            <input type="number" id="ui-trade-my-coins" class="ui-trade-coins-input" min="0" value="0" placeholder="0">
+            <input type="text" inputmode="numeric" id="ui-trade-my-coins" class="ui-trade-coins-input" min="0" value="0" placeholder="0">
             <span class="ui-trade-coins-label">coins</span>
           </div>
         </div>
@@ -1534,7 +1533,7 @@
         </div>
       </div>
       <div class="ui-trade-inv">
-        <h3 class="ui-trade-col-label">Your Inventory <small>(click to offer)</small></h3>
+        <h3 class="ui-trade-col-label">Your Inventory</h3>
         <div id="ui-trade-inv-grid" class="ui-trade-grid"></div>
       </div>
       <div class="ui-trade-actions">
@@ -1660,6 +1659,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1384"></script>
+  <script type="module" src="./main.js?v=1399"></script>
 </body>
 </html>
