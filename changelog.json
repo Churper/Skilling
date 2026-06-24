@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1412",
+    "date": "2026-06-23",
+    "title": "Shop, Trade and Meteor Polish",
+    "entries": [
+      "The Hologram slime skin now previews correctly in the SlimeCoin Shop and uses a clearer hologram-style icon.",
+      "The SlimeCoin Shop layout is steadier on mobile, with names, prices, previews, and buy buttons staying aligned.",
+      "Trading now requires both players to be signed in, and guest accounts no longer show or accept trade actions.",
+      "Trade accept and completion feedback now appears as a centered result toast instead of a full-screen green flash.",
+      "Meteor rewards that settle after returning from a hidden or mobile backgrounded tab now combine into one compact world popup instead of a wall of stacked text.",
+      "The duplicate-tab screen now recovers sooner when an old phone tab has actually stopped responding, while still keeping Test Mode explicit."
+    ]
+  },
+  {
     "version": "v1410",
     "date": "2026-06-23",
     "title": "Registered Name Fix",
