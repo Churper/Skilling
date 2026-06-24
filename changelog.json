@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1423",
+    "date": "2026-06-24",
+    "title": "Meteor Timer Mining and XP Potion Guard",
+    "entries": [
+      "Meteor mining now settles from the server timer instead of client-side hit messages, so hidden tabs, mobile sleep, reconnects, and walking away right after returning can still claim the swings you already earned.",
+      "Meteor catch-up after a slept or backgrounded tab is less capped by old local state and now claims owed mainland and island meteor ticks through the relay.",
+      "Experience Potions now have a short 1.5-second sip guard after a successful drink, with the inventory or quick slot showing a light clockwise dark overlay while the next sip is blocked.",
+      "The Settings tester credits now include sugi and nao-ki with niwa and yuma."
+    ]
+  },
+  {
     "version": "v1421",
     "date": "2026-06-24",
     "title": "Cleanup, Exchange Polish and Guest Drop Safety",
