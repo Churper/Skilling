@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1410",
+    "date": "2026-06-23",
+    "title": "Registered Name Fix",
+    "entries": [
+      "Guest play now checks more than the first few matching leaderboard rows when a name belongs to a registered account, so older guest rows no longer hide the real account owner.",
+      "Registered names with older duplicate guest rows, such as accounts that played before the guest leaderboard write lock, are now reserved correctly."
+    ]
+  },
+  {
     "version": "v1407",
     "date": "2026-06-23",
     "title": "Account Session Safety",
