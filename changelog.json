@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1424",
+    "date": "2026-06-24",
+    "title": "Combat Freeze Hotfix",
+    "entries": [
+      "Fixed a crash that could freeze the game view after attacking or drawing enemy aggro, while movement and pet name labels could still appear to move.",
+      "This hotfix restores the missing animal aggro guard from the cleanup pass without changing combat balance."
+    ]
+  },
+  {
     "version": "v1423",
     "date": "2026-06-24",
     "title": "Meteor Timer Mining and XP Potion Guard",
