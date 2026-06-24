@@ -1,5 +1,20 @@
 [
   {
+    "version": "v1421",
+    "date": "2026-06-24",
+    "title": "Cleanup, Exchange Polish and Guest Drop Safety",
+    "entries": [
+      "Gathered resources now use one consistent stackability policy, and the old Magic Bag upgrade has been removed from live item lists. Old Magic Bag entries are cleaned from saves.",
+      "Fresh total level displays now use the live skill list, so new HUD, admin, and remote player totals start at the correct value.",
+      "Guest sessions can no longer drop items for other players, claim player drops, or publish local ground drops to multiplayer.",
+      "Icebergs are safer to walk on again. When you step onto a floe, the surface wins over the water underneath instead of leaving you stuck inside it.",
+      "Exchange and store item hovers now use the proper equipment tooltip, with cleaner sell-offer search sizing and slimmer scrollbars.",
+      "The Hologram slime icon now matches between the SlimeCoin Shop preview and minimap/player icon, with darker face details.",
+      "Washer SlimePower numbers now sit in the bottom-left of item tiles with a readable color dot and number.",
+      "Tutorial markers for Prayer, Compost, Scribe, and Task Board now point at the live UI and world services."
+    ]
+  },
+  {
     "version": "v1419",
     "date": "2026-06-24",
     "title": "Meteor Catch-Up and Register Fixes",

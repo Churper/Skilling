@@ -7,12 +7,12 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>SlimeVille — Free Browser MMO | Gather, Craft, Fight Online</title>
-  <meta name="description" content="Free browser MMO. Gather resources, train 12 skills, craft equipment, fight bosses, and play with friends. No download required.">
+  <meta name="description" content="Free browser MMO. Gather resources, train 13 skills, craft equipment, fight bosses, and play with friends. No download required.">
   <meta name="keywords" content="browser mmo, free mmo, browser game, online rpg, slime game, gathering game, crafting game, idle mmo, idle game, adventure game, skilling game, boss fights, leveling game, upgrade game">
   <link rel="canonical" href="https://slimeville.online/">
   <!-- Open Graph -->
   <meta property="og:title" content="SlimeVille — Free Browser MMO">
-  <meta property="og:description" content="Gather, craft, fight bosses, and play with friends in this free browser MMO. 12 skills, 6 bosses, no download.">
+  <meta property="og:description" content="Gather, craft, fight bosses, and play with friends in this free browser MMO. 13 skills, 12 bosses, no download.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://slimeville.online/">
   <meta property="og:image" content="https://slimeville.online/preview.png">
@@ -23,11 +23,11 @@
   <meta name="twitter:image" content="https://slimeville.online/preview.png">
   <meta name="twitter:description" content="Gather, craft, fight bosses, and play with friends. No download required.">
   <!-- Structured Data -->
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"SlimeVille","url":"https://slimeville.online/","description":"Free browser MMO. Gather resources, train 12 skills, craft equipment, fight 6 bosses, and play with friends online.","genre":["MMORPG","Browser Game","Crafting Game"],"gamePlatform":"Web Browser","playMode":"MultiPlayer","applicationCategory":"Game","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"SlimeVille","url":"https://slimeville.online/","description":"Free browser MMO. Gather resources, train 13 skills, craft equipment, fight 12 bosses, and play with friends online.","genre":["MMORPG","Browser Game","Crafting Game"],"gamePlatform":"Web Browser","playMode":"MultiPlayer","applicationCategory":"Game","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1419">
+  <link rel="stylesheet" href="./style.css?v=1421">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -135,7 +135,6 @@
         <input type="text" id="start-auth-user" class="start-auth-input" placeholder="Username" maxlength="20" autocomplete="username" spellcheck="false" name="username">
         <input type="password" id="start-auth-pw" class="start-auth-input" placeholder="Password" autocomplete="current-password" name="password">
         <input type="email" id="start-auth-recovery" class="start-auth-input" placeholder="Recovery email (optional)" autocomplete="email" name="recovery" hidden>
-        <label class="start-auth-remember"><input type="checkbox" id="start-auth-save" checked> Remember me</label>
         <p id="start-auth-error" class="start-auth-error" hidden></p>
         <div class="start-auth-actions">
           <button type="button" id="start-auth-back" class="start-auth-back-btn">Back</button>
@@ -459,7 +458,7 @@
           </div>
         </div>
         <div class="ui-kc-strip">
-          <div class="ui-kc-item" data-tip="Total Level — sum of all skill levels"><span>&#x2B50;</span><span class="ui-kc-label">Total</span><strong id="ui-total-level">11</strong></div>
+          <div class="ui-kc-item" data-tip="Total Level — sum of all skill levels"><span>&#x2B50;</span><span class="ui-kc-label">Total</span><strong id="ui-total-level">22</strong></div>
           <div class="ui-kc-item" data-tip="Combat Level — avg of combat skills (Melee, Bow, Mage, HP, Faith) + 25% from skilling"><span>&#x2694;&#xFE0F;</span><span class="ui-kc-label">Combat</span><strong id="ui-combat-level">3</strong></div>
           <div class="ui-kc-item ui-kc-rep" data-tip="Fame"><span>&#x1F44D;</span><span class="ui-kc-label">Fame</span><strong id="ui-player-rep">-</strong></div>
         </div>
@@ -966,7 +965,7 @@
         </div>
       </div>
       <div class="stg-foot">
-        <span class="stg-foot-ver">v0.001 alpha</span>
+        <span class="stg-foot-ver">v1420</span>
         <span class="stg-foot-friends"><span id="ui-friends-online">Offline</span> &middot; <span id="ui-friends-count">Players online: 0</span></span>
         <span class="stg-foot-hint">esc to close · / to search</span>
       </div>
@@ -1659,6 +1658,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1419"></script>
+  <script type="module" src="./main.js?v=1421"></script>
 </body>
 </html>
