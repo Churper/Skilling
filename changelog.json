@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1419",
+    "date": "2026-06-24",
+    "title": "Meteor Catch-Up and Register Fixes",
+    "entries": [
+      "Meteor catch-up after a hidden, locked, or mobile-backgrounded tab is more exact. If you were already mining an Island Meteor, owed swings now settle through the server even if you walk away right after returning.",
+      "Meteor wake-up rewards are quieter on return, so catch-up creates less separate XP and drop text before the final settlement.",
+      "The Register button inside Settings now uses the same account creation path as the start screen, so guest progress, account scope, session lock, and save transfer behave consistently.",
+      "Remembered accounts get a short extra session check before being asked to log in, reducing false login prompts on slow mobile tab resumes.",
+      "New characters now keep Hitpoints level 10 correctly on first progress sync."
+    ]
+  },
+  {
     "version": "v1412",
     "date": "2026-06-23",
     "title": "Shop, Trade and Meteor Polish",
