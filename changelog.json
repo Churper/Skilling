@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1425",
+    "date": "2026-06-24",
+    "title": "Meteor Mobile Sleep Hotfix",
+    "entries": [
+      "Fixed long mobile sleeps or locked tabs while mining meteors only paying a small return payout instead of the full time earned.",
+      "Meteor mining now keeps earning through paused mobile pings until you stop mining, the meteor depletes, or the 6-hour session cap is reached.",
+      "Wake, focus, and reconnect claims now refresh the meteor session before collecting, so return-from-sleep payouts do not race the relay."
+    ]
+  },
+  {
     "version": "v1424",
     "date": "2026-06-24",
     "title": "Combat Freeze Hotfix",
