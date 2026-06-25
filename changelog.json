@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1454",
+    "date": "2026-06-25",
+    "title": "Rare Gems and Companion Loot Polish",
+    "entries": [
+      "New rare gemstone drops are live: Opal from Giant Slimes, Ruby from Demons, Emerald from Sandy Cave Dragons, Sapphire from Frost Cave Dragons, and Onyx from Molten Cave Dragons.",
+      "The new gems are real bag items with sell values, rarity colors, examine text, and fresh item art.",
+      "Companion slimelets can now stay with you in regular caves, and Venom auto-loot can send them toward fresh drops and collect small batches nearby.",
+      "Inventory item images fit their slots better, especially on portrait phones, and Exchange offer quantities and prices are easier to read.",
+      "Minimap marker click areas now line up better with the visible marker size, Meat Trees use their actual model shape for clicking, and a missing bush patch was added near the mainland spawn area."
+    ]
+  },
+  {
     "version": "v1451",
     "date": "2026-06-25",
     "title": "Mobile UI, Farm Patch Menus and Spellstones",
