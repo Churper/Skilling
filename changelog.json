@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1465",
+    "date": "2026-06-25",
+    "title": "Farm Patch Menu Fixes",
+    "entries": [
+      "Farm tree and bush patches now respect the Left Click -> Remove setting when you click the grown tree or bush itself.",
+      "Long farm patch submenus, including Quick Plant, now stay inside the screen and scroll instead of running off the bottom."
+    ]
+  },
+  {
     "version": "v1460",
     "date": "2026-06-25",
     "title": "Enterable House and the Survival Cape",
