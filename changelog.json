@@ -1,5 +1,19 @@
 [
   {
+    "version": "v1450",
+    "date": "2026-06-25",
+    "title": "Mainland Cleanup and Model Refresh",
+    "entries": [
+      "Mainland object cleanup is live: several unused banks, torches, fences, old palms, rocks, mobs, and fishing spots were removed to lower object load in busy mainland areas.",
+      "Mainland ports now use the lighter island dock model instead of the heavy old port model, keeping the same service behavior with far fewer triangles.",
+      "Torches, warning signs, bank chests, workbenches, bonfires, the skull prop, and slime fountain props were optimized so common mainland decorations cost less to render.",
+      "Fishing spots use cheaper shared fish silhouettes, and their ripple rings are round again instead of looking too polygonal.",
+      "The minimap resource pins were rebaked from the cleaned world, including corrected Port and Horse Ranch entries after deleted objects were removed.",
+      "The General Store at spawn was moved back to its previous spot after the cleanup pass nudged it out of place.",
+      "Changed world models now load with the current game version in their URL, so browsers pick up refreshed docks, torches, and props after an update instead of holding stale cached models."
+    ]
+  },
+  {
     "version": "v1425",
     "date": "2026-06-24",
     "title": "Meteor Mobile Sleep Hotfix",
