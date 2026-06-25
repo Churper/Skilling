@@ -1,5 +1,21 @@
 [
   {
+    "version": "v1451",
+    "date": "2026-06-25",
+    "title": "Mobile UI, Farm Patch Menus and Spellstones",
+    "entries": [
+      "Mobile inventory, equipment, and store items now use a safer first-tap tooltip flow: tap once to inspect, then tap the same item again to use, buy, or sell it.",
+      "Bank quantity menus on mobile should no longer bring up the numpad by themselves, and several update/status banners are harder to accidentally text-select.",
+      "Mobile equipment and store item icons are larger, and the portrait inventory panel has more vertical room.",
+      "Farm tree and bush patch Remove actions now walk you to the patch before removing it instead of firing from a distance.",
+      "Ready tree and bush patches now have a right-click Left Click submenu, letting you choose whether the main left click chops/picks or removes that patch type.",
+      "Farm Timer sounds now have their own Audio setting instead of sharing the Gathering Sounds toggle.",
+      "Spellstone binding now turns 1 monster catalyst plus 10 Meteor Shards into 100 Spellstones.",
+      "Tin Arrows and White Spellstones now start at +5% damage instead of +0%, with later ammo tiers stepping up from there.",
+      "The Coal Miner NPC near the coal hut has been restored."
+    ]
+  },
+  {
     "version": "v1450",
     "date": "2026-06-25",
     "title": "Mainland Cleanup and Model Refresh",
