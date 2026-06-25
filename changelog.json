@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1493",
+    "date": "2026-06-25",
+    "title": "Monster Tags, Gem Polish and Reroll Banking",
+    "entries": [
+      "Right-click tags are now available for cave monsters and Giant Slimes, with color and style options plus readable respawn timers.",
+      "Cap'n Bubbles can now use Uncut Gems from your bank after checking your inventory for rerolls.",
+      "The ScapeLikes social vote button was added to Settings.",
+      "Gem icons were refreshed, including the restored Diamond icon and updated rare gem art.",
+      "Registration now handles names with non-ASCII characters more reliably."
+    ]
+  },
+  {
     "version": "v1465",
     "date": "2026-06-25",
     "title": "Farm Patch Menu Fixes",
