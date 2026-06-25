@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1460",
+    "date": "2026-06-25",
+    "title": "Enterable House and the Survival Cape",
+    "entries": [
+      "There's a new enterable house on the mainland. Walk inside to meet Berry, a friendly young berry slime.",
+      "Reach Survival level 1000 and Berry will reward you with the Survival Cape and a Berry Aura. While the cape is worn or in your bag, legendary foraging finds drop three times as often.",
+      "Right-click the Survival Cape to play the new Forage emote: walk up to a wild berry bush, shake the multicolor berries into a basket, then toss it up in a berry-confetti shower. Other players can see the emote too.",
+      "The Berry Aura is a new worn effect: multicolor berries and leaves that drift and swirl around your slime.",
+      "Mobile panels are a little shorter so they leave more of the screen visible on phones."
+    ]
+  },
+  {
     "version": "v1454",
     "date": "2026-06-25",
     "title": "Rare Gems and Companion Loot Polish",
