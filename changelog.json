@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1495",
+    "date": "2026-06-25",
+    "title": "Tool Skins and Icon Refresh",
+    "entries": [
+      "Blacksmith tier dots now let you pick any already-unlocked axe, pickaxe, or fishing rod appearance while keeping your highest unlocked speed.",
+      "The ScapeLikes vote button and claim panel were made clearer and more subtle.",
+      "The Diamond item icon was restored and the baked item icon cache was refreshed."
+    ]
+  },
+  {
     "version": "v1493",
     "date": "2026-06-25",
     "title": "Monster Tags, Gem Polish and Reroll Banking",
