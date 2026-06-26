@@ -1,11 +1,10 @@
 [
   {
-    "version": "v1506",
+    "version": "v1507",
     "date": "2026-06-26",
-    "title": "Clan Level 20 and Startup Fix",
+    "title": "Clan Level 20 Restore",
     "entries": [
-      "Clan levels now continue to level 20, restoring Default Crown at level 10 and Royal Crown at level 20.",
-      "Fixed a startup crash caused by the ScapeLikes vote reminder initializing too early."
+      "Clan levels now continue to level 20, restoring Default Crown at level 10 and Royal Crown at level 20."
     ]
   },
   {
