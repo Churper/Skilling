@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1506",
+    "date": "2026-06-26",
+    "title": "Clan Level 20 and Startup Fix",
+    "entries": [
+      "Clan levels now continue to level 20, restoring Default Crown at level 10 and Royal Crown at level 20.",
+      "Fixed a startup crash caused by the ScapeLikes vote reminder initializing too early."
+    ]
+  },
+  {
     "version": "v1504",
     "date": "2026-06-26",
     "title": "Clan Task Reset and Cap Fixes",
@@ -7,7 +16,6 @@
       "Clan global tasks with odd totals can now be completed properly, so a 537-item task no longer gets stuck after two members hit the old rounded-down cap.",
       "Clan global tasks now reset weekly with Dojo rewards, and opening either the Clan task board or Dojo can trigger the shared weekly rollover.",
       "Farming items can now appear in the clan task pool, and task gold and XP tuning now comes from server-side task data.",
-      "Clan reward requirements now match the real clan level ladder: Default Crown at level 8 and Royal Crown at level 10.",
       "The ScapeLikes vote dot is quieter for new players and auto-enables after total level 300 unless you set it manually."
     ]
   },
