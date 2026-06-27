@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1515",
+    "date": "2026-06-27",
+    "title": "Clams, Pearls and EXP Tracking",
+    "entries": [
+      "EXP Tracker now has an EXP Gained mode, with hover details and a right-click Reset EXP Session option.",
+      "Deep-sea shoals can now rarely drop Pearls, and can also drop Clams at a rarer rate.",
+      "Clams are unstackable bag items: click a Clam to open it, then click the open Clam to take the Pearl and leave an Empty Clam behind.",
+      "Pearl, Clam, Open Clam, and Empty Clam now have baked item icons and item models.",
+      "Bonfire recipe ingredient choices are more reliable when a recipe needs multiple category ingredients."
+    ]
+  },
+  {
     "version": "v1510",
     "date": "2026-06-26",
     "title": "Spawn, Travel and Sailing Fixes",
