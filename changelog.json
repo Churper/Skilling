@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1526",
+    "date": "2026-06-27",
+    "title": "Combat Tracker, Drop Menus and Map Cleanup",
+    "entries": [
+      "Combat EXP Tracker now measures EXP/hour faster during fights and keeps the last pace warm between boss kills, so dragon training spends less time stuck on measuring.",
+      "Ground item right-click menus now color item names to match their loot beam or ring, including direct item clicks and nearby Pick up rows.",
+      "Legendary ground drops now get loot beams too.",
+      "Mainland map cleanup removes extra props and resources, updates rotated port placements, and refreshes minimap resource locations.",
+      "Moderators can now opt into Settings > Mod > Chat right-click actions for clearly labeled chat moderation actions on message right-click menus."
+    ]
+  },
+  {
     "version": "v1524",
     "date": "2026-06-27",
     "title": "Emotes, Tracker Broadcasts and Combat Polish",

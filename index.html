@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1524">
+  <link rel="stylesheet" href="./style.css?v=1526">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -806,6 +806,7 @@
         <!-- Mod -->
         <div class="stg-pane" data-stg-pane="mod" data-stg-priv="mod" hidden>
           <div class="stg-pane-head"><h3>Mod</h3></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat right-click actions</span><span class="stg-hint">Adds a labeled Mod section to chat message right-click menus on this client</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mod-chat-context"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Target</span><span class="stg-hint">Currently connected players only</span></span><span class="stg-ctrl"><select id="setting-mod-target" class="stg-sel"><option value="">No players online</option></select><button type="button" id="setting-mod-refresh" class="stg-btn">Refresh</button></span></div>
           <div class="stg-row"><span class="stg-label">Duration</span><span class="stg-ctrl"><select id="setting-mod-duration" class="stg-sel"><option value="1">1 hour</option><option value="6">6 hours</option><option value="24">24 hours</option><option value="168" data-admin-only="1">7 days</option></select></span></div>
           <div class="stg-section-title">Chat</div>
@@ -1559,6 +1560,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1524"></script>
+  <script type="module" src="./main.js?v=1526"></script>
 </body>
 </html>
