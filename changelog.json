@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1510",
+    "date": "2026-06-26",
+    "title": "Spawn, Travel and Sailing Fixes",
+    "entries": [
+      "Teleporting to an island, logging in, or refreshing no longer drops you underground or at sea level — you and your horse now land correctly on the terrain, even on high-elevation islands.",
+      "Treasure hunt tasks now complete when you click a chest on an island you have already looted, instead of needing a refresh.",
+      "Deep-sea shoal fishing now keeps going while you are away for much longer instead of stopping after 12 minutes.",
+      "When a deep-sea shoal's time runs out it now immediately relocates to a fresh spot instead of vanishing for 20-40 minutes.",
+      "Roaming meteors and fishing shoals now reappear correctly after your connection drops and reconnects, such as waking a backgrounded phone tab."
+    ]
+  },
+  {
     "version": "v1507",
     "date": "2026-06-26",
     "title": "Clan Level 20 Restore",
