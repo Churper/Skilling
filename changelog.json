@@ -1,5 +1,19 @@
 [
   {
+    "version": "v1524",
+    "date": "2026-06-27",
+    "title": "Emotes, Tracker Broadcasts and Combat Polish",
+    "entries": [
+      "The Emotes panel has been rebuilt with categories, search, favorites, smoother pop-out resizing, and a larger emoji set.",
+      "EXP Tracker now has a right-click Broadcast Tracker action, with chat lines for progress, EXP gained, actions left, EXP/hour, and time-left modes.",
+      "Trade windows now fit item icons and partner names more cleanly, with clearer item details for offer and inventory slots.",
+      "Shift-right-click HUD resets no longer trigger accidental movement or map clicks, including the minimap, boss bell, buff bar, and tracker.",
+      "Mobile tap-to-view item tooltips no longer flicker through hover tooltip states before settling open.",
+      "Boss, cave, and meteor visuals are cleaner: combat damage ignores already-downed states, cave mob tags clean up more reliably, and meteor effects are less obstructive in combat.",
+      "High-tier cave monsters now grant tuned combat XP more consistently across combat styles."
+    ]
+  },
+  {
     "version": "v1515",
     "date": "2026-06-27",
     "title": "Clams, Pearls and EXP Tracking",
@@ -8,6 +22,7 @@
       "Deep-sea shoals can now rarely drop Pearls, and can also drop Clams at a rarer rate.",
       "Clams are unstackable bag items: click a Clam to open it, then click the open Clam to take the Pearl and leave an Empty Clam behind.",
       "Pearl, Clam, Open Clam, and Empty Clam now have baked item icons and item models.",
+      "Deep-sea shoal markers now clear correctly when focus-return or keepalive data says the old shoal is gone, preventing stale discoveries after reloads or returning from another tab.",
       "Bonfire recipe ingredient choices are more reliable when a recipe needs multiple category ingredients."
     ]
   },
