@@ -1,5 +1,19 @@
 [
   {
+    "version": "v1533",
+    "date": "2026-06-27",
+    "title": "Open Travel and Actions Done Tracker",
+    "entries": [
+      "Island travel tiers are open now: sailing waters, charting, teleport unlocks, and Travel map tier tabs no longer stop you by Explorer or boat tier.",
+      "Deep-sea shoals no longer require Fishing 200.",
+      "Gold fish ocean-friend gifts now make Ancient Coins much rarer, with that reward slot mostly giving pet perk scrolls and sometimes Clams.",
+      "EXP Tracker now has an Actions Done mode for counting and broadcasting session actions like logs chopped, fish caught, or hits landed.",
+      "ScapeLikes vote claims now give 3 SC.",
+      "Removed a stray bank chest near the ribbon/root island area.",
+      "Cooking mastery visuals have cleaner prop choreography and remote-player sync polish."
+    ]
+  },
+  {
     "version": "v1528",
     "date": "2026-06-27",
     "title": "Equipment Presets and UI Polish",
