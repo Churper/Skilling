@@ -1,15 +1,26 @@
 [
   {
+    "version": "v1591",
+    "date": "2026-06-28",
+    "title": "Chef House, World Art and Performance",
+    "entries": [
+      "Chef Stew now has a dedicated kitchen house, portrait, dialogue flow, and Cooking 1000 cape claim path.",
+      "The Slime Chef emote now keeps its true backflip exit for you and remote players, with cleaner cooking props, aura handling, sounds, and finale timing.",
+      "Spellstone Pool crafting now counts materials from your bank as well as your bag, and safely refunds ingredients if your materials or bag space change mid-craft.",
+      "World art and performance were refreshed across palms, docks, rocks, flax, banks, farm crops, cosmetics, and many static props, with lighter model formats and tighter chunk rendering.",
+      "Cosmetics render more consistently across lighting settings, including crowns, party hats, Bunny Ears, Santa Hat, Puffy Face, Ice Cream Cone, and Cooking Aura.",
+      "Charted island statues now use a clearer blue tint, tropical islands use the rebuilt palm trees, and the mobile combat panel takes less screen space.",
+      "Quest reward popups now show item icons or clean emoji fallbacks more reliably."
+    ]
+  },
+  {
     "version": "v1534",
     "date": "2026-06-27",
     "title": "Desktop Layout Toggle and Cooking Polish",
     "entries": [
       "Settings now includes Force Desktop Layout, which keeps the desktop UI on touchscreens and convertible laptops that were being put into the phone layout.",
       "Cooking Aura and Berry Aura now register everywhere bag cosmetics need, so Cooking Aura can equip from an already claimed bag item.",
-      "The Slime Chef mastery emote now has its final backflip, dish-eating finish, suction effect, bigger tossed ingredients, and procedural cooking sounds.",
-      "The cooked-fish toss ingredient now uses a static toon fish, so it stays visible for you and remote players.",
-      "Cooking mastery remote-player playback now mirrors the local step, shaker, tossed ingredients, backflip, mouth animation, and sounds.",
-      "Held tools are stowed during the cooking emote instead of overlapping the pan and spatula."
+      "The Slime Chef mastery emote has its finished backflip, dish-eating finale, visible cooked-fish toss, cooking sounds, remote-player playback, and held-tool stowing."
     ]
   },
   {
@@ -22,8 +33,7 @@
       "Gold fish ocean-friend gifts now make Ancient Coins much rarer, with that reward slot mostly giving pet perk scrolls and sometimes Clams.",
       "EXP Tracker now has an Actions Done mode for counting and broadcasting session actions like logs chopped, fish caught, or hits landed.",
       "ScapeLikes vote claims now give 3 SC.",
-      "Removed a stray bank chest near the ribbon/root island area.",
-      "Cooking mastery visuals have cleaner prop choreography and remote-player sync polish."
+      "Removed a stray bank chest near the ribbon/root island area."
     ]
   },
   {
