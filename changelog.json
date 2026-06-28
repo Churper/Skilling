@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1534",
+    "date": "2026-06-27",
+    "title": "Desktop Layout Toggle and Cooking Polish",
+    "entries": [
+      "Settings now includes Force Desktop Layout, which keeps the desktop UI on touchscreens and convertible laptops that were being put into the phone layout.",
+      "Cooking Aura and Berry Aura now register everywhere bag cosmetics need, so Cooking Aura can equip from an already claimed bag item.",
+      "The Slime Chef mastery emote now has its final backflip, dish-eating finish, suction effect, bigger tossed ingredients, and procedural cooking sounds.",
+      "The cooked-fish toss ingredient now uses a static toon fish, so it stays visible for you and remote players.",
+      "Cooking mastery remote-player playback now mirrors the local step, shaker, tossed ingredients, backflip, mouth animation, and sounds.",
+      "Held tools are stowed during the cooking emote instead of overlapping the pan and spatula."
+    ]
+  },
+  {
     "version": "v1533",
     "date": "2026-06-27",
     "title": "Open Travel and Actions Done Tracker",

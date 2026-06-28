@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1533">
+  <link rel="stylesheet" href="./style.css?v=1534">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -689,6 +689,7 @@
           <div class="stg-pane-head"><h3>Interface</h3></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Multi-Window Mode</span><span class="stg-hint">Pop panels like Inventory into separate draggable windows</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-multi-window"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">EXP Tracker (Auto)</span><span class="stg-hint">Draggable XP/EXP tracker chip auto-follows the skill you're training — shows level progress, actions left, XP per hour and time to level. Click to switch view, right-click for options</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-track-skill"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Force Desktop Layout</span><span class="stg-hint">Always use the desktop UI, even on touchscreens. Fixes convertible/2-in-1 laptops that get stuck in the mobile layout</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-force-desktop-ui"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Classic Layout</span><span class="stg-hint">Locked OSRS-style fixed layout (right column with minimap, panel, tabs)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-classic-layout"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">UI Theme</span><span class="stg-ctrl"><select id="setting-classic-theme" class="stg-sel"><option value="default">Default</option><option value="wood">Wood</option><option value="glass">Glass</option><option value="stained">Stained Glass</option><option value="frost">Frost</option><option value="verdant">Verdant</option><option value="sunset">Sunset</option><option value="arcane">Arcane</option><option value="volcanic">Volcanic</option><option value="royal">Royal</option><option value="cyber">Cyber</option><option value="bone">Bone</option></select></span></div>
           <div class="stg-row"><span class="stg-label">UI Scale</span><span class="stg-ctrl"><input type="range" id="setting-ui-scale" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-ui-scale-label">100%</span></span></div>
@@ -1560,6 +1561,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1533"></script>
+  <script type="module" src="./main.js?v=1534"></script>
 </body>
 </html>
