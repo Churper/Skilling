@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1592",
+    "date": "2026-06-28",
+    "title": "Chunk Rendering Fix",
+    "entries": [
+      "Fixed terrain chunks popping in and out as you walked, and a rare case on the lowest render distance where you could drop through the ground at a chunk edge."
+    ]
+  },
+  {
     "version": "v1591",
     "date": "2026-06-28",
     "title": "Chef House, World Art and Performance",
