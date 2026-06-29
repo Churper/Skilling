@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1615",
+    "date": "2026-06-29",
+    "title": "Dojo Rewards and Sailing Treasure Fixes",
+    "entries": [
+      "Dojo weekly reward mail is unblocked after the Monday reset, with Champion's Ring and SlimeCoin rewards still awarded once.",
+      "Sailing treasure tasks now reopen their target chest when needed, and treasure tooltips show when a chest is already opened.",
+      "Middle-click camera drag is more reliable and no longer gets stolen by browser middle-mouse behavior.",
+      "The SlimeCoin Shop remembers separate scroll positions for Cosmetics, Skins, and Consumables while the shop is open.",
+      "Task-board sign art is lighter to render, and farm patch tree order is cleaned up."
+    ]
+  },
+  {
     "version": "v1602",
     "date": "2026-06-29",
     "title": "Hiscores and Background FPS Fixes",
