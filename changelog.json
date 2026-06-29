@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1645",
+    "date": "2026-06-29",
+    "title": "Local Chat, Log Basket and Meat Tree Fixes",
+    "entries": [
+      "Chat now has a Local channel for nearby players in the same area, with short overhead text bubbles when local messages are sent.",
+      "Log Basket now auto-empties stored logs into your bank when opening a bank or using Deposit All.",
+      "Meat Trees now keep their server phase, depleted state, and regrow timer more reliably after reconnects, chunk reloads, and bulk chopping."
+    ]
+  },
+  {
     "version": "v1643",
     "date": "2026-06-29",
     "title": "Boss Reward Fixes and Gear Polish",
