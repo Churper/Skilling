@@ -1,11 +1,23 @@
 [
   {
+    "version": "v1643",
+    "date": "2026-06-29",
+    "title": "Boss Reward Fixes and Gear Polish",
+    "entries": [
+      "Reclaim Potion now can save Bee Ring melee charges as well as arrows and spellstones.",
+      "Bee Ring charge costs are lower across every melee damage setting.",
+      "Rat Shield now reduces cave fire breath damage by 75%, and its perk text matches the effect.",
+      "Skele, Rat, Spider, Wizard, and Bee bosses can now very rarely drop Reclaim Potions.",
+      "Best Gear now equips directly without overwriting an equipment preset."
+    ]
+  },
+  {
     "version": "v1642",
     "date": "2026-06-29",
     "title": "Fishing Mastery, Ocean Gifts and Boss Drops",
     "entries": [
       "Fishing level 1000 now has a Fisherman reward path on Slimey Knoll, with the Fishing Cape, Fishing Aura, and a Fishing Cape action that locates deep-sea shoals.",
-      "Bee Ring, Rat Shield, and Reclaim Potion are new boss rewards: Bee Ring charges with coins for melee damage settings, Rat Shield halves cave fire breath damage, and Reclaim Potion can save arrows or spellstones.",
+      "Bee Ring, Rat Shield, and Reclaim Potion are new boss rewards: Bee Ring charges with coins for melee damage settings, Rat Shield reduces cave fire breath damage by 75%, and Reclaim Potion can save arrows or spellstones.",
       "Feeding dolphins or whales now gives account-bound Dolphin and Whale Gifts that stack in your bag and open later for server-rolled rewards.",
       "Clan global task boards now have 6 weekly tasks with woodcutting, mining, fishing, and farming coverage.",
       "Cooking Cape now has a 10% chance to save an ingredient set on each dish craft while worn.",
