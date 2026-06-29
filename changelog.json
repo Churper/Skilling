@@ -1,5 +1,20 @@
 [
   {
+    "version": "v1642",
+    "date": "2026-06-29",
+    "title": "Fishing Mastery, Ocean Gifts and Boss Drops",
+    "entries": [
+      "Fishing level 1000 now has a Fisherman reward path on Slimey Knoll, with the Fishing Cape, Fishing Aura, and a Fishing Cape action that locates deep-sea shoals.",
+      "Bee Ring, Rat Shield, and Reclaim Potion are new boss rewards: Bee Ring charges with coins for melee damage settings, Rat Shield halves cave fire breath damage, and Reclaim Potion can save arrows or spellstones.",
+      "Feeding dolphins or whales now gives account-bound Dolphin and Whale Gifts that stack in your bag and open later for server-rolled rewards.",
+      "Clan global task boards now have 6 weekly tasks with woodcutting, mining, fishing, and farming coverage.",
+      "Cooking Cape now has a 10% chance to save an ingredient set on each dish craft while worn.",
+      "Teleports keep mounted horses synced, middle-click camera drag is steadier, boat boost refills when setting sail, and the mobile minimap resource picker closes after choosing a target.",
+      "Fortune Potion now has a 25% chance to double monster drops.",
+      "Store sell prices were lowered for Storm Guava, Leviathan Mango, Sludge Papaya, Prism Kiwi, Infinity Plum, and legendary jellies from Nebula Pear Jelly through Infinity Plum Jelly."
+    ]
+  },
+  {
     "version": "v1615",
     "date": "2026-06-29",
     "title": "Dojo Rewards and Sailing Treasure Fixes",
