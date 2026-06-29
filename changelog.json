@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1601",
+    "date": "2026-06-29",
+    "title": "Hiscores and Background FPS Fixes",
+    "entries": [
+      "Background FPS now throttles rendering only while the window is unfocused, so combat, gathering, timers, and XP keep normal speed.",
+      "Hiscores now load through the server leaderboard path again, so All, OG, Saplings, skill boards, and boss boards should no longer collapse to only a couple rows.",
+      "Rat, Frog, and Bee boss KC now appear in in-game Hiscore lists and clicked player profiles.",
+      "Hiscore dropdown highlights stay readable, selected category styling stays stable, and real players should no longer be mislabeled as guests.",
+      "Coconut palms now show one coconut placed higher in the crown instead of a low cluster."
+    ]
+  },
+  {
     "version": "v1592",
     "date": "2026-06-28",
     "title": "Chunk Rendering Fix",
