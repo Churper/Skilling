@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1650",
+    "date": "2026-06-29",
+    "title": "Mastery Progression, Nameplates, and Gift Flow Fixes",
+    "entries": [
+      "Added multi-stage skill mastery progression for more skills, including name badges, level-500 aura rewards, and level-1000 mastery capes.",
+      "Added new Woodcutter and Hitpoints mastery progression paths in the world with dedicated houses and NPC reward flow updates.",
+      "Player nametags now show equipped nameplates and badge cosmetics more consistently.",
+      "Ocean gift claims now enforce account ownership before opening, with better failure handling and Golden Fish refunds on recoverable claim failures.",
+      "Local chat sending is now restricted to signed-in players, reducing unauthenticated local-channel spam."
+    ]
+  },
+  {
     "version": "v1645",
     "date": "2026-06-29",
     "title": "Local Chat, Log Basket and Meat Tree Fixes",
