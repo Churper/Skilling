@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1592">
+  <link rel="stylesheet" href="./style.css?v=1600">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -772,7 +772,7 @@
           <div class="stg-pane-head"><h3>Video</h3></div>
           <div class="stg-row"><span class="stg-label">Brightness</span><span class="stg-ctrl stg-vol"><input type="range" id="setting-brightness" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-brightness-label">100%</span></span></div>
           <div class="stg-row"><span class="stg-label">FPS Cap</span><span class="stg-ctrl"><select id="setting-fps-cap" class="stg-sel"><option value="30">30 (Battery)</option><option value="60" selected>60 (Default)</option><option value="0">Uncapped</option></select></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Background FPS</span><span class="stg-hint">Throttle FPS when window is unfocused</span></span><span class="stg-ctrl"><select id="setting-bg-fps" class="stg-sel"><option value="0">Disabled</option><option value="1">1 fps</option><option value="5">5 fps</option><option value="10">10 fps</option><option value="15">15 fps</option><option value="30">30 fps</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Background FPS</span><span class="stg-hint">Throttle rendering when window is unfocused</span></span><span class="stg-ctrl"><select id="setting-bg-fps" class="stg-sel"><option value="0">Disabled</option><option value="1">1 fps</option><option value="5">5 fps</option><option value="10">10 fps</option><option value="15">15 fps</option><option value="30">30 fps</option></select></span></div>
           <label class="stg-row" hidden><span class="stg-label">HD Terrain</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hd-terrain"><span class="stg-tog-track"></span></label></span></label>
           <label class="stg-row" hidden><span class="stg-label">Reduced Particles</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-reduced-particles"><span class="stg-tog-track"></span></label></span></label>
           <div class="stg-section-title">Performance</div>
@@ -1561,6 +1561,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1592"></script>
+  <script type="module" src="./main.js?v=1600"></script>
 </body>
 </html>
