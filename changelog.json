@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1668",
+    "date": "2026-06-30",
+    "title": "Multiplayer Nametag Style Hotfix",
+    "entries": [
+      "Fixed multiplayer name badge styles so other players can see your selected Framed, Bottom Dash, Double Dash, and Diagonal looks when unlocked.",
+      "Reduced upgraded nametag sizing so styled name badges stay closer to the original default nametag footprint and cover less of nearby slimes.",
+      "Remote nametag updates now skip repeated DOM/style work when the displayed tag data has not changed."
+    ]
+  },
+  {
     "version": "v1665",
     "date": "2026-06-30",
     "title": "Crypt Bell, Pet Ignore, Name Badge Styles and Safety Fixes",
