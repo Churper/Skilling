@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1673",
+    "date": "2026-06-30",
+    "title": "Daily Cave Save Hotfix",
+    "entries": [
+      "Reported bug: finished daily caves could show as unfinished after an accidental refresh. Fix: cave completion writes now carry the island mapping through the existing save RPC and repair older completed rows when the client can infer the island.",
+      "Boat nametags no longer shake from vertical smoothing while sailing."
+    ]
+  },
+  {
     "version": "v1670",
     "date": "2026-06-30",
     "title": "Nametag Polish Hotfix",
