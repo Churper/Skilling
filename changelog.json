@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1670",
+    "date": "2026-06-30",
+    "title": "Nametag Polish Hotfix",
+    "entries": [
+      "Peer nametags now sit lower so styled name badges stop covering remote slimes.",
+      "Remote nametag text no longer does the 1px up/down bounce while other players move.",
+      "Bright badge colors such as Fishing cyan and yellow now use crisp text instead of fuzzy colored glow.",
+      "Framed and higher name badge styles no longer shrink your own name text."
+    ]
+  },
+  {
     "version": "v1668",
     "date": "2026-06-30",
     "title": "Multiplayer Nametag Style Hotfix",
