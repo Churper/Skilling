@@ -1,5 +1,21 @@
 [
   {
+    "version": "v1665",
+    "date": "2026-06-30",
+    "title": "Crypt Bell, Pet Ignore, Name Badge Styles and Safety Fixes",
+    "entries": [
+      "Added a bell button to The Crypt wave HUD so stronger players can spawn the next wave immediately.",
+      "Crypt dungeon enemies now use reduced dungeon loot rates, and Meteor Shower kills in The Crypt no longer drop normal loot.",
+      "Pets now follow into The Crypt, Venom auto-loot works there, and Pet Ignore now skips matching item drops instead of only one bag slot.",
+      "Boss scrolls still grant their normal charges but now add only one pet power level per fed scroll.",
+      "Name badges now have right-click style choices, with Framed, Bottom Dash, Double Dash, and Diagonal looks unlocked by the equipped badge's own skill level.",
+      "Name badge inventory icons now show tiered styling based on your badge's skill level, and upgraded nametags now better match the tuning lab visuals in game.",
+      "Champion Ring, mastery skill capes, mastery auras, name badges, Dolphin Gift, and Whale Gift are account-bound across client drop, PvP, shop, alch, disassemble, exchange, clan-vault, and peer-loot paths.",
+      "Skill-cape perks now work from inventory where the perk exists, and Washing Machine auto-roll can target the real max legendary roll caps.",
+      "Fixed stale gear presets, PvP cave death cleanup, hostile Comet focus handling, Woodcutting Name Badge bank sorting, slope drop-text camera jerk, and procgen resource markers that could point to missing Copper Rocks."
+    ]
+  },
+  {
     "version": "v1655",
     "date": "2026-06-29",
     "title": "Multiplayer Nameplate Fix",
