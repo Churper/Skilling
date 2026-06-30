@@ -1,6 +1,15 @@
 [
   {
-    "version": "v1653",
+    "version": "v1655",
+    "date": "2026-06-29",
+    "title": "Multiplayer Nameplate Fix",
+    "entries": [
+      "Fixed equipped name badges not appearing on other players' multiplayer nametags.",
+      "Nameplate cosmetic changes now broadcast immediately when equipped or changed."
+    ]
+  },
+  {
+    "version": "v1654",
     "date": "2026-06-29",
     "title": "Nameplate Color and Badge Visibility Fixes",
     "entries": [
