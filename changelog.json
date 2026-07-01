@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1694",
+    "date": "2026-07-01",
+    "title": "Saved Spots, Farm Tracker Styles, and Ocean Gift Scaling",
+    "entries": [
+      "Saved Spots now stay available on the minimap even without teleport charges, support favorites, custom names, map icons, walking to a saved location, and optional auto-teleport when charged.",
+      "The minimap teleport button is back as the quick teleport arm when charges are available, and becomes a save-location pin when you have no charges.",
+      "Farm tracker slime mode now has Straw Hat Slime and Timer Slime styles, timer-outline coloring, and a label position option.",
+      "Feeding dolphins and whales now scales with Explorer level: every 100 Explorer levels lets you spend one extra Golden Fish per feed for matching stackable gifts.",
+      "Clan vault item deposits now use the correct bag-slot contract again and the vault picker layout is cleaner."
+    ]
+  },
+  {
     "version": "v1673",
     "date": "2026-06-30",
     "title": "Daily Cave Save Hotfix",
