@@ -67,6 +67,11 @@
     { "type": "Rocks_Ore_Starite", "x": 60, "z": 58, "rot": 2.8 },
     { "type": "Rocks_Ore_Twilight", "x": 38, "z": 70, "rot": 2.4 },
     { "type": "Rocks_Ore_Void", "x": 18, "z": 58, "rot": 2.0 },
+    { "type": "Storm_Vein", "x": 76, "z": 42, "rot": 2.9, "scale": 2.0 },
+    { "type": "Leviathan_Geode", "x": 56, "z": 66, "rot": 2.4, "scale": 2.0 },
+    { "type": "Goo_Nodule", "x": 38, "z": 80, "rot": 2.0, "scale": 2.2 },
+    { "type": "Prism_Cluster", "x": 18, "z": 66, "rot": 1.7, "scale": 2.0 },
+    { "type": "Infinity_Crystal", "x": 72, "z": -48, "rot": 5.1, "scale": 2.0 },
 
     { "type": "Svc_Forage_Bush", "x": -24, "z": 8, "rot": 0.5 },
     { "type": "Svc_Forage_Elder", "x": -16, "z": 24, "rot": 0.9 },

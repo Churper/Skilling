@@ -1,5 +1,21 @@
 [
   {
+    "version": "v1715",
+    "date": "2026-07-01",
+    "title": "Slime Crab, Endgame Mining, Boats, and Containers",
+    "entries": [
+      "Slime Crab is a new mainland AFK group combat boss with three burrows, a 30-minute timer HP bar, 50% combat XP, local claw/idle life, a small ground smash, and burrow relocation.",
+      "Inactive Slime Crab burrows crawl you to the active crab, while the active burrow no longer teleports you away.",
+      "Slime Crab peer hitsplats are optional, on by default, use a separate lavender color, and only show damage aimed at the local Slime Crab.",
+      "Cursor teleport now uses a quick flash, minimap cursor teleport uses the normal longer cast, and full map teleport still arms before firing.",
+      "Mining levels 600-1000 now have PvP Crucible nodes for Stormstone, Leviathan Pearl, Goo Core, Prism Shard, and Infinity Core.",
+      "Added Storm, Leviathan, Goo, Prism, and Infinity tools for axe, pickaxe, and fishing pole progression, with final prices of 25m, 50m, 100m, 250m, and 1b coins.",
+      "Added Storm, Leviathan, Goo, Prism, and Infinity boats with new palette-aware colors, higher boost fuel, and gentler high-tier material recipes that count loose raw materials from bag and bank.",
+      "Ore Pouch stores the new high-tier mining drops, can come from Rock Golem or Coal Miner, and upgrades with Pearls up to 500 capacity.",
+      "Log Basket now upgrades with Diamonds, and both Log Basket and Ore Pouch show colored contents counters in inventory and bank slots."
+    ]
+  },
+  {
     "version": "v1694",
     "date": "2026-07-01",
     "title": "Saved Spots, Farm Tracker Styles, and Ocean Gift Scaling",
