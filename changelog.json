@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1737",
+    "date": "2026-07-02",
+    "title": "Guide FAQ, Icon Refresh, and High-Tier Polish",
+    "entries": [
+      "The Guide now has a new FAQ tab with quick answers for early money, reopening the tutorial, special drops, early combat, dummies, arrows, prayers, frenzies, pets, Faith, cosmetics, XP gear, and item organization.",
+      "The Guide's Washing Machine section now explains live potential behavior more clearly, including XP gear limits, Luck, Tempo, roll weights, and roll-quality colors.",
+      "The level 600-1000 mining rocks have new Goo Nodule, Prism Cluster, and Infinity Crystal models, and Goo Nodule selection now matches its larger model.",
+      "Baked item icons were refreshed for jellies, trophy fish, cooked trophy fish, and related inventory thumbnails, with jellies now using proper jar models and trophy fish using the newer fish models.",
+      "Buff potions show clearer examine text with effect and duration details, and signature card exports keep slime faces cleaner.",
+      "Right-click mini-map reset now restores both zoom and pan, meteors sync more reliably after reconnects, and high-tier EXP tracker action counts behave better."
+    ]
+  },
+  {
     "version": "v1730",
     "date": "2026-07-01",
     "title": "HUD Dragging, Chat, and Meteor Fixes",
