@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1739",
+    "date": "2026-07-02",
+    "title": "Local Settings Preset Restore",
+    "entries": [
+      "Local Settings Preset restore now shows an in-panel confirmation instead of a browser popup.",
+      "Most restored local settings apply immediately without reloading the page.",
+      "Restores only reload when anti-aliasing changes, and the settings panel now tells you before that happens.",
+      "The local preset confirmation layout is cleaner on desktop and mobile."
+    ]
+  },
+  {
     "version": "v1737",
     "date": "2026-07-02",
     "title": "Guide FAQ, Icon Refresh, and High-Tier Polish",

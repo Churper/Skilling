@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1737">
+  <link rel="stylesheet" href="./style.css?v=1739">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -810,6 +810,16 @@
             <button type="button" id="setting-load-local-preset" class="stg-reset-btn stg-preset-load">Restore Preset</button>
             <button type="button" id="setting-clear-local-preset" class="stg-reset-btn stg-preset-clear">Clear</button>
           </div>
+          <div id="setting-local-preset-confirm" class="stg-preset-confirm" hidden>
+            <div class="stg-preset-confirm-copy">
+              <strong>Restore saved preset?</strong>
+              <span id="setting-local-preset-confirm-note">Applies now unless anti-aliasing changes.</span>
+            </div>
+            <div class="stg-preset-confirm-actions">
+              <button type="button" id="setting-local-preset-confirm-restore" class="stg-preset-mini stg-preset-mini-primary">Restore</button>
+              <button type="button" id="setting-local-preset-confirm-cancel" class="stg-preset-mini">Cancel</button>
+            </div>
+          </div>
           <div id="setting-local-preset-status" class="stg-preset-status">No local preset saved.</div>
         </div>
         <!-- Debug -->
@@ -1589,6 +1599,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1737"></script>
+  <script type="module" src="./main.js?v=1739"></script>
 </body>
 </html>
