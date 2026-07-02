@@ -1,5 +1,21 @@
 [
   {
+    "version": "v1730",
+    "date": "2026-07-01",
+    "title": "HUD Dragging, Chat, and Meteor Fixes",
+    "entries": [
+      "The Home Teleport button can now be dragged, Alt-drag resized, and Shift-right-click reset like the other HUD elements.",
+      "The Home Teleport button now follows the UI Scale slider, and a plain click still teleports.",
+      "Reset Layout now also snaps the Home Teleport button back to its default spot.",
+      "Ground item names now stay readable at low resolutions and at Render Scale below 1x.",
+      "Fixed Chat Auto-Scroll sometimes staying off after you scrolled the chat.",
+      "In the classic layout, enabling the movable coins + SlimeCoins chip no longer leaves a second chip stuck over the chat.",
+      "Dragging the tutorial and Garden Helper quest cards no longer glitches on release or saves the wrong position.",
+      "Fixed a crashed Meteor sometimes not appearing on the map or in the world until you refreshed the page.",
+      "Updated the Leviathan Geode model."
+    ]
+  },
+  {
     "version": "v1729",
     "date": "2026-07-01",
     "title": "Quick Controls, Bank Price Check, Chat, and Combat Fixes",
