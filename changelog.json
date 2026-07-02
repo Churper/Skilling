@@ -1,5 +1,24 @@
 [
   {
+    "version": "v1760",
+    "date": "2026-07-02",
+    "title": "Guide, Faith, Icons, Spider Fixes, and Polish",
+    "entries": [
+      "Guide FAQ added for early money, tutorial replay, drops, combat and boss training, prayers, frenzies, pets, Faith, cosmetics, XP gear, item organization, and Washing Machine rolls.",
+      "Faith ground movement buffed: nearby orbs spawn faster with up to 15 active ground orbs; horse and boat fast travel keep the old cap.",
+      "Icons rebaked for Fiber, Koi, Elder Spellstones, jellies, trophy and deep-sea fish, Bird Nest, Sushi, bowls, pies, stews, salads, desserts, Ocean Emperor, and Abyssal Feast.",
+      "Goo Nodule, Prism Cluster, and Infinity Crystal rocks rebuilt; Goo Nodule selection now matches its larger model.",
+      "Local Settings Preset restore confirms in-panel, applies most settings live, and only reloads for anti-aliasing.",
+      "Compost Bin bulk deposits remove the right bag and bank quantities; right-click mini-map reset restores zoom and pan.",
+      "Reported bug: Spider Mage attacks could crash the fight after about a second. Fix: Spider Mage attack audio is now wired correctly.",
+      "Meteors resync after reconnects, high-tier EXP tracker action counts stay sane, and buff potion examine text shows effect and duration.",
+      "Ground item names stay sharper at low Render Scale, Meat Tree frenzies tint after chunk reloads, and tutorial, Garden Helper, and Sailing Master actions save more reliably.",
+      "Clan Activity XP-point rows show which skill XP gains earned the points, and chat history replays more reliably after sign-in or reconnect.",
+      "Horse custom colors load safely from old palettes, signature card faces export cleaner, Survival cards use the camp icon, and the emoji picker adds more reactions, ocean, space, cozy, and pet emojis.",
+      "Settings tester credits now include littleseven."
+    ]
+  },
+  {
     "version": "v1758",
     "date": "2026-07-02",
     "title": "Guide, Faith, Icons, and Fixes",
