@@ -1870,8 +1870,9 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
 
   <div class="sec-head"><div class="sec-icon" style="background:rgba(180,60,60,.1);border-color:rgba(180,60,60,.2)">&#x1F969;</div><div><h2>Meat Tree</h2><p>Depleting woodcutting node</p></div></div>
   <div class="card">
-    <p>Meat Trees are rare, server-synced trees that drop <strong>Prime Cuts</strong> (legendary). They deplete as players chop them, then respawn elsewhere.</p>
-    <p>XP scales with woodcutting level: <strong>80 + 2.5 &times; level</strong>. Woodcutting frenzies can trigger here too!</p>
+    <p>Meat Trees are persistent, server-synced woodcutting nodes &mdash; not rare popup events. There are <strong>4 on the map</strong> at a time, shared by everyone. Chop one for <strong>Tree Meat</strong>; each tree has about <strong>900&ndash;1,800 chops</strong> before it is stripped to bones.</p>
+    <p>Once you start chopping, gathering continues until the tree is depleted, you stop manually, or your long AFK window ends. Depleted trees regrow after about <strong>2 hours</strong>.</p>
+    <p>XP scales with woodcutting level: <strong>80 + 2.5 &times; level</strong>. Woodcutting frenzies can trigger here too.</p>
   </div>
 
   <div class="sec-head" id="sec-faith"><div class="sec-icon" style="background:rgba(120,80,200,.1);border-color:rgba(120,80,200,.2)">&#x1F52E;</div><div><h2>Crop Circles (Faith)</h2><p>Channel for orbs and bonus XP</p></div></div>
@@ -2015,7 +2016,7 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
 
   <div class="sec-head"><div class="sec-icon" style="background:rgba(180,60,60,.1);border-color:rgba(180,60,60,.2)">&#x1F30D;</div><div><h2>World-Shared Resources</h2><p>Meat Trees aren&rsquo;t events</p></div></div>
   <div class="card">
-    <p style="margin-top:0"><strong>Meat Trees</strong> are <em>not</em> world events &mdash; they&rsquo;re permanent world-shared nodes. There are <strong>4 on the map</strong> at any time. When one&rsquo;s depleted, it&rsquo;s gone for everyone until it regrows.</p>
+    <p style="margin-top:0"><strong>Meat Trees</strong> are <em>not</em> world events &mdash; they&rsquo;re persistent world-shared nodes. There are <strong>4 on the map</strong> at any time. When one is depleted, it is bones for everyone and regrows after about <strong>2 hours</strong>.</p>
     <p>The <strong>Crashed Meteor</strong> is also world-shared &mdash; check the minimap for both. Get there fast or someone else will finish it off.</p>
   </div>
 
@@ -2046,6 +2047,11 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
   <div class="sec-head" style="margin-top:4px"><div class="sec-icon gold">&#x2753;</div><div><h2>FAQ</h2><p>Answers to the questions players actually ask</p></div></div>
 
   <div class="faq-list">
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-frenzy">Frenzy</span><span>What is a frenzy, and what are drops like Enchanted Twigs or Gold Nuggets for?</span></div>
+      <div class="faq-a">A frenzy is a short bonus window while mining, woodcutting, or fishing. When you hear the alert and the node changes color or gets a special effect, click it before the window ends for bonus XP and a frenzy drop. Those drops, like <strong>Enchanted Twigs</strong>, <strong>Gold Pebbles</strong>, <strong>Gold Nuggets</strong>, and <strong>Minnows</strong>, are mainly fuel for the <a class="jump" href="#sec-washing">Washing Machine</a>: deposit them there for charges used to roll gear potentials. Higher-tier frenzy drops give more charges. Luck increases how often frenzies happen.</div>
+    </div>
+
     <div class="card faq-card">
       <div class="faq-q"><span class="faq-topic topic-money">Money</span><span>How do I make early money?</span></div>
       <div class="faq-a">Level up whatever you enjoy. Nearly everything makes more money as the levels climb: cooked food, farming, monster drops, gathered materials, boss loot, and items other players want. Check the <strong>Player Exchange</strong> to see what people are buying.</div>
@@ -2084,16 +2090,6 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
     <div class="card faq-card">
       <div class="faq-q"><span class="faq-topic topic-prayer">Prayers</span><span>Do prayers cost anything?</span></div>
       <div class="faq-a">No prayer cost right now. Protection prayers and damage types are still being tuned, so they may not block every hit everywhere.</div>
-    </div>
-
-    <div class="card faq-card">
-      <div class="faq-q"><span class="faq-topic topic-frenzy">Frenzy</span><span>What is a frenzy?</span></div>
-      <div class="faq-a">While mining, woodcutting, or fishing, listen for the sound and watch for the node graphic or color change. Click during that window for bonus XP and an unstackable frenzy item. Luck affects frenzy chance.</div>
-    </div>
-
-    <div class="card faq-card">
-      <div class="faq-q"><span class="faq-topic topic-frenzy">Drops</span><span>What are Minnows, Enchanted Twigs, Gold Pebbles, and similar drops?</span></div>
-      <div class="faq-a">They are unstackable frenzy drops. Add them to the <a class="jump" href="#sec-washing">Washing Machine</a> for charges.</div>
     </div>
 
     <div class="card faq-card">
