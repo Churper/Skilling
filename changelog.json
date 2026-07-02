@@ -1,35 +1,19 @@
 [
   {
-    "version": "v1741",
+    "version": "v1758",
     "date": "2026-07-02",
-    "title": "Compost Deposit Fix",
+    "title": "Guide, Faith, Icons, and Fixes",
     "entries": [
-      "Fixed Compost Bin deposits so bulk deposits remove the correct item quantities from your bag and bank.",
-      "Compost progress now converts fractional deposits into charges more reliably when depositing larger stacks."
-    ]
-  },
-  {
-    "version": "v1739",
-    "date": "2026-07-02",
-    "title": "Local Settings Preset Restore",
-    "entries": [
-      "Local Settings Preset restore now shows an in-panel confirmation instead of a browser popup.",
-      "Most restored local settings apply immediately without reloading the page.",
-      "Restores only reload when anti-aliasing changes, and the settings panel now tells you before that happens.",
-      "The local preset confirmation layout is cleaner on desktop and mobile."
-    ]
-  },
-  {
-    "version": "v1737",
-    "date": "2026-07-02",
-    "title": "Guide FAQ, Icon Refresh, and High-Tier Polish",
-    "entries": [
-      "The Guide now has a new FAQ tab with quick answers for early money, reopening the tutorial, special drops, early combat, dummies, arrows, prayers, frenzies, pets, Faith, cosmetics, XP gear, and item organization.",
-      "The Guide's Washing Machine section now explains live potential behavior more clearly, including XP gear limits, Luck, Tempo, roll weights, and roll-quality colors.",
-      "The level 600-1000 mining rocks have new Goo Nodule, Prism Cluster, and Infinity Crystal models, and Goo Nodule selection now matches its larger model.",
-      "Baked item icons were refreshed for jellies, trophy fish, cooked trophy fish, and related inventory thumbnails, with jellies now using proper jar models and trophy fish using the newer fish models.",
-      "Buff potions show clearer examine text with effect and duration details, and signature card exports keep slime faces cleaner.",
-      "Right-click mini-map reset now restores both zoom and pan, meteors sync more reliably after reconnects, and high-tier EXP tracker action counts behave better."
+      "Guide FAQ added for early money, tutorial replay, drops, combat and boss training, prayers, frenzies, pets, Faith, cosmetics, XP gear, item organization, and Washing Machine rolls.",
+      "Faith ground movement buffed: nearby orbs spawn faster with up to 15 active ground orbs; horse and boat fast travel keep the old cap.",
+      "Icons rebaked for Fiber, Koi, Elder Spellstones, jellies, trophy and deep-sea fish, Bird Nest, Sushi, bowls, pies, stews, salads, desserts, Ocean Emperor, and Abyssal Feast.",
+      "Goo Nodule, Prism Cluster, and Infinity Crystal rocks rebuilt; Goo Nodule selection now matches its larger model.",
+      "Local Settings Preset restore confirms in-panel, applies most settings live, and only reloads for anti-aliasing.",
+      "Compost Bin bulk deposits remove the right bag and bank quantities; right-click mini-map reset restores zoom and pan.",
+      "Meteors resync after reconnects, high-tier EXP tracker action counts stay sane, and buff potion examine text shows effect and duration.",
+      "Ground item names stay sharper at low Render Scale, Meat Tree frenzies tint after chunk reloads, and tutorial, Garden Helper, and Sailing Master actions save more reliably.",
+      "Clan Activity XP-point rows show which skill XP gains earned the points, and chat history replays more reliably after sign-in or reconnect.",
+      "Horse custom colors load safely from old palettes, signature card faces export cleaner, Survival cards use the camp icon, and the emoji picker adds more reactions, ocean, space, cozy, and pet emojis."
     ]
   },
   {
