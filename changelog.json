@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1765",
+    "date": "2026-07-02",
+    "title": "Mac Keybinds, Faith Orbs, and Nametag Menu Fixes",
+    "entries": [
+      "Panel tabs now also work with number keys 1-5 by default, so Mac players do not need F1-F5 to open Inventory, Equip, Prayer, Skills, or Emotes.",
+      "Existing F-key tab binds still work, and custom keybinds are respected if a player already bound one of those number keys.",
+      "Faith orb spawning is back on the old distance method: 20 units per orb, max 5 active orbs, and the old 10-30 unit spawn range.",
+      "Faith orb pickups now give 3x XP while on foot, while horse and boat fast-travel pickup XP stays at 1x.",
+      "Removed the in-world right-click nametag style menu. Name badge styling is still available from the inventory name badge item."
+    ]
+  },
+  {
     "version": "v1760",
     "date": "2026-07-02",
     "title": "Guide, Faith, Icons, Spider Fixes, and Polish",

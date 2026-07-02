@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1760">
+  <link rel="stylesheet" href="./style.css?v=1765">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -345,23 +345,23 @@
     <div id="ui-afk-bar-label" hidden aria-hidden="true">AFK Gathering</div>
     <div id="ui-afk-bar" hidden aria-hidden="true" title="AFK gather timer"><div id="ui-afk-bar-fill"></div></div>
     <nav id="ui-dock" aria-label="Main tabs">
-      <button type="button" class="ui-tab-btn is-active" data-tab="inventory" title="F1" style="--tab-accent:#c86848">
+      <button type="button" class="ui-tab-btn is-active" data-tab="inventory" title="F1 / 1" style="--tab-accent:#c86848">
         <span class="ui-tab-icon" aria-hidden="true"><svg width="22" height="24" viewBox="0 0 22 24" fill="none"><rect x="2" y="6" width="18" height="16" rx="2.5" fill="#8a3020" stroke="#6a2018" stroke-width="1"/><rect x="2.5" y="6.5" width="17" height="15" rx="2" fill="url(#bg)"/><path d="M2.5 10h17" stroke="#8a3020" stroke-width="1.2"/><path d="M7.5 6V4a3.5 3.5 0 017 0v2" stroke="#6a2018" stroke-width="2.2" stroke-linecap="round" fill="none"/><rect x="8.5" y="11.5" width="5" height="4" rx="1" fill="#6a2018" opacity=".4"/><rect x="9.5" y="12" width="3" height="1.5" rx=".5" fill="#e07858" opacity=".3"/><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d06848"/><stop offset="1" stop-color="#a04028"/></linearGradient></defs></svg></span>
         <span class="ui-tab-label">Inventory</span>
       </button>
-      <button type="button" class="ui-tab-btn" data-tab="worn" title="F2" style="--tab-accent:#7a92ad">
+      <button type="button" class="ui-tab-btn" data-tab="worn" title="F2 / 2" style="--tab-accent:#7a92ad">
         <span class="ui-tab-icon" aria-hidden="true"><svg width="20" height="22" viewBox="0 0 20 22" fill="none"><path d="M10 1C5.5 1 1.5 3 1.5 3v9c0 5 3.8 8 8.5 10 4.7-2 8.5-5 8.5-10V3S14.5 1 10 1z" fill="#4a5a6c" stroke="#3a4656" stroke-width="1"/><path d="M10 2.2C6 2.2 2.8 3.8 2.8 3.8V11.8c0 4.2 3.2 7 7.2 8.8 4-1.8 7.2-4.6 7.2-8.8V3.8S14 2.2 10 2.2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8aa0b8"/><stop offset="1" stop-color="#506878"/></linearGradient></defs></svg></span>
         <span class="ui-tab-label">Equip</span>
       </button>
-      <button type="button" class="ui-tab-btn" data-tab="prayer" title="F3" style="--tab-accent:#d4b070">
+      <button type="button" class="ui-tab-btn" data-tab="prayer" title="F3 / 3" style="--tab-accent:#d4b070">
         <span class="ui-tab-icon" aria-hidden="true"><svg width="18" height="24" viewBox="0 0 18 24" fill="none"><rect x="6" y="0" width="6" height="24" rx="1.2" fill="#8a6040"/><rect x="0" y="5.5" width="18" height="6" rx="1.2" fill="#8a6040"/><rect x="6.5" y="0.5" width="5" height="23" rx="1" fill="url(#cg)"/><rect x="0.5" y="6" width="17" height="5" rx="1" fill="url(#ch)"/><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4ad82"/><stop offset=".4" stop-color="#c49870"/><stop offset="1" stop-color="#9a7050"/></linearGradient><linearGradient id="ch" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a7050"/><stop offset=".5" stop-color="#c49870"/><stop offset="1" stop-color="#9a7050"/></linearGradient></defs></svg></span>
         <span class="ui-tab-label">Prayer</span>
       </button>
-      <button type="button" class="ui-tab-btn" data-tab="skills" title="F4" style="--tab-accent:#4a8acc">
+      <button type="button" class="ui-tab-btn" data-tab="skills" title="F4 / 4" style="--tab-accent:#4a8acc">
         <span class="ui-tab-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="1" y="10" width="5" height="9" rx="1" fill="#4a8c5a" stroke="#2a6a3a" stroke-width=".8"/><rect x="1.5" y="10.5" width="4" height="8" rx=".6" fill="url(#b1)"/><rect x="7.5" y="5" width="5" height="14" rx="1" fill="#4a7acc" stroke="#2a5aaa" stroke-width=".8"/><rect x="8" y="5.5" width="4" height="13" rx=".6" fill="url(#b2)"/><rect x="14" y="2" width="5" height="17" rx="1" fill="#cc6a3a" stroke="#aa4a2a" stroke-width=".8"/><rect x="14.5" y="2.5" width="4" height="16" rx=".6" fill="url(#b3)"/><defs><linearGradient id="b1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6ab87a"/><stop offset="1" stop-color="#3a8a4a"/></linearGradient><linearGradient id="b2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6a9ae0"/><stop offset="1" stop-color="#3a6aba"/></linearGradient><linearGradient id="b3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e08a5a"/><stop offset="1" stop-color="#ba5a2a"/></linearGradient></defs></svg></span>
         <span class="ui-tab-label">Skills</span>
       </button>
-      <button type="button" class="ui-tab-btn" data-tab="emotes" title="F5" style="--tab-accent:#3bba58">
+      <button type="button" class="ui-tab-btn" data-tab="emotes" title="F5 / 5" style="--tab-accent:#3bba58">
         <span class="ui-tab-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" fill="#3bba58" stroke="#2a8a3a" stroke-width="1"/><circle cx="11" cy="11" r="9.2" fill="url(#eg)"/><circle cx="8" cy="9.5" r="1.4" fill="#1a3a18"/><circle cx="14" cy="9.5" r="1.4" fill="#1a3a18"/><path d="M7.5 14c1.5 2 5.5 2 7 0" stroke="#1a3a18" stroke-width="1.4" stroke-linecap="round" fill="none"/><defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#44cc66"/><stop offset="1" stop-color="#3bba58"/></linearGradient></defs></svg></span>
         <span class="ui-tab-label">Emotes</span>
       </button>
@@ -1599,6 +1599,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1760"></script>
+  <script type="module" src="./main.js?v=1765"></script>
 </body>
 </html>
