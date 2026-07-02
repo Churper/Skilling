@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1741",
+    "date": "2026-07-02",
+    "title": "Compost Deposit Fix",
+    "entries": [
+      "Fixed Compost Bin deposits so bulk deposits remove the correct item quantities from your bag and bank.",
+      "Compost progress now converts fractional deposits into charges more reliably when depositing larger stacks."
+    ]
+  },
+  {
     "version": "v1739",
     "date": "2026-07-02",
     "title": "Local Settings Preset Restore",
