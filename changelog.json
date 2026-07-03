@@ -2,11 +2,9 @@
   {
     "version": "v1813",
     "date": "2026-07-03",
-    "title": "Exchange Imbue Fix and Save Hardening",
+    "title": "Save System Hardening",
     "entries": [
-      "Fixed an Exchange bug where posting unique equipment with a prismatic imbue could permanently lose the imbue. Posted gear now keeps its imbue through both cancel and purchase.",
-      "If you lost a prismatic imbue selling gear on the Exchange before this fix, contact us on Discord and we can look into restoring it.",
-      "Under-the-hood hardening of how item stats like stars, rarity, potential, and imbues are saved and loaded, plus new automated safety checks watching the economy."
+      "Under-the-hood save-system hardening and economy safety checks."
     ]
   },
   {
