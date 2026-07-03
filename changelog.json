@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1800",
+    "date": "2026-07-02",
+    "title": "What's New Deployment Refresh",
+    "entries": [
+      "Refreshed the in-game What's New deployment so the latest frenzy stack, potion timer, and Sailing tracker notes can publish correctly."
+    ]
+  },
+  {
     "version": "v1799",
     "date": "2026-07-02",
     "title": "Frenzy Stack Fixes and Sailing Tracker Polish",
