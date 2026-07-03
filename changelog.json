@@ -1,5 +1,18 @@
 [
   {
+    "version": "v1805",
+    "date": "2026-07-03",
+    "title": "Frenzy XP and Log Basket UI Fixes",
+    "entries": [
+      "Mining, Woodcutting, and Fishing frenzies now award their 10x XP bonus immediately when you click the frenzy.",
+      "Slow high-level rocks and trees no longer lose frenzy XP while waiting for the next gather action.",
+      "Log Basket and Ore Pouch inventory badges now refresh their contained amount even when the inventory slot itself stays the same.",
+      "The draggable Boss Bell button now tracks drag movement more reliably, so repositioning it should no longer require repeated spam-drag attempts.",
+      "Inventory-full warnings now show a floating message on gather, farming harvest, and planted tree interactions.",
+      "The compact Sailing tracker icon was tightened so the collapsed tracker takes less space."
+    ]
+  },
+  {
     "version": "v1800",
     "date": "2026-07-02",
     "title": "What's New Deployment Refresh",
