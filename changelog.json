@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1812",
+    "date": "2026-07-03",
+    "title": "Frenzy XP, Pet Scrolls, and Icon Polish",
+    "entries": [
+      "Level 600+ Mining and Woodcutting frenzy XP is scaled down for long gather timers; frenzy timing and instant drops are unchanged.",
+      "Pet gathering scroll XP now scales with the pet's matching Woodcutting, Mining, or Fishing level, up to 20x at level 500.",
+      "New Self HP Bar setting: Big only, Little + big, or Little only.",
+      "Gameplay settings are grouped more clearly, and Lucky Duck is easier to click.",
+      "Baked icons refreshed for Fiber, Stormwood, Leviathan Kelp, Gooey Wood, Prismwood, and Infinity Wood."
+    ]
+  },
+  {
     "version": "v1805",
     "date": "2026-07-03",
     "title": "Frenzy XP and Log Basket UI Fixes",
