@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1814",
+    "date": "2026-07-03",
+    "title": "Item System Tune-Up",
+    "entries": [
+      "Under-the-hood item-system cleanup — no gameplay changes."
+    ]
+  },
+  {
     "version": "v1813",
     "date": "2026-07-03",
     "title": "Save System Hardening",
