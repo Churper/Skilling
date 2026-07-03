@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1799",
+    "date": "2026-07-02",
+    "title": "Frenzy Stack Fixes and Sailing Tracker Polish",
+    "entries": [
+      "Mining and Woodcutting frenzies now stack their XP credits correctly on slow high-level rocks and trees.",
+      "Frenzied rocks and trees still work the normal way: click the frenzy, get the frenzy drop right away, and the 10x XP applies on the next successful gather.",
+      "Fishing frenzy was checked and remains unchanged.",
+      "Non-SlimeCoin potions now stack their timers when you drink more than one.",
+      "The Sailing tracked quest HUD can collapse to a small icon, right-click to untrack, and auto-focus quest progress again unless you manually untrack."
+    ]
+  },
+  {
     "version": "v1765",
     "date": "2026-07-02",
     "title": "Mac Keybinds, Faith Orbs, and Nametag Menu Fixes",
