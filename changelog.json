@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1833",
+    "date": "2026-07-03",
+    "title": "Cooked Meat Icon Hotfix",
+    "entries": [
+      "Cooked Ribeye and Cooked Tenderloin now use baked item icons instead of falling back while the item cache loads."
+    ]
+  },
+  {
     "version": "v1832",
     "date": "2026-07-03",
     "title": "Apex Firework and Berry Bowl Tuning",
