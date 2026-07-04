@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1836",
+    "date": "2026-07-04",
+    "title": "Save System Upgrade",
+    "entries": [
+      "Second step of the under-the-hood save-system upgrade. No gameplay changes."
+    ]
+  },
+  {
     "version": "v1835",
     "date": "2026-07-04",
     "title": "Save System Groundwork",
