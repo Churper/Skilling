@@ -1,5 +1,23 @@
 [
   {
+    "version": "v1826",
+    "date": "2026-07-03",
+    "title": "Milestone Fireworks, Meat Tree Cooking, and Meteor Fixes",
+    "entries": [
+      "Level 100, 300, 500, 750, 1000, 1500, and 2000 now fire milestone fireworks, nearby players can see them, and the server posts a global congrats message.",
+      "Ribeye and Tenderloin are now cookable, and Prime Cut, Ribeye, and Tenderloin can feed Washing Machine charges.",
+      "Item Lock now costs 1 SlimeCoin instead of 5.",
+      "PvP Crucible resource icons now appear on the Crucible map instead of the mainland.",
+      "Meteor mining no longer keeps earning from stale missed-stop or reload sessions.",
+      "Stale mainland meteor map blips now self-correct from the relay.",
+      "Shoal signals now mark exact spots, and island cave entrances avoid banks, birdbaths, and fountains.",
+      "Equipment presets now show lock badges on saved gear.",
+      "Right-click and long-press menus no longer leak a world click behind them.",
+      "Classic UI themes got cleaner chat, panel, inventory, and HP styling.",
+      "The Guide now covers the new cooked meats and Washing Machine notes."
+    ]
+  },
+  {
     "version": "v1814",
     "date": "2026-07-03",
     "title": "Item System Tune-Up",
