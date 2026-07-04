@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1832",
+    "date": "2026-07-03",
+    "title": "Apex Firework and Berry Bowl Tuning",
+    "entries": [
+      "Apex Firework is a new 10 SlimeCoin one-use shop item that launches a level 2000 firework show at your position for you and nearby room peers, without posting a global congrats message.",
+      "Berry Bowl now gives 1 Cooking XP and no SlimeCoin roll, closing the cheap berry-to-cooking SlimeCoin loop.",
+      "Game/system chat messages now use a darker green style instead of the old yellow/default look."
+    ]
+  },
+  {
     "version": "v1826",
     "date": "2026-07-03",
     "title": "Milestone Fireworks, Meat Tree Cooking, and Meteor Fixes",
