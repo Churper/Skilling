@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1835",
+    "date": "2026-07-04",
+    "title": "Save System Groundwork",
+    "entries": [
+      "Under-the-hood save-system groundwork. No gameplay changes."
+    ]
+  },
+  {
     "version": "v1834",
     "date": "2026-07-03",
     "title": "Item System Cleanup",
