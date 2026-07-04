@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1834",
+    "date": "2026-07-03",
+    "title": "Item System Cleanup",
+    "entries": [
+      "Under-the-hood item metadata cleanup. Your items, stars, rarities, potential lines, and imbues are unchanged.",
+      "Locked item fixes."
+    ]
+  },
+  {
     "version": "v1833",
     "date": "2026-07-03",
     "title": "Cooked Meat Icon Hotfix",
