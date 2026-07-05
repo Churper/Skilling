@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1858",
+    "date": "2026-07-05",
+    "title": "Map Pin Fix",
+    "entries": [
+      "Fixed the full-map pin control so the teleport charge no longer covers the saved-location button, and right-clicking it opens Save Location while charged."
+    ]
+  },
+  {
     "version": "v1854",
     "date": "2026-07-05",
     "title": "Sailing, Yeti, and UI Fixes",
