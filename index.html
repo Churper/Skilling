@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1858">
+  <link rel="stylesheet" href="./style.css?v=1884">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -197,7 +197,7 @@
     </div>
     <div id="ui-mock-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(239,68,68,0.9);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:0 0 6px 6px;text-align:center;pointer-events:none;letter-spacing:0.03em">TEST MODE — progress not saved</div>
     <div id="ui-net-badge" style="position:fixed;top:calc(8px + env(safe-area-inset-top));left:8px;z-index:201;background:rgba(0,0,0,0.55);color:#7cff7c;font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:0.04em;text-transform:uppercase;pointer-events:auto;cursor:pointer;user-select:none;display:none" title="Click to reconnect"><span id="ui-net-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#7cff7c;margin-right:5px;vertical-align:middle"></span><span id="ui-net-label">LIVE</span></div>
-    <div id="ui-instance-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:#16a34a;color:#fff;font-size:12px;font-weight:700;padding:6px 20px;border-radius:0 0 6px 6px;cursor:pointer;text-align:center;pointer-events:auto" title="Click to leave">BOSS ARENA — click to leave</div>
+    <div id="ui-instance-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:#16a34a;color:#000;font-size:12px;font-weight:700;padding:6px 20px;border-radius:0 0 6px 6px;cursor:pointer;text-align:center;pointer-events:auto" title="Click to leave">BOSS ARENA — click to leave</div>
     <div id="ui-dungeon-wave" class="ui-dungeon-wave" hidden>Wave: <span id="dungeon-wave-num">0</span><button type="button" id="ui-dungeon-bell-btn" title="Spawn next crypt wave" aria-label="Spawn next crypt wave">&#x1F514;</button></div>
     <div id="ui-boss-hp" hidden>
       <div id="ui-boss-hp-label">Snake Boss</div>
@@ -680,7 +680,8 @@
           <div class="stg-row"><span class="stg-label">Effects</span><span class="stg-ctrl stg-vol"><button type="button" id="setting-volume-mute" class="stg-icon-btn">&#x1F50A;</button><input type="range" id="setting-volume" min="0" max="100" value="50" class="stg-range"><span class="stg-range-val" data-for="setting-volume">50</span></span></div>
           <div class="stg-row"><span class="stg-label">Music</span><span class="stg-ctrl stg-vol"><button type="button" id="setting-music-mute" class="stg-icon-btn">&#x1F3B5;</button><input type="range" id="setting-music" min="0" max="100" value="35" class="stg-range"><span class="stg-range-val" data-for="setting-music">35</span></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Release Media Keys</span><span class="stg-hint">Stop the game from grabbing your keyboard play/pause key (turns OFF game music so it no longer claims the media controls; sound effects keep playing)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-release-media-keys"><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mute Peer Effects</span><span class="stg-hint">Silence other players' sound effects</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mute-peers"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mute Peer Effects</span><span class="stg-hint">Hide other players' SlimePower enhance visuals</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mute-peers"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Peer Firework Sounds</span><span class="stg-hint">Hear other players' milestone firework sounds</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-peer-firework-sounds" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Slime Crab Peer Hitsplats</span><span class="stg-hint">Show nearby players' damage numbers on the Slime Crab only</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-slime-crab-peer-hitsplats" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row-pair">
             <div class="stg-row"><span class="stg-label">Level-Up Jingle</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-levelup" checked><span class="stg-tog-track"></span></label></span></div>
@@ -726,6 +727,7 @@
             <div class="stg-row"><span class="stg-label">Hide Player Names</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hide-player-names"><span class="stg-tog-track"></span></label></span></div>
             <div class="stg-row"><span class="stg-label">Hide Pet Names</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hide-pet-names"><span class="stg-tog-track"></span></label></span></div>
             <div class="stg-row"><span class="stg-label">Hide Clan Tags</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hide-clan-tags"><span class="stg-tog-track"></span></label></span></div>
+            <div class="stg-row"><span class="stg-label">Hide Prayer Icons</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hide-prayer-overheads"><span class="stg-tog-track"></span></label></span></div>
             <div class="stg-row"><span class="stg-label">Fish Spot Icons</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-fish-spot-icons" checked><span class="stg-tog-track"></span></label></span></div>
           </div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Ground Item Timer Circle</span><span class="stg-hint">Show only the small green circle beside ground items.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-world-drop-timers"><span class="stg-tog-track"></span></label></span></div>
@@ -743,6 +745,7 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Control</span><span class="stg-hint">Camera Keys: arrows/WASD rotate the camera (click-to-walk). Follow: camera turns behind your slime as it moves. Both: WASD walks, arrows rotate, camera follows.</span></span><span class="stg-ctrl"><select id="setting-camera-mode" class="stg-sel"><option value="off">Off</option><option value="keys">Camera Keys</option><option value="follow">Follow Slime</option><option value="both">Both</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Camera Keys</span><span class="stg-hint">Which keys rotate the camera when Camera Control is on — the rest keep walking</span></span><span class="stg-ctrl"><select id="setting-camera-keybind" class="stg-sel"><option value="both">Arrows + WASD</option><option value="arrows">Arrows Only</option><option value="wasd">WASD Only</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mouse Camera</span><span class="stg-hint">Turn off camera rotate (right/middle drag) or zoom (scroll wheel) from the mouse</span></span><span class="stg-ctrl"><select id="setting-mouse-camera" class="stg-sel"><option value="on">On</option><option value="no-rotate">No Rotate</option><option value="no-zoom">No Zoom</option><option value="off">Off</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Screen Shake</span><span class="stg-hint">Camera impact shake from bosses and heavy pet effects.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-screen-shake" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Day/Night Cycle</span><span class="stg-hint">Animated sky — sunrise/sunset, moon &amp; stars on your local clock</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-day-night" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-section-title">World Streaming</div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Edge Reveal</span><span class="stg-hint">How the world edge behaves as you move. Square/Circle = a slab that slides with you, sky beyond the edge.</span></span><span class="stg-ctrl"><select id="setting-stream-mode" class="stg-sel"><option value="off">Off</option><option value="square">Square Slab</option><option value="circle">Circle Slab</option></select></span></div>
@@ -759,8 +762,10 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Readable Chat</span><span class="stg-hint">Keep compact overlay messages visible</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-readable"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat Timestamps</span><span class="stg-hint">Subtle [h:mm] before each message</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-timestamps"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Stay In Chat</span><span class="stg-hint">Keep the typing cursor after sending a message</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-stay-focused"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Send Button</span><span class="stg-hint">Add a click-to-send button at the end of the chat bar</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-send-button"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat Auto-Scroll</span><span class="stg-hint">Keep chat pinned to the newest message</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-auto-scroll" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat Auto-Collapse</span><span class="stg-hint">Collapse chat after idle or outside clicks</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-auto-collapse"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Level-Up Broadcasts</span><span class="stg-hint">Choose where player congrats messages appear locally</span></span><span class="stg-ctrl"><select id="setting-levelup-broadcasts" class="stg-sel"><option value="all">Chat + Screen</option><option value="screen">Screen Only</option><option value="chat">Chat Only</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Game Updates In Chat</span><span class="stg-hint">Mirror inventory status updates into the Game chat channel</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-game-updates"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">New Line Per Update</span><span class="stg-hint">Each game update posts its own line; repeats collapse into ×N. Needs Game Updates In Chat</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-status-log"><span class="stg-tog-track"></span></label></span></div>
         </div>
@@ -1277,6 +1282,7 @@
           </select>
         </div>
         <input id="ui-chat-input" type="text" placeholder="" maxlength="200" autocomplete="off">
+        <button id="ui-chat-send" type="submit" title="Send" aria-label="Send" hidden>&#10148;</button>
       </form>
     </div>
   </div>
@@ -1608,6 +1614,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1858"></script>
+  <script type="module" src="./main.js?v=1884"></script>
 </body>
 </html>

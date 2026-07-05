@@ -1,5 +1,29 @@
 [
   {
+    "version": "v1884",
+    "date": "2026-07-05",
+    "title": "Pet Timers, Settings, Presets, and Targeting",
+    "entries": [
+      "Right-click pet perk cards to track ready, active, or cooldown timers on the shared timer bar.",
+      "Pet perk timers can be stopped from their right-click menus and stay pinned locally across relogs.",
+      "Pet and potion timer chips keep their dragged screen position when the window is resized.",
+      "The scroll feed prompt now has Feed All for companion scrolls.",
+      "Mount/Dismount can mount your nearby horse without spending a Pocket Horse charge.",
+      "The minimap can now show a mainland meteor and a Coal Slime island signal at the same time.",
+      "PvP Cave right-click menus can now find players hidden under nearby objects and open their player card.",
+      "Gear preset tabs now show the most common washed-line emoji when saved gear has potential lines.",
+      "Potion and active buff tooltips now explain their actual effects.",
+      "Added a local setting to hide overhead protection prayer icons.",
+      "Added a Camera setting to turn off screen shake.",
+      "Added a Chat setting to hide player level-up congrats chat lines, screen announcements, or both.",
+      "Added a Chat setting to show a click-to-send button.",
+      "Other players' SlimePower enhance visuals no longer play the level-up jingle sound.",
+      "Added an Audio setting to mute other players' milestone firework sounds.",
+      "Global level 100+ messages now say Ranged and Magic instead of Bow and Mage.",
+      "Green instance banners now use black text."
+    ]
+  },
+  {
     "version": "v1858",
     "date": "2026-07-05",
     "title": "Map Pin Fix",
