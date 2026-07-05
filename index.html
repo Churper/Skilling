@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1845">
+  <link rel="stylesheet" href="./style.css?v=1853">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -54,8 +54,8 @@
       <button id="ui-session-kicked-btn" type="button" style="padding:10px 28px;border:none;border-radius:8px;background:#e8c44a;color:#1a1a2e;font-weight:700;font-size:14px;cursor:pointer">Reload</button>
     </div>
   </div>
-  <div id="ui-update-banner" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99998;background:linear-gradient(135deg,#1a1a2e,#2a1a3e);color:#fff;font-family:'Patrick Hand',cursive;padding:10px 20px;border-radius:0 0 12px 12px;border:1px solid rgba(232,196,74,0.4);border-top:none;box-shadow:0 4px 20px rgba(0,0,0,0.5);text-align:center;gap:10px;align-items:center">
-    <span style="color:#e8c44a;font-weight:700">New update available!</span> <span style="color:#ccc;margin-left:6px">Press Ctrl+Shift+R to update</span>
+  <div id="ui-update-banner" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99998;background:linear-gradient(135deg,#1a1a2e,#2a1a3e);color:#fff;font-family:'Patrick Hand',cursive;padding:10px 20px;border-radius:0 0 12px 12px;border:1px solid rgba(22,163,74,0.4);border-top:none;box-shadow:0 4px 20px rgba(0,0,0,0.5);text-align:center;gap:10px;align-items:center">
+    <span style="color:#16a34a;font-weight:700">New update available!</span> <span style="color:#ccc;margin-left:6px">Press Ctrl+Shift+R to update</span>
   </div>
   <div id="debug-overlay" aria-hidden="true"></div>
   <!-- Pony flight fuel meter — shown while mounted on a flying horse -->
@@ -197,7 +197,7 @@
     </div>
     <div id="ui-mock-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:rgba(239,68,68,0.9);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:0 0 6px 6px;text-align:center;pointer-events:none;letter-spacing:0.03em">TEST MODE — progress not saved</div>
     <div id="ui-net-badge" style="position:fixed;top:calc(8px + env(safe-area-inset-top));left:8px;z-index:201;background:rgba(0,0,0,0.55);color:#7cff7c;font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:0.04em;text-transform:uppercase;pointer-events:auto;cursor:pointer;user-select:none;display:none" title="Click to reconnect"><span id="ui-net-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#7cff7c;margin-right:5px;vertical-align:middle"></span><span id="ui-net-label">LIVE</span></div>
-    <div id="ui-instance-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:#e8c44a;color:#1a1a2e;font-size:12px;font-weight:700;padding:6px 20px;border-radius:0 0 6px 6px;cursor:pointer;text-align:center;pointer-events:auto" title="Click to leave">BOSS ARENA — click to leave</div>
+    <div id="ui-instance-banner" hidden style="position:fixed;top:36px;left:50%;transform:translateX(-50%);z-index:200;background:#16a34a;color:#fff;font-size:12px;font-weight:700;padding:6px 20px;border-radius:0 0 6px 6px;cursor:pointer;text-align:center;pointer-events:auto" title="Click to leave">BOSS ARENA — click to leave</div>
     <div id="ui-dungeon-wave" class="ui-dungeon-wave" hidden>Wave: <span id="dungeon-wave-num">0</span><button type="button" id="ui-dungeon-bell-btn" title="Spawn next crypt wave" aria-label="Spawn next crypt wave">&#x1F514;</button></div>
     <div id="ui-boss-hp" hidden>
       <div id="ui-boss-hp-label">Snake Boss</div>
@@ -1380,7 +1380,7 @@
       <div class="ui-task-modal-body">
         <h3 class="ui-task-section-label">Boss Encounters</h3>
         <div id="ui-boss-list" class="ui-task-list"></div>
-        <div id="ui-boss-lockout" hidden style="color:#facc15;font-size:11px;padding:4px 0;text-align:center"></div>
+        <div id="ui-boss-lockout" hidden style="color:#16a34a;font-size:11px;padding:4px 0;text-align:center"></div>
         <h3 class="ui-task-section-label" style="margin-top:12px;font-size:11px;color:#e06050">Dungeons</h3>
         <div id="ui-dungeon-list" class="ui-task-list"></div>
         <!-- tasks section removed -->
@@ -1608,6 +1608,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1845"></script>
+  <script type="module" src="./main.js?v=1853"></script>
 </body>
 </html>

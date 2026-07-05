@@ -1,5 +1,20 @@
 [
   {
+    "version": "v1853",
+    "date": "2026-07-05",
+    "title": "Sailing, Yeti, and UI Fixes",
+    "entries": [
+      "Fixed a bank cleanup issue that could collapse upgraded gear into base items after loading.",
+      "Fixed sailing resume after sleep or minimize so far-out boat positions are not pulled back toward mainland.",
+      "Frost Yeti now breaks out of the thaw animation faster after the required logs are delivered.",
+      "Slime statue circles on the minimap are now dark blue.",
+      "Companions and pet auto-loot now work inside the PvP cave.",
+      "Face mastery emote helper parts no longer pop back over custom faces.",
+      "Cave banners now say Click to Leave, and several HUD/task accents now use green.",
+      "Improved deep-sea shoal AFK limits for fully silent tabs while keeping live hidden-tab fishing intact."
+    ]
+  },
+  {
     "version": "v1845",
     "date": "2026-07-05",
     "title": "Shoal Improvements and Bug Fixes",
