@@ -1,12 +1,32 @@
 [
   {
+    "version": "v1845",
+    "date": "2026-07-05",
+    "title": "Shoal Improvements and Bug Fixes",
+    "entries": [
+      "Improved deep-sea shoal behavior so hidden, slept, killed, or reloaded tabs keep earned progress.",
+      "Deep-sea shoal AFK now uses the full shoal window and stops if you stay online out of range.",
+      "Improved hidden-tab meteor and shoal sessions so their ping/claim loop keeps running.",
+      "Improved shoal session recovery during reconnects, wakeups, focus returns, cloud loads, and PvP clears.",
+      "Fixed mainland T1 meteor map icon switching to the island/T2 marker after mining one piece.",
+      "Fixed mobile bank Inspect mode so it works on your inventory items while the bank is open.",
+      "Fixed skill tracker actions-left estimates being thrown off by Frenzy XP bursts.",
+      "Improved shoal return rewards text to say Fishing instead of Mining.",
+      "Fixed the extra Classic panel collapse button showing again."
+    ]
+  },
+  {
     "version": "v1841",
     "date": "2026-07-05",
-    "title": "Face Customization & Fixes",
-    "entries": [
-      "New face customization! Buy individual eyes, cheeks, and mouth styles for your slime in the SlimeCoin shop's Face tab, and try any style on the shop preview before you buy it.",
-      "Fixed equip presets losing washed potential and stars off your gear. Buffs no longer vanish when you swap presets, and affected players have had their gear restored.",
-      "Raw meats (Prime Cut, Ribeye, and Tenderloin) now stack and can be deposited to the bank like every other meat.",
+      "title": "Face Customization & Fixes",
+      "entries": [
+        "New face customization! Buy individual eyes, cheeks, and mouth styles for your slime in the SlimeCoin shop's Face tab, and try any style on the shop preview before you buy it.",
+        "Other players now see your selected face styles.",
+        "Face mastery emotes no longer draw extra eyes over custom faces.",
+        "Half-lid and other Face tab styles now buy correctly.",
+        "Fixed equip presets losing washed potential and stars off your gear. Buffs no longer vanish when you swap presets, and affected players have had their gear restored.",
+        "Mobile bank preset submenus now stay open after long-press, so preset tabs can be selected.",
+        "Raw meats (Prime Cut, Ribeye, and Tenderloin) now stack and can be deposited to the bank like every other meat.",
       "Service buildings near spawn (like the crafting table and spinning wheel) now have accurate click areas, so you won't trigger them when tapping a nearby fish or item.",
       "Every boss now uses its own model as its click target, so boss clicks land where you expect.",
       "Bonfire recipes now stay cookable as long as you have any valid ingredient, and fall back to the cheapest one you own instead of greying out.",
