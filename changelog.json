@@ -1,5 +1,23 @@
 [
   {
+    "version": "v1841",
+    "date": "2026-07-05",
+    "title": "Face Customization & Fixes",
+    "entries": [
+      "New face customization! Buy individual eyes, cheeks, and mouth styles for your slime in the SlimeCoin shop's Face tab, and try any style on the shop preview before you buy it.",
+      "Fixed equip presets losing washed potential and stars off your gear. Buffs no longer vanish when you swap presets, and affected players have had their gear restored.",
+      "Raw meats (Prime Cut, Ribeye, and Tenderloin) now stack and can be deposited to the bank like every other meat.",
+      "Service buildings near spawn (like the crafting table and spinning wheel) now have accurate click areas, so you won't trigger them when tapping a nearby fish or item.",
+      "Every boss now uses its own model as its click target, so boss clicks land where you expect.",
+      "Bonfire recipes now stay cookable as long as you have any valid ingredient, and fall back to the cheapest one you own instead of greying out.",
+      "The SlimeCoin shop no longer jumps to the top when you buy, so rapid clicking won't purchase the wrong item.",
+      "You can now claim a farming plot when your bag is full as long as the harvested crop stacks into what you're already carrying.",
+      "HP numbers now pulse when you take a hit, including misses, and stay readable longer in Classic mode.",
+      "The bank Inspect toggle now always starts off instead of being remembered on.",
+      "Moved HUD elements (XP trackers, health bars) now stay locked to where you put them when you resize the window."
+    ]
+  },
+  {
     "version": "v1839",
     "date": "2026-07-04",
     "title": "Milestone Chat Color",
