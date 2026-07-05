@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1839",
+    "date": "2026-07-04",
+    "title": "Milestone Chat Color",
+    "entries": [
+      "Milestone congrats chat broadcasts now label Game in green instead of yellow."
+    ]
+  },
+  {
     "version": "v1837",
     "date": "2026-07-04",
     "title": "Save System Upgrade Complete",
