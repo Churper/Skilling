@@ -1,5 +1,19 @@
 [
   {
+    "version": "v1886",
+    "date": "2026-07-06",
+    "title": "Clan Customizing, Merges, and Application Letters",
+    "entries": [
+      "Clan owners can now reopen the full emblem builder after founding and change the clan's shield, pattern, colors, trim, icon, banner, name, tag, and motto. Look for the Customize button at the bottom of your clan's Roster.",
+      "Emblem and motto changes are free anytime. Changing your clan name or tag starts a 7-day cooldown shared between the two.",
+      "Two clans can now merge. A clan owner can visit another clan and propose a merge, and if that clan's owner accepts, all members join the surviving clan, both vaults combine, and clan points add together. The merging leader becomes an officer and everyone else becomes a member.",
+      "You now get an in-game letter when someone applies to your clan, and applicants get a letter when they are accepted or declined.",
+      "Clan owners can now hand leadership to another member with the Make Owner button. The old owner becomes an officer.",
+      "Founding or joining a clan now clears any applications you still had out to other clans.",
+      "Clan confirmation prompts now use the clan hub's own dialog style instead of plain browser popups."
+    ]
+  },
+  {
     "version": "v1885",
     "date": "2026-07-06",
     "title": "Pet Skill Training, Companion Animations, and Mobile Controls",
