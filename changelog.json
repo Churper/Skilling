@@ -1,5 +1,28 @@
 [
   {
+    "version": "v1885",
+    "date": "2026-07-06",
+    "title": "Pet Skill Training, Companion Animations, and Mobile Controls",
+    "entries": [
+      "Pet natures are now eight trainable skills: Woodcutting, Mining, Fishing, Scribing, Cooking, Faith, Survival, and Explorer. Matching a pet's nature doubles its XP in that skill.",
+      "Your equipped companion now gains skill XP as you earn XP in that skill.",
+      "The pet panel header is now a live XP bar showing your companion's most recently trained skill and level.",
+      "Meat in the garden trough now keeps pets from dropping below 40 hunger and happiness while it lasts.",
+      "Garden worker pets now earn XP in the skill they gather.",
+      "The garden gather task now uses two dropdowns: pick a skill first, then pick what it gathers.",
+      "The pet customizer was restyled and now has a Trait dropdown in the save flow.",
+      "Your overworld companion now chops, mines, and casts a fishing line while you actively woodcut, mine, or fish.",
+      "Your companion floats in a life ring over deep water and stands against the tree or rock it is helping at.",
+      "Pet Call now hits for much more flat damage.",
+      "World and farming right-click menus now open their submenus on tap on touch devices.",
+      "Pet panel perk cards and timer chips now open their menus on long-press on touch devices.",
+      "Middle mouse, mouse back, and mouse forward buttons can now be bound to actions and pet abilities.",
+      "Procgen island slime statues now use a new high-contrast minimap marker that scales with zoom.",
+      "Added an Audio setting to mute your gathering sounds while a companion pet is out gathering with you (default off).",
+      "Added a Gameplay setting to turn off companion gathering animations while the pet still earns its XP (default on)."
+    ]
+  },
+  {
     "version": "v1884",
     "date": "2026-07-05",
     "title": "Pet Timers, Settings, Presets, and Targeting",

@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1884">
+  <link rel="stylesheet" href="./style.css?v=1885">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -687,6 +687,7 @@
             <div class="stg-row"><span class="stg-label">Level-Up Jingle</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-levelup" checked><span class="stg-tog-track"></span></label></span></div>
             <div class="stg-row"><span class="stg-label">Gathering Sounds</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-action" checked><span class="stg-tog-track"></span></label></span></div>
           </div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Pet Gather Sounds</span><span class="stg-hint">Play gathering sounds while your companion pet is out gathering with you. Off = quiet chopping/mining/fishing when a pet is beside you</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-pet-gather-sounds"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row-pair">
             <div class="stg-row"><span class="stg-label">Farm Timer</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-farmtimer" checked><span class="stg-tog-track"></span></label></span></div>
             <div class="stg-row"><span class="stg-label">Frenzy Alerts</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-frenzy" checked><span class="stg-tog-track"></span></label></span></div>
@@ -782,6 +783,8 @@
           <div class="stg-section-title">Interaction</div>
           <div class="stg-row"><span class="stg-label">Click Horse to Dismount</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-click-dismount"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Right-Click Examine</span><span class="stg-hint">Add Examine to item and world context menus</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-right-click-examine" checked><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-section-title">Companion</div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Pet Gather Animations</span><span class="stg-hint">Companion acts out chopping, mining, and fishing while you gather. Off = it just follows you (still earns the same XP)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-pet-gather-anims" checked><span class="stg-tog-track"></span></label></span></div>
         </div>
         <!-- Video -->
         <div class="stg-pane" data-stg-pane="video" hidden>
@@ -1614,6 +1617,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1884"></script>
+  <script type="module" src="./main.js?v=1885"></script>
 </body>
 </html>
