@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1889",
+    "date": "2026-07-06",
+    "title": "Farming Slimelet Trait",
+    "entries": [
+      "The Cooking slimelet trait is now Farming, and equipped companions gain Farming pet XP from Farming XP."
+    ]
+  },
+  {
     "version": "v1886",
     "date": "2026-07-06",
     "title": "Clan Customizing, Merges, and Application Letters",
@@ -18,7 +26,7 @@
     "date": "2026-07-06",
     "title": "Pet Skill Training, Companion Animations, and Mobile Controls",
     "entries": [
-      "Pet natures are now eight trainable skills: Woodcutting, Mining, Fishing, Scribing, Cooking, Faith, Survival, and Explorer. Matching a pet's nature doubles its XP in that skill.",
+      "Pet natures are now eight trainable skills: Woodcutting, Mining, Fishing, Scribing, Farming, Faith, Survival, and Explorer. Matching a pet's nature doubles its XP in that skill.",
       "Your equipped companion now gains skill XP as you earn XP in that skill.",
       "The pet panel header is now a live XP bar showing your companion's most recently trained skill and level.",
       "Meat in the garden trough now keeps pets from dropping below 40 hunger and happiness while it lasts.",
