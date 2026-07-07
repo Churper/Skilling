@@ -1,5 +1,22 @@
 [
   {
+    "version": "v1933",
+    "date": "2026-07-07",
+    "title": "Frenzy Bag, Session Saves, Horse Resume, and Pet Garden",
+    "entries": [
+      "Mystic Slime sells the Frenzy Bag for 1,000,000 coins.",
+      "The Frenzy Bag auto-collects frenzy rewards while carried and holds 100 rewards.",
+      "Left-click the Frenzy Bag to fill it from your bag, or right-click it to empty to your bag or bank.",
+      "Banks, Deposit All, Garden Bank, and Pocket Bank empty the Frenzy Bag.",
+      "Horses now stay mounted through refreshes and short returns, but return you on foot after 1 hour away.",
+      "Sailing now resumes after reloads so ocean saves do not leave you stranded.",
+      "Improved Meteor, Shoal, and Meat Tree reward claims after mobile sleep, reloads, or tab closes.",
+      "Pet Garden has a cleaner compact panel with collect progress, shared row controls, and bottom actions.",
+      "Tap the slime or happiness bar to pet, and tap the hunger bar to feed.",
+      "Scribing pets now gather Scribing Supplies, while Hemp and Flax are Survival forage."
+    ]
+  },
+  {
     "version": "v1918",
     "date": "2026-07-07",
     "title": "Pet Garden Jobs, Faith Orbs, and Icons",
