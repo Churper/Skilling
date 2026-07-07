@@ -1,8 +1,23 @@
 [
   {
+    "version": "v1918",
+    "date": "2026-07-07",
+    "title": "Pet Garden Jobs, Faith Orbs, and Icons",
+    "entries": [
+      "Pets can now be set to Farming, Survival, Scribing, and Faith in the garden.",
+      "Farming, Survival, and Scribing pets can now bring crops, forage, materials, and scrolls to the garden pouch.",
+      "Faith pets can now bring Faith Orbs, which can be consumed for Faith XP.",
+      "Improved backend handling for the expanded pet garden rewards.",
+      "Added a Faith Orb item icon.",
+      "Refreshed Bunny Ears and Santa Hat models.",
+      "Skill tracker goals can now be set up to level 2000.",
+      "Mobile world context submenus are less likely to open off-screen."
+    ]
+  },
+  {
     "version": "v1910",
     "date": "2026-07-07",
-    "title": "Pet Trackers, Quick Fire, and UI Fixes",
+    "title": "Pet Trackers, Quick Fire, Frenzy, and UI Fixes",
     "entries": [
       "Pet perk cards can be clicked to pin or stop tracker chips, with a lighter tracked highlight.",
       "Combat Overload tracker stays in place when active time turns into cooldown, with a red active ring.",
