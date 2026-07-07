@@ -1,5 +1,26 @@
 [
   {
+    "version": "v1910",
+    "date": "2026-07-07",
+    "title": "Pet Trackers, Quick Fire, and UI Fixes",
+    "entries": [
+      "Pet perk cards can be clicked to pin or stop tracker chips, with a lighter tracked highlight.",
+      "Combat Overload tracker stays in place when active time turns into cooldown, with a red active ring.",
+      "Comet Shower now arms a comet cursor; click the world to cast it, or right-click to disarm.",
+      "Pet Call no longer stacks while active, and its tracker shows how many empowered pet hits remain.",
+      "Companion scroll Feed All now handles large stacks in a batch.",
+      "Pet and potion tracker chips stay clamped on screen after refresh.",
+      "Meat Trees now play a hollow chop sound when depleted.",
+      "Prayer unlocks now update when your Faith level changes, without needing a refresh.",
+      "Skill tracker goal percent now counts from when you set the goal instead of resetting each level.",
+      "Exchange buy-offer picker now shows your real available quantity.",
+      "Horse color picker clicks work again after closing the eyedropper or color dialog.",
+      "Mobile world context menus have larger tap rows and less cramped submenus.",
+      "Classic chat layout now fits the optional send button cleanly.",
+      "Planted tree frenzy tint now reaches the full tree."
+    ]
+  },
+  {
     "version": "v1889",
     "date": "2026-07-06",
     "title": "Farming Slimelet Trait",
