@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1934",
+    "date": "2026-07-07",
+    "title": "Pet Garden Scroll Perks and Frenzy Bag Pickups",
+    "entries": [
+      "New Pet Garden Scroll Perks panel: feed boss scrolls straight from your bag with Feed or Feed All, and see each perk's charges.",
+      "Right-click a slime in the Pet Garden to feed it just like your companion.",
+      "Frenzy rewards picked up off the ground now fill your carried Frenzy Bag, Log Basket, and Ore Pouch.",
+      "Mystic Slime now shows his portrait, and mobile tracker dragging is fixed."
+    ]
+  },
+  {
     "version": "v1933",
     "date": "2026-07-07",
     "title": "Frenzy Bag, Session Saves, Horse Resume, and Pet Garden",
