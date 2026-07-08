@@ -1,5 +1,21 @@
 [
   {
+    "version": "v1936",
+    "date": "2026-07-08",
+    "title": "Pet Boss Skins and SlimePower Auto-Spin",
+    "entries": [
+      "Paint your pets as one of 12 boss slimes using Boss Paintbrushes: open the Pet Garden, choose a slimelet, and hit Paint.",
+      "Painted pets show their boss skin in the garden and as your walking companion, and other players can see it too.",
+      "Remove a pet's skin any time to return to a plain slime; the used paintbrush is not refunded.",
+      "New Auto button on the SlimePower panel powers an item up to a target star in one go, with an optional maximum coin spend (registered accounts only).",
+      "The AFK Slime Crab now drops a small trickle of SlimeCoins while you fight it.",
+      "Fixed a cloud save error that kept showing a Reload Required message and left some players stuck reloading.",
+      "Removed a browser permission popup that could appear when returning to the game tab.",
+      "Deposit All now skips items you have set to Pocket Bank ignore.",
+      "Mystic Slime's dialogue now closes when you walk away."
+    ]
+  },
+  {
     "version": "v1935",
     "date": "2026-07-08",
     "title": "Living Pet Garden and Frenzy Bag Upgrades",

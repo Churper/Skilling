@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1935">
+  <link rel="stylesheet" href="./style.css?v=1936">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -941,6 +941,22 @@
         <div class="ui-star-actions">
           <button type="button" id="ui-star-enhance-btn" class="ui-star-enhance-btn">SlimePower</button>
         </div>
+        <div id="ui-star-auto" class="ui-star-auto" hidden>
+          <div class="ui-star-auto-grid">
+            <div class="ui-star-auto-cell">
+              <label class="ui-star-auto-cap" for="ui-star-auto-target">Auto to</label>
+              <select id="ui-star-auto-target" class="ui-star-auto-target"></select>
+            </div>
+            <div class="ui-star-auto-cell ui-star-auto-spendcell">
+              <label class="ui-star-auto-cap" for="ui-star-auto-spend">Max spend</label>
+              <div class="ui-star-auto-spendinput">
+                <input id="ui-star-auto-spend" class="ui-star-auto-spend" type="number" min="0" step="1" inputmode="numeric" placeholder="∞">
+                <span class="ui-star-auto-unit">c</span>
+              </div>
+            </div>
+          </div>
+          <button type="button" id="ui-star-auto-btn" class="ui-star-auto-btn">Auto ⭐</button>
+        </div>
         <button type="button" id="ui-star-unequip-btn" class="ui-star-unequip-btn" hidden>Unequip Item</button>
         <p id="ui-star-result" class="ui-star-result"></p>
       </div>
@@ -1617,6 +1633,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1935"></script>
+  <script type="module" src="./main.js?v=1936"></script>
 </body>
 </html>
