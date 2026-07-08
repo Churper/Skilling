@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1937",
+    "date": "2026-07-08",
+    "title": "Mystic Orb Bug Fixes",
+    "entries": [
+      "Mystic Orb bug fixes.",
+      "Continued behind-the-scenes optimizations."
+    ]
+  },
+  {
     "version": "v1936",
     "date": "2026-07-08",
     "title": "Pet Boss Skins and SlimePower Auto-Spin",
