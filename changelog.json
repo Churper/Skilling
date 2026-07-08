@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1938",
+    "date": "2026-07-08",
+    "title": "SlimeCoin Payout Protection",
+    "entries": [
+      "Added protection so big craft, cook, spin, and enchant batches always keep their full SlimeCoin payout.",
+      "Performance improvements and optimizations."
+    ]
+  },
+  {
     "version": "v1937",
     "date": "2026-07-08",
     "title": "Mystic Orb Bug Fixes",
