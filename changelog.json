@@ -1,5 +1,22 @@
 [
   {
+    "version": "v1935",
+    "date": "2026-07-08",
+    "title": "Living Pet Garden and Frenzy Bag Upgrades",
+    "entries": [
+      "Pet Garden pets now act out more jobs around the garden.",
+      "Mystic Slime can now upgrade your Frenzy Bag from 100 up to 1,000 rewards through nine tasks.",
+      "Meat tree frenzies no longer go into the Frenzy Bag.",
+      "The Frenzy Bag, Log Basket, and Ore Pouch are now account-bound, untradable, and limited to one each.",
+      "Right-click a bag item to skip it for pets, Pocket Bank, or both.",
+      "Companion pets now sit on slopes better.",
+      "Tree models sit better on slopes, with tighter clickboxes that no longer catch the ground behind them.",
+      "Added an NPC section to the resource dropdown on the big map (M).",
+      "Sacred Grove faith circles no longer appear inside caves, boss rooms, or other instances.",
+      "Enter the Pet Garden through the new Peaceful Meadow archway."
+    ]
+  },
+  {
     "version": "v1934",
     "date": "2026-07-07",
     "title": "Pet Garden Scroll Perks and Frenzy Bag Pickups",
