@@ -1,5 +1,19 @@
 [
   {
+    "version": "v1940",
+    "date": "2026-07-08",
+    "title": "Peer Boats, Bank Search & Enhance Buff",
+    "entries": [
+      "You now see other players' boats when they sail the ocean or a shoal, tinted to their boat tier.",
+      "New search box in the Bank (on the Inventory row) filters your whole bank by item name across every tab.",
+      "SlimePower now grants more attack and defense on higher-tier gear, up to about 45% more at the top tier. Bronze is unchanged, and any gear you have already enhanced improves automatically.",
+      "Golden Sugarplum harvests now yield more fruit per patch.",
+      "Custom FaceLab faces now appear on your Adventure Log signature card.",
+      "The XP tracker now stays steady during Frenzy instead of swinging wildly. Your actual XP earned was always correct.",
+      "Fixed a bug where dying in a boss fight and getting pulled out could strand you as a ghost on an unloaded map. You now respawn cleanly at the village."
+    ]
+  },
+  {
     "version": "v1939",
     "date": "2026-07-08",
     "title": "Pet Perk Tracker Fix",

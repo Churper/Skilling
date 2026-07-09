@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1939">
+  <link rel="stylesheet" href="./style.css?v=1940">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -1348,7 +1348,11 @@
         <div id="ui-bank-vault-grid" class="ui-bank-grid"></div>
         <div id="ui-preset-editor-container" hidden></div>
         <div id="ui-bank-inv-section">
-          <div class="ui-bank-divider"><span>Inventory</span></div>
+          <div class="ui-bank-divider">
+            <span class="ui-bank-divider-label">Inventory</span>
+            <input id="ui-bank-search-input" class="ui-bank-search-input" type="search" placeholder="Search bank" autocomplete="off" spellcheck="false">
+            <button type="button" id="ui-bank-search-clear" class="ui-bank-search-clear" title="Clear search" hidden>&times;</button>
+          </div>
           <div id="ui-bank-inv-grid" class="ui-bank-grid"></div>
         </div>
       </div>
@@ -1633,6 +1637,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1939"></script>
+  <script type="module" src="./main.js?v=1940"></script>
 </body>
 </html>
