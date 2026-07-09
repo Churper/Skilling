@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1941",
+    "date": "2026-07-09",
+    "title": "Cloud Save Reload Fix",
+    "entries": [
+      "Fixed a remaining case where the \"Reload Required\" cloud save error could still interrupt active gatherers after quickly switching browser tabs."
+    ]
+  },
+  {
     "version": "v1940",
     "date": "2026-07-08",
     "title": "Peer Boats, Bank Search & Enhance Buff",
