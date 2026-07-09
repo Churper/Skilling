@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1939",
+    "date": "2026-07-08",
+    "title": "Pet Perk Tracker Fix",
+    "entries": [
+      "Companion pet perk trackers no longer break or get stuck when you trigger Overload, Surge, Giga, or Shred with a hotkey or the perk panel instead of clicking its buff-bar icon.",
+      "Smoother performance when lots of players are gathered in one place."
+    ]
+  },
+  {
     "version": "v1938",
     "date": "2026-07-08",
     "title": "SlimeCoin Payout Protection",
