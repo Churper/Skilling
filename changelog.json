@@ -1,5 +1,17 @@
 [
   {
+    "version": "v1945",
+    "date": "2026-07-10",
+    "title": "Exchange Postings, Bigger Welcome Back Rewards & Clan Invite Fixes",
+    "entries": [
+      "You can now post buy and sell orders on the Exchange for the full ore ladder, base logs, and raw fish, plus gold, enchanted logs, big fish, Meteor Core, and Glow Shroom.",
+      "Welcome Back rewards for time spent away are now bigger, with larger item hauls when you return.",
+      "Fixed clan invites that could get cancelled shortly after being sent, so invited players can now accept them from their mailbox.",
+      "Your own rank now shows under the Sapling tab of the hiscores too, not just the All tab.",
+      "Island name labels on the minimap are smaller on mobile so they stay readable when zoomed out."
+    ]
+  },
+  {
     "version": "v1944",
     "date": "2026-07-10",
     "title": "Clan Invites, Mail Expiry, Pop-out Chat & Minimap Zoom",
