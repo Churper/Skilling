@@ -1,5 +1,23 @@
 [
   {
+    "version": "v1943",
+    "date": "2026-07-09",
+    "title": "Combat Rebalance, Scribe Desk & QoL",
+    "entries": [
+      "Combat rebalance: all three styles now deal even damage for their attack speed, mage spellstones scale to +60% at max tier, bows gain +3% accuracy against bosses, and Bee Ring charge costs are roughly halved.",
+      "The Scribe Desk has a new look, showing the selected scroll large beside its ingredients, plus a material picker for resource scrolls (same recipes and items).",
+      "Right-click Meteor Cores in your bank to Break Down All of them into shards without leaving the bank.",
+      "The Log Basket now sorts into the Logs tab in your bank instead of a misc tab.",
+      "You can now deposit Frenzy Bag items straight into the Washing Machine without banking them first.",
+      "Faith Orbs picked up on foot now give 6x XP, up from 4x (a 50% increase); mounted pickups are unchanged.",
+      "Quick-fire pet perk buttons grey out when you are out of charges instead of showing Ready.",
+      "The SC Shop skin preview now shows your slime alongside your chat name, and island names on the full map are readable on mobile.",
+      "You can no longer walk through meteors or cave rocks, trees, and bushes.",
+      "Performance and smoothness improvements across the pet garden, minimap, crowds, and chunk loading.",
+      "The Welcome Back offline gathering system was rebuilt behind the scenes to prepare for a bigger offline rewards buff coming soon; your current claim boxes are unchanged for now."
+    ]
+  },
+  {
     "version": "v1941",
     "date": "2026-07-09",
     "title": "Cloud Save Reload Fix",

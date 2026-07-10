@@ -1539,16 +1539,16 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
   <div class="sec-head"><div class="sec-icon blue">&#x2764;&#xFE0F;</div><div><h2>HP Scaling</h2><p>Hitpoints level determines your max HP</p></div></div>
 
   <div class="card">
-    <p>Levels 1&ndash;140: <strong>10 HP per level</strong> (linear). After 140, HP ramps up quadratically &mdash; higher levels give significantly more HP per level.</p>
+    <p id="hp-scaling-note">Levels 1&ndash;140: <strong>1 HP per level</strong> (linear). After 140, HP ramps up quadratically &mdash; higher levels give significantly more HP per level.</p>
   </div>
-  <div class="tier-strip" style="margin-top:8px">
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 10</span><span class="tier-name">100 HP</span><span class="tier-meta">Starting HP</span></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 50</span><span class="tier-name">500 HP</span><span class="tier-meta">10/lv</span></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 100</span><span class="tier-name">1,000 HP</span><span class="tier-meta">10/lv</span></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 140</span><span class="tier-name">1,400 HP</span><span class="tier-meta">10/lv &bull; Scaling ramps up</span></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 180</span><span class="tier-name">3,280 HP</span><span class="tier-meta">~32/lv</span></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-name">5,180 HP</span><span class="tier-meta">~57/lv</span></div>
-    <div class="tier-item" style="border-color:rgba(255,215,0,.2)"><span class="tier-badge" style="background:rgba(255,215,0,.12);color:var(--gold)">Lv 250</span><span class="tier-name" style="color:var(--gold)">12,730 HP</span><span class="tier-meta">~95/lv</span></div>
+  <div class="tier-strip" id="hp-tier-strip" style="margin-top:8px">
+    <div class="tier-item" data-hp-lv="10"><span class="tier-badge tag-green">Lv 10</span><span class="tier-name">10 HP</span><span class="tier-meta">Starting HP</span></div>
+    <div class="tier-item" data-hp-lv="50"><span class="tier-badge tag-green">Lv 50</span><span class="tier-name">50 HP</span><span class="tier-meta" data-hp-auto>1/lv</span></div>
+    <div class="tier-item" data-hp-lv="100"><span class="tier-badge tag-blue">Lv 100</span><span class="tier-name">100 HP</span><span class="tier-meta" data-hp-auto>1/lv</span></div>
+    <div class="tier-item" data-hp-lv="140"><span class="tier-badge tag-blue">Lv 140</span><span class="tier-name">140 HP</span><span class="tier-meta">1/lv &bull; Scaling ramps up</span></div>
+    <div class="tier-item" data-hp-lv="180"><span class="tier-badge tag-purple">Lv 180</span><span class="tier-name">328 HP</span><span class="tier-meta" data-hp-auto>~8/lv</span></div>
+    <div class="tier-item" data-hp-lv="200"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-name">518 HP</span><span class="tier-meta" data-hp-auto>~12/lv</span></div>
+    <div class="tier-item" data-hp-lv="250" style="border-color:rgba(255,215,0,.2)"><span class="tier-badge" style="background:rgba(255,215,0,.12);color:var(--gold)">Lv 250</span><span class="tier-name" style="color:var(--gold)">1,273 HP</span><span class="tier-meta" data-hp-auto>~20/lv</span></div>
   </div>
 
   <div class="sec-head"><div class="sec-icon purple">&#x1F4A1;</div><div><h2>Training Tips</h2><p>Efficient leveling advice</p></div></div>
@@ -2211,7 +2211,26 @@ window.addEventListener("hashchange",_handleHash);
   function _rawForLv(lv){if(lv<=100)return lv;let r=100;for(let l=100;l<lv;l++)r+=Math.min(10,1+Math.pow((l-100)/60,1.8));return Math.round(r)}
   const _xpCache={};function xpForLevel(lv){if(lv<=1)return 0;if(_xpCache[lv])return _xpCache[lv];const r=_rawForLv(lv);return _xpCache[lv]=Math.floor(34*(r-1)*(r-1))}
   function gatherRate(lv){var t=Math.min(lv/200,1);return Math.max(2,100-100*(0.02+0.48*Math.pow(1-t,1.5)))}
-  function maxHp(lv){return lv<=140?lv*10:Math.floor(1400+(lv-140)*15+Math.pow(lv-140,2)*0.8)}
+  /* Hitpoints display model — SINGLE SOURCE OF TRUTH for every HP number in
+     this guide (the graph below + the HP-scaling tier strip, refilled from
+     maxHp() at load). Mirror of docs/main.js: rawMaxHp = _rawPlayerMaxHp()
+     (internal HP curve), HP_DISPLAY_SCALE = COMBAT_TUNING.numberScale. EVERY
+     combat number on the HUD — your HP, hits dealt/taken, enemy HP — is shown
+     at this 0.10 scale, so the guide MUST apply it or it prints 10x the real HP
+     (the "1410 at Lv 141" bug). Lockstep-guarded by scripts/check_guide_hp_sync.mjs. */
+  const HP_DISPLAY_SCALE=0.10;
+  function rawMaxHp(lv){return lv<=140?lv*10:Math.floor(1400+(lv-140)*15+Math.pow(lv-140,2)*0.8);}
+  function maxHp(lv){return Math.max(1,Math.floor(rawMaxHp(lv)*HP_DISPLAY_SCALE));}
+  (function fillHpDoc(){
+    var perLv=maxHp(2)-maxHp(1);
+    var note=document.getElementById('hp-scaling-note');
+    if(note) note.innerHTML='Levels 1&ndash;140: <strong>'+perLv+' HP per level</strong> (linear). After 140, HP ramps up quadratically &mdash; higher levels give significantly more HP per level.';
+    document.querySelectorAll('#hp-tier-strip .tier-item[data-hp-lv]').forEach(function(el){
+      var lv=+el.getAttribute('data-hp-lv');
+      var nm=el.querySelector('.tier-name'); if(nm) nm.textContent=maxHp(lv).toLocaleString()+' HP';
+      var mt=el.querySelector('.tier-meta[data-hp-auto]'); if(mt){var d=maxHp(lv)-maxHp(lv-1); mt.textContent=(lv<=140?'':'~')+d+'/lv';}
+    });
+  })();
   function burnChance(lv){return Math.max(1,Math.round(30*Math.pow(0.985,lv)))}
 
   const graphs={
