@@ -1,5 +1,24 @@
 [
   {
+    "version": "v1944",
+    "date": "2026-07-10",
+    "title": "Clan Invites, Mail Expiry, Pop-out Chat & Minimap Zoom",
+    "entries": [
+      "Clan owners and officers can invite players by name, sent as a mailbox letter to Accept or Decline.",
+      "Most mail now expires after 5 days, including any attachments.",
+      "New optional Pop-out Channel Chat you can enable by searching 'pop-out' in Settings, then right-click the chat channel dropdown to float one channel in a draggable, resizable window that follows your main chat.",
+      "New minimap zoom on the + and - keys, plus an optional slider or buttons you can enable by searching 'zoom' in Settings.",
+      "Your rank now shows at the bottom of the hiscores when you are outside the top 50.",
+      "Right-click a player's name in chat to Add Friend, Message, or Reply.",
+      "The minimap Players toggle now cycles name and avatar, avatar only, and hidden.",
+      "Right-click your Log Basket or Ore Pouch to Fill from Bag.",
+      "The SC Shop preview slime now stops spinning to face you while you preview faces, and highlights the item you are previewing.",
+      "Other players' horses and unicorns now sit correctly on the ground.",
+      "You can now fully unbind a movement or action key (WASD, jump, crouch, map).",
+      "Rerolling Explorer contracts now turns in any finished contract first."
+    ]
+  },
+  {
     "version": "v1943",
     "date": "2026-07-09",
     "title": "Combat Rebalance, Scribe Desk & QoL",
