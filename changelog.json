@@ -1,5 +1,26 @@
 [
   {
+    "version": "v1956",
+    "date": "2026-07-11",
+    "title": "UI Refresh, Smoother Play & Offline Fixes",
+    "entries": [
+      "Another round of performance and memory fixes keeps long, crowded and island-hopping sessions running leaner.",
+      "New \"Stack Nearby Nametags\" setting lets you toggle the nametag stacking off if you prefer.",
+      "Pop-ups and draggable HUD pieces hold their positions better, and it's harder to accidentally scale up the UI while scrolling the settings on mobile.",
+      "When your gathering catches back up after you reconnect, Welcome Back no longer also pays you a second time for that same period, and its away-time bar now shows the right amount.",
+      "Fixed walking to a clicked resource stopping when the tab is minimized or backgrounded; you now arrive and start gathering.",
+      "Island rocks, cacti, oaks and palms now spawn at full size.",
+      "Signed-in account names are now locked (guests can still rename).",
+      "Explorer quest rewards now show \"+N Explorer exp\" in blue.",
+      "Commas in numbers are clearer and look less like periods.",
+      "The AFK bar and mobile inventory tooltips stay in place at every UI scale.",
+      "The main buttons and UI got a refresh for easier clicking, especially on mobile.",
+      "Fixed the floating dock boat over empty ocean, and horses and riders now vanish together.",
+      "Fixed the XP tracker overcounting with frenzies and XP-boost gear.",
+      "Enemy hover names now display cleanly, without underscores."
+    ]
+  },
+  {
     "version": "v1949",
     "date": "2026-07-11",
     "title": "Crowd Nametags, Smoother Play & Fresh Station Looks",
