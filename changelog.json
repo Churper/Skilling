@@ -1,5 +1,16 @@
 [
   {
+    "version": "v1949",
+    "date": "2026-07-11",
+    "title": "Crowd Nametags, Smoother Play & Fresh Station Looks",
+    "entries": [
+      "When players stand close together their nametags now stack into one tidy tower instead of overlapping. Larger groups collapse into a chip you can hover or click to see everyone, and clicking a name opens that player's info card.",
+      "A big smoothness pass cuts stutter when other players pop into view, when the world loads around you, and when crossing between areas.",
+      "The brightness slider no longer costs any frame rate, and high-resolution, 4K, and 5K displays stay smoother in fullscreen.",
+      "The bank chest, crafting table, blacksmith, and spinning wheel all have a fresh new look."
+    ]
+  },
+  {
     "version": "v1948",
     "date": "2026-07-11",
     "title": "Nametag Smoothing",
