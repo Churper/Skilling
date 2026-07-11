@@ -1,10 +1,18 @@
 [
   {
+    "version": "v1947",
+    "date": "2026-07-11",
+    "title": "Performance Changes",
+    "entries": [
+      "Performance changes: nametags, player pop-in, and area loading."
+    ]
+  },
+  {
     "version": "v1946",
     "date": "2026-07-10",
     "title": "Map Resource Search & Smoother Frame Rate",
     "entries": [
-      "You can now search the resource list on the big map — type a name to instantly filter it, or type a skill like 'mining' to jump to that whole group.",
+      "You can now search the resource list on the big map. Type a name to filter it instantly, or type a skill like 'mining' to jump to that whole group.",
       "The old FPS Cap is now a Frame Rate setting matched to your display's refresh rate, so the Native, Half, and Third options stay smooth instead of stuttering.",
       "Busy areas with lots of players load in more smoothly, and distant players cost less to render."
     ]
