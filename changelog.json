@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1948",
+    "date": "2026-07-11",
+    "title": "Nametag Smoothing",
+    "entries": [
+      "Styled and badged player nametags now stay just as smooth as plain names while people move around."
+    ]
+  },
+  {
     "version": "v1947",
     "date": "2026-07-11",
     "title": "Performance Changes",
