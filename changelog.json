@@ -1,5 +1,15 @@
 [
   {
+    "version": "v1946",
+    "date": "2026-07-10",
+    "title": "Map Resource Search & Smoother Frame Rate",
+    "entries": [
+      "You can now search the resource list on the big map — type a name to instantly filter it, or type a skill like 'mining' to jump to that whole group.",
+      "The old FPS Cap is now a Frame Rate setting matched to your display's refresh rate, so the Native, Half, and Third options stay smooth instead of stuttering.",
+      "Busy areas with lots of players load in more smoothly, and distant players cost less to render."
+    ]
+  },
+  {
     "version": "v1945",
     "date": "2026-07-10",
     "title": "Exchange Postings, Bigger Welcome Back Rewards & Clan Invite Fixes",
