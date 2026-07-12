@@ -1,5 +1,28 @@
 [
   {
+    "version": "v1957",
+    "date": "2026-07-11",
+    "title": "SlimeCoin Mastery, Economy Rebalance & Gathering Fixes",
+    "entries": [
+      "New SlimeCoin Mastery: your total skill level now boosts all the SlimeCoin you earn, from +5% at 500 total level up to +50% at 10,000.",
+      "You now earn SlimeCoin when a skill reaches a milestone level (100, 300, 500, 750, 1,000, 1,500 and 2,000).",
+      "Weekly Dojo SlimeCoin rewards have been raised and now pay out to the top 100.",
+      "Rocks and trees from level 600 and up now give SlimeCoin at the normal rate instead of almost none.",
+      "The AFK Slime Crab now gives about four times more SlimeCoin.",
+      "SlimeCoin from spin rewards and blank scrolls has been removed, resource-scroll enchanting pays less SlimeCoin, and potions are now account-bound so they can't be traded or sold.",
+      "Big celestial rocks now start mining the moment you reach them instead of circling first.",
+      "Fixed clicks slipping through large rocks and the Dragon to the ground behind them.",
+      "You can now drag the slimelet dots in the Pet Garden to reorder your pets, and the order sticks.",
+      "Your pet's auto-loot now works in boss fights, the same way it already does in caves.",
+      "Mining and Woodcutting Explorer contracts now give more Explorer XP.",
+      "New Captain's Log: open it from the Log button in Cap'n Bubbles to see your lifetime Explorer contracts by type and the ocean gifts you've given.",
+      "The Crypt got performance and memory fixes so long runs stay smooth, and an off-style skeleton with a broken animation was removed.",
+      "You can now post buy orders for basic Logs on the Player Exchange, and building a campfire costs 3 logs instead of your whole stack.",
+      "Scroll crafting no longer gets stuck on a tier you can't afford; you can switch tiers freely.",
+      "Fixed a Reload Required error that could hit phone players who locked their screen while gathering or sailing on a weak connection."
+    ]
+  },
+  {
     "version": "v1956",
     "date": "2026-07-11",
     "title": "UI Refresh, Smoother Play & Offline Fixes",
