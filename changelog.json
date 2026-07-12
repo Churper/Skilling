@@ -1,5 +1,14 @@
 [
   {
+    "version": "v1959",
+    "date": "2026-07-12",
+    "title": "Feeding Timer & Faster Updates",
+    "entries": [
+      "The Feeding bar for friendly dolphins and whales now counts down once, showing how long until your ocean friend swims away — it no longer refills between each Golden Fish.",
+      "Faster loading after updates: world models now stay cached in your browser and only re-download when they actually change."
+    ]
+  },
+  {
     "version": "v1958",
     "date": "2026-07-12",
     "title": "Coal & Converters, Pet Broadcasts & Ocean Auto-Feed",
