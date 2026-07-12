@@ -1,5 +1,22 @@
 [
   {
+    "version": "v1958",
+    "date": "2026-07-12",
+    "title": "Coal & Converters, Pet Broadcasts & Ocean Auto-Feed",
+    "entries": [
+      "New: mine Coal at level 40, then use the new Furnace to smelt your level 600+ ores into bars and the new Sawmill to saw your level 600+ logs into planks; bars and planks stack and can be traded on the Player Exchange.",
+      "New: right-click or long-press your Pets panel header to broadcast your companion to global chat, with a color chip and a hover portrait showing its shape, level and power.",
+      "Feeding a friendly dolphin or whale now keeps auto-feeding Golden Fish until it swims off, shown by a Feeding bar above the dock; click anywhere to stop.",
+      "New: charting new islands and completing Explorer contracts now award a little SlimeCoin, up to 60 per day from contracts.",
+      "Getting killed in the Crucible while gathering no longer voids your Welcome Back box; you still get paid for what you were gathering.",
+      "Re-clicking a resource you are already gathering now keeps gathering in place instead of nudging you out of position.",
+      "Clicking a boss while walking under it now properly starts the attack instead of the click doing nothing.",
+      "Ongoing Crypt performance improvements, plus removed hidden animating water under the mainland for smoother movement near coasts and rivers.",
+      "The game now caches files so updates load faster, since only content that actually changed is re-downloaded.",
+      "Music tracks are now smaller downloads (same tracks)."
+    ]
+  },
+  {
     "version": "v1957",
     "date": "2026-07-11",
     "title": "SlimeCoin Mastery, Economy Rebalance & Gathering Fixes",

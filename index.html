@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1957">
+  <link rel="stylesheet" href="./style.css?v=1958">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -1247,6 +1247,24 @@
       </div>
     </div>
   </div>
+
+  <!-- Furnace / Sawmill converter (shared overlay; title + verb set by JS) -->
+  <div id="ui-convert-overlay" class="ui-bonfire-overlay" hidden>
+    <div class="ui-bonfire-modal">
+      <div class="ui-bonfire-header">
+        <span class="ui-bonfire-title" id="ui-convert-title">🔥 Furnace</span>
+        <button type="button" id="ui-convert-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-bonfire-body">
+        <div id="ui-convert-bar" class="ui-bonfire-bar">
+          <span id="ui-convert-bar-sel" class="ui-bonfire-bar-sel">Select material</span>
+          <input id="ui-convert-bar-slider" type="range" min="1" max="1" value="1" class="ui-bonfire-bar-slider">
+          <button id="ui-convert-bar-go" type="button" class="ui-bonfire-bar-go"><span id="ui-convert-bar-verb">Smelt</span> <span id="ui-convert-bar-qty">1</span></button>
+        </div>
+        <div id="ui-convert-recipes" class="ui-bonfire-recipe-list"></div>
+      </div>
+    </div>
+  </div>
   <!-- Spellstone Pool overlay -->
   <div id="ui-spellstone-overlay" class="ui-bonfire-overlay" hidden>
     <div class="ui-bonfire-modal ui-spellstone-modal">
@@ -1663,6 +1681,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=1957"></script>
+  <script type="module" src="./main.js?v=1958"></script>
 </body>
 </html>
