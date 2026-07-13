@@ -1,5 +1,21 @@
 [
   {
+    "version": "v1983",
+    "date": "2026-07-13",
+    "title": "Player Mail, Item Names & Ocean Bait",
+    "entries": [
+      "New: send mail to other players. Walk up to any world mailbox to send coins, stackable items, or a fully geared item with all of its stars, rarity, potential and custom name included.",
+      "Read and claim your mail anytime from the new Mailbox button in your Friends panel.",
+      "A plain letter costs 1,000 coins to send and a letter with items costs 1 SlimeCoin. If a letter is never claimed or gets sent back, its attachments come back to you safe.",
+      "New: buy a Nametag in the SlimeCoin Shop for 50 SlimeCoins to give any weapon or armor a custom name. The name shows on the item, in its tooltip and when you drop it, removing a name is free, and named gear is protected from Sell All.",
+      "New: cook Ocean Bait at the bonfire (Cooking level 100), then use it while sailing to instantly attract a whale or dolphin to your boat. Golden Fish is now used to make Ocean Bait and no longer cooks into Sushi.",
+      "You can now Open All or open a set number of your Dolphin and Whale Gifts at once, with the rewards sent straight to your bank and one summary popup.",
+      "The Furnace and Sawmill now show as pins on your minimap, and resource pings are a richer purple that stays visible a little longer.",
+      "Faster loading after updates: adding a new item icon now re-downloads just that icon instead of the whole set.",
+      "The mailbox and Item Lock windows have a cleaner new look."
+    ]
+  },
+  {
     "version": "v1959",
     "date": "2026-07-12",
     "title": "Feeding Timer & Faster Updates",
