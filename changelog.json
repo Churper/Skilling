@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1986",
+    "date": "2026-07-13",
+    "title": "Memory",
+    "entries": [
+      "Improved memory use after refreshing and updating the game."
+    ]
+  },
+  {
     "version": "v1985",
     "date": "2026-07-13",
     "title": "Performance",
