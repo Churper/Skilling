@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { href: "#gainers",  label: "Gainers" },
   { href: "#records",  label: "Records" },
   { href: "#players",  label: "Players" },
-  { href: "#faq",      label: "FAQ" },
 ];
 
 let _searchDebounce = null;
