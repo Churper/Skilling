@@ -7,12 +7,12 @@
       "Your pet's Auto-loot can now be paused. Click the Auto-loot perk to stop grabbing drops and save charges, then click again to resume.",
       "Pocket Horse now works with the quick-fire button and shows a Ready chip like other perks.",
       "New chat setting: New Message Dot. Turn it on to show a small red dot on the collapsed chat that stays until you open chat, instead of the yellow flash. The pop-out chat tab now also flags new messages while it is minimized.",
-      "The Mailbox now shows as a pin on the minimap.",
+      "The Mailbox now shows as a pin on the minimap and in the map finder.",
       "Fixed a stale ice-block material reference that could hitch the render loop when re-entering the Frost Yeti fight.",
-      "Fixed the meteor staying visible while you are inside a cave.",
+      "Fixed the overworld meteor staying visible while you are inside a cave.",
       "Fixed landing underground or on the water after teleporting to a cold island.",
       "Fixed a rare case where a teleport could fire during a cave or arena transition.",
-      "Fixed the stats page sometimes showing 0 players online when the server was actually full, and sped up its server stats pages."
+      "Optimized the Slimetrics stats page: the server-wide pages now load faster, and the live online count no longer briefly reads 0 during a short server hiccup."
     ]
   },
   {
