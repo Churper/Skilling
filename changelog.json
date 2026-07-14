@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2002",
+    "date": "2026-07-14",
+    "title": "Chinese Language & Island Caves",
+    "entries": [
+      "New: play in Simplified Chinese. Settings, tutorials, the guide, core menus, and high-traffic gameplay messages now have Chinese translations.",
+      "Expanded Spanish and Japanese translations across the same core game surfaces.",
+      "Language packs now download only when selected, so English players do not download Chinese, Spanish, or Japanese translations.",
+      "Fixed island cave entrances that could appear without a clear, usable cave mouth."
+    ]
+  },
+  {
     "version": "v1990",
     "date": "2026-07-14",
     "title": "Performance",
@@ -71,7 +82,7 @@
     "date": "2026-07-12",
     "title": "Feeding Timer & Faster Updates",
     "entries": [
-      "The Feeding bar for friendly dolphins and whales now counts down once, showing how long until your ocean friend swims away — it no longer refills between each Golden Fish.",
+       "The Feeding bar for friendly dolphins and whales now counts down once, showing how long until your ocean friend swims away; it no longer refills between each Golden Fish.",
       "Faster loading after updates: world models now stay cached in your browser and only re-download when they actually change."
     ]
   },
@@ -579,7 +590,7 @@
     "date": "2026-07-03",
     "title": "Item System Tune-Up",
     "entries": [
-      "Under-the-hood item-system cleanup — no gameplay changes."
+       "Under-the-hood item-system cleanup; no gameplay changes."
     ]
   },
   {
@@ -1016,7 +1027,7 @@
     "date": "2026-06-26",
     "title": "Spawn, Travel and Sailing Fixes",
     "entries": [
-      "Teleporting to an island, logging in, or refreshing no longer drops you underground or at sea level — you and your horse now land correctly on the terrain, even on high-elevation islands.",
+       "Teleporting to an island, logging in, or refreshing no longer drops you underground or at sea level; you and your horse now land correctly on the terrain, even on high-elevation islands.",
       "Treasure hunt tasks now complete when you click a chest on an island you have already looted, instead of needing a refresh.",
       "Deep-sea shoal fishing now keeps going while you are away for much longer instead of stopping after 12 minutes.",
       "When a deep-sea shoal's time runs out it now immediately relocates to a fresh spot instead of vanishing for 20-40 minutes.",
@@ -1387,8 +1398,8 @@
     "date": "2026-06-20",
     "title": "DPS Calculator",
     "entries": [
-      "New DPS Calculator — open it from the small “DPS” button on your equipment panel to see your expected damage per second, max hit, accuracy, attack speed and time-to-kill against any monster, all matching the in-game combat numbers.",
-      "It reads your live worn gear and lets you experiment freely: re-roll potential lines, swap combat style, set tempo stacks, toggle prayers, buffs, potions and pet perks, pick any target, and compare two loadouts side by side — nothing you do in it ever touches your real save or gear.",
+       "New DPS Calculator: open it from the small “DPS” button on your equipment panel to see your expected damage per second, max hit, accuracy, attack speed and time-to-kill against any monster, all matching the in-game combat numbers.",
+       "It reads your live worn gear and lets you experiment freely: re-roll potential lines, swap combat style, set tempo stacks, toggle prayers, buffs, potions and pet perks, pick any target, and compare two loadouts side by side; nothing you do in it ever touches your real save or gear.",
       "Planted farm patches now use much lighter models, so having crops in view is easier on performance."
     ]
   },
@@ -1397,7 +1408,7 @@
     "date": "2026-06-20",
     "title": "Performance & Crafting Refresh",
     "entries": [
-      "Big performance pass for smoother gameplay — frame rate is noticeably better while riding, in crowds, and on high render-distance or max settings, with the worst hitching from nearby slimes and hover/minimap stutter gone.",
+       "Big performance pass for smoother gameplay: frame rate is noticeably better while riding, in crowds, and on high render-distance or max settings, with the worst hitching from nearby slimes and hover/minimap stutter gone.",
       "The Crafting Table has a fresh look that matches the bank, and arrow recipes now show real arrow icons with their wood and ore ingredients fully readable.",
       "Cooking now uses your cheapest qualifying ingredient instead of your most valuable one, so batch-cooking no longer quietly burns high-tier crops like Sugar Plums, and recipe requirements now show exactly what is needed (for example 'Fruit (Stormberry+)').",
       "Giant Rat, Bee, and Swamp Frog now have their own Slimetrics hiscore boards and show up in the Recent Boss Kills feed.",
@@ -1410,7 +1421,7 @@
     "date": "2026-06-19",
     "title": "Combat & Woodcutting Fixes",
     "entries": [
-      "Woodcutting frenzies that land on planted tree patches can now always be collected — clicking any part of the patch picks up the frenzy instead of it sometimes feeling dead.",
+       "Woodcutting frenzies that land on planted tree patches can now always be collected: clicking any part of the patch picks up the frenzy instead of it sometimes feeling dead.",
       "Clicking to attack a moving or out-of-range enemy now walks you to it and swings once you arrive, instead of standing still and swinging at where it used to be.",
       "Fixed the Swamp Frog's punch attack so it plays its proper animation."
     ]
@@ -1637,13 +1648,13 @@
     "date": "2026-06-14",
     "title": "Minimized Combat, UI Refresh & Fixes",
     "entries": [
-      "Combat now keeps going while the game is minimized — your slime keeps fighting and chains kills as monsters respawn, for all styles, with sounds. It runs at normal speed with no bonus XP, for up to 15 minutes after your last input.",
+       "Combat now keeps going while the game is minimized: your slime keeps fighting and chains kills as monsters respawn, for all styles, with sounds. It runs at normal speed with no bonus XP, for up to 15 minutes after your last input.",
       "Monsters now make a soft little grunt when they die.",
-      "Fixed some monsters (like raccoons and wolves) being counted twice — which doubled their loot drops and the damage they dealt you. Also fixed a double-swing when tabbing back in.",
-      "Farm bushes now grow into the right plant — berry and Voidberry bushes were showing wrong or invisible models.",
+       "Fixed some monsters (like raccoons and wolves) being counted twice, which doubled their loot drops and the damage they dealt you. Also fixed a double-swing when tabbing back in.",
+       "Farm bushes now grow into the right plant: berry and Voidberry bushes were showing wrong or invisible models.",
       "The Bank and General Store have a clean new edge-to-edge look. The Farm and Compost windows no longer overflow the screen.",
       "World Map: picking a resource found in the PvP cave now pings the cave entrance.",
-      "Nights are smoother and warmer — less red with a gentler glow. Torches, campfires and bonfires now share one improved flame.",
+       "Nights are smoother and warmer: less red with a gentler glow. Torches, campfires and bonfires now share one improved flame.",
       "The day/night cycle is optimized for no stutter, and its extra night detail (stars, clouds and the sunset glow) scales to your graphics quality.",
       "The Ghost Slime spot is back, in the world and on the map.",
       "Security: PvP damage is capped by your real, server-verified level to stop level-spoof one-shots, bounties are set by the server, and being kicked no longer locks you out."
@@ -1654,11 +1665,11 @@
     "date": "2026-06-13",
     "title": "Day/Night Cycle, Torches, Iceberg & Bush Patches",
     "entries": [
-      "New Day/Night Cycle: the overworld sky now moves through a full day on your local clock — sunrise and sunset color shifts, the sun arcing and setting behind the hills, a moon, twinkling stars and drifting clouds, with nights gently dimming the world. On by default; toggle it in Camera settings (Day/Night Cycle).",
+       "New Day/Night Cycle: the overworld sky now moves through a full day on your local clock, with sunrise and sunset color shifts, the sun arcing and setting behind the hills, a moon, twinkling stars and drifting clouds, and nights gently dimming the world. On by default; toggle it in Camera settings (Day/Night Cycle).",
       "Torches you can place light up at night: ambient torches around the world now glow and flicker after dark for cozier night-time exploring.",
-      "New floating Iceberg: walk out onto the drifting ice floe off the coast — it gently rocks and tips toward whichever side everyone crowds onto.",
-      "New Bush Patches for farming: plant a berry bush, watch it grow, and pick berries for Foraging XP plus a first-pick Farming bonus — 16 tiers from Berry Bush up to Astral Berry Bush. Right-click Remove salvages the remaining berries (with a chance at an Apple).",
-      "Combat: attack-speed (Tempo) retuned — deep Tempo lines keep adding real attack speed instead of trailing off, while early lines still hit hardest. Glass-cannon builds reach about 6 attacks/sec (~6.7 with Comet).",
+       "New floating Iceberg: walk out onto the drifting ice floe off the coast; it gently rocks and tips toward whichever side everyone crowds onto.",
+       "New Bush Patches for farming: plant a berry bush, watch it grow, and pick berries for Foraging XP plus a first-pick Farming bonus across 16 tiers from Berry Bush up to Astral Berry Bush. Right-click Remove salvages the remaining berries (with a chance at an Apple).",
+       "Combat: attack-speed (Tempo) retuned. Deep Tempo lines keep adding real attack speed instead of trailing off, while early lines still hit hardest. Glass-cannon builds reach about 6 attacks/sec (~6.7 with Comet).",
       "Fixes: the Acorn Cap cosmetic's shading is corrected, procgen-island fishing pins on the World Map now line up with the real world, and in Classic Layout the night dimming no longer darkens your sidebar/minimap/HUD.",
       "Security & anti-cheat: closed an item-duplication hole and hardened PvP loot and hit detection so cheaters can't dupe or launder items or spoof teleport/dodge hits."
     ]
@@ -1668,9 +1679,9 @@
     "date": "2026-06-13",
     "title": "Slimetrics Stats Site Fixes",
     "entries": [
-      "Slimetrics (the stats site) 'Recent Highlights' feed is fixed — it had been stuck for a few days and stopped showing new level-ups. They'll start showing again as players hit level milestones.",
+       "Slimetrics (the stats site) 'Recent Highlights' feed is fixed. It had been stuck for a few days and stopped showing new level-ups. They'll start showing again as players hit level milestones.",
       "Slimetrics is faster and lighter: player profiles, leaderboards and the Server page do a lot less work to load, and pages you've already opened come back instantly.",
-      "No in-game changes this update — it's all stats-site improvements."
+       "No in-game changes this update; it's all stats-site improvements."
     ]
   },
   {
@@ -1678,11 +1689,11 @@
     "date": "2026-06-13",
     "title": "EXP Tracker Rebuilt & Fixes",
     "entries": [
-      "EXP Tracker rebuilt: a proper bar again — current level on the left, next level on the right, filling as you train (plus a Compact Ring view). XP/hour and 'actions to level' are now accurate — no more giant fake numbers after logging in or alt-tabbing. Renamed 'EXP Tracker (Auto)' in Settings.",
-      "Pet Treats now work — feeding one to a slimelet was broken (the button greyed out even with treats in your bag). They also show their proper candy icon now.",
+       "EXP Tracker rebuilt: a proper bar again, with current level on the left, next level on the right, filling as you train (plus a Compact Ring view). XP/hour and 'actions to level' are now accurate, with no more giant fake numbers after logging in or alt-tabbing. Renamed 'EXP Tracker (Auto)' in Settings.",
+       "Pet Treats now work. Feeding one to a slimelet was broken (the button greyed out even with treats in your bag). They also show their proper candy icon now.",
       "AFK timers: Hemp, Flax and all the Lvl 600+ berries now use the full 6-hour gather timer like every other berry; the Lvl 600+ trees get a new 1-hour timer (slow chop, 12 min was too short).",
       "World Map: fishing spots show the right level + a fish icon, every berry has its own icon, and Farm patches now live under a new Farming section.",
-      "New 'What's New' button on the login screen — patch notes in-game (this very thing!).",
+       "New 'What's New' button on the login screen: patch notes in-game (this very thing!).",
       "Pet Garden now respects your graphics settings (Potato Mode trims the decorations), runs smoother, and a stale browser tab can no longer wipe your pouch + Pet Treats.",
       "Fixes: removing a farmed tree no longer walks you to spawn; remote players load smoother; fixed rare overlapping trees/rocks on some far islands; new Hide Hover Ring setting."
     ]
@@ -1695,7 +1706,7 @@
       "Pet Garden \"Miscellania\" rework: one shared pouch for the whole crew, slimelet levels now boost gather RATE (not bag size), a feeding trough fueled by Tree Meat, and hunger/happiness that actually affects how much they gather.",
       "New Pet Treat (SlimeCoin shop): permanently boosts a slimelet's gather rate and lets well-fed pets look after themselves.",
       "Brand-new Pet Garden scene: fresh terrain, a real river + waterfall, a bouncy diving board, a climbable summit, butterflies and more.",
-      "Exclusive fishing spots: some spots now only yield one species — and you can see the fish swimming as a shadow in the water.",
+       "Exclusive fishing spots: some spots now only yield one species, and you can see the fish swimming as a shadow in the water.",
       "EXP Tracker overhaul: cleaner bar that fills toward your next level with the current/next level on each end, plus a Compact Ring view. XP/hour and \"actions to level\" are now accurate (no more giant fake numbers after logging in or alt-tabbing).",
       "World Map resource list: fishing spots show the right level + a fitting icon, berries got their own icons, and farm patches now live under a Farming section.",
       "New setting: Hide Hover Ring. Redesigned scrolls and staves/wands, two-tone wood log icons, and remade fruit + crop models."
@@ -1708,7 +1719,7 @@
     "entries": [
       "New level 600–1000 woodcutting trees in the PvP Crucible: a high-risk, high-reward treasure-log haul loop.",
       "New top-tier woodcutting frenzy: Enchanted Relic at level 600.",
-      "New Skill Tracker HUD chip — right-click a skill to track your progress (now reworked further in v1133).",
+       "New Skill Tracker HUD chip: right-click a skill to track your progress (now reworked further in v1133).",
       "Fixed a pet garden double-claim issue when a pet's cache was full."
     ]
   },
@@ -1718,7 +1729,7 @@
     "title": "World Overhaul & Keybinds",
     "entries": [
       "World model overhaul: trees, bushes, rocks and props remodeled across the map.",
-      "New Keybinds tab — rebind movement, map, guide, quick-inventory and quick-worn.",
+       "New Keybinds tab: rebind movement, map, guide, quick-inventory and quick-worn.",
       "New Camera settings tab.",
       "Chat history now replays recent messages when you join, so you don't miss the room.",
       "Mobile tap-through fixes for menus and game controls."

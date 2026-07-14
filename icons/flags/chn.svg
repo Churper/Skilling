@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900" height="600" viewBox="0 0 30 20">
+<path fill="#ee1c25" d="M0 0h30v20H0z"/>
+<g fill="#ffde00">
+<path id="chn-s" d="M0-1 .587785.809017-.951057-.309017H.951057L-.587785.809017z"/>
+<use href="#chn-s" xlink:href="#chn-s" transform="translate(5,5) scale(3)"/>
+<use href="#chn-s" xlink:href="#chn-s" transform="translate(10,2) rotate(23.036243)"/>
+<use href="#chn-s" xlink:href="#chn-s" transform="translate(12,4) rotate(45.869898)"/>
+<use href="#chn-s" xlink:href="#chn-s" transform="translate(12,7) rotate(69.945396)"/>
+<use href="#chn-s" xlink:href="#chn-s" transform="translate(10,9) rotate(20.659808)"/>
+</g>
+</svg>
