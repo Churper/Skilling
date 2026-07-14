@@ -4,7 +4,7 @@
     "date": "2026-07-14",
     "title": "Smoother Cave Entry",
     "entries": [
-      "Optimized cave and Crucible entry so the instance finishes loading behind the fade — no more freeze or hitch right as you drop in.",
+      "Optimized cave and Crucible entry so the instance finishes loading behind the fade, with no more freeze or hitch right as you drop in.",
       "Fixed moving at the wrong speed for a moment right after entering the Crucible."
     ]
   },
