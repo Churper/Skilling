@@ -1,5 +1,13 @@
 [
   {
+    "version": "v1990",
+    "date": "2026-07-14",
+    "title": "Performance",
+    "entries": [
+      "Big performance improvements for smoother play across all devices."
+    ]
+  },
+  {
     "version": "v1989",
     "date": "2026-07-14",
     "title": "Smoother Cave Entry",
