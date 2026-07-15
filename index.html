@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2002">
+  <link rel="stylesheet" href="./style.css?v=2031">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -187,6 +187,21 @@
     </div>
     <button type="button" id="ui-bell-btn" hidden title="Ring Boss Bell" aria-label="Ring Boss Bell">&#x1F514;</button>
     <button type="button" id="ui-mobile-quick-eat-btn" hidden title="Quick Eat" aria-label="Quick Eat">&#x1F371;</button>
+    <button type="button" id="ui-nearby-actions-launcher" hidden aria-expanded="false" aria-controls="ui-nearby-actions-panel" title="Nearby Actions — F6">
+      <span class="ui-nearby-launcher-icon" aria-hidden="true">&#x2630;</span>
+    </button>
+    <section id="ui-nearby-actions-panel" hidden aria-label="Nearby Actions">
+      <div class="ui-nearby-panel-head" title="Drag to move. Double-click to collapse.">
+        <span class="ui-nearby-panel-title"><strong>Nearby Actions</strong><small>Within 32 steps</small></span>
+        <button type="button" id="ui-nearby-actions-collapse" title="Collapse to launcher" aria-label="Collapse Nearby Actions">&#x2212;</button>
+      </div>
+      <div id="ui-nearby-actions-summary" aria-label="Nearby action counts"></div>
+      <div id="ui-nearby-actions-list" aria-live="polite"></div>
+      <div class="ui-nearby-resize" data-resize="nw" aria-hidden="true"></div>
+      <div class="ui-nearby-resize" data-resize="ne" aria-hidden="true"></div>
+      <div class="ui-nearby-resize" data-resize="sw" aria-hidden="true"></div>
+      <div class="ui-nearby-resize" data-resize="se" aria-hidden="true"></div>
+    </section>
     <div id="ui-buff-bar"></div>
     <div id="ui-farm-track" class="ui-farm-track" hidden>
       <span id="ui-farm-track-icon" class="ui-farm-track-icon" aria-hidden="true"></span>
@@ -225,7 +240,7 @@
     <div id="ui-faith-explore" hidden style="position:fixed;top:calc(42px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:119;pointer-events:none;text-align:center">
       <div style="color:#58df78;font:bold 12px 'Patrick Hand',cursive;text-shadow:0 1px 3px rgba(0,0,0,0.7)">&#x2728; <span id="ui-faith-explore-time">1:30</span></div>
     </div>
-    <!-- Skill tracker — icon ring (right-click a skill tile to track, or Auto Track Skill setting); draggable, click cycles the value below, hover for full stats -->
+    <!-- Skill tracker — icon ring (right-click a skill tile to track, or Auto Track Skill setting); draggable, left-click pins/unpins full stats -->
     <div id="ui-skill-tracker" hidden>
       <span id="ui-skill-tracker-lvl-l" class="stk-lvl"></span>
       <span id="ui-skill-tracker-mid">
@@ -677,7 +692,7 @@
           <button type="button" id="setting-adventure-btn" class="stg-reset-btn" style="background:rgba(140,100,50,.14);color:#c89860;border-color:rgba(140,100,50,.35)">&#x1F4D6; Adventure Book</button>
           <div style="margin-top:auto;padding-top:6px">
             <p style="margin:0 0 2px;font-size:12px;color:rgba(255,255,255,0.35);line-height:1.4">Created by <span style="color:rgba(255,255,255,0.55)">Burga</span></p>
-            <p style="margin:0 0 0;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.4">Testing: Arctic · Swaay · Treeman · AdmiralCrunch · MrPaulie · Ryan · Tomb · Izzy · Bagingle · Plopi · Cranile · zeme · Jorkeff · Cyrater · Catsu · Dasin · Goddess Lilisama · Insvght · Oblong · RiggedyRekt · observer · yoxr · niwa · Anti · yuma · mirayray · froggie · ThePunisher · mrtwigs · Green · MapleKitten · Purple · littleseven · fart · Lore · Balseiro · Flunter · waffle · DazingAI · batuboy · Yves · EVIL · ayzen · Walen · TimMad · Mrowka · Lyron · CommonVirus · Trygve86 · Slime de Lime · Tank · KcXD · Cornbread · disambo · TRIGGERED · SlimySam</p>
+            <p style="margin:0 0 0;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.4">Testing: Arctic · Swaay · Treeman · AdmiralCrunch · MrPaulie · Ryan · Tomb · Izzy · Bagingle · Plopi · Cranile · zeme · Jorkeff · Cyrater · Catsu · Dasin · Goddess Lilisama · Insvght · Oblong · RiggedyRekt · observer · yoxr · niwa · Anti · yuma · mirayray · froggie · ThePunisher · mrtwigs · Green · MapleKitten · Purple · littleseven · fart · Lore · Balseiro · Flunter · waffle · DazingAI · batuboy · Yves · EVIL · ayzen · Walen · TimMad · Mrowka · Lyron · CommonVirus · Trygve86 · Slime de Lime · Tank · KcXD · Cornbread · disambo · TRIGGERED · SlimySam · Chainsaw</p>
             <div style="border-top:1px solid rgba(255,255,255,0.06);margin-top:6px;padding-top:6px;display:flex;align-items:center;gap:10px">
               <a href="https://x.com/SlimeVilleGame" target="_blank" rel="noopener" class="stg-social-btn" aria-label="X / Twitter" title="X / Twitter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <a href="https://bsky.app/profile/slimeville.bsky.social" target="_blank" rel="noopener" class="stg-social-btn" aria-label="Bluesky" title="Bluesky"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M5.202 3.203C7.954 5.144 10.913 9.083 12 11.197c1.087-2.114 4.046-6.053 6.798-7.994 1.985-1.402 5.202-2.485 5.202.871 0 .67-.384 5.626-.61 6.43-.78 2.802-3.642 3.516-6.187 3.082 4.45.758 5.582 3.265 3.137 5.772-4.643 4.762-6.673-1.196-7.193-2.722-.095-.28-.14-.41-.14-.3 0-.11-.045.02-.14.3-.52 1.526-2.55 7.484-7.193 2.722-2.444-2.507-1.313-5.014 3.137-5.772-2.545.434-5.408-.28-6.187-3.082-.226-.804-.61-5.76-.61-6.43 0-3.356 3.217-2.273 5.202-.871z"/></svg></a>
@@ -705,6 +720,8 @@
             <div class="stg-row"><span class="stg-label">Farm Timer</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-farmtimer" checked><span class="stg-tog-track"></span></label></span></div>
             <div class="stg-row"><span class="stg-label">Frenzy Alerts</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-frenzy" checked><span class="stg-tog-track"></span></label></span></div>
           </div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Sound</span><span class="stg-hint">Play a chime when your active AFK timer expires, even while the game is in the background. Off by default</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-afk-jingle-enabled"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Tune</span><span class="stg-hint">Which chime plays when the AFK timer expires. Preview always works; expiry only plays when AFK Timer Sound is on</span></span><span class="stg-ctrl"><select id="setting-afk-jingle" class="stg-sel" aria-label="AFK timer tune"></select><button type="button" id="setting-afk-jingle-preview" class="stg-btn" aria-label="Preview selected AFK timer tune">&#9654; Play</button></span></div>
           <div class="stg-row-pair">
             <div class="stg-row"><span class="stg-label">Player Combat</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-playercombat" checked><span class="stg-tog-track"></span></label></span></div>
             <div class="stg-row"><span class="stg-label">Boss Combat</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-bosscombat" checked><span class="stg-tog-track"></span></label></span></div>
@@ -717,7 +734,7 @@
         <div class="stg-pane" data-stg-pane="interface" hidden>
           <div class="stg-pane-head"><h3>Interface</h3></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Multi-Window Mode</span><span class="stg-hint">Pop panels like Inventory into separate draggable windows</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-multi-window"><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">EXP Tracker (Auto)</span><span class="stg-hint">Draggable XP/EXP tracker chip auto-follows the skill you're training — shows level progress, actions left, XP per hour and time to level. Click to switch view, right-click for options</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-track-skill"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">EXP Tracker (Auto)</span><span class="stg-hint">Draggable XP/EXP tracker chip auto-follows the skill you're training — shows level progress, actions left, XP per hour and time to level. Left-click to pin or close full stats; right-click to choose the view</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-track-skill"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Force Desktop Layout</span><span class="stg-hint">Always use the desktop UI, even on touchscreens. Fixes convertible/2-in-1 laptops that get stuck in the mobile layout</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-force-desktop-ui"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Classic Layout</span><span class="stg-hint">Locked OSRS-style fixed layout (right column with minimap, panel, tabs)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-classic-layout"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">UI Theme</span><span class="stg-ctrl"><select id="setting-classic-theme" class="stg-sel"><option value="default">Default</option><option value="wood">Wood</option><option value="glass">Glass</option><option value="stained">Stained Glass</option><option value="frost">Frost</option><option value="verdant">Verdant</option><option value="sunset">Sunset</option><option value="arcane">Arcane</option><option value="volcanic">Volcanic</option><option value="royal">Royal</option><option value="cyber">Cyber</option><option value="bone">Bone</option></select></span></div>
@@ -732,8 +749,8 @@
           <div class="stg-row"><span class="stg-label">Show Inventory Status</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-inventory-status" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">ScapeLikes Vote Dot</span><span class="stg-hint">Show a green dot on the SL button when voting is available</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-scapelikes-vote-dot"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Hide Game Hub Button</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hide-hub"><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row"><span class="stg-label">Boss Bell Button</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-show-boss-bell-button"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Quick Eat HUD Button</span><span class="stg-hint">Show a draggable quick-eat button on the game HUD.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mobile-quick-eat-button"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Nearby Actions HUD</span><span class="stg-hint">Show the draggable nearby items, enemies, and resources launcher. F6 opens it while enabled.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-nearby-actions-hud"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Hide Hover Ring</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-no-hover-ring"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-section-title">Names &amp; Tags</div>
           <div class="stg-row-pair">
@@ -748,7 +765,7 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Ground Item Timer Circle</span><span class="stg-hint">Show only the small green circle beside ground items.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-world-drop-timers"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Ground Item Names</span><span class="stg-hint">Show item names and stack counts above ground items.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-world-drop-names"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Disable Emote Bubbles</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-no-emote-bubbles"><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Indicator</span><span class="stg-hint">Visual countdown of your 12 min / 6 hr gather AFK limit (sound plays when it expires)</span></span><span class="stg-ctrl"><select id="setting-afk-indicator" class="stg-sel"><option value="bar">Bar above tabs</option><option value="ring">Ring on node</option><option value="both">Both</option><option value="off">Off</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Indicator</span><span class="stg-hint">Visual countdown of your 12 min / 6 hr gather AFK limit (optional sound is under Audio → AFK Timer Sound)</span></span><span class="stg-ctrl"><select id="setting-afk-indicator" class="stg-sel"><option value="bar">Bar above tabs</option><option value="ring">Ring on node</option><option value="both">Both</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Low Detail Full Map</span><span class="stg-hint">Use simple circles for tiny far-zoom islands</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-minimap-low-detail"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Map Zoom Controls</span><span class="stg-hint">Zoom widget shown on the map edge</span></span><span class="stg-ctrl"><select id="setting-minimap-zoom-controls" class="stg-sel"><option value="slider">Slider</option><option value="buttons">Buttons</option><option value="both">Slider + Buttons</option><option value="none">None</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Map Zoom Position</span><span class="stg-hint">Which map edge the zoom widget sits on</span></span><span class="stg-ctrl"><select id="setting-minimap-zoom-position" class="stg-sel"><option value="left">Left</option><option value="right">Right</option><option value="bottom">Bottom</option><option value="top">Top</option></select></span></div>
@@ -800,7 +817,7 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Auto-Retaliate</span><span class="stg-hint">Fight back automatically when attacked. Off: keep walking when hit</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-retaliate" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Auto-Ring Boss Bell</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-ring-bell"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Slime Armor Display</span><span class="stg-ctrl"><select id="setting-armor-display" class="stg-sel"><option value="all">Everyone</option><option value="self">Just Me</option><option value="off" selected>Off</option></select></span></div>
-          <div class="stg-row"><span class="stg-label">Hide Combat Style Panel</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hide-combat-styles"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Combat Style Panel</span><span class="stg-hint">Choose when the combat style selector is shown.</span></span><span class="stg-ctrl"><select id="setting-combat-style-panel" class="stg-sel"><option value="always">Always shown</option><option value="combat">During combat</option><option value="hidden">Hidden</option></select></span></div>
           <div class="stg-section-title">Interaction</div>
           <div class="stg-row"><span class="stg-label">Click Horse to Dismount</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-click-dismount"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Right-Click Examine</span><span class="stg-hint">Add Examine to item and world context menus</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-right-click-examine" checked><span class="stg-tog-track"></span></label></span></div>
@@ -911,6 +928,7 @@
             <div class="stg-row ui-hotkey-row" data-hotkey-action="jump"><span class="stg-label">Jump</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="crouch"><span class="stg-label">Crouch</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="quick_eat"><span class="stg-label">Quick Eat</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="boss_bell"><span class="stg-label">Ring Boss Bell</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="home_teleport"><span class="stg-label">Home Teleport</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="mount_dismount"><span class="stg-label">Mount / Dismount</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="protect_melee"><span class="stg-label">Protect Melee</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
@@ -923,6 +941,8 @@
             <div class="stg-row ui-hotkey-row" data-hotkey-action="guide"><span class="stg-label">Guide / Wiki</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="quick_inventory"><span class="stg-label">Quick Inventory</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="quick_worn"><span class="stg-label">Quick Worn</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="nearby_actions"><span class="stg-label">Nearby Actions</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="quest_tracker"><span class="stg-label">Quest Tracker</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
           </div>
         </div>
       </div>
@@ -1682,6 +1702,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2002"></script>
+  <script type="module" src="./main.js?v=2031"></script>
 </body>
 </html>
