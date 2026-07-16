@@ -132,10 +132,12 @@ function renderHero(o) {
       </div>
       <div class="st-hero-avatar">
         ${avatarInner}
-        ${rank > 0 ? `<div class="st-hero-rank-chip">#${nf(rank)}</div>` : ""}
       </div>
       <div class="st-hero-body">
-        <div class="st-hero-name">${o.is_sapling ? `<span class="st-sap">🌱</span>` : ""}${escapeHtml(o.name)}</div>
+        <div class="st-hero-title">
+          <div class="st-hero-name">${o.is_sapling ? `<span class="st-sap">🌱</span>` : ""}${escapeHtml(o.name)}</div>
+          ${rank > 0 ? `<div class="st-hero-rank-chip">#${nf(rank)}</div>` : ""}
+        </div>
         ${o._formerName ? `<div class="st-hero-aka" style="font-size:11px;color:var(--ui-ink-3);margin-top:-2px">previously seen as <code>${escapeHtml(o._formerName)}</code></div>` : ""}
         <div class="st-hero-sub">Total Level <strong>${nf(totalLvl)}</strong> · Total XP <strong>${nf(o.total_xp || 0)}</strong></div>
         <div class="st-hero-meta">
