@@ -1,5 +1,34 @@
 [
   {
+    "version": "v2045",
+    "date": "2026-07-16",
+    "title": "Slimetrics Portraits, Nearby Services & Frenzy Shading",
+    "entries": [
+      "Show off your real slime on Slimetrics: open the Adventure Book Sig tab and press Update Slimetrics Portrait to upload an HD picture of your slime, gear, face, and pet. Preview it first with no upload, or remove it anytime.",
+      "Nearby Actions now lists nearby Services to click and use, including banks, shops, furnaces, sawmills, mailboxes, caves, patches, boats, and the Slime Statue.",
+      "Click any category count in Nearby Actions to hide or show Items, Enemies, Resources, or Services, and your choice is remembered.",
+      "A defeated boss now stays in Nearby Actions with a Respawn in Ns countdown so you can see when it returns.",
+      "Mining and Woodcutting Frenzy now glow on every resource again, including Starite and other merged rocks and trees that previously showed no shading, and tall crystals get a full-height effect.",
+      "Picking up a frenzy pile now tops off your Frenzy Bag first, and any leftover stays on the ground instead of vanishing.",
+      "Boss Bell Sound is now its own toggle in Settings then Audio, Auto-Ring Boss Bell is on by default, and it now rings after 6 seconds instead of 12.",
+      "New World Hover Tooltips setting in Settings then Interface lets you turn the hover and click info on enemies, resources, and world objects on or off.",
+      "Fixed the right-click menu on world objects that have items dropped on the floor.",
+      "Fixed level 600+ berry bushes not showing their island pings on the map and minimap.",
+      "Island meteors now give the full doubled reward when you use a Gather Potion.",
+      "Moving or freshly respawned bosses are now easier to click, and the world under a hidden Boss Bell button becomes clickable right away.",
+      "The expanded XP tracker was redesigned and polished, its per-hour and time-to-goal readouts hold steady instead of jumping a full reward each pick, and its stats no longer disappear when you pin them.",
+      "Fixed the trade window display on some browsers.",
+      "Cooking ingredient tiers now match each ingredient's real unlock level, so low-level berries no longer count toward high-tier recipes, and the in-game guide's Bonfire recipe tiers were corrected to match.",
+      "Leaving the Pet Garden now cancels any in-progress move, gather, or attack so nothing misfires when you return.",
+      "On mobile, a quick tap on a perk no longer both uses it and opens its menu.",
+      "Refreshed the Crystal Bloom and Gooberry plant with a new model.",
+      "Name Badge cosmetics now sort to the bottom of the Cosmetics bank tab.",
+      "Fixed the slime crouch and jump squash animation on some browsers.",
+      "Fixed Trout and Cooked Trout icons showing the wrong color, a small nametag bounce during window resize, and the Classic layout Worn tab on small screens.",
+      "Fixed the Slimetrics XP chart appearing empty for accounts with all their XP in one skill."
+    ]
+  },
+  {
     "version": "v2031",
     "date": "2026-07-15",
     "title": "Nearby Actions, Explorer Quests & Pet Garden",

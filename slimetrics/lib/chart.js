@@ -149,10 +149,24 @@ export function donutChart(segments, { size = 220, centerLabel = "", centerSub =
     const x1 = cx + Math.cos(a1) * r, y1 = cy + Math.sin(a1) * r;
     const x2 = cx + Math.cos(a1) * inner, y2 = cy + Math.sin(a1) * inner;
     const x3 = cx + Math.cos(a0) * inner, y3 = cy + Math.sin(a0) * inner;
-    const d = `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} L ${x2.toFixed(2)} ${y2.toFixed(2)} A ${inner} ${inner} 0 ${large} 0 ${x3.toFixed(2)} ${y3.toFixed(2)} Z`;
+    /* SVG DROPS an elliptical arc whose endpoints coincide, so a slice that
+       sweeps a full turn renders the whole donut INVISIBLE. This bites at 100%
+       (one skill with all the XP) and also just under it, because the endpoints
+       only have to round to the same rendered coordinate — at 120M total, one
+       skill under ~900 XP is enough. Test the rounded coords, not the angle.
+       A major arc that lands back on its start is a ring: emit two half arcs
+       per edge, with evenodd punching the centre hole. (A tiny sliver also has
+       coincident ends but sweeps < PI, and correctly stays invisible.) */
+    const isFull = x0.toFixed(2) === x1.toFixed(2) &&
+                   y0.toFixed(2) === y1.toFixed(2) &&
+                   (a1 - a0) > Math.PI;
+    const d = isFull
+      ? `M ${(cx - r).toFixed(2)} ${cy.toFixed(2)} a ${r} ${r} 0 1 1 ${(r * 2).toFixed(2)} 0 a ${r} ${r} 0 1 1 ${(-r * 2).toFixed(2)} 0 Z ` +
+        `M ${(cx - inner).toFixed(2)} ${cy.toFixed(2)} a ${inner} ${inner} 0 1 0 ${(inner * 2).toFixed(2)} 0 a ${inner} ${inner} 0 1 0 ${(-inner * 2).toFixed(2)} 0 Z`
+      : `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)} L ${x2.toFixed(2)} ${y2.toFixed(2)} A ${inner} ${inner} 0 ${large} 0 ${x3.toFixed(2)} ${y3.toFixed(2)} Z`;
     const pct = ((s.value / total) * 100).toFixed(1);
     const lvl = (s.level != null) ? ` data-lvl="${s.level}"` : "";
-    return `<path class="donut-slice" d="${d}" fill="${s.color}" data-label="${escape(s.label)}" data-color="${escape(s.color)}" data-xp="${s.value}" data-pct="${pct}"${lvl}><title>${escape(s.label)}: ${s.value.toLocaleString("en-US")} XP (${pct}%)</title></path>`;
+    return `<path class="donut-slice" d="${d}" fill="${s.color}" fill-rule="evenodd" data-label="${escape(s.label)}" data-color="${escape(s.color)}" data-xp="${s.value}" data-pct="${pct}"${lvl}><title>${escape(s.label)}: ${s.value.toLocaleString("en-US")} XP (${pct}%)</title></path>`;
   });
   return `
 <svg viewBox="0 0 ${size} ${size}" xmlns="${NS}" class="st-donut" role="img" aria-label="Skill XP distribution">

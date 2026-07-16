@@ -3,7 +3,7 @@ import { api, bustCache } from "../lib/api.js";
 import { nf, nfSigned, nfShort, dateLabel, timeAgo } from "../lib/format.js";
 import { SKILLS, skillIcon, skillLabel, skillColor } from "../lib/skills.js";
 import { xpToLevel, levelProgress } from "../lib/progression.js";
-import { PERIODS } from "../lib/config.js";
+import { PERIODS, SUPABASE_URL } from "../lib/config.js";
 import { lineChart, donutChart, heatmap } from "../lib/chart.js";
 
 let _state = {
@@ -110,13 +110,28 @@ function renderHero(o) {
   const palette = [["#a4ffc8","#50e878","#2aa050"],["#ffd5a4","#ff9b50","#a05a20"],["#a4d8ff","#5098e8","#205aa0"],["#ffa4e8","#e850b8","#a02080"],["#d8a4ff","#a850e8","#5020a0"]];
   const seed = (o.name || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   const [c1, c2, c3] = palette[seed % palette.length];
+  /* HD portrait uploaded by the game client (button-press only). Public bucket,
+     object key = uid. Cache-buster buckets by the hour of the player's last
+     snapshot so an active player who just re-captured sees a fresh URL soon,
+     aligned with the storage CDN's ~1h TTL. Un-captured players 404 → the img's
+     onerror swaps in the name-hash SVG fallback. */
+  const _pt = Date.parse(o.last_snapshot || o.last_seen || "");
+  const bust = Number.isFinite(_pt) ? Math.floor(_pt / 3600000) : Math.floor(Date.now() / 3600000);
+  const portraitUrl = o.user_id
+    ? `${SUPABASE_URL}/storage/v1/object/public/portraits/${encodeURIComponent(o.user_id)}?v=${bust}`
+    : null;
+  const avatarInner = portraitUrl
+    ? `<img class="st-hero-portrait" src="${portraitUrl}" alt="" loading="lazy"
+         onerror="this.onerror=null;this.style.display='none';var f=document.getElementById('st-hero-portrait-fb');if(f)f.style.display='block'">
+       <div id="st-hero-portrait-fb" style="display:none;width:100%;height:100%">${slimeAvatar(c1, c2, c3)}</div>`
+    : slimeAvatar(c1, c2, c3);
   return `
     <div class="st-hero">
       <div class="st-seg st-hero-pills" id="st-period-pills">
         ${PERIODS.map(p => `<button class="st-cell ${p.id === _state.period ? "is-active" : ""}" data-period="${p.id}"><span>${escapeHtml(p.label)}</span></button>`).join("")}
       </div>
       <div class="st-hero-avatar">
-        ${slimeAvatar(c1, c2, c3)}
+        ${avatarInner}
         ${rank > 0 ? `<div class="st-hero-rank-chip">#${nf(rank)}</div>` : ""}
       </div>
       <div class="st-hero-body">

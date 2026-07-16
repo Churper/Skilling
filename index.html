@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2031">
+  <link rel="stylesheet" href="./style.css?v=2045">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -720,6 +720,7 @@
             <div class="stg-row"><span class="stg-label">Farm Timer</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-farmtimer" checked><span class="stg-tog-track"></span></label></span></div>
             <div class="stg-row"><span class="stg-label">Frenzy Alerts</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-frenzy" checked><span class="stg-tog-track"></span></label></span></div>
           </div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Boss Bell Sound</span><span class="stg-hint">Play the bell sound when a boss is summoned again</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-sfx-bossbell" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Sound</span><span class="stg-hint">Play a chime when your active AFK timer expires, even while the game is in the background. Off by default</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-afk-jingle-enabled"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Tune</span><span class="stg-hint">Which chime plays when the AFK timer expires. Preview always works; expiry only plays when AFK Timer Sound is on</span></span><span class="stg-ctrl"><select id="setting-afk-jingle" class="stg-sel" aria-label="AFK timer tune"></select><button type="button" id="setting-afk-jingle-preview" class="stg-btn" aria-label="Preview selected AFK timer tune">&#9654; Play</button></span></div>
           <div class="stg-row-pair">
@@ -751,6 +752,7 @@
           <div class="stg-row"><span class="stg-label">Hide Game Hub Button</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hide-hub"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Quick Eat HUD Button</span><span class="stg-hint">Show a draggable quick-eat button on the game HUD.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mobile-quick-eat-button"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Nearby Actions HUD</span><span class="stg-hint">Show the draggable nearby items, enemies, and resources launcher. F6 opens it while enabled.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-nearby-actions-hud"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">World Hover Tooltips</span><span class="stg-hint">Show information when hovering or clicking enemies, resources, and world objects.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-world-tooltips" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Hide Hover Ring</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-no-hover-ring"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-section-title">Names &amp; Tags</div>
           <div class="stg-row-pair">
@@ -815,7 +817,7 @@
           <div class="stg-row"><span class="stg-label">Combat Bar</span><span class="stg-ctrl"><select id="setting-combat-bar" class="stg-sel"><option value="all" selected>All Styles</option><option value="melee">Melee Only</option><option value="bow">Range Only</option><option value="mage">Mage Only</option><option value="melee_bow">Melee + Range</option><option value="melee_mage">Melee + Mage</option><option value="bow_mage">Range + Mage</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Self HP Bar</span><span class="stg-hint">Choose where your HP bar is shown.</span></span><span class="stg-ctrl"><select id="setting-self-hp-bar" class="stg-sel"><option value="big">Big only</option><option value="both">Little + big</option><option value="small">Little only</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Auto-Retaliate</span><span class="stg-hint">Fight back automatically when attacked. Off: keep walking when hit</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-retaliate" checked><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row"><span class="stg-label">Auto-Ring Boss Bell</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-ring-bell"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label">Auto-Ring Boss Bell</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-ring-bell" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Slime Armor Display</span><span class="stg-ctrl"><select id="setting-armor-display" class="stg-sel"><option value="all">Everyone</option><option value="self">Just Me</option><option value="off" selected>Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Combat Style Panel</span><span class="stg-hint">Choose when the combat style selector is shown.</span></span><span class="stg-ctrl"><select id="setting-combat-style-panel" class="stg-sel"><option value="always">Always shown</option><option value="combat">During combat</option><option value="hidden">Hidden</option></select></span></div>
           <div class="stg-section-title">Interaction</div>
@@ -1702,6 +1704,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2031"></script>
+  <script type="module" src="./main.js?v=2045"></script>
 </body>
 </html>
