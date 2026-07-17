@@ -1,5 +1,35 @@
 [
   {
+    "version": "v2062",
+    "date": "2026-07-17",
+    "title": "Party Hall, Cave Fish, Geysers & Skins",
+    "entries": [
+      "New Party Hall on the south-west coast for drop parties.",
+      "Deposit bank items and coins, host a balloon drop, and claim prizes by popping balloons.",
+      "Hosts can announce a drop party to the whole world.",
+      "New PvP-cave fish at levels 600–1000: Storm Shark, Kelp Dragon, Sludge Blob, Prism Sailfish, and Infinity Whale.",
+      "Fish Bucket auto-collects those treasure fish, up to 100 at a time. It is a rare drop while cave fishing.",
+      "New Titan Feast cooking dish using the new cave fish.",
+      "Fishing Frenzy no longer gives bonus level-600+ cave fish.",
+      "PvP-cave lava fishing spots now have high-contrast black animated rings and waves.",
+      "PvP-cave Fish Frenzy now uses a red splash animation.",
+      "Mainland geysers launch you into the air, and you can deploy a paraglider to glide after a launch.",
+      "New slime skins: Bao, Onion, and Lightning.",
+      "Cap'n Bubbles gives Explorer Aura at Explorer 500 and Explorer Cape at Explorer 1000.",
+      "Explorer Aura boats and dolphins now render crisply in front of your slime.",
+      "Actions Hub can be resized smaller, and its text and rows scale down to fit.",
+      "Fixed shops showing twice in Actions Hub when an animated merchant stood in front of the building.",
+      "Actions Hub refreshes as soon as a boss respawns.",
+      "New setting: Chat & Inventory Over HUD.",
+      "Fixed floating chat and inventory windows covering trackers and other HUD widgets when they should not.",
+      "Improved multi-window panel stacking and Settings layering over open windows.",
+      "Broadcast Coins from your coin readout or currency chip.",
+      "Original Task Board bosses drop loot at your feet.",
+      "Clearer fishing frenzy splash visuals.",
+      "Improved shoreline foam and water so they look correct at any distance or height."
+    ]
+  },
+  {
     "version": "v2045",
     "date": "2026-07-16",
     "title": "Slimetrics Portraits, Nearby Services & Frenzy Shading",

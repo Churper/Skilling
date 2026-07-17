@@ -6,9 +6,15 @@
   "objects": [
     { "type": "Svc_PvpCaveExit", "x": 0, "z": 31, "rot": 0 },
 
-    { "type": "Svc_FishingSpot", "x": -36, "z": -4, "rot": 0.3, "lava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_FishingSpot", "x": 0, "z": -38, "rot": 1.9, "lava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_FishingSpot", "x": 36, "z": -4, "rot": 3.5, "lava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
+    { "type": "Svc_FishingSpot", "x": -36, "z": -4, "rot": 0.3, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
+    { "type": "Svc_FishingSpot", "x": 0, "z": -38, "rot": 1.9, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
+    { "type": "Svc_FishingSpot", "x": 36, "z": -4, "rot": 3.5, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
+
+    { "type": "Svc_FishingSpot_Storm_Shark", "x": -70, "z": 44, "rot": 0.6, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
+    { "type": "Svc_FishingSpot_Kelp_Dragon", "x": -46, "z": 70, "rot": 1.8, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
+    { "type": "Svc_FishingSpot_Sludge_Blob", "x": -16, "z": -64, "rot": 3.6, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
+    { "type": "Svc_FishingSpot_Prism_Sailfish", "x": 8, "z": 62, "rot": 4.4, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
+    { "type": "Svc_FishingSpot_Infinity_Whale", "x": 84, "z": -30, "rot": 5.2, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
 
     { "type": "Tree_1_A", "x": -34, "z": 18, "rot": 4.1 },
     { "type": "Birch_Tree", "x": -48, "z": 32, "rot": 5.2 },
