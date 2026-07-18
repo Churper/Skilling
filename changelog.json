@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2080",
+    "date": "2026-07-17",
+    "title": "Settings Sync & Simpler Pet Care",
+    "entries": [
+      "Your settings and UI layout now follow your account automatically, on any device or incognito login. Graphics settings like FPS cap and render distance stay per device.",
+      "Pets no longer get hungry. Happiness is the only care stat now and sets how fast they gather, so pet them or give treats to keep it up. Pets no longer eat food from your bag.",
+      "On the pet card, the happiness heart moved to the left and the amber trough-fuel bar is on the right. It shows how much meat is left; tap it to fill the trough.",
+      "Magic Blossom now gives your crew +10% pet gathering XP while it blooms, instead of keeping pets fed. It still needs Tree Meat in the trough.",
+      "Claiming a Fish Frenzy mid-cast no longer restarts your cast, which mattered on the long cave fish.",
+      "Item icons that fail to load on a slow connection now recover on their own within a minute instead of showing a question mark until you refresh.",
+      "The big map no longer hides behind chat and panels when both Over HUD toggles are on.",
+      "Fixed the grey tap flash on the pinned Pet button and perk chips on mobile."
+    ]
+  },
+  {
     "version": "v2078",
     "date": "2026-07-17",
     "title": "Skins, Quick Gear, Giant Chicken & Party Waves",
