@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2080">
+  <link rel="stylesheet" href="./style.css?v=2081">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -859,6 +859,8 @@
           <button type="button" id="setting-sys-check" class="stg-reset-btn" style="background:rgba(80,180,255,.12);color:#8fd3ff;border-color:rgba(80,180,255,.3)">&#x1F50D; Check System (GPU / WebGL)</button>
           <div id="setting-sys-result" style="display:none;margin-top:8px;padding:10px 12px;border-radius:8px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);font-size:12px;line-height:1.6"></div>
           <button type="button" id="setting-defaults-btn" class="stg-reset-btn">Reset to Defaults</button>
+          <div class="stg-section-title">Cloud Sync</div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Keep Graphics On This Device</span><span class="stg-hint">Video settings stop following your account on this device</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-graphics-device-local"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-section-title">Local Preset</div>
           <div class="stg-preset-local">
             <button type="button" id="setting-save-local-preset" class="stg-reset-btn stg-preset-save">Save Preset</button>
@@ -1706,6 +1708,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2080"></script>
+  <script type="module" src="./main.js?v=2081"></script>
 </body>
 </html>

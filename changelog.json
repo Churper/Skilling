@@ -1,5 +1,15 @@
 [
   {
+    "version": "v2081",
+    "date": "2026-07-18",
+    "title": "Settings Sync, Now Complete",
+    "entries": [
+      "More of your setup now follows your account: bank favorites, inspect mode and quantity, chat channel, pop-out chat window position and size, farm patch left-click, mob tags, the nearby-actions menu, pet auto-loot, your pinned pet button and perk chips, and custom horse palettes.",
+      "Graphics settings now follow your account too, including FPS cap, render distance, DPR, streaming, and antialias. A new Video setting, \"Keep Graphics On This Device\", opts a single device back out.",
+      "The AFK timer sound no longer plays on the login screen when a tab loads a different set of saved settings."
+    ]
+  },
+  {
     "version": "v2080",
     "date": "2026-07-17",
     "title": "Settings Sync & Simpler Pet Care",
