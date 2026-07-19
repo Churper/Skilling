@@ -1,5 +1,21 @@
 [
   {
+    "version": "v2113",
+    "date": "2026-07-19",
+    "title": "Fonts, Party Bosses & Safe Updates",
+    "entries": [
+      "Game fonts now load from Slimeville, so English UI and nametags look the same on every computer.",
+      "New Settings → Font choice: Slimeville or your device default.",
+      "If the player running a party boss fight dies, a surviving party member keeps the fight going. Social invite leadership does not change.",
+      "Improved Skele party fights.",
+      "Slimeshroom stays planted and no longer chases you after you alt-tab.",
+      "Skill tracker has a new EXP Remaining mode, and its right-click menu closes when you move the mouse away.",
+      "The update banner now says Click to save and update, and waits for your save before reloading.",
+      "Improved large emoji panel scaling on fullscreen.",
+      "Fixed lag when resizing large emoji panels."
+    ]
+  },
+  {
     "version": "v2095",
     "date": "2026-07-18",
     "title": "Slimeshroom Fixes",
