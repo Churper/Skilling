@@ -1,10 +1,19 @@
 [
   {
+    "version": "v2115",
+    "date": "2026-07-19",
+    "title": "Far Clicks & Glide",
+    "entries": [
+      "At low render distance, clicking far ahead now walks or glides to the same spot it would at high render distance.",
+      "Paraglider flights no longer stop early over terrain that has not loaded yet."
+    ]
+  },
+  {
     "version": "v2114",
     "date": "2026-07-19",
     "title": "Shroom Paintbrush & Welcome Back Fixes",
     "entries": [
-      "New rare drop: the Shroom Paintbrush! Fight the Slimeshroom, chop its trees, or pick its bushes for a chance at it — it rewards time spent taking part, and can land even while your tab is in the background.",
+      "New rare drop: the Shroom Paintbrush! Fight the Slimeshroom, chop its trees, or pick its bushes for a chance at it. It rewards time spent taking part, and can land even while your tab is in the background.",
       "Paint a pet as a Slimeshroom at the Pet Garden with the new brush, complete with a spotted red mushroom cap.",
       "Fixed a mobile bug where re-tapping your tree or rock after your screen was off showed a Welcome Back box paying time you had already been paid for.",
       "Fixed the minimap staying closed after entering the PvP Crucible. It now returns on its own with the Crucible map instead of needing the M key.",
@@ -32,7 +41,7 @@
     "date": "2026-07-18",
     "title": "Slimeshroom Fixes",
     "entries": [
-      "Fixed the Slimeshroom being killable. It has no health — battle it for combat XP the whole fight phase; only the timer moves the event along.",
+      "Fixed the Slimeshroom being killable. It has no health. Battle it for combat XP the whole fight phase; only the timer moves the event along.",
       "Fixed the Slimeshroom tree stopping your chopping after a few swings. It now chops for the whole tree phase."
     ]
   },
@@ -49,7 +58,7 @@
       "Improved Skele party fights: better shared pillar and ghost hits, and fairer party damage.",
       "Skeleton husk stays on the ground after it falls.",
       "Pet Garden playground (swing, climb, spin, dive) fills happiness on every owned slimelet.",
-      "New setting: Quick Gear Icon. Shows the active Quick Gear on the Equip button — the preset emoji, or B for Equip Best. Partial presets match correctly.",
+      "New setting: Quick Gear Icon. Shows the active Quick Gear on the Equip button: the preset emoji, or B for Equip Best. Partial presets match correctly.",
       "Brown Horse is faster (near Grey). Tutorial ride-horse step is earlier.",
       "Settings → Keybinds has Restore Defaults.",
       "Improved hub, crowd, and load performance. Other players' idle horses hold still until they move. Dense crowds may hide far cosmetics.",
@@ -118,7 +127,7 @@
       "New Party Hall on the south east coast for drop parties.",
       "Deposit bank items and coins, host a balloon drop, and claim prizes by popping balloons.",
       "Hosts can announce a drop party to the whole world.",
-      "New PvP-cave fish at levels 600–1000: Storm Shark, Kelp Dragon, Sludge Blob, Prism Sailfish, and Infinity Whale.",
+      "New PvP-cave fish at levels 600-1000: Storm Shark, Kelp Dragon, Sludge Blob, Prism Sailfish, and Infinity Whale.",
       "Fish Bucket auto-collects those treasure fish, up to 100 at a time. It is a rare drop while cave fishing.",
       "New Titan Feast cooking dish using the new cave fish.",
       "Guide lists the new cave fish and Titan Feast with heal values, in all four languages.",
@@ -1920,7 +1929,7 @@
     "date": "2026-06-12",
     "title": "Endgame Trees & Skill Tracker",
     "entries": [
-      "New level 600–1000 woodcutting trees in the PvP Crucible: a high-risk, high-reward treasure-log haul loop.",
+      "New level 600-1000 woodcutting trees in the PvP Crucible: a high-risk, high-reward treasure-log haul loop.",
       "New top-tier woodcutting frenzy: Enchanted Relic at level 600.",
       "New Skill Tracker HUD chip: right-click a skill to track your progress (now reworked further in v1133).",
       "Fixed a pet garden double-claim issue when a pet's cache was full."
