@@ -1,5 +1,14 @@
 [
   {
+    "version": "v2095",
+    "date": "2026-07-18",
+    "title": "Slimeshroom Fixes",
+    "entries": [
+      "Fixed the Slimeshroom being killable. It has no health — battle it for combat XP the whole fight phase; only the timer moves the event along.",
+      "Fixed the Slimeshroom tree stopping your chopping after a few swings. It now chops for the whole tree phase."
+    ]
+  },
+  {
     "version": "v2094",
     "date": "2026-07-18",
     "title": "Slimeshroom, Trades, Pet Play & Performance",
