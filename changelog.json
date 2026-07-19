@@ -1,5 +1,17 @@
 [
   {
+    "version": "v2114",
+    "date": "2026-07-19",
+    "title": "Shroom Paintbrush & Welcome Back Fixes",
+    "entries": [
+      "New rare drop: the Shroom Paintbrush! Fight the Slimeshroom, chop its trees, or pick its bushes for a chance at it — it rewards time spent taking part, and can land even while your tab is in the background.",
+      "Paint a pet as a Slimeshroom at the Pet Garden with the new brush, complete with a spotted red mushroom cap.",
+      "Fixed a mobile bug where re-tapping your tree or rock after your screen was off showed a Welcome Back box paying time you had already been paid for.",
+      "Fixed the minimap staying closed after entering the PvP Crucible. It now returns on its own with the Crucible map instead of needing the M key.",
+      "Fixed some text looking thinner and washed out after the last update's font change."
+    ]
+  },
+  {
     "version": "v2113",
     "date": "2026-07-19",
     "title": "Fonts, Party Bosses & Safe Updates",
