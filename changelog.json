@@ -1,5 +1,31 @@
 [
   {
+    "version": "v2094",
+    "date": "2026-07-18",
+    "title": "Slimeshroom, Trades, Pet Play & Performance",
+    "entries": [
+      "New mainland Slimeshroom event: long timer, random clearings, world announce on spawn.",
+      "Phases: hardens, fight, chop the tree form, pick the bush form. Blue mushroom on the big map and mini map.",
+      "XP only. About 3× your best rate in that skill at your level. Full bag still works.",
+      "Trades survive brief disconnects. Offers stay. If Accept was already on, both Accept again. Partner stays gone and the trade closes.",
+      "Lose your party leader in a boss fight, or get removed, and you leave the instance.",
+      "Improved Skele party fights: better shared pillar and ghost hits, and fairer party damage.",
+      "Skeleton husk stays on the ground after it falls.",
+      "Pet Garden playground (swing, climb, spin, dive) fills happiness on every owned slimelet.",
+      "New setting: Quick Gear Icon. Shows the active Quick Gear on the Equip button — the preset emoji, or B for Equip Best. Partial presets match correctly.",
+      "Brown Horse is faster (near Grey). Tutorial ride-horse step is earlier.",
+      "Settings → Keybinds has Restore Defaults.",
+      "Improved hub, crowd, and load performance. Other players' idle horses hold still until they move. Dense crowds may hide far cosmetics.",
+      "Chunk loads timeout and retry. Boss and Pet Garden music not at boot. Crucible cold entry smoother.",
+      "Sacred Grove shows on slow connections: placeholder first, full model when loaded. Visible in Potato Mode.",
+      "Fish Frenzy on your current spot no longer wipes the cast.",
+      "Buff rings correct after relog. Snail Slime model remade. Mainland spawn moved. Axe and pick gather hold retuned.",
+      "Cave fade covers the HUD. Map tooltips higher. Nametag chips count hidden names only.",
+      "Emote panel keeps tile size on fullscreen and adds columns when wide.",
+      "Chat overlay opens cleanly after login when enabled. Credits: CommonVirus links to Twitch."
+    ]
+  },
+  {
     "version": "v2081",
     "date": "2026-07-18",
     "title": "Settings Sync, Now Complete",
