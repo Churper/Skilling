@@ -850,7 +850,7 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
     </div>
   </div>
 
-  <div class="sec-head"><div class="sec-icon purple">&#x2728;</div><div><h2>Equipment Tiers</h2><p>16 tiers from Tin to Astral &mdash; material-based names</p></div></div>
+  <div class="sec-head"><div class="sec-icon purple">&#x2728;</div><div><h2>Equipment Tiers</h2><p>21 tiers from Tin to Infinity &mdash; material-based names</p></div></div>
   <div class="tip">DEF is now <strong>flat damage reduction</strong> &mdash; each armor piece subtracts its DEF directly from incoming damage (min 1). No percentage scaling. Easier to balance, easier to reason about.</div>
 
   <div class="tier-strip" data-equip-tiers>
@@ -870,6 +870,11 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
     <div class="tier-item" style="border-color:rgba(176,112,255,.25)"><span class="tier-badge" style="background:rgba(176,112,255,.15);color:#b070ff">Lv 350</span><span class="tier-swatch" style="background:#b070ff;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F319;</span><span class="tier-name" style="color:#b070ff">Lunar</span><div class="tier-detail"><span>173 ATK</span><span>19 DEF</span></div></div>
     <div class="tier-item" style="border-color:rgba(48,255,112,.25)"><span class="tier-badge" style="background:rgba(48,255,112,.15);color:#30ff70">Lv 400</span><span class="tier-swatch" style="background:#30ff70;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F311;</span><span class="tier-name" style="color:#30ff70">Eclipse</span><div class="tier-detail"><span>208 ATK</span><span>24 DEF</span></div></div>
     <div class="tier-item" style="border-color:rgba(255,232,144,.25)"><span class="tier-badge" style="background:rgba(255,232,144,.15);color:#ffe890">Lv 450</span><span class="tier-swatch" style="background:#ffe890;display:flex;align-items:center;justify-content:center;font-size:20px">&#x2B50;</span><span class="tier-name" style="color:#ffe890">Astral</span><div class="tier-detail"><span>250 ATK</span><span>30 DEF</span></div></div>
+    <div class="tier-item" style="border-color:rgba(110,200,255,.25)"><span class="tier-badge" style="background:rgba(110,200,255,.15);color:#6ec8ff">Lv 500</span><span class="tier-swatch" style="background:#6ec8ff"></span><span class="tier-name" style="color:#6ec8ff">Storm</span><div class="tier-detail"><span>275 ATK</span><span>36 DEF</span></div></div>
+    <div class="tier-item" style="border-color:rgba(47,212,176,.25)"><span class="tier-badge" style="background:rgba(47,212,176,.15);color:#2fd4b0">Lv 750</span><span class="tier-swatch" style="background:#2fd4b0"></span><span class="tier-name" style="color:#2fd4b0">Leviathan</span><div class="tier-detail"><span>297 ATK</span><span>43 DEF</span></div></div>
+    <div class="tier-item" style="border-color:rgba(124,224,60,.25)"><span class="tier-badge" style="background:rgba(124,224,60,.15);color:#7ce03c">Lv 1000</span><span class="tier-swatch" style="background:#7ce03c"></span><span class="tier-name" style="color:#7ce03c">Goo</span><div class="tier-detail"><span>315 ATK</span><span>52 DEF</span></div></div>
+    <div class="tier-item" style="border-color:rgba(255,138,216,.25)"><span class="tier-badge" style="background:rgba(255,138,216,.15);color:#ff8ad8">Lv 1250</span><span class="tier-swatch" style="background:#ff8ad8"></span><span class="tier-name" style="color:#ff8ad8">Prism</span><div class="tier-detail"><span>331 ATK</span><span>62 DEF</span></div></div>
+    <div class="tier-item" style="border-color:rgba(255,224,138,.25)"><span class="tier-badge" style="background:rgba(255,224,138,.15);color:#ffe08a">Lv 1500</span><span class="tier-swatch" style="background:#ffe08a"></span><span class="tier-name" style="color:#ffe08a">Infinity</span><div class="tier-detail"><span>344 ATK</span><span>74 DEF</span></div></div>
   </div>
 
   <div class="sec-head"><div class="sec-icon" style="background:rgba(255,200,80,.1);border-color:rgba(255,200,80,.2)">&#x26A1;</div><div><h2>Weapon Attack Speed</h2><p>Each weapon tier adds +10% attack speed &mdash; per style</p></div></div>
@@ -2421,7 +2426,9 @@ fetch("icons.json").then(r=>r.ok?r.json():null).then(data=>{
     "Silver":"mithril_body","Platinum":"adamant_body","Cobalt":"rune_body",
     "Jade":"slime_body","Titanium":"crystal_body","Opal":"ember_body",
     "Gem":"frost_body","Volcanic":"volcanic_body","Celestial":"celestial_body",
-    "Solar":"solar_body","Lunar":"lunar_body","Eclipse":"eclipse_body","Astral":"astral_body"
+    "Solar":"solar_body","Lunar":"lunar_body","Eclipse":"eclipse_body","Astral":"astral_body",
+    "Storm":"storm_body","Leviathan":"leviathan_body","Goo":"goo_body",
+    "Prism":"prism_body","Infinity":"infinity_body"
   };
   /* Cooked-fish display names ("Cooked Mandarin") that differ from icon
      keys ("Cooked Mandarin Fish"). Lookup happens AFTER splitting on →. */
