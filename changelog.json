@@ -1,5 +1,34 @@
 [
  {
+  "version": "v2121",
+  "date": "2026-07-20",
+  "title": "Shroom Berry, Guide Submissions & Follow",
+  "entries": [
+   "New rare drop from the Slimeshroom bush phase: Shroom Berry. It goes to your bag, or to your feet if your bag is full.",
+   "Give Berry one Shroom Berry and he will tell you about when the next Slimeshroom grows.",
+   "Hover the Slimeshroom to see its current phase and time left, and a soft chime plays when it changes phase nearby.",
+   "Woodcutting Frenzy works again on the Slimeshroom tree phase.",
+   "The in game guide has a new Submissions tab. Send what is missing or wrong, up to five suggestions per day while logged in.",
+   "Follow a player from their info card. Click the world or move to stop following.",
+   "Left click a Magic Seed in your bag to swap companions out in the world for one seed.",
+   "Right clicking a slime or nametag only opens their info card, instead of stacking two right click menus.",
+   "New setting: Lock HUD Positions. Bars, trackers, buttons, minimap and chat stop dragging or resizing, while right click reset still works.",
+   "New setting: Comet Shower Quick Cast. The Storm hotkey fires meteors at your cursor. The pet panel button still arms first.",
+   "Clan Hub and Peaceful Meadow now show in the map Resources list.",
+   "You can post buy orders for Coal on the Player Exchange.",
+   "Selling large or noted stacks at the General Store no longer freezes until a second click.",
+   "Meat Tree Frenzy no longer claims itself on the next chop. You still click to claim it.",
+   "Coal, Moonstone, Sunstone, Glowstone and Holy Stone now glow properly during a Mining Frenzy.",
+   "The 12 newest slime skins no longer show as green in chat.",
+   "Back to back level up fireworks and chat lines no longer get swallowed.",
+   "The Custom Horse color picker no longer stops opening after a few color changes.",
+   "Clan Hub no longer draws behind the HUD, chat or inventory.",
+   "The minimap zoom slider now drags properly on mobile.",
+   "Oarfish, Gulper Eel and Angler King can be composted, raw or cooked.",
+   "Settings menu description updated: AFK timer text covers every gather window, not just 12 min and 6 hr."
+  ]
+ },
+ {
   "version": "v2120",
   "date": "2026-07-20",
   "title": "Endgame Gear, New Skins & Earbuds",
@@ -10,7 +39,7 @@
    "The Shroom Paintbrush now has its own item icon.",
    "Fixed chat names showing plain white instead of your skin colors while the Full Squares fill was turned on.",
    "Pet and companion eyes and smiles are sharper, and no longer sink into the slime when a pet skin is equipped.",
-   "Fixed the Slimetrics 7 day gainers board leaving off the most active players. Your own profile 7 day gains were always correct, the public board was not.",
+   "Fixed the Slimetrics 7 day gainers board leaving off the most active players.",
    "Fixed Woodcutting Frenzy firing on Slimeshroom event trees, and a frenzy staying armed from the tree phase into the bush phase.",
    "The in game guide now lists all 21 equipment tiers with correct stats, and the Spanish and Japanese guides show their tier icons again."
   ]

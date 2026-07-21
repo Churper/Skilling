@@ -403,6 +403,39 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 @keyframes slimeBob{0%,100%{transform:translateY(0) scaleX(1) scaleY(1)}50%{transform:translateY(-4px) scaleX(.97) scaleY(1.04)}}
 @keyframes slimeShadow{0%,100%{transform:scaleX(1);opacity:.15}50%{transform:scaleX(.85);opacity:.1}}
 
+/* SUBMISSIONS */
+.sub-card{padding:18px}
+.sub-intro{color:var(--ink-2);font-size:.92rem;margin-bottom:10px}
+.sub-form{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.sub-label{font-family:var(--font-display);font-size:.72rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-3);margin-top:4px}
+.sub-select,.sub-text{
+  font-family:var(--font-body);font-size:.92rem;color:var(--ink-1);
+  background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:9px 12px;outline:none;width:100%;transition:border-color .2s;
+  -webkit-appearance:none;appearance:none;
+}
+.sub-select{
+  cursor:pointer;padding-right:34px;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23d8d8dc' stroke-opacity='.45' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.sub-select option{background:var(--bg-surface);color:var(--ink-1)}
+.sub-select:focus,.sub-text:focus{border-color:var(--accent)}
+.sub-text{resize:vertical;min-height:130px;line-height:1.5}
+.sub-text::placeholder{color:var(--ink-3)}
+.sub-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px}
+.sub-count{font-size:.78rem;color:var(--ink-3)}
+.sub-send{
+  font-family:var(--font-display);font-weight:600;font-size:.85rem;letter-spacing:.6px;
+  background:var(--accent);color:#111;border:none;border-radius:var(--radius-sm);
+  padding:9px 20px;cursor:pointer;transition:filter .2s;
+}
+.sub-send:hover{filter:brightness(1.12)}
+.sub-send:disabled{opacity:.5;cursor:default;filter:none}
+.sub-status{font-size:.85rem;min-height:1.3em;color:var(--ink-2)}
+.sub-status.ok{color:#7dd88a}
+.sub-status.err{color:var(--red)}
+
 /* RESPONSIVE */
 @media(max-width:640px){
   .tabs{gap:0;padding:6px 4px 0}
@@ -442,6 +475,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>Mundo</button>
   <button class="tab-btn" data-tab="clans"><span class="tab-icon">&#x1F3F0;</span>Clanes</button>
   <button class="tab-btn" data-tab="tips"><span class="tab-icon">&#x1F4A1;</span>Consejos</button>
+  <button class="tab-btn" data-tab="submit"><span class="tab-icon">&#x1F4DD;</span>Sugerencias</button>
 </div>
 
 <!-- BÁSICOS -->
@@ -1564,6 +1598,42 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   </div>
 </div>
 
+<!-- SUBMISSIONS -->
+<div class="tab-content" id="tab-submit">
+
+  <div class="sec-head" style="margin-top:4px"><div class="sec-icon gold">&#x1F4DD;</div><div><h2>Sugerencias para la guía</h2><p>Dinos qué debería cubrir esta guía</p></div></div>
+
+  <div class="card sub-card">
+    <p class="sub-intro">¿Has visto algo que falta, está desactualizado o resulta confuso en esta guía? Envíalo aquí. Cada sugerencia llega a la lista de revisión del desarrollador y da forma a la próxima actualización de la guía.</p>
+    <p class="sub-intro">Las sugerencias más útiles hacen tres cosas: eligen la sección de la guía, explican qué está mal o qué falta, y dicen qué esperabas encontrar. Una idea por envío mantiene la lista fácil de gestionar.</p>
+    <div class="sub-form">
+      <label class="sub-label" for="sub-section">Sección de la guía</label>
+      <select id="sub-section" class="sub-select">
+        <option value="start">Básicos</option>
+        <option value="gather">Recolección</option>
+        <option value="combat">Combate</option>
+        <option value="gear">Equipo</option>
+        <option value="food">Comida</option>
+        <option value="skills">Habilidades</option>
+        <option value="islands">Islas</option>
+        <option value="world">Mundo</option>
+        <option value="clans">Clanes</option>
+        <option value="tips">Consejos</option>
+        <option value="other">Otra cosa</option>
+      </select>
+      <label class="sub-label" for="sub-body">Tu sugerencia</label>
+      <textarea id="sub-body" class="sub-text" maxlength="1000" rows="6" placeholder="Ejemplo: La pestaña de Equipo debería indicar a qué equipo apuntar en el nivel 300."></textarea>
+      <div class="sub-foot">
+        <span class="sub-count" id="sub-count">0 / 1000</span>
+        <button class="sub-send" id="sub-send" type="button">Enviar sugerencia</button>
+      </div>
+      <div class="sub-status" id="sub-status"></div>
+    </div>
+  </div>
+
+  <div class="tip">&#x1F4EC; Puedes enviar hasta 5 sugerencias al día, una por minuto. Las sugerencias se leen con regularidad, pero no reciben respuesta individual; consulta el registro de cambios para ver las actualizaciones de la guía.</div>
+</div>
+
 <script>
 if(new URLSearchParams(location.search).has("embed"))document.body.classList.add("embedded");
 function _switchTab(tabName){
@@ -1611,6 +1681,52 @@ function _handleHash(){
 }
 _handleHash();
 window.addEventListener("hashchange",_handleHash);
+
+/* Submissions form: postMessage to the game, which owns the RPC */
+(function(){
+  const body=document.getElementById("sub-body");if(!body)return;
+  const send=document.getElementById("sub-send"),count=document.getElementById("sub-count"),
+        status=document.getElementById("sub-status"),section=document.getElementById("sub-section");
+  const embedded=window.self!==window.top;
+  const MSG={
+    sending:"Enviando...",
+    sent:"¡Enviado! Tu sugerencia está en la lista de revisión.",
+    sentMore:"Puedes enviar {n} más hoy.",
+    openInGame:"Abre esta guía desde dentro del juego (tecla Z) para enviar sugerencias.",
+    noReply:"El juego no responde. Inténtalo de nuevo en un momento.",
+    failed:"No se pudo enviar ahora mismo. Inténtalo más tarde.",
+    not_authenticated:"Debes iniciar sesión en el juego para enviar sugerencias.",
+    too_fast:"Espera un minuto entre sugerencias.",
+    rate_limited:"Límite diario alcanzado (5 al día). Inténtalo mañana.",
+    too_short:"Escribe al menos una frase completa.",
+    too_long:"Mantenlo por debajo de 1000 caracteres.",
+    bad_section:"Elige una sección de la guía de la lista.",
+    offline:"Sin conexión. Inténtalo en un momento."
+  };
+  let pending=null,timer=0;
+  function setStatus(msg,cls){status.textContent=msg;status.className="sub-status"+(cls?" "+cls:"")}
+  body.addEventListener("input",()=>{count.textContent=body.value.length+" / 1000"});
+  window.addEventListener("message",e=>{
+    if(e.origin!==location.origin)return;
+    const d=e.data;if(!d||d.type!=="sv-guide-suggestion-result"||d.id!==pending)return;
+    pending=null;clearTimeout(timer);send.disabled=false;
+    if(d.ok){
+      body.value="";count.textContent="0 / 1000";
+      let msg=MSG.sent;
+      if(typeof d.remaining==="number"&&d.remaining>0)msg+=" "+MSG.sentMore.replace("{n}",d.remaining);
+      setStatus(msg,"ok");
+    }else setStatus(MSG[d.error]||MSG.failed,"err");
+  });
+  send.addEventListener("click",()=>{
+    if(!embedded){setStatus(MSG.openInGame,"err");return}
+    const text=body.value.trim();
+    if(text.length<5){setStatus(MSG.too_short,"err");return}
+    pending="s"+Math.random().toString(36).slice(2);
+    send.disabled=true;setStatus(MSG.sending);
+    window.parent.postMessage({type:"sv-guide-suggestion",id:pending,section:section.value,body:text},location.origin);
+    timer=setTimeout(()=>{if(pending){pending=null;send.disabled=false;setStatus(MSG.noReply,"err")}},10000);
+  });
+})();
 
 /* ═══ Interactive Level Graph ═══ */
 (function(){
