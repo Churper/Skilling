@@ -1,5 +1,24 @@
 [
  {
+  "version": "v2123",
+  "date": "2026-07-21",
+  "title": "Player Exchange Rework & Shared Pet Charges",
+  "entries": [
+   "10 buy and 10 sell offers each on the Player Exchange, up from 5.",
+   "Search now covers the whole board.",
+   "Sort by price, newest, oldest, biggest stack or name.",
+   "Offers are grouped by item. Tap one to open it.",
+   "New category filter and Can trade toggle.",
+   "Offers show their age. Renew re-dates your own after an hour.",
+   "My Offers keeps a history of what sold and what was cancelled.",
+   "Scroll charges are shared across all your slimelets. Power stays per pet.",
+   "Level milestone messages show the name in that player's slime colors.",
+   "Fixed the Slimeshroom keeping its frenzy glow after the frenzy ends.",
+   "Fixed the PvP cave roar not playing when someone enters while you are inside.",
+   "Fixed the map Min Lv and Tier menus opening behind the map."
+  ]
+ },
+ {
   "version": "v2122",
   "date": "2026-07-21",
   "title": "Player Cards, Rings & Pickup",
