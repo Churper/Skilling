@@ -1,5 +1,21 @@
 [
  {
+  "version": "v2122",
+  "date": "2026-07-21",
+  "title": "Player Cards, Rings & Pickup",
+  "entries": [
+   "Right-click a name in chat and choose Info to open their player card.",
+   "Player cards for people who are not near you now load skill levels from Slimetrics instead of staying empty.",
+   "Click the name on a player card to open their Slimetrics profile. A confirm asks first; you can turn that off under Settings → Confirm Slimetrics Links.",
+   "Chat Info is view-only: you can see rep, but you cannot vote from the chat log.",
+   "When both ring slots are full, equipping a new ring replaces the ring you have worn the longest. An empty slot still fills first.",
+   "New keybind: Pick Up Nearest (unbound by default). One press picks up a single drop already in reach. It does not walk to loot or clear a pile.",
+   "After a PvP death, the Respawn button shows who killed you.",
+   "If you are already in the PvP cave, you hear the ambush roar when another player enters (same sound as a cave ambush).",
+   "When a Slimeshroom sprouts, a line is also posted in the Game chat channel so you still see it after the banner fades."
+  ]
+ },
+ {
   "version": "v2121",
   "date": "2026-07-20",
   "title": "Shroom Berry, Guide Submissions & Follow",

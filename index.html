@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2121">
+  <link rel="stylesheet" href="./style.css?v=2122">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -645,8 +645,13 @@
     <div class="changepw-box">
       <h2>Change Password</h2>
       <p id="changepw-hint" hidden></p>
+      <!-- form wrapper (display:contents = no layout change) so Chrome does not warn
+           "Password field is not contained in a form"; submit is a no-op, the Update
+           button stays type=button and is wired in main.js -->
+      <form id="changepw-form" onsubmit="return false" style="display:contents">
       <label>New Password<input type="password" id="changepw-new" minlength="6" required autocomplete="new-password"></label>
       <label>Confirm New Password<input type="password" id="changepw-confirm" minlength="6" required autocomplete="new-password"></label>
+      </form>
       <div class="changepw-btn-row">
         <button type="button" id="changepw-submit" class="changepw-submit">Update</button>
         <button type="button" id="changepw-cancel" class="changepw-cancel">Cancel</button>
@@ -710,6 +715,7 @@
           <div class="stg-row"><span class="stg-label">Effects</span><span class="stg-ctrl stg-vol"><button type="button" id="setting-volume-mute" class="stg-icon-btn">&#x1F50A;</button><input type="range" id="setting-volume" min="0" max="100" value="50" class="stg-range"><span class="stg-range-val" data-for="setting-volume">50</span></span></div>
           <div class="stg-row"><span class="stg-label">Music</span><span class="stg-ctrl stg-vol"><button type="button" id="setting-music-mute" class="stg-icon-btn">&#x1F3B5;</button><input type="range" id="setting-music" min="0" max="100" value="35" class="stg-range"><span class="stg-range-val" data-for="setting-music">35</span></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Release Media Keys</span><span class="stg-hint">Stop the game from grabbing your keyboard play/pause key (turns OFF game music so it no longer claims the media controls; sound effects keep playing)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-release-media-keys"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Confirm Slimetrics Links</span><span class="stg-hint">Ask before opening a player's Slimetrics profile when you click their name on an info card</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-slimetrics-confirm" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mute Peer Effects</span><span class="stg-hint">Hide other players' SlimePower enhance visuals</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mute-peers"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Peer Firework Sounds</span><span class="stg-hint">Hear other players' milestone firework sounds</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-peer-firework-sounds" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Slime Crab Peer Hitsplats</span><span class="stg-hint">Show nearby players' damage numbers on the Slime Crab only</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-slime-crab-peer-hitsplats" checked><span class="stg-tog-track"></span></label></span></div>
@@ -940,6 +946,7 @@
             <div class="stg-row ui-hotkey-row" data-hotkey-action="jump"><span class="stg-label">Jump</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="crouch"><span class="stg-label">Crouch</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="quick_eat"><span class="stg-label">Quick Eat</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="pickup_nearby"><span class="stg-label">Pick Up Nearest</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="boss_bell"><span class="stg-label">Ring Boss Bell</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="home_teleport"><span class="stg-label">Home Teleport</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="mount_dismount"><span class="stg-label">Mount / Dismount</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
@@ -1714,6 +1721,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2121"></script>
+  <script type="module" src="./main.js?v=2122"></script>
 </body>
 </html>
