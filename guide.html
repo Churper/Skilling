@@ -35,7 +35,14 @@
   --radius:8px;
   --radius-sm:6px;
 }
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--border-glow) transparent}
+/* Themed scrollbars — the guide renders inside an in-game iframe, so the OS
+   default bar read as a raw browser window bolted into the UI. */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-glow);border-radius:5px;border:2px solid var(--bg-deep)}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+::-webkit-scrollbar-corner{background:transparent}
 body{
   font-family:var(--font-body);
   background:var(--bg-deep);
