@@ -1,5 +1,14 @@
 [
  {
+  "version": "v2135",
+  "date": "2026-07-22",
+  "title": "Language Fix",
+  "entries": [
+   "Fixed the language in Settings switching back after the page reloaded.",
+   "Your language now follows your account properly."
+  ]
+ },
+ {
   "version": "v2134",
   "date": "2026-07-21",
   "title": "Chinese Global Chat",
