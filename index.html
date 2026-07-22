@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2131">
+  <link rel="stylesheet" href="./style.css?v=2134">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -817,6 +817,7 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat Auto-Scroll</span><span class="stg-hint">Keep chat pinned to the newest message</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-auto-scroll" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat Auto-Collapse</span><span class="stg-hint">Collapse chat after idle or outside clicks</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-auto-collapse"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">New Message Dot</span><span class="stg-hint">Show a red dot on the collapsed chat arrow instead of a yellow flash for pending messages</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-new-msg-dot"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chinese Global Chat</span><span class="stg-hint">Join the opt-in Global [中文] chat room</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-cn-global"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Pop-out Channel Chat</span><span class="stg-hint">Right-click the chat channel dropdown to pop out a floating, draggable chat window for one channel (Clan, DMs, etc). Keeps your main chat as-is</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-classic-chat-popout"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Level-Up Broadcasts</span><span class="stg-hint">Choose where player congrats messages appear locally</span></span><span class="stg-ctrl"><select id="setting-levelup-broadcasts" class="stg-sel"><option value="all">Chat + Screen</option><option value="screen">Screen Only</option><option value="chat">Chat Only</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Game Updates In Chat</span><span class="stg-hint">Mirror inventory status updates into the Game chat channel</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-game-updates"><span class="stg-tog-track"></span></label></span></div>
@@ -1374,6 +1375,7 @@
           <select id="ui-chat-channel-select" class="ui-chat-channel-select" aria-label="Chat channel">
             <option value="all">All</option>
             <option value="global">Global</option>
+            <option value="cn" data-chat-channel="cn" hidden disabled>Global [中文]</option>
             <option value="local">Local</option>
             <option value="game">Game</option>
             <option value="clan">Clan</option>
@@ -1721,6 +1723,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2131"></script>
+  <script type="module" src="./main.js?v=2134"></script>
 </body>
 </html>

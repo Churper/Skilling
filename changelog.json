@@ -1,5 +1,18 @@
 [
  {
+  "version": "v2134",
+  "date": "2026-07-21",
+  "title": "Chinese Global Chat",
+  "entries": [
+   "New opt-in Global [中文] chat channel, separate from Global.",
+   "Turn it on with Chinese Global Chat in Settings, Chat.",
+   "Opens automatically the first time you arrive with a ?lang=zh link.",
+   "Fixed logged-in players appearing under an old guest name in chat.",
+   "Fixed Slimeshroom frenzy being lost when you tabbed away and back.",
+   "Small performance gain when fishing rods are on screen."
+  ]
+ },
+ {
   "version": "v2131",
   "date": "2026-07-21",
   "title": "Optimizations",
