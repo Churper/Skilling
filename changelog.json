@@ -1,5 +1,15 @@
 [
  {
+  "version": "v2131",
+  "date": "2026-07-21",
+  "title": "Optimizations",
+  "entries": [
+   "Big performance improvements to you and combat.",
+   "Big performance improvements around crowds and other players.",
+   "Smoother loading in with fewer hitches."
+  ]
+ },
+ {
   "version": "v2123",
   "date": "2026-07-21",
   "title": "Player Exchange Rework & Shared Pet Charges",
