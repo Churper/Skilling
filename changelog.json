@@ -1,5 +1,19 @@
 [
   {
+    "version": "v2140",
+    "date": "2026-07-23",
+    "title": "Chinese Translation Update & Signature Card Fix",
+    "entries": [
+      "120 more Chinese strings: farming, travel, pet garden, item lock and mail.",
+      "Chinese names for every Lumber, Mining and Fishing Scroll.",
+      "World right click menus, the skill tracker tooltip and PvP Cave entry now translate.",
+      "Fixed rare drop pop-ups staying English in Spanish, Japanese and Chinese.",
+      "Fixed the signature card showing a blank face on default faces.",
+      "Mail subjects and letter text you write are no longer translated.",
+      "3 new names in the tester credits."
+    ]
+  },
+  {
     "version": "v2138",
     "date": "2026-07-23",
     "title": "PvP Crucible Fixes, Sturdier Saves & More Chinese Translation",
