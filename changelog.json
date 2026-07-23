@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2142",
+    "date": "2026-07-23",
+    "title": "Mystic's Wand Chore & Crucible Freeze Fixes",
+    "entries": [
+      "Fixed the Mystic's wand chore not counting the wand while you wear it.",
+      "You can hand the wand in while it's equipped.",
+      "Stuck with a second wand? The Mystic now recognizes your enhanced one automatically.",
+      "Fixed a lag spike when a rat-slime freezes you in the PvP Crucible."
+    ]
+  },
+  {
     "version": "v2141",
     "date": "2026-07-23",
     "title": "Slime Mob Makeover, Spider Boss Retune & Faster Crucible",
