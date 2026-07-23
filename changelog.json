@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2138",
+    "date": "2026-07-23",
+    "title": "PvP Crucible Fixes, Sturdier Saves & More Chinese Translation",
+    "entries": [
+      "Frozen players in the PvP Crucible now show their ice cube to everyone.",
+      "The Crucible entry roar is now server-driven, so it fires reliably and only for real entries.",
+      "Horses are now blocked in the PvP Crucible and all instanced areas.",
+      "Pocket Horse no longer spends a Spider Scroll when mounting is blocked.",
+      "Hundreds more item names translated in Chinese, plus washer, recipe and tooltip text.",
+      "Cloud saves now back off gently during server trouble, so outages recover faster.",
+      "Fixed a rare Adventure Book reset after logging in during server trouble.",
+      "Fixed the first Def Shred fling causing a lag spike."
+    ]
+  },
+  {
     "version": "v2137",
     "date": "2026-07-23",
     "title": "Chinese Translation Update & Crowd Performance",
