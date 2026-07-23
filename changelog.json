@@ -1,5 +1,19 @@
 [
   {
+    "version": "v2141",
+    "date": "2026-07-23",
+    "title": "Slime Mob Makeover, Spider Boss Retune & Faster Crucible",
+    "entries": [
+      "New looks for 7 slime mobs: Tiny, Spike, Frost, Magma, Obsidian, Brute and Slime Slug.",
+      "New: right click a locked item to remove its lock. The Item Lock is not refunded.",
+      "Spider boss damage no longer grows with your max Hitpoints: now a flat hit plus 1%.",
+      "Alien boss loot goes straight to your inventory again, for the killer and party members.",
+      "Fixed the first Def Shred or Pet Call fling causing a lag spike, including in caves.",
+      "Back from a sleeping tab, your cloud save retries right away instead of up to 5 minutes.",
+      "PvP Crucible loads faster: the cave downloads while the entry confirm is open."
+    ]
+  },
+  {
     "version": "v2140",
     "date": "2026-07-23",
     "title": "Chinese Translation Update & Signature Card Fix",
