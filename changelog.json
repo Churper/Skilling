@@ -1,5 +1,18 @@
 [
   {
+    "version": "v2137",
+    "date": "2026-07-23",
+    "title": "Chinese Translation Update & Crowd Performance",
+    "entries": [
+      "Chinese translation improvements: 157 new and 61 updated strings.",
+      "Smoother frames in crowded areas.",
+      "Fixed the prayer tooltip sticking to the screen after switching tabs.",
+      "Fixed the selected combat style not lighting up outside Classic Layout.",
+      "Fixed clicking a drop behind a tree not picking up nearby drops on arrival.",
+      "Fixed the PvP Crucible entry roar being silent."
+    ]
+  },
+  {
     "version": "v2136",
     "date": "2026-07-22",
     "title": "Name Badges, Chinese Chat & Exchange Letters",
