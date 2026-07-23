@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2143",
+    "date": "2026-07-23",
+    "title": "Alien Party Improvements",
+    "entries": [
+      "The Alien Overlord now fights every party member, not just the leader.",
+      "Fixed the alien staying invisible or never attacking after a bell respawn.",
+      "Alien fight loot now goes straight to your bag, potions and equipment included.",
+      "Fixed duplicate party members appearing after a mid-fight disconnect."
+    ]
+  },
+  {
     "version": "v2142",
     "date": "2026-07-23",
     "title": "Mystic's Wand Chore & Crucible Freeze Fixes",
