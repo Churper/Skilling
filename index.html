@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2143">
+  <link rel="stylesheet" href="./style.css?v=2145">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -1215,6 +1215,43 @@
       </div>
     </div>
   </div>
+  <!-- Washer Transpose overlay -->
+  <div id="ui-tp-overlay" class="ui-wash-overlay" hidden>
+    <div class="ui-wash-modal ui-tp-modal">
+      <div class="ui-wash-header">
+        <span class="ui-wash-title">&#x1F500; Transpose</span>
+        <button type="button" id="ui-tp-close" class="ui-bank-close-btn">&times;</button>
+      </div>
+      <div class="ui-tp-body">
+        <div class="ui-tp-pair">
+          <div class="ui-tp-side" id="ui-tp-side-old">
+            <div class="ui-tp-side-cap">Old item</div>
+            <div class="ui-tp-item" id="ui-tp-item-old"></div>
+            <div class="ui-tp-lines" id="ui-tp-lines-old"></div>
+          </div>
+          <div class="ui-tp-side" id="ui-tp-side-new">
+            <div class="ui-tp-side-cap">New item</div>
+            <div class="ui-tp-item" id="ui-tp-item-new"></div>
+            <div class="ui-tp-lines" id="ui-tp-lines-new"></div>
+          </div>
+        </div>
+        <div id="ui-tp-picker" class="ui-tp-picker" hidden></div>
+        <div class="ui-sp-crate ui-tp-crate">
+          <div class="ui-sp-crate-pointer"></div>
+          <div class="ui-sp-crate-strip" id="ui-tp-strip"></div>
+        </div>
+        <div class="ui-tp-facts">
+          <div class="ui-tp-fact"><span>Charges</span><span id="ui-tp-charges" class="ui-wash-coins-val">0 &#x26A1;</span></div>
+          <div class="ui-tp-fact"><span>Cost</span><span id="ui-tp-cost" class="ui-wash-cost-val">&mdash;</span></div>
+          <div class="ui-tp-fact"><span>Chance</span><span id="ui-tp-chance" class="ui-wash-cost-val">5%</span></div>
+        </div>
+        <div class="ui-wash-actions">
+          <button type="button" id="ui-tp-spin" class="ui-wash-roll-btn">Transpose</button>
+        </div>
+        <p id="ui-tp-result" class="ui-wash-result"></p>
+      </div>
+    </div>
+  </div>
   <!-- Compost Bin overlay -->
   <div id="ui-compost-overlay" class="ui-compost-overlay" hidden>
     <div class="ui-compost-modal">
@@ -1728,6 +1765,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2143"></script>
+  <script type="module" src="./main.js?v=2145"></script>
 </body>
 </html>
