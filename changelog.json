@@ -1,5 +1,17 @@
 [
   {
+    "version": "v2147",
+    "date": "2026-07-25",
+    "title": "Player Reports & Better System Check",
+    "entries": [
+      "New: report a player with /report or /report <name> in chat.",
+      "Reports go straight to staff and are never shown in chat.",
+      "System Check adds Graphics backend, Render scale, and Draw calls rows.",
+      "Firefox on Mac now gets a clear note about its slower graphics path.",
+      "Staff name moderation now sticks across refreshes and relogs."
+    ]
+  },
+  {
     "version": "v2145",
     "date": "2026-07-24",
     "title": "Washer Transpose, Dojo Top-5 Rings & Coin Shout",
