@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2147">
+  <link rel="stylesheet" href="./style.css?v=2148">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -307,6 +307,32 @@
             <button type="button" id="ui-report-send" class="ui-mail-claim-btn">Send report</button>
           </div>
           <div id="ui-report-status" class="ui-mail-empty" hidden></div>
+        </div>
+      </div>
+    </div>
+    <!-- Persistent staff notice. Stays up until acknowledged, because the event it
+         reports (staff changed your display name) usually lands while the player is
+         AFK — a toast or status line is gone before they look back at the screen.
+         Shares the mail modal shell so it adds no new styling. No close X on
+         purpose: the single OK button is the acknowledgement. -->
+    <div id="ui-notice-modal" hidden role="dialog" aria-modal="true" aria-labelledby="ui-notice-title">
+      <div class="ui-mail-modal-card">
+        <div class="ui-mail-modal-head">
+          <strong id="ui-notice-title">Notice</strong>
+        </div>
+        <div class="ui-mail-modal-body">
+          <div id="ui-notice-body" class="ui-notice-body"></div>
+          <!-- Optional input row: used by the post-reset self-service rename, so the
+               player picks a new name right here instead of being sent to hunt
+               through Settings for a field that looks broken to them. -->
+          <label id="ui-notice-input-row" hidden>Choose a name
+            <input type="text" id="ui-notice-input" maxlength="24" spellcheck="false" autocomplete="off" />
+          </label>
+          <div id="ui-notice-status" class="ui-mail-empty" hidden></div>
+          <div class="ui-mail-modal-actions">
+            <button type="button" id="ui-notice-submit" class="ui-mail-claim-btn" hidden>Set name</button>
+            <button type="button" id="ui-notice-ok" class="ui-mail-claim-btn">OK</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1809,6 +1835,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2147"></script>
+  <script type="module" src="./main.js?v=2148"></script>
 </body>
 </html>
