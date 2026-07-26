@@ -1,5 +1,32 @@
 [
   {
+    "version": "v2150",
+    "date": "2026-07-26",
+    "title": "Noted Items, Auras & Frenzy Base Drops",
+    "entries": [
+      "New: Cigar face cosmetic in the SlimeCoin shop, 160 SlimeCoins.",
+      "New: chopping the five level 600+ treasure logs can drop a Log Basket, 1 in 100.",
+      "Frenzy on level 600+ cave ore and trees now also gives 1 to 4 of the base drop.",
+      "Noted items now look like a paper note in your bag, bank, shop and trade.",
+      "Noted items can be alched. A partial alch leaves the smaller note.",
+      "Auto-eat can be paused and resumed from the pet perk card.",
+      "New: Select all in the Item Lock picker.",
+      "New setting: Hide Other Players' Auras.",
+      "Other players' auras now show, and cost far less in a crowd.",
+      "Fixed auras vanishing when they passed in front of a slime.",
+      "Name badge colours now show to other players.",
+      "Fixed Coins spent climbing from posting and cancelling Exchange offers.",
+      "Fixed open Exchange offers vanishing from My Offers past 50 offers.",
+      "The PvP cave map now pins every resource the cave stocks, and search pings draw above other players.",
+      "Bosses stay at the top of the Nearby Enemies list instead of their minions.",
+      "Fixed a mobile tap pressing a button in the panel it just opened.",
+      "Fixed empty space beside the buff bar firing pet perks.",
+      "Bao Bun skin no longer glows white, and its icon matches.",
+      "Island kill tasks now count Brute Slimes on higher tier islands.",
+      "Filled in text that stayed English on Chinese, Spanish and Japanese clients, including the DPS Calculator."
+    ]
+  },
+  {
     "version": "v2147",
     "date": "2026-07-25",
     "title": "Player Reports & Better System Check",
