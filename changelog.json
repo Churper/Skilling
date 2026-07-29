@@ -1,5 +1,17 @@
 [
   {
+    "version": "v2156",
+    "date": "2026-07-29",
+    "title": "Chat Translation",
+    "entries": [
+      "New: chat translation. Messages written in another language show in yours.",
+      "Your browser does the translating, so nothing you read or send leaves your device.",
+      "Set it in Settings, Chat, Translate Chat: Automatic, Tap To Translate, or Off.",
+      "Click the globe on a message to switch between the translation and the original.",
+      "Chrome and Edge only. The setting is hidden on browsers that cannot do it."
+    ]
+  },
+  {
     "version": "v2150",
     "date": "2026-07-26",
     "title": "Noted Items, Auras & Frenzy Base Drops",
