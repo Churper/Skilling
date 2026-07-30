@@ -1,5 +1,18 @@
 [
   {
+    "version": "v2160",
+    "date": "2026-07-30",
+    "title": "Slime Emoji",
+    "entries": [
+      "40 slime emoji from the Discord server now work in chat. Type :slimegrin: or pick one from the Emotes tab.",
+      "They show as the actual picture while you type, not as text.",
+      "Right-click an emoji in the Emotes tab to put it in chat; left-click pops it over your head.",
+      "Slime emoji survive chat translation instead of turning into nonsense.",
+      "New players agree to the Terms of Service when registering.",
+      "Terms of Service and Privacy Policy are linked from the start screen."
+    ]
+  },
+  {
     "version": "v2158",
     "date": "2026-07-29",
     "title": "Crop Prices",

@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2159">
+  <link rel="stylesheet" href="./style.css?v=2160">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -136,6 +136,7 @@
         <input type="text" id="start-auth-user" class="start-auth-input" placeholder="Username" maxlength="20" autocomplete="username" spellcheck="false" name="username">
         <input type="password" id="start-auth-pw" class="start-auth-input" placeholder="Password" autocomplete="current-password" name="password">
         <input type="email" id="start-auth-recovery" class="start-auth-input" placeholder="Recovery email (optional)" autocomplete="email" name="recovery" hidden>
+        <label id="start-auth-tos" class="start-auth-tos" hidden><input type="checkbox" id="start-auth-tos-cb"><span id="start-auth-tos-text">I am 13 or older and I agree to the <a href="./terms.html" target="_blank" rel="noopener">Terms of Service</a> and <a href="./privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
         <p id="start-auth-error" class="start-auth-error" hidden></p>
         <div class="start-auth-actions">
           <button type="button" id="start-auth-back" class="start-auth-back-btn">Back</button>
@@ -177,7 +178,7 @@
     </div>
     <div class="sv-footer">
       <p class="start-credits-line" style="margin-top:8px;margin-bottom:0;font-size:12px;font-weight:700;opacity:0.5;line-height:1.2">&copy; 2026 SlimeVille Online.</p>
-      <p class="start-credits-line" style="margin-top:1px;font-size:10px;opacity:0.35;line-height:1.1">All Rights Reserved · <a href="./privacy.html" target="_blank" class="start-credits-link" style="font-size:10px">Privacy Policy</a></p>
+      <p class="start-credits-line" style="margin-top:1px;font-size:10px;opacity:0.35;line-height:1.1">All Rights Reserved · <a href="./terms.html" target="_blank" class="start-credits-link" style="font-size:10px">Terms of Service</a> · <a href="./privacy.html" target="_blank" class="start-credits-link" style="font-size:10px">Privacy Policy</a></p>
     </div>
   </div>
   <div id="ui-root" hidden>
@@ -1497,7 +1498,9 @@
             <option value="social">Social</option>
           </select>
         </div>
-        <input id="ui-chat-input" type="text" placeholder="" maxlength="200" autocomplete="off">
+        <!-- contenteditable, not <input>: the draft renders slime emoji inline.
+             chatDraftInput.js gives it an <input> façade (value/selection/placeholder). -->
+        <div id="ui-chat-input" class="ui-chat-draft" contenteditable="true" placeholder="" maxlength="200" spellcheck="false"></div>
         <button id="ui-chat-send" type="submit" title="Send" aria-label="Send" hidden>&#10148;</button>
       </form>
     </div>
@@ -1837,6 +1840,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2159"></script>
+  <script type="module" src="./main.js?v=2160"></script>
 </body>
 </html>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="body" cx="42%" cy="30%" r="74%">
+      <stop offset="0%" stop-color="#8bff9b"/>
+      <stop offset="48%" stop-color="#35d85c"/>
+      <stop offset="100%" stop-color="#0f8f35"/>
+    </radialGradient>
+    <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#45ef69"/>
+      <stop offset="100%" stop-color="#0f9d3a"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.2"/>
+      <feOffset dx="0" dy="2" result="offset"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.34"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#softShadow)">
+    <ellipse cx="64" cy="100" rx="47" ry="7" fill="#000" opacity=".18"/>
+    
+    <path d="M11 91.5C11 53 33 25 64 25s53 28 53 66.5C117 102.5 106 106 64 106S11 102.5 11 91.5Z" fill="url(#body)" stroke="#086221" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M13.5 86.5C22 100 39 105 64 105s42-5 50.5-18.5V96c0 10-15 15-50.5 15S13.5 106 13.5 96Z" fill="url(#belly)" opacity=".8"/>
+    <path d="M38 31c-13 8-21 23-24 45" fill="none" stroke="#b6ffc0" stroke-width="5" stroke-linecap="round" opacity=".28"/>
+    <path d="M73 29c15 3 26 13 33 31" fill="none" stroke="#eaffec" stroke-width="8" stroke-linecap="round" opacity=".34"/>
+    <path d="M84 36c8 4 14 11 18 22" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".68"/>
+    <path d="M32 77c9 9 28 13 50 9" fill="none" stroke="#76ff87" stroke-width="9" stroke-linecap="round" opacity=".16"/>
+    
+    
+    <path d="M39 61l8-8 8 8" fill="none" stroke="#173018" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M73 61l8-8 8 8" fill="none" stroke="#173018" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="37" cy="76" rx="12" ry="7" fill="#ff78a8" opacity=".78"/>
+    <ellipse cx="91" cy="76" rx="12" ry="7" fill="#ff78a8" opacity=".78"/>
+    <path d="M49 82c8 7 22 7 30 0" fill="none" stroke="#173018" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

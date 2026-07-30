@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="body" cx="42%" cy="30%" r="74%">
+      <stop offset="0%" stop-color="#8bff9b"/>
+      <stop offset="48%" stop-color="#35d85c"/>
+      <stop offset="100%" stop-color="#0f8f35"/>
+    </radialGradient>
+    <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#45ef69"/>
+      <stop offset="100%" stop-color="#0f9d3a"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.2"/>
+      <feOffset dx="0" dy="2" result="offset"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.34"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#softShadow)">
+    <ellipse cx="64" cy="100" rx="47" ry="7" fill="#000" opacity=".18"/>
+    
+    <path d="M11 91.5C11 53 33 25 64 25s53 28 53 66.5C117 102.5 106 106 64 106S11 102.5 11 91.5Z" fill="url(#body)" stroke="#086221" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M13.5 86.5C22 100 39 105 64 105s42-5 50.5-18.5V96c0 10-15 15-50.5 15S13.5 106 13.5 96Z" fill="url(#belly)" opacity=".8"/>
+    <path d="M38 31c-13 8-21 23-24 45" fill="none" stroke="#b6ffc0" stroke-width="5" stroke-linecap="round" opacity=".28"/>
+    <path d="M73 29c15 3 26 13 33 31" fill="none" stroke="#eaffec" stroke-width="8" stroke-linecap="round" opacity=".34"/>
+    <path d="M84 36c8 4 14 11 18 22" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".68"/>
+    <path d="M32 77c9 9 28 13 50 9" fill="none" stroke="#76ff87" stroke-width="9" stroke-linecap="round" opacity=".16"/>
+    
+    
+    <g transform="translate(11.8 8) scale(2.9 2.6)">
+      <path fill="#664500" d="M32 6.13c-1.19 1.441-3.182 1.951-5.076 2.121C26.606 6.713 25.241 1 22.5 1c-2.403 0-3.269 1.091-4.5 1.091C16.769 2.091 15.903 1 13.5 1c-2.741 0-4.106 5.713-4.424 7.251C7.182 8.081 5.19 7.57 4 6.13 1.847 3.524-1 5.444.442 8.304 2.72 12.821 8.23 16 18 16c9.769 0 15.279-3.179 17.558-7.696C37 5.444 34.153 3.524 32 6.13z"/>
+      <path fill="#825D0E" d="M21.5 3c-1.869 0-2.543.964-3.5.964-.957 0-1.631-.964-3.5-.964C12.037 3 11 9.75 11 9.75S12.282 12 18 12c5.719 0 7-2.25 7-2.25S23.963 3 21.5 3z"/>
+      <path fill="#664500" d="M11 6s2.074 2 7 2c4.927 0 7-2 7-2v2s-2.222 2-7 2c-4.778 0-7-2-7-2V6z"/>
+    </g>
+    <g transform="translate(18.1 23.2) scale(2.55 2.2)">
+      <path fill="#173018" d="M25.688 25.605c-.146-.133-.366-.141-.522-.023-.032.023-3.23 2.389-7.165 2.389-3.925 0-7.133-2.365-7.165-2.389-.157-.117-.376-.107-.523.023-.146.132-.179.35-.077.517.105.178 2.648 4.318 7.764 4.318 5.115 0 7.659-4.141 7.765-4.317.101-.169.069-.386-.077-.518z"/>
+    </g>
+    <ellipse fill="#173018" cx="50.3" cy="66.7" rx="4.84" ry="6.77"/>
+    <ellipse fill="#173018" cx="77.6" cy="66.7" rx="4.84" ry="6.77"/>
+  </g>
+</svg>
