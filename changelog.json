@@ -1,5 +1,34 @@
 [
   {
+    "version": "v2158",
+    "date": "2026-07-29",
+    "title": "Crop Rebalance",
+    "entries": [
+      "Crops from Sunflower (350) up to Sugar Plum (575) now sell for more, scaled to how long they take to grow.",
+      "The bonus yield for farming above a crop's level now caps at +15 units per harvest.",
+      "Result: the high crops are the best gold per hour. Before this, Garlic at level 335 out-earned Sugar Plum and even the level 1000 Golden Sugarplum.",
+      "Growing a cheap low level crop for gold now earns less than it did.",
+      "Garlic and every crop below it keeps its old sell price. Farming XP is unchanged.",
+      "After a message translates, chat no longer leaves the newest line below the fold."
+    ]
+  },
+  {
+    "version": "v2157",
+    "date": "2026-07-29",
+    "title": "Bank Fixes, DM Translation & Pet Looting",
+    "entries": [
+      "Withdraw All on a gear stack now takes the whole stack. Withdraw 5, 10 and X work too.",
+      "Deposit All on a gear item now banks every matching copy in your bag.",
+      "Improved how the bank stores gear so rarity stays with the item through logins and stack merges.",
+      "Gear from gift openings now stacks in the bank instead of taking a slot each.",
+      "Locked, starred, named and enchanted gear still keeps its own slot, so nothing merges away.",
+      "Hardened SlimePower tracking for rings equipped straight from the bank.",
+      "Direct messages now translate the same way chat does.",
+      "New Auto-loot option: Always take boss uniques, on by default.",
+      "The Wizard reacts again when you hit it."
+    ]
+  },
+  {
     "version": "v2156",
     "date": "2026-07-29",
     "title": "Chat Translation",
