@@ -2,13 +2,11 @@
   {
     "version": "v2158",
     "date": "2026-07-29",
-    "title": "Crop Rebalance",
+    "title": "Crop Prices",
     "entries": [
-      "Crops from Sunflower (350) up to Sugar Plum (575) now sell for more, scaled to how long they take to grow.",
-      "The bonus yield for farming above a crop's level now caps at +15 units per harvest.",
-      "Result: the high crops are the best gold per hour. Before this, Garlic at level 335 out-earned Sugar Plum and even the level 1000 Golden Sugarplum.",
-      "Growing a cheap low level crop for gold now earns less than it did.",
-      "Garlic and every crop below it keeps its old sell price. Farming XP is unchanged.",
+      "Crops from Sunflower (350) up to Sugar Plum (575) now sell for 3 to 11 percent more.",
+      "Farming a higher crop is no longer worse gold than sticking with Cherries or Garlic.",
+      "Cherries, Beans, Garlic and Golden Sugarplum are unchanged.",
       "After a message translates, chat no longer leaves the newest line below the fold."
     ]
   },
