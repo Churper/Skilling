@@ -1,5 +1,29 @@
 [
   {
+    "version": "v2162",
+    "date": "2026-07-31",
+    "title": "Party, Caves & Interface Improvements",
+    "entries": [
+      "Downed players no longer regain HP at party-boss respawn screens.",
+      "Party-boss deaths no longer remove teammates after a missed handoff.",
+      "Party gear drops keep their correct rarity and stats for teammates.",
+      "Leaving a party no longer ejects you from the PvP Crucible.",
+      "Alien projectiles now deal 15% max HP plus 500-599 base damage.",
+      "Alien auto-loot now respects your gear rarity filter.",
+      "Added 4 more enemies to each mainland dragon and demon cave.",
+      "Cut enemy respawn times in half in mainland dragon and demon caves.",
+      "Improved mainland cave performance.",
+      "The Party collapse arrow is now a separate button and no longer starts a panel drag.",
+      "Player info cards now show HP and boss kills above the old caps.",
+      "Combat Style buttons recover automatically from stale off-screen positions.",
+      "Prayer tooltips stay above panels on mobile and Classic layouts.",
+      "The open Pet Garden stays above inventory when panels overlap.",
+      "Backspace now removes the first rendered slime emoji from chat.",
+      "Exchange sell search updates immediately after listing an item.",
+      "Pet gathering info no longer shows misleading per-item times."
+    ]
+  },
+  {
     "version": "v2161",
     "date": "2026-07-30",
     "title": "Security and Save Fixes",

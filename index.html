@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2161">
+  <link rel="stylesheet" href="./style.css?v=2162">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -1737,7 +1737,8 @@
   <div id="ui-party-panel" class="ui-party-panel" hidden>
     <div class="ui-party-header" id="ui-party-header" title="Tap to collapse or expand. Drag to move.">
       <span class="ui-party-title">Party</span>
-      <span class="ui-party-chevron" aria-hidden="true">&#9660;</span>
+      <button type="button" id="ui-party-collapse" class="ui-party-chevron" data-no-drag
+        aria-label="Collapse Party panel" aria-expanded="true">&#9660;</button>
     </div>
     <div id="ui-party-members"></div>
     <button type="button" id="ui-party-leave" class="ui-party-leave-btn">Leave</button>
@@ -1840,6 +1841,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2161"></script>
+  <script type="module" src="./main.js?v=2162"></script>
 </body>
 </html>
