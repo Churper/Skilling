@@ -1,5 +1,14 @@
 [
   {
+    "version": "v2161",
+    "date": "2026-07-30",
+    "title": "Security and Save Fixes",
+    "entries": [
+      "Security fixes for player names and friend messages.",
+      "Losing cloud sync now shows a clear warning."
+    ]
+  },
+  {
     "version": "v2160",
     "date": "2026-07-30",
     "title": "Slime Emoji",
