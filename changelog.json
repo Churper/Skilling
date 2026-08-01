@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2164",
+    "date": "2026-08-01",
+    "title": "Pet Garden Coal, AFK Coal & Name Badges",
+    "entries": [
+      "Pets can now gather Coal in the Pet Garden. Unlocks at pet Mining 40.",
+      "Coal rate is flat, going up to double base at high pet level.",
+      "AFK coal mining now pays out on Welcome Back.",
+      "Mushroom and Meteor name badges are now granted at the event tier."
+    ]
+  },
+  {
     "version": "v2163",
     "date": "2026-08-01",
     "title": "Dropped Items & Clan Perks",
