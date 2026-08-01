@@ -1,5 +1,15 @@
 [
   {
+    "version": "v2163",
+    "date": "2026-08-01",
+    "title": "Dropped Items & Clan Perks",
+    "entries": [
+      "Dropped items now expire for real once their timer runs out.",
+      "Clan perk unlocks now use your own clan's level, not the clan you are viewing.",
+      "Smoother combat: your save no longer rebuilds on every swing, shot and cast."
+    ]
+  },
+  {
     "version": "v2162",
     "date": "2026-07-31",
     "title": "Party, Caves & Interface Improvements",
