@@ -1,5 +1,19 @@
 [
   {
+    "version": "v2168",
+    "date": "2026-08-02",
+    "title": "Boss SlimeCoin Daily Caps",
+    "entries": [
+      "Each boss now has its own daily SlimeCoin cap.",
+      "20 a day from Snake Boss, Rock Golem, Frost Yeti, Slime Daddy, Dragon, Skele, Rat and Spider.",
+      "30 a day from Wizard and Alien. 40 a day from Bee and Frog.",
+      "Each cap resets 24 hours after your first SlimeCoin from that boss.",
+      "Drop rates are unchanged. Only the daily total is capped.",
+      "Capped drops now show +0 SC so you can see why.",
+      "The bell now revives the boss after 3 seconds instead of 1."
+    ]
+  },
+  {
     "version": "v2167",
     "date": "2026-08-02",
     "title": "Slime Promise, Boss Arenas & Party Hall",
