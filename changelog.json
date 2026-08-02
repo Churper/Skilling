@@ -1,5 +1,14 @@
 [
   {
+    "version": "v2169",
+    "date": "2026-08-02",
+    "title": "Signature Card and Portrait Fixes",
+    "entries": [
+      "Fixed the signature card exporting without your slime on it.",
+      "Fixed Slimetrics portrait uploads failing with \"Update failed\"."
+    ]
+  },
+  {
     "version": "v2168",
     "date": "2026-08-02",
     "title": "Boss SlimeCoin Daily Caps",
