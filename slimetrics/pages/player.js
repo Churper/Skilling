@@ -48,14 +48,18 @@ export async function renderPlayer($page, params = {}) {
       overview._formerName = NAME;
     }
     _state.overview = overview;
-    const [gains, chart, heat, rankChart] = await Promise.all([
+    /* allSettled: overview above already gated "player not found", so these
+       four only decorate the page. A single slow read (the edge cache answers
+       503 when Supabase is briefly slow) must not blank a player profile —
+       each renderer below already falls back on null ("Chart unavailable"). */
+    const [gains, chart, heat, rankChart] = (await Promise.allSettled([
       api.gains(NAME, _state.period),
       api.chart(NAME, _state.focusSkill, _state.period),
       api.heatmap(NAME),
       /* Rank chart always uses daily resolution — rank changes slowly so
          hourly is overkill. Fixed period = 'all' shows the full history. */
       api.chart(NAME, "overall", "all"),
-    ]);
+    ])).map(r => (r.status === "fulfilled" ? r.value : null));
     _state.gains[_state.period] = gains;
     _state.chart = { skill: _state.focusSkill, period: _state.period, data: chart };
     _state.heat = heat;

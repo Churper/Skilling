@@ -35,6 +35,14 @@ function _ssSet(key, ent) {
   try { sessionStorage.setItem(_SS_PREFIX + key, JSON.stringify(ent)); } catch {}
 }
 
+/* NO client-side retry here, deliberately. One was added and removed on
+   2026-08-01: with the pages now rendering panel-by-panel (Promise.allSettled),
+   a failed read no longer pushes the user into refreshing, so a failed read
+   costs exactly one upstream attempt. A retry would be purely additive — and
+   if the 503 is Supabase's own (passed through by the edge Worker, not raised
+   by it) that extra attempt lands while the DB is already refusing work, on
+   the database cloud_save uses. See audits/HANDOFF_SLIMETRICS_RECENT_BOSSES_503_2026_08_01.md
+   §5.1 before re-adding one. */
 async function rpc(name, args = {}, { ttlMs = 60_000 } = {}) {
   const key = name + "|" + JSON.stringify(args);
   const now = Date.now();
@@ -52,7 +60,11 @@ async function rpc(name, args = {}, { ttlMs = 60_000 } = {}) {
         headers: HEADERS,
         body: JSON.stringify(args),
       });
-      if (!res.ok) throw new Error(`${name} ${res.status}`);
+      /* The x-edge-cache tag makes every failure screenshot self-identifying:
+         TIMEOUT/NEG = raised by the edge Worker, BYPASS = passed through from
+         Supabase itself (a save-path capacity signal — see the 2026-08-01
+         handoff §3). Same-length error either way; render code only shows it. */
+      if (!res.ok) throw new Error(`${name} ${res.status} [${res.headers.get("x-edge-cache") || "?"}]`);
       const data = await res.json();
       if (ttlMs > 0) {
         const ent = { ts: now, data, expiry: now + ttlMs };

@@ -10,21 +10,34 @@ import { bossLabel, bossSpriteHtml, renderBossSprites } from "../lib/bossSprites
 export async function renderServer($page, params = {}) {
   const period = (params.period === "7d" || params.period === "30d") ? params.period : "24h";
   $page.innerHTML = `<div class="st-loading">Loading server stats…</div>`;
-  try {
-    const [overview, chart, heatmap, bosses, islands, welcome, signups] = await Promise.all([
-      api.serverOverview(),
-      api.serverChart(period),
-      api.serverHeatmap(),
-      api.recentBosses(50),
-      api.recentIslands(50),
-      api.welcomeBanner(5),
-      api.signupChart(),
-    ]);
-    paint($page, { overview, chart, heatmap, bosses, islands, welcome, signups, period });
-  } catch (e) {
-    $page.innerHTML = `<div class="st-error">Failed to load server stats: ${escapeHtml(e.message || e)}</div>`;
+  /* allSettled, not all: the panels are independent reads, and one slow RPC
+     (the edge cache answers 503 when Supabase is briefly slow) used to blank
+     the whole tab over a single missing feed. Now a failed panel says so and
+     the rest of the page renders. null = failed, [] / {} = genuinely empty. */
+  const settled = await Promise.allSettled([
+    api.serverOverview(),
+    api.serverChart(period),
+    api.serverHeatmap(),
+    api.recentBosses(50),
+    api.recentIslands(50),
+    api.welcomeBanner(5),
+    api.signupChart(),
+  ]);
+  const [overview, chart, heatmap, bosses, islands, welcome, signups] =
+    settled.map(r => (r.status === "fulfilled" ? r.value : null));
+  if (!overview) {
+    /* The overview backs every headline number — without it the page would
+       render a wall of zeros, so this one failure still shows an error. */
+    const err = settled[0].reason;
+    $page.innerHTML = `<div class="st-error">Failed to load server stats: ${escapeHtml(err?.message || err || "unknown error")}</div>`;
+    return;
   }
+  paint($page, { overview, chart, heatmap, bosses, islands, welcome, signups, period });
 }
+
+/* Shown in place of a panel whose RPC failed, so an unavailable feed is never
+   mistaken for an empty one. */
+const PANEL_FAILED = `<div class="st-empty">Couldn't load this right now — try again in a moment.</div>`;
 
 function paint($page, { overview, chart, heatmap, bosses, islands, welcome, signups, period }) {
   const o = overview || {};
@@ -52,7 +65,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       <div class="srv-stat-grid" style="margin-top:14px">
         ${statCard("XP Today", nfShort(o.xp_today), "across all slimes", "var(--slime)")}
         ${statCard("Levels Up Today", nf(o.levels_today), "summed gains", "#7dffc1")}
-        ${statCard("Bosses Killed Today", nf(o.bosses_today), `<span class="num">${nf(compactBossRows(bosses).length)}</span> in ticker`, "#ff6b9d")}
+        ${statCard("Bosses Killed Today", nf(o.bosses_today), bosses ? `<span class="num">${nf(compactBossRows(bosses).length)}</span> in ticker` : "ticker unavailable", "#ff6b9d")}
         ${statCard("Islands Charted Today", nf(o.islands_today), "first-time discoveries", "#79c7ff")}
       </div>
 
@@ -475,7 +488,8 @@ function timeAgoShort(epochSec) {
 }
 
 function renderOnlineChart(rows, period) {
-  if (!rows?.length) return `<div class="st-empty">No data yet — chart fills as snapshots accumulate.</div>`;
+  if (rows == null) return PANEL_FAILED;
+  if (!rows.length) return `<div class="st-empty">No data yet — chart fills as snapshots accumulate.</div>`;
   /* pad.t bumped 14 → 26 so the "players" axis title sits above the
      top y-tick label instead of overlapping wide numbers like "1,000". */
   const W = 800, H = 252, pad = { l: 48, r: 18, t: 26, b: 36 };
@@ -642,6 +656,7 @@ function compactBossRows(rows, maxRows = 12) {
 }
 
 function renderBossList(rows) {
+  if (rows == null) return PANEL_FAILED;
   const compact = compactBossRows(rows);
   if (!compact.length) return `<div class="st-empty">No boss kills yet today.</div>`;
   return compact.map(r => `
@@ -674,6 +689,7 @@ function compactIslandRows(rows, maxRows = 12) {
 }
 
 function renderIslandList(rows) {
+  if (rows == null) return PANEL_FAILED;
   const compact = compactIslandRows(rows);
   if (!compact.length) return `<div class="st-empty">No islands charted yet this week.</div>`;
   return compact.map(r => `
@@ -688,7 +704,8 @@ function renderIslandList(rows) {
 
 const DOW_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function renderHeatmap(rows) {
-  if (!rows?.length) return `<div class="st-empty">Not enough data yet — heatmap fills in over the first 14 days.</div>`;
+  if (rows == null) return PANEL_FAILED;
+  if (!rows.length) return `<div class="st-empty">Not enough data yet — heatmap fills in over the first 14 days.</div>`;
   const grid = Array.from({ length: 7 }, () => Array(24).fill(0));
   let max = 0;
   for (const r of rows) {

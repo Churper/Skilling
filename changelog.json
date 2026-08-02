@@ -1,5 +1,25 @@
 [
   {
+    "version": "v2166",
+    "date": "2026-08-02",
+    "title": "PvP Marks, Comet Range & Luck",
+    "entries": [
+      "Attacking first in the Crucible marks you with a visible skull for 5 minutes.",
+      "You cannot leave the Crucible while marked.",
+      "Each kill while marked adds another 5 minutes.",
+      "Attacking an already marked player does not mark you.",
+      "Dying clears your mark.",
+      "Disconnecting while marked locks you out of the Crucible for 30 minutes.",
+      "PvP comet cast range cut from 75 to 22.",
+      "A failed comet cast now refunds its cooldown and tells you why.",
+      "Dojo Champion's Ring +16% Luck now counts toward every drop, not just equipment.",
+      "Fixed a second Welcome Back box breaking the first one's Collect button.",
+      "Coal now shows its icon and name in the Welcome Back box.",
+      "Slimetrics pages no longer go blank when one panel fails to load.",
+      "Fixed the Server tab boss ticker timing out."
+    ]
+  },
+  {
     "version": "v2164",
     "date": "2026-08-01",
     "title": "Pet Garden Coal, AFK Coal & Name Badges",
