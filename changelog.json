@@ -1,5 +1,21 @@
 [
   {
+    "version": "v2167",
+    "date": "2026-08-02",
+    "title": "Slime Promise, Boss Arenas & Party Hall",
+    "entries": [
+      "New: a short promise card when you start playing. Tick all three to agree.",
+      "Auto-retaliate now works in boss arenas, so you fight back when the boss hits you.",
+      "The bell revives the boss after 1 second instead of 6.",
+      "The combat AFK timer is 20 minutes inside a boss arena, up from 15.",
+      "Fixed one abandoned drop party locking the hall for every other host for 7 days.",
+      "Abandoned parties clear hourly, and a party expires after 15 idle minutes, not 2 hours.",
+      "Marked players now show a blood drop in their name badge with the countdown under it.",
+      "The Pocket Bank is locked while you are marked, so your loot stays on you.",
+      "Coal Rocks show up in the Nearby panel again."
+    ]
+  },
+  {
     "version": "v2166",
     "date": "2026-08-02",
     "title": "PvP Marks, Comet Range & Luck",
