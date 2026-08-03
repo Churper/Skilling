@@ -1,6 +1,15 @@
 [
   {
-    "version": "v2172",
+    "version": "v2174",
+    "date": "2026-08-03",
+    "title": "Clan Coin Icon & Horn Color Fix",
+    "entries": [
+      "Clan Coins now show their icon in the bag and bank.",
+      "World Horn messages stay black when auto-translate is on."
+    ]
+  },
+  {
+    "version": "v2173",
     "date": "2026-08-03",
     "title": "Kraken, World Horn & Crucible Fixes",
     "entries": [
