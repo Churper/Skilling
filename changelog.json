@@ -1,5 +1,13 @@
 [
   {
+    "version": "v2175",
+    "date": "2026-08-03",
+    "title": "Horn Name Colors",
+    "entries": [
+      "World Horn messages keep the sender's styled name color."
+    ]
+  },
+  {
     "version": "v2174",
     "date": "2026-08-03",
     "title": "Clan Coin Icon & Horn Color Fix",
