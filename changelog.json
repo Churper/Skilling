@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2172",
+    "date": "2026-08-03",
+    "title": "World Horn, Bank Click & Apple Toss Fixes",
+    "entries": [
+      "Fixed World Horns not opening the message box when clicked in the bag.",
+      "Fixed right-clicking a bank or object opening a player card when someone stands on it; the player is now a row in the menu.",
+      "Fixed broadcast (K) imbued weapons showing the base weapon icon in chat.",
+      "Fixed the apple throw button staying dead on players you recently repped."
+    ]
+  },
+  {
     "version": "v2171",
     "date": "2026-08-03",
     "title": "Clan Coins, World Horns, Crucible Loot & Trade Safety",
