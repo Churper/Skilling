@@ -1,5 +1,14 @@
 [
   {
+    "version": "v2176",
+    "date": "2026-08-04",
+    "title": "Quick Plant & Horn Fixes",
+    "entries": [
+      "Fixed Quick Plant tree and bush choices reverting to an old selection after a reload.",
+      "World Horn names now show the sender's styled color."
+    ]
+  },
+  {
     "version": "v2175",
     "date": "2026-08-03",
     "title": "Horn Name Colors",
