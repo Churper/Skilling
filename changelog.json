@@ -1,5 +1,34 @@
 [
   {
+    "version": "v2171",
+    "date": "2026-08-03",
+    "title": "Clan Coins, World Horns, Crucible Loot & Trade Safety",
+    "entries": [
+      "Each completed clan board task now pays 10 Clan Coins, split by each member's contribution.",
+      "Clan Coin rewards arrive by mail.",
+      "Clan Coins are account-bound.",
+      "World Horns cost 8 SlimeCoins.",
+      "Click a World Horn in your bag to broadcast a message to everyone online.",
+      "World Horns have a 60-second cooldown per account.",
+      "Crucible loot piles can now be picked up only by the killer or original victim.",
+      "Loot picked up while marked is held until you survive the mark, then sent to you by mail.",
+      "Leaving or logging out while marked returns held loot to its original owner by mail.",
+      "Picking up your own Crucible loot is instant.",
+      "Unmarked Crucible kills still give instant loot.",
+      "Right-click an Apple to equip it, then throw it from another player's card.",
+      "The game guide now has search in every supported language.",
+      "Trades now refuse acceptance when the received items cannot fit in your bag.",
+      "Trade items move to your bank if your bag fills before settlement.",
+      "Selecting multiple slime emoji in chat now deletes or replaces the whole selection.",
+      "Sending a message with Stay in Chat off no longer leaves a blinking cursor behind.",
+      "Right-clicking a bank or world object now opens its menu instead of a player standing behind it.",
+      "The first save conflict now reloads automatically instead of showing a reload prompt.",
+      "Changing face cosmetics no longer breaks eye and mouth animations.",
+      "Pet Treat descriptions now explain their gather speed, Care, and Tree Meat requirements.",
+      "Slimetrics portrait previews can now be copied or saved from the right-click menu."
+    ]
+  },
+  {
     "version": "v2169",
     "date": "2026-08-02",
     "title": "Signature Card and Portrait Fixes",
