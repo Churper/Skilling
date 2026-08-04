@@ -1,5 +1,13 @@
 [
   {
+    "version": "v2179",
+    "date": "2026-08-04",
+    "title": "Slime Crab XP Buff",
+    "entries": [
+      "Slime Crab now gives full combat XP, up from 50%."
+    ]
+  },
+  {
     "version": "v2178",
     "date": "2026-08-04",
     "title": "Kraken Fixes, Map Search & Pet Garden Rates",
