@@ -1,5 +1,22 @@
 [
   {
+    "version": "v2177",
+    "date": "2026-08-04",
+    "title": "Kraken World Event, Name Badges & Farming",
+    "entries": [
+      "Added the Kraken sacrifice pool and world encounter.",
+      "Break all four tentacles to expose and defeat the Kraken.",
+      "Added Kraken attack sounds.",
+      "Every Kraken kill drops 1,000 to 6,000 Coal and 10 to 20 Dolphin or Whale Gifts.",
+      "Each kill independently rolls a Kraken Paintbrush (1/35), Pirate Bandana (1/20), Kraken Eyepatch (1/30), Kraken's Tentacle (1/40), and Kraken Crown (1/50).",
+      "Kraken's Tentacle can imbue weapons with a 5% chance for a 10x heavy strike.",
+      "Earn the Kraken Name Badge at 10 kills, with styles at 30, 60, 100, and 150.",
+      "Meteor and Mushroom badges now show their icons, color options, and progress.",
+      "Planted-tree menus now keep timers and salvage amounts current.",
+      "Added Duskwood to the Woodcutting guide."
+    ]
+  },
+  {
     "version": "v2176",
     "date": "2026-08-04",
     "title": "Quick Plant & Horn Fixes",
