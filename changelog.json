@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2178",
+    "date": "2026-08-04",
+    "title": "Kraken Fixes, Map Search & Pet Garden Rates",
+    "entries": [
+      "Fixed back-to-back Kraken events not paying kill loot.",
+      "Sacrificial Pool added to the map filter under Services; searching \"pool\" or \"kraken\" finds it.",
+      "Map filter search now matches English names in every language.",
+      "Your map Kraken icon clears as soon as you defeat yours.",
+      "Sacrificial Pool shows a hover tooltip and highlights the summon countdown.",
+      "Kraken's Tentacle tooltip now shows the 5% chance of a 10x heavy strike.",
+      "Kraken event, pool, and imbue text translated in Spanish, Japanese, and Chinese.",
+      "Pet Garden shows each pet's production rate: items/h, Scribing materials and scrolls, Faith orbs/day."
+    ]
+  },
+  {
     "version": "v2177",
     "date": "2026-08-04",
     "title": "Kraken World Event, Name Badges & Farming",
