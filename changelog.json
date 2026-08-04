@@ -1,5 +1,15 @@
 [
   {
+    "version": "v2180",
+    "date": "2026-08-04",
+    "title": "Kraken Pet Skin & Fight Tuning",
+    "entries": [
+      "New: Kraken pet skin, with waving tentacles. Use a Kraken Paintbrush on a pet.",
+      "Kraken Paintbrushes looted since v2177 now work.",
+      "Tuned the Kraken fight."
+    ]
+  },
+  {
     "version": "v2179",
     "date": "2026-08-04",
     "title": "Slime Crab XP Buff",
