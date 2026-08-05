@@ -1,5 +1,15 @@
 [
   {
+    "version": "v2182",
+    "date": "2026-08-05",
+    "title": "Kraken Cosmetics, Skill Goals & Fixes",
+    "entries": [
+      "Pirate Bandana, Kraken Eyepatch and Kraken Crown now store and equip correctly.",
+      "Skill goals can now be set up to level 5,000.",
+      "Slime Crab tooltip now shows its correct XP. The XP itself changed back in v2179."
+    ]
+  },
+  {
     "version": "v2180",
     "date": "2026-08-04",
     "title": "Kraken Pet Skin & Fight Tuning",
