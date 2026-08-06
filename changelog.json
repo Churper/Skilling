@@ -1,5 +1,26 @@
 [
   {
+    "version": "v2184",
+    "date": "2026-08-06",
+    "title": "Plasma Tier, Skill Masters & Persistent Potions",
+    "entries": [
+      "New Plasma tier at level 1250: trees, rocks, bushes and Plasma Eel.",
+      "Plasma tools at level 1250, Plasma gear at level 1750.",
+      "Five new skill masters: Melee, Bow, Mage, Scribing and Faith.",
+      "Cape at level 1000 for those five skills.",
+      "Woodcutting Cape doubles Tree Meat and Bamboo. Hitpoints Cape doubles food healing.",
+      "Scribing Cape keeps 1 in 8 Blank Scrolls. Melee, Bow and Mage Capes save 50% of ammo.",
+      "Buff potions now survive a refresh, up to 1 hour banked per buff.",
+      "New Notepad HUD with checkboxes, stopwatches and timers.",
+      "Fixed notes being lost or cut down to one when deposited with Pocket Bank.",
+      "Fixed the levels at which the higher Kraken, Meteor and Slimeshroom nameplate styles unlock.",
+      "Fixed where Party Hall balloons land so they no longer hide inside objects.",
+      "Party Hall now shows a loot summary when the party ends.",
+      "Fixed dead Kraken tentacles reappearing after being killed.",
+      "Bone Skulls now drop a Bone 1 in 5 times."
+    ]
+  },
+  {
     "version": "v2182",
     "date": "2026-08-05",
     "title": "Kraken Cosmetics, Skill Goals & Fixes",

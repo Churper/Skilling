@@ -15,6 +15,7 @@
     { "type": "Svc_FishingSpot_Sludge_Blob", "x": -16, "z": -64, "rot": 3.6, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
     { "type": "Svc_FishingSpot_Prism_Sailfish", "x": 8, "z": 62, "rot": 4.4, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
     { "type": "Svc_FishingSpot_Infinity_Whale", "x": 84, "z": -30, "rot": 5.2, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
+    { "type": "Svc_FishingSpot_Plasma_Eel", "x": 44, "z": -70, "rot": 2.6, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
 
     { "type": "Tree_1_A", "x": -34, "z": 18, "rot": 4.1 },
     { "type": "Birch_Tree", "x": -48, "z": 32, "rot": 5.2 },
@@ -46,6 +47,7 @@
     { "type": "Gooey_Tree", "x": -36, "z": -72, "rot": 0 },
     { "type": "Prismwood_Tree", "x": -52, "z": -62, "rot": 0 },
     { "type": "Infinity_Tree", "x": -86, "z": -46, "rot": 0 },
+    { "type": "Plasmawood_Tree", "x": -100, "z": 4, "rot": 0 },
 
     { "type": "Rock_1_A", "x": 34, "z": 18, "rot": 2.2 },
     { "type": "Rocks_Ore_Tin", "x": 48, "z": 32, "rot": 2.7 },
@@ -78,6 +80,7 @@
     { "type": "Goo_Nodule", "x": 38, "z": 80, "rot": 2.0, "scale": 2.2 },
     { "type": "Prism_Cluster", "x": 18, "z": 66, "rot": 1.7, "scale": 2.0 },
     { "type": "Infinity_Crystal", "x": 72, "z": -48, "rot": 5.1, "scale": 2.0 },
+    { "type": "Plasma_Vein", "x": 94, "z": 8, "rot": 3.3, "scale": 2.0 },
 
     { "type": "Svc_Forage_Bush", "x": -24, "z": 8, "rot": 0.5 },
     { "type": "Svc_Forage_Elder", "x": -16, "z": 24, "rot": 0.9 },
@@ -100,6 +103,7 @@
     { "type": "Sludgeberry_Bush", "x": -28, "z": -78, "rot": 3.6 },
     { "type": "Prismberry_Bush", "x": -60, "z": -54, "rot": 4.4 },
     { "type": "Infinity_Berry_Bush", "x": -78, "z": -52, "rot": 5.2 },
+    { "type": "Plasmaberry_Bush", "x": -92, "z": -14, "rot": 1.2 },
     { "type": "Svc_Flax", "x": -36, "z": 24, "rot": 0.1 },
     { "type": "Svc_Hemp", "x": 36, "z": 24, "rot": 3.0 }
   ]
