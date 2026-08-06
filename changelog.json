@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2185",
+    "date": "2026-08-06",
+    "title": "Cape Fixes & Rat Def Shred",
+    "entries": [
+      "Fixed the level 500 aura being lost if you claimed the level 1000 cape first.",
+      "Melee, Bow and Mage Capes now save ammo only while worn in the cape slot.",
+      "Every mastery cape now explains its perk when examined, in all languages.",
+      "Rat pet Def Shred no longer expires and stacks: each bite cuts 30% off the defence that is left, until the mob dies."
+    ]
+  },
+  {
     "version": "v2184",
     "date": "2026-08-06",
     "title": "Plasma Tier, Skill Masters & Persistent Potions",
