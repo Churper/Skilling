@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2186">
+  <link rel="stylesheet" href="./style.css?v=2187">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -844,6 +844,7 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Nearby Actions HUD</span><span class="stg-hint">Show the draggable nearby items, enemies, and resources launcher. F6 opens it while enabled.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-nearby-actions-hud"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row" data-search="notepad notes note pad jot memo scratch"><span class="stg-label-block"><span class="stg-label">Notepad HUD</span><span class="stg-hint">Show a draggable chip that pops out a notepad. Notes are saved on this device.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-notepad-hud"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row" data-search="quick gear emoji icon badge emblem fire preset equip best dock button"><span class="stg-label-block"><span class="stg-label">Quick Gear Icon</span><span class="stg-hint">Show the active Quick Gear emoji—or B for Equip Best—on the Equip button.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-quick-gear-dock-emblem"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row" data-search="unequip all backpack worn gear equipment panel bag empty strip remove"><span class="stg-label-block"><span class="stg-label">Unequip All Button</span><span class="stg-hint">Show a backpack button beside DPS in the equipment panel. One click empties your worn gear into your bag.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-unequip-all-btn"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">World Hover Tooltips</span><span class="stg-hint">Show information when hovering or clicking enemies, resources, and world objects.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-world-tooltips" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Hide Hover Ring</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-no-hover-ring"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-section-title">Names &amp; Tags</div>
@@ -955,6 +956,7 @@
           <button type="button" id="setting-defaults-btn" class="stg-reset-btn">Reset to Defaults</button>
           <div class="stg-section-title">Cloud Sync</div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Keep Graphics On This Device</span><span class="stg-hint">Video settings stop following your account on this device</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-graphics-device-local"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Keep Layout On This Device</span><span class="stg-hint">HUD placement, UI scale and chat size stop following your account on this device</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-layout-device-local"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-section-title">Local Preset</div>
           <div class="stg-preset-local">
             <button type="button" id="setting-save-local-preset" class="stg-reset-btn stg-preset-save">Save Preset</button>
@@ -1861,6 +1863,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2186"></script>
+  <script type="module" src="./main.js?v=2187"></script>
 </body>
 </html>

@@ -1,5 +1,21 @@
 [
   {
+    "version": "v2187",
+    "date": "2026-08-07",
+    "title": "Gear QoL, Layout Sync & Party Fixes",
+    "entries": [
+      "New Unequip All button beside DPS - enable it in Settings.",
+      "Right-click presets, Equip Best, or bank Quick Gear rows to withdraw to bag.",
+      "New Cloud Sync toggle: Keep Layout On This Device.",
+      "Name badge style and color now follow your account.",
+      "Fixed floating above the ground after background-tab respawns and dungeon exits.",
+      "Fixed party ghosts; connection-blip drops now rejoin automatically.",
+      "Fixed boss fights dropping members after repeated leader deaths.",
+      "Fixed lava drawing over gem rocks.",
+      "New look for DPS, favorites and inspect buttons; new translations."
+    ]
+  },
+  {
     "version": "v2186",
     "date": "2026-08-06",
     "title": "Plasma Rebalance & Performance",
