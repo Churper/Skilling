@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2187">
+  <link rel="stylesheet" href="./style.css?v=2188">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -220,6 +220,33 @@
         <button type="button" role="menuitem" data-add="timer"><span aria-hidden="true">&#x23F3;</span>Timer</button>
       </div>
       <div class="ui-notepad-resize" data-resize="se" aria-hidden="true"></div>
+    </section>
+    <button type="button" id="ui-slog-launcher" hidden aria-expanded="false" aria-controls="ui-slog-panel" title="Status Log">
+      <span class="ui-slog-launcher-icon" aria-hidden="true">&#x1F4CB;</span>
+    </button>
+    <section id="ui-slog-panel" hidden aria-label="Status Log">
+      <div class="ui-slog-head" title="Drag to move. Double-click to collapse.">
+        <span class="ui-slog-grip" aria-hidden="true"></span>
+        <button type="button" id="ui-slog-collapse" title="Collapse to chip" aria-label="Collapse Status Log">&#x2212;</button>
+      </div>
+      <div class="ui-slog-tools">
+        <select id="ui-slog-filter" aria-label="Filter by tone">
+          <option value="">All</option>
+          <option value="info">Info</option>
+          <option value="success">Success</option>
+          <option value="warn">Warning</option>
+          <option value="error">Error</option>
+        </select>
+        <select id="ui-slog-dedupe" aria-label="How repeats collapse">
+          <option value="merge">Merged</option>
+          <option value="consecutive">In a row</option>
+          <option value="off">Separate</option>
+        </select>
+        <span id="ui-slog-count" class="ui-slog-count" data-i18n-skip>0</span>
+        <button type="button" id="ui-slog-clear" class="ui-slog-clear">Clear</button>
+      </div>
+      <div id="ui-slog-list" data-i18n-skip aria-live="polite"></div>
+      <div class="ui-slog-resize" data-resize="se" aria-hidden="true"></div>
     </section>
     <div id="ui-buff-bar"></div>
     <div id="ui-farm-track" class="ui-farm-track" hidden>
@@ -843,6 +870,7 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Quick Eat HUD Button</span><span class="stg-hint">Show a draggable quick-eat button on the game HUD.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mobile-quick-eat-button"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Nearby Actions HUD</span><span class="stg-hint">Show the draggable nearby items, enemies, and resources launcher. F6 opens it while enabled.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-nearby-actions-hud"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row" data-search="notepad notes note pad jot memo scratch"><span class="stg-label-block"><span class="stg-label">Notepad HUD</span><span class="stg-hint">Show a draggable chip that pops out a notepad. Notes are saved on this device.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-notepad-hud"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row" data-search="status log history messages feed record"><span class="stg-label-block"><span class="stg-label">Status Log HUD</span><span class="stg-hint">Show a draggable chip that pops out a history of your status messages. Kept on this device.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-status-log-hud"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row" data-search="quick gear emoji icon badge emblem fire preset equip best dock button"><span class="stg-label-block"><span class="stg-label">Quick Gear Icon</span><span class="stg-hint">Show the active Quick Gear emoji—or B for Equip Best—on the Equip button.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-quick-gear-dock-emblem"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row" data-search="unequip all backpack worn gear equipment panel bag empty strip remove"><span class="stg-label-block"><span class="stg-label">Unequip All Button</span><span class="stg-hint">Show a backpack button beside DPS in the equipment panel. One click empties your worn gear into your bag.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-unequip-all-btn"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">World Hover Tooltips</span><span class="stg-hint">Show information when hovering or clicking enemies, resources, and world objects.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-world-tooltips" checked><span class="stg-tog-track"></span></label></span></div>
@@ -1062,6 +1090,7 @@
             <div class="stg-row ui-hotkey-row" data-hotkey-action="quick_worn"><span class="stg-label">Quick Worn</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="nearby_actions"><span class="stg-label">Nearby Actions</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="notepad"><span class="stg-label">Notepad</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
+            <div class="stg-row ui-hotkey-row" data-hotkey-action="status_log"><span class="stg-label">Status Log</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
             <div class="stg-row ui-hotkey-row" data-hotkey-action="quest_tracker"><span class="stg-label">Quest Tracker</span><span class="stg-ctrl"><button type="button" class="ui-hotkey-set-btn stg-keycap">Set</button><kbd class="ui-hotkey-display stg-keycap">—</kbd></span></div>
           </div>
         </div>
@@ -1863,6 +1892,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2187"></script>
+  <script type="module" src="./main.js?v=2188"></script>
 </body>
 </html>
