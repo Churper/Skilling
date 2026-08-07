@@ -1,5 +1,17 @@
 [
   {
+    "version": "v2186",
+    "date": "2026-08-06",
+    "title": "Plasma Rebalance & Performance",
+    "entries": [
+      "Plasmawood, Plasmastone and Plasma Eel now take 130 seconds, down from 148.",
+      "Plasma XP per action rebalanced to match. XP per hour is unchanged.",
+      "Plasma gear costs more: sword, bow and shield 181, staff 117 each, body 273.",
+      "Fixed the frame stall when killing monsters in the Crypt, caves and arenas.",
+      "Plasmastone now sorts into the Ores tab when you organize your bank."
+    ]
+  },
+  {
     "version": "v2185",
     "date": "2026-08-06",
     "title": "Cape Fixes & Rat Def Shred",
