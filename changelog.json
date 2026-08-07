@@ -1,5 +1,26 @@
 [
   {
+    "version": "v2189",
+    "date": "2026-08-07",
+    "title": "Patch Notes Fix",
+    "entries": [
+      "The v2188 patch notes are now in-game. No gameplay changes in this update."
+    ]
+  },
+  {
+    "version": "v2188",
+    "date": "2026-08-07",
+    "title": "Status Log, Keybind Sync & Fixes",
+    "entries": [
+      "New Status Log HUD - a draggable chip that pops out a history of your status messages. Enable it in Settings, or bind it to a key.",
+      "Drag to move, Alt-drag or a corner to resize, shift-right-click to reset.",
+      "Filter the log by type, click any line to copy it, and choose how repeats stack. Repeats merge by default, so a long gathering session stays one line with a count.",
+      "Your keybinds now follow your account. New devices and alts get your controls instead of the defaults.",
+      "Fixed not being able to quickly re-drink Power Potions and other non SlimeCoin potions.",
+      "Fixed the Leafblood name badge color showing as the default color to everyone else."
+    ]
+  },
+  {
     "version": "v2187",
     "date": "2026-08-07",
     "title": "Gear QoL, Layout Sync & Party Fixes",
