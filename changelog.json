@@ -1,5 +1,23 @@
 [
   {
+    "version": "v2191",
+    "date": "2026-08-09",
+    "title": "Peaceful Crucible, Shroomfish & Staff Messages",
+    "entries": [
+      "New peaceful entry option for the Crucible, chosen at the door.",
+      "Peaceful players cannot attack, cannot be attacked, and take no comet damage.",
+      "Peaceful players keep everything if the ambush waves kill them.",
+      "Peaceful players cannot take other players drops and lose the +20% skilling speed.",
+      "Your peaceful choice is locked until you leave and re-enter.",
+      "New Shroomfish craft. Drag a Shroom Berry onto a Golden Fish.",
+      "Shroomfish stacks, trades, and sells for 600 coins.",
+      "Moderators can post announcements and message you directly in chat.",
+      "Staff lines carry a Mod or Admin tag. Blue is everyone, gold is only you.",
+      "Staff warnings open a notice you tick to confirm you have read it.",
+      "More Spanish, Japanese and Chinese translations."
+    ]
+  },
+  {
     "version": "v2190",
     "date": "2026-08-07",
     "title": "Maintenance",
