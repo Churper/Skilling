@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2191">
+  <link rel="stylesheet" href="./style.css?v=2192">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -322,6 +322,12 @@
       </div>
       <div id="ui-mail-list" class="ui-mail-list" aria-live="polite"></div>
       <div id="ui-mail-empty" class="ui-mail-empty" hidden>No mail. Yet.</div>
+      <!-- Refusals land HERE, inside the panel the player clicked in. The
+           shared inventory status line they used to rely on is hidden in some
+           layouts, and the announcement banner only fires on success, so a
+           failed claim could produce no visible feedback at all. Flush band
+           across the panel foot (no nested card). -->
+      <div id="ui-mail-status" class="ui-mail-status" hidden aria-live="assertive"></div>
     </div>
     <!-- Report a player. Reuses the compose-letter shell classes so it inherits
          the existing modal styling with no new CSS. Opened by /report or from
@@ -623,6 +629,11 @@
               <option value="total_level">&#x1F3C6; All</option>
               <option value="total_level__og">&#x1F3C6; OG</option>
               <option value="total_level__sapling" selected>&#x1F331; Saplings</option>
+              <!-- Label + emblem are written by ui.js from the ONE mode-badge
+                   constant (docs/game/systems/accountMode.js) so the glyph is
+                   never duplicated in markup. Plain text here is the fallback. -->
+              <option value="total_level__ironslime">Ironslime</option>
+              <option value="total_level__automator">Realm</option>
             </select>
             <select class="ui-lb-cat-select" id="lb-select-skills">
               <option value="" disabled selected>Skills</option>
@@ -1892,6 +1903,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2191"></script>
+  <script type="module" src="./main.js?v=2192"></script>
 </body>
 </html>

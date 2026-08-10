@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2192",
+    "date": "2026-08-10",
+    "title": "Ironslime Hiscores & Mode Emblems",
+    "entries": [
+      "New Ironslime tab on the hiscores.",
+      "New Nimbus tab on the hiscores.",
+      "New emblems beside player names on nametags, chat and hiscores.",
+      "Fixed your own peace dove not showing on your nametag in the Crucible.",
+      "Fixed dojo and Dolphin Olympics rewards being lost if you left at the wrong moment.",
+      "Trade, mail, table and clan vault refusals now say why, where you clicked.",
+      "Those messages are translated instead of showing raw server text.",
+      "New look for the hiscores filter row."
+    ]
+  },
+  {
     "version": "v2191",
     "date": "2026-08-09",
     "title": "Peaceful Crucible, Shroomfish & Staff Messages",
