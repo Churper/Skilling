@@ -1,5 +1,14 @@
 [
   {
+    "version": "v2195",
+    "date": "2026-08-11",
+    "title": "Chat Input Fixes",
+    "entries": [
+      "Fixed Chinese and Japanese text typing out backwards in chat.",
+      "Fixed Enter not sending after switching input methods."
+    ]
+  },
+  {
     "version": "v2194",
     "date": "2026-08-11",
     "title": "Space Shark & Reduced Flashing Effects",
