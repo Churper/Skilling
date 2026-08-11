@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2193">
+  <link rel="stylesheet" href="./style.css?v=2194">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -884,7 +884,16 @@
           <div class="stg-row"><span class="stg-label">Show Server Status Badge</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-net-badge"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Show Inventory Status</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-inventory-status" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">ScapeLikes Vote Dot</span><span class="stg-hint">Show a green dot on the SL button when voting is available</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-scapelikes-vote-dot"><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row" data-search="desktop notification notify alert popup os system windows slimeshroom faith grove event spawn"><span class="stg-label-block"><span class="stg-label">Desktop Notifications</span><span class="stg-hint">Desktop alert when a Slimeshroom or sacred grove spawns, even while the game isn't focused. No popup? Press Win+N, or search Notifications in Windows settings.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-desktop-notify"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row" data-search="desktop notification notify alert popup os system windows slimeshroom faith grove event spawn"><span class="stg-label-block"><span class="stg-label">Desktop Notifications</span><span class="stg-hint">Desktop alert when a world event spawns, even while the game isn't focused. Choose the events under Notify For. No popup? Press Win+N, or search Notifications in Windows settings.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-desktop-notify"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row" data-search="desktop notification notify alert which events pick choose select slimeshroom sacred grove faith kraken boss spawn"><span class="stg-label-block"><span class="stg-label">Notify For</span><span class="stg-hint">Pick which world events raise a desktop alert. Tick as many as you want.</span></span><span class="stg-ctrl"><button type="button" id="setting-desktop-notify-events" class="stg-sel stg-sel-btn" aria-haspopup="listbox" aria-expanded="false">All events</button></span></div>
+          <!-- Popover for the button above. Lives here so index.html still owns the
+               checkbox set (defaults, settings reset, search text); desktopNotify.js
+               moves it to <body> at init so .stg-body's overflow can't clip it. -->
+          <div class="stg-notify-menu" id="setting-desktop-notify-menu" role="listbox" aria-label="Events to notify for" hidden>
+            <label class="stg-notify-opt"><span class="stg-notify-name">Slimeshroom</span><input type="checkbox" id="setting-desktop-notify-slimeshroom" checked><span class="stg-notify-check" aria-hidden="true">&#10003;</span></label>
+            <label class="stg-notify-opt"><span class="stg-notify-name">Sacred Grove</span><input type="checkbox" id="setting-desktop-notify-faith" checked><span class="stg-notify-check" aria-hidden="true">&#10003;</span></label>
+            <label class="stg-notify-opt"><span class="stg-notify-name">Kraken</span><input type="checkbox" id="setting-desktop-notify-kraken" checked><span class="stg-notify-check" aria-hidden="true">&#10003;</span></label>
+          </div>
           <div class="stg-row"><span class="stg-label">Hide Game Hub Button</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hide-hub"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Quick Eat HUD Button</span><span class="stg-hint">Show a draggable quick-eat button on the game HUD.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mobile-quick-eat-button"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Nearby Actions HUD</span><span class="stg-hint">Show the draggable nearby items, enemies, and resources launcher. F6 opens it while enabled.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-nearby-actions-hud"><span class="stg-tog-track"></span></label></span></div>
@@ -961,6 +970,7 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Auto-Retaliate</span><span class="stg-hint">Fight back automatically when attacked. Off: keep walking when hit</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-retaliate" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Auto-Ring Boss Bell</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-ring-bell" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">Slime Armor Display</span><span class="stg-ctrl"><select id="setting-armor-display" class="stg-sel"><option value="all">Everyone</option><option value="self">Just Me</option><option value="off" selected>Off</option></select></span></div>
+          <div class="stg-row" data-search="spell magic mage meteor crash impact flash cast animation glare bright eye strain dim"><span class="stg-label-block"><span class="stg-label">Reduced Flashing Effects</span><span class="stg-hint">Removes the meteor crash flash and dims magic casts. Warning rings and falling meteors stay bright. Damage and timing are unchanged</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-reduced-flash-fx"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Combat Style Panel</span><span class="stg-hint">Choose when the combat style selector is shown.</span></span><span class="stg-ctrl"><select id="setting-combat-style-panel" class="stg-sel"><option value="always">Always shown</option><option value="combat">During combat</option><option value="hidden">Hidden</option></select></span></div>
           <div class="stg-section-title">Interaction</div>
           <div class="stg-row"><span class="stg-label">Click Horse to Dismount</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-click-dismount"><span class="stg-tog-track"></span></label></span></div>
@@ -1911,6 +1921,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2193"></script>
+  <script type="module" src="./main.js?v=2194"></script>
 </body>
 </html>

@@ -1,5 +1,30 @@
 [
   {
+    "version": "v2194",
+    "date": "2026-08-11",
+    "title": "Space Shark & Reduced Flashing Effects",
+    "entries": [
+      "New: Space Shark, a two minute trick run on the task board.",
+      "Hold Up to swim and break the surface to start the clock.",
+      "Ride a whale shark and chain flips, rolls and spins for points.",
+      "Practice mode runs the same tricks with no clock and no rewards.",
+      "Weekly leaderboard, coins per run and a SlimeCoin bonus.",
+      "New setting: Reduced Flashing Effects, under Combat & Body.",
+      "It removes the meteor crash flash and dims magic casts.",
+      "Warning rings and falling meteors stay bright. Damage and timing are unchanged.",
+      "New Notify For picker: pick Slimeshroom, Sacred Grove and Kraken separately.",
+      "Skill master houses now wear that skill's cape emblem on the roof.",
+      "Champion's Ring is now 136 attack and 12 defence, up from 42 and 8.",
+      "Cooked Fish can no longer be bought from the general store.",
+      "Fixed wearing two hats at once, and cosmetics not appearing after a failed load.",
+      "Fixed coins from selling being reverted moments later.",
+      "Fixed item tooltips hiding behind the bank window.",
+      "Fixed the combat panel moving itself and staying there.",
+      "Fixed Enter doing nothing in chat after switching input methods.",
+      "Fixed the Nimbus emblem missing after a relog."
+    ]
+  },
+  {
     "version": "v2193",
     "date": "2026-08-11",
     "title": "Ironslime Accounts & Real Pet Portraits",
