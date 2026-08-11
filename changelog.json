@@ -1,5 +1,19 @@
 [
   {
+    "version": "v2197",
+    "date": "2026-08-11",
+    "title": "Ironslime Rewards, Space Shark & Emblems",
+    "entries": [
+      "Ironslime accounts no longer send or receive party XP, but can still join parties and group bosses.",
+      "Ironslime group-boss loot requires 30% damage in a duo, 25% with 3 players, 20% with 4, or 15% with 5-6.",
+      "Ironslime accounts no longer receive admin mail; earned system reward mail still works.",
+      "Space Shark's clock now starts when any points are scored.",
+      "Space Shark ring time bonuses are capped at 60 seconds.",
+      "Space Shark slides stop paying points when barely moving and have a per-slide cap.",
+      "Patterned chat name colours no longer remove Nimbus or Ironslime emblems."
+    ]
+  },
+  {
     "version": "v2196",
     "date": "2026-08-11",
     "title": "Nimbus Emblem Fix",
