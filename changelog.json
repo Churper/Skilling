@@ -1,5 +1,13 @@
 [
   {
+    "version": "v2196",
+    "date": "2026-08-11",
+    "title": "Nimbus Emblem Fix",
+    "entries": [
+      "Fixed the Nimbus cloud emblem not showing next to names in chat and above players."
+    ]
+  },
+  {
     "version": "v2195",
     "date": "2026-08-11",
     "title": "Chat Input Fixes",
