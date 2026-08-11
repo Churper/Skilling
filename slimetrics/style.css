@@ -440,6 +440,12 @@ main { padding: 6px 0 80px; }
 /* sapling inline */
 .st-sap { color: var(--sapling); margin-right: 4px; }
 
+/* Account-mode marker. Occupies the SAME inline slot as .st-sap (a row gets one
+   or the other, never both) so adding a realm account to a list cannot shift
+   the name column. Emoji render in their own colours, so this only owns the
+   spacing and the hover title; the tint is on the tab pill, not the glyph. */
+.st-mode { margin-right: 4px; }
+
 /* ---------- buttons ---------- */
 .st-btn, .st-update-btn {
   display: inline-flex; align-items: center; gap: 8px;

@@ -2,6 +2,7 @@ import { escapeHtml } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { nf, nfShort, timeAgo } from "../lib/format.js";
 import { skillIcon, skillLabel, skillColor } from "../lib/skills.js";
+import { accountMark } from "../lib/config.js";
 
 export async function renderHome($page) {
   try {
@@ -81,7 +82,7 @@ function renderFeed(rows) {
     <a class="hl-row" href="#player?name=${encodeURIComponent(r.name)}" style="--accent:${c}">
       <div class="hl-icon" aria-hidden="true">⚔️</div>
       <div class="hl-body">
-        <div class="hl-line">${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<b>${escapeHtml(r.name)}</b> killed <b>${escapeHtml(r.victim_name || "a player")}</b> in PvP cave${r.count > 1 ? ` <span style="color:${c}">×${nf(r.count)}</span>` : ""}</div>
+        <div class="hl-line">${accountMark(r)}<b>${escapeHtml(r.name)}</b> killed <b>${escapeHtml(r.victim_name || "a player")}</b> in PvP cave${r.count > 1 ? ` <span style="color:${c}">×${nf(r.count)}</span>` : ""}</div>
         <div class="hl-meta">${timeAgo(r.ts)}${r.count > 1 && rowTime(r.firstTs) !== rowTime(r.ts) ? ` · since ${timeAgo(r.firstTs)}` : ""}</div>
       </div>
     </a>`;
@@ -91,7 +92,7 @@ function renderFeed(rows) {
     <a class="hl-row" href="#player?name=${encodeURIComponent(r.name)}" style="--accent:${c}">
       <div class="hl-icon" aria-hidden="true">${escapeHtml(skillIcon(r.skill))}</div>
       <div class="hl-body">
-        <div class="hl-line">${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<b>${escapeHtml(r.name)}</b> reached level ${r.level} <span style="color:${c}">${escapeHtml(skillLabel(r.skill))}</span></div>
+        <div class="hl-line">${accountMark(r)}<b>${escapeHtml(r.name)}</b> reached level ${r.level} <span style="color:${c}">${escapeHtml(skillLabel(r.skill))}</span></div>
         <div class="hl-meta">${timeAgo(r.ts)}</div>
       </div>
     </a>`;
@@ -118,6 +119,10 @@ function compactFeedRows(rows) {
     if (existing) {
       existing.count += 1;
       existing.is_sapling = existing.is_sapling || r.is_sapling;
+      /* Same killer across the merged kills, so the marker is the same too —
+         but take it from whichever row actually carried one, or a collapsed
+         streak can lose the badge the first row had. */
+      existing.mode_badge = existing.mode_badge || r.mode_badge;
       if (rowTime(r) > rowTime(existing)) existing.ts = r.ts;
       if (!existing.firstTs || rowTime(r) < rowTime(existing.firstTs)) existing.firstTs = r.ts;
     } else {
@@ -133,7 +138,7 @@ function renderNewUsers(rows) {
     <thead><tr><th>Slime</th><th class="num">Total Lvl</th><th class="num">Tracked</th></tr></thead>
     <tbody>${rows.map(r => `
       <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
-        <td class="st-new-user-cell"><span class="st-new-user-name">${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></span></td>
+        <td class="st-new-user-cell"><span class="st-new-user-name">${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></span></td>
         <td class="num">${nf(r.total_level || 0)}</td>
         <td class="num muted">${timeAgo(r.first_tracked)}</td>
       </tr>`).join("")}
@@ -159,7 +164,7 @@ function gainerCard(label, rows, color) {
     <div>${rows.slice(0, 8).map((r, i) => `
       <a class="gainer-row" href="#player?name=${encodeURIComponent(r.name)}">
         <div class="rank ${i < 3 ? "top" : ""}">${i + 1}</div>
-        <div class="who">${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}${escapeHtml(r.name)}</div>
+        <div class="who">${accountMark(r)}${escapeHtml(r.name)}</div>
         <div class="gain delta-up num">+${nfShort(r.gained || 0)}</div>
       </a>`).join("")}
     </div>

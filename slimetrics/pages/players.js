@@ -1,6 +1,7 @@
 import { escapeHtml } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { timeAgo, nf } from "../lib/format.js";
+import { accountMark } from "../lib/config.js";
 
 export async function renderPlayers($page) {
   $page.innerHTML = `
@@ -23,7 +24,7 @@ export async function renderPlayers($page) {
       <thead><tr><th>Slime</th><th class="num">Total Level</th><th class="num">First tracked</th></tr></thead>
       <tbody>${rows.map(r => `
         <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
-          <td>${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
+          <td>${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
           <td class="num">${nf(r.total_level || 0)}</td>
           <td class="num muted">${timeAgo(r.first_tracked)}</td>
         </tr>`).join("")}

@@ -1,5 +1,28 @@
 [
   {
+    "version": "v2193",
+    "date": "2026-08-11",
+    "title": "Ironslime Accounts & Real Pet Portraits",
+    "entries": [
+      "New: choose Ironslime when you create an account.",
+      "Ironslime is self found: no trading, mail, exchange, clan vault or wagers.",
+      "Ironslime accounts cannot pick up items other players drop.",
+      "Ironslime is permanent, signup only, and guest progress does not carry over.",
+      "Pet portraits are now real 3D renders of your actual pet.",
+      "Body shape, colour and paintbrush skin show on every pet portrait.",
+      "Showing off your pet in chat now shows the real pet.",
+      "New Ironslime and Nimbus tabs on the Slimetrics site.",
+      "Emblems now show beside names across the Slimetrics site.",
+      "Fixed the Legacy filter showing an empty board on gainers and records.",
+      "Fixed Nimbus accounts showing up as Legacy accounts.",
+      "Fixed the Nimbus hiscores tab listing legacy accounts.",
+      "Fixed your rank pin showing your main board rank under a realm tab.",
+      "One emblem beside a name, not an emblem and a sprout.",
+      "Emblems no longer recolour the whole name on nametags.",
+      "The slime tuner hotkey is now Ctrl+Alt+Shift+T, not Shift+T."
+    ]
+  },
+  {
     "version": "v2192",
     "date": "2026-08-10",
     "title": "Ironslime Hiscores & Mode Emblems",

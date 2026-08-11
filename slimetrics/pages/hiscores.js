@@ -2,7 +2,7 @@ import { escapeHtml, filterRow } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { nf } from "../lib/format.js";
 import { SKILLS, skillLabel } from "../lib/skills.js";
-import { ACCOUNT_TYPES } from "../lib/config.js";
+import { ACCOUNT_TYPES, accountMark } from "../lib/config.js";
 import { xpToLevel } from "../lib/progression.js";
 import { bossKeyForKc, bossSpriteHtml, renderBossSprites } from "../lib/bossSprites.js";
 
@@ -64,7 +64,7 @@ function paint($page, state, res) {
           ...SKILLS.map(s => ({ id: s.id, label: s.label, icon: s.icon })),
           ...BOSS_KCS.map(b => ({ id: b.id, label: b.label, iconHtml: categoryIcon(b) }))
         ], state.skill, "data-skill")}
-        ${filterRow("Account", ACCOUNT_TYPES, state.type, "data-type", { row: true })}
+        ${filterRow("Account", ACCOUNT_TYPES, state.type, "data-type")}
       </div>
 
       <div class="st-card" style="margin-top:18px">
@@ -87,7 +87,7 @@ function renderTable(rows, state) {
         return `
         <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
           <td class="rank-cell ${cls}">#${nf(rank)}</td>
-          <td>${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
+          <td>${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
           <td class="num">${nf(r.total_level)}</td>
         </tr>`;
       }).join("")}
@@ -103,7 +103,7 @@ function renderTable(rows, state) {
         return `
         <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
           <td class="rank-cell ${cls}">#${nf(rank)}</td>
-          <td>${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
+          <td>${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
           <td class="num">${nf(r.kc_val || 0)}</td>
         </tr>`;
       }).join("")}
@@ -119,7 +119,7 @@ function renderTable(rows, state) {
       return `
       <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
         <td class="rank-cell ${cls}">#${nf(rank)}</td>
-        <td>${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
+        <td>${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
         <td class="num">${nf(lvl)}</td>
         <td class="num">${nf(r.xp_val || 0)}</td>
       </tr>`;

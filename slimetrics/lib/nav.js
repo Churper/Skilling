@@ -1,5 +1,6 @@
 /* Header / footer injection — keeps every HTML file tiny. */
 import { api } from "./api.js";
+import { accountGlyph } from "./config.js";
 
 const NAV_ITEMS = [
   { href: "#home",     label: "Home" },
@@ -59,7 +60,7 @@ function _wireSearch() {
     if (!items.length) { results.innerHTML = `<div class="st-search-empty">No matches</div>`; results.hidden = false; return; }
     results.innerHTML = items.map((r, i) =>
       `<a class="st-search-row" data-i="${i}" href="#player?name=${encodeURIComponent(r.name)}">
-        ${r.is_sapling ? "🌱 " : ""}<span>${escapeHtml(r.name)}</span>
+        ${accountGlyph(r) ? accountGlyph(r) + " " : ""}<span>${escapeHtml(r.name)}</span>
       </a>`).join("");
     results.hidden = false;
     activeIdx = -1;

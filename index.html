@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2192">
+  <link rel="stylesheet" href="./style.css?v=2193">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -137,6 +137,14 @@
         <input type="password" id="start-auth-pw" class="start-auth-input" placeholder="Password" autocomplete="current-password" name="password">
         <input type="email" id="start-auth-recovery" class="start-auth-input" placeholder="Recovery email (optional)" autocomplete="email" name="recovery" hidden>
         <label id="start-auth-tos" class="start-auth-tos" hidden><input type="checkbox" id="start-auth-tos-cb"><span id="start-auth-tos-text">I am 13 or older and I agree to the <a href="./terms.html" target="_blank" rel="noopener">Terms of Service</a> and <a href="./privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+        <!-- Ironslime signup choice (0070). SHIPS DARK: stays hidden until
+             docs/game/config.js IRONSLIME_SIGNUP_ENABLED is true (or the owner
+             calls window._ironslimeDev()). The label text, the emblem and the
+             confirmation step are all built by docs/game/systems/accountMode.js
+             so the glyph/name live in exactly one file and the copy can be
+             translated; leaving it empty here means a stale cached page shows a
+             blank row rather than untranslated English. -->
+        <label id="start-auth-iron" class="start-auth-tos start-auth-iron" hidden><input type="checkbox" id="start-auth-iron-cb"><span id="start-auth-iron-text"></span></label>
         <p id="start-auth-error" class="start-auth-error" hidden></p>
         <div class="start-auth-actions">
           <button type="button" id="start-auth-back" class="start-auth-back-btn">Back</button>
@@ -633,7 +641,7 @@
                    constant (docs/game/systems/accountMode.js) so the glyph is
                    never duplicated in markup. Plain text here is the fallback. -->
               <option value="total_level__ironslime">Ironslime</option>
-              <option value="total_level__automator">Realm</option>
+              <option value="total_level__automator">Nimbus</option>
             </select>
             <select class="ui-lb-cat-select" id="lb-select-skills">
               <option value="" disabled selected>Skills</option>
@@ -1903,6 +1911,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2192"></script>
+  <script type="module" src="./main.js?v=2193"></script>
 </body>
 </html>

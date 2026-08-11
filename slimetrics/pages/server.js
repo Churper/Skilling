@@ -6,6 +6,7 @@ import { escapeHtml } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { nf, nfShort, timeAgo } from "../lib/format.js";
 import { bossLabel, bossSpriteHtml, renderBossSprites } from "../lib/bossSprites.js";
+import { accountMark, accountGlyph } from "../lib/config.js";
 
 export async function renderServer($page, params = {}) {
   const period = (params.period === "7d" || params.period === "30d") ? params.period : "24h";
@@ -470,7 +471,10 @@ function newSlimesStrip(rows) {
     <span class="srv-newslimes-eyebrow"><span class="leaf">🌱</span>${label}</span>
     <div class="srv-newslimes-chips">${rows.map(r => `
       <a class="srv-newslimes-chip" href="#player?name=${encodeURIComponent(r.name)}">
-        <span class="srv-newslimes-chip-leaf" aria-hidden="true">🌱</span>
+        <!-- The chip's leaf is decorative ("new slime"), so a realm account
+             REPLACES it rather than sitting next to it — two glyphs on a chip
+             this small reads as noise. -->
+        <span class="srv-newslimes-chip-leaf" aria-hidden="true">${accountGlyph(r) || "🌱"}</span>
         <span>${escapeHtml(r.name)}</span>
         <span class="srv-newslimes-chip-time">${timeAgoShort(r.t)}</span>
       </a>`).join("")}</div>
@@ -663,7 +667,7 @@ function renderBossList(rows) {
     <div class="srv-feed-row">
       <div class="srv-feed-icon is-boss">${bossSpriteHtml(r.boss, "is-feed")}</div>
       <div class="srv-feed-body">
-        <div class="srv-feed-line"><a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> killed <b>${escapeHtml(prettyBoss(r.boss))}</b>${r.count > 1 ? ` <b>×${nf(r.count)}</b>` : ""}</div>
+        <div class="srv-feed-line">${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> killed <b>${escapeHtml(prettyBoss(r.boss))}</b>${r.count > 1 ? ` <b>×${nf(r.count)}</b>` : ""}</div>
         <div class="srv-feed-meta">${timeAgo(Number(r.t) * 1000)}${r.count > 1 && Number(r.firstT) !== Number(r.t) ? ` · since ${timeAgo(Number(r.firstT) * 1000)}` : ""}</div>
       </div>
     </div>`).join("");
@@ -696,7 +700,7 @@ function renderIslandList(rows) {
     <div class="srv-feed-row">
       <div class="srv-feed-icon">🗺️</div>
       <div class="srv-feed-body">
-        <div class="srv-feed-line"><a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> charted <b>${r.count > 1 ? `${nf(r.count)} islands` : "a new island"}</b></div>
+        <div class="srv-feed-line">${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> charted <b>${r.count > 1 ? `${nf(r.count)} islands` : "a new island"}</b></div>
         <div class="srv-feed-meta">${timeAgo(Number(r.t) * 1000)}${r.count > 1 && Number(r.firstT) !== Number(r.t) ? ` · since ${timeAgo(Number(r.firstT) * 1000)}` : ""}${r.islands?.length ? ` <span class="srv-feed-key">· ${escapeHtml(r.islands.join(", "))}</span>` : ""}</div>
       </div>
     </div>`).join("");

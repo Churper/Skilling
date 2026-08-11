@@ -2,7 +2,7 @@ import { escapeHtml, filterRow } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { nf } from "../lib/format.js";
 import { SKILLS, skillLabel } from "../lib/skills.js";
-import { ACCOUNT_TYPES } from "../lib/config.js";
+import { ACCOUNT_TYPES, accountMark } from "../lib/config.js";
 
 const PERIODS = [
   { id: "1d", label: "24 Hours" },
@@ -39,7 +39,7 @@ function paint($page, state, res) {
           { id: "overall", label: "Overall", icon: "📊" },
           ...SKILLS.map(s => ({ id: s.id, label: s.label, icon: s.icon }))
         ], state.skill, "data-skill")}
-        ${filterRow("Account", ACCOUNT_TYPES, state.type, "data-type", { row: true })}
+        ${filterRow("Account", ACCOUNT_TYPES, state.type, "data-type")}
       </div>
 
       <div class="st-card" style="margin-top:18px">
@@ -51,7 +51,7 @@ function paint($page, state, res) {
             return `
             <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
               <td class="rank-cell ${cls}">#${rank}</td>
-              <td>${r.is_sapling ? `<span class="st-sap">🌱</span>` : ""}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
+              <td>${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
               <td class="num gain-pos">+${nf(r.gained || 0)}</td>
             </tr>`;
           }).join("")}

@@ -3,7 +3,7 @@ import { api, bustCache } from "../lib/api.js";
 import { nf, nfSigned, nfShort, dateLabel, timeAgo } from "../lib/format.js";
 import { SKILLS, skillIcon, skillLabel, skillColor } from "../lib/skills.js";
 import { xpToLevel, levelProgress } from "../lib/progression.js";
-import { PERIODS, SUPABASE_URL } from "../lib/config.js";
+import { PERIODS, SUPABASE_URL, accountMark, accountKind } from "../lib/config.js";
 import { lineChart, donutChart, heatmap } from "../lib/chart.js";
 
 let _state = {
@@ -139,7 +139,7 @@ function renderHero(o) {
       </div>
       <div class="st-hero-body">
         <div class="st-hero-title">
-          <div class="st-hero-name">${o.is_sapling ? `<span class="st-sap">🌱</span>` : ""}${escapeHtml(o.name)}</div>
+          <div class="st-hero-name">${accountMark(o)}${escapeHtml(o.name)}</div>
           ${rank > 0 ? `<div class="st-hero-rank-chip">#${nf(rank)}</div>` : ""}
         </div>
         ${o._formerName ? `<div class="st-hero-aka" style="font-size:11px;color:var(--ui-ink-3);margin-top:-2px">previously seen as <code>${escapeHtml(o._formerName)}</code></div>` : ""}
@@ -148,7 +148,11 @@ function renderHero(o) {
           <span>First tracked ${dateLabel(o.first_tracked)}</span>
           <span>Last checked ${timeAgo(o.last_snapshot)}</span>
           <span>${nf(o.data_points || 0)} datapoints</span>
-          <span>${o.is_sapling ? "Sapling" : "Legacy"} account</span>
+          <!-- A realm account named itself here as "Legacy account" before
+               0073, because the board demotion sets is_sapling=false and that
+               was the only thing this line looked at. accountKind reads the
+               mode first. -->
+          <span>${escapeHtml(accountKind(o))} account</span>
         </div>
         <div class="st-hero-actions">
           <button class="st-update-btn" id="st-update">Update Now</button>
