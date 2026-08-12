@@ -1,5 +1,13 @@
 [
   {
+    "version": "v2199",
+    "date": "2026-08-12",
+    "title": "Self Name Tag Level Fix",
+    "entries": [
+      "Fixed your own name tag sometimes showing the default Lv 3 after login."
+    ]
+  },
+  {
     "version": "v2198",
     "date": "2026-08-12",
     "title": "Refresh Charms, Cheaper Frenzy Charms & Clan Mail Fixes",
