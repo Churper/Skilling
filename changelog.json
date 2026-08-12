@@ -1,5 +1,23 @@
 [
   {
+    "version": "v2198",
+    "date": "2026-08-12",
+    "title": "Refresh Charms, Cheaper Frenzy Charms & Clan Mail Fixes",
+    "entries": [
+      "New Refresh Charm in the SlimeCoin Shop: 10 SlimeCoins for 3 charges.",
+      "A 12 minute gather refreshes its own timer instead of stopping, spending one Refresh Charm charge each time.",
+      "There is no limit on refreshes. You keep going for as long as you have charges.",
+      "Refresh Charms work from your bank as well as your bag.",
+      "A normal 12 minute gather costs 1 Refresh Charm charge.",
+      "Level 600+ trees, ores and cave fish run for an hour and cost 3 charges.",
+      "Berries, Flax, Hemp, Bamboo, Meat Trees and Meteors already run for 6 hours and cannot be refreshed.",
+      "Refresh Charms keep a live gather going, so a minimised tab still falls through to the usual Welcome Back catch up.",
+      "Frenzy Charms are now 1 SlimeCoin for 1 charm, down from 3 SlimeCoins for 2.",
+      "Clan invitations to Ironslime accounts no longer fail.",
+      "Weekly Dojo and Dolphin reward mail no longer fails for everyone when an Ironslime places on the board."
+    ]
+  },
+  {
     "version": "v2197",
     "date": "2026-08-11",
     "title": "Ironslime Rewards, Space Shark & Emblems",
