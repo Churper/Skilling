@@ -1,5 +1,13 @@
 [
   {
+    "version": "v2200",
+    "date": "2026-08-13",
+    "title": "Nimbus Leaf",
+    "entries": [
+      "The Nimbus emblem is now a leaf."
+    ]
+  },
+  {
     "version": "v2199",
     "date": "2026-08-12",
     "title": "Self Name Tag Level Fix",

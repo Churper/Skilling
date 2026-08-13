@@ -28,7 +28,7 @@ export const PERIODS = [
    older than the mode, not that something should be guessed at. */
 export const MODE_BADGES = {
   ironslime: { glyph: "🌴", label: "Ironslime", cls: "ironslime" },
-  automator: { glyph: "☁️", label: "Nimbus",    cls: "nimbus" },
+  automator: { glyph: "🍃", label: "Nimbus",    cls: "nimbus" },
 };
 
 /* Five entries now, so the Account filter is rendered WITHOUT filterRow's
