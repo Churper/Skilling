@@ -1,5 +1,13 @@
 [
   {
+    "version": "v2203",
+    "date": "2026-08-14",
+    "title": "Crucible Crack Fix",
+    "entries": [
+      "Fixed the PvP Crucible crack refusing entry."
+    ]
+  },
+  {
     "version": "v2202",
     "date": "2026-08-14",
     "title": "Croc Den, Crocodile, Pet Perk Pages & Space Shark Balance",
