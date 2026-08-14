@@ -19,8 +19,9 @@ const BOSS_KCS = [
   { id: "spider_kc", label: "Spider", bossKey: bossKeyForKc("spider_kc") },
   { id: "wizard_kc", label: "Wizard", bossKey: bossKeyForKc("wizard_kc") },
   { id: "alien_kc", label: "Alien", bossKey: bossKeyForKc("alien_kc") },
-  { id: "frog_kc", label: "Frog", bossKey: bossKeyForKc("frog_kc") },
   { id: "bee_kc", label: "Bee", bossKey: bossKeyForKc("bee_kc") },
+  { id: "croc_kc", label: "Crocodile", icon: "🐊" },
+  { id: "frog_kc", label: "Frog", bossKey: bossKeyForKc("frog_kc") },
   { id: "rat_kc", label: "Rat", bossKey: bossKeyForKc("rat_kc") },
 ];
 const BOSS_KC_BY_ID = Object.fromEntries(BOSS_KCS.map(b => [b.id, b]));
@@ -82,7 +83,7 @@ function renderTable(rows, state) {
     return `<table class="st-table">
       <thead><tr><th>Rank</th><th>Slime</th><th class="num">Total Level</th></tr></thead>
       <tbody>${rows.map(r => {
-        const rank = r.rk + state.offset;
+        const rank = Number(r.rk);
         const cls = rank === 1 ? "rank-r1" : rank === 2 ? "rank-r2" : rank === 3 ? "rank-r3" : "";
         return `
         <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
@@ -98,7 +99,7 @@ function renderTable(rows, state) {
     return `<table class="st-table">
       <thead><tr><th>Rank</th><th>Slime</th><th class="num">KC</th></tr></thead>
       <tbody>${rows.map(r => {
-        const rank = r.rk + state.offset;
+        const rank = Number(r.rk);
         const cls = rank === 1 ? "rank-r1" : rank === 2 ? "rank-r2" : rank === 3 ? "rank-r3" : "";
         return `
         <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
@@ -113,7 +114,7 @@ function renderTable(rows, state) {
   return `<table class="st-table">
     <thead><tr><th>Rank</th><th>Slime</th><th class="num">Level</th><th class="num">XP</th></tr></thead>
     <tbody>${rows.map(r => {
-      const rank = r.rk + state.offset;
+      const rank = Number(r.rk);
       const cls = rank === 1 ? "rank-r1" : rank === 2 ? "rank-r2" : rank === 3 ? "rank-r3" : "";
       const lvl = xpToLevel(Number(r.xp_val || 0));
       return `

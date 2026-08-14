@@ -1,5 +1,28 @@
 [
   {
+    "version": "v2202",
+    "date": "2026-08-14",
+    "title": "Croc Den, Crocodile, Pet Perk Pages & Space Shark Balance",
+    "entries": [
+      "New Croc Den quest. Find Slimmy beside the mainland river.",
+      "Complete Croc Den to unlock Crocodile and Crocodile (Hard).",
+      "Crocodiles drop Croc Scale, Croc Paintbrush, Croc Shield and Croc's Jaw rewards.",
+      "Croc Scale makes the level 81 Croc Scroll.",
+      "Croc Shield has 89 defence and +15% Boss Damage.",
+      "Croc's Jaw adds 5% Life Steal and banks up to 20% Overhealth on an amulet.",
+      "Crocodile kills have leaderboard and Slimetrics categories.",
+      "Meat Sprouts from Croc Den plant Meat Trees.",
+      "New item: Shovel.",
+      "Pet perks now have page arrows and a second 3x4 page reserved for Croc Scroll.",
+      "Space Shark daily run coin rewards are halved.",
+      "Space Shark daily run bonuses are now 5, 3 and 2 SlimeCoins.",
+      "Hostile boss projectiles now trigger Auto-retaliate on a miss or when they deal damage.",
+      "Dark Wizard storm no longer triggers Auto-retaliate.",
+      "Ocean Gift summaries now show the correct equipment rarity colours.",
+      "System Font choice now persists after saving settings."
+    ]
+  },
+  {
     "version": "v2201",
     "date": "2026-08-13",
     "title": "Shark Name Badge & Meat Tree",

@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2201">
+  <link rel="stylesheet" href="./style.css?v=2202">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -192,6 +192,7 @@
   <div id="ui-root" hidden>
     <div id="ui-hp-bar" aria-label="Player health">
       <div id="ui-hp-bar-fill"></div>
+      <div id="ui-hp-bar-overhealth"></div>
       <span id="ui-hp-bar-text">HP 100/100</span>
     </div>
     <button type="button" id="ui-bell-btn" hidden title="Ring Boss Bell" aria-label="Ring Boss Bell">&#x1F514;</button>
@@ -672,8 +673,9 @@
               <option value="spider_kc">&#x1F577;&#xFE0F; Spider</option>
               <option value="wizard_kc">&#x1F9D9; Wizard</option>
               <option value="alien_kc">&#x1F47D; Alien</option>
-              <option value="frog_kc">&#x1F438; Frog</option>
               <option value="bee_kc">&#x1F41D; Bee</option>
+              <option value="croc_kc">&#x1F40A; Crocodile</option>
+              <option value="frog_kc">&#x1F438; Frog</option>
               <option value="rat_kc">&#x1F400; Rat</option>
             </select>
           </div>
@@ -1921,6 +1923,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2201"></script>
+  <script type="module" src="./main.js?v=2202"></script>
 </body>
 </html>
