@@ -1,5 +1,14 @@
 [
   {
+    "version": "v2204",
+    "date": "2026-08-14",
+    "title": "Quest Sound and Crucible Fixes",
+    "entries": [
+      "Quest completion sound restored for every quest except Croc Den.",
+      "Fixed the PvP Crucible interior showing a blue tint."
+    ]
+  },
+  {
     "version": "v2203",
     "date": "2026-08-14",
     "title": "Crucible Crack Fix",
