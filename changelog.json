@@ -1,13 +1,24 @@
 [
  {
+  "version": "v2206",
+  "date": "2026-08-15",
+  "title": "Croc Shield Jaw Ladder & Transpose",
+  "entries": [
+   "All Croc Shields now start at +10% boss damage.",
+   "Feed 3, 8 and 18 total Croc's Jaws into a shield to reach +15%, +20% and +25% boss damage.",
+   "Click a Croc's Jaw in your bag to feed one into a worn or bagged Croc Shield.",
+   "Washer Transpose now moves potential lines, compatible imbues and fed Croc's Jaws together."
+  ]
+ },
+ {
   "version": "v2205",
   "date": "2026-08-15",
   "title": "Croc Balance, Ghost and Slimeshroom Fixes",
   "entries": [
-   "The Crocodile you fight during the Croc Den quest is much easier. Beating it once locks that in.",
+   "The Crocodile in the Croc Den quest now has half health and hits for half damage, and is much easier to hit. This only applies until you beat her once.",
    "Leave the den without the ruby and she stays dead. Dig back in and the ruby is waiting.",
    "Hard mode Crocodile HP cut in half, from 10,000,000 to 5,000,000. Damage unchanged.",
-   "Downed players can no longer attack while waiting to respawn.",
+   "You can no longer attack while you are dead and waiting to respawn.",
    "Fixed the Slimeshroom turning invisible after a phase change in a background tab or boss arena.",
    "Other players now sit correctly on their horse instead of sliding onto its neck.",
    "Fixed the combat style selector breaking on smaller windows and high DPI displays.",
