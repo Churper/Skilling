@@ -1,5 +1,13 @@
 [
  {
+  "version": "v2207",
+  "date": "2026-08-16",
+  "title": "Alpha Cape Claim Update",
+  "entries": [
+   "Alpha Cape claim status now saves correctly."
+  ]
+ },
+ {
   "version": "v2206",
   "date": "2026-08-15",
   "title": "Croc Shield, Boat Upgrades & Meat Trees",
