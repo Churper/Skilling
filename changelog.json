@@ -1,5 +1,14 @@
 [
  {
+  "version": "v2208",
+  "date": "2026-08-16",
+  "title": "Giga Mode Hotfix",
+  "entries": [
+   "Giga stomps now deal 1% of each enemy's max HP.",
+   "Weapon attacks now work during Giga Mode."
+  ]
+ },
+ {
   "version": "v2207",
   "date": "2026-08-16",
   "title": "Alpha Cape Claim Update",
