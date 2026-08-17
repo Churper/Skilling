@@ -1,5 +1,18 @@
 [
  {
+  "version": "v2211",
+  "date": "2026-08-17",
+  "title": "Space Shark Touch Controls, Mobile Resume & Combat Tracker",
+  "entries": [
+   "Space Shark now has mobile touch controls for swimming, turning and tricks.",
+   "Fixed mobile gameplay sometimes freezing after returning to the tab.",
+   "Fixed pending mailbox letters not opening on mobile.",
+   "The Shark Name Badge now shows its shark icon in inventory.",
+   "Combat Overload's tracker now stays above zero until the skill is ready.",
+   "The guide now lists level 600+ bushes on islands and in the PvP Crucible cave."
+  ]
+ },
+ {
   "version": "v2210",
   "date": "2026-08-17",
   "title": "Combat Level Rework",
