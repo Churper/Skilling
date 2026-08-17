@@ -1,5 +1,16 @@
 [
  {
+  "version": "v2210",
+  "date": "2026-08-17",
+  "title": "Combat Level Rework",
+  "entries": [
+   "Melee, Bow, Mage and Hitpoints require increasingly more XP after level 1000.",
+   "Affected players' earned combat progress converts once on their next updated load.",
+   "Combat damage formulas are unchanged.",
+   "Affected Slimetrics histories use the same conversion to keep graphs consistent."
+  ]
+ },
+ {
   "version": "v2209",
   "date": "2026-08-16",
   "title": "Backend server loot updates",

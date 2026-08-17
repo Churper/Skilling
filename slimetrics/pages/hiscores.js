@@ -3,7 +3,7 @@ import { api } from "../lib/api.js";
 import { nf } from "../lib/format.js";
 import { SKILLS, skillLabel } from "../lib/skills.js";
 import { ACCOUNT_TYPES, accountMark } from "../lib/config.js";
-import { xpToLevel } from "../lib/progression.js";
+import { xpToLevelForSkill } from "../lib/progression.js";
 import { bossKeyForKc, bossSpriteHtml, renderBossSprites } from "../lib/bossSprites.js";
 
 const PAGE_SIZE = 50;
@@ -116,7 +116,7 @@ function renderTable(rows, state) {
     <tbody>${rows.map(r => {
       const rank = Number(r.rk);
       const cls = rank === 1 ? "rank-r1" : rank === 2 ? "rank-r2" : rank === 3 ? "rank-r3" : "";
-      const lvl = xpToLevel(Number(r.xp_val || 0));
+      const lvl = xpToLevelForSkill(state.skill, Number(r.xp_val || 0));
       return `
       <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
         <td class="rank-cell ${cls}">#${nf(rank)}</td>

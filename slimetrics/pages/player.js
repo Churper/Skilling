@@ -2,7 +2,7 @@ import { escapeHtml } from "../lib/nav.js";
 import { api, bustCache } from "../lib/api.js";
 import { nf, nfSigned, nfShort, dateLabel, timeAgo } from "../lib/format.js";
 import { SKILLS, skillIcon, skillLabel, skillColor } from "../lib/skills.js";
-import { xpToLevel, levelProgress } from "../lib/progression.js";
+import { xpToLevelForSkill, levelProgressForSkill } from "../lib/progression.js";
 import { PERIODS, SUPABASE_URL, accountMark, accountKind } from "../lib/config.js";
 import { lineChart, donutChart, heatmap } from "../lib/chart.js";
 
@@ -186,7 +186,7 @@ function slimeAvatar(c1, c2, c3) {
 function renderHighlights(o) {
   const segs = SKILLS.map(s => {
     const xp = Number(o.current_xp?.[s.id] || 0);
-    return { label: s.label, value: xp, color: s.color, level: xpToLevel(xp) };
+    return { label: s.label, value: xp, color: s.color, level: xpToLevelForSkill(s.id, xp) };
   });
   const sumXp = segs.reduce((a, b) => a + b.value, 0);
   return `
@@ -236,8 +236,8 @@ function renderSkillTable() {
   `);
   for (const s of SKILLS) {
     const xp = Number(o.current_xp?.[s.id] || 0);
-    const lvl = xpToLevel(xp);
-    const prog = levelProgress(xp);
+    const lvl = xpToLevelForSkill(s.id, xp);
+    const prog = levelProgressForSkill(s.id, xp);
     const d = Number(skillDelta[s.id] || 0);
     rows.push(`
       <tr data-skill="${s.id}" ${_state.focusSkill === s.id ? `class="is-active"` : ""}>
