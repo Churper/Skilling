@@ -1,5 +1,30 @@
 [
  {
+  "version": "v2212",
+  "date": "2026-08-17",
+  "title": "Equipment, Node Alerts, Chat & Meteors",
+  "entries": [
+   "Prism gear now requires level 1100, Infinity 1200 and Plasma 1300.",
+   "Refresh Frenzy Surge from its active timer for a full 10 minutes.",
+   "AFK Timer Tune can now play when your Slimeshroom, Meteor, Meat Tree or grown farm tree ends.",
+   "Farm trees and Meat Trees now get their full frenzy effects and rewards.",
+   "Shoal Fishing XP drops no longer show fish counts.",
+   "Right-click Refresh Charms to turn their automatic use on or off.",
+   "Mainland and island meteor markers no longer replace one another.",
+   "Leaving the Crucible before your Meteor lands now starts the 30-minute lock when it hits someone.",
+   "Delayed chat from sleeping tabs now returns to its original position instead of appearing newest.",
+   "Right-clicking Nimbus or Ironslime names now opens the correct player lookup.",
+   "Social menus now use cleaner, consistent headers and buttons.",
+   "Click Quick Food in the Worn tab to show or hide a movable Quick Eat button.",
+   "Space Shark mobile controls now show only Swim and Roll/Slide and no longer appear on desktop.",
+   "The combat style selector stays in its saved position after refresh.",
+   "Mobile DPS calculator gear and potential controls no longer overlap.",
+   "Fixed a startup error when returning to the game.",
+   "The tutorial arrow now points to the General Store.",
+   "Added six slime emotes: Relieved, Spiral Eyes, Woozy, Sleeping, Pleading Smile and Steam."
+  ]
+ },
+ {
   "version": "v2211",
   "date": "2026-08-17",
   "title": "Space Shark Touch Controls, Mobile Resume & Combat Tracker",

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="body" cx="42%" cy="30%" r="74%">
+      <stop offset="0%" stop-color="#8bff9b"/>
+      <stop offset="48%" stop-color="#35d85c"/>
+      <stop offset="100%" stop-color="#0f8f35"/>
+    </radialGradient>
+    <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#45ef69"/>
+      <stop offset="100%" stop-color="#0f9d3a"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.2"/>
+      <feOffset dx="0" dy="2" result="offset"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.34"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#softShadow)">
+    <ellipse cx="64" cy="100" rx="47" ry="7" fill="#000" opacity=".18"/>
+    
+    <path d="M11 91.5C11 53 33 25 64 25s53 28 53 66.5C117 102.5 106 106 64 106S11 102.5 11 91.5Z" fill="url(#body)" stroke="#086221" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M13.5 86.5C22 100 39 105 64 105s42-5 50.5-18.5V96c0 10-15 15-50.5 15S13.5 106 13.5 96Z" fill="url(#belly)" opacity=".8"/>
+    <path d="M38 31c-13 8-21 23-24 45" fill="none" stroke="#b6ffc0" stroke-width="5" stroke-linecap="round" opacity=".28"/>
+    <path d="M73 29c15 3 26 13 33 31" fill="none" stroke="#eaffec" stroke-width="8" stroke-linecap="round" opacity=".34"/>
+    <path d="M84 36c8 4 14 11 18 22" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".68"/>
+    <path d="M32 77c9 9 28 13 50 9" fill="none" stroke="#76ff87" stroke-width="9" stroke-linecap="round" opacity=".16"/>
+    
+    
+    <g transform="translate(0 4)">
+    <g transform="translate(18.1 23.2) scale(2.55 2.2)">
+      <path fill="#173018" d="M6.001 11c-.552 0-1-.448-1-1 0-.551.445-.998.996-1 .156-.002 3.569-.086 6.205-3.6.331-.44.957-.532 1.4-.2.442.331.531.958.2 1.4-3.263 4.35-7.617 4.4-7.801 4.4zm24.986 2.393c.128.537-.204 1.077-.741 1.205-.536.128-1.074-.202-1.204-.737-.038-.151-.911-3.452-4.941-5.201-.505-.22-.739-.808-.519-1.315.22-.507.809-.739 1.315-.519 4.989 2.165 6.047 6.388 6.09 6.567z"/>
+      <path fill="#173018" d="M23.186 29.526c-.993 0-1.952-.455-2.788-1.339-2.816-2.985-3.569-2.333-4.817-1.251-.781.679-1.754 1.523-3.205 1.523-2.351 0-3.969-2.302-4.036-2.4-.314-.454-.2-1.077.254-1.391.451-.312 1.074-.2 1.39.251.301.429 1.317 1.54 2.393 1.54.704 0 1.256-.479 1.895-1.033 1.816-1.578 3.764-2.655 7.583 1.388.823.873 1.452.774 1.908.592 1.659-.665 3.205-3.698 3.197-5.15-.003-.552.442-1.002.994-1.005h.006c.55 0 .997.444 1 .995.012 2.103-1.854 5.976-4.454 7.017-.443.175-.885.262-1.32.263z"/>
+    </g>
+    <g transform="translate(49.95 55.4) scale(2.35) translate(-12.49 -14.63)">
+      <path fill="#173018" d="M14.815 15.375c-.584 2.114-1.642 3.083-3.152 2.666-1.509-.417-2.343-1.909-1.76-4.023.583-2.112 2.175-3.363 3.684-2.946 1.511.417 1.812 2.19 1.228 4.303z"/>
+    </g>
+    <g transform="translate(77.23 57.3) scale(2.35) translate(-23.19 -15.49)">
+      <path fill="#173018" d="M26.231 14.62c.473 2.141-.675 4.838-2.204 5.176s-3.28-1.719-3.753-3.86c-.473-2.14.419-3.971 1.948-4.309s3.536.853 4.009 2.993z"/>
+    </g>
+    </g>
+  </g>
+</svg>
