@@ -1,5 +1,16 @@
 [
  {
+  "version": "v2213",
+  "date": "2026-08-17",
+  "title": "Combat Style, Space Shark & Shark Badges",
+  "entries": [
+   "Fixed the combat style selector moving back over chat after refresh.",
+   "Left and right screen sides steer Space Shark again on mobile.",
+   "Other players now see your selected Shark or Dolphin badge icon.",
+   "Shark badge color changes now update for players already nearby."
+  ]
+ },
+ {
   "version": "v2212",
   "date": "2026-08-17",
   "title": "Equipment, Node Alerts, Chat & Meteors",

@@ -24,15 +24,15 @@
   </defs>
   <g filter="url(#softShadow)">
     <ellipse cx="64" cy="100" rx="47" ry="7" fill="#000" opacity=".18"/>
-    
+
     <path d="M11 91.5C11 53 33 25 64 25s53 28 53 66.5C117 102.5 106 106 64 106S11 102.5 11 91.5Z" fill="url(#body)" stroke="#086221" stroke-width="5" stroke-linejoin="round"/>
     <path d="M13.5 86.5C22 100 39 105 64 105s42-5 50.5-18.5V96c0 10-15 15-50.5 15S13.5 106 13.5 96Z" fill="url(#belly)" opacity=".8"/>
     <path d="M38 31c-13 8-21 23-24 45" fill="none" stroke="#b6ffc0" stroke-width="5" stroke-linecap="round" opacity=".28"/>
     <path d="M73 29c15 3 26 13 33 31" fill="none" stroke="#eaffec" stroke-width="8" stroke-linecap="round" opacity=".34"/>
     <path d="M84 36c8 4 14 11 18 22" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".68"/>
     <path d="M32 77c9 9 28 13 50 9" fill="none" stroke="#76ff87" stroke-width="9" stroke-linecap="round" opacity=".16"/>
-    
-    
+
+
     <g transform="translate(0 4)">
     <g transform="translate(18.1 23.2) scale(2.55 2.2)">
       <path fill="#173018" d="M6.001 11c-.552 0-1-.448-1-1 0-.551.445-.998.996-1 .156-.002 3.569-.086 6.205-3.6.331-.44.957-.532 1.4-.2.442.331.531.958.2 1.4-3.263 4.35-7.617 4.4-7.801 4.4zm24.986 2.393c.128.537-.204 1.077-.741 1.205-.536.128-1.074-.202-1.204-.737-.038-.151-.911-3.452-4.941-5.201-.505-.22-.739-.808-.519-1.315.22-.507.809-.739 1.315-.519 4.989 2.165 6.047 6.388 6.09 6.567z"/>
