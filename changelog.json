@@ -1,11 +1,12 @@
 [
  {
-  "version": "v2213",
+  "version": "v2214",
   "date": "2026-08-17",
-  "title": "Combat Style, Space Shark & Shark Badges",
+  "title": "Combat Style, Space Shark, Mailbox & Shark Badges",
   "entries": [
    "Fixed the combat style selector moving back over chat after refresh.",
    "Left and right screen sides steer Space Shark again on mobile.",
+   "Mobile mailbox panels now stay on-screen and reset misplaced positions.",
    "Other players now see your selected Shark or Dolphin badge icon.",
    "Shark badge color changes now update for players already nearby."
   ]
