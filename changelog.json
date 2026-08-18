@@ -1,5 +1,13 @@
 [
  {
+  "version": "v2215",
+  "date": "2026-08-18",
+    "title": "Alien Loot",
+    "entries": [
+      "Alien boss loot now auto-collects inside the arena again."
+    ]
+ },
+ {
   "version": "v2214",
   "date": "2026-08-17",
   "title": "Combat Style, Space Shark, Mailbox & Shark Badges",
