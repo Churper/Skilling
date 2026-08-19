@@ -1,11 +1,27 @@
 [
  {
+  "version": "v2216",
+  "date": "2026-08-19",
+  "title": "Performance, Boss Lighting & Croc Den",
+  "entries": [
+   "Smoother long sessions in caves and boss arenas.",
+   "Lighter memory use as drops, animals, ocean mobs and passing players come and go.",
+   "Optimized minimap resource pins.",
+   "Your slime is no longer dimmed and re-lit by boss arena lighting during boss fights.",
+   "The Croc Den cave entrance no longer shows up inside boss arenas.",
+   "The Croc Den entrance is only built once you reach it in the quest, so new accounts load lighter.",
+   "Your combat style selector now returns to where you left it after pressing Play.",
+   "The tutorial highlight on Resources now pulses steadily instead of restarting.",
+   "Trying to use the Exchange while signed out now shows a proper popup instead of a status line."
+  ]
+ },
+ {
   "version": "v2215",
   "date": "2026-08-18",
-    "title": "Alien Loot",
-    "entries": [
-      "Alien boss loot now auto-collects inside the arena again."
-    ]
+  "title": "Alien Loot",
+  "entries": [
+   "Alien boss loot now auto-collects inside the arena again."
+  ]
  },
  {
   "version": "v2214",
