@@ -14,6 +14,7 @@ export const SKILLS = [
   { id: "scribing",    label: "Scribing",    icon: "\u{1F4DC}", color: "#d0b070" },
   { id: "faith",       label: "Faith",       icon: "\u{1F64F}", color: "#f0d460" },
   { id: "explorer",    label: "Explorer",    icon: "\u{1F9ED}", color: "#5fb8c8" },
+  { id: "hunting",     label: "Hunting",     icon: "\u{1F43E}", color: "#9a7d3f" },
 ];
 
 export const SKILL_BY_ID = Object.fromEntries(SKILLS.map(s => [s.id, s]));

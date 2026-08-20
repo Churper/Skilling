@@ -630,6 +630,7 @@ const SKILL_LABELS = {
   cooking: "Cooking 🍳", hitpoints: "Hitpoints ❤️", survival: "Survival 🍃",
   farming: "Farming 🌾", scribing: "Scribing 📜", faith: "Faith ✨",
   explorer: "Explorer 🧭",
+  hunting: "Hunting 🐾",
 };
 function prettySkill(key) { return SKILL_LABELS[key] || (key[0]?.toUpperCase() + key.slice(1)); }
 function prettyBoss(key)  { return bossLabel(key); }

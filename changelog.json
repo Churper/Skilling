@@ -1,5 +1,25 @@
 [
  {
+  "version": "v2217",
+  "date": "2026-08-20",
+  "title": "Hunting, Mounts, Tutorial & Fortune",
+  "entries": [
+   "Hunting is on the skills panel and hiscores.",
+   "Total Level goes up by 1.",
+   "Nothing grants Hunting XP yet.",
+   "Horse Ranch has an Animals tab with Cat, Pig, Sheep, Raccoon and Croc Minion mounts.",
+   "Mount skins use your horse speed.",
+   "They are locked for now.",
+   "The tutorial now teaches Frenzies and AFK time.",
+   "The bank step now has you favorite an item.",
+   "New: Yellow Dragonscale and Black Dragonscale.",
+   "New: Stormscale, Harlequin, Citrus, Terracotta, Lotus, Pomegranate, Mojave and Dart Frog.",
+   "Fortune Potion is a 50% chance to double monster drops, Diamonds, and Pearls.",
+   "White Spellstones bind from Meteor Shards with no catalyst.",
+   "Green Spellstones use the old White catalysts."
+  ]
+ },
+ {
   "version": "v2216",
   "date": "2026-08-19",
   "title": "Performance, Boss Lighting & Croc Den",

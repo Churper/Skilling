@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2216">
+  <link rel="stylesheet" href="./style.css?v=2217">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -610,11 +610,17 @@
             <strong class="ui-skill-tile-lvl" id="ui-skill-mage">1</strong>
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill ui-skill-tile-fill-combat" id="ui-skill-bar-mage"></div></div>
           </div>
-          <div class="ui-skill-tile is-explorer ui-skill-tile-wide" data-skill="explorer">
+          <div class="ui-skill-tile is-explorer" data-skill="explorer">
             <span class="ui-skill-tile-icon">&#x26F5;</span>
             <span class="ui-skill-tile-name">Explorer</span>
             <strong class="ui-skill-tile-lvl" id="ui-skill-explorer">1</strong>
             <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-explorer"></div></div>
+          </div>
+          <div class="ui-skill-tile is-hunting" data-skill="hunting">
+            <span class="ui-skill-tile-icon">&#x1F43E;</span>
+            <span class="ui-skill-tile-name">Hunting</span>
+            <strong class="ui-skill-tile-lvl" id="ui-skill-hunting">1</strong>
+            <div class="ui-skill-tile-bar"><div class="ui-skill-tile-fill" id="ui-skill-bar-hunting"></div></div>
           </div>
         </div>
         <div class="ui-kc-strip">
@@ -662,6 +668,7 @@
               <option value="scribing">&#x1F4DC; Scribing</option>
               <option value="faith">&#x1F54A;&#xFE0F; Faith</option>
               <option value="explorer">&#x26F5; Explorer</option>
+              <option value="hunting">&#x1F43E; Hunting</option>
             </select>
             <select class="ui-lb-cat-select" id="lb-select-boss">
               <option value="" disabled selected>Boss KC</option>
@@ -1277,6 +1284,10 @@
           <button type="button" id="ui-horse-customize-btn" class="ui-horse-editor-btn" title="Customize colors">&#x1F3A8;</button>
           <button type="button" id="ui-horse-close" class="ui-bank-close-btn">&times;</button>
         </div>
+      </div>
+      <div id="ui-horse-tabs" class="ui-horse-tabs" hidden>
+        <button type="button" class="ui-horse-tab is-active" data-horse-tab="horses">Horses</button>
+        <button type="button" class="ui-horse-tab" data-horse-tab="animals">Animals</button>
       </div>
       <div id="ui-horse-body" class="ui-horse-body"></div>
       <div id="ui-horse-speed-section" class="ui-horse-speed-section" hidden>
@@ -1926,6 +1937,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2216"></script>
+  <script type="module" src="./main.js?v=2217"></script>
 </body>
 </html>
