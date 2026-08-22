@@ -1,5 +1,18 @@
 [
  {
+  "version": "v2218",
+  "date": "2026-08-22",
+  "title": "All Mobs, Mounts & Treasure",
+  "entries": [
+   "New All Mobs filter under Combat on the map.",
+   "Other players now see your real mount and colors.",
+   "Island treasure no longer gives coins, Explorer XP only.",
+   "World events no longer reset on server restarts.",
+   "Ironslime death piles can be looted by others.",
+   "Newest skins keep their name colors online."
+  ]
+ },
+ {
   "version": "v2217",
   "date": "2026-08-20",
   "title": "Hunting, Mounts, Tutorial & Fortune",
