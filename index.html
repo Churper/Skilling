@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2218">
+  <link rel="stylesheet" href="./style.css?v=2219">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -930,6 +930,7 @@
           <div class="stg-row"><span class="stg-label">Disable Emote Bubbles</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-no-emote-bubbles"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">AFK Timer Indicator</span><span class="stg-hint">Visual countdown of the AFK limit on your current gather. Each resource has its own window, from minutes to hours (optional sound is under Audio → AFK Timer Sound)</span></span><span class="stg-ctrl"><select id="setting-afk-indicator" class="stg-sel"><option value="bar">Bar above tabs</option><option value="ring">Ring on node</option><option value="both">Both</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Low Detail Full Map</span><span class="stg-hint">Use simple circles for tiny far-zoom islands</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-minimap-low-detail"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Mini Map Size</span><span class="stg-hint">Scales the small corner map. The big map is unaffected.</span></span><span class="stg-ctrl"><input type="range" id="setting-minimap-size" min="50" max="200" step="5" value="100" class="stg-range"><span class="stg-range-val" id="setting-minimap-size-label">100%</span></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Map Zoom Controls</span><span class="stg-hint">Zoom widget shown on the map edge</span></span><span class="stg-ctrl"><select id="setting-minimap-zoom-controls" class="stg-sel"><option value="slider">Slider</option><option value="buttons">Buttons</option><option value="both">Slider + Buttons</option><option value="none">None</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Map Zoom Position</span><span class="stg-hint">Which map edge the zoom widget sits on</span></span><span class="stg-ctrl"><select id="setting-minimap-zoom-position" class="stg-sel"><option value="left">Left</option><option value="right">Right</option><option value="bottom">Bottom</option><option value="top">Top</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Zoom On Map Edge</span><span class="stg-hint">Rest the zoom controls straddling the border, like the compass buttons</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-minimap-zoom-edge"><span class="stg-tog-track"></span></label></span></div>
@@ -1937,6 +1938,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2218"></script>
+  <script type="module" src="./main.js?v=2219"></script>
 </body>
 </html>

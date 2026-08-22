@@ -1,5 +1,25 @@
 [
  {
+  "version": "v2219",
+  "date": "2026-08-22",
+  "title": "Mini Map Size, DM Replies & Fixes",
+  "entries": [
+   "New Mini Map Size slider in Settings, 50-200%.",
+   "Reply to DMs from your current chatroom with a To NAME chip.",
+   "Crucible lock fees are now charged by the server on entry.",
+   "No refund if the Crucible fails to open, locks stay enchanted and the next entry is free.",
+   "Popped-out windows keep position and size across refresh.",
+   "Baby crocs no longer spawn invisible.",
+   "Skele comets can no longer break the orb phase.",
+   "Slimeshroom no longer invisible after island teleports.",
+   "Washer no longer blurs the screen, chat works during washer and trades.",
+   "No more half slime emoji at the chat cap.",
+   "Spacebar no longer re-toggles the last clicked tab.",
+   "Mob tooltips refresh HP while you hover.",
+   "Dojo run clock now starts on a landed pet Def Shred."
+  ]
+ },
+ {
   "version": "v2218",
   "date": "2026-08-22",
   "title": "All Mobs, Mounts & Treasure",
