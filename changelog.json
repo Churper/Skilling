@@ -1,5 +1,17 @@
 [
  {
+  "version": "v2222",
+  "date": "2026-08-27",
+  "title": "Ocean Crate Gear & UI Fixes",
+  "entries": [
+   "Ocean crates no longer give broken gear.",
+   "Popped out windows keep their size after a refresh.",
+   "Your UI Theme choice sticks after sign-in.",
+   "Fixed some emoji fallbacks.",
+   "Carrot and Mushroom added to the chat emoji picker."
+  ]
+ },
+ {
   "version": "v2221",
   "date": "2026-08-23",
   "title": "Under the Hood",
