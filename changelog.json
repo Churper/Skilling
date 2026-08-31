@@ -1,5 +1,17 @@
 [
   {
+    "version": "v2224",
+    "date": "2026-09-01",
+    "title": "Mount Skins Shop",
+    "entries": [
+      "Unlock mount skins for SlimeCoins at the Ranch.",
+      "Niu Lia cosmetic added to SlimeCoin shop.",
+      "Fixed getting stuck on the Croc Minion.",
+      "Nametags no longer draw on top of mounts.",
+      "Guest tool upgrades capped at Ruby until you register."
+    ]
+  },
+  {
     "version": "v2223",
     "date": "2026-08-28",
     "title": "Crucible Peaceful Protection & Attack Speed",
