@@ -1,5 +1,15 @@
 [
   {
+    "version": "v2226",
+    "date": "2026-09-12",
+    "title": "Account Login & Frenzy",
+    "entries": [
+      "Fixed accounts getting stuck at \"Cloud sync unavailable\".",
+      "Fixed Logout being unavailable after an account-loading error.",
+      "Fixed Frenzy effects disappearing when your device clock is out of sync."
+    ]
+  },
+  {
     "version": "v2225",
     "date": "2026-09-11",
     "title": "The Item Kernel: every item in Slimeville rebuilt on one server door",
