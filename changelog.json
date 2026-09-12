@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2225",
+    "date": "2026-09-11",
+    "title": "The Item Kernel: every item in Slimeville rebuilt on one server door",
+    "entries": [
+      "Every item move now goes through 1 server door.",
+      "Bag, Bank, worn gear, ammo and containers are all drawn from the server itself.",
+      "Gold and Slime Coins move through one balance writer.",
+      "Clicks preview instantly and settle on the server reply."
+    ]
+  },
+  {
     "version": "v2224",
     "date": "2026-09-01",
     "title": "Mount Skins Shop",
