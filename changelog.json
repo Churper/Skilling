@@ -1,5 +1,28 @@
 [
   {
+    "version": "v2227",
+    "date": "2026-09-12",
+    "title": "Gathering, Loot, Pets & Mounts",
+    "entries": [
+      "Reduced delays for gathering, loot drops and inventory actions.",
+      "Improved gathering recovery after server restarts.",
+      "Improved reliability during long AFK gathering sessions.",
+      "Fixed gathering failing after leaving the game tab inactive.",
+      "Fixed missing gathering rewards when Auto Frenzy activates.",
+      "Pet task selections now update immediately.",
+      "Petting now responds immediately.",
+      "Pet gathering choices now match each pet's level.",
+      "Fixed incorrect resource choices for pet Scribing tasks.",
+      "Fixed animal mount colors not saving.",
+      "Selecting an animal at Horse Ranch now mounts it and closes the menu.",
+      "Fixed sea crates giving broken equipment.",
+      "Repaired affected equipment from sea crates.",
+      "Fixed feeding Glow Shrooms to Stone Slimes.",
+      "Fixed some Kraken, Prismatic and Croc imbues failing.",
+      "Fixed some mob drops failing to appear."
+    ]
+  },
+  {
     "version": "v2226",
     "date": "2026-09-12",
     "title": "Account Login & Frenzy",
