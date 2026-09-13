@@ -1,5 +1,17 @@
 [
   {
+    "version": "v2228",
+    "date": "2026-09-13",
+    "title": "Berry & Bag Fixes",
+    "entries": [
+      "Fixed Berry freezing your Bag until a reload.",
+      "Anyone stuck from Berry is unstuck now.",
+      "Fixed one failed action locking the Bag, Bank, Shop, crafting, farming and pets.",
+      "Fixed gathering refusing to start while the Bag was locked.",
+      "Fixed Stone Slime feeds and other actions not showing they worked."
+    ]
+  },
+  {
     "version": "v2227",
     "date": "2026-09-12",
     "title": "Gathering, Loot, Pets & Mounts",
