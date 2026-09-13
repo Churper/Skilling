@@ -1,5 +1,22 @@
 [
   {
+    "version": "v2229",
+    "date": "2026-09-13",
+    "title": "Performance & Alchemy",
+    "entries": [
+      "Fixed stutter when picking up drops, looting bosses, gathering, selling and banking.",
+      "Fixed stutter when harvesting crops.",
+      "Fixed a big bank slowing down every item action.",
+      "Fixed alchs over 250,000 coins being refused.",
+      "Fixed equipment not being alchable.",
+      "Fixed nodes refusing you after a level up.",
+      "XP tracker made more responsive again.",
+      "Guest play is enabled again.",
+      "The tutorial works again, including its gold rewards.",
+      "Slimetrics shows Account Types."
+    ]
+  },
+  {
     "version": "v2228",
     "date": "2026-09-13",
     "title": "Berry & Bag Fixes",

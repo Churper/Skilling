@@ -54,7 +54,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       <div class="srv-stat-grid" style="margin-top:18px">
         ${statCard("Online Now", nf(o.online_now), `peak today <span class="num">${nf(o.peak_today)}</span> · all-time <span class="num">${nf(o.peak_alltime)}</span>`, "var(--slime)", "", "is-live")}
         ${statCard("Total Slimes", nf(o.total_accounts), `<span class="num">${nf(o.signups_today || 0)}</span> joined today`, "#b692ff", sparkline(signups))}
-        ${statCard("Sapling vs Legacy", nf((o.saplings || 0) + (o.legacy || 0)), "all registered slimes", "#5ee7e0", saplingsBar(o))}
+        ${statCard("Account Types", nf((o.saplings || 0) + (o.legacy || 0)), "all registered slimes", "#5ee7e0", saplingsBar(o))}
       </div>
 
       <div class="srv-stat-grid" style="margin-top:14px">
@@ -236,6 +236,8 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       .srv-sap-seg { height: 100%; transition: filter 140ms; position: relative; }
       .srv-sap-seg.is-sap { background: var(--slime); }
       .srv-sap-seg.is-leg { background: #ffd060; }
+      .srv-sap-seg.is-nimbus { background: #8ab4ff; }
+      .srv-sap-seg.is-iron { background: #b18cff; }
       .srv-sap-bar:hover .srv-sap-seg { filter: brightness(1.15); }
       .srv-sap-legend { display: inline-flex; gap: 10px; font-size: 11px; color: var(--srv-muted); }
       .srv-sap-legend-item { display: inline-flex; align-items: center; gap: 6px; transition: color 140ms; }
@@ -243,6 +245,8 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       .srv-sap-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
       .srv-sap-legend-dot.is-sap { background: var(--slime); }
       .srv-sap-legend-dot.is-leg { background: #ffd060; }
+      .srv-sap-legend-dot.is-nimbus { background: #8ab4ff; }
+      .srv-sap-legend-dot.is-iron { background: #b18cff; }
       .srv-sap-legend-num { color: var(--fg); font-weight: 700; }
 
       /* New-slimes strip — thin inline row */
@@ -422,22 +426,39 @@ function periodBtn(p, current) {
   return `<a href="#server?period=${p}" data-period="${p}" class="${p === current ? "is-active" : ""}">${p}</a>`;
 }
 
-/* Saplings/legacy split bar with two segments (green sap + gold legacy)
-   plus a legend with dots and counts. */
+/* Account-type split bar. One segment per type, each account counted once:
+   a mode account (Ironslime, Nimbus) shows under its mode, never also under
+   sapling or legacy. Counts come from the server summary's acct_types key.
+   Until that key ships, fall back to the original sapling/legacy split so the
+   page keeps working against an older summary row. */
 function saplingsBar(o) {
-  const sap = o.saplings || 0, leg = o.legacy || 0, total = sap + leg;
+  const t = o.acct_types && typeof o.acct_types === "object" ? o.acct_types : null;
+  const parts = t
+    ? [
+        { cls: "is-sap",    label: "Saplings",  icon: "🌱", n: t.sapling   || 0 },
+        { cls: "is-iron",   label: "Ironslime", icon: "🌴", n: t.ironslime || 0 },
+        { cls: "is-nimbus", label: "Nimbus",    icon: "🍃", n: t.nimbus    || 0 },
+        { cls: "is-leg",    label: "Legacy",    icon: "⭐", n: t.legacy    || 0 },
+      ]
+    : [
+        { cls: "is-sap", label: "Saplings", icon: "🌱", n: o.saplings || 0 },
+        { cls: "is-leg", label: "Legacy",   icon: "⭐", n: o.legacy   || 0 },
+      ];
+  const shown = parts.filter(p => p.n > 0);
+  const total = shown.reduce((sum, p) => sum + p.n, 0);
   if (!total) return "";
-  const sapPct = (sap / total) * 100;
-  const legPct = 100 - sapPct;
+  for (const p of shown) {
+    p.pct = ((p.n / total) * 100);
+    p.tip = `${p.icon} ${p.label} ${nf(p.n)} (${p.pct.toFixed(1)}%)`;
+  }
+  const tip = shown.map(p => p.tip).join(" · ");
   return `
     <div class="srv-sapline">
-      <div class="srv-sap-bar" title="🌱 ${nf(sap)} saplings · ⭐ ${nf(leg)} legacy">
-        <div class="srv-sap-seg is-sap" style="width:${sapPct.toFixed(1)}%" title="🌱 ${nf(sap)} saplings"></div>
-        <div class="srv-sap-seg is-leg" style="width:${legPct.toFixed(1)}%" title="⭐ ${nf(leg)} legacy"></div>
+      <div class="srv-sap-bar" title="${tip}">
+        ${shown.map(p => `<div class="srv-sap-seg ${p.cls}" style="width:${p.pct.toFixed(1)}%" title="${p.tip}"></div>`).join("")}
       </div>
       <span class="srv-sap-legend">
-        <span class="srv-sap-legend-item" title="saplings"><span class="srv-sap-legend-dot is-sap"></span><span class="srv-sap-legend-num">${nf(sap)}</span></span>
-        <span class="srv-sap-legend-item" title="legacy"><span class="srv-sap-legend-dot is-leg"></span><span class="srv-sap-legend-num">${nf(leg)}</span></span>
+        ${shown.map(p => `<span class="srv-sap-legend-item" title="${p.tip}"><span class="srv-sap-legend-dot ${p.cls}"></span><span class="srv-sap-legend-num">${nf(p.n)}</span></span>`).join("")}
       </span>
     </div>`;
 }
