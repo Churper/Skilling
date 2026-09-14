@@ -1,5 +1,22 @@
 [
   {
+    "version": "v2231",
+    "date": "2026-09-14",
+    "title": "Gathering, Banking, Cooking & Pets",
+    "entries": [
+      "Welcome Back rewards are enabled again.",
+      "Fixed item counts jumping around while gathering catches up.",
+      "Fixed gathering drops following you when walking or teleporting away.",
+      "Fixed Crucible players and their drops showing on the mainland.",
+      "Deposit All updates your Bag and Bank immediately.",
+      "Pet charges and Power update as soon as you feed Scrolls.",
+      "Fixed cooking stopping at 5,000.",
+      "Ground item text is clearer.",
+      "Fixed Nametags not applying to equipment in the Bag.",
+      "Fixed sending admin letters to everyone getting stuck."
+    ]
+  },
+  {
     "version": "v2230",
     "date": "2026-09-13",
     "title": "Eating, Potions & Reward Displays",
