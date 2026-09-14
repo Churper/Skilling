@@ -11,6 +11,14 @@
       results: "results",
       empty: "No guide entries match that search.",
     },
+    id: {
+      label: "Cari panduan",
+      placeholder: "Cari boss, item, skill, pertanyaan…",
+      clear: "Hapus pencarian",
+      result: "hasil",
+      results: "hasil",
+      empty: "Tidak ada entri panduan yang cocok.",
+    },
     es: {
       label: "Buscar en la guía",
       placeholder: "Buscar jefes, objetos, habilidades, preguntas…",
