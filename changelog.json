@@ -1,5 +1,24 @@
 [
   {
+    "version": "v2230",
+    "date": "2026-09-13",
+    "title": "Eating, Potions & Reward Displays",
+    "entries": [
+      "Eating and healing potions restore HP immediately.",
+      "Potion timers and combat buffs respond immediately.",
+      "Frenzy clicks update the XP tracker immediately.",
+      "Fixed gaps in the XP tracker fill.",
+      "Improved gathering recovery after item actions.",
+      "Fixed Welcome Back rewards waiting to appear in the Bag and wallet.",
+      "Welcome Back shows when rewards go to the Bank.",
+      "Restored SlimeCoin gain popups when cooking.",
+      "Restored Cooking Cape ingredient-save messages.",
+      "Pet Garden item costs update immediately.",
+      "Scroll-feeding animations start immediately.",
+      "Guest names no longer show the Sapling badge."
+    ]
+  },
+  {
     "version": "v2229",
     "date": "2026-09-13",
     "title": "Performance & Alchemy",
