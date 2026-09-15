@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2236",
+    "date": "2026-09-15",
+    "title": "Banking, Farming & Gathering",
+    "entries": [
+      "Fixed stuck bank deposits and tree/bush removal.",
+      "Fixed lava fishing rewards when switching areas.",
+      "Fixed Pocket Bank breaking Frenzy, stuck gathering clicks, slow container feedback and item dragging.",
+      "Shortened potion tooltips and lightened cooldown shading."
+    ]
+  },
+  {
     "version": "v2235",
     "date": "2026-09-15",
     "title": "Gathering, Potions, Inventory, Trading & Caves",
