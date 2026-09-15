@@ -1,5 +1,29 @@
 [
   {
+    "version": "v2233",
+    "date": "2026-09-14",
+    "title": "Jelly Riding, Gathering, Banking & Cooking",
+    "entries": [
+      "New: your slime jiggles with your mount's movement.",
+      "New: jelly motion for underwater pushes.",
+      "Pocket Bank keeps gathering running.",
+      "Fixed gathering pauses while rewards are being saved.",
+      "Fixed rare gathering drops failing to appear.",
+      "Fixed Deposit All being canceled when carried containers were empty.",
+      "Fixed empty carried containers showing bank error messages.",
+      "Deposit All and Pocket Bank immediately clear newly gathered items from the Bag.",
+      "Deposit worn equipment banks every equipped slot.",
+      "Gear and cape bonuses update immediately.",
+      "Bonfire recipes use your selected ingredients.",
+      "Lava fishing cooks ordinary catches again.",
+      "Lava fishing awards cooking XP again.",
+      "Fixed selling stacks worth more than 250,000 coins.",
+      "Fixed pet auto-loot wasting charges on unavailable pickups.",
+      "Removed repeated syncing warnings from pet auto-loot.",
+      "Fixed party boss drops taking minutes to appear."
+    ]
+  },
+  {
     "version": "v2232",
     "date": "2026-09-14",
     "title": "Jelly Animations, Bahasa Indonesia, Gathering & Inventory",
