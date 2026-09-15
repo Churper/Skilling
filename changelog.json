@@ -1,5 +1,23 @@
 [
   {
+    "version": "v2234",
+    "date": "2026-09-15",
+    "title": "Gathering, Banking & Inventory",
+    "entries": [
+      "Fixed lava fishing reward delivery getting stuck.",
+      "Cooked lava catches appear in the Bag immediately.",
+      "Deposit All and Pocket Bank leave later catches in your inventory.",
+      "Finishing a bank deposit no longer stops newer gathering.",
+      "Carried containers can withdraw newly gathered rewards.",
+      "Fixed item pickups and drops shifting other inventory items.",
+      "Dropping unstackable items now leaves a gap in the selected slot.",
+      "Fixed dropping items immediately after bank withdrawals.",
+      "Fixed gathering receipt recovery after closing a tab.",
+      "Improved Welcome Back rewards after delayed gathering payments.",
+      "Gathering refreshes stale tool information after an upgrade."
+    ]
+  },
+  {
     "version": "v2233",
     "date": "2026-09-14",
     "title": "Jelly Riding, Gathering, Banking & Cooking",
