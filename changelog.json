@@ -1,5 +1,28 @@
 [
   {
+    "version": "v2235",
+    "date": "2026-09-15",
+    "title": "Gathering, Potions, Inventory, Trading & Caves",
+    "entries": [
+      "Fixed gathering getting stuck until you walked away.",
+      "Fixed missing Cooking XP drops while lava fishing.",
+      "Skill bars update with gathering XP drops.",
+      "XP and item popups appear above open panels.",
+      "Restored jelly animations when jumping or crouching while gathering.",
+      "Drink two 30-minute buff potions back-to-back.",
+      "Top up 30-minute potions at 45 minutes or less; time above 60 minutes is lost.",
+      "Potion descriptions show the 60-minute cap.",
+      "Fixed Pet and Pocket Bank Ignore markers following the wrong items.",
+      "Fixed Ignore turning itself back on.",
+      "Added high-tier logs, ores and fish to Exchange buy orders.",
+      "Blocked drop pickups now explain economy restrictions.",
+      "Trade windows stay in place as offers update.",
+      "Fixed collected Glow Shrooms disappearing from the Bag.",
+      "Stone slimes light up immediately when fed a Glow Shroom.",
+      "Pet abilities are blocked during summon scenes."
+    ]
+  },
+  {
     "version": "v2234",
     "date": "2026-09-15",
     "title": "Gathering, Banking & Inventory",
