@@ -229,7 +229,7 @@ function renderSkillTable() {
     <tr class="is-overall ${_state.focusSkill === "overall" ? "is-active" : ""}" data-skill="overall">
       <td class="skill-cell"><span class="icon">📊</span> Overall</td>
       <td class="num">${nf(o.total_level || 0)}${totalLvlDelta > 0 ? ` <span class="gain-pos">+${nf(totalLvlDelta)}</span>` : ""}</td>
-      <td><span class="muted">—</span></td>
+      <td><span class="muted">-</span></td>
       <td class="num">${nf(o.total_xp || 0)}</td>
       <td class="num ${totalDelta > 0 ? "gain-pos" : totalDelta < 0 ? "gain-neg" : ""}">${nfSigned(totalDelta)}</td>
     </tr>
@@ -279,7 +279,7 @@ function renderRankChart() {
      rank is lower-is-better. We preserve the original rank in the label
      via a wrapper that flips the Y axis after render. */
   const ranks = (c.points || []).filter(p => p.r != null && p.r > 0);
-  if (!ranks.length) return `<div class="st-empty">Not enough data yet — fills in once daily snapshots accumulate.</div>`;
+  if (!ranks.length) return `<div class="st-empty">Not enough data yet - fills in once daily snapshots accumulate.</div>`;
   const maxR = Math.max(...ranks.map(p => p.r));
   /* Plot (maxR - rank + 1) so up = better. Y labels stay numeric but
      reflect inverted scale. We post-process the SVG to overwrite the
@@ -346,7 +346,7 @@ function wire($page, NAME) {
     btn.disabled = true; btn.textContent = "Updating…";
     const r = await api.requestUpdate(NAME);
     if (r?.ok && r.snapshotted) {
-      btn.textContent = "Snapshot taken — reloading";
+      btn.textContent = "Snapshot taken - reloading";
       bustCache();
       setTimeout(() => location.reload(), 600);
     } else if (r?.ok && r.throttled_secs) {

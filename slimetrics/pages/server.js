@@ -38,7 +38,7 @@ export async function renderServer($page, params = {}) {
 
 /* Shown in place of a panel whose RPC failed, so an unavailable feed is never
    mistaken for an empty one. */
-const PANEL_FAILED = `<div class="st-empty">Couldn't load this right now — try again in a moment.</div>`;
+const PANEL_FAILED = `<div class="st-empty">Couldn't load this right now - try again in a moment.</div>`;
 
 function paint($page, { overview, chart, heatmap, bosses, islands, welcome, signups, period }) {
   const o = overview || {};
@@ -58,8 +58,8 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       </div>
 
       <div class="srv-stat-grid" style="margin-top:14px">
-        ${flexCard("🌱 Top Sapling Today", o.top_grinder ? escapeHtml(o.top_grinder.name) : "—", o.top_grinder ? `+${nfShort(o.top_grinder.xp_gained || 0)} XP today` : "no data yet", "#ff6b9d")}
-        ${flexCard("🎯 Skill of the Day", o.skill_of_day ? prettySkill(o.skill_of_day.skill) : "—", o.skill_of_day ? `+${nfShort(o.skill_of_day.xp || 0)} XP today` : "no data yet", "#79c7ff")}
+        ${flexCard("🌱 Top Sapling Today", o.top_grinder ? escapeHtml(o.top_grinder.name) : "-", o.top_grinder ? `+${nfShort(o.top_grinder.xp_gained || 0)} XP today` : "no data yet", "#ff6b9d")}
+        ${flexCard("🎯 Skill of the Day", o.skill_of_day ? prettySkill(o.skill_of_day.skill) : "-", o.skill_of_day ? `+${nfShort(o.skill_of_day.xp || 0)} XP today` : "no data yet", "#79c7ff")}
         ${bossOfDayCard(o.boss_of_day)}
       </div>
 
@@ -415,7 +415,7 @@ function bossOfDayCard(row) {
     <div class="srv-boss-day-main">
       ${hasBoss ? bossSpriteHtml(row.boss, "is-stat") : ""}
       <div class="srv-boss-day-copy">
-        <div class="srv-stat-value">${hasBoss ? escapeHtml(prettyBoss(row.boss)) : "—"}</div>
+        <div class="srv-stat-value">${hasBoss ? escapeHtml(prettyBoss(row.boss)) : "-"}</div>
         <div class="srv-stat-sub">${hasBoss ? `<span class="num">${nf(row.count || 0)}</span> kills today` : "no kills yet"}</div>
       </div>
     </div>
@@ -514,7 +514,7 @@ function timeAgoShort(epochSec) {
 
 function renderOnlineChart(rows, period) {
   if (rows == null) return PANEL_FAILED;
-  if (!rows.length) return `<div class="st-empty">No data yet — chart fills as snapshots accumulate.</div>`;
+  if (!rows.length) return `<div class="st-empty">No data yet - chart fills as snapshots accumulate.</div>`;
   /* pad.t bumped 14 → 26 so the "players" axis title sits above the
      top y-tick label instead of overlapping wide numbers like "1,000". */
   const W = 800, H = 252, pad = { l: 48, r: 18, t: 26, b: 36 };
@@ -570,7 +570,7 @@ function renderOnlineChart(rows, period) {
     const dateLabel = period === "24h"
       ? dt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
       : dt.toLocaleDateString([], { month: "short", day: "numeric", hour: "numeric" });
-    return `${dateLabel} — ${d.v} online`;
+    return `${dateLabel} - ${d.v} online`;
   };
   const stripW = data.length > 1 ? w / (data.length - 1) : w;
   /* Always render dots — even high-count datasets benefit from visible
@@ -731,7 +731,7 @@ function renderIslandList(rows) {
 const DOW_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function renderHeatmap(rows) {
   if (rows == null) return PANEL_FAILED;
-  if (!rows.length) return `<div class="st-empty">Not enough data yet — heatmap fills in over the first 14 days.</div>`;
+  if (!rows.length) return `<div class="st-empty">Not enough data yet - heatmap fills in over the first 14 days.</div>`;
   const grid = Array.from({ length: 7 }, () => Array(24).fill(0));
   let max = 0;
   for (const r of rows) {
@@ -754,7 +754,7 @@ function renderHeatmap(rows) {
     html += `<div class="srv-heat-label">${DOW_LABELS[d]}</div>`;
     for (let h = 0; h < 24; h++) {
       const v = grid[d][h];
-      html += `<div class="srv-heat-cell" style="background:${heatColor(v)}" title="${DOW_LABELS[d]} ${h}:00 — avg ${v} online"></div>`;
+      html += `<div class="srv-heat-cell" style="background:${heatColor(v)}" title="${DOW_LABELS[d]} ${h}:00 - avg ${v} online"></div>`;
     }
   }
   let hours = `<div></div>`;

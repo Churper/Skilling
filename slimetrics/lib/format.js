@@ -1,12 +1,12 @@
 /* Number / date / XP formatters. Keep this file dependency-free. */
 
 export function nf(n) {
-  if (n == null || !isFinite(n)) return "—";
+  if (n == null || !isFinite(n)) return "-";
   return Number(n).toLocaleString("en-US");
 }
 
 export function nfShort(n) {
-  if (n == null || !isFinite(n)) return "—";
+  if (n == null || !isFinite(n)) return "-";
   const a = Math.abs(n);
   if (a < 1000) return String(Math.round(n));
   if (a < 1e6) return (n / 1e3).toFixed(a < 1e4 ? 1 : 0) + "k";
@@ -20,9 +20,9 @@ export function nfSigned(n) {
 }
 
 export function timeAgo(iso) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const t = typeof iso === "number" ? iso : Date.parse(iso);
-  if (!t) return "—";
+  if (!t) return "-";
   const dt = Date.now() - t;
   const m = Math.floor(dt / 60000);
   if (m < 1) return "just now";
@@ -37,13 +37,13 @@ export function timeAgo(iso) {
 }
 
 export function dateLabel(iso) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = typeof iso === "string" ? new Date(iso) : iso;
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 export function dateLabelShort(iso) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = typeof iso === "string" ? new Date(iso) : iso;
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }

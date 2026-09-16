@@ -56,7 +56,7 @@ function _path(points) {
  * @param {Array<{t: string|Date, v: number}>} data
  */
 export function lineChart(data, { width = 600, height = 240, color = "#50e878", label = "" } = {}) {
-  if (!data?.length) return _emptyState(width, height, "No data yet — graphs fill in after a few snapshots.");
+  if (!data?.length) return _emptyState(width, height, "No data yet - graphs fill in after a few snapshots.");
   const pad = { l: 60, r: 20, t: 22, b: 32 };
   const w = width - pad.l - pad.r;
   const h = height - pad.t - pad.b;
