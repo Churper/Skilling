@@ -1,5 +1,21 @@
 [
   {
+    "version": "v2239",
+    "date": "2026-09-17",
+    "title": "Slime Flight Rewards, Cloud Tools & Farming",
+    "entries": [
+      "Coins and SC for 3 completed runs daily.",
+      "Weekly SC prizes.",
+      "Earn podium Wing badges with color and symbol menus.",
+      "Added Abyss Blue to the Kraken badge menu.",
+      "Fixed Cloud tools blocking cooking and withdrawals.",
+      "Fixed gathering update disconnects.",
+      "Fixed false Slime Flight speed warnings.",
+      "Plasma Pickle: 65 minutes with Rich+ compost.",
+      "Puff Peach: 70 minutes with Rich+ compost."
+    ]
+  },
+  {
     "version": "v2238",
     "date": "2026-09-17",
     "title": "Cloud Tier, Slime Flight & Ville Sign",
