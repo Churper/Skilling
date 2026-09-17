@@ -4,6 +4,11 @@
   "seed": "0x2198b8fc",
   "water": false,
   "objects": [
+    { "type": "NpcSlime", "preset": "dupey", "x": -97, "z": -40, "rot": 1.1796708798258675 },
+    { "type": "Puffwood_Tree", "x": -98, "z": -17, "rot": 0 },
+    { "type": "Cloudstone_Vein", "x": 101, "z": -10, "rot": 3.3, "scale": 2.0 },
+    { "type": "Cloudberry_Bush", "x": -26, "z": 74, "rot": 1.2 },
+    { "type": "Svc_FishingSpot_Cloud_Puffer", "x": -50, "z": -84, "rot": 2.6, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
     { "type": "Svc_PvpCaveExit", "x": 0, "z": 31, "rot": 0 },
 
     { "type": "Svc_FishingSpot", "x": -36, "z": -4, "rot": 0.3, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },

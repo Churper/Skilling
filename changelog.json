@@ -1,5 +1,25 @@
 [
   {
+    "version": "v2238",
+    "date": "2026-09-17",
+    "title": "Cloud Tier, Slime Flight & Ville Sign",
+    "entries": [
+      "Added level-1500 Puffwood, Cloudstone, Cloudberry and Cloud Puffer.",
+      "Added Cloud tools, equipment, arrows and crafting recipes.",
+      "Added Cloud cooking recipes.",
+      "Cloud resources use cloud icons on the minimap.",
+      "Updated item icons.",
+      "Added Plasma Pickle at level 1250 and Puff Peach at level 1500.",
+      "Play Slime Flight from the Travel board.",
+      "Glide and land on targets across nine boards.",
+      "Play for score and personal bests. No rewards yet.",
+      "Added the Ville sign near spawn. Housing remains closed.",
+      "Added Dupey to the PvP cave.",
+      "Improved gathering compatibility during game updates.",
+      "Reduced server work during item actions."
+    ]
+  },
+  {
     "version": "v2237",
     "date": "2026-09-16",
     "title": "Jelly, Loot, Farming, Crafting, Gear, Bosses & Rewards",
