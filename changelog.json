@@ -1,5 +1,22 @@
 [
   {
+    "version": "v2242",
+    "date": "2026-09-18",
+    "title": "XP Drop Styles & Instant Pickups",
+    "entries": [
+      "New XP Drop Style setting, skill icon by default.",
+      "New Color XP By Skill setting.",
+      "New Rare Drop Text setting.",
+      "Clicking a fresh ground drop picks it up right away.",
+      "The Slimmy quest keeps your Shovel step once the reward lands.",
+      "Clan Coin letters open and pay out.",
+      "Fixed Kraken loot rarely not paying.",
+      "Your inventory window keeps its size on refresh.",
+      "The farm tracker stays where you put it on refresh.",
+      "Resetting the Crucible Cave banner puts it back under the HP bar."
+    ]
+  },
+  {
     "version": "v2241",
     "date": "2026-09-18",
     "title": "Rare Drops, Gathering XP & Sharper Text",
