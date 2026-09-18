@@ -1,5 +1,27 @@
 [
   {
+    "version": "v2240",
+    "date": "2026-09-18",
+    "title": "Faster High Level Gathering, Welcome Back & Cooking",
+    "entries": [
+      "Level 600+ trees, rocks and cave fish gather twice as fast.",
+      "Half XP per item, same XP per hour.",
+      "Cloud resources are eligible for Welcome Back boxes.",
+      "Rare drops from gathering land one per roll.",
+      "Picking up ground items shows text drop again.",
+      "Bag and Bank ingredients count together.",
+      "A used up ingredient swaps for one you have.",
+      "A slimelet Nature change saves on its own.",
+      "Fast Feed clicks all count.",
+      "Fixed Welcome Back boxes not popping up.",
+      "XP drops timing fixed.",
+      "Tab return combo XP drops work again.",
+      "The AFK timer keeps up with your clicks.",
+      "Fixed Slime Flight score hiding on mobile.",
+      "Feed prompt moved above tooltips."
+    ]
+  },
+  {
     "version": "v2239",
     "date": "2026-09-17",
     "title": "Slime Flight Rewards, Cloud Tools & Farming",
