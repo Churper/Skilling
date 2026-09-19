@@ -1,5 +1,23 @@
 [
   {
+    "version": "v2244",
+    "date": "2026-09-19",
+    "title": "Cosmetics, Fixes, and Tweaks",
+    "entries": [
+      "Gathering drops now stack better after returning from a sleeping or inactive tab.",
+      "Fixed pet auto loot picking up drops in batches.",
+      "Added Plunger and Glorp Antennas for 200 SC each.",
+      "Added Sapling, Palm Tree, and orbiting Virus Aura for special mail rewards.",
+      "EXP drops no longer randomly combine during normal play; the combo XP drop after return tab stays.",
+      "Added an XP Drop Style with the icon after the text.",
+      "Opening the Bank now instantly empties containers and updates deposit messages.",
+      "Alch no longer has a price cap: Plasma and Cloud items, and every tier after them, can now be alched.",
+      "Cloud sell prices adjusted.",
+      "Classic Layout: new \"Always Show HP Number\" setting keeps the HP number beside the bar on screen instead of fading out after combat.",
+      "Classic Layout: the boat boost meter now sits beside the minimap opposite the HP bar instead of covering the inventory."
+    ]
+  },
+  {
     "version": "v2243",
     "date": "2026-09-18",
     "title": "XP Drop Customization",
