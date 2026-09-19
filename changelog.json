@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2243",
+    "date": "2026-09-18",
+    "title": "XP Drop Customization",
+    "entries": [
+      "XP Drops On Screen: your XP rises from one spot instead of over the node. XP Drop Position drags that spot where you want it.",
+      "XP Drop Speed: Fast, Normal, Slow or Very Slow.",
+      "XP Drop Color: green, skill color, or your own.",
+      "XP Drop Style now defaults to +1,664 XP."
+    ]
+  },
+  {
     "version": "v2242",
     "date": "2026-09-18",
     "title": "XP Drop Styles & Instant Pickups",
