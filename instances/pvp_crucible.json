@@ -4,112 +4,729 @@
   "seed": "0x2198b8fc",
   "water": false,
   "objects": [
-    { "type": "NpcSlime", "preset": "dupey", "x": -97, "z": -40, "rot": 1.1796708798258675 },
-    { "type": "Puffwood_Tree", "x": -98, "z": -17, "rot": 0 },
-    { "type": "Cloudstone_Vein", "x": 101, "z": -10, "rot": 3.3, "scale": 2.0 },
-    { "type": "Cloudberry_Bush", "x": -26, "z": 74, "rot": 1.2 },
-    { "type": "Svc_FishingSpot_Cloud_Puffer", "x": -50, "z": -84, "rot": 2.6, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_PvpCaveExit", "x": 0, "z": 31, "rot": 0 },
-
-    { "type": "Svc_FishingSpot", "x": -36, "z": -4, "rot": 0.3, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_FishingSpot", "x": 0, "z": -38, "rot": 1.9, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_FishingSpot", "x": 36, "z": -4, "rot": 3.5, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-
-    { "type": "Svc_FishingSpot_Storm_Shark", "x": -70, "z": 44, "rot": 0.6, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_FishingSpot_Kelp_Dragon", "x": -46, "z": 70, "rot": 1.8, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_FishingSpot_Sludge_Blob", "x": -16, "z": -64, "rot": 3.6, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_FishingSpot_Prism_Sailfish", "x": 8, "z": 62, "rot": 4.4, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_FishingSpot_Infinity_Whale", "x": 84, "z": -30, "rot": 5.2, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-    { "type": "Svc_FishingSpot_Plasma_Eel", "x": 44, "z": -70, "rot": 2.6, "lava": true, "pvpLava": true, "y": -2.1, "lavaEdgeOffset": 7.1, "lavaAvoidR": 0 },
-
-    { "type": "Tree_1_A", "x": -34, "z": 18, "rot": 4.1 },
-    { "type": "Birch_Tree", "x": -48, "z": 32, "rot": 5.2 },
-    { "type": "Prop_Tree_Oak_1", "x": -63, "z": 47, "rot": 5.8 },
-    { "type": "Toon_Willow", "x": -80, "z": 26, "rot": 0.4 },
-    { "type": "Prop_Tree_Palm_1", "x": -88, "z": 5, "rot": 1.2 },
-    { "type": "Prop_Tree_Maple_1", "x": -82, "z": -18, "rot": 1.7 },
-    { "type": "Prop_Tree_Pine_1", "x": -66, "z": -34, "rot": 2.4 },
-    { "type": "Prop_Tree_Cedar_1", "x": -48, "z": -48, "rot": 3.0 },
-    { "type": "Cactus", "x": -28, "z": -58, "rot": 3.7 },
-    { "type": "Bamboo", "x": -12, "z": -72, "rot": 4.3 },
-    { "type": "Tree_Spiral_1", "x": -54, "z": -76, "rot": 2.2 },
-    { "type": "Tree_Swirl", "x": -76, "z": -58, "rot": 1.0 },
-    { "type": "Roots", "x": -92, "z": -34, "rot": 0.1 },
-    { "type": "Steelbark", "x": -92, "z": 36, "rot": 6.0 },
-    { "type": "Shroombark", "x": -70, "z": 70, "rot": 5.4 },
-    { "type": "Spiritwood", "x": -38, "z": 82, "rot": 4.7 },
-    { "type": "Coconut_Pile", "x": -8, "z": 86, "rot": 4.4 },
-    { "type": "Ice_Stump", "x": 16, "z": 82, "rot": 4.0 },
-    { "type": "Volcanic_Tree", "x": 36, "z": 70, "rot": 3.5 },
-    { "type": "Astral_Tree", "x": -58, "z": 12, "rot": 5.0 },
-    { "type": "Elder_Tree", "x": -66, "z": -10, "rot": 1.4 },
-    { "type": "Petrified_Tree", "x": -42, "z": -24, "rot": 2.1 },
-    { "type": "Emberheart_Tree", "x": -24, "z": -34, "rot": 2.8 },
-    { "type": "Dusk_Tree", "x": -20, "z": 50, "rot": 5.1 },
-
-    { "type": "Stormwood_Tree", "x": -90, "z": 52, "rot": 0 },
-    { "type": "Leviathan_Kelp_Tree", "x": -56, "z": 60, "rot": 0 },
-    { "type": "Gooey_Tree", "x": -36, "z": -72, "rot": 0 },
-    { "type": "Prismwood_Tree", "x": -52, "z": -62, "rot": 0 },
-    { "type": "Infinity_Tree", "x": -86, "z": -46, "rot": 0 },
-    { "type": "Plasmawood_Tree", "x": -100, "z": 4, "rot": 0 },
-
-    { "type": "Rock_1_A", "x": 34, "z": 18, "rot": 2.2 },
-    { "type": "Rocks_Ore_Tin", "x": 48, "z": 32, "rot": 2.7 },
-    { "type": "Rocks_Ore_Copper", "x": 63, "z": 47, "rot": 3.1 },
-    { "type": "Rocks_Ore_Quartz", "x": 80, "z": 26, "rot": 3.5 },
-    { "type": "Rocks_Ore_Silver", "x": 90, "z": 7, "rot": 4.0 },
-    { "type": "Rocks_Ore_Platinum", "x": 84, "z": -16, "rot": 4.4 },
-    { "type": "Rocks_Ore_Cobalt", "x": 68, "z": -32, "rot": 4.9 },
-    { "type": "Rocks_Ore_Jade", "x": 50, "z": -48, "rot": 5.5 },
-    { "type": "Rocks_Ore_Titanium", "x": 30, "z": -62, "rot": 6.0 },
-    { "type": "Rocks_Ore_Opal", "x": 10, "z": -78, "rot": 0.2 },
-    { "type": "Crystal_Ore_Gem", "x": 64, "z": 6, "rot": 3.8 },
-    { "type": "Rocks_Ore_Volcanic", "x": 58, "z": -12, "rot": 4.2 },
-    { "type": "Rocks_Ore_Celestial", "x": 42, "z": -24, "rot": 4.9 },
-    { "type": "Rocks_Ore_Moonstone", "x": 24, "z": -34, "rot": 5.6 },
-    { "type": "Rocks_Ore_Sunstone", "x": 92, "z": -38, "rot": 4.4 },
-    { "type": "Rocks_Ore_Glowstone", "x": 72, "z": -64, "rot": 5.0 },
-    { "type": "Rocks_Ore_Holystone", "x": 44, "z": -82, "rot": 5.5 },
-    { "type": "Coral_Rock", "x": 20, "z": -90, "rot": 0.1 },
-    { "type": "Mossy_Rock", "x": 76, "z": 70, "rot": 2.6 },
-    { "type": "Glacial_Rock", "x": 52, "z": 82, "rot": 2.2 },
-    { "type": "Sandstone_Pillar", "x": 92, "z": 40, "rot": 3.2 },
-    { "type": "Spore_Rock", "x": 30, "z": 56, "rot": 2.0 },
-    { "type": "Star_Ore", "x": 72, "z": 12, "rot": 3.8 },
-    { "type": "Rocks_Ore_Starite", "x": 60, "z": 58, "rot": 2.8 },
-    { "type": "Rocks_Ore_Twilight", "x": 38, "z": 70, "rot": 2.4 },
-    { "type": "Rocks_Ore_Void", "x": 18, "z": 58, "rot": 2.0 },
-    { "type": "Storm_Vein", "x": 76, "z": 42, "rot": 2.9, "scale": 2.0 },
-    { "type": "Leviathan_Geode", "x": 56, "z": 66, "rot": 2.4, "scale": 2.0 },
-    { "type": "Goo_Nodule", "x": 38, "z": 80, "rot": 2.0, "scale": 2.2 },
-    { "type": "Prism_Cluster", "x": 18, "z": 66, "rot": 1.7, "scale": 2.0 },
-    { "type": "Infinity_Crystal", "x": 72, "z": -48, "rot": 5.1, "scale": 2.0 },
-    { "type": "Plasma_Vein", "x": 94, "z": 8, "rot": 3.3, "scale": 2.0 },
-
-    { "type": "Svc_Forage_Bush", "x": -24, "z": 8, "rot": 0.5 },
-    { "type": "Svc_Forage_Elder", "x": -16, "z": 24, "rot": 0.9 },
-    { "type": "Svc_Forage_Golden", "x": 16, "z": 24, "rot": 2.2 },
-    { "type": "Svc_Forage_Crystal", "x": 24, "z": 8, "rot": 2.8 },
-    { "type": "Svc_Forage_Shadow", "x": 24, "z": -20, "rot": 3.4 },
-    { "type": "Svc_Forage_Ember", "x": 8, "z": -28, "rot": 4.1 },
-    { "type": "Svc_Forage_Frost", "x": -10, "z": -28, "rot": 4.7 },
-    { "type": "Svc_Forage_Void", "x": -24, "z": -18, "rot": 5.4 },
-    { "type": "Pineapple_Bush", "x": -2, "z": 52, "rot": 1.2 },
-    { "type": "Wildflower_Patch", "x": -30, "z": 36, "rot": 0.4 },
-    { "type": "Yucca_Bush", "x": 30, "z": 36, "rot": 2.8 },
-    { "type": "Glow_Cap_Prop", "x": 2, "z": -62, "rot": 4.4 },
-    { "type": "Starbloom_Bush", "x": -18, "z": 62, "rot": 0.8 },
-    { "type": "Nebula_Fruit_Plant", "x": 18, "z": 62, "rot": 2.2 },
-    { "type": "Void_Blossom_Bush", "x": -34, "z": -12, "rot": 5.8 },
-    { "type": "Astral_Berry_Bush", "x": 34, "z": -12, "rot": 3.4 },
-    { "type": "Stormberry_Bush", "x": -82, "z": 44, "rot": 0.6 },
-    { "type": "Leviathan_Berry_Bush", "x": -64, "z": 68, "rot": 1.8 },
-    { "type": "Sludgeberry_Bush", "x": -28, "z": -78, "rot": 3.6 },
-    { "type": "Prismberry_Bush", "x": -60, "z": -54, "rot": 4.4 },
-    { "type": "Infinity_Berry_Bush", "x": -78, "z": -52, "rot": 5.2 },
-    { "type": "Plasmaberry_Bush", "x": -92, "z": -14, "rot": 1.2 },
-    { "type": "Svc_Flax", "x": -36, "z": 24, "rot": 0.1 },
-    { "type": "Svc_Hemp", "x": 36, "z": 24, "rot": 3.0 }
+    {
+      "type": "NpcSlime",
+      "preset": "dupey",
+      "x": -97,
+      "z": -40,
+      "rot": 1.1796708798258675
+    },
+    {
+      "type": "Puffwood_Tree",
+      "x": -98,
+      "z": -17,
+      "rot": 0
+    },
+    {
+      "type": "Cloudstone_Vein",
+      "x": 101,
+      "z": -10,
+      "rot": 3.3,
+      "scale": 2
+    },
+    {
+      "type": "Cloudberry_Bush",
+      "x": -26,
+      "z": 74,
+      "rot": 1.2
+    },
+    {
+      "type": "Svc_FishingSpot_Cloud_Puffer",
+      "x": -50,
+      "z": -84,
+      "rot": 2.6,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_PvpCaveExit",
+      "x": 0,
+      "z": 31,
+      "rot": 0
+    },
+    {
+      "type": "Svc_FishingSpot",
+      "x": -36,
+      "z": -4,
+      "rot": 0.3,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_FishingSpot",
+      "x": 0,
+      "z": -38,
+      "rot": 1.9,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_FishingSpot",
+      "x": 36,
+      "z": -4,
+      "rot": 3.5,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_FishingSpot_Storm_Shark",
+      "x": -70,
+      "z": 44,
+      "rot": 0.6,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_FishingSpot_Kelp_Dragon",
+      "x": -46,
+      "z": 70,
+      "rot": 1.8,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_FishingSpot_Sludge_Blob",
+      "x": -16,
+      "z": -64,
+      "rot": 3.6,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_FishingSpot_Prism_Sailfish",
+      "x": 8,
+      "z": 62,
+      "rot": 4.4,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_FishingSpot_Infinity_Whale",
+      "x": 84,
+      "z": -30,
+      "rot": 5.2,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_FishingSpot_Plasma_Eel",
+      "x": 44,
+      "z": -70,
+      "rot": 2.6,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Tree_1_A",
+      "x": -34,
+      "z": 18,
+      "rot": 4.1
+    },
+    {
+      "type": "Birch_Tree",
+      "x": -48,
+      "z": 32,
+      "rot": 5.2
+    },
+    {
+      "type": "Prop_Tree_Oak_1",
+      "x": -63,
+      "z": 47,
+      "rot": 5.8
+    },
+    {
+      "type": "Toon_Willow",
+      "x": -80,
+      "z": 26,
+      "rot": 0.4
+    },
+    {
+      "type": "Prop_Tree_Palm_1",
+      "x": -88,
+      "z": 5,
+      "rot": 1.2
+    },
+    {
+      "type": "Prop_Tree_Maple_1",
+      "x": -82,
+      "z": -18,
+      "rot": 1.7
+    },
+    {
+      "type": "Prop_Tree_Pine_1",
+      "x": -66,
+      "z": -34,
+      "rot": 2.4
+    },
+    {
+      "type": "Prop_Tree_Cedar_1",
+      "x": -48,
+      "z": -48,
+      "rot": 3
+    },
+    {
+      "type": "Cactus",
+      "x": -28,
+      "z": -58,
+      "rot": 3.7
+    },
+    {
+      "type": "Bamboo",
+      "x": -12,
+      "z": -72,
+      "rot": 4.3
+    },
+    {
+      "type": "Tree_Spiral_1",
+      "x": -54,
+      "z": -76,
+      "rot": 2.2
+    },
+    {
+      "type": "Tree_Swirl",
+      "x": -76,
+      "z": -58,
+      "rot": 1
+    },
+    {
+      "type": "Roots",
+      "x": -92,
+      "z": -34,
+      "rot": 0.1
+    },
+    {
+      "type": "Steelbark",
+      "x": -92,
+      "z": 36,
+      "rot": 6
+    },
+    {
+      "type": "Shroombark",
+      "x": -70,
+      "z": 70,
+      "rot": 5.4
+    },
+    {
+      "type": "Spiritwood",
+      "x": -38,
+      "z": 82,
+      "rot": 4.7
+    },
+    {
+      "type": "Coconut_Pile",
+      "x": -8,
+      "z": 86,
+      "rot": 4.4
+    },
+    {
+      "type": "Ice_Stump",
+      "x": 16,
+      "z": 82,
+      "rot": 4
+    },
+    {
+      "type": "Volcanic_Tree",
+      "x": 36,
+      "z": 70,
+      "rot": 3.5
+    },
+    {
+      "type": "Astral_Tree",
+      "x": -58,
+      "z": 12,
+      "rot": 5
+    },
+    {
+      "type": "Elder_Tree",
+      "x": -66,
+      "z": -10,
+      "rot": 1.4
+    },
+    {
+      "type": "Petrified_Tree",
+      "x": -42,
+      "z": -24,
+      "rot": 2.1
+    },
+    {
+      "type": "Emberheart_Tree",
+      "x": -24,
+      "z": -34,
+      "rot": 2.8
+    },
+    {
+      "type": "Dusk_Tree",
+      "x": -20,
+      "z": 50,
+      "rot": 5.1
+    },
+    {
+      "type": "Stormwood_Tree",
+      "x": -90,
+      "z": 52,
+      "rot": 0
+    },
+    {
+      "type": "Leviathan_Kelp_Tree",
+      "x": -56,
+      "z": 60,
+      "rot": 0
+    },
+    {
+      "type": "Gooey_Tree",
+      "x": -36,
+      "z": -72,
+      "rot": 0
+    },
+    {
+      "type": "Prismwood_Tree",
+      "x": -52,
+      "z": -62,
+      "rot": 0
+    },
+    {
+      "type": "Infinity_Tree",
+      "x": -86,
+      "z": -46,
+      "rot": 0
+    },
+    {
+      "type": "Plasmawood_Tree",
+      "x": -100,
+      "z": 4,
+      "rot": 0
+    },
+    {
+      "type": "Rock_1_A",
+      "x": 34,
+      "z": 18,
+      "rot": 2.2
+    },
+    {
+      "type": "Rocks_Ore_Tin",
+      "x": 48,
+      "z": 32,
+      "rot": 2.7
+    },
+    {
+      "type": "Rocks_Ore_Copper",
+      "x": 63,
+      "z": 47,
+      "rot": 3.1
+    },
+    {
+      "type": "Rocks_Ore_Quartz",
+      "x": 80,
+      "z": 26,
+      "rot": 3.5
+    },
+    {
+      "type": "Rocks_Ore_Silver",
+      "x": 90,
+      "z": 7,
+      "rot": 4
+    },
+    {
+      "type": "Rocks_Ore_Platinum",
+      "x": 84,
+      "z": -16,
+      "rot": 4.4
+    },
+    {
+      "type": "Rocks_Ore_Cobalt",
+      "x": 68,
+      "z": -32,
+      "rot": 4.9
+    },
+    {
+      "type": "Rocks_Ore_Jade",
+      "x": 50,
+      "z": -48,
+      "rot": 5.5
+    },
+    {
+      "type": "Rocks_Ore_Titanium",
+      "x": 30,
+      "z": -62,
+      "rot": 6
+    },
+    {
+      "type": "Rocks_Ore_Opal",
+      "x": 10,
+      "z": -78,
+      "rot": 0.2
+    },
+    {
+      "type": "Crystal_Ore_Gem",
+      "x": 64,
+      "z": 6,
+      "rot": 3.8
+    },
+    {
+      "type": "Rocks_Ore_Volcanic",
+      "x": 58,
+      "z": -12,
+      "rot": 4.2
+    },
+    {
+      "type": "Rocks_Ore_Celestial",
+      "x": 42,
+      "z": -24,
+      "rot": 4.9
+    },
+    {
+      "type": "Rocks_Ore_Moonstone",
+      "x": 24,
+      "z": -34,
+      "rot": 5.6
+    },
+    {
+      "type": "Rocks_Ore_Sunstone",
+      "x": 92,
+      "z": -38,
+      "rot": 4.4
+    },
+    {
+      "type": "Rocks_Ore_Glowstone",
+      "x": 72,
+      "z": -64,
+      "rot": 5
+    },
+    {
+      "type": "Rocks_Ore_Holystone",
+      "x": 44,
+      "z": -82,
+      "rot": 5.5
+    },
+    {
+      "type": "Coral_Rock",
+      "x": 20,
+      "z": -90,
+      "rot": 0.1
+    },
+    {
+      "type": "Mossy_Rock",
+      "x": 76,
+      "z": 70,
+      "rot": 2.6
+    },
+    {
+      "type": "Glacial_Rock",
+      "x": 52,
+      "z": 82,
+      "rot": 2.2
+    },
+    {
+      "type": "Sandstone_Pillar",
+      "x": 92,
+      "z": 40,
+      "rot": 3.2
+    },
+    {
+      "type": "Spore_Rock",
+      "x": 30,
+      "z": 56,
+      "rot": 2
+    },
+    {
+      "type": "Star_Ore",
+      "x": 72,
+      "z": 12,
+      "rot": 3.8
+    },
+    {
+      "type": "Rocks_Ore_Starite",
+      "x": 60,
+      "z": 58,
+      "rot": 2.8
+    },
+    {
+      "type": "Rocks_Ore_Twilight",
+      "x": 38,
+      "z": 70,
+      "rot": 2.4
+    },
+    {
+      "type": "Rocks_Ore_Void",
+      "x": 18,
+      "z": 58,
+      "rot": 2
+    },
+    {
+      "type": "Storm_Vein",
+      "x": 76,
+      "z": 42,
+      "rot": 2.9,
+      "scale": 2
+    },
+    {
+      "type": "Leviathan_Geode",
+      "x": 56,
+      "z": 66,
+      "rot": 2.4,
+      "scale": 2
+    },
+    {
+      "type": "Goo_Nodule",
+      "x": 38,
+      "z": 80,
+      "rot": 2,
+      "scale": 2.2
+    },
+    {
+      "type": "Prism_Cluster",
+      "x": 18,
+      "z": 66,
+      "rot": 1.7,
+      "scale": 2
+    },
+    {
+      "type": "Infinity_Crystal",
+      "x": 72,
+      "z": -48,
+      "rot": 5.1,
+      "scale": 2
+    },
+    {
+      "type": "Plasma_Vein",
+      "x": 94,
+      "z": 8,
+      "rot": 3.3,
+      "scale": 2
+    },
+    {
+      "type": "Svc_Forage_Bush",
+      "x": -24,
+      "z": 8,
+      "rot": 0.5
+    },
+    {
+      "type": "Svc_Forage_Elder",
+      "x": -16,
+      "z": 24,
+      "rot": 0.9
+    },
+    {
+      "type": "Svc_Forage_Golden",
+      "x": 16,
+      "z": 24,
+      "rot": 2.2
+    },
+    {
+      "type": "Svc_Forage_Crystal",
+      "x": 24,
+      "z": 8,
+      "rot": 2.8
+    },
+    {
+      "type": "Svc_Forage_Shadow",
+      "x": 24,
+      "z": -20,
+      "rot": 3.4
+    },
+    {
+      "type": "Svc_Forage_Ember",
+      "x": 8,
+      "z": -28,
+      "rot": 4.1
+    },
+    {
+      "type": "Svc_Forage_Frost",
+      "x": -10,
+      "z": -28,
+      "rot": 4.7
+    },
+    {
+      "type": "Svc_Forage_Void",
+      "x": -24,
+      "z": -18,
+      "rot": 5.4
+    },
+    {
+      "type": "Pineapple_Bush",
+      "x": -2,
+      "z": 52,
+      "rot": 1.2
+    },
+    {
+      "type": "Wildflower_Patch",
+      "x": -30,
+      "z": 36,
+      "rot": 0.4
+    },
+    {
+      "type": "Yucca_Bush",
+      "x": 30,
+      "z": 36,
+      "rot": 2.8
+    },
+    {
+      "type": "Glow_Cap_Prop",
+      "x": 2,
+      "z": -62,
+      "rot": 4.4
+    },
+    {
+      "type": "Starbloom_Bush",
+      "x": -18,
+      "z": 62,
+      "rot": 0.8
+    },
+    {
+      "type": "Nebula_Fruit_Plant",
+      "x": 18,
+      "z": 62,
+      "rot": 2.2
+    },
+    {
+      "type": "Void_Blossom_Bush",
+      "x": -34,
+      "z": -12,
+      "rot": 5.8
+    },
+    {
+      "type": "Astral_Berry_Bush",
+      "x": 34,
+      "z": -12,
+      "rot": 3.4
+    },
+    {
+      "type": "Stormberry_Bush",
+      "x": -82,
+      "z": 44,
+      "rot": 0.6
+    },
+    {
+      "type": "Leviathan_Berry_Bush",
+      "x": -64,
+      "z": 68,
+      "rot": 1.8
+    },
+    {
+      "type": "Sludgeberry_Bush",
+      "x": -28,
+      "z": -78,
+      "rot": 3.6
+    },
+    {
+      "type": "Prismberry_Bush",
+      "x": -60,
+      "z": -54,
+      "rot": 4.4
+    },
+    {
+      "type": "Infinity_Berry_Bush",
+      "x": -78,
+      "z": -52,
+      "rot": 5.2
+    },
+    {
+      "type": "Plasmaberry_Bush",
+      "x": -92,
+      "z": -14,
+      "rot": 1.2
+    },
+    {
+      "type": "Svc_Flax",
+      "x": -36,
+      "z": 24,
+      "rot": 0.1
+    },
+    {
+      "type": "Svc_Hemp",
+      "x": 36,
+      "z": 24,
+      "rot": 3
+    },
+    {
+      "type": "Fusion_Tree",
+      "x": -100,
+      "z": 22,
+      "rot": 0.4
+    },
+    {
+      "type": "Antimatter_Tree",
+      "x": -74,
+      "z": 5,
+      "rot": 0.8
+    },
+    {
+      "type": "Fusionstone_Vein",
+      "x": 97,
+      "z": -24,
+      "rot": 2.8,
+      "scale": 2
+    },
+    {
+      "type": "Antimatter_Vein",
+      "x": 91,
+      "z": -37,
+      "rot": 2.2,
+      "scale": 2
+    },
+    {
+      "type": "Fusion_Berry_Bush",
+      "x": -38,
+      "z": 74,
+      "rot": 1
+    },
+    {
+      "type": "Antimatter_Berry_Bush",
+      "x": -50,
+      "z": 69,
+      "rot": 1.7
+    },
+    {
+      "type": "Svc_FishingSpot_Fusion_Squid",
+      "x": -60,
+      "z": -78,
+      "rot": 2.6,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    },
+    {
+      "type": "Svc_FishingSpot_Antimatter_Turtle",
+      "x": -70,
+      "z": -69,
+      "rot": 2.6,
+      "lava": true,
+      "pvpLava": true,
+      "y": -2.1,
+      "lavaEdgeOffset": 7.1,
+      "lavaAvoidR": 0
+    }
   ]
 }

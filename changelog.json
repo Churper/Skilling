@@ -1,5 +1,36 @@
 [
   {
+    "version": "v2245",
+    "date": "2026-09-21",
+    "title": "Fusion, Antimatter, Explorer and the Ville",
+    "entries": [
+      "Added the Ville: SC homes and upgrades, house visits and shared exterior colors. Interior purchases remain closed.",
+      "Added Fusion at level 1750 and Antimatter at level 2000, with new resources, crops, food, tools and equipment.",
+      "Added a Snail Boss preview to the Task Board.",
+      "SlimePower reaches SP20: permanent SP15+ progress, guaranteed upgrades after repeated failures, scrolls capped at SP15.",
+      "Dupey takes boss gear or gems from your Bag to turn Legendary gear Mythic: up to 3%, or 5% with a Legendary offering.",
+      "Skill masters can trim your existing skill cape at level 2000",
+      "Eight Explorer 500/750 slimes: 4s/5s respawns, Combat map pins and 33% Slime Shard/Core drops; larger, higher-paying Cap'n Bubbles tasks.",
+      "Explorer gathering tasks update immediately and keep island credit when switching activities.",
+      "Plasma Pickle and Puff Peach yield 25 more per harvest.",
+      "Added Stego Spikes to the SlimeCoin shop for 140 SC.",
+      "Slimelets gather Coal three times faster,",
+      "Slimelet Pouch added to SC Shop; permanently adds 500 pet coffer capacity.",
+      "Mailed Sapling cosmetic to all sapling accounts",
+      "Fixed unresponsive creatures after returning to islands.",
+      "Fixed Wing Name Badge unlocks after Slime Flight weekly podium finishes.",
+      "Fixed Explorer slime eyes showing through bodies or shifting during movement.",
+      "Fixed gathering drops forming separate piles after returning to the game.",
+      "Fixed locked gear sometimes preventing Crucible entry.",
+      "Crucible loot fix when you leave after your mark expires.",
+      "Fixed Peaceful Crucible entry and prevented leaving from briefly making you attackable.",
+      "Fixed missing loot and lock bounties after hostile Crucible deaths.",
+      "Reduced scenery and equipment memory use.",
+      "Fixed old game sessions accumulating memory from preserving back button functionality when clicking the update banner.",
+      "Reduced emoji panel and farm patch lag"
+    ]
+  },
+  {
     "version": "v2244",
     "date": "2026-09-19",
     "title": "Cosmetics, Fixes, and Tweaks",
