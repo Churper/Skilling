@@ -1,5 +1,25 @@
 [
   {
+    "version": "v2246",
+    "date": "2026-09-22",
+    "title": "Dupey and Saving Reliability",
+    "entries": [
+      "Dupey now accepts Kraken Crowns and Stone Caps for 2% Mythic chance each, Cave Lures for 1.5%, and Pirate Bandanas, Kraken Eyepatches and paintbrushes for 1% each.",
+      "Added Wind Leaves cosmetic.",
+      "Antimatter Turtle and Fusion Squid and Trimmed Cape icons updated.",
+      "Reduced lag in Pet Garden.",
+      "Reduced lag when resizing the emoji panel.",
+      "Improved saving reliability and reduced background database work.",
+      "Fixed other players' sheep and animal mounts displaying incorrect colors.",
+      "Fixed skill masters failing to trim capes withdrawn from the Bank.",
+      "Fixed return-to-tab XP drops inflating the XP tracker.",
+      "Fixed Wing badges failing to arrive.",
+      "Fixed Bank withdrawals for stacks of equipment with the same rarity.",
+      "Fixed equipment stack quantities and deposit options in the Bank's Bag panel.",
+      "Fixed old container enchantments blocking Crucible entry and lock removal."
+    ]
+  },
+  {
     "version": "v2245",
     "date": "2026-09-21",
     "title": "Fusion, Antimatter, Explorer and the Ville",
