@@ -1,5 +1,24 @@
 [
   {
+    "version": "v2247",
+    "date": "2026-09-23",
+    "title": "House Preview and Crucible Performance",
+    "entries": [
+      "Opened work in progress house interiors for preview, nothing saves yet and many models are still placeholders.",
+      "Improved Crucible performance around lava and resource nodes, fixed its lighting settings, and brightened it slightly on Low and Off lighting.",
+      "Improved saving performance with large inventories.",
+      "Wash Charges and Bee Ring charges optimized out of saves.",
+      "Fixed equipment stacking in the inventory; identical unmodified gear shares one Bank cell but takes one inventory slot per piece.",
+      "Fixed Fusion and Antimatter armor icons in the in-game guide.",
+      "Fixed Explorer assigning too high level tasks.",
+      "Fixed Faith SlimeCoin rewards.",
+      "Adventure Book progress now saves when leaving the game.",
+      "Giant Cave Slime cutscene removed and animation shortened.",
+      "Fixed Wing Name Badges failing to equip.",
+      "Fixed hidden Player Exchange errors."
+    ]
+  },
+  {
     "version": "v2246",
     "date": "2026-09-22",
     "title": "Dupey and Saving Reliability",
