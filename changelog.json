@@ -1,5 +1,21 @@
 [
   {
+    "version": "v2249",
+    "date": "2026-09-24",
+    "title": "Server XP and New Town Looks",
+    "entries": [
+      "This update needs a short downtime. A tab left open through it asks for one reload.",
+      "The General Store, SlimeCoin Shop, Player Exchange, Crafting Table, Blacksmith and Spinning Wheel have new looks.",
+      "The Washing Machine, Scribe Desk and Horse Ranch also have new looks.",
+      "Every skill's XP is now kept on the server.",
+      "Combat, Faith, Explorer, Hunting and Glow Shroom XP now reach the server within seconds.",
+      "Pet Garden settles, mastery capes, cape trims, Frenzy Bag chores and Blacksmith tool upgrades no longer wait on a save.",
+      "Feeding ocean friends shows its Explorer XP right away.",
+      "Improved interior decoration menu and added new models.",
+      "Fixed rare bug where Kraken loot would fail."
+    ]
+  },
+  {
     "version": "v2248",
     "date": "2026-09-23",
     "title": "Progress and Performance",
