@@ -1,5 +1,24 @@
 [
   {
+    "version": "v2250",
+    "date": "2026-09-25",
+    "title": "Mainland Models, Equipment Levels and Progress",
+    "entries": [
+      "New Roots, Hemp Plant, Bamboo and Silo models",
+      "Clan Hub, Cacti, Gem Rock, Candy Tree, and Ribbon Tree models updated",
+      "Slime Statues clickboxes true to model",
+      "Croc Paintbrush look updated",
+      "Fixed some service orientations",
+      "Service stations and shops no longer float above sloped ground near the shore.",
+      "Storm through Antimatter gear now equips at the same level as its gathering tier: Storm 600, Leviathan 700, Goo 800, Prism 900, Infinity 1000, Plasma 1250, Cloud 1500, Fusion 1750 and Antimatter 2000.",
+      "Equipment found in sea crates no longer comes with potential lines.",
+      "Removed full-save waits from mastery rewards, cape trims, Frenzy chores, Explorer loot and companion changes.",
+      "Moved more level gated actions and rewards to the server",
+      "Fixed perk charge balances after Garden actions, customization and release, and removed unnecessary waits when upgrading boats and horses.",
+      "Fixed rare gathering drops splitting into extra piles after returning to the game"
+    ]
+  },
+  {
     "version": "v2249",
     "date": "2026-09-24",
     "title": "Server XP and New Town Looks",
