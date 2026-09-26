@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2251",
+    "date": "2026-09-26",
+    "title": "Keystone Trees and Boss Loot",
+    "entries": [
+      "The Infinity, Stormwood, Leviathan Kelp, and Prismwood Tree have new looks",
+      "Party members no longer see \"Your items are syncing\" after kills",
+      "Gathering now recovers after a temporary connection failure instead of leaving players unable to gather.",
+      "Database cleanup and improvements"
+    ]
+  },
+  {
     "version": "v2250",
     "date": "2026-09-25",
     "title": "Mainland Models, Equipment Levels and Progress",
