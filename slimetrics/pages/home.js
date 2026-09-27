@@ -1,4 +1,4 @@
-import { escapeHtml } from "../lib/nav.js";
+import { escapeHtml, playerHash } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { nf, nfShort, timeAgo } from "../lib/format.js";
 import { skillIcon, skillLabel, skillColor } from "../lib/skills.js";
@@ -92,7 +92,7 @@ function renderFeed(rows) {
     <a class="hl-row" href="#player?name=${encodeURIComponent(r.name)}" style="--accent:${c}">
       <div class="hl-icon" aria-hidden="true">${escapeHtml(skillIcon(r.skill))}</div>
       <div class="hl-body">
-        <div class="hl-line">${accountMark(r)}<b>${escapeHtml(r.name)}</b> reached level ${r.level} <span style="color:${c}">${escapeHtml(skillLabel(r.skill))}</span></div>
+        <div class="hl-line">${accountMark(r)}<b>${escapeHtml(r.name)}</b> reached level ${escapeHtml(r.level)} <span style="color:${c}">${escapeHtml(skillLabel(r.skill))}</span></div>
         <div class="hl-meta">${timeAgo(r.ts)}</div>
       </div>
     </a>`;
@@ -137,7 +137,7 @@ function renderNewUsers(rows) {
   return `<table class="st-table st-new-users-table">
     <thead><tr><th>Slime</th><th class="num">Total Lvl</th><th class="num">Tracked</th></tr></thead>
     <tbody>${rows.map(r => `
-      <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
+      <tr onclick="location.hash='${playerHash(r.name)}'">
         <td class="st-new-user-cell"><span class="st-new-user-name">${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></span></td>
         <td class="num">${nf(r.total_level || 0)}</td>
         <td class="num muted">${timeAgo(r.first_tracked)}</td>

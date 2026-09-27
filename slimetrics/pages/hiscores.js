@@ -1,4 +1,4 @@
-import { escapeHtml, filterRow } from "../lib/nav.js";
+import { escapeHtml, filterRow, playerHash } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { nf } from "../lib/format.js";
 import { SKILLS, skillLabel } from "../lib/skills.js";
@@ -86,7 +86,7 @@ function renderTable(rows, state) {
         const rank = Number(r.rk);
         const cls = rank === 1 ? "rank-r1" : rank === 2 ? "rank-r2" : rank === 3 ? "rank-r3" : "";
         return `
-        <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
+        <tr onclick="location.hash='${playerHash(r.name)}'">
           <td class="rank-cell ${cls}">#${nf(rank)}</td>
           <td>${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
           <td class="num">${nf(r.total_level)}</td>
@@ -102,7 +102,7 @@ function renderTable(rows, state) {
         const rank = Number(r.rk);
         const cls = rank === 1 ? "rank-r1" : rank === 2 ? "rank-r2" : rank === 3 ? "rank-r3" : "";
         return `
-        <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
+        <tr onclick="location.hash='${playerHash(r.name)}'">
           <td class="rank-cell ${cls}">#${nf(rank)}</td>
           <td>${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
           <td class="num">${nf(r.kc_val || 0)}</td>
@@ -118,7 +118,7 @@ function renderTable(rows, state) {
       const cls = rank === 1 ? "rank-r1" : rank === 2 ? "rank-r2" : rank === 3 ? "rank-r3" : "";
       const lvl = xpToLevelForSkill(state.skill, Number(r.xp_val || 0));
       return `
-      <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
+      <tr onclick="location.hash='${playerHash(r.name)}'">
         <td class="rank-cell ${cls}">#${nf(rank)}</td>
         <td>${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
         <td class="num">${nf(lvl)}</td>

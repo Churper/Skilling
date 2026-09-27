@@ -1,13 +1,14 @@
-import { escapeHtml, filterRow } from "../lib/nav.js";
+import { escapeHtml, filterRow, playerHash } from "../lib/nav.js";
 import { api } from "../lib/api.js";
 import { nf, dateLabel } from "../lib/format.js";
-import { SKILLS, skillLabel } from "../lib/skills.js";
+import { SKILLS, SKILL_BY_ID, skillLabel } from "../lib/skills.js";
 import { ACCOUNT_TYPES, accountMark } from "../lib/config.js";
 
 export async function renderRecords($page, params = {}) {
+  /* The hash is anyone's link: keep only values these filters offer. */
   const state = {
-    skill: params.skill || "overall",
-    type:  params.type  || "all",
+    skill: SKILL_BY_ID[params.skill] ? params.skill : "overall",
+    type:  ACCOUNT_TYPES.some(t => t.id === params.type) ? params.type : "all",
   };
   $page.innerHTML = `<div class="st-loading">Loading records…</div>`;
   try {
@@ -23,7 +24,7 @@ function paint($page, state, res) {
   $page.innerHTML = `
     <div class="shell">
       <h1 class="st-page-title">Records</h1>
-      <p class="st-page-sub">Best single-day ${state.skill === "overall" ? "total" : skillLabel(state.skill)} XP gain across all of history.</p>
+      <p class="st-page-sub">Best single-day ${state.skill === "overall" ? "total" : escapeHtml(skillLabel(state.skill))} XP gain across all of history.</p>
 
       <div class="st-filters">
         ${filterRow("Skill", [
@@ -40,7 +41,7 @@ function paint($page, state, res) {
             const rank = i + 1;
             const cls = rank === 1 ? "rank-r1" : rank === 2 ? "rank-r2" : rank === 3 ? "rank-r3" : "";
             return `
-            <tr onclick="location.hash='#player?name=${encodeURIComponent(r.name)}'">
+            <tr onclick="location.hash='${playerHash(r.name)}'">
               <td class="rank-cell ${cls}">#${rank}</td>
               <td>${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a></td>
               <td class="num gain-pos">+${nf(r.best_day || 0)}</td>

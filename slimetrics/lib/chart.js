@@ -188,7 +188,7 @@ export function heatmap(days, { weeks = 53, cellSize = 14, gap = 3, cellW, cellH
   /* Map by ISO date for lookup. */
   const byDay = new Map();
   let maxG = 0;
-  for (const d of days || []) { const k = String(d.d).slice(0, 10); byDay.set(k, d.g || 0); if (d.g > maxG) maxG = d.g; }
+  for (const d of days || []) { const k = String(d.d).slice(0, 10); const g = Number(d.g) || 0; byDay.set(k, g); if (g > maxG) maxG = g; }
   const monthLabels = [];
   let lastMonth = -1;
   const cells = [];

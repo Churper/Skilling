@@ -1,5 +1,18 @@
 [
   {
+    "version": "v2254",
+    "date": "2026-09-27",
+    "title": "New Player and Shop Fixes",
+    "entries": [
+      "Fixed gathering after in-game sign-up.",
+      "Fixed quest gifts.",
+      "Improved in-game sign-up.",
+      "Fixed the Sell All button with certain items.",
+      "Fixed SlimePower Scroll purchase status messages.",
+      "Improved account security and minigame leaderboard submissions."
+    ]
+  },
+  {
     "version": "v2253",
     "date": "2026-09-26",
     "title": "Farm Transition and Pickups",

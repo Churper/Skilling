@@ -12,7 +12,7 @@
      #players
      #faq                                                                  */
 
-import { mountHeader, mountFooter } from "./lib/nav.js";
+import { mountHeader, mountFooter, escapeHtml } from "./lib/nav.js";
 import { renderHome }       from "./pages/home.js";
 import { renderPlayer }     from "./pages/player.js";
 import { renderHiscores }   from "./pages/hiscores.js";
@@ -57,7 +57,7 @@ function route() {
   /* Pages are async — let them clear the loading state when ready. */
   Promise.resolve().then(() => fn($host, params)).catch(err => {
     console.warn("[slimetrics] route failed:", err);
-    $host.innerHTML = `<div class="st-error">Failed to render: ${String(err.message || err)}</div>`;
+    $host.innerHTML = `<div class="st-error">Failed to render: ${escapeHtml(err?.message || err)}</div>`;
   });
   window.scrollTo(0, 0);
 }

@@ -59,7 +59,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
 
       <div class="srv-stat-grid" style="margin-top:14px">
         ${flexCard("🌱 Top Sapling Today", o.top_grinder ? escapeHtml(o.top_grinder.name) : "-", o.top_grinder ? `+${nfShort(o.top_grinder.xp_gained || 0)} XP today` : "no data yet", "#ff6b9d")}
-        ${flexCard("🎯 Skill of the Day", o.skill_of_day ? prettySkill(o.skill_of_day.skill) : "-", o.skill_of_day ? `+${nfShort(o.skill_of_day.xp || 0)} XP today` : "no data yet", "#79c7ff")}
+        ${flexCard("🎯 Skill of the Day", o.skill_of_day ? escapeHtml(prettySkill(o.skill_of_day.skill)) : "-", o.skill_of_day ? `+${nfShort(o.skill_of_day.xp || 0)} XP today` : "no data yet", "#79c7ff")}
         ${bossOfDayCard(o.boss_of_day)}
       </div>
 

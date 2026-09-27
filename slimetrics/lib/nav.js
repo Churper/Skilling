@@ -148,6 +148,13 @@ export function mountFooter() {
 function escapeHtml(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 export { escapeHtml };
 
+/* Link to a player's page. Row links also sit inside
+   onclick="location.hash='…'", and encodeURIComponent leaves ' alone, so a
+   name with a quote would run as script there. */
+export function playerHash(name) {
+  return "#player?name=" + encodeURIComponent(String(name ?? "")).replace(/'/g, "%27");
+}
+
 /* Build one tic-tac-toe filter row: a label cell + a shared-edge button
    matrix. `items` are {id, label, icon?|iconHtml?}; `attr` is the data
    attribute the page wires (e.g. "data-skill"). Pass {row:true} for a few

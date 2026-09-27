@@ -7,6 +7,12 @@ textures, audio, configuration data (JSON), SQL migrations, build scripts,
 documentation, and every other asset present in this repository — are the
 proprietary work of the copyright holder.
 
+Third-party exception: the font files in the fonts/ folder (docs/fonts/ in
+the source repository) are not the copyright holder's work. They are
+licensed by their authors under the SIL Open Font License, Version 1.1; see
+fonts/OFL.txt for their copyright notices and license. Nothing in this
+LICENSE restricts rights that license grants.
+
 NO LICENSE OR PERMISSION IS GRANTED, expressly or by implication, estoppel,
 or otherwise, to any party to do any of the following:
 
