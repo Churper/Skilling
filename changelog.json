@@ -1,5 +1,21 @@
 [
   {
+    "version": "v2255",
+    "date": "2026-09-28",
+    "title": "Ville Housing",
+    "entries": [
+      "Furniture buying opens with this update.",
+      "Furnish your Ville home with Cozy Coupons, keep furniture in your collection.",
+      "Welcome visitors to use a Bank, workshops, games, music, World Map, Alch Pot and Turbo Washer.",
+      "Decorating UI improved, keeps you free to walk, and closes its menus when you leave.",
+      "Turn your Ville house to face any direction from its Customize panel.",
+      "Ville squirrels trade Legendary Jelly for a rechargeable Home Stone that teleports you to your house or the Ville.",
+      "Cozy Coupons are available in the SlimeCoin Shop for 20 SC each, account bound.",
+      "Pet, Garden and quest actions now save instantly to server.",
+      "Fixed expired ground items appearing collectible after returning from an inactive tab."
+    ]
+  },
+  {
     "version": "v2254",
     "date": "2026-09-27",
     "title": "New Player and Shop Fixes",
