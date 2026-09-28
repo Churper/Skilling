@@ -1,5 +1,13 @@
 [
   {
+    "version": "v2256",
+    "date": "2026-09-28",
+    "title": "Housing Fixes",
+    "entries": [
+      "Added confirmation to Style and Room purchases."
+    ]
+  },
+  {
     "version": "v2255",
     "date": "2026-09-28",
     "title": "Ville Housing",
