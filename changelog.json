@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2258",
+    "date": "2026-09-29",
+    "title": "Firefox Store Fix",
+    "entries": [
+      "Fixed the General Store getting squished in some older Firefox versions.",
+      "Optimized reward delivery.",
+      "Saves are smaller and no longer re-save after actions the server already saved.",
+      "Fixed a database slowdown that would have stalled old guest account cleanup."
+    ]
+  },
+  {
     "version": "v2257",
     "date": "2026-09-29",
     "title": "Ville Interiors & Cozy Coupon Homes",
