@@ -1,5 +1,24 @@
 [
   {
+    "version": "v2257",
+    "date": "2026-09-29",
+    "title": "Ville Interiors & Cozy Coupon Homes",
+    "entries": [
+      "Added new enterable buildings to the Ville.",
+      "Houses are bought and upgraded with Cozy Coupons instead of SC.",
+      "Changing a room's style now changes the room you're standing in.",
+      "The upper floor and basement background updated.",
+      "The house wall base updated.",
+      "Cozy Coupons now cost 10 SC.",
+      "Everyone who bought Cozy Coupons from the SC shop automatically refunded 10 SC each.",
+      "Fixed a ghost gather where you could walk around after a refresh or update banner.",
+      "Fixed pressing Enter not sending a chat message.",
+      "Fixed database cleanup and receipts.",
+      "Optimized item actions, crafting, Slimetrics, and removed legacy backend from database and client.",
+      "Improved daily backups to work better with new system."
+    ]
+  },
+  {
     "version": "v2256",
     "date": "2026-09-28",
     "title": "Housing Fixes",
