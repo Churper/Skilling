@@ -1,5 +1,19 @@
 [
   {
+    "version": "v2259",
+    "date": "2026-09-30",
+    "title": "Furniture Colours",
+    "entries": [
+      "Right-click a Rubber Duck or Jar of Slime in your house to change its colour.",
+      "Fixed some gear from drops or explorer crates not being able to refine.",
+      "Faith now counts your SC Mastery bonus",
+      "Can immediately gather after leaving PvP Cave, and fixed stuck entries. ",
+      "Ironslime lock bounties now pay out normal players who kill them. ",
+      "Level milestones get announced even if your game is minimized.",
+      "Hiscore kill counts are now counted by the server."
+    ]
+  },
+  {
     "version": "v2258",
     "date": "2026-09-29",
     "title": "Firefox Store Fix",
