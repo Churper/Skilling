@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2262",
+    "date": "2026-10-01",
+    "title": "Server Progress & Ironslime",
+    "entries": [
+      "Finished moving progress to the server and removed the old saves.",
+      "Game tabs older than v2260 must refresh.",
+      "Ironslime signups now keep your guest items and progress.",
+      "Fixed one account's failed update stopping everyone from gathering."
+    ]
+  },
+  {
     "version": "v2261",
     "date": "2026-10-01",
     "title": "Sign-Up Fix",
