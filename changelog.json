@@ -1,5 +1,14 @@
 [
   {
+    "version": "v2261",
+    "date": "2026-10-01",
+    "title": "Sign-Up Fix",
+    "entries": [
+      "Fixed guest signups and logging back in after registering.",
+      "Guests now get a sign-in toast instead of trading or picking up other players' drops."
+    ]
+  },
+  {
     "version": "v2260",
     "date": "2026-09-30",
     "title": "Guest Fixes",
