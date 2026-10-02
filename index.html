@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2263">
+  <link rel="stylesheet" href="./style.css?v=2264">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -410,6 +410,10 @@
         <div class="ui-mail-modal-body">
           <label>Recipient
             <input type="text" id="ui-mail-to" placeholder="Player name, comma-separated, or *all*" />
+          </label>
+          <label class="ui-mail-ironslime-option">
+            <input type="checkbox" id="ui-mail-allow-ironslime" />
+            Allow Ironslime recipients
           </label>
           <label>Subject
             <input type="text" id="ui-mail-subject" maxlength="100" placeholder="A nice letter from Burga" />
@@ -1271,6 +1275,10 @@
         <span class="ui-horse-title">&#x26F5; Port</span>
         <button type="button" id="ui-boat-close" class="ui-bank-close-btn">&times;</button>
       </div>
+      <div id="ui-boat-tabs" class="ui-horse-tabs">
+        <button type="button" class="ui-horse-tab is-active" data-boat-tab="boat">Boat</button>
+        <button type="button" class="ui-horse-tab" data-boat-tab="addons">Add-ons</button>
+      </div>
       <div class="ui-boat-preview-wrap" style="position:relative;width:340px;max-width:calc(100% - 24px);margin:8px auto 4px">
         <canvas id="ui-boat-canvas" width="340" height="220" style="display:block;width:100%;background:linear-gradient(180deg,#0a1828 0%,#1a3a55 60%,#0f2540 100%);border-radius:10px;border:1px solid rgba(122,240,255,0.3);box-shadow:inset 0 0 30px rgba(0,0,0,0.5)"></canvas>
         <div id="ui-boat-overlay-label" style="position:absolute;left:0;right:0;bottom:8px;text-align:center;pointer-events:none;text-shadow:0 2px 6px rgba(0,0,0,0.95),0 0 12px rgba(0,0,0,0.7)"></div>
@@ -1946,6 +1954,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2263"></script>
+  <script type="module" src="./main.js?v=2264"></script>
 </body>
 </html>

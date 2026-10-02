@@ -1,5 +1,22 @@
 [
   {
+    "version": "v2264",
+    "date": "2026-10-02",
+    "title": "New Boats, Housing & Milestones",
+    "entries": [
+      "Freely switch between main house room sizes you've unlocked.",
+      "Sit on chairs and other seating, put decorations on furniture and mats, and place furniture halfway between tiles.",
+      "Changed Storm Infinity and Prism boat colors.",
+      "Added four higher tier boats: Plasma, Cloud, Fusion and Antimatter.",
+      "Buy a Salvaging Net add-on in the boat shop.",
+      "Optimized Cloud, Fusion and Antimatter swords geometry.",
+      "Added announcements, fireworks and SC rewards at skill levels 2250, 2500, 2750 and 3000, with catch-up SC if you're already there.",
+      "Added a higher tier name badge style for lvl 2000 skills, 200 Kraken, Slimeshroom or Meteor credits or 30 Shark/Wing podium points.",
+      "Farming Cape (t) has alternate setting to set left click to switch off between patch 1 and patch 2.",
+      "Updated the in-game guide."
+    ]
+  },
+  {
     "version": "v2263",
     "date": "2026-10-01",
     "title": "Trimmed Skill Cape Perks & Party Fixes",

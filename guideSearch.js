@@ -85,7 +85,7 @@
     .trim()
     .toLocaleLowerCase();
   const clean = value => String(value || "").replace(/\s+/g, " ").trim();
-  const atomicSelector = ".faq-card,.boss-card,.food-item,.skill-row,.tier-item,.tip,.warn";
+  const atomicSelector = ".faq-card,.boss-card,.mob-card,.svc-card,.food-item,.skill-row,.tier-item,.tip,.warn,.guide-table tbody tr";
   const candidateSelector = `.sec-head,${atomicSelector},.card,p`;
   const entries = [];
 
@@ -103,9 +103,12 @@
       }
       const text = clean(element.textContent);
       if (text.length < 3) return;
-      let title = clean(element.querySelector(".faq-q,.boss-name,.food-name,.skill-name,.tier-name,h2,h3,strong")?.textContent);
+      let title = clean(element.querySelector(".faq-q,.boss-name,.mob-name,.svc-name,.food-name,.skill-name,.tier-name,h2,h3,strong")?.textContent);
+      const table = element.closest(".guide-table");
+      const tableContext = table ? clean(`${table.caption?.textContent || ""} ${table.tHead?.textContent || ""}`) : "";
+      if (table) title = Array.from(element.cells || []).map(cell => clean(cell.textContent)).find(cell => /\p{Letter}/u.test(cell)) || text;
       if (!title) title = text.split(/[.!?。！？]/, 1)[0].slice(0, 90);
-      entries.push({ element, tabName, section, title, text, search: normalize(`${section} ${title} ${text}`) });
+      entries.push({ element, tabName, section, title, text, search: normalize(`${section} ${tableContext} ${title} ${text}`) });
     });
   });
 
@@ -131,7 +134,9 @@
     const collapse = entry.element.closest(".skill-collapse");
     if (collapse) {
       collapse.classList.add("is-open");
-      document.querySelector(`.skill-row[data-skill="${collapse.id}"]`)?.classList.add("is-open");
+      const row = document.querySelector(`.skill-row[data-skill="${collapse.id}"]`);
+      row?.classList.add("is-open");
+      row?.setAttribute("aria-expanded", "true");
     }
     setTimeout(() => {
       entry.element.scrollIntoView({ behavior: "smooth", block: "center" });
