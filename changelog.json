@@ -1,5 +1,28 @@
 [
   {
+    "version": "v2263",
+    "date": "2026-10-01",
+    "title": "Trimmed Skill Cape Perks & Party Fixes",
+    "entries": [
+      "Farming Cape (t): save a second crop patch to teleport to.",
+      "Mining Cape (t): 3x meteor resources.",
+      "Woodcutting Cape (t): 3x Tree Meat and Bamboo.",
+      "Survival Cape (t): 5x legendary forage chance.",
+      "Fishing Cape (t): 2x Golden Fish chance.",
+      "Cooking Cape (t): 15% chance to save a dish's ingredients.",
+      "Scribing Cape (t): 1 in 8 chance to save the non-scroll resource.",
+      "Hitpoints Cape (t): regenerate 0.1% of max HP per second.",
+      "Melee, Bow and Mage Capes (t): 60% chance to save charges.",
+      "Explorer Skill Cape: opens Slime Statue travel menu.",
+      "Fixed parties breaking after reconnects or switching tabs, and boss loot going outside the arena.",
+      "Ghosts don't get XP or boss rewards.",
+      "Fixed the XP tracker showing HP instead of the skill you're training.",
+      "Fixed glowshrooms leaving invisible collisions.",
+      "Fixed Open All and Open X stopping after 500 Ocean Gifts.",
+      "Fixed Item Locks not applying to gear in some cases."
+    ]
+  },
+  {
     "version": "v2262",
     "date": "2026-10-01",
     "title": "Server Progress & Ironslime",
