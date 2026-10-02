@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2265",
+    "date": "2026-10-02",
+    "title": "Higher Farming Tiers & Ville Beach",
+    "entries": [
+      "Expanded tree and bush patches through Antimatter, with rare foraging loot on harvest loot and 100% more Farming XP.",
+      "Pets can now slowly gather level 600+ fish, logs and ores, taking 20 pouch space each.",
+      "Fixed Gather Potions using up grown tree and bush patches twice as fast.",
+      "Added a fishing spot at the Ville beach.",
+      "Fixed see-through palms in the Ville.",
+      "Added interactive ball to the beach, and can now sit on the Ville's beach chairs.",
+      "Farmer Sprout is in the barn instead of the chickens, and keeps his garden spot too.",
+      "Added jelly animations to boat riding."
+    ]
+  },
+  {
     "version": "v2264",
     "date": "2026-10-02",
     "title": "New Boats, Housing & Milestones",
