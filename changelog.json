@@ -1,5 +1,18 @@
 [
   {
+    "version": "v2266",
+    "date": "2026-10-03",
+    "title": "Tabletop Props, Gathering & Parties",
+    "entries": [
+      "Allow more props onto more surfaces.",
+      "Fixed a rare case of gathering stopping",
+      "Fixed plucked 600+ tree logs skipping the log basket.",
+      "Fixed sailing contract progress resetting and opened treasures not counting.",
+      "Fixed overlapping party invites, joining during activities, oversized parties and outsiders disbanding parties.",
+      "Cleaned up backend code."
+    ]
+  },
+  {
     "version": "v2265",
     "date": "2026-10-02",
     "title": "Higher Farming Tiers & Ville Beach",
