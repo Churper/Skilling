@@ -1,5 +1,14 @@
 [
   {
+    "version": "v2268",
+    "date": "2026-10-05",
+    "title": "Themed 600+ Islands & Hunting Spots",
+    "entries": [
+      "Renamed 9 outer islands and gave them themes to match the 600+ tiers.",
+      "Added hunting spot animals to the world and map to prepare for new skill."
+    ]
+  },
+  {
     "version": "v2267",
     "date": "2026-10-05",
     "title": "Salvaging & Giant Turtles",
