@@ -17,7 +17,8 @@ export const SKILLS = [
   { id: "hunting",     label: "Hunting",     icon: "\u{1F43E}", color: "#9a7d3f" },
 ];
 
-export const SKILL_BY_ID = Object.fromEntries(SKILLS.map(s => [s.id, s]));
+// URL filters may name any string, including inherited Object properties.
+export const SKILL_BY_ID = Object.freeze(Object.assign(Object.create(null), Object.fromEntries(SKILLS.map(s => [s.id, s]))));
 export const SKILL_IDS = SKILLS.map(s => s.id);
 
 export function skillIcon(id) { return SKILL_BY_ID[id]?.icon || "✨"; }

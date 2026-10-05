@@ -1,5 +1,23 @@
 [
   {
+    "version": "v2267",
+    "date": "2026-10-05",
+    "title": "Salvaging & Giant Turtles",
+    "entries": [
+      "Boat salvaging has been opened up.",
+      "Added giant turtles that visit naturally or from Shroomfish bait, eat Shroomfish and give gifts.",
+      "Ocean feeding now works while the tab is asleep, hidden or minimized.",
+      "Fixed getting stuck with two Fish Buckets after fishing catch-up.",
+      "Fixed getting stuck after the Pocket Bank on a full bag.",
+      "Explorer tasks and rewards now stay in sync across sessions.",
+      "Explorer task progress counts up with no \"Syncing\".",
+      "Some Hunting props placed have been placed to prepare for the new skill.",
+      "Voting on Scapelikes now pays 7 SC.",
+      "Fixed being able to send invalid skill names in Slimetrics.",
+      "Hardened sign-in checks."
+    ]
+  },
+  {
     "version": "v2266",
     "date": "2026-10-03",
     "title": "Tabletop Props, Gathering & Parties",
