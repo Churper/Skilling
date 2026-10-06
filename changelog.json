@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2269",
+    "date": "2026-10-05",
+    "title": "Salvaging Hooks & Boss Loot Fix",
+    "entries": [
+      "14 new salvaging net upgrades with Explorer level requirements.",
+      "Salvaging Explorer XP scales nicer at higher levels.",
+      "Clicking now resets the salvage timer, same as all other gathering.",
+      "Lost Purses now give 4-8 SC each.",
+      "Bank has 100 and X amounts; X remembers the last custom amount you typed.",
+      "Gear presets can have their own tab icon.",
+      "New SlimeCoin Jingle setting in Audio to turn off the SC sound.",
+      "Fixed rare case of boss drops and other ground loot from computer's clock running fast."
+    ]
+  },
+  {
     "version": "v2268",
     "date": "2026-10-05",
     "title": "Themed 600+ Islands & Hunting Spots",

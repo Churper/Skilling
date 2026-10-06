@@ -1,0 +1,1 @@
+import{gi as a,hi as b}from"./chunk-DF6265GF.js";import"./chunk-UR7O63IB.js";import"./chunk-DZXI6HWZ.js";import"./chunk-CRSKIQIK.js";import"./chunk-FMYD7RKO.js";import"./chunk-XTENHRA7.js";import"./chunk-BML7F3NB.js";import"./chunk-7MI2BWQZ.js";export{b as createRealtimeClient,a as resolveOnlineConfig};
