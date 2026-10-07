@@ -503,12 +503,14 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <div class="tabs" id="tabs">
   <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>基础</button>
   <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>采集</button>
+  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>容器</button>
   <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>战斗</button>
   <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>装备</button>
   <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>食物</button>
   <button class="tab-btn" data-tab="skills"><span class="tab-icon">&#x2B50;</span>技能</button>
   <button class="tab-btn" data-tab="islands"><span class="tab-icon">&#x26F5;</span>岛屿</button>
   <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>世界</button>
+  <button class="tab-btn" data-tab="trading"><span class="tab-icon">&#x1F4B1;</span>玩家交易所</button>
   <button class="tab-btn" data-tab="clans"><span class="tab-icon">&#x1F3F0;</span>公会</button>
   <button class="tab-btn" data-tab="tips"><span class="tab-icon">&#x1F4A1;</span>技巧</button>
   <button class="tab-btn" data-tab="faq"><span class="tab-icon">&#x2753;</span>常见问题</button>
@@ -531,6 +533,18 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     </div>
   </div>
 
+  
+  <div class="sec-head" id="sec-registration"><div class="sec-icon">💾</div><div><h2>游客、注册 &amp; 存档</h2><p>保留你一直在玩的角色</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li>以游客游玩时，打开 <strong>设置 → 账号 → 注册</strong>。也可以在开始界面使用 <strong>注册</strong>。</li>
+      <li>选择用户名和密码，可按需添加恢复邮箱，然后完成注册确认。</li>
+      <li><strong>普通注册会保留你当前的游客角色和进度。</strong> 以后再来或换设备时，用该账号 <strong>登录</strong>。注册不同于登录你已有的账号。</li>
+    </ol>
+    <p>进度会自动保存。更换设备或清除浏览器数据前请先注册，这样才有能找回角色的登录账号。再开一个游客会创建全新的独立角色。</p>
+    <div class="warn"><strong>Ironslime 是注册时的永久选择。</strong> 当前注册流程也会为 Ironslime 保留你的游客物品和进度。Ironslime 只能自己赚物品：不能玩家交易、使用交易所、邮件、公会金库、下注，也不能拾取其他玩家掉落。</div>
+  </div>
+
   <div class="sec-head"><div class="sec-icon blue">&#x1F3AE;</div><div><h2>操作</h2><p>鼠标、键盘与触控</p></div></div>
 
   <div class="ctrl-grid">
@@ -543,9 +557,15 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="ctrl-item"><kbd>Q</kbd><span class="ctrl-label">使用快捷食物槽</span></div>
     <div class="ctrl-item"><kbd>Z</kbd><span class="ctrl-label">打开维基</span></div>
     <div class="ctrl-item"><kbd>M</kbd><span class="ctrl-label">打开地图</span></div>
+    <div class="ctrl-item"><kbd>H</kbd><span class="ctrl-label">上马 / 下马</span></div>
+
     <div class="ctrl-item"><kbd>F1&ndash;F6</kbd><span class="ctrl-label">标签快捷键</span></div>
     <div class="ctrl-item"><kbd>Esc</kbd><span class="ctrl-label">关闭面板</span></div>
   </div>
+
+  
+<div class="sec-head" id="sec-horses"><div class="sec-icon">🐎</div><div><h2>马匹 &amp; 出行</h2><p>默认骑乘键是 H；M 打开地图</p></div></div>
+  <div class="card"><p>前往 <strong>马场</strong> 购买并升级马匹。点击马匹骑乘。用 <kbd>H</kbd> 骑上附近已拥有的马，或下马。从更远处召唤会消耗一次 <strong>口袋马</strong> 充能，充能来自把蜘蛛卷轴喂给同伴。这些是默认按键，可在设置中更改。</p><p><strong>速度取决于马匹阶位。</strong> 更高阶位更快；马匹并非都给固定 2× 速度加成。</p></div>
 
   <div class="sec-head"><div class="sec-icon gold">&#x1F6E0;&#xFE0F;</div><div><h2>工具升级</h2><p>在铁匠处升级以加快采集</p></div></div>
 
@@ -685,31 +705,56 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="sec-head" id="sec-fishing"><div class="sec-icon blue">&#x1F3A3;</div><div><h2>钓鱼</h2><p>在任意钓点钓鱼 &bull; 稀有掉落：金鱼 (3%)</p></div></div>
 
   <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e0a090"></span><span class="tier-name">Shrimp</span><div class="tier-detail"><span>56 xp</span><span>5c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#60b0c8"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>130 xp</span><span>7c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>180 xp</span><span>9c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>269 xp</span><span>12c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>349 xp</span><span>15c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>539 xp</span><span>18c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 135</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>699 xp</span><span>22c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 170</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">Lionfish</span><div class="tier-detail"><span>860 xp</span><span>25c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 185</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>1080 xp</span><span>28c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">Pufferfish</span><div class="tier-detail"><span>1350 xp</span><span>32c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">Piranha</span><div class="tier-detail"><span>1680 xp</span><span>36c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">Anglerfish</span><div class="tier-detail"><span>2050 xp</span><span>40c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">Humphead</span><div class="tier-detail"><span>2500 xp</span><span>45c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 325</span><span class="tier-swatch" style="background:#e04020"></span><span class="tier-name">Oarfish</span><div class="tier-detail"><span>2750 xp</span><span>49c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">Mandarin Fish</span><div class="tier-detail"><span>3100 xp</span><span>52c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 375</span><span class="tier-swatch" style="background:#ff40a0"></span><span class="tier-name">Gulper Eel</span><div class="tier-detail"><span>3450 xp</span><span>55c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">Koi</span><div class="tier-detail"><span>3800 xp</span><span>58c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">Anglerking</span><div class="tier-detail"><span>4200 xp</span><span>61c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">Betta</span><div class="tier-detail"><span>4600 xp</span><span>65c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 475</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name" style="color:var(--gold)">Parrot Fish</span><div class="tier-detail"><span>5200 xp</span><span>68c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 500</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name" style="color:var(--gold)">Bluefish</span><div class="tier-detail"><span>5800 xp</span><span>75c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e0a090"></span><span class="tier-name">虾</span><div class="tier-detail"><span>56 xp</span><span>5c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#60b0c8"></span><span class="tier-name">鳟鱼</span><div class="tier-detail"><span>130 xp</span><span>7c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">鲑鱼</span><div class="tier-detail"><span>180 xp</span><span>9c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">龙虾</span><div class="tier-detail"><span>269 xp</span><span>12c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">鲭鱼</span><div class="tier-detail"><span>349 xp</span><span>15c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">剑鱼</span><div class="tier-detail"><span>539 xp</span><span>18c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 135</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">金枪鱼</span><div class="tier-detail"><span>699 xp</span><span>22c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 170</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">狮子鱼</span><div class="tier-detail"><span>860 xp</span><span>25c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 185</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">蝠鲼</span><div class="tier-detail"><span>1080 xp</span><span>28c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">河豚</span><div class="tier-detail"><span>1350 xp</span><span>32c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">食人鱼</span><div class="tier-detail"><span>1680 xp</span><span>36c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">安康鱼</span><div class="tier-detail"><span>2050 xp</span><span>40c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">隆头鱼</span><div class="tier-detail"><span>2500 xp</span><span>45c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 325</span><span class="tier-swatch" style="background:#e04020"></span><span class="tier-name">皇带鱼</span><div class="tier-detail"><span>2750 xp</span><span>49c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">鳜鱼</span><div class="tier-detail"><span>3100 xp</span><span>52c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 375</span><span class="tier-swatch" style="background:#ff40a0"></span><span class="tier-name">大嘴鳗</span><div class="tier-detail"><span>3450 xp</span><span>55c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">锦鲤</span><div class="tier-detail"><span>3800 xp</span><span>58c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">安康王</span><div class="tier-detail"><span>4200 xp</span><span>61c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">斗鱼</span><div class="tier-detail"><span>4600 xp</span><span>65c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 475</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name" style="color:var(--gold)">鹦鹉鱼</span><div class="tier-detail"><span>5200 xp</span><span>68c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 500</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name" style="color:var(--gold)">蓝鱼</span><div class="tier-detail"><span>5800 xp</span><span>75c</span></div></div>
   </div>
   <div class="tip">所有鱼都能烹饪！鱼越高阶，做熟后治疗量越高。留意钓鱼狂热 — 钓点会发紫光，可获得额外 经验 与奖杯箱鲀！</div>
 
   <!-- FARMING -->
+  
+  <div class="sec-head" id="sec-cave-fishing"><div class="sec-icon">🎣</div><div><h2>洞穴钓鱼</h2><p>专属 PvP 洞穴钓点 • 等级 600–2000</p></div></div>
+  <div class="card"><p>这些鱼只出现在专属 <strong>PvP 洞穴钓鱼点</strong>。达到列出的钓鱼等级并找到对应钓点；它们不会出现在普通或混合海洋钓点。钓到的是生鱼，可以烹饪。下方周期为基础时间，不含采集加成。</p></div>
+  <!-- AUTOGEN:cave-fishing START -->
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="洞穴钓鱼（等级 600–2000）"><table class="guide-table"><caption>洞穴钓鱼（等级 600–2000）</caption><thead><tr><th scope="col">钓鱼等级</th><th scope="col">渔获</th><th scope="col">基础 XP</th><th scope="col">基础周期</th><th scope="col">售价</th></tr></thead><tbody>
+    <tr><th scope="row">600</th><td>风暴鲨</td><td>31,500</td><td>55s</td><td>8,000c</td></tr>
+    <tr><th scope="row">700</th><td>海带龙</td><td>37,500</td><td>56s</td><td>10,000c</td></tr>
+    <tr><th scope="row">800</th><td>污泥团</td><td>44,000</td><td>57s</td><td>12,400c</td></tr>
+    <tr><th scope="row">900</th><td>棱镜旗鱼</td><td>51,000</td><td>58.5s</td><td>15,200c</td></tr>
+    <tr><th scope="row">1,000</th><td>无限鲸</td><td>60,000</td><td>61.5s</td><td>19,000c</td></tr>
+    <tr><th scope="row">1,250</th><td>等离子鳗</td><td>79,750</td><td>65s</td><td>32,600c</td></tr>
+    <tr><th scope="row">1,500</th><td>云河豚</td><td>99,000</td><td>67s</td><td>42,000c</td></tr>
+    <tr><th scope="row">1,750</th><td>聚变鱿鱼</td><td>118,500</td><td>68.5s</td><td>54,000c</td></tr>
+    <tr><th scope="row">2,000</th><td>反物质龟</td><td>138,500</td><td>70s</td><td>70,000c</td></tr>
+  </tbody></table></div>
+  <!-- AUTOGEN:cave-fishing END -->
+
+  <div class="sec-head" id="sec-fish-frenzy"><div class="sec-icon">🌀</div><div><h2>钓鱼狂热奖励</h2><p>你的钓鱼等级决定奖励鱼</p></div></div>
+  <div class="card"><p>在钓鱼点发紫的狂热窗口内点击。这次狂热渔获给予 <strong>10× XP</strong>，以及下表中的一条奖励鱼。把那条鱼存入 <a href="#sec-washing">洗衣机</a> 换充能，或留作他用。</p>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="钓鱼狂热奖励"><table class="guide-table"><caption>按钓鱼等级的钓鱼狂热奖励</caption><thead><tr><th scope="col">钓鱼等级</th><th scope="col">奖励</th><th scope="col">每个洗衣机充能</th></tr></thead><tbody>
+  <tr><th scope="row">1–99</th><td>米诺鱼</td><td>1</td></tr><tr><th scope="row">100–199</th><td>奖杯箱鲀</td><td>2</td></tr><tr><th scope="row">200–299</th><td>枪鱼</td><td>3</td></tr><tr><th scope="row">300–399</th><td>利维坦</td><td>4</td></tr><tr><th scope="row">400+</th><td>克拉肯</td><td>5</td></tr>
+  </tbody></table></div><p><strong>克拉肯鱼</strong> 是狂热奖励，与 <a href="#sec-kraken">克拉肯首领战</a> 不是同一回事。</p></div>
+
+  <!-- FARMING -->
+
   <div class="sec-head" id="sec-farming"><div class="sec-icon" style="background:rgba(120,180,60,.1);border-color:rgba(120,180,60,.2)">&#x1F33E;</div><div><h2>农耕</h2><p>在农田种植种子 &bull; 等待作物生长 &bull; 收获获得经验 &amp; 食物</p></div></div>
 
   <div class="card illust-card">
@@ -803,6 +848,89 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <!-- ═══════════════════════════════════════ -->
 <!-- ═══ COMBAT ═══════════════════════════ -->
 <!-- ═══════════════════════════════════════ -->
+
+<div class="tab-content" id="tab-containers">
+  <!-- AUTOGEN:containers START -->
+  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>容器</h2><p>存放采集物品</p></div></div>
+  <div class="card">
+    <p>容器放在背包里会自动收纳对应物品。每个占用 <strong>一格</strong>。右键容器可倒空。</p>
+    <p>每种容器只能拥有一个。掉落不会给你重复的容器。容器不影响 XP、产量或采集速度。</p>
+    <p>下列掉落率为基础概率。<a href="#sec-container-luck">幸运</a>会提高容器掉落和鱼桶升级几率。</p>
+  </div>
+
+  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>原木篮</h2><p>600 级以上原木</p></div></div>
+  <div class="card">
+    <p><strong>存放：</strong> 全部 <a href="#sec-woodcutting">600 级以上原木</a>。</p>
+    <p><strong>获取：</strong> 成功砍伐这些树时 1/100，或每次击杀 <strong>沼泽蛙</strong> 1/100。</p>
+    <p><strong>容量：</strong> 100 根原木。用钻石向 <strong>伐木工</strong> 购买永久升级。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="原木篮升级"><table class="guide-table"><caption>原木篮升级</caption><thead><tr><th scope="col">容量</th><th scope="col">消耗</th><th scope="col">累计消耗</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>25 个钻石</td><td>25 个钻石</td></tr>
+    <tr><th scope="row">200</th><td>75 个钻石</td><td>100 个钻石</td></tr>
+    <tr><th scope="row">250</th><td>150 个钻石</td><td>250 个钻石</td></tr>
+    <tr><th scope="row">300</th><td>300 个钻石</td><td>550 个钻石</td></tr>
+    <tr><th scope="row">400</th><td>600 个钻石</td><td>1,150 个钻石</td></tr>
+    <tr><th scope="row">500</th><td>1,000 个钻石</td><td>2,150 个钻石</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>矿石袋</h2><p>600 级以上矿石</p></div></div>
+  <div class="card">
+    <p><strong>存放：</strong> 全部 <a href="#sec-mining">600 级以上矿石</a>。</p>
+    <p><strong>购买：</strong> 采矿 600 时向 <strong>煤矿工</strong> 购买 1 个珍珠。也会从 <strong>岩石魔像</strong> 掉落：每次击杀 1/100。</p>
+    <p><strong>容量：</strong> 100 块矿石。用珍珠向 <strong>煤矿工</strong> 购买永久升级。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="矿石袋升级"><table class="guide-table"><caption>矿石袋升级</caption><thead><tr><th scope="col">容量</th><th scope="col">消耗</th><th scope="col">累计消耗</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>2 个珍珠</td><td>2 个珍珠</td></tr>
+    <tr><th scope="row">200</th><td>5 个珍珠</td><td>7 个珍珠</td></tr>
+    <tr><th scope="row">250</th><td>10 个珍珠</td><td>17 个珍珠</td></tr>
+    <tr><th scope="row">300</th><td>20 个珍珠</td><td>37 个珍珠</td></tr>
+    <tr><th scope="row">400</th><td>35 个珍珠</td><td>72 个珍珠</td></tr>
+    <tr><th scope="row">500</th><td>60 个珍珠</td><td>132 个珍珠</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>鱼桶</h2><p>600 级以上洞穴鱼</p></div></div>
+  <div class="card">
+    <p><strong>存放：</strong> 全部 <a href="#sec-cave-fishing">600 级以上洞穴鱼</a>。</p>
+    <p><strong>获取：</strong> 在那些洞穴钓鱼点每次渔获 1/100。</p>
+    <p><strong>容量：</strong> 100 条鱼。继续在洞穴钓鱼有机会把桶升级到下方的下一档容量。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="鱼桶升级"><table class="guide-table"><caption>鱼桶升级</caption><thead><tr><th scope="col">容量</th><th scope="col">每次洞穴渔获基础几率</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>1/200</td></tr>
+    <tr><th scope="row">200</th><td>1/400</td></tr>
+    <tr><th scope="row">250</th><td>1/800</td></tr>
+    <tr><th scope="row">300</th><td>1/1,600</td></tr>
+    <tr><th scope="row">400</th><td>1/3,200</td></tr>
+    <tr><th scope="row">500</th><td>1/6,400</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>狂热袋</h2><p>狂热奖励</p></div></div>
+  <div class="card">
+    <p><strong>存放：</strong> 附魔木材、金块、陨石核心和 <a href="#sec-fish-frenzy">狂热鱼</a>。</p>
+    <p><strong>购买：</strong> 向 <strong>神秘史莱姆</strong> 花费 <strong>1,000,000 金币</strong>。</p>
+    <p><strong>容量：</strong> 100 件，最高 1,000。每完成一项神秘史莱姆任务永久增加 100 格。可按任意顺序完成。</p>
+    <p>右键袋子可查看狂潮符，或开关自动狂潮。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="狂热袋任务（神秘史莱姆）"><table class="guide-table"><caption>狂热袋任务（神秘史莱姆）</caption><thead><tr><th scope="col">任务</th><th scope="col">容量</th></tr></thead><tbody>
+    <tr><th scope="row">为奥术宝珠充能</th><td>+100</td></tr>
+    <tr><th scope="row">10,000 个鸟巢</th><td>+100</td></tr>
+    <tr><th scope="row">5,000 个未切割宝石</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 个苹果</th><td>+100</td></tr>
+    <tr><th scope="row">给 10 名玩家点赞</th><td>+100</td></tr>
+    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
+    <tr><th scope="row">各 5 个：蓝宝石 → 缟玛瑙</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 个紫色法石</th><td>+100</td></tr>
+    <tr><th scope="row">达到总等级 3,000</th><td>+100</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>幸运</h2><p>掉落与升级几率</p></div></div>
+  <div class="card">
+    <p>幸运会提高容器掉落率和鱼桶升级几率。例如，+50% 幸运会把 1% 几率提到 1.5%。幸运鸭会提到 3%。</p>
+    <p>幸运加成会叠加：装备潜能词条（各 2–10%）、<strong>幸运鸭</strong>（10分钟 +200%）和 <strong>道场冠军</strong> 戒指。</p>
+    <p>困难模式不会提高沼泽蛙或岩石魔像的容器掉落率。幸运也会提高狂热频率，但不影响狂热袋的价格或升级。</p>
+  </div>
+  <!-- AUTOGEN:containers END -->
+</div>
+
 <div class="tab-content" id="tab-combat">
 
   <div class="card illust-card">
@@ -915,6 +1043,21 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="mob-card"><div class="mob-icon">🫧</div><div class="mob-info"><div class="mob-name">巨型洞穴史莱姆</div><div class="mob-stats"><span>❤️ 90,000</span><span>⚔️ 75-140</span></div><div class="mob-drops"><span class="drop-tag secondary">棱彩之心<span class="drop-chance"> 1/50</span></span><span class="drop-tag secondary">洞穴诱饵<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">石帽<span class="drop-chance"> 1/250</span></span></div></div></div>
   </div>
   <!-- AUTOGEN:bestiary-cave END -->
+
+<div class="sec-head" id="sec-kraken"><div class="sec-icon">🦑</div><div><h2>克拉肯遭遇</h2><p>在船上进行的海洋事件</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li><strong>在大陆的献祭之池召唤。</strong> 祭品需要 3 个海洋鱼饵、2 个珍珠、6 个可用宝石和 30 狂热点数。祭池会显示可用物品以及你已有的数量。狂热掉落按其洗衣机充能值计算；克拉肯鱼在此计为三倍。</li>
+      <li><strong>跟上事件提示并出海。</strong> 在克拉肯浮出前准备好船、食物和战斗补给。这是有共享计时的召唤海洋事件，与召唤铃首领不同。</li>
+      <li><strong>打断全部四根触手，然后攻击暴露的头部。</strong> 触手和头部进度是个人的：其他玩家无法替你打完。一边持续命中，一边躲开标记的攻击和墨汁危险。</li>
+      <li><strong>在事件结束前打完头部。</strong> 奖励按你完成的击杀发放；只在附近或只打触手拿不到完成战利品。你打完后，事件在计时结束前仍可供其他玩家进行。</li>
+    </ol>
+  </div>
+
+  <div class="tip">带上 <strong>10+ 食物</strong>、增益药水和你最好的装备。首领可以组队打！</div>
+  <div class="tip">&#x1F4A1; <strong>幸运属性</strong> 来自洗衣机，可提高装备与药水掉落几率！</div>
+
+  <!-- CAVE DENS -->
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -1049,6 +1192,61 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-badge tag-purple">T9</span><span class="tier-name">灾变</span><span class="tier-meta">熔岩龙鳞</span></div>
     </div>
   </div>
+
+<div class="sec-head" id="sec-slimepower-scaling"><div class="sec-icon">📈</div><div><h2>SlimePower 加成</h2><p>按 SP 等级与装备阶位的 ATK 和 DEF</p></div></div>
+  <div class="card">
+    <p>SlimePower 为已装备物品增加 <strong>ATK 和 DEF</strong>。更高 SP 等级和装备阶位给更大加成。</p>
+    <p>武器的 ATK 加成在使用其战斗风格时生效。戒指、护符和披风用各自阶位；技能披风和大多数特殊披风按钴阶计算。</p>
+    <p>物品稀有度不改变 SP 加成。</p>
+    <div class="sp-calc" data-sp-calc>
+      <h3>加成计算器</h3>
+      <label class="sub-label" for="sp-calc-tier">装备阶位</label>
+      <select id="sp-calc-tier" class="sub-select"><option value="bronze">锡 (Lv 1)</option><option value="iron">铜 (Lv 30)</option><option value="steel">石英 (Lv 60)</option><option value="mithril">银 (Lv 90)</option><option value="adamant">铂金 (Lv 120)</option><option value="rune">钴 (Lv 150)</option><option value="slime">翡翠 (Lv 170)</option><option value="crystal">钛 (Lv 190)</option><option value="ember">蛋白石 (Lv 205)</option><option value="frost">宝石 (Lv 220)</option><option value="volcanic">火山 (Lv 235)</option><option value="celestial">天界 (Lv 250)</option><option value="solar">日耀 (Lv 300)</option><option value="lunar">月华 (Lv 350)</option><option value="eclipse">日食 (Lv 400)</option><option value="astral">星界 (Lv 450)</option><option value="storm">风暴 (Lv 600)</option><option value="leviathan">利维坦 (Lv 700)</option><option value="goo">黏液 (Lv 800)</option><option value="prism">棱晶 (Lv 900)</option><option value="infinity">无限 (Lv 1000)</option><option value="plasma">等离子 (Lv 1250)</option><option value="cloud">云 (Lv 1500)</option><option value="fusion">聚变 (Lv 1750)</option><option value="antimatter">反物质 (Lv 2000)</option></select>
+      <label class="sub-label" for="sp-calc-stars">史莱姆力量 <output id="sp-calc-stars-out" for="sp-calc-stars">SP10</output></label>
+      <input id="sp-calc-stars" type="range" min="0" max="20" value="10" step="1">
+      <div class="sp-calc-out" aria-live="polite"><span><strong id="sp-calc-atk">+0</strong> ATK</span><span><strong id="sp-calc-def">+0</strong> DEF</span><span id="sp-calc-next"></span></div>
+    </div>
+  </div>
+  <details class="sp-reference">
+    <summary>对比全部装备阶位</summary>
+    <div class="guide-table-wrap" tabindex="0" role="region" aria-label="各装备阶位的 SlimePower 加成"><table class="guide-table"><caption>各装备阶位的 SlimePower 加成</caption><thead><tr><th scope="col">装备阶位</th><th scope="col">倍率</th><th scope="col">SP5</th><th scope="col">SP10</th><th scope="col">SP15</th><th scope="col">SP20</th></tr></thead><tbody>
+    <tr><th scope="row">锡 <span class="sp-lvl">Lv 1</span></th><td>1.00×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+36 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+113 ATK</span><span class="sp-stat">+58 DEF</span></td><td><span class="sp-stat">+253 ATK</span><span class="sp-stat">+138 DEF</span></td></tr>
+    <tr><th scope="row">铜 <span class="sp-lvl">Lv 30</span></th><td>1.03×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+37 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+116 ATK</span><span class="sp-stat">+59 DEF</span></td><td><span class="sp-stat">+260 ATK</span><span class="sp-stat">+142 DEF</span></td></tr>
+    <tr><th scope="row">石英 <span class="sp-lvl">Lv 60</span></th><td>1.06×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+38 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+119 ATK</span><span class="sp-stat">+61 DEF</span></td><td><span class="sp-stat">+268 ATK</span><span class="sp-stat">+146 DEF</span></td></tr>
+    <tr><th scope="row">银 <span class="sp-lvl">Lv 90</span></th><td>1.09×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+39 ATK</span><span class="sp-stat">+17 DEF</span></td><td><span class="sp-stat">+123 ATK</span><span class="sp-stat">+63 DEF</span></td><td><span class="sp-stat">+275 ATK</span><span class="sp-stat">+150 DEF</span></td></tr>
+    <tr><th scope="row">铂金 <span class="sp-lvl">Lv 120</span></th><td>1.12×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+40 ATK</span><span class="sp-stat">+17 DEF</span></td><td><span class="sp-stat">+126 ATK</span><span class="sp-stat">+64 DEF</span></td><td><span class="sp-stat">+283 ATK</span><span class="sp-stat">+154 DEF</span></td></tr>
+    <tr><th scope="row">钴 <span class="sp-lvl">Lv 150</span></th><td>1.15×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+41 ATK</span><span class="sp-stat">+18 DEF</span></td><td><span class="sp-stat">+129 ATK</span><span class="sp-stat">+66 DEF</span></td><td><span class="sp-stat">+290 ATK</span><span class="sp-stat">+158 DEF</span></td></tr>
+    <tr><th scope="row">翡翠 <span class="sp-lvl">Lv 170</span></th><td>1.18×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+42 ATK</span><span class="sp-stat">+18 DEF</span></td><td><span class="sp-stat">+133 ATK</span><span class="sp-stat">+68 DEF</span></td><td><span class="sp-stat">+298 ATK</span><span class="sp-stat">+162 DEF</span></td></tr>
+    <tr><th scope="row">钛 <span class="sp-lvl">Lv 190</span></th><td>1.21×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+43 ATK</span><span class="sp-stat">+19 DEF</span></td><td><span class="sp-stat">+136 ATK</span><span class="sp-stat">+70 DEF</span></td><td><span class="sp-stat">+306 ATK</span><span class="sp-stat">+166 DEF</span></td></tr>
+    <tr><th scope="row">蛋白石 <span class="sp-lvl">Lv 205</span></th><td>1.24×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+44 ATK</span><span class="sp-stat">+19 DEF</span></td><td><span class="sp-stat">+140 ATK</span><span class="sp-stat">+71 DEF</span></td><td><span class="sp-stat">+313 ATK</span><span class="sp-stat">+171 DEF</span></td></tr>
+    <tr><th scope="row">宝石 <span class="sp-lvl">Lv 220</span></th><td>1.27×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+45 ATK</span><span class="sp-stat">+20 DEF</span></td><td><span class="sp-stat">+143 ATK</span><span class="sp-stat">+73 DEF</span></td><td><span class="sp-stat">+321 ATK</span><span class="sp-stat">+175 DEF</span></td></tr>
+    <tr><th scope="row">火山 <span class="sp-lvl">Lv 235</span></th><td>1.30×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+46 ATK</span><span class="sp-stat">+20 DEF</span></td><td><span class="sp-stat">+146 ATK</span><span class="sp-stat">+75 DEF</span></td><td><span class="sp-stat">+328 ATK</span><span class="sp-stat">+179 DEF</span></td></tr>
+    <tr><th scope="row">天界 <span class="sp-lvl">Lv 250</span></th><td>1.33×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+47 ATK</span><span class="sp-stat">+21 DEF</span></td><td><span class="sp-stat">+150 ATK</span><span class="sp-stat">+77 DEF</span></td><td><span class="sp-stat">+336 ATK</span><span class="sp-stat">+183 DEF</span></td></tr>
+    <tr><th scope="row">日耀 <span class="sp-lvl">Lv 300</span></th><td>1.36×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+48 ATK</span><span class="sp-stat">+21 DEF</span></td><td><span class="sp-stat">+153 ATK</span><span class="sp-stat">+78 DEF</span></td><td><span class="sp-stat">+344 ATK</span><span class="sp-stat">+187 DEF</span></td></tr>
+    <tr><th scope="row">月华 <span class="sp-lvl">Lv 350</span></th><td>1.39×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+50 ATK</span><span class="sp-stat">+22 DEF</span></td><td><span class="sp-stat">+157 ATK</span><span class="sp-stat">+80 DEF</span></td><td><span class="sp-stat">+351 ATK</span><span class="sp-stat">+191 DEF</span></td></tr>
+    <tr><th scope="row">日食 <span class="sp-lvl">Lv 400</span></th><td>1.42×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+51 ATK</span><span class="sp-stat">+22 DEF</span></td><td><span class="sp-stat">+160 ATK</span><span class="sp-stat">+82 DEF</span></td><td><span class="sp-stat">+359 ATK</span><span class="sp-stat">+195 DEF</span></td></tr>
+    <tr><th scope="row">星界 <span class="sp-lvl">Lv 450</span></th><td>1.45×</td><td><span class="sp-stat">+13 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+52 ATK</span><span class="sp-stat">+23 DEF</span></td><td><span class="sp-stat">+163 ATK</span><span class="sp-stat">+84 DEF</span></td><td><span class="sp-stat">+366 ATK</span><span class="sp-stat">+200 DEF</span></td></tr>
+    <tr><th scope="row">风暴 <span class="sp-lvl">Lv 600</span></th><td>1.50×</td><td><span class="sp-stat">+13 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+54 ATK</span><span class="sp-stat">+24 DEF</span></td><td><span class="sp-stat">+169 ATK</span><span class="sp-stat">+87 DEF</span></td><td><span class="sp-stat">+379 ATK</span><span class="sp-stat">+207 DEF</span></td></tr>
+    <tr><th scope="row">利维坦 <span class="sp-lvl">Lv 700</span></th><td>1.60×</td><td><span class="sp-stat">+14 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+57 ATK</span><span class="sp-stat">+25 DEF</span></td><td><span class="sp-stat">+180 ATK</span><span class="sp-stat">+92 DEF</span></td><td><span class="sp-stat">+404 ATK</span><span class="sp-stat">+220 DEF</span></td></tr>
+    <tr><th scope="row">黏液 <span class="sp-lvl">Lv 800</span></th><td>1.70×</td><td><span class="sp-stat">+15 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+61 ATK</span><span class="sp-stat">+27 DEF</span></td><td><span class="sp-stat">+192 ATK</span><span class="sp-stat">+98 DEF</span></td><td><span class="sp-stat">+430 ATK</span><span class="sp-stat">+234 DEF</span></td></tr>
+    <tr><th scope="row">棱晶 <span class="sp-lvl">Lv 900</span></th><td>1.80×</td><td><span class="sp-stat">+16 ATK</span><span class="sp-stat">+7 DEF</span></td><td><span class="sp-stat">+64 ATK</span><span class="sp-stat">+28 DEF</span></td><td><span class="sp-stat">+203 ATK</span><span class="sp-stat">+104 DEF</span></td><td><span class="sp-stat">+455 ATK</span><span class="sp-stat">+248 DEF</span></td></tr>
+    <tr><th scope="row">无限 <span class="sp-lvl">Lv 1000</span></th><td>1.90×</td><td><span class="sp-stat">+17 ATK</span><span class="sp-stat">+7 DEF</span></td><td><span class="sp-stat">+68 ATK</span><span class="sp-stat">+30 DEF</span></td><td><span class="sp-stat">+214 ATK</span><span class="sp-stat">+110 DEF</span></td><td><span class="sp-stat">+480 ATK</span><span class="sp-stat">+262 DEF</span></td></tr>
+    <tr><th scope="row">等离子 <span class="sp-lvl">Lv 1250</span></th><td>2.00×</td><td><span class="sp-stat">+18 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+72 ATK</span><span class="sp-stat">+32 DEF</span></td><td><span class="sp-stat">+226 ATK</span><span class="sp-stat">+116 DEF</span></td><td><span class="sp-stat">+506 ATK</span><span class="sp-stat">+276 DEF</span></td></tr>
+    <tr><th scope="row">云 <span class="sp-lvl">Lv 1500</span></th><td>2.10×</td><td><span class="sp-stat">+18 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+75 ATK</span><span class="sp-stat">+33 DEF</span></td><td><span class="sp-stat">+237 ATK</span><span class="sp-stat">+121 DEF</span></td><td><span class="sp-stat">+531 ATK</span><span class="sp-stat">+289 DEF</span></td></tr>
+    <tr><th scope="row">聚变 <span class="sp-lvl">Lv 1750</span></th><td>2.20×</td><td><span class="sp-stat">+19 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+79 ATK</span><span class="sp-stat">+35 DEF</span></td><td><span class="sp-stat">+248 ATK</span><span class="sp-stat">+127 DEF</span></td><td><span class="sp-stat">+556 ATK</span><span class="sp-stat">+303 DEF</span></td></tr>
+    <tr><th scope="row">反物质 <span class="sp-lvl">Lv 2000</span></th><td>2.30×</td><td><span class="sp-stat">+20 ATK</span><span class="sp-stat">+9 DEF</span></td><td><span class="sp-stat">+82 ATK</span><span class="sp-stat">+36 DEF</span></td><td><span class="sp-stat">+259 ATK</span><span class="sp-stat">+133 DEF</span></td><td><span class="sp-stat">+581 ATK</span><span class="sp-stat">+317 DEF</span></td></tr>
+  </tbody></table></div>
+  </details>
+  <script type="application/json" id="sp-scaling-data">{"atk":[1,1,2,2,3,4,4,5,6,8,10,12,15,18,22,24,26,28,30,32],"def":[0,1,1,1,1,1,2,2,3,4,5,6,8,10,13,14,15,16,17,18],"tiers":[{"key":"bronze","label":"Tin","level":1,"mult":1},{"key":"iron","label":"Copper","level":30,"mult":1.03},{"key":"steel","label":"Quartz","level":60,"mult":1.06},{"key":"mithril","label":"Silver","level":90,"mult":1.09},{"key":"adamant","label":"Platinum","level":120,"mult":1.12},{"key":"rune","label":"Cobalt","level":150,"mult":1.15},{"key":"slime","label":"Jade","level":170,"mult":1.18},{"key":"crystal","label":"Titanium","level":190,"mult":1.21},{"key":"ember","label":"Opal","level":205,"mult":1.24},{"key":"frost","label":"Gem","level":220,"mult":1.27},{"key":"volcanic","label":"Volcanic","level":235,"mult":1.3},{"key":"celestial","label":"Celestial","level":250,"mult":1.33},{"key":"solar","label":"Solar","level":300,"mult":1.36},{"key":"lunar","label":"Lunar","level":350,"mult":1.39},{"key":"eclipse","label":"Eclipse","level":400,"mult":1.42},{"key":"astral","label":"Astral","level":450,"mult":1.45},{"key":"storm","label":"Storm","level":600,"mult":1.5},{"key":"leviathan","label":"Leviathan","level":700,"mult":1.6},{"key":"goo","label":"Goo","level":800,"mult":1.7},{"key":"prism","label":"Prism","level":900,"mult":1.8},{"key":"infinity","label":"Infinity","level":1000,"mult":1.9},{"key":"plasma","label":"Plasma","level":1250,"mult":2},{"key":"cloud","label":"Cloud","level":1500,"mult":2.1},{"key":"fusion","label":"Fusion","level":1750,"mult":2.2},{"key":"antimatter","label":"Antimatter","level":2000,"mult":2.3}]}</script>
+  <script>(()=>{const d=JSON.parse(document.getElementById("sp-scaling-data").textContent),tier=document.getElementById("sp-calc-tier"),stars=document.getElementById("sp-calc-stars");
+  const sum=(per,n)=>{let s=0;for(let i=0;i<n;i++)s+=per[i]||0;return s;},bonus=(per,n,m)=>Math.floor(sum(per,n)*m),f=n=>n.toLocaleString("en-US");
+  const draw=()=>{const t=d.tiers.find(x=>x.key===tier.value)||d.tiers[0],n=Number(stars.value)||0,a=bonus(d.atk,n,t.mult),b=bonus(d.def,n,t.mult);
+  document.getElementById("sp-calc-stars-out").textContent="SP"+n;document.getElementById("sp-calc-atk").textContent="+"+f(a);document.getElementById("sp-calc-def").textContent="+"+f(b);
+  document.getElementById("sp-calc-next").textContent=n<d.atk.length?"Next level: +"+f(bonus(d.atk,n+1,t.mult)-a)+" ATK, +"+f(bonus(d.def,n+1,t.mult)-b)+" DEF":"Max SlimePower";};
+  tier.value=d.tiers[d.tiers.length-1].key;tier.addEventListener("change",draw);stars.addEventListener("input",draw);draw();})();</script>
+  <!-- AUTOGEN:slimepower-scaling END -->
+
+<div class="card" id="sec-transpose"><h3>升级装备时保留好的潜能词条</h3><p>洗衣机的 <strong>转移</strong> 会把旧装备上的全部潜能词条移到新装备上。仔细选来源和目标：成功会移除来源词条并替换目标词条。失败则两边词条都保留，但仍消耗充能。面板会显示目标装备的充能消耗，以及转移或提升转移的几率。</p></div>
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -1407,27 +1605,27 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
     <div class="tier-item skill-row" data-skill="sk-fishing"><span class="tier-swatch" style="background:#6090a0;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F3A3;</span><span class="tier-name">钓鱼</span><span class="tier-meta">在水域钓点钓鱼 &bull; 生鱼用于烹饪</span></div>
     <div class="skill-collapse" id="sk-fishing"><div class="tier-strip">
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e0a090"></span><span class="tier-name">Shrimp</span><div class="tier-detail"><span>56 xp</span><span>5c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#60b0c8"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>130 xp</span><span>7c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>180 xp</span><span>9c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>269 xp</span><span>12c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>349 xp</span><span>15c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>539 xp</span><span>18c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 135</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>699 xp</span><span>22c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 170</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">Lionfish</span><div class="tier-detail"><span>860 xp</span><span>25c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 185</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>1080 xp</span><span>28c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">Pufferfish</span><div class="tier-detail"><span>1350 xp</span><span>32c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">Piranha</span><div class="tier-detail"><span>1680 xp</span><span>36c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">Anglerfish</span><div class="tier-detail"><span>2050 xp</span><span>40c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">Humphead</span><div class="tier-detail"><span>2500 xp</span><span>45c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 325</span><span class="tier-swatch" style="background:#e04020"></span><span class="tier-name">Oarfish</span><div class="tier-detail"><span>2750 xp</span><span>49c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">Mandarin Fish</span><div class="tier-detail"><span>3100 xp</span><span>52c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 375</span><span class="tier-swatch" style="background:#ff40a0"></span><span class="tier-name">Gulper Eel</span><div class="tier-detail"><span>3450 xp</span><span>55c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">Koi</span><div class="tier-detail"><span>3800 xp</span><span>58c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">Anglerking</span><div class="tier-detail"><span>4200 xp</span><span>61c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">Betta</span><div class="tier-detail"><span>4600 xp</span><span>65c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 475</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name">Parrot Fish</span><div class="tier-detail"><span>5200 xp</span><span>68c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 500</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name">Bluefish</span><div class="tier-detail"><span>5800 xp</span><span>75c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e0a090"></span><span class="tier-name">虾</span><div class="tier-detail"><span>56 xp</span><span>5c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#60b0c8"></span><span class="tier-name">鳟鱼</span><div class="tier-detail"><span>130 xp</span><span>7c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">鲑鱼</span><div class="tier-detail"><span>180 xp</span><span>9c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">龙虾</span><div class="tier-detail"><span>269 xp</span><span>12c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">鲭鱼</span><div class="tier-detail"><span>349 xp</span><span>15c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">剑鱼</span><div class="tier-detail"><span>539 xp</span><span>18c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 135</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">金枪鱼</span><div class="tier-detail"><span>699 xp</span><span>22c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 170</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">狮子鱼</span><div class="tier-detail"><span>860 xp</span><span>25c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 185</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">蝠鲼</span><div class="tier-detail"><span>1080 xp</span><span>28c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">河豚</span><div class="tier-detail"><span>1350 xp</span><span>32c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">食人鱼</span><div class="tier-detail"><span>1680 xp</span><span>36c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">安康鱼</span><div class="tier-detail"><span>2050 xp</span><span>40c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">隆头鱼</span><div class="tier-detail"><span>2500 xp</span><span>45c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 325</span><span class="tier-swatch" style="background:#e04020"></span><span class="tier-name">皇带鱼</span><div class="tier-detail"><span>2750 xp</span><span>49c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">鳜鱼</span><div class="tier-detail"><span>3100 xp</span><span>52c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 375</span><span class="tier-swatch" style="background:#ff40a0"></span><span class="tier-name">大嘴鳗</span><div class="tier-detail"><span>3450 xp</span><span>55c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">锦鲤</span><div class="tier-detail"><span>3800 xp</span><span>58c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">安康王</span><div class="tier-detail"><span>4200 xp</span><span>61c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">斗鱼</span><div class="tier-detail"><span>4600 xp</span><span>65c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 475</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name">鹦鹉鱼</span><div class="tier-detail"><span>5200 xp</span><span>68c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 500</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name">蓝鱼</span><div class="tier-detail"><span>5800 xp</span><span>75c</span></div></div>
     </div><div class="tip">稀有掉落：金鱼（3%）。钓鱼狂热：鱼点发紫光 &mdash; 点击可获 3 倍 经验 与奖杯箱鲀！</div></div>
 
     <div class="tier-item skill-row" data-skill="sk-mining"><span class="tier-swatch" style="background:#a0a0a0;display:flex;align-items:center;justify-content:center;font-size:20px">&#x26CF;&#xFE0F;</span><span class="tier-name">采矿</span><span class="tier-meta">开采岩石获得矿石 &bull; 出售或制作</span></div>
@@ -1649,6 +1847,78 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name">洗衣机的 经验 加成</span><span class="tier-meta">每条 经验 词条 +1% 加成</span></div>
     </div>
   </div>
+
+<div id="sec-boss-scrolls"><div class="tip">在抄写台制作 <strong>Boss 附魔卷轴</strong>。每个配方用 <strong>5 张空白卷轴 + 1 个 Boss 掉落</strong>。</div>
+<!-- AUTOGEN:boss-scrolls START -->
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Boss 附魔卷轴配方"><table class="guide-table"><caption>Boss 附魔卷轴配方</caption><thead><tr><th scope="col">抄写等级</th><th scope="col">卷轴</th><th scope="col">材料</th><th scope="col">基础 XP</th></tr></thead><tbody>
+    <tr><th scope="row">1</th><td>毒液卷轴</td><td>5 × 空白卷轴 + 1 × 蛇鳞</td><td>1,000</td></tr>
+    <tr><th scope="row">10</th><td>岩石卷轴</td><td>5 × 空白卷轴 + 1 × 魔像核心</td><td>1,800</td></tr>
+    <tr><th scope="row">20</th><td>黏液卷轴</td><td>5 × 空白卷轴 + 1 × 蜂王浆</td><td>2,800</td></tr>
+    <tr><th scope="row">30</th><td>冰霜卷轴</td><td>5 × 空白卷轴 + 1 × 冰冻之心</td><td>4,400</td></tr>
+    <tr><th scope="row">40</th><td>龙卷轴</td><td>5 × 空白卷轴 + 1 × 龙鳞</td><td>7,200</td></tr>
+    <tr><th scope="row">50</th><td>骷髅卷轴</td><td>5 × 空白卷轴 + 1 × 骷髅颅骨</td><td>12,000</td></tr>
+    <tr><th scope="row">60</th><td>蜘蛛卷轴</td><td>5 × 空白卷轴 + 1 × 蜘蛛毒牙</td><td>18,000</td></tr>
+    <tr><th scope="row">62</th><td>老鼠卷轴</td><td>5 × 空白卷轴 + 1 × 鼠奶酪</td><td>20,000</td></tr>
+    <tr><th scope="row">70</th><td>巫师卷轴</td><td>5 × 空白卷轴 + 1 × 奥术碎片</td><td>26,000</td></tr>
+    <tr><th scope="row">80</th><td>外星卷轴</td><td>5 × 空白卷轴 + 1 × 外星核心</td><td>38,000</td></tr>
+    <tr><th scope="row">81</th><td>鳄鱼卷轴</td><td>5 × Blank Scroll + 1 × Croc Scale</td><td>40,000</td></tr>
+    <tr><th scope="row">82</th><td>鲜花卷轴</td><td>5 × 空白卷轴 + 1 × 蜂巢</td><td>34,000</td></tr>
+    <tr><th scope="row">88</th><td>沼泽卷轴</td><td>5 × 空白卷轴 + 1 × 蛙腿</td><td>46,000</td></tr>
+  </tbody></table></div>
+  <!-- AUTOGEN:boss-scrolls END --></div>
+    <div id="sec-resource-scrolls"><p>资源卷轴训练宠物的对应技能。表中列出制作所需的抄写等级和 XP。</p>
+    <!-- AUTOGEN:resource-scrolls START -->
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="资源卷轴配方"><table class="guide-table"><caption>资源卷轴配方</caption><thead><tr><th scope="col">抄写等级</th><th scope="col">卷轴</th><th scope="col">材料</th><th scope="col">基础 XP</th></tr></thead><tbody>
+    <tr><th scope="row">1</th><td>空白卷轴</td><td>5 × 纤维 + 5 × 竹子 + 5 × 线</td><td>25</td></tr>
+    <tr><th scope="row">1</th><td>伐木卷轴 I</td><td>1 × 空白卷轴 + 50 × 原木</td><td>300</td></tr>
+    <tr><th scope="row">20</th><td>伐木卷轴 II</td><td>1 × 空白卷轴 + 50 × 白桦原木</td><td>500</td></tr>
+    <tr><th scope="row">30</th><td>伐木卷轴 III</td><td>1 × 空白卷轴 + 50 × 橡木原木</td><td>800</td></tr>
+    <tr><th scope="row">90</th><td>伐木卷轴 IV</td><td>1 × 空白卷轴 + 50 × 棕榈原木</td><td>1,200</td></tr>
+    <tr><th scope="row">110</th><td>伐木卷轴 V</td><td>1 × 空白卷轴 + 50 × 枫木原木</td><td>1,800</td></tr>
+    <tr><th scope="row">140</th><td>伐木卷轴 VI</td><td>1 × 空白卷轴 + 50 × 松木原木</td><td>2,500</td></tr>
+    <tr><th scope="row">170</th><td>伐木卷轴 VII</td><td>1 × 空白卷轴 + 50 × 雪松原木</td><td>3,500</td></tr>
+    <tr><th scope="row">200</th><td>伐木卷轴 VIII</td><td>1 × 空白卷轴 + 50 × 仙人掌木</td><td>4,200</td></tr>
+    <tr><th scope="row">235</th><td>伐木卷轴 IX</td><td>1 × 空白卷轴 + 50 × 丝带木</td><td>5,000</td></tr>
+    <tr><th scope="row">265</th><td>伐木卷轴 X</td><td>1 × 空白卷轴 + 50 × 糖果木</td><td>6,000</td></tr>
+    <tr><th scope="row">300</th><td>伐木卷轴 XI</td><td>1 × 空白卷轴 + 50 × 根木</td><td>7,200</td></tr>
+    <tr><th scope="row">1</th><td>采矿卷轴 I</td><td>1 × 空白卷轴 + 50 × 矿石</td><td>300</td></tr>
+    <tr><th scope="row">15</th><td>采矿卷轴 II</td><td>1 × 空白卷轴 + 50 × 锡矿</td><td>500</td></tr>
+    <tr><th scope="row">30</th><td>采矿卷轴 III</td><td>1 × 空白卷轴 + 50 × 铜矿石</td><td>800</td></tr>
+    <tr><th scope="row">30</th><td>采矿卷轴 IV</td><td>1 × 空白卷轴 + 50 × 石英矿石</td><td>1,200</td></tr>
+    <tr><th scope="row">50</th><td>采矿卷轴 V</td><td>1 × 空白卷轴 + 50 × 银矿石</td><td>1,800</td></tr>
+    <tr><th scope="row">75</th><td>采矿卷轴 VI</td><td>1 × 空白卷轴 + 50 × 铂金矿石</td><td>2,500</td></tr>
+    <tr><th scope="row">100</th><td>采矿卷轴 VII</td><td>1 × 空白卷轴 + 50 × 钴矿石</td><td>3,500</td></tr>
+    <tr><th scope="row">135</th><td>采矿卷轴 VIII</td><td>1 × 空白卷轴 + 50 × 翡翠矿石</td><td>4,200</td></tr>
+    <tr><th scope="row">170</th><td>采矿卷轴 IX</td><td>1 × 空白卷轴 + 50 × 钛矿石</td><td>5,000</td></tr>
+    <tr><th scope="row">270</th><td>采矿卷轴 X</td><td>1 × 空白卷轴 + 50 × 天界矿石</td><td>6,000</td></tr>
+    <tr><th scope="row">310</th><td>采矿卷轴 XI</td><td>1 × 空白卷轴 + 50 × 日长石</td><td>7,200</td></tr>
+    <tr><th scope="row">1</th><td>钓鱼卷轴 I</td><td>1 × 空白卷轴 + 50 × 虾</td><td>300</td></tr>
+    <tr><th scope="row">15</th><td>钓鱼卷轴 II</td><td>1 × 空白卷轴 + 50 × 鳟鱼</td><td>500</td></tr>
+    <tr><th scope="row">30</th><td>钓鱼卷轴 III</td><td>1 × 空白卷轴 + 50 × 鲑鱼</td><td>800</td></tr>
+    <tr><th scope="row">50</th><td>钓鱼卷轴 IV</td><td>1 × 空白卷轴 + 50 × 龙虾</td><td>1,200</td></tr>
+    <tr><th scope="row">75</th><td>钓鱼卷轴 V</td><td>1 × 空白卷轴 + 50 × 鲭鱼</td><td>1,800</td></tr>
+    <tr><th scope="row">100</th><td>钓鱼卷轴 VI</td><td>1 × 空白卷轴 + 50 × 剑鱼</td><td>2,500</td></tr>
+    <tr><th scope="row">135</th><td>钓鱼卷轴 VII</td><td>1 × 空白卷轴 + 50 × 金枪鱼</td><td>3,500</td></tr>
+    <tr><th scope="row">170</th><td>钓鱼卷轴 VIII</td><td>1 × 空白卷轴 + 50 × 狮子鱼</td><td>4,200</td></tr>
+    <tr><th scope="row">200</th><td>钓鱼卷轴 IX</td><td>1 × 空白卷轴 + 50 × 河豚</td><td>5,000</td></tr>
+    <tr><th scope="row">270</th><td>钓鱼卷轴 X</td><td>1 × 空白卷轴 + 50 × 安康鱼</td><td>6,000</td></tr>
+    <tr><th scope="row">310</th><td>钓鱼卷轴 XI</td><td>1 × 空白卷轴 + 50 × 隆头鱼</td><td>7,200</td></tr>
+  </tbody></table></div>
+  <!-- AUTOGEN:resource-scrolls END -->
+    </div>
+    
+<div class="sec-head" id="sec-skill-capes"><div class="sec-icon" data-guide-icon data-icon="mining_trimmed_cape"></div><div><h2>技能披风 &amp; 镶边披风</h2><p>1000 级精通，2000 级镶边</p></div></div>
+  <div class="card"><p>某技能达到 <strong>1000 级</strong>，找对应技能大师领取技能披风。到 <strong>2000 级</strong>，把披风带回去选择镶边。镶边会保留该物品的强化和附魔。</p><p><strong>请看披风「查看」文本里的特效和生效规则。</strong> 许多采集和功能披风放在背包或穿上都有效；战斗披风特效需要穿在披风槽。</p><p>例如：采矿披风提高陨石产量；钓鱼披风帮助定位深海鱼群；探险家披风开启史莱姆雕像旅行。镶边披风效果更强，包括第二块农耕披风地块、更多陨石和竹子/树肉产量、更高金鱼几率，以及更强的战斗资源节省。</p><p>右键披风可设置旅行、绑定或首选左键操作（如有）。</p></div>
+</div>
+
+    <div class="tier-item skill-row" data-skill="sk-cooking"><span class="tier-swatch" style="background:#ff8040;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F373;</span><span class="tier-name">烹饪</span><span class="tier-meta">在营火烹饪生食 &bull; 降低烧焦几率</span></div>
+    <div class="skill-collapse" id="sk-cooking"><div class="card"><p>在营火烹饪生食，或在篝火组合食材。对照实际配方的等级、烧焦几率和治疗量再决定做什么。</p><p><a href="#sec-cooking">烹饪配方</a> · <a href="#sec-bonfire">篝火配方</a> · <a href="#sec-healing-food">治疗食物表</a></p></div></div>
+
+    <div class="tier-item skill-row" id="sec-explorer" data-skill="sk-explorer"><span class="tier-swatch" style="background:#40a8c8;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F5FA;&#xFE0F;</span><span class="tier-name">探险</span><span class="tier-meta">绘制岛屿海图 &bull; 完成航海大师任务</span></div>
+    <div class="skill-collapse" id="sk-explorer"><div class="card"><p>从港口出航，绘制岛屿海图并完成航海大师任务。<strong>所有岛屿阶位都可前往并绘制海图。</strong> 采集和战斗仍取决于你的技能和装备。</p><p><a href="#sec-islands">航海、岛屿阶位与遭遇</a> · <a href="#sec-sailing-tasks">航海大师任务</a></p></div></div>
+
+    <div class="tier-item" id="sec-hitpoints"><span class="tier-swatch" style="background:#e04040;font-size:20px">&#x2764;&#xFE0F;</span><span class="tier-name">生命值</span><span class="tier-meta">全部战斗获得 XP &bull; 初始 10 级</span></div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -1775,6 +2045,18 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="svc-card"><div class="svc-icon" style="background:rgba(255,200,80,.08);border-color:rgba(255,200,80,.18)">&#x1F4B1;</div><div><div class="svc-name">玩家交易所</div><div class="svc-desc">上架出售物品，或从全球其他玩家处购买</div></div></div>
   </div>
 
+  
+  <div class="sec-head" id="sec-housing"><div class="sec-icon" data-guide-icon data-icon="Home Stone">🏡</div><div><h2>玩家住房</h2><p>在 Ville 买房、装修并添加实用设施</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li>从大陆入口<strong>进入 Ville</strong>。打开<strong>地块</strong>浏览街区和可买房屋。</li>
+      <li><strong>用 Cozy券 买房。</strong>登录，背包里带够所需券，再查看地块的购买面板。后续升级用你房屋的面板；<strong>我的家</strong>能帮你再次找到它。</li>
+      <li><strong>进屋后选择装修。</strong>浏览家具、摆放并旋转，再用风格和房间控件改造房屋。点<strong>完成</strong>退出装修模式并使用房间。</li>
+      <li><strong>添加设施。</strong>可用家具包括银行存储、制作台、熔炉、锯木厂、抄写台、洗衣机和烹饪台。访客也可以使用支持的设施；仓储打开的是访客自己的银行。</li>
+    </ol>
+    <p>在 SlimeCoin 商店购买<strong>Cozy券</strong>。<strong>回家石</strong>可从支持的地点前往 Ville、你的房屋和宁静草地；菜单会显示充能和目的地。</p><p>目录区分<strong>所有人可用</strong>和<strong>暂为装饰</strong>。装饰物的外观并不代表有可用的小游戏或服务。</p>
+  </div>
+
   <div class="sec-head"><div class="sec-icon">&#x1F91D;</div><div><h2>多人</h2><p>与他人实时游玩</p></div></div>
 
   <div class="card">
@@ -1805,6 +2087,27 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <!-- ═══════════════════════════════════════ -->
 <!-- ═══ CLANS ════════════════════════════ -->
 <!-- ═══════════════════════════════════════ -->
+
+<div class="tab-content" id="tab-trading">
+  <div class="sec-head" id="sec-exchange"><div class="sec-icon" style="background:rgba(255,200,80,.10);border-color:rgba(255,200,80,.22)">&#x1F4B1;</div><div><h2>玩家交易所</h2><p>跨服物品 &amp; 装备交易市场</p></div></div>
+
+  <div class="card">
+    <p style="color:var(--ink-2);margin-bottom:8px"><strong>交易所</strong>是全球交易市场。已注册的非 Ironslime 玩家可以<strong>上架出售物品</strong>或<strong>挂买单</strong> - 挂单全局可见，任何玩家都可成交。与公会金库不同，交易所处理<strong>带史莱姆力量和潜能词条的装备</strong>，所以这里适合转移附魔装备。</p>
+    <div class="tier-strip">
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--accent)"></span><span class="tier-name"><strong>发布出售</strong></span><span class="tier-meta">从背包/银行挂出物品并设定单价</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--blue)"></span><span class="tier-name"><strong>发布买入</strong></span><span class="tier-meta">为想要的物品出价金币；卖家从库存履约</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--gold)"></span><span class="tier-name"><strong>上架手续费</strong></span><span class="tier-meta">发布时预先扣除 - 若取消未成交的挂单则<strong>退还</strong></span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name"><strong>结算</strong></span><span class="tier-meta">成交收益进入待领邮箱 - 随时领取</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--red)"></span><span class="tier-name"><strong>随时可取消</strong></span><span class="tier-meta">未成交挂单可撤回；托管物品退回你的背包</span></div>
+    </div>
+    <div class="tip">&#x1F4A1; 用交易所交易<strong>装备</strong>（会保留史莱姆力量 + 潜能词条）和大宗资源。用公会<strong>金库</strong>存放公会内共享物资。</div>
+  </div>
+
+
+  <div class="card" id="sec-player-trading"><h3>直接交易 &amp; 邮件</h3><p>直接交易时，打开对方的交互菜单并选择<strong>交易</strong>。接受前核对双方物品和金币。改过报价后需要重新接受。</p><p>打开<strong>邮箱</strong>阅读信件并领取附件或交易所结算。寄出玩家邮件前先核对收件人和内容。Ironslime 账号不能使用玩家交易或邮件。</p></div>
+  <div class="tip">使用交易所不必加入公会。打开玩家交易所服务即可浏览挂单、上架和领取已成交交易。Ironslime 账号不能使用。</div>
+</div>
+
 <div class="tab-content" id="tab-clans">
 
   <div class="sec-head" style="margin-top:4px"><div class="sec-icon" style="background:rgba(80,232,120,.10);border-color:rgba(80,232,120,.20)">&#x1F3F0;</div><div><h2>公会</h2><p>组建一支史莱姆小队 — 颜色、金库、共同目标。</p></div></div>
@@ -2129,6 +2432,26 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-swatch" style="background:#8ee0ff"></span><span class="tier-name">用宠物花园特技传送</span><span class="tier-meta">按 T 再点击大地图 &mdash; 节省走路时间</span></div>
     </div>
   </div>
+
+<div class="sec-head" id="sec-compost"><div class="sec-icon" style="background:rgba(120,180,80,.1);border-color:rgba(120,180,80,.2)">&#x1F331;</div><div><h2>堆肥 &amp; 充能</h2><p>向堆肥器投料以获得农耕充能</p></div></div>
+  <!-- AUTOGEN:compost START -->
+  <div class="card">
+    <p style="margin-top:0">把<strong>任意有机物品</strong>（浆果、作物、蘑菇、生食、骨头）丢进堆肥器换<strong>堆肥充能</strong>。更高阶作物返还<strong>每次多个充能</strong>。</p>
+    <table class="data-table" style="width:100%;margin:8px 0;border-collapse:collapse">
+      <thead><tr><th style="text-align:left">示例输入</th><th style="text-align:left">充能价值</th></tr></thead>
+      <tbody><tr><td>浆果、骨头、卷心菜</td><td>每 5 个物品 1 充能</td></tr><tr><td>番茄、玉米、西兰花</td><td>每 2 个物品 1 充能</td></tr><tr><td>柠檬、橙子、南瓜</td><td>2 充能 / 物品</td></tr><tr><td>韭葱、小麦、香蕉</td><td>3 充能 / 物品</td></tr><tr><td>樱桃、大蒜、芒果</td><td>4 充能 / 物品</td></tr><tr><td>石榴、火龙果、青柠</td><td>5 充能 / 物品</td></tr><tr><td>猕猴桃、木瓜、糖李</td><td>6 充能 / 物品</td></tr></tbody>
+    </table>
+    <p>种植时消耗充能以获得<strong>堆肥阶位</strong>加成：</p>
+  </div>
+  <div class="tier-strip">
+    <div class="tier-item"><span class="tier-badge tag-green">0⚡</span><span class="tier-name">无</span><div class="tier-detail"><span>无加成</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">1⚡</span><span class="tier-name">光</span><div class="tier-detail"><span>2× 产量</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">2⚡</span><span class="tier-name">华丽</span><div class="tier-detail"><span>2× 产量</span><span>50% faster growth</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">3⚡</span><span class="tier-name">超级</span><div class="tier-detail"><span>3× 产量</span><span>50% faster growth</span><span>免费种子</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">5⚡</span><span class="tier-name">超级</span><div class="tier-detail"><span>3× 产量</span><span>生长速度提升 50%</span><span>10% 稀有作物</span><span>免费种子</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">10⚡</span><span class="tier-name">究极</span><div class="tier-detail"><span>3× 产量</span><span>生长速度提升 50%</span><span>15% 稀有作物</span><span>1.5× XP</span><span>免费种子</span></div></div>
+  </div>
+  <!-- AUTOGEN:compost END -->
 </div>
 
 <!-- ═══════════════════════════════════════ -->

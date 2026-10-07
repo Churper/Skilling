@@ -124,6 +124,8 @@ body.embedded{background:var(--bg-deep)}
   text-shadow:0 1px 0 rgba(0,0,0,.3);
 }
 .sec-head p{font-size:.82rem;color:var(--ink-3);margin-top:2px}
+#tab-containers .sec-icon[data-guide-icon]{width:96px;height:96px;background:transparent;border:0;box-shadow:none}
+#tab-containers .sec-icon[data-guide-icon] img{width:96px;height:96px;object-fit:contain}
 
 /* Reference tables and in-page links */
 .tab-content a{color:var(--accent);text-underline-offset:3px}
@@ -389,6 +391,21 @@ kbd{
 
 .divider{border:none;border-top:1px solid var(--border);margin:20px 0}
 
+/* SlimePower scaling calculator (generated block) */
+.sp-calc{display:flex;flex-direction:column;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.sp-calc h3{font-size:.95rem;color:var(--ink-1)}
+.sp-calc input[type=range]{width:100%;accent-color:var(--accent)}
+.sp-calc output{color:var(--accent);margin-left:6px}
+.sp-calc-out{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.88rem;color:var(--ink-2)}
+.sp-calc-out strong{color:var(--gold);font-size:1.05rem}
+.sp-lvl{display:block;font-size:.72rem;font-weight:400;color:var(--ink-3)}
+.sp-stat{display:block;white-space:nowrap}
+.sp-stat + .sp-stat{color:var(--ink-3)}
+.sp-reference{margin:14px 0;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-surface)}
+.sp-reference summary{padding:14px;cursor:pointer;color:var(--accent);font-size:.88rem;font-weight:600}
+.sp-reference summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sp-reference .guide-table-wrap{margin:0;border:0;border-top:1px solid var(--border);border-radius:0 0 var(--radius-sm) var(--radius-sm)}
+
 /* ═══════════════ STAR TABLE ═══════════════ */
 table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.82rem}
 .star-tbl th{background:var(--bg-surface);text-align:left;padding:6px 10px;font-weight:600;border:1px solid var(--border);color:var(--ink-3);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px}
@@ -520,6 +537,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <div class="tabs" id="tabs" role="tablist" aria-label="Guide topics">
   <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>Basics</button>
   <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>Gathering</button>
+  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>Containers</button>
   <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>Combat</button>
   <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>Gear</button>
   <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>Food</button>
@@ -887,6 +905,91 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 </div>
 
 <!-- ═══════════════════════════════════════ -->
+<!-- ═══ CONTAINERS ═══════════════════════ -->
+<!-- ═══════════════════════════════════════ -->
+<div class="tab-content" id="tab-containers">
+  <!-- AUTOGEN:containers START -->
+  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>Containers</h2><p>Storage for gathered items</p></div></div>
+  <div class="card">
+    <p>Containers automatically store matching items when carried in your bag. Each uses <strong>one slot</strong>. Right-click a container to empty it.</p>
+    <p>You can own one of each container. You cannot receive a duplicate as a drop. Containers do not affect XP, yield or gathering speed.</p>
+    <p>Drop rates below are base rates. <a href="#sec-container-luck">Luck</a> increases container drop and Fish Bucket upgrade chances.</p>
+  </div>
+
+  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>Log Basket</h2><p>Level 600+ logs</p></div></div>
+  <div class="card">
+    <p><strong>Stores:</strong> all <a href="#sec-woodcutting">level 600+ logs</a>.</p>
+    <p><strong>Found:</strong> 1/100 per successful chop of those trees, or 1/100 per <strong>Swamp Frog</strong> kill.</p>
+    <p><strong>Capacity:</strong> 100 logs. Buy permanent upgrades from the <strong>Woodcutter</strong> with Diamonds.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Log Basket upgrades"><table class="guide-table"><caption>Log Basket upgrades</caption><thead><tr><th scope="col">Capacity</th><th scope="col">Cost</th><th scope="col">Total spent</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>25 Diamonds</td><td>25 Diamonds</td></tr>
+    <tr><th scope="row">200</th><td>75 Diamonds</td><td>100 Diamonds</td></tr>
+    <tr><th scope="row">250</th><td>150 Diamonds</td><td>250 Diamonds</td></tr>
+    <tr><th scope="row">300</th><td>300 Diamonds</td><td>550 Diamonds</td></tr>
+    <tr><th scope="row">400</th><td>600 Diamonds</td><td>1,150 Diamonds</td></tr>
+    <tr><th scope="row">500</th><td>1,000 Diamonds</td><td>2,150 Diamonds</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>Ore Pouch</h2><p>Level 600+ ores</p></div></div>
+  <div class="card">
+    <p><strong>Stores:</strong> all <a href="#sec-mining">level 600+ ores</a>.</p>
+    <p><strong>Buy:</strong> 1 Pearl from the <strong>Coal Miner</strong> at Mining 600. Also drops from <strong>Rock Golem</strong>: 1/100 per kill.</p>
+    <p><strong>Capacity:</strong> 100 ores. Buy permanent upgrades from the <strong>Coal Miner</strong> with Pearls.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Ore Pouch upgrades"><table class="guide-table"><caption>Ore Pouch upgrades</caption><thead><tr><th scope="col">Capacity</th><th scope="col">Cost</th><th scope="col">Total spent</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>2 Pearls</td><td>2 Pearls</td></tr>
+    <tr><th scope="row">200</th><td>5 Pearls</td><td>7 Pearls</td></tr>
+    <tr><th scope="row">250</th><td>10 Pearls</td><td>17 Pearls</td></tr>
+    <tr><th scope="row">300</th><td>20 Pearls</td><td>37 Pearls</td></tr>
+    <tr><th scope="row">400</th><td>35 Pearls</td><td>72 Pearls</td></tr>
+    <tr><th scope="row">500</th><td>60 Pearls</td><td>132 Pearls</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>Fish Bucket</h2><p>Level 600+ cave fish</p></div></div>
+  <div class="card">
+    <p><strong>Stores:</strong> all <a href="#sec-cave-fishing">level 600+ cave fish</a>.</p>
+    <p><strong>Found:</strong> 1/100 per catch at those cave fishing spots.</p>
+    <p><strong>Capacity:</strong> 100 fish. Further cave catches can upgrade the bucket to the next capacity below.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Fish Bucket upgrades"><table class="guide-table"><caption>Fish Bucket upgrades</caption><thead><tr><th scope="col">Capacity</th><th scope="col">Base chance per cave catch</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>1/200</td></tr>
+    <tr><th scope="row">200</th><td>1/400</td></tr>
+    <tr><th scope="row">250</th><td>1/800</td></tr>
+    <tr><th scope="row">300</th><td>1/1,600</td></tr>
+    <tr><th scope="row">400</th><td>1/3,200</td></tr>
+    <tr><th scope="row">500</th><td>1/6,400</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>Frenzy Bag</h2><p>Frenzy rewards</p></div></div>
+  <div class="card">
+    <p><strong>Stores:</strong> enchanted wood, gold pieces, Meteor Cores and <a href="#sec-fish-frenzy">frenzy fish</a>.</p>
+    <p><strong>Buy:</strong> <strong>1,000,000 coins</strong> from <strong>Mystic Slime</strong>.</p>
+    <p><strong>Capacity:</strong> 100 items, up to 1,000. Each Mystic Slime chore permanently adds 100 spaces. Complete them in any order.</p>
+    <p>Right-click the bag to view your Frenzy Charms or turn Auto Frenzy on or off.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Frenzy Bag chores (Mystic Slime)"><table class="guide-table"><caption>Frenzy Bag chores (Mystic Slime)</caption><thead><tr><th scope="col">Chore</th><th scope="col">Capacity</th></tr></thead><tbody>
+    <tr><th scope="row">Charge Mystic's Orb</th><td>+100</td></tr>
+    <tr><th scope="row">10,000 Bird Nests</th><td>+100</td></tr>
+    <tr><th scope="row">5,000 Uncut Gems</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 Apples</th><td>+100</td></tr>
+    <tr><th scope="row">Give fame to 10 players</th><td>+100</td></tr>
+    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
+    <tr><th scope="row">5 each: Sapphire → Onyx</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 Purple Spellstones</th><td>+100</td></tr>
+    <tr><th scope="row">Reach 3,000 total level</th><td>+100</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>Luck</h2><p>Drop and upgrade chances</p></div></div>
+  <div class="card">
+    <p>Luck increases container drop rates and Fish Bucket upgrade chances. For example, +50% Luck raises a 1% chance to 1.5%. Lucky Duck raises it to 3%.</p>
+    <p>Luck bonuses add together: gear potential lines (2–10% each), <strong>Lucky Duck</strong> (+200% for 10min) and the <strong>Dojo Champion</strong> ring.</p>
+    <p>Hard mode does not increase container drop rates from Swamp Frog or Rock Golem. Luck also increases frenzy frequency, but does not affect the Frenzy Bag's price or upgrades.</p>
+  </div>
+  <!-- AUTOGEN:containers END -->
+</div>
+
+<!-- ═══════════════════════════════════════ -->
 <!-- ═══ COMBAT ═══════════════════════════ -->
 <!-- ═══════════════════════════════════════ -->
 <div class="tab-content" id="tab-combat">
@@ -975,12 +1078,12 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
   <div class="boss-card"><div class="boss-icon">💜</div><div class="boss-info"><div class="boss-name">Slime Daddy</div><div class="boss-stats"><span>❤️ 100,000 HP</span><span>⚔️ 25-45 dmg</span></div><div class="boss-trophy">🏺 Royal Jelly (150c)</div><div class="boss-drops"><span class="drop-tag potion">Power Potion<span class="drop-chance"> 30%</span></span><span class="drop-tag">Cobalt gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Jade gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Slime Daddy Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 10%</span></span></div></div></div>
   <div class="boss-card"><div class="boss-icon">❄️</div><div class="boss-info"><div class="boss-name">Frost Yeti</div><div class="boss-stats"><span>❤️ 37,500 HP</span><span>⚔️ 18-28 dmg</span></div><div class="boss-trophy">🏺 Frozen Heart (300c)</div><div class="boss-drops"><span class="drop-tag potion">Swiftness Potion<span class="drop-chance"> 30%</span></span><span class="drop-tag">Jade gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Titanium gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Opal gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Yeti Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 12%</span></span></div></div></div>
   <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(255,69,0,.04))"><div class="boss-icon" style="background:rgba(255,69,0,.1);border-color:rgba(232,84,84,.2)">🐲</div><div class="boss-info"><div class="boss-name" style="color:#ff6030">Dragon</div><div class="boss-stats"><span>❤️ 150,000 HP</span><span>⚔️ 45-70 dmg</span></div><div class="boss-trophy">🏺 Dragon Scale (500c)</div><div class="boss-drops"><span class="drop-tag potion">Power Potion<span class="drop-chance"> 35%</span></span><span class="drop-tag">Opal gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Gem gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Dragon Amulet<span class="drop-chance"> 1/25</span></span><span class="drop-tag secondary">Dragon Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 14%</span></span></div></div></div>
-  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(232,232,232,.04))"><div class="boss-icon" style="background:rgba(232,232,232,.1);border-color:rgba(232,232,232,.2)">💀</div><div class="boss-info"><div class="boss-name" style="color:#d0d0d0">Skele Boss</div><div class="boss-stats"><span>❤️ 150,000 HP</span><span>⚔️ 360-660 dmg</span></div><div class="boss-trophy">🏺 Skele Skull (2,000c)</div><div class="boss-drops"><span class="drop-tag">Gem gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Skele Ring<span class="drop-chance"> 1/25</span></span><span class="drop-tag secondary">Skele Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 16%</span></span></div></div></div>
-  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(184,153,104,.04))"><div class="boss-icon" style="background:rgba(184,153,104,.1);border-color:rgba(184,153,104,.2)">🐀</div><div class="boss-info"><div class="boss-name" style="color:#b89968">Giant Rat</div><div class="boss-stats"><span>❤️ 350,000 HP</span><span>⚔️ 440-800 dmg</span></div><div class="boss-trophy">🏺 Rat Cheese (2,500c)</div><div class="boss-drops"><span class="drop-tag">Gem gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Rat Shield<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">Rat Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 17%</span></span></div></div></div>
-  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(139,71,137,.04))"><div class="boss-icon" style="background:rgba(139,71,137,.1);border-color:rgba(139,71,137,.2)">🕷️</div><div class="boss-info"><div class="boss-name" style="color:#8b4789">Spider Queen</div><div class="boss-stats"><span>❤️ 450,000 HP</span><span>⚔️ 350-700 dmg</span></div><div class="boss-trophy">🏺 Spider Fang (3,000c)</div><div class="boss-drops"><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Solar piece<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">Spider Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 18%</span></span></div></div></div>
-  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(123,104,238,.04))"><div class="boss-icon" style="background:rgba(123,104,238,.1);border-color:rgba(123,104,238,.2)">🧙</div><div class="boss-info"><div class="boss-name" style="color:#7b68ee">Dark Wizard</div><div class="boss-stats"><span>❤️ 650,000 HP</span><span>⚔️ 400-800 dmg</span></div><div class="boss-trophy">🏺 Arcane Shard (5,000c)</div><div class="boss-drops"><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Celestial gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Wizard Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 20%</span></span></div></div></div>
+  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(232,232,232,.04))"><div class="boss-icon" style="background:rgba(232,232,232,.1);border-color:rgba(232,232,232,.2)">💀</div><div class="boss-info"><div class="boss-name" style="color:#d0d0d0">Skele Boss</div><div class="boss-stats"><span>❤️ 150,000 HP</span><span>⚔️ 360-660 dmg</span></div><div class="boss-trophy">🏺 Skele Skull (2,000c)</div><div class="boss-drops"><span class="drop-tag potion">Reclaim Potion<span class="drop-chance"> 1%</span></span><span class="drop-tag">Gem gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Skele Ring<span class="drop-chance"> 1/25</span></span><span class="drop-tag secondary">Skele Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 16%</span></span></div></div></div>
+  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(184,153,104,.04))"><div class="boss-icon" style="background:rgba(184,153,104,.1);border-color:rgba(184,153,104,.2)">🐀</div><div class="boss-info"><div class="boss-name" style="color:#b89968">Giant Rat</div><div class="boss-stats"><span>❤️ 350,000 HP</span><span>⚔️ 440-800 dmg</span></div><div class="boss-trophy">🏺 Rat Cheese (2,500c)</div><div class="boss-drops"><span class="drop-tag potion">Reclaim Potion<span class="drop-chance"> 1%</span></span><span class="drop-tag">Gem gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Rat Shield<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">Rat Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 17%</span></span></div></div></div>
+  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(139,71,137,.04))"><div class="boss-icon" style="background:rgba(139,71,137,.1);border-color:rgba(139,71,137,.2)">🕷️</div><div class="boss-info"><div class="boss-name" style="color:#8b4789">Spider Queen</div><div class="boss-stats"><span>❤️ 450,000 HP</span><span>⚔️ 350-700 dmg</span></div><div class="boss-trophy">🏺 Spider Fang (3,000c)</div><div class="boss-drops"><span class="drop-tag potion">Reclaim Potion<span class="drop-chance"> 1%</span></span><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Solar piece<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">Spider Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 18%</span></span></div></div></div>
+  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(123,104,238,.04))"><div class="boss-icon" style="background:rgba(123,104,238,.1);border-color:rgba(123,104,238,.2)">🧙</div><div class="boss-info"><div class="boss-name" style="color:#7b68ee">Dark Wizard</div><div class="boss-stats"><span>❤️ 650,000 HP</span><span>⚔️ 400-800 dmg</span></div><div class="boss-trophy">🏺 Arcane Shard (5,000c)</div><div class="boss-drops"><span class="drop-tag potion">Reclaim Potion<span class="drop-chance"> 1%</span></span><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Celestial gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Wizard Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 20%</span></span></div></div></div>
   <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(0,217,255,.04))"><div class="boss-icon" style="background:rgba(0,217,255,.1);border-color:rgba(0,217,255,.2)">👽</div><div class="boss-info"><div class="boss-name" style="color:#00d9ff">Alien Overlord</div><div class="boss-stats"><span>❤️ 1,000,000 HP</span><span>⚔️ 500-1000 dmg</span></div><div class="boss-trophy">🏺 Alien Core (8,000c)</div><div class="boss-drops"><span class="drop-tag potion">Accuracy Potion<span class="drop-chance"> 35%</span></span><span class="drop-tag">Celestial gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Lunar piece<span class="drop-chance"> 1/150</span></span><span class="drop-tag secondary">Alien Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 22%</span></span></div></div></div>
-  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(244,196,48,.04))"><div class="boss-icon" style="background:rgba(244,196,48,.1);border-color:rgba(244,196,48,.2)">🐝</div><div class="boss-info"><div class="boss-name" style="color:#f4c430">Bee</div><div class="boss-stats"><span>❤️ 2,000,000 HP</span><span>⚔️ 360-600 dmg</span></div><div class="boss-trophy">🏺 Honeycomb (9,000c)</div><div class="boss-drops"><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Celestial gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Solar piece<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">Bee Ring<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">Bee Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 24%</span></span></div></div></div>
+  <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(244,196,48,.04))"><div class="boss-icon" style="background:rgba(244,196,48,.1);border-color:rgba(244,196,48,.2)">🐝</div><div class="boss-info"><div class="boss-name" style="color:#f4c430">Bee</div><div class="boss-stats"><span>❤️ 2,000,000 HP</span><span>⚔️ 360-600 dmg</span></div><div class="boss-trophy">🏺 Honeycomb (9,000c)</div><div class="boss-drops"><span class="drop-tag potion">Reclaim Potion<span class="drop-chance"> 1%</span></span><span class="drop-tag">Volcanic gear<span class="drop-chance"> 10%</span></span><span class="drop-tag">Celestial gear<span class="drop-chance"> 10%</span></span><span class="drop-tag secondary">Solar piece<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">Bee Ring<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">Bee Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 24%</span></span></div></div></div>
   <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(87,183,162,.04))"><div class="boss-icon" style="background:rgba(87,183,162,.1);border-color:rgba(87,183,162,.2)">🐊</div><div class="boss-info"><div class="boss-name" style="color:#57b7a2">Crocodile</div><div class="boss-stats"><span>❤️ 3,333,333 HP</span><span>⚔️ 660-1080 dmg</span></div><div class="boss-trophy">🏺 Croc Scale (8,500c)</div><div class="boss-drops"><span class="drop-tag">Celestial gear<span class="drop-chance"> 11%</span></span><span class="drop-tag">Lunar gear<span class="drop-chance"> 11%</span></span><span class="drop-tag secondary">Croc Shield<span class="drop-chance"> 1/60</span></span><span class="drop-tag secondary">Lunar piece<span class="drop-chance"> 1/130</span></span><span class="drop-tag secondary">Reclaim Potion<span class="drop-chance"> 1/90</span></span><span class="drop-tag secondary">Crocodile's Jaw<span class="drop-chance"> 1/250</span></span><span class="drop-tag secondary">Meat Sprout<span class="drop-chance"> 1/100</span></span><span class="drop-tag secondary">Lucky Duck<span class="drop-chance"> 1/75</span></span><span class="drop-tag secondary">Croc Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 25%</span></span></div></div></div>
   <div class="boss-card" style="background:linear-gradient(135deg,var(--bg-card),rgba(111,207,79,.04))"><div class="boss-icon" style="background:rgba(111,207,79,.1);border-color:rgba(111,207,79,.2)">🐸</div><div class="boss-info"><div class="boss-name" style="color:#6fcf4f">Swamp Frog</div><div class="boss-stats"><span>❤️ 5,000,000 HP</span><span>⚔️ 960-1560 dmg</span></div><div class="boss-trophy">🏺 Frog Legs (12,000c)</div><div class="boss-drops"><span class="drop-tag">Celestial gear<span class="drop-chance"> 12%</span></span><span class="drop-tag">Lunar gear<span class="drop-chance"> 12%</span></span><span class="drop-tag secondary">Lunar piece<span class="drop-chance"> 1/120</span></span><span class="drop-tag secondary">Reclaim Potion<span class="drop-chance"> 1/80</span></span><span class="drop-tag secondary">Frog Paintbrush<span class="drop-chance"> 1/1000</span></span><span class="drop-tag potion">SlimeCoin<span class="drop-chance"> 26%</span></span></div></div></div>
   </div>
@@ -1088,7 +1191,7 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
 
   <div class="sec-head" id="sec-slimepower"><div class="sec-icon">🟢</div><div><h2>SlimePower</h2><p>Enhance worn gear from SP0 to SP20</p></div></div>
   <div class="card">
-    <p>Equip the item, then <strong>right-click its worn slot → SlimePower</strong>. Paid attempts cost coins; the panel shows the cost, success chance and stat gain for that item. Costs and ATK/DEF bonuses scale with equipment tier, so the old flat-cost and flat-stat table does not apply to every item.</p>
+    <p>Equip an item, then <strong>right-click its worn slot → SlimePower</strong> to upgrade it with coins. The panel shows the cost, success chance and stat gain. See <a href="#sec-slimepower-scaling">SlimePower bonuses</a> for the stats at each level and gear tier.</p>
     <p><strong>SlimePower Scrolls</strong> are a separate way to add levels up to <strong>SP15</strong>. Use paid enhancement attempts to reach <strong>SP20</strong>.</p>
     <h3>What happens when an attempt fails?</h3>
     <ul class="guide-steps">
@@ -1123,6 +1226,59 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
     <tr><th scope="row">SP19 → SP20</th><td>6%</td><td>0%</td><td>0%</td><td>50 attempts</td></tr>
   </tbody></table></div>
   <!-- AUTOGEN:slimepower-rates END -->
+  <!-- AUTOGEN:slimepower-scaling START -->
+  <div class="sec-head" id="sec-slimepower-scaling"><div class="sec-icon">📈</div><div><h2>SlimePower bonuses</h2><p>ATK and DEF by SP level and gear tier</p></div></div>
+  <div class="card">
+    <p>SlimePower adds <strong>ATK and DEF</strong> to equipped gear. Higher SP levels and gear tiers give larger bonuses.</p>
+    <p>A weapon's ATK bonus applies when using its combat style. Rings, amulets and capes use their own tier; skill capes and most special capes use Cobalt.</p>
+    <p>Item rarity does not change SP bonuses.</p>
+    <div class="sp-calc" data-sp-calc>
+      <h3>Bonus calculator</h3>
+      <label class="sub-label" for="sp-calc-tier">Gear tier</label>
+      <select id="sp-calc-tier" class="sub-select"><option value="bronze">Tin (Lv 1)</option><option value="iron">Copper (Lv 30)</option><option value="steel">Quartz (Lv 60)</option><option value="mithril">Silver (Lv 90)</option><option value="adamant">Platinum (Lv 120)</option><option value="rune">Cobalt (Lv 150)</option><option value="slime">Jade (Lv 170)</option><option value="crystal">Titanium (Lv 190)</option><option value="ember">Opal (Lv 205)</option><option value="frost">Gem (Lv 220)</option><option value="volcanic">Volcanic (Lv 235)</option><option value="celestial">Celestial (Lv 250)</option><option value="solar">Solar (Lv 300)</option><option value="lunar">Lunar (Lv 350)</option><option value="eclipse">Eclipse (Lv 400)</option><option value="astral">Astral (Lv 450)</option><option value="storm">Storm (Lv 600)</option><option value="leviathan">Leviathan (Lv 700)</option><option value="goo">Goo (Lv 800)</option><option value="prism">Prism (Lv 900)</option><option value="infinity">Infinity (Lv 1000)</option><option value="plasma">Plasma (Lv 1250)</option><option value="cloud">Cloud (Lv 1500)</option><option value="fusion">Fusion (Lv 1750)</option><option value="antimatter">Antimatter (Lv 2000)</option></select>
+      <label class="sub-label" for="sp-calc-stars">SlimePower <output id="sp-calc-stars-out" for="sp-calc-stars">SP10</output></label>
+      <input id="sp-calc-stars" type="range" min="0" max="20" value="10" step="1">
+      <div class="sp-calc-out" aria-live="polite"><span><strong id="sp-calc-atk">+0</strong> ATK</span><span><strong id="sp-calc-def">+0</strong> DEF</span><span id="sp-calc-next"></span></div>
+    </div>
+  </div>
+  <details class="sp-reference">
+    <summary>Compare all gear tiers</summary>
+    <div class="guide-table-wrap" tabindex="0" role="region" aria-label="SlimePower bonus by gear tier"><table class="guide-table"><caption>SlimePower bonus by gear tier</caption><thead><tr><th scope="col">Gear tier</th><th scope="col">Multiplier</th><th scope="col">SP5</th><th scope="col">SP10</th><th scope="col">SP15</th><th scope="col">SP20</th></tr></thead><tbody>
+    <tr><th scope="row">Tin <span class="sp-lvl">Lv 1</span></th><td>1.00×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+36 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+113 ATK</span><span class="sp-stat">+58 DEF</span></td><td><span class="sp-stat">+253 ATK</span><span class="sp-stat">+138 DEF</span></td></tr>
+    <tr><th scope="row">Copper <span class="sp-lvl">Lv 30</span></th><td>1.03×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+37 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+116 ATK</span><span class="sp-stat">+59 DEF</span></td><td><span class="sp-stat">+260 ATK</span><span class="sp-stat">+142 DEF</span></td></tr>
+    <tr><th scope="row">Quartz <span class="sp-lvl">Lv 60</span></th><td>1.06×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+38 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+119 ATK</span><span class="sp-stat">+61 DEF</span></td><td><span class="sp-stat">+268 ATK</span><span class="sp-stat">+146 DEF</span></td></tr>
+    <tr><th scope="row">Silver <span class="sp-lvl">Lv 90</span></th><td>1.09×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+39 ATK</span><span class="sp-stat">+17 DEF</span></td><td><span class="sp-stat">+123 ATK</span><span class="sp-stat">+63 DEF</span></td><td><span class="sp-stat">+275 ATK</span><span class="sp-stat">+150 DEF</span></td></tr>
+    <tr><th scope="row">Platinum <span class="sp-lvl">Lv 120</span></th><td>1.12×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+40 ATK</span><span class="sp-stat">+17 DEF</span></td><td><span class="sp-stat">+126 ATK</span><span class="sp-stat">+64 DEF</span></td><td><span class="sp-stat">+283 ATK</span><span class="sp-stat">+154 DEF</span></td></tr>
+    <tr><th scope="row">Cobalt <span class="sp-lvl">Lv 150</span></th><td>1.15×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+41 ATK</span><span class="sp-stat">+18 DEF</span></td><td><span class="sp-stat">+129 ATK</span><span class="sp-stat">+66 DEF</span></td><td><span class="sp-stat">+290 ATK</span><span class="sp-stat">+158 DEF</span></td></tr>
+    <tr><th scope="row">Jade <span class="sp-lvl">Lv 170</span></th><td>1.18×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+42 ATK</span><span class="sp-stat">+18 DEF</span></td><td><span class="sp-stat">+133 ATK</span><span class="sp-stat">+68 DEF</span></td><td><span class="sp-stat">+298 ATK</span><span class="sp-stat">+162 DEF</span></td></tr>
+    <tr><th scope="row">Titanium <span class="sp-lvl">Lv 190</span></th><td>1.21×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+43 ATK</span><span class="sp-stat">+19 DEF</span></td><td><span class="sp-stat">+136 ATK</span><span class="sp-stat">+70 DEF</span></td><td><span class="sp-stat">+306 ATK</span><span class="sp-stat">+166 DEF</span></td></tr>
+    <tr><th scope="row">Opal <span class="sp-lvl">Lv 205</span></th><td>1.24×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+44 ATK</span><span class="sp-stat">+19 DEF</span></td><td><span class="sp-stat">+140 ATK</span><span class="sp-stat">+71 DEF</span></td><td><span class="sp-stat">+313 ATK</span><span class="sp-stat">+171 DEF</span></td></tr>
+    <tr><th scope="row">Gem <span class="sp-lvl">Lv 220</span></th><td>1.27×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+45 ATK</span><span class="sp-stat">+20 DEF</span></td><td><span class="sp-stat">+143 ATK</span><span class="sp-stat">+73 DEF</span></td><td><span class="sp-stat">+321 ATK</span><span class="sp-stat">+175 DEF</span></td></tr>
+    <tr><th scope="row">Volcanic <span class="sp-lvl">Lv 235</span></th><td>1.30×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+46 ATK</span><span class="sp-stat">+20 DEF</span></td><td><span class="sp-stat">+146 ATK</span><span class="sp-stat">+75 DEF</span></td><td><span class="sp-stat">+328 ATK</span><span class="sp-stat">+179 DEF</span></td></tr>
+    <tr><th scope="row">Celestial <span class="sp-lvl">Lv 250</span></th><td>1.33×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+47 ATK</span><span class="sp-stat">+21 DEF</span></td><td><span class="sp-stat">+150 ATK</span><span class="sp-stat">+77 DEF</span></td><td><span class="sp-stat">+336 ATK</span><span class="sp-stat">+183 DEF</span></td></tr>
+    <tr><th scope="row">Solar <span class="sp-lvl">Lv 300</span></th><td>1.36×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+48 ATK</span><span class="sp-stat">+21 DEF</span></td><td><span class="sp-stat">+153 ATK</span><span class="sp-stat">+78 DEF</span></td><td><span class="sp-stat">+344 ATK</span><span class="sp-stat">+187 DEF</span></td></tr>
+    <tr><th scope="row">Lunar <span class="sp-lvl">Lv 350</span></th><td>1.39×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+50 ATK</span><span class="sp-stat">+22 DEF</span></td><td><span class="sp-stat">+157 ATK</span><span class="sp-stat">+80 DEF</span></td><td><span class="sp-stat">+351 ATK</span><span class="sp-stat">+191 DEF</span></td></tr>
+    <tr><th scope="row">Eclipse <span class="sp-lvl">Lv 400</span></th><td>1.42×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+51 ATK</span><span class="sp-stat">+22 DEF</span></td><td><span class="sp-stat">+160 ATK</span><span class="sp-stat">+82 DEF</span></td><td><span class="sp-stat">+359 ATK</span><span class="sp-stat">+195 DEF</span></td></tr>
+    <tr><th scope="row">Astral <span class="sp-lvl">Lv 450</span></th><td>1.45×</td><td><span class="sp-stat">+13 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+52 ATK</span><span class="sp-stat">+23 DEF</span></td><td><span class="sp-stat">+163 ATK</span><span class="sp-stat">+84 DEF</span></td><td><span class="sp-stat">+366 ATK</span><span class="sp-stat">+200 DEF</span></td></tr>
+    <tr><th scope="row">Storm <span class="sp-lvl">Lv 600</span></th><td>1.50×</td><td><span class="sp-stat">+13 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+54 ATK</span><span class="sp-stat">+24 DEF</span></td><td><span class="sp-stat">+169 ATK</span><span class="sp-stat">+87 DEF</span></td><td><span class="sp-stat">+379 ATK</span><span class="sp-stat">+207 DEF</span></td></tr>
+    <tr><th scope="row">Leviathan <span class="sp-lvl">Lv 700</span></th><td>1.60×</td><td><span class="sp-stat">+14 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+57 ATK</span><span class="sp-stat">+25 DEF</span></td><td><span class="sp-stat">+180 ATK</span><span class="sp-stat">+92 DEF</span></td><td><span class="sp-stat">+404 ATK</span><span class="sp-stat">+220 DEF</span></td></tr>
+    <tr><th scope="row">Goo <span class="sp-lvl">Lv 800</span></th><td>1.70×</td><td><span class="sp-stat">+15 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+61 ATK</span><span class="sp-stat">+27 DEF</span></td><td><span class="sp-stat">+192 ATK</span><span class="sp-stat">+98 DEF</span></td><td><span class="sp-stat">+430 ATK</span><span class="sp-stat">+234 DEF</span></td></tr>
+    <tr><th scope="row">Prism <span class="sp-lvl">Lv 900</span></th><td>1.80×</td><td><span class="sp-stat">+16 ATK</span><span class="sp-stat">+7 DEF</span></td><td><span class="sp-stat">+64 ATK</span><span class="sp-stat">+28 DEF</span></td><td><span class="sp-stat">+203 ATK</span><span class="sp-stat">+104 DEF</span></td><td><span class="sp-stat">+455 ATK</span><span class="sp-stat">+248 DEF</span></td></tr>
+    <tr><th scope="row">Infinity <span class="sp-lvl">Lv 1000</span></th><td>1.90×</td><td><span class="sp-stat">+17 ATK</span><span class="sp-stat">+7 DEF</span></td><td><span class="sp-stat">+68 ATK</span><span class="sp-stat">+30 DEF</span></td><td><span class="sp-stat">+214 ATK</span><span class="sp-stat">+110 DEF</span></td><td><span class="sp-stat">+480 ATK</span><span class="sp-stat">+262 DEF</span></td></tr>
+    <tr><th scope="row">Plasma <span class="sp-lvl">Lv 1250</span></th><td>2.00×</td><td><span class="sp-stat">+18 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+72 ATK</span><span class="sp-stat">+32 DEF</span></td><td><span class="sp-stat">+226 ATK</span><span class="sp-stat">+116 DEF</span></td><td><span class="sp-stat">+506 ATK</span><span class="sp-stat">+276 DEF</span></td></tr>
+    <tr><th scope="row">Cloud <span class="sp-lvl">Lv 1500</span></th><td>2.10×</td><td><span class="sp-stat">+18 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+75 ATK</span><span class="sp-stat">+33 DEF</span></td><td><span class="sp-stat">+237 ATK</span><span class="sp-stat">+121 DEF</span></td><td><span class="sp-stat">+531 ATK</span><span class="sp-stat">+289 DEF</span></td></tr>
+    <tr><th scope="row">Fusion <span class="sp-lvl">Lv 1750</span></th><td>2.20×</td><td><span class="sp-stat">+19 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+79 ATK</span><span class="sp-stat">+35 DEF</span></td><td><span class="sp-stat">+248 ATK</span><span class="sp-stat">+127 DEF</span></td><td><span class="sp-stat">+556 ATK</span><span class="sp-stat">+303 DEF</span></td></tr>
+    <tr><th scope="row">Antimatter <span class="sp-lvl">Lv 2000</span></th><td>2.30×</td><td><span class="sp-stat">+20 ATK</span><span class="sp-stat">+9 DEF</span></td><td><span class="sp-stat">+82 ATK</span><span class="sp-stat">+36 DEF</span></td><td><span class="sp-stat">+259 ATK</span><span class="sp-stat">+133 DEF</span></td><td><span class="sp-stat">+581 ATK</span><span class="sp-stat">+317 DEF</span></td></tr>
+  </tbody></table></div>
+  </details>
+  <script type="application/json" id="sp-scaling-data">{"atk":[1,1,2,2,3,4,4,5,6,8,10,12,15,18,22,24,26,28,30,32],"def":[0,1,1,1,1,1,2,2,3,4,5,6,8,10,13,14,15,16,17,18],"tiers":[{"key":"bronze","label":"Tin","level":1,"mult":1},{"key":"iron","label":"Copper","level":30,"mult":1.03},{"key":"steel","label":"Quartz","level":60,"mult":1.06},{"key":"mithril","label":"Silver","level":90,"mult":1.09},{"key":"adamant","label":"Platinum","level":120,"mult":1.12},{"key":"rune","label":"Cobalt","level":150,"mult":1.15},{"key":"slime","label":"Jade","level":170,"mult":1.18},{"key":"crystal","label":"Titanium","level":190,"mult":1.21},{"key":"ember","label":"Opal","level":205,"mult":1.24},{"key":"frost","label":"Gem","level":220,"mult":1.27},{"key":"volcanic","label":"Volcanic","level":235,"mult":1.3},{"key":"celestial","label":"Celestial","level":250,"mult":1.33},{"key":"solar","label":"Solar","level":300,"mult":1.36},{"key":"lunar","label":"Lunar","level":350,"mult":1.39},{"key":"eclipse","label":"Eclipse","level":400,"mult":1.42},{"key":"astral","label":"Astral","level":450,"mult":1.45},{"key":"storm","label":"Storm","level":600,"mult":1.5},{"key":"leviathan","label":"Leviathan","level":700,"mult":1.6},{"key":"goo","label":"Goo","level":800,"mult":1.7},{"key":"prism","label":"Prism","level":900,"mult":1.8},{"key":"infinity","label":"Infinity","level":1000,"mult":1.9},{"key":"plasma","label":"Plasma","level":1250,"mult":2},{"key":"cloud","label":"Cloud","level":1500,"mult":2.1},{"key":"fusion","label":"Fusion","level":1750,"mult":2.2},{"key":"antimatter","label":"Antimatter","level":2000,"mult":2.3}]}</script>
+  <script>(()=>{const d=JSON.parse(document.getElementById("sp-scaling-data").textContent),tier=document.getElementById("sp-calc-tier"),stars=document.getElementById("sp-calc-stars");
+  const sum=(per,n)=>{let s=0;for(let i=0;i<n;i++)s+=per[i]||0;return s;},bonus=(per,n,m)=>Math.floor(sum(per,n)*m),f=n=>n.toLocaleString("en-US");
+  const draw=()=>{const t=d.tiers.find(x=>x.key===tier.value)||d.tiers[0],n=Number(stars.value)||0,a=bonus(d.atk,n,t.mult),b=bonus(d.def,n,t.mult);
+  document.getElementById("sp-calc-stars-out").textContent="SP"+n;document.getElementById("sp-calc-atk").textContent="+"+f(a);document.getElementById("sp-calc-def").textContent="+"+f(b);
+  document.getElementById("sp-calc-next").textContent=n<d.atk.length?"Next level: +"+f(bonus(d.atk,n+1,t.mult)-a)+" ATK, +"+f(bonus(d.def,n+1,t.mult)-b)+" DEF":"Max SlimePower";};
+  tier.value=d.tiers[d.tiers.length-1].key;tier.addEventListener("change",draw);stars.addEventListener("input",draw);draw();})();</script>
+  <!-- AUTOGEN:slimepower-scaling END -->
 
   <div class="sec-head" id="sec-washing"><div class="sec-icon">🌀</div><div><h2>Washing Machine</h2><p>Deposit drops, choose worn gear, keep good lines and roll the rest</p></div></div>
   <div class="card">
@@ -1557,7 +1713,7 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
     <div class="tier-item"><span class="tier-swatch" style="background:rgba(120,120,160,.2);display:flex;align-items:center;justify-content:center;font-size:18px">📖</span><span class="tier-name">Experience Potion</span><div class="tier-detail"><span class="tag-green">2x XP • 30min</span><span>SlimeCoin Shop 10 SC</span></div></div>
     <div class="tier-item"><span class="tier-swatch" style="background:rgba(120,120,160,.2);display:flex;align-items:center;justify-content:center;font-size:18px">⛏️</span><span class="tier-name">Gather Potion</span><div class="tier-detail"><span class="tag-green">2x Gather • 30min</span><span>SlimeCoin Shop 10 SC</span></div></div>
     <div class="tier-item"><span class="tier-swatch" style="background:rgba(120,120,160,.2);display:flex;align-items:center;justify-content:center;font-size:18px">💎</span><span class="tier-name">Fortune Potion</span><div class="tier-detail"><span class="tag-gold">50% 2x Drops • 30min</span><span>SlimeCoin Shop 10 SC</span></div></div>
-    <div class="tier-item"><span class="tier-swatch" style="background:rgba(120,120,160,.2);display:flex;align-items:center;justify-content:center;font-size:18px">♻️</span><span class="tier-name">Reclaim Potion</span><div class="tier-detail"><span class="tag-green">50% ammo save • 30min</span><span>Swamp Frog 1/80 • Crocodile 1/90</span></div></div>
+    <div class="tier-item"><span class="tier-swatch" style="background:rgba(120,120,160,.2);display:flex;align-items:center;justify-content:center;font-size:18px">♻️</span><span class="tier-name">Reclaim Potion</span><div class="tier-detail"><span class="tag-green">50% ammo save • 30min</span><span>Skele Boss 1% • Giant Rat 1% • Spider Queen 1% • Dark Wizard 1% • Bee 1% • Swamp Frog 1/80 • Crocodile 1/90</span></div></div>
     <div class="tier-item"><span class="tier-swatch" style="background:rgba(120,120,160,.2);display:flex;align-items:center;justify-content:center;font-size:18px">🦆</span><span class="tier-name">Lucky Duck</span><div class="tier-detail"><span class="tag-blue">+200% 200% Luck • 10min</span><span>Crocodile 1/75</span></div></div>
   </div>
   <!-- AUTOGEN:potions END -->
@@ -2012,7 +2168,7 @@ skilling = (Fishing + Mining + Woodcutting + Cooking + Survival
     <p><strong>Mining Frenzy:</strong> Rock glows with lava cracks - 10x XP + 1&ndash;5 Gold Nuggets (or Meteor Cores on a meteor).</p>
     <p><strong>WC Frenzy:</strong> Tree glows - 10x XP + bonus drops.</p>
     <p style="margin-top:8px;color:#7af07a"><strong>&#x1F340; Luck boosts frenzy chance:</strong> The Luck stat now increases frenzy rate - each <strong>1% Luck = +1% frenzy chance</strong>. Stack Luck on washed gear to trigger frenzies more often.</p>
-    <p style="margin-top:8px;color:#b078ff"><strong>&#x26A1; Auto Frenzy:</strong> Hold <strong>Frenzy Charms</strong> and a frenzy you never clicked is claimed for you just before it expires, spending one charm. They work from your <strong>bank</strong> as well as your bag, so they need not cost you an inventory slot. Charms come from the SlimeCoin Shop (1 SlimeCoin each) and are account bound. Right-click your <strong>Frenzy Bag</strong> to see how many are left and to pause or resume Auto Frenzy.</p>
+    <p style="margin-top:8px;color:#b078ff"><strong>&#x26A1; Auto Frenzy:</strong> Hold <strong>Frenzy Charms</strong> and a frenzy you never clicked is claimed for you just before it expires, spending one charm. They work from your <strong>bank</strong> as well as your bag, so they need not cost you an inventory slot. Charms come from the SlimeCoin Shop (1 SlimeCoin each) and are account bound. Right-click your <strong>Frenzy Bag</strong> to see how many are left and to pause or resume Auto Frenzy. See <a href="#sec-frenzy-bag">Frenzy Bag</a> for what it holds and how to grow it.</p>
   </div>
 
   <div class="sec-head"><div class="sec-icon" style="background:rgba(120,200,255,.1);border-color:rgba(120,200,255,.3)">&#x1F4A4;</div><div><h2>AFK Gathering - How Long?</h2><p>Auto-gather while you alt-tab or window is unfocused</p></div></div>

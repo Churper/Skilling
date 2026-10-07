@@ -476,14 +476,17 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <div class="tabs" id="tabs">
   <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>Básicos</button>
   <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>Recolección</button>
+  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>Contenedores</button>
   <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>Combate</button>
   <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>Equipo</button>
   <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>Comida</button>
   <button class="tab-btn" data-tab="skills"><span class="tab-icon">&#x2B50;</span>Habilidades</button>
   <button class="tab-btn" data-tab="islands"><span class="tab-icon">&#x26F5;</span>Islas</button>
   <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>Mundo</button>
+  <button class="tab-btn" data-tab="trading"><span class="tab-icon">&#x1F4B1;</span>Lonja</button>
   <button class="tab-btn" data-tab="clans"><span class="tab-icon">&#x1F3F0;</span>Clanes</button>
   <button class="tab-btn" data-tab="tips"><span class="tab-icon">&#x1F4A1;</span>Consejos</button>
+  <button class="tab-btn" data-tab="faq"><span class="tab-icon">&#x2753;</span>FAQ</button>
   <button class="tab-btn" data-tab="submit"><span class="tab-icon">&#x1F4DD;</span>Sugerencias</button>
 </div>
 
@@ -501,6 +504,18 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     </div>
   </div>
 
+  
+  <div class="sec-head" id="sec-registration"><div class="sec-icon">💾</div><div><h2>Invitados, registro &amp; guardado</h2><p>Quédate con el personaje que ya juegas</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li>Mientras juegas como invitado, abre <strong>Ajustes → Cuenta → Registrarse</strong>. También puedes usar <strong>Registrarse</strong> en la pantalla de inicio.</li>
+      <li>Elige un nombre de usuario y una contraseña, añade un correo de recuperación si quieres, y completa la confirmación del registro.</li>
+      <li><strong>El registro normal conserva tu personaje invitado y tu progreso.</strong> Usa <strong>Iniciar sesión</strong> con esa cuenta en visitas futuras o en otro dispositivo. Registrarte no es lo mismo que entrar a una cuenta que ya tienes.</li>
+    </ol>
+    <p>El progreso se guarda solo. Regístrate antes de cambiar de dispositivo o borrar datos del navegador para tener un login que recupere tu personaje. Empezar otro invitado crea un personaje nuevo y aparte.</p>
+    <div class="warn"><strong>Ironslime es una elección permanente al registrarte.</strong> El registro actual también guarda tus ítems y progreso de invitado para Ironslime. Los Ironslime consiguen sus propios ítems: sin intercambios entre jugadores, Lonja, correo, cámara de clan, apuestas ni recoger el loot de otros jugadores.</div>
+  </div>
+
   <div class="sec-head"><div class="sec-icon blue">&#x1F3AE;</div><div><h2>Controles</h2><p>Ratón, teclado y táctil</p></div></div>
 
   <div class="ctrl-grid">
@@ -513,9 +528,15 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="ctrl-item"><kbd>Q</kbd><span class="ctrl-label">Usar comida rápida</span></div>
     <div class="ctrl-item"><kbd>Z</kbd><span class="ctrl-label">Abrir Wiki</span></div>
     <div class="ctrl-item"><kbd>M</kbd><span class="ctrl-label">Abrir Mapa</span></div>
+    <div class="ctrl-item"><kbd>H</kbd><span class="ctrl-label">Montar / bajar del caballo</span></div>
+
     <div class="ctrl-item"><kbd>F1&ndash;F6</kbd><span class="ctrl-label">Atajos de pestañas</span></div>
     <div class="ctrl-item"><kbd>Esc</kbd><span class="ctrl-label">Cerrar paneles</span></div>
   </div>
+
+  
+<div class="sec-head" id="sec-horses"><div class="sec-icon">🐎</div><div><h2>Caballos &amp; viaje</h2><p>La tecla para montar por defecto es H; M abre el mapa</p></div></div>
+  <div class="card"><p>Visita el <strong>Rancho de caballos</strong> para comprar y mejorar un caballo. Clic en un caballo para montarlo. Usa <kbd>H</kbd> para montar tu caballo cercano o para bajar. Invocarlo de más lejos gasta una carga de <strong>Caballo de bolsillo</strong>, que se obtiene al alimentar a tu compañero con un Pergamino de araña. Esas son las teclas por defecto y se pueden cambiar en Ajustes.</p><p><strong>La velocidad depende del tier del caballo.</strong> Los tiers más altos van más rápido; no todos dan un bonus fijo de 2×.</p></div>
 
   <div class="sec-head"><div class="sec-icon gold">&#x1F6E0;&#xFE0F;</div><div><h2>Mejoras de Herramientas</h2><p>Mejora en el Herrero para recolectar más rápido</p></div></div>
 
@@ -603,17 +624,17 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 200</span><span class="tier-swatch" style="background:linear-gradient(135deg,#ff6090,#60c0ff,#a0ff80)"></span><span class="tier-name">Gema</span><div class="tier-detail"><span>1320 xp</span><span>100m</span></div></div>
     <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 235</span><span class="tier-swatch" style="background:#ff4500"></span><span class="tier-name" style="color:var(--gold)">Volcánica</span><div class="tier-detail"><span>1680 xp</span><span>72m</span></div></div>
     <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 270</span><span class="tier-swatch" style="background:#ffd700"></span><span class="tier-name" style="color:var(--gold)">Celestial</span><div class="tier-detail"><span>2050 xp</span><span>85m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 310</span><span class="tier-swatch" style="background:#ffb432"></span><span class="tier-name" style="color:var(--gold)">Sunstone</span><div class="tier-detail"><span>2800 xp</span><span>100m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 350</span><span class="tier-swatch" style="background:#b0c8e8"></span><span class="tier-name" style="color:var(--gold)">Moonstone</span><div class="tier-detail"><span>3100 xp</span><span>118m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 400</span><span class="tier-swatch" style="background:#64ff96"></span><span class="tier-name" style="color:var(--gold)">Glowstone</span><div class="tier-detail"><span>3800 xp</span><span>140m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 450</span><span class="tier-swatch" style="background:#ffffc8"></span><span class="tier-name" style="color:var(--gold)">Holy Stone</span><div class="tier-detail"><span>4600 xp</span><span>165m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(255,220,100,.3)"><span class="tier-badge" style="background:rgba(255,220,100,.15);color:#ffdc64">Nv 500</span><span class="tier-swatch" style="background:#ffdc64"></span><span class="tier-name" style="color:#ffdc64">Star Ore</span><div class="tier-detail"><span>5600 xp</span><span>500m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(110,200,255,.3)"><span class="tier-badge" style="background:rgba(110,200,255,.15);color:#6ec8ff">Nv 600</span><span class="tier-swatch" style="background:#6ec8ff"></span><span class="tier-name" style="color:#6ec8ff">Stormstone</span><div class="tier-detail"><span>66000 xp</span><span>9600m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(47,212,176,.3)"><span class="tier-badge" style="background:rgba(47,212,176,.15);color:#2fd4b0">Nv 700</span><span class="tier-swatch" style="background:#2fd4b0"></span><span class="tier-name" style="color:#2fd4b0">Leviathan Pearl</span><div class="tier-detail"><span>80000 xp</span><span>11400m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(124,224,60,.3)"><span class="tier-badge" style="background:rgba(124,224,60,.15);color:#7ce03c">Nv 800</span><span class="tier-swatch" style="background:#7ce03c"></span><span class="tier-name" style="color:#7ce03c">Goo Core</span><div class="tier-detail"><span>98000 xp</span><span>13600m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(255,138,216,.3)"><span class="tier-badge" style="background:rgba(255,138,216,.15);color:#ff8ad8">Nv 900</span><span class="tier-swatch" style="background:#ff8ad8"></span><span class="tier-name" style="color:#ff8ad8">Prism Shard</span><div class="tier-detail"><span>116500 xp</span><span>16400m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(255,224,138,.3)"><span class="tier-badge" style="background:rgba(255,224,138,.15);color:#ffe08a">Nv 1000</span><span class="tier-swatch" style="background:#ffe08a"></span><span class="tier-name" style="color:#ffe08a">Infinity Core</span><div class="tier-detail"><span>138000 xp</span><span>20000m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(74,140,255,.3)"><span class="tier-badge" style="background:rgba(74,140,255,.15);color:#4a8cff">Nv 1250</span><span class="tier-swatch" style="background:#4a8cff"></span><span class="tier-name" style="color:#4a8cff">Plasmastone</span><div class="tier-detail"><span>214500 xp</span><span>31600m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 310</span><span class="tier-swatch" style="background:#ffb432"></span><span class="tier-name" style="color:var(--gold)">Piedra solar</span><div class="tier-detail"><span>2800 xp</span><span>100m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 350</span><span class="tier-swatch" style="background:#b0c8e8"></span><span class="tier-name" style="color:var(--gold)">Piedra lunar</span><div class="tier-detail"><span>3100 xp</span><span>118m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 400</span><span class="tier-swatch" style="background:#64ff96"></span><span class="tier-name" style="color:var(--gold)">Piedra brillante</span><div class="tier-detail"><span>3800 xp</span><span>140m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 450</span><span class="tier-swatch" style="background:#ffffc8"></span><span class="tier-name" style="color:var(--gold)">Piedra sagrada</span><div class="tier-detail"><span>4600 xp</span><span>165m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(255,220,100,.3)"><span class="tier-badge" style="background:rgba(255,220,100,.15);color:#ffdc64">Nv 500</span><span class="tier-swatch" style="background:#ffdc64"></span><span class="tier-name" style="color:#ffdc64">Mineral estrella</span><div class="tier-detail"><span>5600 xp</span><span>500m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(110,200,255,.3)"><span class="tier-badge" style="background:rgba(110,200,255,.15);color:#6ec8ff">Nv 600</span><span class="tier-swatch" style="background:#6ec8ff"></span><span class="tier-name" style="color:#6ec8ff">Piedra tormenta</span><div class="tier-detail"><span>66000 xp</span><span>9600m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(47,212,176,.3)"><span class="tier-badge" style="background:rgba(47,212,176,.15);color:#2fd4b0">Nv 700</span><span class="tier-swatch" style="background:#2fd4b0"></span><span class="tier-name" style="color:#2fd4b0">Perla de leviatán</span><div class="tier-detail"><span>80000 xp</span><span>11400m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(124,224,60,.3)"><span class="tier-badge" style="background:rgba(124,224,60,.15);color:#7ce03c">Nv 800</span><span class="tier-swatch" style="background:#7ce03c"></span><span class="tier-name" style="color:#7ce03c">Núcleo de baba</span><div class="tier-detail"><span>98000 xp</span><span>13600m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(255,138,216,.3)"><span class="tier-badge" style="background:rgba(255,138,216,.15);color:#ff8ad8">Nv 900</span><span class="tier-swatch" style="background:#ff8ad8"></span><span class="tier-name" style="color:#ff8ad8">Fragmento de prisma</span><div class="tier-detail"><span>116500 xp</span><span>16400m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(255,224,138,.3)"><span class="tier-badge" style="background:rgba(255,224,138,.15);color:#ffe08a">Nv 1000</span><span class="tier-swatch" style="background:#ffe08a"></span><span class="tier-name" style="color:#ffe08a">Núcleo infinito</span><div class="tier-detail"><span>138000 xp</span><span>20000m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(74,140,255,.3)"><span class="tier-badge" style="background:rgba(74,140,255,.15);color:#4a8cff">Nv 1250</span><span class="tier-swatch" style="background:#4a8cff"></span><span class="tier-name" style="color:#4a8cff">Piedra de plasma</span><div class="tier-detail"><span>214500 xp</span><span>31600m</span></div></div>
   </div>
 
   <!-- TALA -->
@@ -630,21 +651,21 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="tier-item"><span class="tier-badge tag-purple">Nv 135</span><span class="tier-swatch" style="background:#3a5c3a"></span><span class="tier-name">Pino</span><div class="tier-detail"><span>450 xp</span><span>38m</span></div></div>
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 170</span><span class="tier-swatch" style="background:#8b4513"></span><span class="tier-name">Cedro</span><div class="tier-detail"><span>575 xp</span><span>60m</span></div></div>
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 200</span><span class="tier-swatch" style="background:#50a03c"></span><span class="tier-name">&#x1F335; Cactus</span><div class="tier-detail"><span>778 xp</span><span>75m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 235</span><span class="tier-swatch" style="background:#c07050"></span><span class="tier-name" style="color:var(--gold)">Ribbon Wood</span><div class="tier-detail"><span>1680 xp</span><span>100m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 270</span><span class="tier-swatch" style="background:#ff80b0"></span><span class="tier-name" style="color:var(--gold)">Candy Wood</span><div class="tier-detail"><span>2050 xp</span><span>125m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 310</span><span class="tier-swatch" style="background:#6b4a30"></span><span class="tier-name" style="color:var(--gold)">Root Wood</span><div class="tier-detail"><span>2500 xp</span><span>155m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 235</span><span class="tier-swatch" style="background:#c07050"></span><span class="tier-name" style="color:var(--gold)">Madera de listón</span><div class="tier-detail"><span>1680 xp</span><span>100m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 270</span><span class="tier-swatch" style="background:#ff80b0"></span><span class="tier-name" style="color:var(--gold)">Madera de caramelo</span><div class="tier-detail"><span>2050 xp</span><span>125m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 310</span><span class="tier-swatch" style="background:#6b4a30"></span><span class="tier-name" style="color:var(--gold)">Madera de raíz</span><div class="tier-detail"><span>2500 xp</span><span>155m</span></div></div>
     <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 350</span><span class="tier-swatch" style="background:#96a0aa"></span><span class="tier-name" style="color:var(--gold)">Steelbark</span><div class="tier-detail"><span>3100 xp</span><span>125m</span></div></div>
     <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 400</span><span class="tier-swatch" style="background:#a064c8"></span><span class="tier-name" style="color:var(--gold)">Shroombark</span><div class="tier-detail"><span>3800 xp</span><span>148m</span></div></div>
     <div class="tier-item" style="border-color:rgba(90,64,128,.3)"><span class="tier-badge" style="background:rgba(90,64,128,.15);color:#b48cff">Nv 425</span><span class="tier-swatch" style="background:#4a3a55"></span><span class="tier-name" style="color:#b48cff">&#x1F319; Madera crepuscular</span><div class="tier-detail"><span>4200 xp</span><span>186m</span></div></div>
     <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 450</span><span class="tier-swatch" style="background:#64dcff"></span><span class="tier-name" style="color:var(--gold)">Spiritwood</span><div class="tier-detail"><span>4600 xp</span><span>175m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(180,140,255,.3)"><span class="tier-badge" style="background:rgba(180,140,255,.15);color:#b48cff">Nv 475</span><span class="tier-swatch" style="background:#6028b8"></span><span class="tier-name" style="color:#b48cff">Astral Wood</span><div class="tier-detail"><span>5200 xp</span><span>475m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(60,200,100,.3)"><span class="tier-badge" style="background:rgba(60,200,100,.15);color:#3cc864">Nv 500</span><span class="tier-swatch" style="background:#5c2810"></span><span class="tier-name" style="color:#3cc864">Elder Wood</span><div class="tier-detail"><span>5800 xp</span><span>500m</span></div></div>
-    <div class="tier-item" style="border-color:rgba(138,180,255,.3)"><span class="tier-badge" style="background:rgba(138,180,255,.15);color:#8ab4ff">Nv 600</span><span class="tier-swatch" style="background:#3a5a8c"></span><span class="tier-name" style="color:#8ab4ff">Stormwood</span><div class="tier-detail"><span>63k xp</span><span>4000m</span><span>Cueva PvP</span></div></div>
-    <div class="tier-item" style="border-color:rgba(46,200,160,.3)"><span class="tier-badge" style="background:rgba(46,200,160,.15);color:#2ec8a0">Nv 700</span><span class="tier-swatch" style="background:#0e6450"></span><span class="tier-name" style="color:#2ec8a0">Leviathan Kelp</span><div class="tier-detail"><span>75k xp</span><span>5000m</span><span>Cueva PvP</span></div></div>
-    <div class="tier-item" style="border-color:rgba(140,224,60,.3)"><span class="tier-badge" style="background:rgba(140,224,60,.15);color:#8ce03c">Nv 800</span><span class="tier-swatch" style="background:#3a6414"></span><span class="tier-name" style="color:#8ce03c">Gooey Wood</span><div class="tier-detail"><span>88k xp</span><span>6200m</span><span>Cueva PvP</span></div></div>
-    <div class="tier-item" style="border-color:rgba(255,138,216,.3)"><span class="tier-badge" style="background:rgba(255,138,216,.15);color:#ff8ad8">Nv 900</span><span class="tier-swatch" style="background:#8c3a6e"></span><span class="tier-name" style="color:#ff8ad8">Prismwood</span><div class="tier-detail"><span>102k xp</span><span>7600m</span><span>Cueva PvP</span></div></div>
-    <div class="tier-item" style="border-color:rgba(255,210,74,.3)"><span class="tier-badge" style="background:rgba(255,210,74,.15);color:#ffd24a">Nv 1000</span><span class="tier-swatch" style="background:#8c6414"></span><span class="tier-name" style="color:#ffd24a">Infinity Wood</span><div class="tier-detail"><span>120k xp</span><span>9500m</span><span>Cueva PvP</span></div></div>
-    <div class="tier-item" style="border-color:rgba(74,140,255,.3)"><span class="tier-badge" style="background:rgba(74,140,255,.15);color:#4a8cff">Nv 1250</span><span class="tier-swatch" style="background:#4a8cff"></span><span class="tier-name" style="color:#4a8cff">Plasmawood</span><div class="tier-detail"><span>181.5k xp</span><span>16300m</span><span>Cueva PvP</span></div></div>
+    <div class="tier-item" style="border-color:rgba(180,140,255,.3)"><span class="tier-badge" style="background:rgba(180,140,255,.15);color:#b48cff">Nv 475</span><span class="tier-swatch" style="background:#6028b8"></span><span class="tier-name" style="color:#b48cff">Madera astral</span><div class="tier-detail"><span>5200 xp</span><span>475m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(60,200,100,.3)"><span class="tier-badge" style="background:rgba(60,200,100,.15);color:#3cc864">Nv 500</span><span class="tier-swatch" style="background:#5c2810"></span><span class="tier-name" style="color:#3cc864">Madera anciana</span><div class="tier-detail"><span>5800 xp</span><span>500m</span></div></div>
+    <div class="tier-item" style="border-color:rgba(138,180,255,.3)"><span class="tier-badge" style="background:rgba(138,180,255,.15);color:#8ab4ff">Nv 600</span><span class="tier-swatch" style="background:#3a5a8c"></span><span class="tier-name" style="color:#8ab4ff">Madera tormenta</span><div class="tier-detail"><span>63k xp</span><span>4000m</span><span>Cueva PvP</span></div></div>
+    <div class="tier-item" style="border-color:rgba(46,200,160,.3)"><span class="tier-badge" style="background:rgba(46,200,160,.15);color:#2ec8a0">Nv 700</span><span class="tier-swatch" style="background:#0e6450"></span><span class="tier-name" style="color:#2ec8a0">Kelp de leviatán</span><div class="tier-detail"><span>75k xp</span><span>5000m</span><span>Cueva PvP</span></div></div>
+    <div class="tier-item" style="border-color:rgba(140,224,60,.3)"><span class="tier-badge" style="background:rgba(140,224,60,.15);color:#8ce03c">Nv 800</span><span class="tier-swatch" style="background:#3a6414"></span><span class="tier-name" style="color:#8ce03c">Madera pegajosa</span><div class="tier-detail"><span>88k xp</span><span>6200m</span><span>Cueva PvP</span></div></div>
+    <div class="tier-item" style="border-color:rgba(255,138,216,.3)"><span class="tier-badge" style="background:rgba(255,138,216,.15);color:#ff8ad8">Nv 900</span><span class="tier-swatch" style="background:#8c3a6e"></span><span class="tier-name" style="color:#ff8ad8">Prismamadera</span><div class="tier-detail"><span>102k xp</span><span>7600m</span><span>Cueva PvP</span></div></div>
+    <div class="tier-item" style="border-color:rgba(255,210,74,.3)"><span class="tier-badge" style="background:rgba(255,210,74,.15);color:#ffd24a">Nv 1000</span><span class="tier-swatch" style="background:#8c6414"></span><span class="tier-name" style="color:#ffd24a">Madera infinita</span><div class="tier-detail"><span>120k xp</span><span>9500m</span><span>Cueva PvP</span></div></div>
+    <div class="tier-item" style="border-color:rgba(74,140,255,.3)"><span class="tier-badge" style="background:rgba(74,140,255,.15);color:#4a8cff">Nv 1250</span><span class="tier-swatch" style="background:#4a8cff"></span><span class="tier-name" style="color:#4a8cff">Madera de plasma</span><div class="tier-detail"><span>181.5k xp</span><span>16300m</span><span>Cueva PvP</span></div></div>
   </div>
 
   <!-- PESCA -->
@@ -663,12 +684,12 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">Pez Globo</span><div class="tier-detail"><span>1350 xp</span><span>32m</span></div></div>
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 235</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">Piraña</span><div class="tier-detail"><span>1680 xp</span><span>36m</span></div></div>
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 270</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">Rape</span><div class="tier-detail"><span>2050 xp</span><span>40m</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Nv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">Humphead</span><div class="tier-detail"><span>2500 xp</span><span>45m</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Nv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">Pez napoleón</span><div class="tier-detail"><span>2500 xp</span><span>45m</span></div></div>
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 325</span><span class="tier-swatch" style="background:#e04020"></span><span class="tier-name">Pez Remo</span><div class="tier-detail"><span>2750 xp</span><span>49m</span></div></div>
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">Pez Mandarín</span><div class="tier-detail"><span>3100 xp</span><span>52m</span></div></div>
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 375</span><span class="tier-swatch" style="background:#ff40a0"></span><span class="tier-name">Anguila Gulper</span><div class="tier-detail"><span>3450 xp</span><span>55m</span></div></div>
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">Koi</span><div class="tier-detail"><span>3800 xp</span><span>58m</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Nv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">Anglerking</span><div class="tier-detail"><span>4200 xp</span><span>61m</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Nv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">Rey rape</span><div class="tier-detail"><span>4200 xp</span><span>61m</span></div></div>
     <div class="tier-item"><span class="tier-badge tag-gold">Nv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">Betta</span><div class="tier-detail"><span>4600 xp</span><span>65m</span></div></div>
     <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 475</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name" style="color:var(--gold)">Pez Loro</span><div class="tier-detail"><span>5200 xp</span><span>68m</span></div></div>
     <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Nv 500</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name" style="color:var(--gold)">Pez Azul</span><div class="tier-detail"><span>5800 xp</span><span>75m</span></div></div>
@@ -676,6 +697,31 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="tip">¡Todos los peces son cocinables! Peces más altos = más curación al cocinarse. ¡Atento al Frenesí de Peces &mdash; las zonas brillan en morado para XP extra y un Trofeo Cowfish!</div>
 
   <!-- AGRICULTURA -->
+  
+  <div class="sec-head" id="sec-cave-fishing"><div class="sec-icon">🎣</div><div><h2>Pesca en cueva</h2><p>Spots de cueva PvP • niveles 600–2000</p></div></div>
+  <div class="card"><p>Estos peces salen solo de sus <strong>spots de pesca PvP en cueva</strong>. Cumple el level de Pesca listado y encuentra el spot que toca; nunca salen en spots normales ni mixtos del océano. Las capturas salen crudas y se pueden cocinar. Los tiempos de ciclo de abajo son tiempos base, sin bonus de recolección.</p></div>
+  <!-- AUTOGEN:cave-fishing START -->
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Pesca en cueva (niveles 600–2000)"><table class="guide-table"><caption>Pesca en cueva (niveles 600–2000)</caption><thead><tr><th scope="col">Nivel de Pesca</th><th scope="col">Captura</th><th scope="col">XP base</th><th scope="col">Ciclo base</th><th scope="col">Precio</th></tr></thead><tbody>
+    <tr><th scope="row">600</th><td>Storm Shark</td><td>31,500</td><td>55s</td><td>8,000c</td></tr>
+    <tr><th scope="row">700</th><td>Kelp Dragon</td><td>37,500</td><td>56s</td><td>10,000c</td></tr>
+    <tr><th scope="row">800</th><td>Sludge Blob</td><td>44,000</td><td>57s</td><td>12,400c</td></tr>
+    <tr><th scope="row">900</th><td>Prism Sailfish</td><td>51,000</td><td>58.5s</td><td>15,200c</td></tr>
+    <tr><th scope="row">1,000</th><td>Infinity Whale</td><td>60,000</td><td>61.5s</td><td>19,000c</td></tr>
+    <tr><th scope="row">1,250</th><td>Plasma Eel</td><td>79,750</td><td>65s</td><td>32,600c</td></tr>
+    <tr><th scope="row">1,500</th><td>Pez globo de nube</td><td>99,000</td><td>67s</td><td>42,000c</td></tr>
+    <tr><th scope="row">1,750</th><td>Calamar de fusión</td><td>118,500</td><td>68.5s</td><td>54,000c</td></tr>
+    <tr><th scope="row">2,000</th><td>Tortuga de antimateria</td><td>138,500</td><td>70s</td><td>70,000c</td></tr>
+  </tbody></table></div>
+  <!-- AUTOGEN:cave-fishing END -->
+
+  <div class="sec-head" id="sec-fish-frenzy"><div class="sec-icon">🌀</div><div><h2>Recompensas Frenzy de pesca</h2><p>Tu level de Pesca decide el pez extra</p></div></div>
+  <div class="card"><p>Clic en el spot de pesca morado durante su ventana Frenzy. Esa captura Frenzy da <strong>10× XP</strong> y un pez extra de la tabla de abajo. Deposítalo en la <a href="#sec-washing">Lavadora</a> por cargas, o guárdalo para otro uso.</p>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Recompensas Frenzy de pesca"><table class="guide-table"><caption>Recompensas Frenzy de pesca por level de Pesca</caption><thead><tr><th scope="col">Level de Pesca</th><th scope="col">Premio</th><th scope="col">Cargas lavadora c/u</th></tr></thead><tbody>
+  <tr><th scope="row">1–99</th><td>Pececillo</td><td>1</td></tr><tr><th scope="row">100–199</th><td>Pez cofre trofeo</td><td>2</td></tr><tr><th scope="row">200–299</th><td>Marlín</td><td>3</td></tr><tr><th scope="row">300–399</th><td>Leviatán</td><td>4</td></tr><tr><th scope="row">400+</th><td>Kraken</td><td>5</td></tr>
+  </tbody></table></div><p>El <strong>pez Kraken</strong> es una recompensa Frenzy, aparte del <a href="#sec-kraken">encuentro boss Kraken</a>.</p></div>
+
+  <!-- FARMING -->
+
   <div class="sec-head" id="sec-farming"><div class="sec-icon" style="background:rgba(120,180,60,.1);border-color:rgba(120,180,60,.2)">&#x1F33E;</div><div><h2>Agricultura</h2><p>Planta semillas en parcelas &bull; Espera a que crezcan los cultivos &bull; Cosecha por XP y comida</p></div></div>
 
   <div class="card illust-card">
@@ -757,6 +803,89 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 </div>
 
 <!-- COMBATE -->
+
+<div class="tab-content" id="tab-containers">
+  <!-- AUTOGEN:containers START -->
+  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>Contenedores</h2><p>Guarda lo recolectado</p></div></div>
+  <div class="card">
+    <p>Los contenedores guardan solos los ítems que coinciden si los llevas en la bolsa. Cada uno usa <strong>un slot</strong>. Clic derecho en un contenedor para vaciarlo.</p>
+    <p>Puedes tener uno de cada contenedor. No te puede caer un duplicado. Los contenedores no afectan XP, cantidad ni la velocidad de recolección.</p>
+    <p>Las tasas de drop de abajo son tasas base. La <a href="#sec-container-luck">Suerte</a> sube el drop de contenedores y las chances de mejora de la Cubeta de peces.</p>
+  </div>
+
+  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>Cesta de troncos</h2><p>Troncos level 600+</p></div></div>
+  <div class="card">
+    <p><strong>Guarda:</strong> todos los <a href="#sec-woodcutting">troncos level 600+</a>.</p>
+    <p><strong>Se obtiene:</strong> 1/100 por tala exitosa de esos árboles, o 1/100 por kill de <strong>Rana de pantano</strong>.</p>
+    <p><strong>Capacidad:</strong> 100 troncos. Compra mejoras permanentes al <strong>Leñador</strong> con diamantes.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Mejoras de Cesta de troncos"><table class="guide-table"><caption>Mejoras de Cesta de troncos</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Coste</th><th scope="col">Total gastado</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>25 diamantes</td><td>25 diamantes</td></tr>
+    <tr><th scope="row">200</th><td>75 diamantes</td><td>100 diamantes</td></tr>
+    <tr><th scope="row">250</th><td>150 diamantes</td><td>250 diamantes</td></tr>
+    <tr><th scope="row">300</th><td>300 diamantes</td><td>550 diamantes</td></tr>
+    <tr><th scope="row">400</th><td>600 diamantes</td><td>1,150 diamantes</td></tr>
+    <tr><th scope="row">500</th><td>1,000 diamantes</td><td>2,150 diamantes</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>Bolsa de mineral</h2><p>Minerales level 600+</p></div></div>
+  <div class="card">
+    <p><strong>Guarda:</strong> todos los <a href="#sec-mining">minerales level 600+</a>.</p>
+    <p><strong>Comprar:</strong> 1 Perla del <strong>Minero de carbón</strong> en Minería 600. También drop de <strong>Gólem de roca</strong>: 1/100 por kill.</p>
+    <p><strong>Capacidad:</strong> 100 minerales. Compra mejoras permanentes al <strong>Minero de carbón</strong> con perlas.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Mejoras de Bolsa de mineral"><table class="guide-table"><caption>Mejoras de Bolsa de mineral</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Coste</th><th scope="col">Total gastado</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>2 Perlas</td><td>2 Perlas</td></tr>
+    <tr><th scope="row">200</th><td>5 Perlas</td><td>7 Perlas</td></tr>
+    <tr><th scope="row">250</th><td>10 Perlas</td><td>17 Perlas</td></tr>
+    <tr><th scope="row">300</th><td>20 Perlas</td><td>37 Perlas</td></tr>
+    <tr><th scope="row">400</th><td>35 Perlas</td><td>72 Perlas</td></tr>
+    <tr><th scope="row">500</th><td>60 Perlas</td><td>132 Perlas</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>Cubeta de peces</h2><p>Peces de cueva level 600+</p></div></div>
+  <div class="card">
+    <p><strong>Guarda:</strong> todos los <a href="#sec-cave-fishing">peces de cueva level 600+</a>.</p>
+    <p><strong>Se obtiene:</strong> 1/100 por captura en esos spots de pesca de cueva.</p>
+    <p><strong>Capacidad:</strong> 100 peces. Más capturas de cueva pueden mejorar la cubeta a la siguiente capacidad de abajo.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Mejoras de Cubeta de peces"><table class="guide-table"><caption>Mejoras de Cubeta de peces</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Chance base por pesca en cueva</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>1/200</td></tr>
+    <tr><th scope="row">200</th><td>1/400</td></tr>
+    <tr><th scope="row">250</th><td>1/800</td></tr>
+    <tr><th scope="row">300</th><td>1/1,600</td></tr>
+    <tr><th scope="row">400</th><td>1/3,200</td></tr>
+    <tr><th scope="row">500</th><td>1/6,400</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>Bolsa Frenzy</h2><p>Recompensas Frenzy</p></div></div>
+  <div class="card">
+    <p><strong>Guarda:</strong> madera encantada, piezas de oro, Núcleos de meteoro y <a href="#sec-fish-frenzy">peces Frenzy</a>.</p>
+    <p><strong>Comprar:</strong> <strong>1,000,000 monedas</strong> de <strong>Slime místico</strong>.</p>
+    <p><strong>Capacidad:</strong> 100 ítems, hasta 1,000. Cada tarea del Slime místico suma 100 espacios para siempre. Complétalas en cualquier orden.</p>
+    <p>Clic derecho en la bolsa para ver tus Amuletos Frenzy o para prender o apagar Auto Frenzy.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Tareas de Bolsa Frenzy (Slime místico)"><table class="guide-table"><caption>Tareas de Bolsa Frenzy (Slime místico)</caption><thead><tr><th scope="col">Tarea</th><th scope="col">Capacidad</th></tr></thead><tbody>
+    <tr><th scope="row">Cargar orbe místico</th><td>+100</td></tr>
+    <tr><th scope="row">10,000 nidos de ave</th><td>+100</td></tr>
+    <tr><th scope="row">5,000 gemas en bruto</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 manzanas</th><td>+100</td></tr>
+    <tr><th scope="row">Da fama a 10 jugadores</th><td>+100</td></tr>
+    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
+    <tr><th scope="row">5 de cada: Zafiro → Ónice</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 piedras mágicas moradas</th><td>+100</td></tr>
+    <tr><th scope="row">Alcanza 3,000 de nivel total</th><td>+100</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>Suerte</h2><p>Chances de drop y mejora</p></div></div>
+  <div class="card">
+    <p>La Suerte sube las tasas de drop de contenedores y las chances de mejora de la Cubeta de peces. Por ejemplo, +50% Suerte sube un 1% a 1.5%. Pato de la suerte lo sube a 3%.</p>
+    <p>Los bonus de Suerte se suman: líneas de potencial de gear (2–10% cada una), <strong>Pato de la suerte</strong> (+200% por 10min) y el anillo <strong>Campeón del Dojo</strong>.</p>
+    <p>El modo difícil no sube las tasas de drop de contenedores de Rana de pantano ni Gólem de roca. La Suerte también sube la frecuencia Frenzy, pero no cambia el precio ni las mejoras de la Bolsa Frenzy.</p>
+  </div>
+  <!-- AUTOGEN:containers END -->
+</div>
+
 <div class="tab-content" id="tab-combat">
 
   <div class="card illust-card">
@@ -801,7 +930,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="sec-head"><div class="sec-icon red">&#x1F47E;</div><div><h2>Monstruos de Mazmorra</h2><p>En la cueva &mdash; más duros pero mejor botín</p></div></div>
 
   <div class="bestiary">
-    <div class="mob-card" style="border-color:rgba(199,141,255,.15)"><div class="mob-icon" style="background:rgba(199,141,255,.06)">&#x1F47A;</div><div class="mob-info"><div class="mob-name">Goblin</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 180</span><span>&#x2694;&#xFE0F; 15-28</span></div><div class="mob-loot">Hueso</div><div class="mob-drops"><span class="drop-tag">Espada de Acero<span class="drop-chance"> 8%</span></span><span class="drop-tag">Arco de Acero<span class="drop-chance"> 8%</span></span><span class="drop-tag">Cuerpo de Acero<span class="drop-chance"> 8%</span></span><span class="drop-tag">Anillo de Hierro<span class="drop-chance"> 8%</span></span></div></div></div>
+    <div class="mob-card" style="border-color:rgba(199,141,255,.15)"><div class="mob-icon" style="background:rgba(199,141,255,.06)">&#x1F47A;</div><div class="mob-info"><div class="mob-name">Duende</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 180</span><span>&#x2694;&#xFE0F; 15-28</span></div><div class="mob-loot">Hueso</div><div class="mob-drops"><span class="drop-tag">Espada de Acero<span class="drop-chance"> 8%</span></span><span class="drop-tag">Arco de Acero<span class="drop-chance"> 8%</span></span><span class="drop-tag">Cuerpo de Acero<span class="drop-chance"> 8%</span></span><span class="drop-tag">Anillo de Hierro<span class="drop-chance"> 8%</span></span></div></div></div>
     <div class="mob-card" style="border-color:rgba(199,141,255,.15)"><div class="mob-icon" style="background:rgba(199,141,255,.06)">&#x1F480;</div><div class="mob-info"><div class="mob-name">Esqueleto</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 350</span><span>&#x2694;&#xFE0F; 22-40</span></div><div class="mob-loot">Hueso</div><div class="mob-drops"><span class="drop-tag">Espada de Mithril<span class="drop-chance"> 10%</span></span><span class="drop-tag">Arco de Mithril<span class="drop-chance"> 10%</span></span><span class="drop-tag">Cuerpo de Mithril<span class="drop-chance"> 10%</span></span><span class="drop-tag">Escudo de Mithril<span class="drop-chance"> 10%</span></span></div></div></div>
     <div class="mob-card" style="border-color:rgba(199,141,255,.15)"><div class="mob-icon" style="background:rgba(199,141,255,.06)">&#x1F9DF;</div><div class="mob-info"><div class="mob-name">Zombi</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 500</span><span>&#x2694;&#xFE0F; 30-55</span></div><div class="mob-loot">Pelaje</div><div class="mob-drops"><span class="drop-tag">Espada de Adamantio<span class="drop-chance"> 12%</span></span><span class="drop-tag">Arco de Adamantio<span class="drop-chance"> 12%</span></span><span class="drop-tag">Cuerpo de Adamantio<span class="drop-chance"> 12%</span></span><span class="drop-tag">Escudo de Adamantio<span class="drop-chance"> 12%</span></span></div></div></div>
     <div class="mob-card" style="border-color:rgba(232,84,84,.2)"><div class="mob-icon" style="background:rgba(232,84,84,.08)">&#x1F608;</div><div class="mob-info"><div class="mob-name" style="color:var(--red)">Demonio <span class="tag tag-red">Agresivo</span></div><div class="mob-stats"><span>&#x2764;&#xFE0F; 4,000</span><span>&#x2694;&#xFE0F; 80-150</span></div><div class="mob-loot">Hueso</div><div class="mob-drops"><span class="drop-tag">Espada Rúnica<span class="drop-chance"> 15%</span></span><span class="drop-tag">Arco Rúnico<span class="drop-chance"> 15%</span></span><span class="drop-tag">Bastón Rúnico<span class="drop-chance"> 15%</span></span><span class="drop-tag">Cuerpo Rúnico<span class="drop-chance"> 15%</span></span><span class="drop-tag">Escudo Rúnico<span class="drop-chance"> 15%</span></span></div></div></div>
@@ -836,6 +965,21 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="warn">El aliento de fuego del Dragón <strong>ignora la armadura</strong>. ¡Lleva mucha comida!</div>
   <div class="tip">Lleva <strong>10+ comidas</strong>, pociones de mejora y tu mejor equipo. ¡Los jefes pueden pelearse en grupo!</div>
   <div class="tip">&#x1F4A1; <strong>¡La estadística de Suerte</strong> de la Lavadora aumenta las tasas de botín de equipo y pociones!</div>
+
+<div class="sec-head" id="sec-kraken"><div class="sec-icon">🦑</div><div><h2>Encuentro Kraken</h2><p>Un evento oceánico que peleas desde tu barco</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li><strong>Invócalo en la Piscina sacrificial del continente.</strong> La ofrenda pide 3 Cebo oceánico, 2 Perlas, 6 gemas aceptadas y 30 puntos Frenzy. La piscina muestra qué ítems acepta y lo que tienes. Los drops Frenzy usan su valor de cargas de lavadora; aquí los peces Kraken cuentan triple.</li>
+      <li><strong>Sigue la alerta del evento y sal a navegar.</strong> Prepara un barco, comida y suministros de combate antes de que salga el Kraken. Es un evento oceánico invocado con timer compartido, aparte de los bosses de la Campana de invocación.</li>
+      <li><strong>Rompe los cuatro tentáculos y luego ataca la cabeza expuesta.</strong> Tu progreso de tentáculos y cabeza es personal: otros jugadores no pueden completar tu pelea por ti. Sigue pegando mientras esquivas los ataques marcados y las manchas de tinta.</li>
+      <li><strong>Termina la cabeza antes de que acabe el evento.</strong> Las recompensas son por tu kill completo; estar cerca o solo dañar un tentáculo no da el loot de completar. Al terminar tu pelea, el evento sigue para los demás hasta que se acabe el timer.</li>
+    </ol>
+  </div>
+
+  <div class="tip">¡Lleva <strong>10+ comida</strong>, pociones de buff y tu mejor gear. Los bosses se pueden pelear en party!</div>
+  <div class="tip">&#x1F4A1; ¡El <strong>stat de Suerte</strong> de la Lavadora sube las chances de drop de equipo y pociones!</div>
+
+  <!-- CAVE DENS -->
 </div>
 
 <!-- EQUIPO -->
@@ -947,6 +1091,61 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     </div>
     <p style="margin-top:8px;font-size:.82rem;color:var(--ink-3)">Costo de carga por tirada: <strong>1&#9889;</strong> (sin bloqueo) &bull; <strong>4&#9889;</strong> (1 bloqueo) &bull; <strong>10&#9889;</strong> (2 bloqueos)</p>
   </div>
+
+<div class="sec-head" id="sec-slimepower-scaling"><div class="sec-icon">📈</div><div><h2>Bonus de SlimePower</h2><p>ATK y DEF por level de SP y tier de Gear</p></div></div>
+  <div class="card">
+    <p>SlimePower añade <strong>ATK y DEF</strong> al Gear equipado. Levels de SP más altos y tiers de Gear más altos dan bonus más grandes.</p>
+    <p>El bonus de ATK de un arma aplica al usar su estilo de combate. Anillos, amuletos y capas usan su propio tier; las capas de habilidad y la mayoría de las capas especiales usan Cobalto.</p>
+    <p>La rareza del objeto no cambia los bonus de SP.</p>
+    <div class="sp-calc" data-sp-calc>
+      <h3>Calculadora de bonus</h3>
+      <label class="sub-label" for="sp-calc-tier">Tier de Gear</label>
+      <select id="sp-calc-tier" class="sub-select"><option value="bronze">Estaño (Lv 1)</option><option value="iron">Cobre (Lv 30)</option><option value="steel">Cuarzo (Lv 60)</option><option value="mithril">Plata (Lv 90)</option><option value="adamant">Platino (Lv 120)</option><option value="rune">Cobalto (Lv 150)</option><option value="slime">Jade (Lv 170)</option><option value="crystal">Titanio (Lv 190)</option><option value="ember">Ópalo (Lv 205)</option><option value="frost">Gema (Lv 220)</option><option value="volcanic">Volcánico (Lv 235)</option><option value="celestial">Celestial (Lv 250)</option><option value="solar">Solar (Lv 300)</option><option value="lunar">Lunar (Lv 350)</option><option value="eclipse">Eclipse (Lv 400)</option><option value="astral">Astral (Lv 450)</option><option value="storm">Tormenta (Lv 600)</option><option value="leviathan">Leviatán (Lv 700)</option><option value="goo">Goo (Lv 800)</option><option value="prism">Prisma (Lv 900)</option><option value="infinity">Infinity (Lv 1000)</option><option value="plasma">Plasma (Lv 1250)</option><option value="cloud">Nube (Lv 1500)</option><option value="fusion">Fusión (Lv 1750)</option><option value="antimatter">Antimateria (Lv 2000)</option></select>
+      <label class="sub-label" for="sp-calc-stars">SlimePower <output id="sp-calc-stars-out" for="sp-calc-stars">SP10</output></label>
+      <input id="sp-calc-stars" type="range" min="0" max="20" value="10" step="1">
+      <div class="sp-calc-out" aria-live="polite"><span><strong id="sp-calc-atk">+0</strong> ATK</span><span><strong id="sp-calc-def">+0</strong> DEF</span><span id="sp-calc-next"></span></div>
+    </div>
+  </div>
+  <details class="sp-reference">
+    <summary>Compara todos los tiers de Gear</summary>
+    <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Bonus de SlimePower por tier de Gear"><table class="guide-table"><caption>Bonus de SlimePower por tier de Gear</caption><thead><tr><th scope="col">Tier de Gear</th><th scope="col">Multiplicador</th><th scope="col">SP5</th><th scope="col">SP10</th><th scope="col">SP15</th><th scope="col">SP20</th></tr></thead><tbody>
+    <tr><th scope="row">Estaño <span class="sp-lvl">Lv 1</span></th><td>1.00×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+36 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+113 ATK</span><span class="sp-stat">+58 DEF</span></td><td><span class="sp-stat">+253 ATK</span><span class="sp-stat">+138 DEF</span></td></tr>
+    <tr><th scope="row">Cobre <span class="sp-lvl">Lv 30</span></th><td>1.03×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+37 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+116 ATK</span><span class="sp-stat">+59 DEF</span></td><td><span class="sp-stat">+260 ATK</span><span class="sp-stat">+142 DEF</span></td></tr>
+    <tr><th scope="row">Cuarzo <span class="sp-lvl">Lv 60</span></th><td>1.06×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+38 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+119 ATK</span><span class="sp-stat">+61 DEF</span></td><td><span class="sp-stat">+268 ATK</span><span class="sp-stat">+146 DEF</span></td></tr>
+    <tr><th scope="row">Plata <span class="sp-lvl">Lv 90</span></th><td>1.09×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+39 ATK</span><span class="sp-stat">+17 DEF</span></td><td><span class="sp-stat">+123 ATK</span><span class="sp-stat">+63 DEF</span></td><td><span class="sp-stat">+275 ATK</span><span class="sp-stat">+150 DEF</span></td></tr>
+    <tr><th scope="row">Platino <span class="sp-lvl">Lv 120</span></th><td>1.12×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+40 ATK</span><span class="sp-stat">+17 DEF</span></td><td><span class="sp-stat">+126 ATK</span><span class="sp-stat">+64 DEF</span></td><td><span class="sp-stat">+283 ATK</span><span class="sp-stat">+154 DEF</span></td></tr>
+    <tr><th scope="row">Cobalto <span class="sp-lvl">Lv 150</span></th><td>1.15×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+41 ATK</span><span class="sp-stat">+18 DEF</span></td><td><span class="sp-stat">+129 ATK</span><span class="sp-stat">+66 DEF</span></td><td><span class="sp-stat">+290 ATK</span><span class="sp-stat">+158 DEF</span></td></tr>
+    <tr><th scope="row">Jade <span class="sp-lvl">Lv 170</span></th><td>1.18×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+42 ATK</span><span class="sp-stat">+18 DEF</span></td><td><span class="sp-stat">+133 ATK</span><span class="sp-stat">+68 DEF</span></td><td><span class="sp-stat">+298 ATK</span><span class="sp-stat">+162 DEF</span></td></tr>
+    <tr><th scope="row">Titanio <span class="sp-lvl">Lv 190</span></th><td>1.21×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+43 ATK</span><span class="sp-stat">+19 DEF</span></td><td><span class="sp-stat">+136 ATK</span><span class="sp-stat">+70 DEF</span></td><td><span class="sp-stat">+306 ATK</span><span class="sp-stat">+166 DEF</span></td></tr>
+    <tr><th scope="row">Ópalo <span class="sp-lvl">Lv 205</span></th><td>1.24×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+44 ATK</span><span class="sp-stat">+19 DEF</span></td><td><span class="sp-stat">+140 ATK</span><span class="sp-stat">+71 DEF</span></td><td><span class="sp-stat">+313 ATK</span><span class="sp-stat">+171 DEF</span></td></tr>
+    <tr><th scope="row">Gema <span class="sp-lvl">Lv 220</span></th><td>1.27×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+45 ATK</span><span class="sp-stat">+20 DEF</span></td><td><span class="sp-stat">+143 ATK</span><span class="sp-stat">+73 DEF</span></td><td><span class="sp-stat">+321 ATK</span><span class="sp-stat">+175 DEF</span></td></tr>
+    <tr><th scope="row">Volcánico <span class="sp-lvl">Lv 235</span></th><td>1.30×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+46 ATK</span><span class="sp-stat">+20 DEF</span></td><td><span class="sp-stat">+146 ATK</span><span class="sp-stat">+75 DEF</span></td><td><span class="sp-stat">+328 ATK</span><span class="sp-stat">+179 DEF</span></td></tr>
+    <tr><th scope="row">Celestial <span class="sp-lvl">Lv 250</span></th><td>1.33×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+47 ATK</span><span class="sp-stat">+21 DEF</span></td><td><span class="sp-stat">+150 ATK</span><span class="sp-stat">+77 DEF</span></td><td><span class="sp-stat">+336 ATK</span><span class="sp-stat">+183 DEF</span></td></tr>
+    <tr><th scope="row">Solar <span class="sp-lvl">Lv 300</span></th><td>1.36×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+48 ATK</span><span class="sp-stat">+21 DEF</span></td><td><span class="sp-stat">+153 ATK</span><span class="sp-stat">+78 DEF</span></td><td><span class="sp-stat">+344 ATK</span><span class="sp-stat">+187 DEF</span></td></tr>
+    <tr><th scope="row">Lunar <span class="sp-lvl">Lv 350</span></th><td>1.39×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+50 ATK</span><span class="sp-stat">+22 DEF</span></td><td><span class="sp-stat">+157 ATK</span><span class="sp-stat">+80 DEF</span></td><td><span class="sp-stat">+351 ATK</span><span class="sp-stat">+191 DEF</span></td></tr>
+    <tr><th scope="row">Eclipse <span class="sp-lvl">Lv 400</span></th><td>1.42×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+51 ATK</span><span class="sp-stat">+22 DEF</span></td><td><span class="sp-stat">+160 ATK</span><span class="sp-stat">+82 DEF</span></td><td><span class="sp-stat">+359 ATK</span><span class="sp-stat">+195 DEF</span></td></tr>
+    <tr><th scope="row">Astral <span class="sp-lvl">Lv 450</span></th><td>1.45×</td><td><span class="sp-stat">+13 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+52 ATK</span><span class="sp-stat">+23 DEF</span></td><td><span class="sp-stat">+163 ATK</span><span class="sp-stat">+84 DEF</span></td><td><span class="sp-stat">+366 ATK</span><span class="sp-stat">+200 DEF</span></td></tr>
+    <tr><th scope="row">Tormenta <span class="sp-lvl">Lv 600</span></th><td>1.50×</td><td><span class="sp-stat">+13 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+54 ATK</span><span class="sp-stat">+24 DEF</span></td><td><span class="sp-stat">+169 ATK</span><span class="sp-stat">+87 DEF</span></td><td><span class="sp-stat">+379 ATK</span><span class="sp-stat">+207 DEF</span></td></tr>
+    <tr><th scope="row">Leviatán <span class="sp-lvl">Lv 700</span></th><td>1.60×</td><td><span class="sp-stat">+14 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+57 ATK</span><span class="sp-stat">+25 DEF</span></td><td><span class="sp-stat">+180 ATK</span><span class="sp-stat">+92 DEF</span></td><td><span class="sp-stat">+404 ATK</span><span class="sp-stat">+220 DEF</span></td></tr>
+    <tr><th scope="row">Goo <span class="sp-lvl">Lv 800</span></th><td>1.70×</td><td><span class="sp-stat">+15 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+61 ATK</span><span class="sp-stat">+27 DEF</span></td><td><span class="sp-stat">+192 ATK</span><span class="sp-stat">+98 DEF</span></td><td><span class="sp-stat">+430 ATK</span><span class="sp-stat">+234 DEF</span></td></tr>
+    <tr><th scope="row">Prisma <span class="sp-lvl">Lv 900</span></th><td>1.80×</td><td><span class="sp-stat">+16 ATK</span><span class="sp-stat">+7 DEF</span></td><td><span class="sp-stat">+64 ATK</span><span class="sp-stat">+28 DEF</span></td><td><span class="sp-stat">+203 ATK</span><span class="sp-stat">+104 DEF</span></td><td><span class="sp-stat">+455 ATK</span><span class="sp-stat">+248 DEF</span></td></tr>
+    <tr><th scope="row">Infinity <span class="sp-lvl">Lv 1000</span></th><td>1.90×</td><td><span class="sp-stat">+17 ATK</span><span class="sp-stat">+7 DEF</span></td><td><span class="sp-stat">+68 ATK</span><span class="sp-stat">+30 DEF</span></td><td><span class="sp-stat">+214 ATK</span><span class="sp-stat">+110 DEF</span></td><td><span class="sp-stat">+480 ATK</span><span class="sp-stat">+262 DEF</span></td></tr>
+    <tr><th scope="row">Plasma <span class="sp-lvl">Lv 1250</span></th><td>2.00×</td><td><span class="sp-stat">+18 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+72 ATK</span><span class="sp-stat">+32 DEF</span></td><td><span class="sp-stat">+226 ATK</span><span class="sp-stat">+116 DEF</span></td><td><span class="sp-stat">+506 ATK</span><span class="sp-stat">+276 DEF</span></td></tr>
+    <tr><th scope="row">Nube <span class="sp-lvl">Lv 1500</span></th><td>2.10×</td><td><span class="sp-stat">+18 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+75 ATK</span><span class="sp-stat">+33 DEF</span></td><td><span class="sp-stat">+237 ATK</span><span class="sp-stat">+121 DEF</span></td><td><span class="sp-stat">+531 ATK</span><span class="sp-stat">+289 DEF</span></td></tr>
+    <tr><th scope="row">Fusión <span class="sp-lvl">Lv 1750</span></th><td>2.20×</td><td><span class="sp-stat">+19 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+79 ATK</span><span class="sp-stat">+35 DEF</span></td><td><span class="sp-stat">+248 ATK</span><span class="sp-stat">+127 DEF</span></td><td><span class="sp-stat">+556 ATK</span><span class="sp-stat">+303 DEF</span></td></tr>
+    <tr><th scope="row">Antimateria <span class="sp-lvl">Lv 2000</span></th><td>2.30×</td><td><span class="sp-stat">+20 ATK</span><span class="sp-stat">+9 DEF</span></td><td><span class="sp-stat">+82 ATK</span><span class="sp-stat">+36 DEF</span></td><td><span class="sp-stat">+259 ATK</span><span class="sp-stat">+133 DEF</span></td><td><span class="sp-stat">+581 ATK</span><span class="sp-stat">+317 DEF</span></td></tr>
+  </tbody></table></div>
+  </details>
+  <script type="application/json" id="sp-scaling-data">{"atk":[1,1,2,2,3,4,4,5,6,8,10,12,15,18,22,24,26,28,30,32],"def":[0,1,1,1,1,1,2,2,3,4,5,6,8,10,13,14,15,16,17,18],"tiers":[{"key":"bronze","label":"Tin","level":1,"mult":1},{"key":"iron","label":"Copper","level":30,"mult":1.03},{"key":"steel","label":"Quartz","level":60,"mult":1.06},{"key":"mithril","label":"Silver","level":90,"mult":1.09},{"key":"adamant","label":"Platinum","level":120,"mult":1.12},{"key":"rune","label":"Cobalt","level":150,"mult":1.15},{"key":"slime","label":"Jade","level":170,"mult":1.18},{"key":"crystal","label":"Titanium","level":190,"mult":1.21},{"key":"ember","label":"Opal","level":205,"mult":1.24},{"key":"frost","label":"Gem","level":220,"mult":1.27},{"key":"volcanic","label":"Volcanic","level":235,"mult":1.3},{"key":"celestial","label":"Celestial","level":250,"mult":1.33},{"key":"solar","label":"Solar","level":300,"mult":1.36},{"key":"lunar","label":"Lunar","level":350,"mult":1.39},{"key":"eclipse","label":"Eclipse","level":400,"mult":1.42},{"key":"astral","label":"Astral","level":450,"mult":1.45},{"key":"storm","label":"Storm","level":600,"mult":1.5},{"key":"leviathan","label":"Leviathan","level":700,"mult":1.6},{"key":"goo","label":"Goo","level":800,"mult":1.7},{"key":"prism","label":"Prism","level":900,"mult":1.8},{"key":"infinity","label":"Infinity","level":1000,"mult":1.9},{"key":"plasma","label":"Plasma","level":1250,"mult":2},{"key":"cloud","label":"Cloud","level":1500,"mult":2.1},{"key":"fusion","label":"Fusion","level":1750,"mult":2.2},{"key":"antimatter","label":"Antimatter","level":2000,"mult":2.3}]}</script>
+  <script>(()=>{const d=JSON.parse(document.getElementById("sp-scaling-data").textContent),tier=document.getElementById("sp-calc-tier"),stars=document.getElementById("sp-calc-stars");
+  const sum=(per,n)=>{let s=0;for(let i=0;i<n;i++)s+=per[i]||0;return s;},bonus=(per,n,m)=>Math.floor(sum(per,n)*m),f=n=>n.toLocaleString("en-US");
+  const draw=()=>{const t=d.tiers.find(x=>x.key===tier.value)||d.tiers[0],n=Number(stars.value)||0,a=bonus(d.atk,n,t.mult),b=bonus(d.def,n,t.mult);
+  document.getElementById("sp-calc-stars-out").textContent="SP"+n;document.getElementById("sp-calc-atk").textContent="+"+f(a);document.getElementById("sp-calc-def").textContent="+"+f(b);
+  document.getElementById("sp-calc-next").textContent=n<d.atk.length?"Next level: +"+f(bonus(d.atk,n+1,t.mult)-a)+" ATK, +"+f(bonus(d.def,n+1,t.mult)-b)+" DEF":"Max SlimePower";};
+  tier.value=d.tiers[d.tiers.length-1].key;tier.addEventListener("change",draw);stars.addEventListener("input",draw);draw();})();</script>
+  <!-- AUTOGEN:slimepower-scaling END -->
+
+<div class="card" id="sec-transpose"><h3>Conserva buenos potenciales al mejorar Gear</h3><p>La opción <strong>Traspasar</strong> de la lavadora mueve todas las líneas de potencial de un objeto viejo a uno nuevo. Elige el origen y el destino con cuidado: el éxito quita las líneas del origen y reemplaza las del destino. Un intento fallido deja las líneas de ambos objetos, pero igual gasta cargas. El panel muestra el costo de cargas del objeto destino y las chances de un traspaso o un traspaso mejorado.</p></div>
 </div>
 
 <!-- COMIDA -->
@@ -1095,7 +1294,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-badge tag-gold">Nv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">Pez Globo</span><div class="tier-detail"><span>1350 xp</span><span>120m</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-gold">Nv 230</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">Piraña</span><div class="tier-detail"><span>1680 xp</span><span>145m</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-gold">Nv 260</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">Rape</span><div class="tier-detail"><span>2050 xp</span><span>175m</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Nv 300</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">Humphead</span><div class="tier-detail"><span>2500 xp</span><span>210m</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Nv 300</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">Pez napoleón</span><div class="tier-detail"><span>2500 xp</span><span>210m</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-gold">Nv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">Pez Mandarín</span><div class="tier-detail"><span>3100 xp</span><span>260m</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-gold">Nv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">Koi</span><div class="tier-detail"><span>3800 xp</span><span>320m</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-gold">Nv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">Betta</span><div class="tier-detail"><span>4600 xp</span><span>400m</span></div></div>
@@ -1128,9 +1327,9 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-badge tag-purple">Nv 140</span><span class="tier-swatch" style="background:#3a5c3a"></span><span class="tier-name">Pino</span><div class="tier-detail"><span>450 xp</span><span>38m</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-gold">Nv 170</span><span class="tier-swatch" style="background:#8b4513"></span><span class="tier-name">Cedro</span><div class="tier-detail"><span>575 xp</span><span>60m</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-gold">Nv 200</span><span class="tier-swatch" style="background:#50a03c"></span><span class="tier-name">Cactus</span><div class="tier-detail"><span>778 xp</span><span>75m</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Nv 235</span><span class="tier-swatch" style="background:#c07050"></span><span class="tier-name">Ribbon Wood</span><div class="tier-detail"><span>1680 xp</span><span>100m</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Nv 265</span><span class="tier-swatch" style="background:#ff80b0"></span><span class="tier-name">Candy Wood</span><div class="tier-detail"><span>2050 xp</span><span>125m</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Nv 300</span><span class="tier-swatch" style="background:#6b4a30"></span><span class="tier-name">Root Wood</span><div class="tier-detail"><span>2500 xp</span><span>155m</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Nv 235</span><span class="tier-swatch" style="background:#c07050"></span><span class="tier-name">Madera de listón</span><div class="tier-detail"><span>1680 xp</span><span>100m</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Nv 265</span><span class="tier-swatch" style="background:#ff80b0"></span><span class="tier-name">Madera de caramelo</span><div class="tier-detail"><span>2050 xp</span><span>125m</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Nv 300</span><span class="tier-swatch" style="background:#6b4a30"></span><span class="tier-name">Madera de raíz</span><div class="tier-detail"><span>2500 xp</span><span>155m</span></div></div>
     </div><div class="tip">Botín raro: Nido de Pájaro (4-12%)</div></div>
 
     <div class="tier-item skill-row" data-skill="sk-farming"><span class="tier-swatch" style="background:#78b43c;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F33E;</span><span class="tier-name">Agricultura</span><span class="tier-meta">Planta y cosecha cultivos &bull; XP pasiva</span></div>
@@ -1300,6 +1499,78 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name">Bonus de XP de la Lavadora</span><span class="tier-meta">2-8% extra en todas las tiradas</span></div>
     </div>
   </div>
+
+<div id="sec-boss-scrolls"><div class="tip">Craftea <strong>Pergaminos de encantamiento de boss</strong> en la Mesa de copia. Cada receta usa <strong>5 Pergaminos en blanco + 1 drop de boss</strong>.</div>
+<!-- AUTOGEN:boss-scrolls START -->
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Recetas de pergaminos de encantamiento de boss"><table class="guide-table"><caption>Recetas de pergaminos de encantamiento de boss</caption><thead><tr><th scope="col">Level de Copia</th><th scope="col">Pergamino</th><th scope="col">Ingredientes</th><th scope="col">XP base</th></tr></thead><tbody>
+    <tr><th scope="row">1</th><td>Pergamino de veneno</td><td>5 × Pergamino en blanco + 1 × Escama de serpiente</td><td>1,000</td></tr>
+    <tr><th scope="row">10</th><td>Pergamino de piedra</td><td>5 × Pergamino en blanco + 1 × Núcleo de gólem</td><td>1,800</td></tr>
+    <tr><th scope="row">20</th><td>Pergamino pegajoso</td><td>5 × Pergamino en blanco + 1 × Jalea real</td><td>2,800</td></tr>
+    <tr><th scope="row">30</th><td>Pergamino de escarcha</td><td>5 × Pergamino en blanco + 1 × Corazón congelado</td><td>4,400</td></tr>
+    <tr><th scope="row">40</th><td>Pergamino de dragón</td><td>5 × Pergamino en blanco + 1 × Escama de dragón</td><td>7,200</td></tr>
+    <tr><th scope="row">50</th><td>Pergamino Skele</td><td>5 × Pergamino en blanco + 1 × Calavera Skele</td><td>12,000</td></tr>
+    <tr><th scope="row">60</th><td>Pergamino de araña</td><td>5 × Pergamino en blanco + 1 × Colmillo de araña</td><td>18,000</td></tr>
+    <tr><th scope="row">62</th><td>Pergamino de rata</td><td>5 × Pergamino en blanco + 1 × Queso de rata</td><td>20,000</td></tr>
+    <tr><th scope="row">70</th><td>Pergamino de mago</td><td>5 × Pergamino en blanco + 1 × Fragmento arcano</td><td>26,000</td></tr>
+    <tr><th scope="row">80</th><td>Pergamino Alien</td><td>5 × Pergamino en blanco + 1 × Núcleo alienígena</td><td>38,000</td></tr>
+    <tr><th scope="row">81</th><td>Pergamino de Cocodrilo</td><td>5 × Blank Scroll + 1 × Croc Scale</td><td>40,000</td></tr>
+    <tr><th scope="row">82</th><td>Pergamino de flores</td><td>5 × Pergamino en blanco + 1 × Panal</td><td>34,000</td></tr>
+    <tr><th scope="row">88</th><td>Pergamino de pantano</td><td>5 × Pergamino en blanco + 1 × Ancas de rana</td><td>46,000</td></tr>
+  </tbody></table></div>
+  <!-- AUTOGEN:boss-scrolls END --></div>
+    <div id="sec-resource-scrolls"><p>Los pergaminos de recurso entrenan el skill correspondiente de tu mascota. La tabla lista el Level de Copia y el XP para hacerlos.</p>
+    <!-- AUTOGEN:resource-scrolls START -->
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Recetas de pergaminos de recurso"><table class="guide-table"><caption>Recetas de pergaminos de recurso</caption><thead><tr><th scope="col">Level de Copia</th><th scope="col">Pergamino</th><th scope="col">Ingredientes</th><th scope="col">XP base</th></tr></thead><tbody>
+    <tr><th scope="row">1</th><td>Pergamino en blanco</td><td>5 × Fibra + 5 × Bambú + 5 × Cuerda</td><td>25</td></tr>
+    <tr><th scope="row">1</th><td>Pergamino de Tala I</td><td>1 × Pergamino en blanco + 50 × Troncos</td><td>300</td></tr>
+    <tr><th scope="row">20</th><td>Pergamino de Tala II</td><td>1 × Pergamino en blanco + 50 × Troncos de abedul</td><td>500</td></tr>
+    <tr><th scope="row">30</th><td>Pergamino de Tala III</td><td>1 × Pergamino en blanco + 50 × Troncos de roble</td><td>800</td></tr>
+    <tr><th scope="row">90</th><td>Pergamino de Tala IV</td><td>1 × Pergamino en blanco + 50 × Troncos de palma</td><td>1,200</td></tr>
+    <tr><th scope="row">110</th><td>Pergamino de Tala V</td><td>1 × Pergamino en blanco + 50 × Troncos de arce</td><td>1,800</td></tr>
+    <tr><th scope="row">140</th><td>Pergamino de Tala VI</td><td>1 × Pergamino en blanco + 50 × Troncos de pino</td><td>2,500</td></tr>
+    <tr><th scope="row">170</th><td>Pergamino de Tala VII</td><td>1 × Pergamino en blanco + 50 × Troncos de cedro</td><td>3,500</td></tr>
+    <tr><th scope="row">200</th><td>Pergamino de Tala VIII</td><td>1 × Pergamino en blanco + 50 × Madera de cacto</td><td>4,200</td></tr>
+    <tr><th scope="row">235</th><td>Pergamino de Tala IX</td><td>1 × Pergamino en blanco + 50 × Madera de cinta</td><td>5,000</td></tr>
+    <tr><th scope="row">265</th><td>Pergamino de Tala X</td><td>1 × Pergamino en blanco + 50 × Madera dulce</td><td>6,000</td></tr>
+    <tr><th scope="row">300</th><td>Pergamino de Tala XI</td><td>1 × Pergamino en blanco + 50 × Madera de raíz</td><td>7,200</td></tr>
+    <tr><th scope="row">1</th><td>Pergamino de Minería I</td><td>1 × Pergamino en blanco + 50 × Mineral</td><td>300</td></tr>
+    <tr><th scope="row">15</th><td>Pergamino de Minería II</td><td>1 × Pergamino en blanco + 50 × Mineral de estaño</td><td>500</td></tr>
+    <tr><th scope="row">30</th><td>Pergamino de Minería III</td><td>1 × Pergamino en blanco + 50 × Mineral de cobre</td><td>800</td></tr>
+    <tr><th scope="row">30</th><td>Pergamino de Minería IV</td><td>1 × Pergamino en blanco + 50 × Mineral de cuarzo</td><td>1,200</td></tr>
+    <tr><th scope="row">50</th><td>Pergamino de Minería V</td><td>1 × Pergamino en blanco + 50 × Mineral de plata</td><td>1,800</td></tr>
+    <tr><th scope="row">75</th><td>Pergamino de Minería VI</td><td>1 × Pergamino en blanco + 50 × Mineral de platino</td><td>2,500</td></tr>
+    <tr><th scope="row">100</th><td>Pergamino de Minería VII</td><td>1 × Pergamino en blanco + 50 × Mineral de cobalto</td><td>3,500</td></tr>
+    <tr><th scope="row">135</th><td>Pergamino de Minería VIII</td><td>1 × Pergamino en blanco + 50 × Mineral de jade</td><td>4,200</td></tr>
+    <tr><th scope="row">170</th><td>Pergamino de Minería IX</td><td>1 × Pergamino en blanco + 50 × Mineral de titanio</td><td>5,000</td></tr>
+    <tr><th scope="row">270</th><td>Pergamino de Minería X</td><td>1 × Pergamino en blanco + 50 × Mineral Celestial</td><td>6,000</td></tr>
+    <tr><th scope="row">310</th><td>Pergamino de Minería XI</td><td>1 × Pergamino en blanco + 50 × Piedra solar</td><td>7,200</td></tr>
+    <tr><th scope="row">1</th><td>Pergamino de Pesca I</td><td>1 × Pergamino en blanco + 50 × Camarón</td><td>300</td></tr>
+    <tr><th scope="row">15</th><td>Pergamino de Pesca II</td><td>1 × Pergamino en blanco + 50 × Trout</td><td>500</td></tr>
+    <tr><th scope="row">30</th><td>Pergamino de Pesca III</td><td>1 × Pergamino en blanco + 50 × Salmon</td><td>800</td></tr>
+    <tr><th scope="row">50</th><td>Pergamino de Pesca IV</td><td>1 × Pergamino en blanco + 50 × Langosta</td><td>1,200</td></tr>
+    <tr><th scope="row">75</th><td>Pergamino de Pesca V</td><td>1 × Pergamino en blanco + 50 × Mackerel</td><td>1,800</td></tr>
+    <tr><th scope="row">100</th><td>Pergamino de Pesca VI</td><td>1 × Pergamino en blanco + 50 × Swordfish</td><td>2,500</td></tr>
+    <tr><th scope="row">135</th><td>Pergamino de Pesca VII</td><td>1 × Pergamino en blanco + 50 × Tuna</td><td>3,500</td></tr>
+    <tr><th scope="row">170</th><td>Pergamino de Pesca VIII</td><td>1 × Pergamino en blanco + 50 × Lionfish</td><td>4,200</td></tr>
+    <tr><th scope="row">200</th><td>Pergamino de Pesca IX</td><td>1 × Pergamino en blanco + 50 × Pufferfish</td><td>5,000</td></tr>
+    <tr><th scope="row">270</th><td>Pergamino de Pesca X</td><td>1 × Pergamino en blanco + 50 × Anglerfish</td><td>6,000</td></tr>
+    <tr><th scope="row">310</th><td>Pergamino de Pesca XI</td><td>1 × Pergamino en blanco + 50 × Humphead</td><td>7,200</td></tr>
+  </tbody></table></div>
+  <!-- AUTOGEN:resource-scrolls END -->
+    </div>
+    
+<div class="sec-head" id="sec-skill-capes"><div class="sec-icon" data-guide-icon data-icon="mining_trimmed_cape"></div><div><h2>Capas de habilidad &amp; capas recortadas</h2><p>Maestría en nivel 1000, recorte en nivel 2000</p></div></div>
+  <div class="card"><p>Llega a <strong>level 1000</strong> en un skill y habla con su maestro de skill para reclamar la capa correspondiente. Al <strong>level 2000</strong>, lleva esa capa de vuelta y elige la opción de recorte. El recorte conserva las mejoras y encantamientos de ese objeto.</p><p><strong>Revisa el texto de Examinar de la capa para su perk y reglas de activación.</strong> Muchas capas de recolección y utilidad funcionan en tu bolsa o equipadas; los perks de capas de combate requieren el slot de capa.</p><p>Ejemplos: la Capa de Minería mejora el rendimiento de Meteor; la Capa de Pesca ayuda a localizar cardúmenes de mar profundo; la Capa de Exploración abre el viaje de Estatua Slime. Las capas recortadas dan beneficios más fuertes, incluyendo una segunda parcela de Capa de Cultivo, más rendimiento de Meteor y Bambú/Carne de árbol, mejor chance de Pez dorado y más ahorro de recursos de combate.</p><p>Clic derecho en una capa para viaje, vínculo u opciones de clic izquierdo preferidas, si hay.</p></div>
+</div>
+
+    <div class="tier-item skill-row" data-skill="sk-cooking"><span class="tier-swatch" style="background:#ff8040;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F373;</span><span class="tier-name">Cocina</span><span class="tier-meta">Cocinar comida cruda en fogatas &bull; Reduce chance de quemado</span></div>
+    <div class="skill-collapse" id="sk-cooking"><div class="card"><p>Cocina comida cruda en una fogata o combina ingredientes en una hoguera. Compara el level, la chance de quemado y la curación de la receta real al decidir qué hacer.</p><p><a href="#sec-cooking">Recetas de Cocina</a> · <a href="#sec-bonfire">Recetas de hoguera</a> · <a href="#sec-healing-food">Tabla de comida curativa</a></p></div></div>
+
+    <div class="tier-item skill-row" id="sec-explorer" data-skill="sk-explorer"><span class="tier-swatch" style="background:#40a8c8;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F5FA;&#xFE0F;</span><span class="tier-name">Exploración</span><span class="tier-meta">Cartografiar islas &bull; Completar tareas del Maestro de navegación</span></div>
+    <div class="skill-collapse" id="sk-explorer"><div class="card"><p>Navega desde el Puerto, cartografía islas y completa las tareas del Maestro de navegación. <strong>Todos los tiers de islas están abiertos para viajar y cartografiar.</strong> La recolección y el combate aún dependen de tus skills y equipo.</p><p><a href="#sec-islands">Navegación, tiers de islas y encuentros</a> · <a href="#sec-sailing-tasks">Tareas del Maestro de navegación</a></p></div></div>
+
+    <div class="tier-item" id="sec-hitpoints"><span class="tier-swatch" style="background:#e04040;font-size:20px">&#x2764;&#xFE0F;</span><span class="tier-name">Vida</span><span class="tier-meta">XP de todo el combate &bull; Empieza en level 10</span></div>
+  </div>
 </div>
 
 <!-- ISLAS -->
@@ -1343,40 +1614,40 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
   <h3 style="margin:12px 0 6px;color:#c8b080;font-size:14px">Tala (Solo Islas)</h3>
   <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge tag-green">Nv 1</span><span class="tier-swatch" style="background:#c89858"></span><span class="tier-name">Coconut Palm Logs</span><div class="tier-detail"><span>220 xp</span><span>80m</span><span>Tropical</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Nv 50</span><span class="tier-swatch" style="background:#c0e0f0"></span><span class="tier-name">Frostwood Logs</span><div class="tier-detail"><span>480 xp</span><span>140m</span><span>Nieve</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Nv 100</span><span class="tier-swatch" style="background:#3c1810"></span><span class="tier-name">Volcanic Logs</span><div class="tier-detail"><span>600 xp</span><span>180m</span><span>Volcánico</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Nv 1</span><span class="tier-swatch" style="background:#c89858"></span><span class="tier-name">Troncos de palma de coco</span><div class="tier-detail"><span>220 xp</span><span>80m</span><span>Tropical</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Nv 50</span><span class="tier-swatch" style="background:#c0e0f0"></span><span class="tier-name">Troncos de madera gélida</span><div class="tier-detail"><span>480 xp</span><span>140m</span><span>Nieve</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Nv 100</span><span class="tier-swatch" style="background:#3c1810"></span><span class="tier-name">Troncos volcánicos</span><div class="tier-detail"><span>600 xp</span><span>180m</span><span>Volcánico</span></div></div>
   </div>
 
   <h3 style="margin:12px 0 6px;color:#c8b080;font-size:14px">Minería (Solo Islas)</h3>
   <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge tag-green">Nv 1</span><span class="tier-swatch" style="background:#ff8080"></span><span class="tier-name">Coral Shard</span><div class="tier-detail"><span>180 xp</span><span>20m</span><span>Volcánico</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Nv 15</span><span class="tier-swatch" style="background:#50a050"></span><span class="tier-name">Moss Stone</span><div class="tier-detail"><span>250 xp</span><span>55m</span><span>Templado</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Nv 50</span><span class="tier-swatch" style="background:#c8a064"></span><span class="tier-name">Sandstone Block</span><div class="tier-detail"><span>350 xp</span><span>75m</span><span>Desierto</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Nv 75</span><span class="tier-swatch" style="background:#64c8ff"></span><span class="tier-name">Glacial Shard</span><div class="tier-detail"><span>420 xp</span><span>100m</span><span>Nieve</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Nv 135</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Spore Crystal</span><div class="tier-detail"><span>700 xp</span><span>150m</span><span>Hongo</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Nv 1</span><span class="tier-swatch" style="background:#ff8080"></span><span class="tier-name">Fragmento de coral</span><div class="tier-detail"><span>180 xp</span><span>20m</span><span>Volcánico</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Nv 15</span><span class="tier-swatch" style="background:#50a050"></span><span class="tier-name">Piedra de musgo</span><div class="tier-detail"><span>250 xp</span><span>55m</span><span>Templado</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Nv 50</span><span class="tier-swatch" style="background:#c8a064"></span><span class="tier-name">Bloque de arenisca</span><div class="tier-detail"><span>350 xp</span><span>75m</span><span>Desierto</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Nv 75</span><span class="tier-swatch" style="background:#64c8ff"></span><span class="tier-name">Fragmento glacial</span><div class="tier-detail"><span>420 xp</span><span>100m</span><span>Nieve</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Nv 135</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Cristal de espora</span><div class="tier-detail"><span>700 xp</span><span>150m</span><span>Hongo</span></div></div>
   </div>
 
   <h3 style="margin:12px 0 6px;color:#c8b080;font-size:14px">Recolección (Solo Islas)</h3>
   <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge tag-green">Nv 1</span><span class="tier-swatch" style="background:#70a050"></span><span class="tier-name">Wild Berries</span><div class="tier-detail"><span>18 xp</span><span>1m</span><span>Todos los biomas</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Nv 10</span><span class="tier-swatch" style="background:#c8b432"></span><span class="tier-name">Pineapple Berry</span><div class="tier-detail"><span>30 xp</span><span>3m</span><span>Tropical</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Nv 30</span><span class="tier-swatch" style="background:#b4a050"></span><span class="tier-name">Yucca Pulp</span><div class="tier-detail"><span>40 xp</span><span>3m</span><span>Desierto</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Nv 60</span><span class="tier-swatch" style="background:#64ff96"></span><span class="tier-name">Glow Cap</span><div class="tier-detail"><span>55 xp</span><span>4m</span><span>Hongo</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Nv 1</span><span class="tier-swatch" style="background:#70a050"></span><span class="tier-name">Bayas silvestres</span><div class="tier-detail"><span>18 xp</span><span>1m</span><span>Todos los biomas</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Nv 10</span><span class="tier-swatch" style="background:#c8b432"></span><span class="tier-name">Baya de piña</span><div class="tier-detail"><span>30 xp</span><span>3m</span><span>Tropical</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Nv 30</span><span class="tier-swatch" style="background:#b4a050"></span><span class="tier-name">Pulpa de yuca</span><div class="tier-detail"><span>40 xp</span><span>3m</span><span>Desierto</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Nv 60</span><span class="tier-swatch" style="background:#64ff96"></span><span class="tier-name">Sombrero resplandeciente</span><div class="tier-detail"><span>55 xp</span><span>4m</span><span>Hongo</span></div></div>
   </div>
 
   <div class="sec-head"><div class="sec-icon red">&#x1F9CA;</div><div><h2>Slimes de Isla</h2><p>Encuentros de combate en islas procgen</p></div></div>
 
   <div class="bestiary">
-    <div class="mob-card"><div class="mob-icon" style="background:rgba(120,255,120,.06)">&#x1F7E2;</div><div class="mob-info"><div class="mob-name">Tiny Slime</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 50</span><span>T1-T2</span></div></div></div>
-    <div class="mob-card"><div class="mob-icon" style="background:rgba(180,150,100,.06)">&#x1F40C;</div><div class="mob-info"><div class="mob-name">Snail Slime</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 150</span><span>T2-T3</span></div></div></div>
-    <div class="mob-card"><div class="mob-icon" style="background:rgba(100,200,255,.06)">&#x2744;&#xFE0F;</div><div class="mob-info"><div class="mob-name">Frost Slime</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 300</span><span>T3-T4 &bull; Nieve</span></div></div></div>
-    <div class="mob-card"><div class="mob-icon" style="background:rgba(150,150,150,.06)">&#x1FAA8;</div><div class="mob-info"><div class="mob-name">Stone Slime</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 500</span><span>T4-T5</span></div></div></div>
-    <div class="mob-card"><div class="mob-icon" style="background:rgba(255,100,50,.06)">&#x1F525;</div><div class="mob-info"><div class="mob-name">Magma Slime</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 800</span><span>T5-T6 &bull; Volcánico</span></div></div></div>
-    <div class="mob-card"><div class="mob-icon" style="background:rgba(80,80,80,.06)">&#x1F311;</div><div class="mob-info"><div class="mob-name">Obsidian Slime</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 1200</span><span>T6-T7</span></div></div></div>
-    <div class="mob-card"><div class="mob-icon" style="background:rgba(100,200,100,.06)">&#x1F41B;</div><div class="mob-info"><div class="mob-name">Slime Slug</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 1800</span><span>T7-T8</span></div></div></div>
-    <div class="mob-card"><div class="mob-icon" style="background:rgba(255,100,100,.06)">&#x1F994;</div><div class="mob-info"><div class="mob-name">Spike Slime</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 2500</span><span>T8-T9</span></div></div></div>
-    <div class="mob-card" style="border-color:rgba(232,84,84,.2)"><div class="mob-icon" style="background:rgba(232,84,84,.08)">&#x1F4AA;</div><div class="mob-info"><div class="mob-name" style="color:var(--red)">Brute Slime</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 4000</span><span>T9-T10</span></div></div></div>
+    <div class="mob-card"><div class="mob-icon" style="background:rgba(120,255,120,.06)">&#x1F7E2;</div><div class="mob-info"><div class="mob-name">Slime diminuto</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 50</span><span>T1-T2</span></div></div></div>
+    <div class="mob-card"><div class="mob-icon" style="background:rgba(180,150,100,.06)">&#x1F40C;</div><div class="mob-info"><div class="mob-name">Slime caracol</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 150</span><span>T2-T3</span></div></div></div>
+    <div class="mob-card"><div class="mob-icon" style="background:rgba(100,200,255,.06)">&#x2744;&#xFE0F;</div><div class="mob-info"><div class="mob-name">Slime de escarcha</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 300</span><span>T3-T4 &bull; Nieve</span></div></div></div>
+    <div class="mob-card"><div class="mob-icon" style="background:rgba(150,150,150,.06)">&#x1FAA8;</div><div class="mob-info"><div class="mob-name">Slime de piedra</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 500</span><span>T4-T5</span></div></div></div>
+    <div class="mob-card"><div class="mob-icon" style="background:rgba(255,100,50,.06)">&#x1F525;</div><div class="mob-info"><div class="mob-name">Slime de magma</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 800</span><span>T5-T6 &bull; Volcánico</span></div></div></div>
+    <div class="mob-card"><div class="mob-icon" style="background:rgba(80,80,80,.06)">&#x1F311;</div><div class="mob-info"><div class="mob-name">Slime de obsidiana</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 1200</span><span>T6-T7</span></div></div></div>
+    <div class="mob-card"><div class="mob-icon" style="background:rgba(100,200,100,.06)">&#x1F41B;</div><div class="mob-info"><div class="mob-name">Babosa Slime</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 1800</span><span>T7-T8</span></div></div></div>
+    <div class="mob-card"><div class="mob-icon" style="background:rgba(255,100,100,.06)">&#x1F994;</div><div class="mob-info"><div class="mob-name">Slime con púas</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 2500</span><span>T8-T9</span></div></div></div>
+    <div class="mob-card" style="border-color:rgba(232,84,84,.2)"><div class="mob-icon" style="background:rgba(232,84,84,.08)">&#x1F4AA;</div><div class="mob-info"><div class="mob-name" style="color:var(--red)">Slime bruto</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 4000</span><span>T9-T10</span></div></div></div>
     <div class="mob-card" style="border-color:rgba(232,84,84,.2)"><div class="mob-icon" style="background:rgba(232,84,84,.08)">&#x1F40D;</div><div class="mob-info"><div class="mob-name" style="color:var(--red)">Jefe Serpiente</div><div class="mob-stats"><span>&#x2764;&#xFE0F; 1000</span><span>Jefe de isla</span></div></div></div>
   </div>
 </div>
@@ -1398,6 +1669,18 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="svc-card"><div class="svc-icon" style="background:rgba(92,255,138,.08);border-color:rgba(92,255,138,.12)">&#x1F4CB;</div><div><div class="svc-name">Cartel de Tareas</div><div class="svc-desc">Acepta misiones por XP y monedas</div></div></div>
     <div class="svc-card"><div class="svc-icon">&#x1F94A;</div><div><div class="svc-name">Muñecos de Entrenamiento</div><div class="svc-desc">Practica combate sin recibir daño</div></div></div>
     <div class="svc-card"><div class="svc-icon" style="background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.12)">&#x1F514;</div><div><div class="svc-name">Campana de Invocación</div><div class="svc-desc">Entra a una pelea instanciada de jefe</div></div></div>
+  </div>
+
+  
+  <div class="sec-head" id="sec-housing"><div class="sec-icon" data-guide-icon data-icon="Home Stone">🏡</div><div><h2>Vivienda</h2><p>Compra una casa en Ville, decórala y añade instalaciones útiles</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li><strong>Entra a Ville</strong> por su entrada en el continente. Abre <strong>Lotes</strong> para ver barrios y casas disponibles.</li>
+      <li><strong>Compra una casa con Cupones Cozy.</strong> Entra, lleva los cupones necesarios en tu bolsa y mira el panel de compra del lote. Usa el panel de tu casa para mejoras después; <strong>Mi casa</strong> te ayuda a encontrarla otra vez.</li>
+      <li><strong>Entra y elige Decorar.</strong> Mira muebles, colócalos y gíralos, y usa los controles de estilo y habitación para cambiar tu casa. Termina con <strong>Listo</strong> para salir del modo decorar y usar la habitación.</li>
+      <li><strong>Añade instalaciones.</strong> Los muebles usables incluyen almacén de banco, estaciones de crafteo, un horno, aserradero, mesa de copia, lavadora y estaciones de cocina. Los visitantes también pueden usar las instalaciones compatibles; el almacén abre el banco del visitante.</li>
+    </ol>
+    <p>Compra <strong>Cupones Cozy</strong> en la Tienda SlimeCoin. Una <strong>Piedra de casa</strong> te lleva a Ville, a tu casa y a la Pradera pacífica desde sitios compatibles; su menú muestra cargas y destinos.</p><p>El catálogo distingue <strong>Usable por todos</strong> de <strong>Decoración por ahora</strong>. La apariencia de un objeto decorativo no promete un minijuego o servicio que funcione.</p>
   </div>
 
   <div class="sec-head"><div class="sec-icon">&#x1F91D;</div><div><h2>Multijugador</h2><p>Juega con otros en tiempo real</p></div></div>
@@ -1427,12 +1710,33 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 </div>
 
 <!-- CLANES -->
+
+<div class="tab-content" id="tab-trading">
+  <div class="sec-head" id="sec-exchange"><div class="sec-icon" style="background:rgba(255,200,80,.10);border-color:rgba(255,200,80,.22)">&#x1F4B1;</div><div><h2>Lonja</h2><p>Mercado cross-server de objetos &amp; gear</p></div></div>
+
+  <div class="card">
+    <p style="color:var(--ink-2);margin-bottom:8px">La <strong>Lonja</strong> es el mercado global. Los jugadores registrados, no Ironslime, pueden <strong>postear objetos a la venta</strong> o <strong>poner órdenes de compra</strong> - las listas salen global y cualquier jugador puede cumplirlas. A diferencia de la cámara del clan, la Lonja maneja <strong>gear con SlimePower y líneas de potencial</strong>, así que es el lugar para mover gear encantado.</p>
+    <div class="tier-strip">
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--accent)"></span><span class="tier-name"><strong>Postear venta</strong></span><span class="tier-meta">Lista objetos de tu bolsa/banco con precio por unidad</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--blue)"></span><span class="tier-name"><strong>Postear compra</strong></span><span class="tier-meta">Ofrece monedas por objetos que quieres; los vendedores cumplen desde su inventario</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--gold)"></span><span class="tier-name"><strong>Tarifa de posteo</strong></span><span class="tier-meta">Se cobra al postear - se <strong>reembolsa</strong> si cancelas una oferta sin llenar</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name"><strong>Pagos</strong></span><span class="tier-meta">Las ganancias de ofertas cumplidas van a un buzón pendiente - reclámalas cuando quieras</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--red)"></span><span class="tier-name"><strong>Cancela cuando quieras</strong></span><span class="tier-meta">Las ofertas abiertas se pueden retirar; los objetos retenidos vuelven a tu bolsa</span></div>
+    </div>
+    <div class="tip">&#x1F4A1; Usa la Lonja para <strong>gear</strong> (conserva SlimePower + líneas de potencial) y trueques de recursos al por mayor. Usa la <strong>Cámara</strong> del clan para reservas compartidas dentro de tu clan.</div>
+  </div>
+
+
+  <div class="card" id="sec-player-trading"><h3>Intercambios directos &amp; correo</h3><p>Para un intercambio directo, abre el menú de interacción de otro jugador y elige <strong>Intercambiar</strong>. Revisa las ofertas de objetos y las cantidades de monedas antes de aceptar. Si cambias una oferta, hay que aceptarla otra vez.</p><p>Abre el <strong>Buzón</strong> para leer mensajes y reclamar adjuntos o pagos de la Lonja. Revisa el destinatario y el contenido antes de enviar correo a un jugador. Las cuentas Ironslime no pueden usar intercambios ni correo entre jugadores.</p></div>
+  <div class="tip">No necesitas unirte a un clan para usar la Lonja. Abre el servicio Lonja para ver ofertas, postear un listado y reclamar intercambios listos. Las cuentas Ironslime no pueden usarla.</div>
+</div>
+
 <div class="tab-content" id="tab-clans">
 
   <div class="sec-head" style="margin-top:4px"><div class="sec-icon" style="background:rgba(80,232,120,.10);border-color:rgba(80,232,120,.20)">&#x1F3F0;</div><div><h2>Clanes</h2><p>Forma una banda de Slimes &mdash; colores, bóveda, metas grupales.</p></div></div>
 
   <div class="card">
-    <p style="color:var(--ink-2)">Encuentra el edificio del <strong>Clan Hub</strong> en el pueblo. Haz clic para abrir el modal del Clan Hub donde puedes ver clanes existentes, crear el tuyo o gestionar el que estás dentro.</p>
+    <p style="color:var(--ink-2)">Encuentra el edificio del <strong>Centro de Clan</strong> en el pueblo. Haz clic para abrir el modal del Clan Hub donde puedes ver clanes existentes, crear el tuyo o gestionar el que estás dentro.</p>
   </div>
 
   <div class="sec-head"><div class="sec-icon">&#x2728;</div><div><h2>Crear un clan</h2><p>Forja tus colores</p></div></div>
@@ -1598,11 +1902,11 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="card">
     <p>Cuando fabricas un arma o pieza de armadura, el juego tira un <strong>tier de rareza</strong> que multiplica permanentemente sus stats base. ¡Refabrica el mismo objeto para buscar tiradas más altas!</p>
     <div class="tier-strip">
-      <div class="tier-item"><span class="tier-badge" style="background:rgba(176,176,176,.18);color:#b0b0b0">50%</span><span class="tier-swatch" style="background:#b0b0b0"></span><span class="tier-name">Común</span><div class="tier-detail"><span>1.00&times; stats</span></div></div>
-      <div class="tier-item"><span class="tier-badge" style="background:rgba(74,222,128,.18);color:#4ade80">25%</span><span class="tier-swatch" style="background:#4ade80"></span><span class="tier-name">Poco común</span><div class="tier-detail"><span>1.15&times; stats</span></div></div>
-      <div class="tier-item"><span class="tier-badge" style="background:rgba(96,165,250,.18);color:#60a5fa">15%</span><span class="tier-swatch" style="background:#60a5fa"></span><span class="tier-name">Raro</span><div class="tier-detail"><span>1.35&times; stats</span></div></div>
-      <div class="tier-item"><span class="tier-badge" style="background:rgba(192,132,252,.18);color:#c084fc">8%</span><span class="tier-swatch" style="background:#c084fc"></span><span class="tier-name">Épico</span><div class="tier-detail"><span>1.60&times; stats</span></div></div>
-      <div class="tier-item"><span class="tier-badge" style="background:rgba(251,191,36,.18);color:#fbbf24">2%</span><span class="tier-swatch" style="background:#fbbf24"></span><span class="tier-name">Legendario</span><div class="tier-detail"><span>2.00&times; stats</span></div></div>
+      <div class="tier-item"><span class="tier-badge" style="background:rgba(176,176,176,.18);color:#b0b0b0">50%</span><span class="tier-swatch" style="background:#b0b0b0"></span><span class="tier-name">Común</span><div class="tier-detail"><span>1.00&times; estadísticas</span></div></div>
+      <div class="tier-item"><span class="tier-badge" style="background:rgba(74,222,128,.18);color:#4ade80">25%</span><span class="tier-swatch" style="background:#4ade80"></span><span class="tier-name">Poco común</span><div class="tier-detail"><span>1.15&times; estadísticas</span></div></div>
+      <div class="tier-item"><span class="tier-badge" style="background:rgba(96,165,250,.18);color:#60a5fa">15%</span><span class="tier-swatch" style="background:#60a5fa"></span><span class="tier-name">Raro</span><div class="tier-detail"><span>1.35&times; estadísticas</span></div></div>
+      <div class="tier-item"><span class="tier-badge" style="background:rgba(192,132,252,.18);color:#c084fc">8%</span><span class="tier-swatch" style="background:#c084fc"></span><span class="tier-name">Épico</span><div class="tier-detail"><span>1.60&times; estadísticas</span></div></div>
+      <div class="tier-item"><span class="tier-badge" style="background:rgba(251,191,36,.18);color:#fbbf24">2%</span><span class="tier-swatch" style="background:#fbbf24"></span><span class="tier-name">Legendario</span><div class="tier-detail"><span>2.00&times; estadísticas</span></div></div>
     </div>
     <p style="margin-top:8px"><strong>Consejo:</strong> Una tirada Legendaria es rara (1 en 50) pero duplica los stats del objeto &mdash; mucho mejor que mejorar con estrellas un Común. Acumula materiales y fabrica masivamente tu tier endgame para cazar esa tirada legendaria, luego invierte estrellas en el bueno.</p>
     <p style="margin-top:8px;color:#ffc870"><strong>&#x1F539; Mejora la rareza directamente:</strong> Ahora puedes <strong>subir el tier de rareza</strong> de un objeto en la mesa de fabricación sin re-tirar desde cero &mdash; gasta materiales para subir Común &rarr; Poco común &rarr; Raro &rarr; Épico &rarr; Legendario. No más rezar al RNG por una tirada legendaria si prefieres simplemente recorrer el camino de mejora.</p>
@@ -1641,9 +1945,132 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-swatch" style="background:#8ee0ff"></span><span class="tier-name">Teletransporte con la mejora del Jardín de Mascotas</span><span class="tier-meta">Pulsa T y haz clic en el mapa grande &mdash; ahorra caminar</span></div>
     </div>
   </div>
+
+<div class="sec-head" id="sec-compost"><div class="sec-icon" style="background:rgba(120,180,80,.1);border-color:rgba(120,180,80,.2)">&#x1F331;</div><div><h2>Compost &amp; cargas</h2><p>Alimenta la compostera para cargas de cultivo</p></div></div>
+  <!-- AUTOGEN:compost START -->
+  <div class="card">
+    <p style="margin-top:0">Tira <strong>cualquier objeto orgánico</strong> (bayas, cultivos, hongos, comida cruda, huesos) a la compostera para <strong>cargas de compost</strong>. Los cultivos de tier más alto dan <strong>varias cargas cada uno</strong>.</p>
+    <table class="data-table" style="width:100%;margin:8px 0;border-collapse:collapse">
+      <thead><tr><th style="text-align:left">Ejemplos</th><th style="text-align:left">Valor de carga</th></tr></thead>
+      <tbody><tr><td>Bayas, Hueso, Repollo</td><td>1 carga cada 5 objetos</td></tr><tr><td>Tomate, Maíz, Brócoli</td><td>1 carga cada 2 objetos</td></tr><tr><td>Limón, Naranja, Calabaza</td><td>2 cargas / objeto</td></tr><tr><td>Puerro, Trigo, Plátano</td><td>3 cargas / objeto</td></tr><tr><td>Cerezas, Ajo, Mango</td><td>4 cargas / objeto</td></tr><tr><td>Granada, Pitaya, Lima</td><td>5 cargas / objeto</td></tr><tr><td>Kiwi, Papaya, Ciruela de azúcar</td><td>6 cargas / objeto</td></tr></tbody>
+    </table>
+    <p>Gasta cargas al plantar para un bonus de <strong>tier de compost</strong>:</p>
+  </div>
+  <div class="tier-strip">
+    <div class="tier-item"><span class="tier-badge tag-green">0⚡</span><span class="tier-name">Ninguno</span><div class="tier-detail"><span>sin bonus</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">1⚡</span><span class="tier-name">Luz</span><div class="tier-detail"><span>2× cosecha</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">2⚡</span><span class="tier-name">Rico</span><div class="tier-detail"><span>2× cosecha</span><span>50% faster growth</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">3⚡</span><span class="tier-name">Súper</span><div class="tier-detail"><span>3× cosecha</span><span>50% faster growth</span><span>semilla gratis</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">5⚡</span><span class="tier-name">Mega</span><div class="tier-detail"><span>3× cosecha</span><span>50% más rápido</span><span>10% cultivo rare</span><span>semilla gratis</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">10⚡</span><span class="tier-name">Ultra</span><div class="tier-detail"><span>3× cosecha</span><span>50% más rápido</span><span>15% cultivo rare</span><span>1.5× XP</span><span>semilla gratis</span></div></div>
+  </div>
+  <!-- AUTOGEN:compost END -->
 </div>
 
 <!-- SUBMISSIONS -->
+
+<div class="tab-content" id="tab-faq">
+
+  <div class="sec-head" style="margin-top:4px"><div class="sec-icon gold">&#x2753;</div><div><h2>FAQ</h2><p>Respuestas a lo que los jugadores de verdad preguntan</p></div></div>
+
+  <div class="faq-list">
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-frenzy">Frenesí</span><span>¿Qué es un Frenesí, y para qué sirven drops como Ramitas encantadas o Pepitas de oro?</span></div>
+      <div class="faq-a">Un Frenesí es una ventana corta de bonus al minar, talar o pescar. Cuando oyes la alerta y el nodo cambia de color o recibe un efecto especial, haz clic antes de que se acabe para bonus XP y un drop de Frenesí. Esos drops, como <strong>Ramitas encantadas</strong>, <strong>Guijarros de oro</strong>, <strong>Pepitas de oro</strong> y <strong>Pececillos</strong>, son sobre todo combustible para la <a class="jump" href="#sec-washing">Lavadora</a>: deposítalos ahí para cargas que tiran potenciales de gear. Los drops de Frenesí de tier más alto dan más cargas. La Suerte aumenta qué tan seguido salen Frenesí.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-money">Dinero</span><span>¿Cómo hago dinero al inicio?</span></div>
+      <div class="faq-a">Sube de level lo que te guste. Casi todo da más dinero al subir: comida cocinada, cultivo, drops de monstruos, materiales recolectados, loot de boss y objetos que otros jugadores quieren. Mira la <strong>Lonja</strong> para ver qué está comprando la gente.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-tutorial">Tutorial</span><span>¿Cómo vuelvo a abrir el tutorial?</span></div>
+      <div class="faq-a">El tutorial se abre solo para jugadores nuevos. Si lo cerraste, abre el <strong>panel de skills</strong> y usa <strong>Misiones</strong> arriba.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-items">Drops especiales</span><span>¿Qué hacen las Semillas mágicas, Nidos de ave, Berenjenas, Pez dorado y Gemas en bruto?</span></div>
+      <div class="faq-a">Las <strong>Semillas mágicas</strong> van al Jardín de mascotas y mantienen a las mascotas llenas 10 horas cada una. Los <strong>Nidos de ave</strong> se combinan con Pociones de salud de la tienda para hacer Pociones de salud mejoradas. Las <strong>Berenjenas</strong> son comida legendary de Survival que curan 500 HP, y también se venden o se compostan. El <strong>Pez dorado</strong> se le da a la vida marina amistosa que encuentras al navegar. Las <strong>Gemas en bruto</strong> las usa Cap'n Bubbles para volver a tirar contratos de navegación.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-clan">Clan</span><span>¿Los puntos de clan solo salen de las tareas?</span></div>
+      <div class="faq-a">No. Los clans tienen dos tracks de puntos. <strong>Tus puntos de miembro</strong> salen de tu propio XP: 1 punto de clan por cada 1,000 XP total ganado después de tu captura de XP anterior. <strong>Los puntos totales y el level del clan</strong> suben con el XP de los miembros más las tareas semanales de clan completadas. El XP de tareas semanales es solo del clan, así que sube el clan pero no suma a tus puntos de miembro. La pestaña Actividad muestra las entregas de objetos de tareas directo. Las filas nuevas de XP muestran las ganancias de XP del skill principal que causaron los puntos de clan; las filas viejas de XP caen al XP total porque no se guardó la razón en esas filas.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-combat">Combate</span><span>¿Dónde entreno combate al inicio?</span></div>
+      <div class="faq-a">Ve al sur a la <strong>Cueva del Cangrejo Slime</strong>. Si el cangrejo no está afuera, entra a su cueva. No la confundas con una guarida de dragón o de demonio. También puedes pulsar <kbd>M</kbd> y usar el menú de recursos para ubicar objetivos de combate, que salen con un ping morado. Los <strong>Lobos</strong> y los <strong>Fantasmas</strong> son auto-agresivos. Los bosses también sirven para entrenar cuando tus objetos, Slime Power y tiradas de potencial de la Lavadora ya están fuertes.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-combat">Muñeco</span><span>¿Por qué el muñeco dejó de dar XP?</span></div>
+      <div class="faq-a">Los muñecos dan XP reducido del estilo de combate que usas solo hasta que ese estilo llega a <strong>level 20</strong>. No dan XP de Vida. Después, entrena con enemigos de verdad, sobre todo Cangrejo Slime al inicio. Mira <a class="jump" href="#sec-combat">Combate</a> para la sección completa de combate.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-ranged">Flechas</span><span>¿Necesito flechas para Ranged?</span></div>
+      <div class="faq-a">Las flechas son opcionales por ahora, pero suben tu daño Ranged si las crafteas y las equipas.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-prayer">Rezos</span><span>¿Los rezos cuestan algo?</span></div>
+      <div class="faq-a">Los rezos no cuestan nada ahora. Los rezos de protección y los tipos de daño todavía se están ajustando, así que puede que no bloqueen cada golpe en todos lados.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-washer">Lavadora</span><span>¿Cómo consigo cargas de Lavadora?</span></div>
+      <div class="faq-a">Deposita drops de Frenesí en la lavadora. Los drops de Frenesí de tier más alto dan más cargas. La lavadora usa cargas, no monedas, para tirar potencial.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-washer">Líneas</span><span>¿Qué líneas de lavadora conviene buscar?</span></div>
+      <div class="faq-a"><strong>Robo de vida</strong> es comodidad en combate. <strong>Suerte</strong> significa más Frenesí. <strong>Impulso de XP</strong> es para gear de skills. Daño, Crit Chance, Crit Damage, Daño de boss y Tempo dependen de contra qué peleas.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-xp">Impulso de XP</span><span>¿El Impulso de XP puede tirar más de 1%?</span></div>
+      <div class="faq-a">No. El Impulso de XP es exactamente <strong>1%</strong> y es más raro que la mayoría de líneas de potencial. El set XP completo máximo es 9 slots equipados con 3 líneas de XP cada uno.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-washer">Armas</span><span>¿Las líneas de lavadora aplican en todas las armas?</span></div>
+      <div class="faq-a">Las líneas de potencial del gear equipado te aplican sin importar el estilo de combate. El daño crudo de un arma solo cuenta cuando usas ese estilo.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-crafting">Crafteo</span><span>¿Puedo craftear con mineral y troncos base?</span></div>
+      <div class="faq-a">Las primeras recetas normales de equipo usan <strong>Mineral de estaño</strong> y <strong>Troncos de abedul</strong>. El mineral y los troncos simples son materiales de inicio, pero no son el camino principal del primer gear.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-pets">Mascotas</span><span>¿Cómo recolectan las mascotas por mí?</span></div>
+      <div class="faq-a">Habla con el granjero en el <a class="jump" href="#sec-pet-garden">Jardín de mascotas</a> y haz el tutorial del Jardín de mascotas. Las mascotas no equipadas pueden recolectar del jardín.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-pets">Perks</span><span>¿Cómo uso los perks de mascota?</span></div>
+      <div class="faq-a">Dale pergaminos de boss a una mascota equipada, luego usa la pestaña de mascota en el panel de emotes. Los perks de mascota incluyen Banco de bolsillo, Auto-comer, Teleport, Oleada de frenesí y más.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-pets">Banco</span><span>¿Cómo deposito al banco desde un nodo?</span></div>
+      <div class="faq-a">Desbloquea el perk de mascota <strong>Banco de bolsillo</strong> y pulsa <kbd>B</kbd> para depositar todos los objetos.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-faith">Fe</span><span>¿Qué es el Bosque sagrado o el círculo de cultivo?</span></div>
+      <div class="faq-a">Es el evento de Fe. Cárgalo al máximo, luego recoge los orbes para aún más XP. Mira <a class="jump" href="#sec-faith">Círculos de cultivo (Fe)</a>.</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-cosmetic">Pieles</span><span>¿Qué hacen las brochas?</span></div>
+      <div class="faq-a">Van a ser skins de mascota. Ya pueden dropear, pero el sistema de skins de mascota aún no está.</div>
+    </div>
+  </div>
+</div>
+
 <div class="tab-content" id="tab-submit">
 
   <div class="sec-head" style="margin-top:4px"><div class="sec-icon gold">&#x1F4DD;</div><div><h2>Sugerencias para la guía</h2><p>Dinos qué debería cubrir esta guía</p></div></div>

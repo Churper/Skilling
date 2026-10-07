@@ -1,5 +1,33 @@
 [
   {
+    "version": "v2270",
+    "date": "2026-10-06",
+    "title": "Explorer Contract Locks & Reggae Skin",
+    "entries": [
+      "Added locks to keep up to two Explorer contracts when rerolling for extra gems.",
+      "Explorer contracts with no progress reroll with the daily reset.",
+      "Fixed Explorer quests leaving out higher-level berries and other Survival resources, and corrected their unlock levels.",
+      "Added a red, yellow and green Reggae skin with squares or triangles for 100 SC.",
+      "Replaced the Cowboy Hat with the new design for 160 SC.",
+      "Lowered the Traffic Cone and Wizard Hat so they sit on your head.",
+      "Increased sell price of Gems, Pearls, and Diamonds.",
+      "Rare chance at Ancient Coins from Lost Purses.",
+      "Added language selection on the login screen.",
+      "Added a mute music button at the login screen that remembers your choice on this device.",
+      "Improved Spanish and Japanese translations.",
+      "Filled in missing Chinese game text.",
+      "Filled in missing Indonesian game text.",
+      "Filled missing Spanish, Japanese and Chinese wiki pages.",
+      "Added a Containers section to the guide.",
+      "Added SP scaling to the guide showing different tiers.",
+      "Riding the merry go round in the pet garden now has a status message.",
+      "Fixed the DPS calc not respecting Jackpot rolls and only going up to the regular max.",
+      "Fixed old boss effects carrying into the next arena.",
+      "Fixed attacks staying locked onto animals after they disappear.",
+      "Fixed the Kraken's circle attack graphics staying on the water after you kill him."
+    ]
+  },
+  {
     "version": "v2269",
     "date": "2026-10-05",
     "title": "Salvaging Hooks & Boss Loot Fix",

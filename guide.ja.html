@@ -478,14 +478,17 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <div class="tabs" id="tabs">
   <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>基本</button>
   <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>採集</button>
+  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>コンテナ</button>
   <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>戦闘</button>
   <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>装備</button>
   <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>食料</button>
   <button class="tab-btn" data-tab="skills"><span class="tab-icon">&#x2B50;</span>スキル</button>
   <button class="tab-btn" data-tab="islands"><span class="tab-icon">&#x26F5;</span>島々</button>
   <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>世界</button>
+  <button class="tab-btn" data-tab="trading"><span class="tab-icon">&#x1F4B1;</span>取引所</button>
   <button class="tab-btn" data-tab="clans"><span class="tab-icon">&#x1F3F0;</span>クラン</button>
   <button class="tab-btn" data-tab="tips"><span class="tab-icon">&#x1F4A1;</span>ヒント</button>
+  <button class="tab-btn" data-tab="faq"><span class="tab-icon">&#x2753;</span>FAQ</button>
   <button class="tab-btn" data-tab="submit"><span class="tab-icon">&#x1F4DD;</span>投稿</button>
 </div>
 
@@ -505,6 +508,18 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     </div>
   </div>
 
+  
+  <div class="sec-head" id="sec-registration"><div class="sec-icon">💾</div><div><h2>ゲスト、登録 &amp; セーブ</h2><p>いま遊んでいるキャラを残す</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li>ゲストのまま、<strong>設定 → アカウント → 登録</strong>を開く。スタート画面の<strong>登録</strong>でもできる。</li>
+      <li>ユーザー名とパスワードを決めて、必要なら復旧用メールを追加し、登録確認を完了してください。</li>
+      <li><strong>通常登録は、いま遊んでいるゲストキャラと進捗を残します。</strong>あとから別の端末でも、そのアカウントで<strong>ログイン</strong>してください。登録は、すでに持っているアカウントへのログインとは別です。</li>
+    </ol>
+    <p>進捗は自動セーブ。端末を変えたりブラウザデータを消す前に登録して、キャラを戻せるログインを持っておこう。別のゲストを始めると、まっさらな別キャラになる。</p>
+    <div class="warn"><strong>Ironslimeは登録時の永久選択です。</strong>今の登録でも、ゲストのアイテムと進捗はIronslimeに残ります。Ironslimeは自分でアイテムを稼ぎます：プレイヤー取引、取引所、メール、クラン金庫、賭け、他プレイヤーのドロップ拾いはできません。</div>
+  </div>
+
   <div class="sec-head"><div class="sec-icon blue">&#x1F3AE;</div><div><h2>操作方法</h2><p>マウス・キーボード・タッチ</p></div></div>
 
   <div class="ctrl-grid">
@@ -517,9 +532,15 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="ctrl-item"><kbd>Q</kbd><span class="ctrl-label">クイック食料を使用</span></div>
     <div class="ctrl-item"><kbd>Z</kbd><span class="ctrl-label">ウィキを開く</span></div>
     <div class="ctrl-item"><kbd>M</kbd><span class="ctrl-label">マップを開く</span></div>
+    <div class="ctrl-item"><kbd>H</kbd><span class="ctrl-label">馬に乗る / 降りる</span></div>
+
     <div class="ctrl-item"><kbd>F1&ndash;F6</kbd><span class="ctrl-label">タブショートカット</span></div>
     <div class="ctrl-item"><kbd>Esc</kbd><span class="ctrl-label">パネルを閉じる</span></div>
   </div>
+
+  
+<div class="sec-head" id="sec-horses"><div class="sec-icon">🐎</div><div><h2>馬 &amp; 移動</h2><p>乗るキーの初期はH、Mでマップ</p></div></div>
+  <div class="card"><p><strong>馬牧場</strong>で馬を買って強化しよう。馬をクリックで乗る。近くの自分の馬は<kbd>H</kbd>で乗る／降りる。遠くから呼ぶときは、コンパニオンにクモの巻物を与えて得た<strong>ポケット馬</strong>チャージを使う。これは初期キーで、設定から変更できる。</p><p><strong>速度は馬のティアで決まります。</strong>上のティアほど速いです。どの馬も固定の2×速度ボーナス、ではありません。</p></div>
 
   <div class="sec-head"><div class="sec-icon gold">&#x1F6E0;&#xFE0F;</div><div><h2>道具のアップグレード</h2><p>鍛冶屋で強化して採集を高速化</p></div></div>
 
@@ -614,12 +635,12 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 400</span><span class="tier-swatch" style="background:#64ff96"></span><span class="tier-name" style="color:var(--gold)">&#x1F4A1; グロウストーン</span><div class="tier-detail"><span>3800 xp</span><span>140c</span></div></div>
     <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 450</span><span class="tier-swatch" style="background:#ffffc8"></span><span class="tier-name" style="color:var(--gold)">&#x2728; ホーリーストーン</span><div class="tier-detail"><span>4600 xp</span><span>165c</span></div></div>
     <div class="tier-item" style="border-color:rgba(255,220,100,.3)"><span class="tier-badge" style="background:rgba(255,220,100,.15);color:#ffdc64">Lv 500</span><span class="tier-swatch" style="background:#ffdc64"></span><span class="tier-name" style="color:#ffdc64">&#x2B50; スターオア</span><div class="tier-detail"><span>5600 xp</span><span>500c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(110,200,255,.3)"><span class="tier-badge" style="background:rgba(110,200,255,.15);color:#6ec8ff">Lv 600</span><span class="tier-swatch" style="background:#6ec8ff"></span><span class="tier-name" style="color:#6ec8ff">Stormstone</span><div class="tier-detail"><span>66000 xp</span><span>9600c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(47,212,176,.3)"><span class="tier-badge" style="background:rgba(47,212,176,.15);color:#2fd4b0">Lv 700</span><span class="tier-swatch" style="background:#2fd4b0"></span><span class="tier-name" style="color:#2fd4b0">Leviathan Pearl</span><div class="tier-detail"><span>80000 xp</span><span>11400c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(124,224,60,.3)"><span class="tier-badge" style="background:rgba(124,224,60,.15);color:#7ce03c">Lv 800</span><span class="tier-swatch" style="background:#7ce03c"></span><span class="tier-name" style="color:#7ce03c">Goo Core</span><div class="tier-detail"><span>98000 xp</span><span>13600c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(255,138,216,.3)"><span class="tier-badge" style="background:rgba(255,138,216,.15);color:#ff8ad8">Lv 900</span><span class="tier-swatch" style="background:#ff8ad8"></span><span class="tier-name" style="color:#ff8ad8">Prism Shard</span><div class="tier-detail"><span>116500 xp</span><span>16400c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(255,224,138,.3)"><span class="tier-badge" style="background:rgba(255,224,138,.15);color:#ffe08a">Lv 1000</span><span class="tier-swatch" style="background:#ffe08a"></span><span class="tier-name" style="color:#ffe08a">Infinity Core</span><div class="tier-detail"><span>138000 xp</span><span>20000c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(74,140,255,.3)"><span class="tier-badge" style="background:rgba(74,140,255,.15);color:#4a8cff">Lv 1250</span><span class="tier-swatch" style="background:#4a8cff"></span><span class="tier-name" style="color:#4a8cff">Plasmastone</span><div class="tier-detail"><span>214500 xp</span><span>31600c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(110,200,255,.3)"><span class="tier-badge" style="background:rgba(110,200,255,.15);color:#6ec8ff">Lv 600</span><span class="tier-swatch" style="background:#6ec8ff"></span><span class="tier-name" style="color:#6ec8ff">ストームストーン</span><div class="tier-detail"><span>66000 xp</span><span>9600c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(47,212,176,.3)"><span class="tier-badge" style="background:rgba(47,212,176,.15);color:#2fd4b0">Lv 700</span><span class="tier-swatch" style="background:#2fd4b0"></span><span class="tier-name" style="color:#2fd4b0">リヴァイアサンパール</span><div class="tier-detail"><span>80000 xp</span><span>11400c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(124,224,60,.3)"><span class="tier-badge" style="background:rgba(124,224,60,.15);color:#7ce03c">Lv 800</span><span class="tier-swatch" style="background:#7ce03c"></span><span class="tier-name" style="color:#7ce03c">グーコア</span><div class="tier-detail"><span>98000 xp</span><span>13600c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(255,138,216,.3)"><span class="tier-badge" style="background:rgba(255,138,216,.15);color:#ff8ad8">Lv 900</span><span class="tier-swatch" style="background:#ff8ad8"></span><span class="tier-name" style="color:#ff8ad8">プリズムの欠片</span><div class="tier-detail"><span>116500 xp</span><span>16400c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(255,224,138,.3)"><span class="tier-badge" style="background:rgba(255,224,138,.15);color:#ffe08a">Lv 1000</span><span class="tier-swatch" style="background:#ffe08a"></span><span class="tier-name" style="color:#ffe08a">インフィニティコア</span><div class="tier-detail"><span>138000 xp</span><span>20000c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(74,140,255,.3)"><span class="tier-badge" style="background:rgba(74,140,255,.15);color:#4a8cff">Lv 1250</span><span class="tier-swatch" style="background:#4a8cff"></span><span class="tier-name" style="color:#4a8cff">プラズマストーン</span><div class="tier-detail"><span>214500 xp</span><span>31600c</span></div></div>
   </div>
 
   <!-- WOODCUTTING -->
@@ -658,31 +679,56 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="sec-head" id="sec-fishing"><div class="sec-icon blue">&#x1F3A3;</div><div><h2>釣り</h2><p>どの場所でも釣り可能 &bull; レアドロップ：黄金の魚（3%）</p></div></div>
 
   <div class="tier-strip">
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e0a090"></span><span class="tier-name">Shrimp</span><div class="tier-detail"><span>56 xp</span><span>5c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#60b0c8"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>130 xp</span><span>7c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>180 xp</span><span>9c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>269 xp</span><span>12c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>349 xp</span><span>15c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>539 xp</span><span>18c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 135</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>699 xp</span><span>22c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-purple">Lv 170</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">Lionfish</span><div class="tier-detail"><span>860 xp</span><span>25c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 185</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>1080 xp</span><span>28c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">Pufferfish</span><div class="tier-detail"><span>1350 xp</span><span>32c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">Piranha</span><div class="tier-detail"><span>1680 xp</span><span>36c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">Anglerfish</span><div class="tier-detail"><span>2050 xp</span><span>40c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">Humphead</span><div class="tier-detail"><span>2500 xp</span><span>45c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 325</span><span class="tier-swatch" style="background:#e04020"></span><span class="tier-name">Oarfish</span><div class="tier-detail"><span>2750 xp</span><span>49c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">Mandarin Fish</span><div class="tier-detail"><span>3100 xp</span><span>52c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 375</span><span class="tier-swatch" style="background:#ff40a0"></span><span class="tier-name">Gulper Eel</span><div class="tier-detail"><span>3450 xp</span><span>55c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">Koi</span><div class="tier-detail"><span>3800 xp</span><span>58c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">Anglerking</span><div class="tier-detail"><span>4200 xp</span><span>61c</span></div></div>
-    <div class="tier-item"><span class="tier-badge tag-gold">Lv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">Betta</span><div class="tier-detail"><span>4600 xp</span><span>65c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 475</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name" style="color:var(--gold)">Parrot Fish</span><div class="tier-detail"><span>5200 xp</span><span>68c</span></div></div>
-    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 500</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name" style="color:var(--gold)">Bluefish</span><div class="tier-detail"><span>5800 xp</span><span>75c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e0a090"></span><span class="tier-name">エビ</span><div class="tier-detail"><span>56 xp</span><span>5c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#60b0c8"></span><span class="tier-name">トラウト</span><div class="tier-detail"><span>130 xp</span><span>7c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">サーモン</span><div class="tier-detail"><span>180 xp</span><span>9c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">ロブスター</span><div class="tier-detail"><span>269 xp</span><span>12c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">サバ</span><div class="tier-detail"><span>349 xp</span><span>15c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">カジキ</span><div class="tier-detail"><span>539 xp</span><span>18c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 135</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">マグロ</span><div class="tier-detail"><span>699 xp</span><span>22c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">Lv 170</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">ミノカサゴ</span><div class="tier-detail"><span>860 xp</span><span>25c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 185</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">マンタレイ</span><div class="tier-detail"><span>1080 xp</span><span>28c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">フグ</span><div class="tier-detail"><span>1350 xp</span><span>32c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">ピラニア</span><div class="tier-detail"><span>1680 xp</span><span>36c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">アンコウ</span><div class="tier-detail"><span>2050 xp</span><span>40c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">ハンプヘッド</span><div class="tier-detail"><span>2500 xp</span><span>45c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 325</span><span class="tier-swatch" style="background:#e04020"></span><span class="tier-name">リュウグウノツカイ</span><div class="tier-detail"><span>2750 xp</span><span>49c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">マンダリンフィッシュ</span><div class="tier-detail"><span>3100 xp</span><span>52c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 375</span><span class="tier-swatch" style="background:#ff40a0"></span><span class="tier-name">ガルパーイール</span><div class="tier-detail"><span>3450 xp</span><span>55c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">コイ</span><div class="tier-detail"><span>3800 xp</span><span>58c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">アンコウキング</span><div class="tier-detail"><span>4200 xp</span><span>61c</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">Lv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">ベタ</span><div class="tier-detail"><span>4600 xp</span><span>65c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 475</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name" style="color:var(--gold)">オウムウオ</span><div class="tier-detail"><span>5200 xp</span><span>68c</span></div></div>
+    <div class="tier-item" style="border-color:rgba(240,200,50,.2)"><span class="tier-badge" style="background:rgba(240,200,50,.12);color:var(--gold)">Lv 500</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name" style="color:var(--gold)">ブルーフィッシュ</span><div class="tier-detail"><span>5800 xp</span><span>75c</span></div></div>
   </div>
   <div class="tip">すべての魚は調理可能！ 上位の魚ほど調理時の回復量が増えます。フィッシュフレンジーに注目 — 釣り場が紫に光るとボーナスXPとトロフィーカウフィッシュが手に入ります！</div>
 
   <!-- FARMING -->
+  
+  <div class="sec-head" id="sec-cave-fishing"><div class="sec-icon">🎣</div><div><h2>洞窟釣り</h2><p>専用PvP洞窟スポット • レベル 600–2000</p></div></div>
+  <div class="card"><p>この魚は専用の<strong>PvP洞窟釣り場</strong>だけ。表の釣りレベルを満たして、対応する場所を探そう。通常や混合の海スポットには出ない。釣果は生で、料理できる。下のサイクルは基本時間で、採集ボーナス前。</p></div>
+  <!-- AUTOGEN:cave-fishing START -->
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="洞窟釣り（レベル 600–2000）"><table class="guide-table"><caption>洞窟釣り（レベル 600–2000）</caption><thead><tr><th scope="col">釣りレベル</th><th scope="col">釣果</th><th scope="col">基本XP</th><th scope="col">基本サイクル</th><th scope="col">売値</th></tr></thead><tbody>
+    <tr><th scope="row">600</th><td>ストームシャーク</td><td>31,500</td><td>55s</td><td>8,000c</td></tr>
+    <tr><th scope="row">700</th><td>ケルプドラゴン</td><td>37,500</td><td>56s</td><td>10,000c</td></tr>
+    <tr><th scope="row">800</th><td>スラッジブロブ</td><td>44,000</td><td>57s</td><td>12,400c</td></tr>
+    <tr><th scope="row">900</th><td>プリズムセイルフィッシュ</td><td>51,000</td><td>58.5s</td><td>15,200c</td></tr>
+    <tr><th scope="row">1,000</th><td>インフィニティクジラ</td><td>60,000</td><td>61.5s</td><td>19,000c</td></tr>
+    <tr><th scope="row">1,250</th><td>プラズマウナギ</td><td>79,750</td><td>65s</td><td>32,600c</td></tr>
+    <tr><th scope="row">1,500</th><td>クラウドフグ</td><td>99,000</td><td>67s</td><td>42,000c</td></tr>
+    <tr><th scope="row">1,750</th><td>フュージョンイカ</td><td>118,500</td><td>68.5s</td><td>54,000c</td></tr>
+    <tr><th scope="row">2,000</th><td>反物質カメ</td><td>138,500</td><td>70s</td><td>70,000c</td></tr>
+  </tbody></table></div>
+  <!-- AUTOGEN:cave-fishing END -->
+
+  <div class="sec-head" id="sec-fish-frenzy"><div class="sec-icon">🌀</div><div><h2>Fish Frenzy報酬</h2><p>ボーナス魚は釣りレベルで決まる</p></div></div>
+  <div class="card"><p>紫の釣り場がFrenzy中にクリック。その釣果は<strong>10× XP</strong>と、下の表のボーナス魚。その魚は<a href="#sec-washing">洗濯機</a>に預けてチャージにするか、別用途に残せる。</p>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Fish Frenzy報酬"><table class="guide-table"><caption>釣りレベル別Fish Frenzy報酬</caption><thead><tr><th scope="col">釣りレベル</th><th scope="col">報酬</th><th scope="col">洗濯機チャージ／個</th></tr></thead><tbody>
+  <tr><th scope="row">1–99</th><td>ミノー</td><td>1</td></tr><tr><th scope="row">100–199</th><td>トロフィーカーフィッシュ</td><td>2</td></tr><tr><th scope="row">200–299</th><td>カジキ</td><td>3</td></tr><tr><th scope="row">300–399</th><td>リヴァイアサン</td><td>4</td></tr><tr><th scope="row">400+</th><td>クラーケン</td><td>5</td></tr>
+  </tbody></table></div><p><strong>クラーケンの魚</strong>はFrenzy報酬で、<a href="#sec-kraken">クラーケンボス戦</a>とは別。</p></div>
+
+  <!-- FARMING -->
+
   <div class="sec-head" id="sec-farming"><div class="sec-icon" style="background:rgba(120,180,60,.1);border-color:rgba(120,180,60,.2)">&#x1F33E;</div><div><h2>農業</h2><p>農地に種をまく &bull; 作物が育つのを待つ &bull; 収穫してXPと食料を得る</p></div></div>
 
   <div class="card illust-card">
@@ -767,6 +813,89 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <!-- ═══════════════════════════════════════ -->
 <!-- ═══ COMBAT ═══════════════════════════ -->
 <!-- ═══════════════════════════════════════ -->
+
+<div class="tab-content" id="tab-containers">
+  <!-- AUTOGEN:containers START -->
+  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>コンテナ</h2><p>採集アイテムの保管</p></div></div>
+  <div class="card">
+    <p>バッグに入れておくと、コンテナは対象アイテムを自動でしまう。1つにつき<strong>1スロット</strong>。右クリックで空にできる。</p>
+    <p>各コンテナは1つだけ持てる。ドロップで重複はもらえない。コンテナはXP、獲得量、採集速度には影響しない。</p>
+    <p>下のドロップ率は基本値。<a href="#sec-container-luck">幸運</a>でコンテナドロップと魚バケツの強化確率が上がる。</p>
+  </div>
+
+  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>原木バスケット</h2><p>レベル600以上の原木</p></div></div>
+  <div class="card">
+    <p><strong>収納：</strong> すべての<a href="#sec-woodcutting">レベル600以上の原木</a>。</p>
+    <p><strong>入手：</strong> その木の伐採成功1回につき1/100、または<strong>沼カエル</strong>キル1回につき1/100。</p>
+    <p><strong>容量：</strong> 原木100本。<strong>木こり</strong>でダイヤモンドを使い、永久強化を買う。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="原木バスケットの強化"><table class="guide-table"><caption>原木バスケットの強化</caption><thead><tr><th scope="col">容量</th><th scope="col">コスト</th><th scope="col">合計消費</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>ダイヤモンド 25個</td><td>ダイヤモンド 25個</td></tr>
+    <tr><th scope="row">200</th><td>ダイヤモンド 75個</td><td>ダイヤモンド 100個</td></tr>
+    <tr><th scope="row">250</th><td>ダイヤモンド 150個</td><td>ダイヤモンド 250個</td></tr>
+    <tr><th scope="row">300</th><td>ダイヤモンド 300個</td><td>ダイヤモンド 550個</td></tr>
+    <tr><th scope="row">400</th><td>ダイヤモンド 600個</td><td>ダイヤモンド 1,150個</td></tr>
+    <tr><th scope="row">500</th><td>ダイヤモンド 1,000個</td><td>ダイヤモンド 2,150個</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>鉱石ポーチ</h2><p>レベル600以上の鉱石</p></div></div>
+  <div class="card">
+    <p><strong>収納：</strong> すべての<a href="#sec-mining">レベル600以上の鉱石</a>。</p>
+    <p><strong>購入：</strong> 採掘600の<strong>コールマイナー</strong>からパール1個。さらに<strong>ロックゴーレム</strong>からドロップ：キル1回につき1/100。</p>
+    <p><strong>容量：</strong> 鉱石100個。<strong>コールマイナー</strong>でパールを使い、永久強化を買う。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="鉱石ポーチの強化"><table class="guide-table"><caption>鉱石ポーチの強化</caption><thead><tr><th scope="col">容量</th><th scope="col">コスト</th><th scope="col">合計消費</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>パール 2個</td><td>パール 2個</td></tr>
+    <tr><th scope="row">200</th><td>パール 5個</td><td>パール 7個</td></tr>
+    <tr><th scope="row">250</th><td>パール 10個</td><td>パール 17個</td></tr>
+    <tr><th scope="row">300</th><td>パール 20個</td><td>パール 37個</td></tr>
+    <tr><th scope="row">400</th><td>パール 35個</td><td>パール 72個</td></tr>
+    <tr><th scope="row">500</th><td>パール 60個</td><td>パール 132個</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>魚バケツ</h2><p>レベル600以上の洞窟魚</p></div></div>
+  <div class="card">
+    <p><strong>収納：</strong> すべての<a href="#sec-cave-fishing">レベル600以上の洞窟魚</a>。</p>
+    <p><strong>入手：</strong> その洞窟釣り場で1回につき1/100。</p>
+    <p><strong>容量：</strong> 魚100匹。洞窟でさらに釣ると、下の次の容量へバケツが強化される。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="魚バケツの強化"><table class="guide-table"><caption>魚バケツの強化</caption><thead><tr><th scope="col">容量</th><th scope="col">洞窟1回あたりの基本確率</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>1/200</td></tr>
+    <tr><th scope="row">200</th><td>1/400</td></tr>
+    <tr><th scope="row">250</th><td>1/800</td></tr>
+    <tr><th scope="row">300</th><td>1/1,600</td></tr>
+    <tr><th scope="row">400</th><td>1/3,200</td></tr>
+    <tr><th scope="row">500</th><td>1/6,400</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>Frenzyバッグ</h2><p>Frenzy報酬</p></div></div>
+  <div class="card">
+    <p><strong>収納：</strong> 付呪木材、ゴールドの欠片、Meteorコア、<a href="#sec-fish-frenzy">Frenzy魚</a>。</p>
+    <p><strong>購入：</strong> <strong>ミスティックスライム</strong>から<strong>1,000,000コイン</strong>。</p>
+    <p><strong>容量：</strong> アイテム100、最大1,000。ミスティックスライムの手伝い1つで、枠が100永久に増える。順番は自由。</p>
+    <p>バッグを右クリックでFrenzyチャームの確認、自動FrenzyのON/OFF。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Frenzyバッグの手伝い（ミスティックスライム）"><table class="guide-table"><caption>Frenzyバッグの手伝い（ミスティックスライム）</caption><thead><tr><th scope="col">手伝い</th><th scope="col">容量</th></tr></thead><tbody>
+    <tr><th scope="row">ミスティックのオーブをチャージ</th><td>+100</td></tr>
+    <tr><th scope="row">鳥の巣 10,000個</th><td>+100</td></tr>
+    <tr><th scope="row">未加工の宝石 5,000個</th><td>+100</td></tr>
+    <tr><th scope="row">リンゴ 1,000個</th><td>+100</td></tr>
+    <tr><th scope="row">10人のプレイヤーに名声を贈る</th><td>+100</td></tr>
+    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
+    <tr><th scope="row">各5個：サファイア → オニキス</th><td>+100</td></tr>
+    <tr><th scope="row">紫のスペルストーン 1,000個</th><td>+100</td></tr>
+    <tr><th scope="row">総合レベル3,000に到達</th><td>+100</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>幸運</h2><p>ドロップと強化の確率</p></div></div>
+  <div class="card">
+    <p>幸運はコンテナのドロップ率と魚バケツの強化確率を上げる。例：幸運+50%なら1%が1.5%に。ラッキーダックなら3%。</p>
+    <p>幸運ボーナスは加算：ギアのポテンシャル行（各2–10%）、<strong>ラッキーダック</strong>（10分+200%）、<strong>道場チャンピオン</strong>の指輪。</p>
+    <p>ハードモードでは沼カエルとロックゴーレムのコンテナドロップ率は上がらない。幸運はFrenzyの頻度も上げるが、Frenzyバッグの価格や強化には影響しない。</p>
+  </div>
+  <!-- AUTOGEN:containers END -->
+</div>
+
 <div class="tab-content" id="tab-combat">
 
   <div class="card illust-card">
@@ -847,6 +976,21 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <div class="warn">ドラゴンの炎は<strong>防具を無視</strong>します。食料をたっぷり用意しましょう！</div>
   <div class="tip"><strong>食料10個以上</strong>、バフポーション、最強装備を持参。ボスはパーティでも戦えます！</div>
   <div class="tip">&#x1F4A1; 洗濯機の<strong>幸運ステータス</strong>は装備とポーションのドロップ率を上げます！</div>
+
+<div class="sec-head" id="sec-kraken"><div class="sec-icon">🦑</div><div><h2>クラーケン戦</h2><p>ボート上で戦う海イベント</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li><strong>本土の供物の池で召喚。</strong>捧げ物はオーシャンベイト3、パール2、対象宝石6、Frenzyポイント30。池は対象アイテムと所持を表示。Frenzyドロップは洗濯機チャージ値、ここのクラーケンの魚は3倍。</li>
+      <li><strong>イベント告知を見て出航。</strong>クラーケンが浮上する前に、ボート、食料、戦闘用品を用意。共有タイマーの召喚海イベントで、召喚ベルのボスとは別。</li>
+      <li><strong>触手4本を折ってから、むき出しの頭を攻撃。</strong>触手と頭の進捗は個人：他プレイヤーがきみの戦闘を終わらせることはできない。目印の攻撃と墨を避けながら、攻撃を当て続けよう。</li>
+      <li><strong>イベント終了前に頭を倒しきろう。</strong>報酬は自分のキル完了に出る。近くにいるだけ、触手だけ削っただけでは完了ルートは出ない。自分の戦闘を終えても、タイマーまで他プレイヤーはイベントに参加できる。</li>
+    </ol>
+  </div>
+
+  <div class="tip"><strong>食料10個以上</strong>、バフポーション、いちばんいいギアを持っていこう。ボスはパーティーで戦える！</div>
+  <div class="tip">&#x1F4A1; 洗濯機の<strong>幸運ステータス</strong>で、装備とポーションのドロップ率が上がる！</div>
+
+  <!-- CAVE DENS -->
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -965,6 +1109,61 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <p style="margin-top:8px;font-size:.82rem;color:var(--ink-3)">1回のロールに必要なチャージ：<strong>1&#9889;</strong>（ロックなし） &bull; <strong>4&#9889;</strong>（1個ロック） &bull; <strong>10&#9889;</strong>（2個ロック）</p>
     <div class="tip" style="margin-top:10px">&#x1F340; <strong>幸運はフレンジー確率も上げます</strong> &mdash; 幸運1%ごとに採集ノードのフレンジー率+1%。ウィザードサージのバフと加算されます。</div>
   </div>
+
+<div class="sec-head" id="sec-slimepower-scaling"><div class="sec-icon">📈</div><div><h2>SlimePowerボーナス</h2><p>SPレベルとギアティア別のATKとDEF</p></div></div>
+  <div class="card">
+    <p>SlimePowerは装備中のギアに<strong>ATKとDEF</strong>を加える。SPレベルとギアティアが高いほどボーナスも大きい。</p>
+    <p>武器のATKボーナスは、その戦闘スタイルを使っているときに適用される。指輪、アミュレット、マントは自身のティア。スキルケープとほとんどの特殊ケープはコバルト。</p>
+    <p>アイテムのレア度はSPボーナスを変えない。</p>
+    <div class="sp-calc" data-sp-calc>
+      <h3>ボーナス計算機</h3>
+      <label class="sub-label" for="sp-calc-tier">ギアティア</label>
+      <select id="sp-calc-tier" class="sub-select"><option value="bronze">スズ (Lv 1)</option><option value="iron">銅 (Lv 30)</option><option value="steel">石英 (Lv 60)</option><option value="mithril">銀 (Lv 90)</option><option value="adamant">プラチナ (Lv 120)</option><option value="rune">コバルト (Lv 150)</option><option value="slime">ヒスイ (Lv 170)</option><option value="crystal">チタン (Lv 190)</option><option value="ember">オパール (Lv 205)</option><option value="frost">ジェム (Lv 220)</option><option value="volcanic">ヴォルカニック (Lv 235)</option><option value="celestial">セレスティアル (Lv 250)</option><option value="solar">ソーラー (Lv 300)</option><option value="lunar">ルナ (Lv 350)</option><option value="eclipse">エクリプス (Lv 400)</option><option value="astral">アストラル (Lv 450)</option><option value="storm">ストーム (Lv 600)</option><option value="leviathan">リヴァイアサン (Lv 700)</option><option value="goo">グー (Lv 800)</option><option value="prism">プリズム (Lv 900)</option><option value="infinity">インフィニティ (Lv 1000)</option><option value="plasma">プラズマ (Lv 1250)</option><option value="cloud">クラウド (Lv 1500)</option><option value="fusion">フュージョン (Lv 1750)</option><option value="antimatter">反物質 (Lv 2000)</option></select>
+      <label class="sub-label" for="sp-calc-stars">SlimePower <output id="sp-calc-stars-out" for="sp-calc-stars">SP10</output></label>
+      <input id="sp-calc-stars" type="range" min="0" max="20" value="10" step="1">
+      <div class="sp-calc-out" aria-live="polite"><span><strong id="sp-calc-atk">+0</strong> ATK</span><span><strong id="sp-calc-def">+0</strong> DEF</span><span id="sp-calc-next"></span></div>
+    </div>
+  </div>
+  <details class="sp-reference">
+    <summary>全ギアティアを比較</summary>
+    <div class="guide-table-wrap" tabindex="0" role="region" aria-label="ギアティア別のSlimePowerボーナス"><table class="guide-table"><caption>ギアティア別のSlimePowerボーナス</caption><thead><tr><th scope="col">ギアティア</th><th scope="col">倍率</th><th scope="col">SP5</th><th scope="col">SP10</th><th scope="col">SP15</th><th scope="col">SP20</th></tr></thead><tbody>
+    <tr><th scope="row">スズ <span class="sp-lvl">Lv 1</span></th><td>1.00×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+36 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+113 ATK</span><span class="sp-stat">+58 DEF</span></td><td><span class="sp-stat">+253 ATK</span><span class="sp-stat">+138 DEF</span></td></tr>
+    <tr><th scope="row">銅 <span class="sp-lvl">Lv 30</span></th><td>1.03×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+37 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+116 ATK</span><span class="sp-stat">+59 DEF</span></td><td><span class="sp-stat">+260 ATK</span><span class="sp-stat">+142 DEF</span></td></tr>
+    <tr><th scope="row">石英 <span class="sp-lvl">Lv 60</span></th><td>1.06×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+38 ATK</span><span class="sp-stat">+16 DEF</span></td><td><span class="sp-stat">+119 ATK</span><span class="sp-stat">+61 DEF</span></td><td><span class="sp-stat">+268 ATK</span><span class="sp-stat">+146 DEF</span></td></tr>
+    <tr><th scope="row">銀 <span class="sp-lvl">Lv 90</span></th><td>1.09×</td><td><span class="sp-stat">+9 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+39 ATK</span><span class="sp-stat">+17 DEF</span></td><td><span class="sp-stat">+123 ATK</span><span class="sp-stat">+63 DEF</span></td><td><span class="sp-stat">+275 ATK</span><span class="sp-stat">+150 DEF</span></td></tr>
+    <tr><th scope="row">プラチナ <span class="sp-lvl">Lv 120</span></th><td>1.12×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+40 ATK</span><span class="sp-stat">+17 DEF</span></td><td><span class="sp-stat">+126 ATK</span><span class="sp-stat">+64 DEF</span></td><td><span class="sp-stat">+283 ATK</span><span class="sp-stat">+154 DEF</span></td></tr>
+    <tr><th scope="row">コバルト <span class="sp-lvl">Lv 150</span></th><td>1.15×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+41 ATK</span><span class="sp-stat">+18 DEF</span></td><td><span class="sp-stat">+129 ATK</span><span class="sp-stat">+66 DEF</span></td><td><span class="sp-stat">+290 ATK</span><span class="sp-stat">+158 DEF</span></td></tr>
+    <tr><th scope="row">ヒスイ <span class="sp-lvl">Lv 170</span></th><td>1.18×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+42 ATK</span><span class="sp-stat">+18 DEF</span></td><td><span class="sp-stat">+133 ATK</span><span class="sp-stat">+68 DEF</span></td><td><span class="sp-stat">+298 ATK</span><span class="sp-stat">+162 DEF</span></td></tr>
+    <tr><th scope="row">チタン <span class="sp-lvl">Lv 190</span></th><td>1.21×</td><td><span class="sp-stat">+10 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+43 ATK</span><span class="sp-stat">+19 DEF</span></td><td><span class="sp-stat">+136 ATK</span><span class="sp-stat">+70 DEF</span></td><td><span class="sp-stat">+306 ATK</span><span class="sp-stat">+166 DEF</span></td></tr>
+    <tr><th scope="row">オパール <span class="sp-lvl">Lv 205</span></th><td>1.24×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+4 DEF</span></td><td><span class="sp-stat">+44 ATK</span><span class="sp-stat">+19 DEF</span></td><td><span class="sp-stat">+140 ATK</span><span class="sp-stat">+71 DEF</span></td><td><span class="sp-stat">+313 ATK</span><span class="sp-stat">+171 DEF</span></td></tr>
+    <tr><th scope="row">ジェム <span class="sp-lvl">Lv 220</span></th><td>1.27×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+45 ATK</span><span class="sp-stat">+20 DEF</span></td><td><span class="sp-stat">+143 ATK</span><span class="sp-stat">+73 DEF</span></td><td><span class="sp-stat">+321 ATK</span><span class="sp-stat">+175 DEF</span></td></tr>
+    <tr><th scope="row">ヴォルカニック <span class="sp-lvl">Lv 235</span></th><td>1.30×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+46 ATK</span><span class="sp-stat">+20 DEF</span></td><td><span class="sp-stat">+146 ATK</span><span class="sp-stat">+75 DEF</span></td><td><span class="sp-stat">+328 ATK</span><span class="sp-stat">+179 DEF</span></td></tr>
+    <tr><th scope="row">セレスティアル <span class="sp-lvl">Lv 250</span></th><td>1.33×</td><td><span class="sp-stat">+11 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+47 ATK</span><span class="sp-stat">+21 DEF</span></td><td><span class="sp-stat">+150 ATK</span><span class="sp-stat">+77 DEF</span></td><td><span class="sp-stat">+336 ATK</span><span class="sp-stat">+183 DEF</span></td></tr>
+    <tr><th scope="row">ソーラー <span class="sp-lvl">Lv 300</span></th><td>1.36×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+48 ATK</span><span class="sp-stat">+21 DEF</span></td><td><span class="sp-stat">+153 ATK</span><span class="sp-stat">+78 DEF</span></td><td><span class="sp-stat">+344 ATK</span><span class="sp-stat">+187 DEF</span></td></tr>
+    <tr><th scope="row">ルナ <span class="sp-lvl">Lv 350</span></th><td>1.39×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+50 ATK</span><span class="sp-stat">+22 DEF</span></td><td><span class="sp-stat">+157 ATK</span><span class="sp-stat">+80 DEF</span></td><td><span class="sp-stat">+351 ATK</span><span class="sp-stat">+191 DEF</span></td></tr>
+    <tr><th scope="row">エクリプス <span class="sp-lvl">Lv 400</span></th><td>1.42×</td><td><span class="sp-stat">+12 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+51 ATK</span><span class="sp-stat">+22 DEF</span></td><td><span class="sp-stat">+160 ATK</span><span class="sp-stat">+82 DEF</span></td><td><span class="sp-stat">+359 ATK</span><span class="sp-stat">+195 DEF</span></td></tr>
+    <tr><th scope="row">アストラル <span class="sp-lvl">Lv 450</span></th><td>1.45×</td><td><span class="sp-stat">+13 ATK</span><span class="sp-stat">+5 DEF</span></td><td><span class="sp-stat">+52 ATK</span><span class="sp-stat">+23 DEF</span></td><td><span class="sp-stat">+163 ATK</span><span class="sp-stat">+84 DEF</span></td><td><span class="sp-stat">+366 ATK</span><span class="sp-stat">+200 DEF</span></td></tr>
+    <tr><th scope="row">ストーム <span class="sp-lvl">Lv 600</span></th><td>1.50×</td><td><span class="sp-stat">+13 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+54 ATK</span><span class="sp-stat">+24 DEF</span></td><td><span class="sp-stat">+169 ATK</span><span class="sp-stat">+87 DEF</span></td><td><span class="sp-stat">+379 ATK</span><span class="sp-stat">+207 DEF</span></td></tr>
+    <tr><th scope="row">リヴァイアサン <span class="sp-lvl">Lv 700</span></th><td>1.60×</td><td><span class="sp-stat">+14 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+57 ATK</span><span class="sp-stat">+25 DEF</span></td><td><span class="sp-stat">+180 ATK</span><span class="sp-stat">+92 DEF</span></td><td><span class="sp-stat">+404 ATK</span><span class="sp-stat">+220 DEF</span></td></tr>
+    <tr><th scope="row">グー <span class="sp-lvl">Lv 800</span></th><td>1.70×</td><td><span class="sp-stat">+15 ATK</span><span class="sp-stat">+6 DEF</span></td><td><span class="sp-stat">+61 ATK</span><span class="sp-stat">+27 DEF</span></td><td><span class="sp-stat">+192 ATK</span><span class="sp-stat">+98 DEF</span></td><td><span class="sp-stat">+430 ATK</span><span class="sp-stat">+234 DEF</span></td></tr>
+    <tr><th scope="row">プリズム <span class="sp-lvl">Lv 900</span></th><td>1.80×</td><td><span class="sp-stat">+16 ATK</span><span class="sp-stat">+7 DEF</span></td><td><span class="sp-stat">+64 ATK</span><span class="sp-stat">+28 DEF</span></td><td><span class="sp-stat">+203 ATK</span><span class="sp-stat">+104 DEF</span></td><td><span class="sp-stat">+455 ATK</span><span class="sp-stat">+248 DEF</span></td></tr>
+    <tr><th scope="row">インフィニティ <span class="sp-lvl">Lv 1000</span></th><td>1.90×</td><td><span class="sp-stat">+17 ATK</span><span class="sp-stat">+7 DEF</span></td><td><span class="sp-stat">+68 ATK</span><span class="sp-stat">+30 DEF</span></td><td><span class="sp-stat">+214 ATK</span><span class="sp-stat">+110 DEF</span></td><td><span class="sp-stat">+480 ATK</span><span class="sp-stat">+262 DEF</span></td></tr>
+    <tr><th scope="row">プラズマ <span class="sp-lvl">Lv 1250</span></th><td>2.00×</td><td><span class="sp-stat">+18 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+72 ATK</span><span class="sp-stat">+32 DEF</span></td><td><span class="sp-stat">+226 ATK</span><span class="sp-stat">+116 DEF</span></td><td><span class="sp-stat">+506 ATK</span><span class="sp-stat">+276 DEF</span></td></tr>
+    <tr><th scope="row">クラウド <span class="sp-lvl">Lv 1500</span></th><td>2.10×</td><td><span class="sp-stat">+18 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+75 ATK</span><span class="sp-stat">+33 DEF</span></td><td><span class="sp-stat">+237 ATK</span><span class="sp-stat">+121 DEF</span></td><td><span class="sp-stat">+531 ATK</span><span class="sp-stat">+289 DEF</span></td></tr>
+    <tr><th scope="row">フュージョン <span class="sp-lvl">Lv 1750</span></th><td>2.20×</td><td><span class="sp-stat">+19 ATK</span><span class="sp-stat">+8 DEF</span></td><td><span class="sp-stat">+79 ATK</span><span class="sp-stat">+35 DEF</span></td><td><span class="sp-stat">+248 ATK</span><span class="sp-stat">+127 DEF</span></td><td><span class="sp-stat">+556 ATK</span><span class="sp-stat">+303 DEF</span></td></tr>
+    <tr><th scope="row">反物質 <span class="sp-lvl">Lv 2000</span></th><td>2.30×</td><td><span class="sp-stat">+20 ATK</span><span class="sp-stat">+9 DEF</span></td><td><span class="sp-stat">+82 ATK</span><span class="sp-stat">+36 DEF</span></td><td><span class="sp-stat">+259 ATK</span><span class="sp-stat">+133 DEF</span></td><td><span class="sp-stat">+581 ATK</span><span class="sp-stat">+317 DEF</span></td></tr>
+  </tbody></table></div>
+  </details>
+  <script type="application/json" id="sp-scaling-data">{"atk":[1,1,2,2,3,4,4,5,6,8,10,12,15,18,22,24,26,28,30,32],"def":[0,1,1,1,1,1,2,2,3,4,5,6,8,10,13,14,15,16,17,18],"tiers":[{"key":"bronze","label":"Tin","level":1,"mult":1},{"key":"iron","label":"Copper","level":30,"mult":1.03},{"key":"steel","label":"Quartz","level":60,"mult":1.06},{"key":"mithril","label":"Silver","level":90,"mult":1.09},{"key":"adamant","label":"Platinum","level":120,"mult":1.12},{"key":"rune","label":"Cobalt","level":150,"mult":1.15},{"key":"slime","label":"Jade","level":170,"mult":1.18},{"key":"crystal","label":"Titanium","level":190,"mult":1.21},{"key":"ember","label":"Opal","level":205,"mult":1.24},{"key":"frost","label":"Gem","level":220,"mult":1.27},{"key":"volcanic","label":"Volcanic","level":235,"mult":1.3},{"key":"celestial","label":"Celestial","level":250,"mult":1.33},{"key":"solar","label":"Solar","level":300,"mult":1.36},{"key":"lunar","label":"Lunar","level":350,"mult":1.39},{"key":"eclipse","label":"Eclipse","level":400,"mult":1.42},{"key":"astral","label":"Astral","level":450,"mult":1.45},{"key":"storm","label":"Storm","level":600,"mult":1.5},{"key":"leviathan","label":"Leviathan","level":700,"mult":1.6},{"key":"goo","label":"Goo","level":800,"mult":1.7},{"key":"prism","label":"Prism","level":900,"mult":1.8},{"key":"infinity","label":"Infinity","level":1000,"mult":1.9},{"key":"plasma","label":"Plasma","level":1250,"mult":2},{"key":"cloud","label":"Cloud","level":1500,"mult":2.1},{"key":"fusion","label":"Fusion","level":1750,"mult":2.2},{"key":"antimatter","label":"Antimatter","level":2000,"mult":2.3}]}</script>
+  <script>(()=>{const d=JSON.parse(document.getElementById("sp-scaling-data").textContent),tier=document.getElementById("sp-calc-tier"),stars=document.getElementById("sp-calc-stars");
+  const sum=(per,n)=>{let s=0;for(let i=0;i<n;i++)s+=per[i]||0;return s;},bonus=(per,n,m)=>Math.floor(sum(per,n)*m),f=n=>n.toLocaleString("en-US");
+  const draw=()=>{const t=d.tiers.find(x=>x.key===tier.value)||d.tiers[0],n=Number(stars.value)||0,a=bonus(d.atk,n,t.mult),b=bonus(d.def,n,t.mult);
+  document.getElementById("sp-calc-stars-out").textContent="SP"+n;document.getElementById("sp-calc-atk").textContent="+"+f(a);document.getElementById("sp-calc-def").textContent="+"+f(b);
+  document.getElementById("sp-calc-next").textContent=n<d.atk.length?"Next level: +"+f(bonus(d.atk,n+1,t.mult)-a)+" ATK, +"+f(bonus(d.def,n+1,t.mult)-b)+" DEF":"Max SlimePower";};
+  tier.value=d.tiers[d.tiers.length-1].key;tier.addEventListener("change",draw);stars.addEventListener("input",draw);draw();})();</script>
+  <!-- AUTOGEN:slimepower-scaling END -->
+
+<div class="card" id="sec-transpose"><h3>ギアを上げるとき良いポテンシャルを残す</h3><p>洗濯機の<strong>移し替え</strong>は、古いアイテムのポテンシャルラインをすべて新しいアイテムへ移す。元と先は慎重に選んで。成功すると元のラインは消え、先のラインは上書きされる。失敗しても両方のラインは残るが、チャージは消費される。パネルに対象のチャージコストと、移し替え／強化移し替えの確率が出る。</p></div>
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -1116,27 +1315,27 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
     <div class="tier-item skill-row" data-skill="sk-fishing"><span class="tier-swatch" style="background:#6090a0;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F3A3;</span><span class="tier-name">釣り</span><span class="tier-meta">水辺で釣り &bull; 料理用の生魚</span></div>
     <div class="skill-collapse" id="sk-fishing"><div class="tier-strip">
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e0a090"></span><span class="tier-name">Shrimp</span><div class="tier-detail"><span>56 xp</span><span>5c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#60b0c8"></span><span class="tier-name">Trout</span><div class="tier-detail"><span>130 xp</span><span>7c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">Salmon</span><div class="tier-detail"><span>180 xp</span><span>9c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">Lobster</span><div class="tier-detail"><span>269 xp</span><span>12c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">Mackerel</span><div class="tier-detail"><span>349 xp</span><span>15c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">Swordfish</span><div class="tier-detail"><span>539 xp</span><span>18c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 135</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">Tuna</span><div class="tier-detail"><span>699 xp</span><span>22c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 170</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">Lionfish</span><div class="tier-detail"><span>860 xp</span><span>25c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 185</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">Manta Ray</span><div class="tier-detail"><span>1080 xp</span><span>28c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">Pufferfish</span><div class="tier-detail"><span>1350 xp</span><span>32c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">Piranha</span><div class="tier-detail"><span>1680 xp</span><span>36c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">Anglerfish</span><div class="tier-detail"><span>2050 xp</span><span>40c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">Humphead</span><div class="tier-detail"><span>2500 xp</span><span>45c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 325</span><span class="tier-swatch" style="background:#e04020"></span><span class="tier-name">Oarfish</span><div class="tier-detail"><span>2750 xp</span><span>49c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">Mandarin Fish</span><div class="tier-detail"><span>3100 xp</span><span>52c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 375</span><span class="tier-swatch" style="background:#ff40a0"></span><span class="tier-name">Gulper Eel</span><div class="tier-detail"><span>3450 xp</span><span>55c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">Koi</span><div class="tier-detail"><span>3800 xp</span><span>58c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">Anglerking</span><div class="tier-detail"><span>4200 xp</span><span>61c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">Betta</span><div class="tier-detail"><span>4600 xp</span><span>65c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 475</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name">Parrot Fish</span><div class="tier-detail"><span>5200 xp</span><span>68c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 500</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name">Bluefish</span><div class="tier-detail"><span>5800 xp</span><span>75c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e0a090"></span><span class="tier-name">エビ</span><div class="tier-detail"><span>56 xp</span><span>5c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#60b0c8"></span><span class="tier-name">トラウト</span><div class="tier-detail"><span>130 xp</span><span>7c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#fa8072"></span><span class="tier-name">サーモン</span><div class="tier-detail"><span>180 xp</span><span>9c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 50</span><span class="tier-swatch" style="background:#dc3c3c"></span><span class="tier-name">ロブスター</span><div class="tier-detail"><span>269 xp</span><span>12c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 75</span><span class="tier-swatch" style="background:#5ea0ff"></span><span class="tier-name">サバ</span><div class="tier-detail"><span>349 xp</span><span>15c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 100</span><span class="tier-swatch" style="background:#b050ff"></span><span class="tier-name">カジキ</span><div class="tier-detail"><span>539 xp</span><span>18c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 135</span><span class="tier-swatch" style="background:#6495ed"></span><span class="tier-name">マグロ</span><div class="tier-detail"><span>699 xp</span><span>22c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 170</span><span class="tier-swatch" style="background:#c83c50"></span><span class="tier-name">ミノカサゴ</span><div class="tier-detail"><span>860 xp</span><span>25c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 185</span><span class="tier-swatch" style="background:#4b0082"></span><span class="tier-name">マンタレイ</span><div class="tier-detail"><span>1080 xp</span><span>28c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#f0c850"></span><span class="tier-name">フグ</span><div class="tier-detail"><span>1350 xp</span><span>32c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">ピラニア</span><div class="tier-detail"><span>1680 xp</span><span>36c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#3c3c50"></span><span class="tier-name">アンコウ</span><div class="tier-detail"><span>2050 xp</span><span>40c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 310</span><span class="tier-swatch" style="background:#28a08c"></span><span class="tier-name">ハンプヘッド</span><div class="tier-detail"><span>2500 xp</span><span>45c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 325</span><span class="tier-swatch" style="background:#e04020"></span><span class="tier-name">リュウグウノツカイ</span><div class="tier-detail"><span>2750 xp</span><span>49c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#ff7832"></span><span class="tier-name">マンダリンフィッシュ</span><div class="tier-detail"><span>3100 xp</span><span>52c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 375</span><span class="tier-swatch" style="background:#ff40a0"></span><span class="tier-name">ガルパーイール</span><div class="tier-detail"><span>3450 xp</span><span>55c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 400</span><span class="tier-swatch" style="background:#ffb43c"></span><span class="tier-name">コイ</span><div class="tier-detail"><span>3800 xp</span><span>58c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#00c0ff"></span><span class="tier-name">アンコウキング</span><div class="tier-detail"><span>4200 xp</span><span>61c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 450</span><span class="tier-swatch" style="background:#b428c8"></span><span class="tier-name">ベタ</span><div class="tier-detail"><span>4600 xp</span><span>65c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 475</span><span class="tier-swatch" style="background:#3cc878"></span><span class="tier-name">オウムウオ</span><div class="tier-detail"><span>5200 xp</span><span>68c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 500</span><span class="tier-swatch" style="background:#508cdc"></span><span class="tier-name">ブルーフィッシュ</span><div class="tier-detail"><span>5800 xp</span><span>75c</span></div></div>
     </div><div class="tip">レアドロップ：黄金の魚（3%）。フィッシュフレンジー：釣り場が紫に光ったらクリックで3倍XP+トロフィーカウフィッシュ！</div></div>
 
     <div class="tier-item skill-row" data-skill="sk-mining"><span class="tier-swatch" style="background:#a0a0a0;display:flex;align-items:center;justify-content:center;font-size:20px">&#x26CF;&#xFE0F;</span><span class="tier-name">採掘</span><span class="tier-meta">岩から鉱石 &bull; 売却またはクラフト</span></div>
@@ -1158,7 +1357,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="skill-collapse" id="sk-woodcutting"><div class="tier-strip">
       <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#4a8c3f"></span><span class="tier-name">木</span><div class="tier-detail"><span>60 xp</span><span>5c</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-green">Lv 20</span><span class="tier-swatch" style="background:#d2c8a0"></span><span class="tier-name">白樺</span><div class="tier-detail"><span>90 xp</span><span>8c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#78c850"></span><span class="tier-name">Bamboo</span><div class="tier-detail"><span>XP scales w/ level</span><span>1c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#78c850"></span><span class="tier-name">竹</span><div class="tier-detail"><span>XP scales w/ level</span><span>1c</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-green">Lv 30</span><span class="tier-swatch" style="background:#6b4c2a"></span><span class="tier-name">オーク</span><div class="tier-detail"><span>120 xp</span><span>12c</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-green">Lv 60</span><span class="tier-swatch" style="background:#64a050"></span><span class="tier-name">Willow</span><div class="tier-detail"><span>163 xp</span><span>30c</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-blue">Lv 90</span><span class="tier-swatch" style="background:#2a8b4a"></span><span class="tier-name">ヤシ</span><div class="tier-detail"><span>198 xp</span><span>22c</span></div></div>
@@ -1166,46 +1365,46 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-badge tag-purple">Lv 140</span><span class="tier-swatch" style="background:#3a5c3a"></span><span class="tier-name">松</span><div class="tier-detail"><span>450 xp</span><span>38c</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-gold">Lv 170</span><span class="tier-swatch" style="background:#8b4513"></span><span class="tier-name">杉</span><div class="tier-detail"><span>575 xp</span><span>60c</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#50a03c"></span><span class="tier-name">Cactus</span><div class="tier-detail"><span>778 xp</span><span>75c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c07050"></span><span class="tier-name">Ribbon Wood</span><div class="tier-detail"><span>1680 xp</span><span>100c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 265</span><span class="tier-swatch" style="background:#ff80b0"></span><span class="tier-name">Candy Wood</span><div class="tier-detail"><span>2050 xp</span><span>125c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 300</span><span class="tier-swatch" style="background:#6b4a30"></span><span class="tier-name">Root Wood</span><div class="tier-detail"><span>2500 xp</span><span>155c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 235</span><span class="tier-swatch" style="background:#c07050"></span><span class="tier-name">リボンウッド</span><div class="tier-detail"><span>1680 xp</span><span>100c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 265</span><span class="tier-swatch" style="background:#ff80b0"></span><span class="tier-name">キャンディ材</span><div class="tier-detail"><span>2050 xp</span><span>125c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 300</span><span class="tier-swatch" style="background:#6b4a30"></span><span class="tier-name">ルートウッド</span><div class="tier-detail"><span>2500 xp</span><span>155c</span></div></div>
     </div><div class="tip">レアドロップ：鳥の巣（4〜12%）</div></div>
 
     <div class="tier-item skill-row" data-skill="sk-farming"><span class="tier-swatch" style="background:#78b43c;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F33E;</span><span class="tier-name">農業</span><span class="tier-meta">植えて収穫 &bull; パッシブXP</span></div>
     <div class="skill-collapse" id="sk-farming"><div class="tier-strip">
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e08030"></span><span class="tier-name">Carrot</span><div class="tier-detail"><span>160 xp</span><span>5c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 8</span><span class="tier-swatch" style="background:#6a8a40"></span><span class="tier-name">Cabbage</span><div class="tier-detail"><span>300 xp</span><span>10c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#d0b060"></span><span class="tier-name">Onion</span><div class="tier-detail"><span>440 xp</span><span>18c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 1</span><span class="tier-swatch" style="background:#e08030"></span><span class="tier-name">ニンジン</span><div class="tier-detail"><span>160 xp</span><span>5c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 8</span><span class="tier-swatch" style="background:#6a8a40"></span><span class="tier-name">キャベツ</span><div class="tier-detail"><span>300 xp</span><span>10c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-green">Lv 15</span><span class="tier-swatch" style="background:#d0b060"></span><span class="tier-name">タマネギ</span><div class="tier-detail"><span>440 xp</span><span>18c</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-green">Lv 25</span><span class="tier-swatch" style="background:#b43250"></span><span class="tier-name">ビーツ</span><div class="tier-detail"><span>620 xp</span><span>30c</span></div></div>
       <div class="tier-item"><span class="tier-badge tag-green">Lv 35</span><span class="tier-swatch" style="background:#dc5050"></span><span class="tier-name">ラディッシュ</span><div class="tier-detail"><span>820 xp</span><span>45c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 45</span><span class="tier-swatch" style="background:#e04040"></span><span class="tier-name">Tomato</span><div class="tier-detail"><span>1,050 xp</span><span>65c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 55</span><span class="tier-swatch" style="background:#f0d250"></span><span class="tier-name">Corn</span><div class="tier-detail"><span>1,300 xp</span><span>90c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-blue">Lv 65</span><span class="tier-swatch" style="background:#dcdcc8"></span><span class="tier-name">Cauliflower</span><div class="tier-detail"><span>1,600 xp</span><span>120c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 80</span><span class="tier-swatch" style="background:#328c3c"></span><span class="tier-name">Broccoli</span><div class="tier-detail"><span>1,950 xp</span><span>160c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 95</span><span class="tier-swatch" style="background:#c03030"></span><span class="tier-name">Pepper</span><div class="tier-detail"><span>2,350 xp</span><span>220c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-purple">Lv 110</span><span class="tier-swatch" style="background:#fff050"></span><span class="tier-name">Lemon</span><div class="tier-detail"><span>2,800 xp</span><span>300c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 125</span><span class="tier-swatch" style="background:#ffa032"></span><span class="tier-name">Orange</span><div class="tier-detail"><span>3,400 xp</span><span>400c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 145</span><span class="tier-swatch" style="background:#8c32b4"></span><span class="tier-name">Grapes</span><div class="tier-detail"><span>4,100 xp</span><span>520c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 165</span><span class="tier-swatch" style="background:#f0a028"></span><span class="tier-name">Pumpkin</span><div class="tier-detail"><span>4,900 xp</span><span>680c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 178</span><span class="tier-swatch" style="background:#50c850"></span><span class="tier-name">Watermelon</span><div class="tier-detail"><span>5,800 xp</span><span>790c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 190</span><span class="tier-swatch" style="background:#d0a020"></span><span class="tier-name">Pineapple</span><div class="tier-detail"><span>6,800 xp</span><span>900c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#80b060"></span><span class="tier-name">Leek</span><div class="tier-detail"><span>7,900 xp</span><span>1,050c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 210</span><span class="tier-swatch" style="background:#40a030"></span><span class="tier-name">Green Pepper</span><div class="tier-detail"><span>9,100 xp</span><span>1,220c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 220</span><span class="tier-swatch" style="background:#c8a050"></span><span class="tier-name">Wheat</span><div class="tier-detail"><span>10,500 xp</span><span>1,400c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 230</span><span class="tier-swatch" style="background:#d8c0a0"></span><span class="tier-name">Turnip</span><div class="tier-detail"><span>12,000 xp</span><span>1,600c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 240</span><span class="tier-swatch" style="background:#e0c840"></span><span class="tier-name">Banana</span><div class="tier-detail"><span>13,800 xp</span><span>1,850c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 255</span><span class="tier-swatch" style="background:#70b860"></span><span class="tier-name">Aloe</span><div class="tier-detail"><span>15,800 xp</span><span>2,150c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#8050a0"></span><span class="tier-name">Plum</span><div class="tier-detail"><span>18,200 xp</span><span>2,500c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 285</span><span class="tier-swatch" style="background:#a08060"></span><span class="tier-name">Mushroom</span><div class="tier-detail"><span>20,800 xp</span><span>2,900c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 300</span><span class="tier-swatch" style="background:#c03040"></span><span class="tier-name">Cherries</span><div class="tier-detail"><span>23,600 xp</span><span>3,400c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 320</span><span class="tier-swatch" style="background:#40a050"></span><span class="tier-name">Beans</span><div class="tier-detail"><span>26,800 xp</span><span>3,900c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 335</span><span class="tier-swatch" style="background:#f0e6d2"></span><span class="tier-name">Garlic</span><div class="tier-detail"><span>30,200 xp</span><span>4,500c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#f0c828"></span><span class="tier-name">Sunflower</span><div class="tier-detail"><span>33,800 xp</span><span>5,200c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 365</span><span class="tier-swatch" style="background:#a07846"></span><span class="tier-name">Potato</span><div class="tier-detail"><span>37,800 xp</span><span>6,000c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 380</span><span class="tier-swatch" style="background:#508c3c"></span><span class="tier-name">Avocado</span><div class="tier-detail"><span>42,400 xp</span><span>6,900c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 395</span><span class="tier-swatch" style="background:#ffa028"></span><span class="tier-name">Mango</span><div class="tier-detail"><span>47,600 xp</span><span>7,900c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 410</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">Pomegranate</span><div class="tier-detail"><span>53,400 xp</span><span>9,100c</span></div></div>
-      <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#ff50a0"></span><span class="tier-name">Pitaya</span><div class="tier-detail"><span>60,000 xp</span><span>10,500c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 45</span><span class="tier-swatch" style="background:#e04040"></span><span class="tier-name">トマト</span><div class="tier-detail"><span>1,050 xp</span><span>65c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 55</span><span class="tier-swatch" style="background:#f0d250"></span><span class="tier-name">トウモロコシ</span><div class="tier-detail"><span>1,300 xp</span><span>90c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-blue">Lv 65</span><span class="tier-swatch" style="background:#dcdcc8"></span><span class="tier-name">カリフラワー</span><div class="tier-detail"><span>1,600 xp</span><span>120c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 80</span><span class="tier-swatch" style="background:#328c3c"></span><span class="tier-name">ブロッコリー</span><div class="tier-detail"><span>1,950 xp</span><span>160c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 95</span><span class="tier-swatch" style="background:#c03030"></span><span class="tier-name">コショウ</span><div class="tier-detail"><span>2,350 xp</span><span>220c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-purple">Lv 110</span><span class="tier-swatch" style="background:#fff050"></span><span class="tier-name">レモン</span><div class="tier-detail"><span>2,800 xp</span><span>300c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 125</span><span class="tier-swatch" style="background:#ffa032"></span><span class="tier-name">オレンジ</span><div class="tier-detail"><span>3,400 xp</span><span>400c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 145</span><span class="tier-swatch" style="background:#8c32b4"></span><span class="tier-name">ブドウ</span><div class="tier-detail"><span>4,100 xp</span><span>520c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 165</span><span class="tier-swatch" style="background:#f0a028"></span><span class="tier-name">カボチャ</span><div class="tier-detail"><span>4,900 xp</span><span>680c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 178</span><span class="tier-swatch" style="background:#50c850"></span><span class="tier-name">スイカ</span><div class="tier-detail"><span>5,800 xp</span><span>790c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 190</span><span class="tier-swatch" style="background:#d0a020"></span><span class="tier-name">パイナップル</span><div class="tier-detail"><span>6,800 xp</span><span>900c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 200</span><span class="tier-swatch" style="background:#80b060"></span><span class="tier-name">ネギ</span><div class="tier-detail"><span>7,900 xp</span><span>1,050c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 210</span><span class="tier-swatch" style="background:#40a030"></span><span class="tier-name">ピーマン</span><div class="tier-detail"><span>9,100 xp</span><span>1,220c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 220</span><span class="tier-swatch" style="background:#c8a050"></span><span class="tier-name">小麦</span><div class="tier-detail"><span>10,500 xp</span><span>1,400c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 230</span><span class="tier-swatch" style="background:#d8c0a0"></span><span class="tier-name">カブ</span><div class="tier-detail"><span>12,000 xp</span><span>1,600c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 240</span><span class="tier-swatch" style="background:#e0c840"></span><span class="tier-name">バナナ</span><div class="tier-detail"><span>13,800 xp</span><span>1,850c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 255</span><span class="tier-swatch" style="background:#70b860"></span><span class="tier-name">アロエ</span><div class="tier-detail"><span>15,800 xp</span><span>2,150c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 270</span><span class="tier-swatch" style="background:#8050a0"></span><span class="tier-name">プラム</span><div class="tier-detail"><span>18,200 xp</span><span>2,500c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 285</span><span class="tier-swatch" style="background:#a08060"></span><span class="tier-name">キノコ</span><div class="tier-detail"><span>20,800 xp</span><span>2,900c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 300</span><span class="tier-swatch" style="background:#c03040"></span><span class="tier-name">サクランボ</span><div class="tier-detail"><span>23,600 xp</span><span>3,400c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 320</span><span class="tier-swatch" style="background:#40a050"></span><span class="tier-name">豆</span><div class="tier-detail"><span>26,800 xp</span><span>3,900c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 335</span><span class="tier-swatch" style="background:#f0e6d2"></span><span class="tier-name">ニンニク</span><div class="tier-detail"><span>30,200 xp</span><span>4,500c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 350</span><span class="tier-swatch" style="background:#f0c828"></span><span class="tier-name">ヒマワリ</span><div class="tier-detail"><span>33,800 xp</span><span>5,200c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 365</span><span class="tier-swatch" style="background:#a07846"></span><span class="tier-name">ジャガイモ</span><div class="tier-detail"><span>37,800 xp</span><span>6,000c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 380</span><span class="tier-swatch" style="background:#508c3c"></span><span class="tier-name">アボカド</span><div class="tier-detail"><span>42,400 xp</span><span>6,900c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 395</span><span class="tier-swatch" style="background:#ffa028"></span><span class="tier-name">マンゴー</span><div class="tier-detail"><span>47,600 xp</span><span>7,900c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 410</span><span class="tier-swatch" style="background:#c82828"></span><span class="tier-name">ザクロ</span><div class="tier-detail"><span>53,400 xp</span><span>9,100c</span></div></div>
+      <div class="tier-item"><span class="tier-badge tag-gold">Lv 425</span><span class="tier-swatch" style="background:#ff50a0"></span><span class="tier-name">ピタヤ</span><div class="tier-detail"><span>60,000 xp</span><span>10,500c</span></div></div>
     </div><div class="tip">作物は計32種。パッシブ — 植えたら育つ間に他のことをしよう！</div></div>
 
     <div class="tier-item skill-row" data-skill="sk-melee"><span class="tier-swatch" style="background:#e05050;display:flex;align-items:center;justify-content:center;font-size:20px">&#x2694;&#xFE0F;</span><span class="tier-name">近接</span><span class="tier-meta">剣攻撃からXP &bull; 近接ダメージ増加</span></div>
@@ -1236,8 +1435,8 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="skill-collapse" id="sk-scribing">
     <div class="tip" style="margin-bottom:6px"><strong>紡ぎ車</strong></div>
     <div class="tier-strip">
-      <div class="tier-item"><span class="tier-swatch" style="background:#b8a848"></span><span class="tier-name">Flax</span><div class="tier-detail"><span>30 xp</span><span>10% fail</span></div></div>
-      <div class="tier-item"><span class="tier-swatch" style="background:#5a8a3a"></span><span class="tier-name">Hemp</span><div class="tier-detail"><span>25 xp</span><span>8% fail</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#b8a848"></span><span class="tier-name">亜麻</span><div class="tier-detail"><span>30 xp</span><span>10% 失敗</span></div></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:#5a8a3a"></span><span class="tier-name">麻</span><div class="tier-detail"><span>25 xp</span><span>8% 失敗</span></div></div>
     </div>
     <div class="tip" style="margin-bottom:6px"><strong>書記机</strong></div>
     <div class="tier-strip">
@@ -1357,6 +1556,78 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name">洗濯機のXPブースト</span><span class="tier-meta">全ロールで2〜8%ボーナス</span></div>
     </div>
   </div>
+
+<div id="sec-boss-scrolls"><div class="tip">書写デスクで<strong>ボス付呪巻物</strong>をクラフト。レシピはどれも<strong>白紙の巻物5枚 + ボスドロップ1個</strong>。</div>
+<!-- AUTOGEN:boss-scrolls START -->
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="ボス付呪巻物のレシピ"><table class="guide-table"><caption>ボス付呪巻物のレシピ</caption><thead><tr><th scope="col">書写レベル</th><th scope="col">巻物</th><th scope="col">材料</th><th scope="col">基本XP</th></tr></thead><tbody>
+    <tr><th scope="row">1</th><td>ヴェノムスクロール</td><td>5 × 白紙の巻物 + 1 × ヘビの鱗</td><td>1,000</td></tr>
+    <tr><th scope="row">10</th><td>ストーンズクロール</td><td>5 × 白紙の巻物 + 1 × ゴーレムコア</td><td>1,800</td></tr>
+    <tr><th scope="row">20</th><td>グーイーの巻物</td><td>5 × 白紙の巻物 + 1 × ロイヤルゼリー</td><td>2,800</td></tr>
+    <tr><th scope="row">30</th><td>フロストの巻物</td><td>5 × 白紙の巻物 + 1 × 凍てついた心</td><td>4,400</td></tr>
+    <tr><th scope="row">40</th><td>ドラゴンの巻物</td><td>5 × 白紙の巻物 + 1 × ドラゴンスケイル</td><td>7,200</td></tr>
+    <tr><th scope="row">50</th><td>Skeleスクロール</td><td>5 × 白紙の巻物 + 1 × Skeleスカル</td><td>12,000</td></tr>
+    <tr><th scope="row">60</th><td>クモの巻物</td><td>5 × 白紙の巻物 + 1 × クモの牙</td><td>18,000</td></tr>
+    <tr><th scope="row">62</th><td>ネズミの巻物</td><td>5 × 白紙の巻物 + 1 × ラットチーズ</td><td>20,000</td></tr>
+    <tr><th scope="row">70</th><td>ウィザードの巻物</td><td>5 × 白紙の巻物 + 1 × 秘術の欠片</td><td>26,000</td></tr>
+    <tr><th scope="row">80</th><td>エイリアンの巻物</td><td>5 × 白紙の巻物 + 1 × エイリアンコア</td><td>38,000</td></tr>
+    <tr><th scope="row">81</th><td>ワニの巻物</td><td>5 × Blank Scroll + 1 × Croc Scale</td><td>40,000</td></tr>
+    <tr><th scope="row">82</th><td>花の巻物</td><td>5 × 白紙の巻物 + 1 × ハニカム</td><td>34,000</td></tr>
+    <tr><th scope="row">88</th><td>沼の巻物</td><td>5 × 白紙の巻物 + 1 × カエルの脚</td><td>46,000</td></tr>
+  </tbody></table></div>
+  <!-- AUTOGEN:boss-scrolls END --></div>
+    <div id="sec-resource-scrolls"><p>資源巻物はペットの対応スキルを育てる。表は作るときの書写レベルとXP。</p>
+    <!-- AUTOGEN:resource-scrolls START -->
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="資源巻物のレシピ"><table class="guide-table"><caption>資源巻物のレシピ</caption><thead><tr><th scope="col">書写レベル</th><th scope="col">巻物</th><th scope="col">材料</th><th scope="col">基本XP</th></tr></thead><tbody>
+    <tr><th scope="row">1</th><td>白紙の巻物</td><td>5 × 繊維 + 5 × 竹 + 5 × 糸</td><td>25</td></tr>
+    <tr><th scope="row">1</th><td>伐採巻物 I</td><td>1 × 白紙の巻物 + 50 × 原木</td><td>300</td></tr>
+    <tr><th scope="row">20</th><td>伐採巻物 II</td><td>1 × 白紙の巻物 + 50 × シラカバの丸太</td><td>500</td></tr>
+    <tr><th scope="row">30</th><td>伐採巻物 III</td><td>1 × 白紙の巻物 + 50 × オークの原木</td><td>800</td></tr>
+    <tr><th scope="row">90</th><td>伐採巻物 IV</td><td>1 × 白紙の巻物 + 50 × パームの原木</td><td>1,200</td></tr>
+    <tr><th scope="row">110</th><td>伐採巻物 V</td><td>1 × 白紙の巻物 + 50 × メイプルの原木</td><td>1,800</td></tr>
+    <tr><th scope="row">140</th><td>伐採巻物 VI</td><td>1 × 白紙の巻物 + 50 × パインの原木</td><td>2,500</td></tr>
+    <tr><th scope="row">170</th><td>伐採巻物 VII</td><td>1 × 白紙の巻物 + 50 × シーダーの原木</td><td>3,500</td></tr>
+    <tr><th scope="row">200</th><td>伐採巻物 VIII</td><td>1 × 白紙の巻物 + 50 × サボテン木材</td><td>4,200</td></tr>
+    <tr><th scope="row">235</th><td>伐採巻物 IX</td><td>1 × 白紙の巻物 + 50 × リボン木材</td><td>5,000</td></tr>
+    <tr><th scope="row">265</th><td>伐採巻物 X</td><td>1 × 白紙の巻物 + 50 × キャンディ木材</td><td>6,000</td></tr>
+    <tr><th scope="row">300</th><td>伐採巻物 XI</td><td>1 × 白紙の巻物 + 50 × ルートウッド</td><td>7,200</td></tr>
+    <tr><th scope="row">1</th><td>採掘巻物 I</td><td>1 × 白紙の巻物 + 50 × 鉱石</td><td>300</td></tr>
+    <tr><th scope="row">15</th><td>採掘巻物 II</td><td>1 × 白紙の巻物 + 50 × スズ鉱石</td><td>500</td></tr>
+    <tr><th scope="row">30</th><td>採掘巻物 III</td><td>1 × 白紙の巻物 + 50 × 銅鉱石</td><td>800</td></tr>
+    <tr><th scope="row">30</th><td>採掘巻物 IV</td><td>1 × 白紙の巻物 + 50 × 石英鉱石</td><td>1,200</td></tr>
+    <tr><th scope="row">50</th><td>採掘巻物 V</td><td>1 × 白紙の巻物 + 50 × 銀鉱石</td><td>1,800</td></tr>
+    <tr><th scope="row">75</th><td>採掘巻物 VI</td><td>1 × 白紙の巻物 + 50 × プラチナ鉱石</td><td>2,500</td></tr>
+    <tr><th scope="row">100</th><td>採掘巻物 VII</td><td>1 × 白紙の巻物 + 50 × コバルト鉱石</td><td>3,500</td></tr>
+    <tr><th scope="row">135</th><td>採掘巻物 VIII</td><td>1 × 白紙の巻物 + 50 × ヒスイ鉱石</td><td>4,200</td></tr>
+    <tr><th scope="row">170</th><td>採掘巻物 IX</td><td>1 × 白紙の巻物 + 50 × チタン鉱石</td><td>5,000</td></tr>
+    <tr><th scope="row">270</th><td>採掘巻物 X</td><td>1 × 白紙の巻物 + 50 × セレスティアル鉱石</td><td>6,000</td></tr>
+    <tr><th scope="row">310</th><td>採掘巻物 XI</td><td>1 × 白紙の巻物 + 50 × サンストーン</td><td>7,200</td></tr>
+    <tr><th scope="row">1</th><td>釣りの巻物 I</td><td>1 × 白紙の巻物 + 50 × エビ</td><td>300</td></tr>
+    <tr><th scope="row">15</th><td>釣りの巻物 II</td><td>1 × 白紙の巻物 + 50 × トラウト</td><td>500</td></tr>
+    <tr><th scope="row">30</th><td>釣りの巻物 III</td><td>1 × 白紙の巻物 + 50 × サーモン</td><td>800</td></tr>
+    <tr><th scope="row">50</th><td>釣りの巻物 IV</td><td>1 × 白紙の巻物 + 50 × ロブスター</td><td>1,200</td></tr>
+    <tr><th scope="row">75</th><td>釣りの巻物 V</td><td>1 × 白紙の巻物 + 50 × サバ</td><td>1,800</td></tr>
+    <tr><th scope="row">100</th><td>釣りの巻物 VI</td><td>1 × 白紙の巻物 + 50 × カジキ</td><td>2,500</td></tr>
+    <tr><th scope="row">135</th><td>釣りの巻物 VII</td><td>1 × 白紙の巻物 + 50 × マグロ</td><td>3,500</td></tr>
+    <tr><th scope="row">170</th><td>釣りの巻物 VIII</td><td>1 × 白紙の巻物 + 50 × ミノカサゴ</td><td>4,200</td></tr>
+    <tr><th scope="row">200</th><td>釣りの巻物 IX</td><td>1 × 白紙の巻物 + 50 × フグ</td><td>5,000</td></tr>
+    <tr><th scope="row">270</th><td>釣りの巻物 X</td><td>1 × 白紙の巻物 + 50 × アンコウ</td><td>6,000</td></tr>
+    <tr><th scope="row">310</th><td>釣りの巻物 XI</td><td>1 × 白紙の巻物 + 50 × ハンプヘッド</td><td>7,200</td></tr>
+  </tbody></table></div>
+  <!-- AUTOGEN:resource-scrolls END -->
+    </div>
+    
+<div class="sec-head" id="sec-skill-capes"><div class="sec-icon" data-guide-icon data-icon="mining_trimmed_cape"></div><div><h2>スキルケープ &amp; トリムケープ</h2><p>レベル1000でマスタリー、レベル2000でトリム</p></div></div>
+  <div class="card"><p>スキルで<strong>レベル1000</strong>に達したら、そのスキルマスターに話して対応するケープをもらう。<strong>レベル2000</strong>になったら、そのケープを持っていってトリムを選ぶ。トリムしてもそのアイテムの強化と付呪は残る。</p><p><strong>ケープの「調べる」テキストでパークと発動条件を確認。</strong>採集とユーティリティのケープの多くは、バッグに入れてても装備してても効く。戦闘ケープのパークはケープ枠が必要。</p><p>例：採掘ケープはMeteorの収量を上げる。釣りケープは深海の魚群を見つけやすくする。探検ケープはスライム像の移動を開く。トリムケープは効果が強く、農耕ケープの畑がもう1つ、Meteorと竹／ツリーミートの収量アップ、金の魚が出やすく、戦闘リソースの節約も強くなる。</p><p>ケープを右クリックすると、移動、バインド、左クリック優先のオプションが出る（ある場合）。</p></div>
+</div>
+
+    <div class="tier-item skill-row" data-skill="sk-cooking"><span class="tier-swatch" style="background:#ff8040;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F373;</span><span class="tier-name">料理</span><span class="tier-meta">焚き火で生の食べ物を料理 &bull; 燃焼率を下げる</span></div>
+    <div class="skill-collapse" id="sk-cooking"><div class="card"><p>焚き火で生の食べ物を料理するか、ボンファイアで材料を組み合わせる。作る前に、そのレシピのレベル、燃焼率、回復量を比べて。</p><p><a href="#sec-cooking">料理レシピ</a> · <a href="#sec-bonfire">ボンファイアのレシピ</a> · <a href="#sec-healing-food">回復食べ物の表</a></p></div></div>
+
+    <div class="tier-item skill-row" id="sec-explorer" data-skill="sk-explorer"><span class="tier-swatch" style="background:#40a8c8;display:flex;align-items:center;justify-content:center;font-size:20px">&#x1F5FA;&#xFE0F;</span><span class="tier-name">探検</span><span class="tier-meta">島をチャート &bull; 航海マスターのタスクを完了</span></div>
+    <div class="skill-collapse" id="sk-explorer"><div class="card"><p>港から出航し、島をチャートして航海マスターのタスクを完了。<strong>すべての島ティアは移動とチャートが可能。</strong>採集と戦闘は、きみのスキルと装備次第。</p><p><a href="#sec-islands">航海、島ティアとエンカウント</a> · <a href="#sec-sailing-tasks">航海マスターのタスク</a></p></div></div>
+
+    <div class="tier-item" id="sec-hitpoints"><span class="tier-swatch" style="background:#e04040;font-size:20px">&#x2764;&#xFE0F;</span><span class="tier-name">体力</span><span class="tier-meta">すべての戦闘からXP &bull; レベル10から開始</span></div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -1465,6 +1736,18 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <div class="svc-card"><div class="svc-icon" style="background:rgba(255,200,80,.08);border-color:rgba(255,200,80,.18)">&#x1F4B1;</div><div><div class="svc-name">プレイヤー取引所</div><div class="svc-desc">他プレイヤーに対しグローバルに売買</div></div></div>
   </div>
 
+  
+  <div class="sec-head" id="sec-housing"><div class="sec-icon" data-guide-icon data-icon="Home Stone">🏡</div><div><h2>ハウジング</h2><p>Villeで家を買い、模様替えして便利な設備を置く</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li>本土の入口から<strong>Villeに入る</strong>。<strong>区画</strong>を開いて、街並みと空き家を見る。</li>
+      <li><strong>Cozyクーポンで家を買う。</strong>ログインして、必要なクーポンをバッグに入れて、区画の購入パネルを確認。あとのアップグレードは家のパネルから。<strong>マイホーム</strong>でまた探せる。</li>
+      <li><strong>中に入って模様替えを選ぶ。</strong>家具を見て、置いて回して、スタイルと部屋の操作で家を変える。<strong>完了</strong>で模様替えを終えて部屋を使う。</li>
+      <li><strong>設備を置く。</strong>使える家具は銀行収納、クラフト台、炉、製材所、書写デスク、洗濯機、料理台。来客も対応設備を使える。収納は来客本人の銀行が開く。</li>
+    </ol>
+    <p>SlimeCoinショップで<strong>Cozyクーポン</strong>を買う。<strong>ホームストーン</strong>は対応地点からVille、自分の家、穏やかな草地へ移動できる。メニューにチャージと行き先が出る。</p><p>カタログは<strong>誰でも使える</strong>と<strong>今は飾り</strong>を分けている。飾りに見えるからといって、ミニゲームやサービスが動くとは限らない。</p>
+  </div>
+
   <div class="sec-head"><div class="sec-icon">&#x1F91D;</div><div><h2>マルチプレイ</h2><p>他のプレイヤーとリアルタイムで遊ぶ</p></div></div>
 
   <div class="card">
@@ -1494,6 +1777,27 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <!-- ═══════════════════════════════════════ -->
 <!-- ═══ CLANS ════════════════════════════ -->
 <!-- ═══════════════════════════════════════ -->
+
+<div class="tab-content" id="tab-trading">
+  <div class="sec-head" id="sec-exchange"><div class="sec-icon" style="background:rgba(255,200,80,.10);border-color:rgba(255,200,80,.22)">&#x1F4B1;</div><div><h2>取引所</h2><p>アイテム &amp; ギアのクロスサーバー市場</p></div></div>
+
+  <div class="card">
+    <p style="color:var(--ink-2);margin-bottom:8px"><strong>取引所</strong>はグローバルな取引市場。登録済みの、Ironslimeでないプレイヤーは<strong>アイテムを出品</strong>したり<strong>買い注文を出す</strong>ことができる - 出品は全体に出てきて、誰でも応じられる。クラン金庫と違い、取引所は<strong>SlimePowerとポテンシャル行付きのギア</strong>を扱えるので、付呪した装備を動かすならここ。</p>
+    <div class="tier-strip">
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--accent)"></span><span class="tier-name"><strong>売り注文</strong></span><span class="tier-meta">バッグ/銀行のアイテムを単価つきで出品</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--blue)"></span><span class="tier-name"><strong>買い注文</strong></span><span class="tier-meta">欲しいアイテムにコインを出す。売り手がインベントリから供給する</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--gold)"></span><span class="tier-name"><strong>出品手数料</strong></span><span class="tier-meta">出品時に先に引かれる - 未成立をキャンセルすると<strong>返金</strong></span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name"><strong>支払い</strong></span><span class="tier-meta">成立した収益は保留の郵便受けへ - いつでも受け取れる</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--red)"></span><span class="tier-name"><strong>いつでもキャンセル</strong></span><span class="tier-meta">公開中の出品は取り下げ可。預かり中のアイテムはバッグに戻る</span></div>
+    </div>
+    <div class="tip">&#x1F4A1; <strong>ギア</strong>（SlimePowerとポテンシャル行が残る）とまとまった資源の取引は取引所へ。クラン内の共有備蓄はクランの<strong>金庫</strong>へ。</div>
+  </div>
+
+
+  <div class="card" id="sec-player-trading"><h3>直接交換 &amp; メール</h3><p>直接交換するときは、相手の操作メニューを開いて<strong>交換</strong>を選ぶ。双方のアイテムとコインを確認してから承認。オファーを変えたら、もう一度承認が必要。</p><p><strong>郵便受け</strong>を開いてメッセージを読み、添付や取引所の支払いを受け取る。プレイヤーメールを送る前に宛先と中身を確認。Ironslimeはプレイヤー交換とメールを使えない。</p></div>
+  <div class="tip">取引所を使うのにクラン加入は不要。取引所を開いて出品を見て、出して、成立分を受け取る。Ironslimeは使えない。</div>
+</div>
+
 <div class="tab-content" id="tab-clans">
 
   <div class="sec-head" style="margin-top:4px"><div class="sec-icon" style="background:rgba(80,232,120,.10);border-color:rgba(80,232,120,.20)">&#x1F3F0;</div><div><h2>クラン</h2><p>スライムの仲間と団結 — カラー、金庫、グループ目標。</p></div></div>
@@ -1711,7 +2015,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
     <p style="margin-top:8px;color:#ffc870"><strong>&#x1F539; レアリティを直接アップグレード：</strong> クラフトテーブルで<strong>アイテムのレアリティティアをアップグレード</strong>できるようになりました &mdash; 素材を消費してコモン &rarr; アンコモン &rarr; レア &rarr; エピック &rarr; レジェンダリーへと押し上げ可能。RNGに祈らずにアップグレードで進める選択肢ができました。</p>
   </div>
 
-  <div class="sec-head"><div class="sec-icon" style="background:rgba(100,150,220,.1);border-color:rgba(100,150,220,.2)">&#x1F300;</div><div><h2>Washing Machine</h2><p>Roll random potential lines on equipment</p></div></div>
+  <div class="sec-head"><div class="sec-icon" style="background:rgba(100,150,220,.1);border-color:rgba(100,150,220,.2)">&#x1F300;</div><div><h2>洗濯機</h2><p>Roll random potential lines on equipment</p></div></div>
   <div class="card">
     <p>洗濯機は洗濯機チャージを使って装備の<strong>ポテンシャル行</strong>を3つ振り直します。コストはロックなしで<strong>1&#9889;</strong>、1行ロックで<strong>4&#9889;</strong>、2行ロックで<strong>10&#9889;</strong>です。</p>
     <div class="tier-strip">
@@ -1793,9 +2097,132 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
       <div class="tier-item"><span class="tier-swatch" style="background:#8ee0ff"></span><span class="tier-name">ペットガーデンの特典でテレポート</span><span class="tier-meta">Tを押してメインマップをクリック &mdash; 移動時間短縮</span></div>
     </div>
   </div>
+
+<div class="sec-head" id="sec-compost"><div class="sec-icon" style="background:rgba(120,180,80,.1);border-color:rgba(120,180,80,.2)">&#x1F331;</div><div><h2>コンポスト &amp; チャージ</h2><p>コンポスターに入れて農耕チャージを貯める</p></div></div>
+  <!-- AUTOGEN:compost START -->
+  <div class="card">
+    <p style="margin-top:0"><strong>任意の有機物</strong>（ベリー、作物、キノコ、生の食べ物、骨）をコンポスターに入れると<strong>コンポストチャージ</strong>になる。上位作物は<strong>1個で複数チャージ</strong>。</p>
+    <table class="data-table" style="width:100%;margin:8px 0;border-collapse:collapse">
+      <thead><tr><th style="text-align:left">投入例</th><th style="text-align:left">チャージ量</th></tr></thead>
+      <tbody><tr><td>ベリー、骨、キャベツ</td><td>5個でチャージ1</td></tr><tr><td>トマト、トウモロコシ、ブロッコリー</td><td>2個でチャージ1</td></tr><tr><td>レモン、オレンジ、カボチャ</td><td>チャージ2 / 個</td></tr><tr><td>ネギ、小麦、バナナ</td><td>チャージ3 / 個</td></tr><tr><td>サクランボ、ニンニク、マンゴー</td><td>チャージ4 / 個</td></tr><tr><td>ザクロ、ピタヤ、ライム</td><td>チャージ5 / 個</td></tr><tr><td>キウイ、パパイヤ、シュガープラム</td><td>チャージ6 / 個</td></tr></tbody>
+    </table>
+    <p>植えるときにチャージを使って<strong>コンポストティア</strong>ボーナス:</p>
+  </div>
+  <div class="tier-strip">
+    <div class="tier-item"><span class="tier-badge tag-green">0⚡</span><span class="tier-name">なし</span><div class="tier-detail"><span>ボーナスなし</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-green">1⚡</span><span class="tier-name">ライト</span><div class="tier-detail"><span>2×収穫</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">2⚡</span><span class="tier-name">リッチ</span><div class="tier-detail"><span>2×収穫</span><span>50% faster growth</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-purple">3⚡</span><span class="tier-name">スーパー</span><div class="tier-detail"><span>3×収穫</span><span>50% faster growth</span><span>種無料</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">5⚡</span><span class="tier-name">メガ</span><div class="tier-detail"><span>3×収穫</span><span>成長50%速い</span><span>レア作物10%</span><span>種無料</span></div></div>
+    <div class="tier-item"><span class="tier-badge tag-gold">10⚡</span><span class="tier-name">ウルトラ</span><div class="tier-detail"><span>3×収穫</span><span>成長50%速い</span><span>レア作物15%</span><span>1.5× XP</span><span>種無料</span></div></div>
+  </div>
+  <!-- AUTOGEN:compost END -->
 </div>
 
 <!-- ═══ SUBMISSIONS ═══ -->
+
+<div class="tab-content" id="tab-faq">
+
+  <div class="sec-head" style="margin-top:4px"><div class="sec-icon gold">&#x2753;</div><div><h2>よくある質問</h2><p>みんなが本当に聞くこと</p></div></div>
+
+  <div class="faq-list">
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-frenzy">フレンジー</span><span>フレンジーって何？エンチャントの小枝や金塊は何用？</span></div>
+      <div class="faq-a">フレンジーは、採掘・伐採・釣りのあいだに起きる短いボーナス時間。音が鳴ってノードの色が変わったり演出が出たら、終わる前にクリックするとボーナスXPとフレンジードロップがもらえる。そのドロップ（<strong>エンチャントの小枝</strong>、<strong>金の小石</strong>、<strong>金塊</strong>、<strong>ミノー</strong>）は主に<a class="jump" href="#sec-washing">洗濯機</a>の燃料。預けてチャージにし、ギアのポテンシャルを振る。上位のフレンジードロップほどチャージが多い。幸運が高いほどフレンジーが出やすい。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-money">お金</span><span>序盤はどうやって稼ぐ？</span></div>
+      <div class="faq-a">好きなことを伸ばそう。レベルが上がるほどだいたい儲かる：料理した食べ物、農耕、モンスタードロップ、採集素材、ボスドロップ、他のプレイヤーが欲しがるアイテム。<strong>取引所</strong>で何が買われているか見てみよう。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-tutorial">チュートリアル</span><span>チュートリアルを開き直すには？</span></div>
+      <div class="faq-a">チュートリアルは新規プレイヤーに自動で開く。閉じたら<strong>スキルパネル</strong>を開いて、上の<strong>クエスト</strong>を使う。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-items">特殊ドロップ</span><span>魔法の種、鳥の巣、ナス、金の魚、未研磨の宝石は何に使う？</span></div>
+      <div class="faq-a"><strong>魔法の種</strong>はペットガーデンに入れて、1個でペットを10時間満腹にする。<strong>鳥の巣</strong>は店の体力ポーションと合わせて強化体力ポーションになる。<strong>ナス</strong>は500 HP回復のレジェンダリーなサバイバル食。売ることもコンポストにもできる。<strong>金の魚</strong>は航海中に出会う友好的な海のいきものに食べさせられる。<strong>未研磨の宝石</strong>はCap'n Bubblesが航海契約の振り直しに使う。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-clan">クラン</span><span>クランポイントはタスクだけ？</span></div>
+      <div class="faq-a">違う。クランにはポイントが2本ある。<strong>自分のメンバーポイント</strong>は自分のXPから：前回のXPスナップショット以降の合計XP 1,000ごとにクランポイント1。<strong>クランの合計ポイントとレベル</strong>はメンバーのXPに加えて、完了した週間クランタスクでも上がる。週間タスクXPはクラン専用なので、クランは上がるけど自分のメンバーポイントには入らない。活動タブはタスクアイテムの納品を直接出す。新しいXP行はクランポイントの元になった上位スキルのXP。古いXP行は理由が残っていないので合計XPに戻る。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-combat">戦闘</span><span>序盤の戦闘はどこで鍛える？</span></div>
+      <div class="faq-a">南の<strong>スライムクラブの洞窟</strong>へ。クラブが外にいなければ洞窟に入る。ドラゴンの巣やデーモンの巣と間違えないこと。<kbd>M</kbd>を押してリソースのドロップダウンから戦闘ターゲットを探せる。紫のpingで出る。<strong>オオカミ</strong>と<strong>ゴースト</strong>は自動で襲ってくる。アイテム、SlimePower、洗濯機のポテンシャルロールが十分ならボスもいい訓練になる。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-combat">ダミー</span><span>訓練ダミーがXPをくれなくなったのはなぜ？</span></div>
+      <div class="faq-a">訓練ダミーは、使っている戦闘スタイルが<strong>レベル20</strong>になるまで、そのスタイルの減額XPだけくれる。体力XPは出ない。そのあとは本物の敵で鍛える。序盤は特にスライムクラブ。<a class="jump" href="#sec-combat">戦闘</a>で戦闘の全体を見て。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-ranged">矢</span><span>遠隔に矢は必要？</span></div>
+      <div class="faq-a">矢は今は任意。クラフトして装備すると遠隔ダメージが上がる。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-prayer">祈り</span><span>祈りにコストはある？</span></div>
+      <div class="faq-a">いま祈りにコストはない。保護の祈りとダメージタイプはまだ調整中なので、どこでも全ヒットを防げるとは限らない。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-washer">洗濯機</span><span>洗濯機のチャージはどう入手する？</span></div>
+      <div class="faq-a">フレンジードロップを洗濯機に預ける。上位ほどチャージが多い。ポテンシャルのロールはコインではなくチャージを使う。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-washer">行</span><span>洗濯機で狙う行は？</span></div>
+      <div class="faq-a"><strong>ライフスティール</strong>は戦闘が楽になる。<strong>幸運</strong>はフレンジーが増える。<strong>XPブースト</strong>はスキル用ギア向け。ダメージ、クリ率、クリダメージ、ボスダメージ、Tempoは相手次第。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-xp">XPブースト</span><span>XPブーストは1%超える？</span></div>
+      <div class="faq-a">超えない。XPブーストはちょうど<strong>1%</strong>で、たいていのポテンシャル行より珍しい。フルXPセットの上限は装備9スロット×各3本のXP行。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-washer">武器</span><span>全武器の洗濯機の行は効く？</span></div>
+      <div class="faq-a">装備中ギアのポテンシャル行は戦闘スタイルに関係なく効く。武器の生ダメージステは、そのスタイルを使っているときだけ意味がある。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-crafting">クラフト</span><span>素の鉱石と原木でクラフトできる？</span></div>
+      <div class="faq-a">最初の普通の装備レシピは<strong>スズ鉱石</strong>と<strong>シラカバの丸太</strong>。ただの鉱石と原木は最初の素材だけど、本命の最初のギア道ではない。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-pets">ペット</span><span>ペットはどうやって採集してくれる？</span></div>
+      <div class="faq-a"><a class="jump" href="#sec-pet-garden">ペットガーデン</a>の農家に話して、ペットガーデンのチュートリアルをやる。外しているペットはガーデンで採集できる。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-pets">パーク</span><span>ペットパークの使い方は？</span></div>
+      <div class="faq-a">装備中のペットにボス巻物を食べさせて、エモートパネルのペットタブを使う。ペットパークはポケット銀行、自動食事、テレポート、フレンジーサージなど。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-pets">銀行</span><span>ノードからどう預ける？</span></div>
+      <div class="faq-a"><strong>ポケット銀行</strong>のペットパークを解除して、<kbd>B</kbd>で全アイテムを預ける。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-faith">信仰</span><span>聖なる森やクロップサークルって何？</span></div>
+      <div class="faq-a">信仰イベント。満タンまでチャネリングして、オーブを集めるとさらにXP。詳しくは<a class="jump" href="#sec-faith">クロップサークル（信仰）</a>。</div>
+    </div>
+
+    <div class="card faq-card">
+      <div class="faq-q"><span class="faq-topic topic-cosmetic">スキン</span><span>筆は何に使う？</span></div>
+      <div class="faq-a">あとでペットスキンになる。今もドロップするけど、ペットスキンはまだ未実装。</div>
+    </div>
+  </div>
+</div>
+
 <div class="tab-content" id="tab-submit">
 
   <div class="sec-head" style="margin-top:4px"><div class="sec-icon gold">&#x1F4DD;</div><div><h2>ガイドへの投稿</h2><p>このガイドに載せてほしい内容を教えてください</p></div></div>

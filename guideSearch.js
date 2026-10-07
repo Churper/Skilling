@@ -131,6 +131,9 @@
 
   function reveal(entry) {
     if (typeof window._switchTab === "function") window._switchTab(entry.tabName);
+    for (let details = entry.element.closest("details"); details; details = details.parentElement?.closest("details")) {
+      details.open = true;
+    }
     const collapse = entry.element.closest(".skill-collapse");
     if (collapse) {
       collapse.classList.add("is-open");
