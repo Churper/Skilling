@@ -478,7 +478,6 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <div class="tabs" id="tabs">
   <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>基本</button>
   <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>採集</button>
-  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>コンテナ</button>
   <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>戦闘</button>
   <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>装備</button>
   <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>食料</button>
@@ -486,6 +485,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <button class="tab-btn" data-tab="islands"><span class="tab-icon">&#x26F5;</span>島々</button>
   <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>世界</button>
   <button class="tab-btn" data-tab="trading"><span class="tab-icon">&#x1F4B1;</span>取引所</button>
+  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>コンテナ</button>
   <button class="tab-btn" data-tab="clans"><span class="tab-icon">&#x1F3F0;</span>クラン</button>
   <button class="tab-btn" data-tab="tips"><span class="tab-icon">&#x1F4A1;</span>ヒント</button>
   <button class="tab-btn" data-tab="faq"><span class="tab-icon">&#x2753;</span>FAQ</button>
@@ -813,88 +813,6 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <!-- ═══════════════════════════════════════ -->
 <!-- ═══ COMBAT ═══════════════════════════ -->
 <!-- ═══════════════════════════════════════ -->
-
-<div class="tab-content" id="tab-containers">
-  <!-- AUTOGEN:containers START -->
-  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>コンテナ</h2><p>採集アイテムの保管</p></div></div>
-  <div class="card">
-    <p>バッグに入れておくと、コンテナは対象アイテムを自動でしまう。1つにつき<strong>1スロット</strong>。右クリックで空にできる。</p>
-    <p>各コンテナは1つだけ持てる。ドロップで重複はもらえない。コンテナはXP、獲得量、採集速度には影響しない。</p>
-    <p>下のドロップ率は基本値。<a href="#sec-container-luck">幸運</a>でコンテナドロップと魚バケツの強化確率が上がる。</p>
-  </div>
-
-  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>原木バスケット</h2><p>レベル600以上の原木</p></div></div>
-  <div class="card">
-    <p><strong>収納：</strong> すべての<a href="#sec-woodcutting">レベル600以上の原木</a>。</p>
-    <p><strong>入手：</strong> その木の伐採成功1回につき1/100、または<strong>沼カエル</strong>キル1回につき1/100。</p>
-    <p><strong>容量：</strong> 原木100本。<strong>木こり</strong>でダイヤモンドを使い、永久強化を買う。</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="原木バスケットの強化"><table class="guide-table"><caption>原木バスケットの強化</caption><thead><tr><th scope="col">容量</th><th scope="col">コスト</th><th scope="col">合計消費</th></tr></thead><tbody>
-    <tr><th scope="row">150</th><td>ダイヤモンド 25個</td><td>ダイヤモンド 25個</td></tr>
-    <tr><th scope="row">200</th><td>ダイヤモンド 75個</td><td>ダイヤモンド 100個</td></tr>
-    <tr><th scope="row">250</th><td>ダイヤモンド 150個</td><td>ダイヤモンド 250個</td></tr>
-    <tr><th scope="row">300</th><td>ダイヤモンド 300個</td><td>ダイヤモンド 550個</td></tr>
-    <tr><th scope="row">400</th><td>ダイヤモンド 600個</td><td>ダイヤモンド 1,150個</td></tr>
-    <tr><th scope="row">500</th><td>ダイヤモンド 1,000個</td><td>ダイヤモンド 2,150個</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>鉱石ポーチ</h2><p>レベル600以上の鉱石</p></div></div>
-  <div class="card">
-    <p><strong>収納：</strong> すべての<a href="#sec-mining">レベル600以上の鉱石</a>。</p>
-    <p><strong>購入：</strong> 採掘600の<strong>コールマイナー</strong>からパール1個。さらに<strong>ロックゴーレム</strong>からドロップ：キル1回につき1/100。</p>
-    <p><strong>容量：</strong> 鉱石100個。<strong>コールマイナー</strong>でパールを使い、永久強化を買う。</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="鉱石ポーチの強化"><table class="guide-table"><caption>鉱石ポーチの強化</caption><thead><tr><th scope="col">容量</th><th scope="col">コスト</th><th scope="col">合計消費</th></tr></thead><tbody>
-    <tr><th scope="row">150</th><td>パール 2個</td><td>パール 2個</td></tr>
-    <tr><th scope="row">200</th><td>パール 5個</td><td>パール 7個</td></tr>
-    <tr><th scope="row">250</th><td>パール 10個</td><td>パール 17個</td></tr>
-    <tr><th scope="row">300</th><td>パール 20個</td><td>パール 37個</td></tr>
-    <tr><th scope="row">400</th><td>パール 35個</td><td>パール 72個</td></tr>
-    <tr><th scope="row">500</th><td>パール 60個</td><td>パール 132個</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>魚バケツ</h2><p>レベル600以上の洞窟魚</p></div></div>
-  <div class="card">
-    <p><strong>収納：</strong> すべての<a href="#sec-cave-fishing">レベル600以上の洞窟魚</a>。</p>
-    <p><strong>入手：</strong> その洞窟釣り場で1回につき1/100。</p>
-    <p><strong>容量：</strong> 魚100匹。洞窟でさらに釣ると、下の次の容量へバケツが強化される。</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="魚バケツの強化"><table class="guide-table"><caption>魚バケツの強化</caption><thead><tr><th scope="col">容量</th><th scope="col">洞窟1回あたりの基本確率</th></tr></thead><tbody>
-    <tr><th scope="row">150</th><td>1/200</td></tr>
-    <tr><th scope="row">200</th><td>1/400</td></tr>
-    <tr><th scope="row">250</th><td>1/800</td></tr>
-    <tr><th scope="row">300</th><td>1/1,600</td></tr>
-    <tr><th scope="row">400</th><td>1/3,200</td></tr>
-    <tr><th scope="row">500</th><td>1/6,400</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>Frenzyバッグ</h2><p>Frenzy報酬</p></div></div>
-  <div class="card">
-    <p><strong>収納：</strong> 付呪木材、ゴールドの欠片、Meteorコア、<a href="#sec-fish-frenzy">Frenzy魚</a>。</p>
-    <p><strong>購入：</strong> <strong>ミスティックスライム</strong>から<strong>1,000,000コイン</strong>。</p>
-    <p><strong>容量：</strong> アイテム100、最大1,000。ミスティックスライムの手伝い1つで、枠が100永久に増える。順番は自由。</p>
-    <p>バッグを右クリックでFrenzyチャームの確認、自動FrenzyのON/OFF。</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Frenzyバッグの手伝い（ミスティックスライム）"><table class="guide-table"><caption>Frenzyバッグの手伝い（ミスティックスライム）</caption><thead><tr><th scope="col">手伝い</th><th scope="col">容量</th></tr></thead><tbody>
-    <tr><th scope="row">ミスティックのオーブをチャージ</th><td>+100</td></tr>
-    <tr><th scope="row">鳥の巣 10,000個</th><td>+100</td></tr>
-    <tr><th scope="row">未加工の宝石 5,000個</th><td>+100</td></tr>
-    <tr><th scope="row">リンゴ 1,000個</th><td>+100</td></tr>
-    <tr><th scope="row">10人のプレイヤーに名声を贈る</th><td>+100</td></tr>
-    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
-    <tr><th scope="row">各5個：サファイア → オニキス</th><td>+100</td></tr>
-    <tr><th scope="row">紫のスペルストーン 1,000個</th><td>+100</td></tr>
-    <tr><th scope="row">総合レベル3,000に到達</th><td>+100</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>幸運</h2><p>ドロップと強化の確率</p></div></div>
-  <div class="card">
-    <p>幸運はコンテナのドロップ率と魚バケツの強化確率を上げる。例：幸運+50%なら1%が1.5%に。ラッキーダックなら3%。</p>
-    <p>幸運ボーナスは加算：ギアのポテンシャル行（各2–10%）、<strong>ラッキーダック</strong>（10分+200%）、<strong>道場チャンピオン</strong>の指輪。</p>
-    <p>ハードモードでは沼カエルとロックゴーレムのコンテナドロップ率は上がらない。幸運はFrenzyの頻度も上げるが、Frenzyバッグの価格や強化には影響しない。</p>
-  </div>
-  <!-- AUTOGEN:containers END -->
-</div>
 
 <div class="tab-content" id="tab-combat">
 
@@ -1796,6 +1714,88 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
   <div class="card" id="sec-player-trading"><h3>直接交換 &amp; メール</h3><p>直接交換するときは、相手の操作メニューを開いて<strong>交換</strong>を選ぶ。双方のアイテムとコインを確認してから承認。オファーを変えたら、もう一度承認が必要。</p><p><strong>郵便受け</strong>を開いてメッセージを読み、添付や取引所の支払いを受け取る。プレイヤーメールを送る前に宛先と中身を確認。Ironslimeはプレイヤー交換とメールを使えない。</p></div>
   <div class="tip">取引所を使うのにクラン加入は不要。取引所を開いて出品を見て、出して、成立分を受け取る。Ironslimeは使えない。</div>
+</div>
+
+<div class="tab-content" id="tab-containers">
+  <!-- AUTOGEN:containers START -->
+  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>コンテナ</h2><p>採集アイテムの保管</p></div></div>
+  <div class="card">
+    <p>バッグに入れておくと、コンテナは対象アイテムを自動でしまう。1つにつき<strong>1スロット</strong>。右クリックで空にできる。</p>
+    <p>各コンテナは1つだけ持てる。ドロップで重複はもらえない。コンテナはXP、獲得量、採集速度には影響しない。</p>
+    <p>下のドロップ率は基本値。<a href="#sec-container-luck">幸運</a>でコンテナドロップと魚バケツの強化確率が上がる。</p>
+  </div>
+
+  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>Frenzyバッグ</h2><p>Frenzy報酬</p></div></div>
+  <div class="card">
+    <p><strong>収納：</strong> 付呪木材、ゴールドの欠片、Meteorコア、<a href="#sec-fish-frenzy">Frenzy魚</a>。</p>
+    <p><strong>購入：</strong> <strong>ミスティックスライム</strong>から<strong>1,000,000コイン</strong>。</p>
+    <p><strong>容量：</strong> アイテム100、最大1,000。ミスティックスライムの手伝い1つで、枠が100永久に増える。順番は自由。</p>
+    <p>バッグを右クリックでFrenzyチャームの確認、自動FrenzyのON/OFF。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Frenzyバッグの手伝い（ミスティックスライム）"><table class="guide-table"><caption>Frenzyバッグの手伝い（ミスティックスライム）</caption><thead><tr><th scope="col">手伝い</th><th scope="col">容量</th></tr></thead><tbody>
+    <tr><th scope="row">ミスティックのオーブをチャージ</th><td>+100</td></tr>
+    <tr><th scope="row">鳥の巣 10,000個</th><td>+100</td></tr>
+    <tr><th scope="row">未加工の宝石 5,000個</th><td>+100</td></tr>
+    <tr><th scope="row">リンゴ 1,000個</th><td>+100</td></tr>
+    <tr><th scope="row">10人のプレイヤーに名声を贈る</th><td>+100</td></tr>
+    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
+    <tr><th scope="row">各5個：サファイア → オニキス</th><td>+100</td></tr>
+    <tr><th scope="row">紫のスペルストーン 1,000個</th><td>+100</td></tr>
+    <tr><th scope="row">総合レベル3,000に到達</th><td>+100</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>原木バスケット</h2><p>レベル600以上の原木</p></div></div>
+  <div class="card">
+    <p><strong>収納：</strong> すべての<a href="#sec-woodcutting">レベル600以上の原木</a>。</p>
+    <p><strong>入手：</strong> その木の伐採成功1回につき1/100、または<strong>沼カエル</strong>キル1回につき1/100。</p>
+    <p><strong>容量：</strong> 原木100本。<strong>木こり</strong>でダイヤモンドを使い、永久強化を買う。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="原木バスケットの強化"><table class="guide-table"><caption>原木バスケットの強化</caption><thead><tr><th scope="col">容量</th><th scope="col">コスト</th><th scope="col">合計消費</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>ダイヤモンド 25個</td><td>ダイヤモンド 25個</td></tr>
+    <tr><th scope="row">200</th><td>ダイヤモンド 75個</td><td>ダイヤモンド 100個</td></tr>
+    <tr><th scope="row">250</th><td>ダイヤモンド 150個</td><td>ダイヤモンド 250個</td></tr>
+    <tr><th scope="row">300</th><td>ダイヤモンド 300個</td><td>ダイヤモンド 550個</td></tr>
+    <tr><th scope="row">400</th><td>ダイヤモンド 600個</td><td>ダイヤモンド 1,150個</td></tr>
+    <tr><th scope="row">500</th><td>ダイヤモンド 1,000個</td><td>ダイヤモンド 2,150個</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>鉱石ポーチ</h2><p>レベル600以上の鉱石</p></div></div>
+  <div class="card">
+    <p><strong>収納：</strong> すべての<a href="#sec-mining">レベル600以上の鉱石</a>。</p>
+    <p><strong>購入：</strong> 採掘600の<strong>コールマイナー</strong>からパール1個。さらに<strong>ロックゴーレム</strong>からドロップ：キル1回につき1/100。</p>
+    <p><strong>容量：</strong> 鉱石100個。<strong>コールマイナー</strong>でパールを使い、永久強化を買う。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="鉱石ポーチの強化"><table class="guide-table"><caption>鉱石ポーチの強化</caption><thead><tr><th scope="col">容量</th><th scope="col">コスト</th><th scope="col">合計消費</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>パール 2個</td><td>パール 2個</td></tr>
+    <tr><th scope="row">200</th><td>パール 5個</td><td>パール 7個</td></tr>
+    <tr><th scope="row">250</th><td>パール 10個</td><td>パール 17個</td></tr>
+    <tr><th scope="row">300</th><td>パール 20個</td><td>パール 37個</td></tr>
+    <tr><th scope="row">400</th><td>パール 35個</td><td>パール 72個</td></tr>
+    <tr><th scope="row">500</th><td>パール 60個</td><td>パール 132個</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>魚バケツ</h2><p>レベル600以上の洞窟魚</p></div></div>
+  <div class="card">
+    <p><strong>収納：</strong> すべての<a href="#sec-cave-fishing">レベル600以上の洞窟魚</a>。</p>
+    <p><strong>入手：</strong> その洞窟釣り場で1回につき1/100。</p>
+    <p><strong>容量：</strong> 魚100匹。洞窟でさらに釣ると、下の次の容量へバケツが強化される。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="魚バケツの強化"><table class="guide-table"><caption>魚バケツの強化</caption><thead><tr><th scope="col">容量</th><th scope="col">洞窟1回あたりの基本確率</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>1/200</td></tr>
+    <tr><th scope="row">200</th><td>1/400</td></tr>
+    <tr><th scope="row">250</th><td>1/800</td></tr>
+    <tr><th scope="row">300</th><td>1/1,600</td></tr>
+    <tr><th scope="row">400</th><td>1/3,200</td></tr>
+    <tr><th scope="row">500</th><td>1/6,400</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>幸運</h2><p>ドロップと強化の確率</p></div></div>
+  <div class="card">
+    <p>幸運はコンテナのドロップ率と魚バケツの強化確率を上げる。例：幸運+50%なら1%が1.5%に。ラッキーダックなら3%。</p>
+    <p>幸運ボーナスは加算：ギアのポテンシャル行（各2–10%）、<strong>ラッキーダック</strong>（10分+200%）、<strong>道場チャンピオン</strong>の指輪。</p>
+    <p>ハードモードでは沼カエルとロックゴーレムのコンテナドロップ率は上がらない。幸運はFrenzyの頻度も上げるが、Frenzyバッグの価格や強化には影響しない。</p>
+  </div>
+  <!-- AUTOGEN:containers END -->
 </div>
 
 <div class="tab-content" id="tab-clans">

@@ -503,7 +503,6 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <div class="tabs" id="tabs">
   <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>基础</button>
   <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>采集</button>
-  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>容器</button>
   <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>战斗</button>
   <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>装备</button>
   <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>食物</button>
@@ -511,6 +510,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <button class="tab-btn" data-tab="islands"><span class="tab-icon">&#x26F5;</span>岛屿</button>
   <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>世界</button>
   <button class="tab-btn" data-tab="trading"><span class="tab-icon">&#x1F4B1;</span>玩家交易所</button>
+  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>容器</button>
   <button class="tab-btn" data-tab="clans"><span class="tab-icon">&#x1F3F0;</span>公会</button>
   <button class="tab-btn" data-tab="tips"><span class="tab-icon">&#x1F4A1;</span>技巧</button>
   <button class="tab-btn" data-tab="faq"><span class="tab-icon">&#x2753;</span>常见问题</button>
@@ -848,88 +848,6 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <!-- ═══════════════════════════════════════ -->
 <!-- ═══ COMBAT ═══════════════════════════ -->
 <!-- ═══════════════════════════════════════ -->
-
-<div class="tab-content" id="tab-containers">
-  <!-- AUTOGEN:containers START -->
-  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>容器</h2><p>存放采集物品</p></div></div>
-  <div class="card">
-    <p>容器放在背包里会自动收纳对应物品。每个占用 <strong>一格</strong>。右键容器可倒空。</p>
-    <p>每种容器只能拥有一个。掉落不会给你重复的容器。容器不影响 XP、产量或采集速度。</p>
-    <p>下列掉落率为基础概率。<a href="#sec-container-luck">幸运</a>会提高容器掉落和鱼桶升级几率。</p>
-  </div>
-
-  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>原木篮</h2><p>600 级以上原木</p></div></div>
-  <div class="card">
-    <p><strong>存放：</strong> 全部 <a href="#sec-woodcutting">600 级以上原木</a>。</p>
-    <p><strong>获取：</strong> 成功砍伐这些树时 1/100，或每次击杀 <strong>沼泽蛙</strong> 1/100。</p>
-    <p><strong>容量：</strong> 100 根原木。用钻石向 <strong>伐木工</strong> 购买永久升级。</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="原木篮升级"><table class="guide-table"><caption>原木篮升级</caption><thead><tr><th scope="col">容量</th><th scope="col">消耗</th><th scope="col">累计消耗</th></tr></thead><tbody>
-    <tr><th scope="row">150</th><td>25 个钻石</td><td>25 个钻石</td></tr>
-    <tr><th scope="row">200</th><td>75 个钻石</td><td>100 个钻石</td></tr>
-    <tr><th scope="row">250</th><td>150 个钻石</td><td>250 个钻石</td></tr>
-    <tr><th scope="row">300</th><td>300 个钻石</td><td>550 个钻石</td></tr>
-    <tr><th scope="row">400</th><td>600 个钻石</td><td>1,150 个钻石</td></tr>
-    <tr><th scope="row">500</th><td>1,000 个钻石</td><td>2,150 个钻石</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>矿石袋</h2><p>600 级以上矿石</p></div></div>
-  <div class="card">
-    <p><strong>存放：</strong> 全部 <a href="#sec-mining">600 级以上矿石</a>。</p>
-    <p><strong>购买：</strong> 采矿 600 时向 <strong>煤矿工</strong> 购买 1 个珍珠。也会从 <strong>岩石魔像</strong> 掉落：每次击杀 1/100。</p>
-    <p><strong>容量：</strong> 100 块矿石。用珍珠向 <strong>煤矿工</strong> 购买永久升级。</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="矿石袋升级"><table class="guide-table"><caption>矿石袋升级</caption><thead><tr><th scope="col">容量</th><th scope="col">消耗</th><th scope="col">累计消耗</th></tr></thead><tbody>
-    <tr><th scope="row">150</th><td>2 个珍珠</td><td>2 个珍珠</td></tr>
-    <tr><th scope="row">200</th><td>5 个珍珠</td><td>7 个珍珠</td></tr>
-    <tr><th scope="row">250</th><td>10 个珍珠</td><td>17 个珍珠</td></tr>
-    <tr><th scope="row">300</th><td>20 个珍珠</td><td>37 个珍珠</td></tr>
-    <tr><th scope="row">400</th><td>35 个珍珠</td><td>72 个珍珠</td></tr>
-    <tr><th scope="row">500</th><td>60 个珍珠</td><td>132 个珍珠</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>鱼桶</h2><p>600 级以上洞穴鱼</p></div></div>
-  <div class="card">
-    <p><strong>存放：</strong> 全部 <a href="#sec-cave-fishing">600 级以上洞穴鱼</a>。</p>
-    <p><strong>获取：</strong> 在那些洞穴钓鱼点每次渔获 1/100。</p>
-    <p><strong>容量：</strong> 100 条鱼。继续在洞穴钓鱼有机会把桶升级到下方的下一档容量。</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="鱼桶升级"><table class="guide-table"><caption>鱼桶升级</caption><thead><tr><th scope="col">容量</th><th scope="col">每次洞穴渔获基础几率</th></tr></thead><tbody>
-    <tr><th scope="row">150</th><td>1/200</td></tr>
-    <tr><th scope="row">200</th><td>1/400</td></tr>
-    <tr><th scope="row">250</th><td>1/800</td></tr>
-    <tr><th scope="row">300</th><td>1/1,600</td></tr>
-    <tr><th scope="row">400</th><td>1/3,200</td></tr>
-    <tr><th scope="row">500</th><td>1/6,400</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>狂热袋</h2><p>狂热奖励</p></div></div>
-  <div class="card">
-    <p><strong>存放：</strong> 附魔木材、金块、陨石核心和 <a href="#sec-fish-frenzy">狂热鱼</a>。</p>
-    <p><strong>购买：</strong> 向 <strong>神秘史莱姆</strong> 花费 <strong>1,000,000 金币</strong>。</p>
-    <p><strong>容量：</strong> 100 件，最高 1,000。每完成一项神秘史莱姆任务永久增加 100 格。可按任意顺序完成。</p>
-    <p>右键袋子可查看狂潮符，或开关自动狂潮。</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="狂热袋任务（神秘史莱姆）"><table class="guide-table"><caption>狂热袋任务（神秘史莱姆）</caption><thead><tr><th scope="col">任务</th><th scope="col">容量</th></tr></thead><tbody>
-    <tr><th scope="row">为奥术宝珠充能</th><td>+100</td></tr>
-    <tr><th scope="row">10,000 个鸟巢</th><td>+100</td></tr>
-    <tr><th scope="row">5,000 个未切割宝石</th><td>+100</td></tr>
-    <tr><th scope="row">1,000 个苹果</th><td>+100</td></tr>
-    <tr><th scope="row">给 10 名玩家点赞</th><td>+100</td></tr>
-    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
-    <tr><th scope="row">各 5 个：蓝宝石 → 缟玛瑙</th><td>+100</td></tr>
-    <tr><th scope="row">1,000 个紫色法石</th><td>+100</td></tr>
-    <tr><th scope="row">达到总等级 3,000</th><td>+100</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>幸运</h2><p>掉落与升级几率</p></div></div>
-  <div class="card">
-    <p>幸运会提高容器掉落率和鱼桶升级几率。例如，+50% 幸运会把 1% 几率提到 1.5%。幸运鸭会提到 3%。</p>
-    <p>幸运加成会叠加：装备潜能词条（各 2–10%）、<strong>幸运鸭</strong>（10分钟 +200%）和 <strong>道场冠军</strong> 戒指。</p>
-    <p>困难模式不会提高沼泽蛙或岩石魔像的容器掉落率。幸运也会提高狂热频率，但不影响狂热袋的价格或升级。</p>
-  </div>
-  <!-- AUTOGEN:containers END -->
-</div>
 
 <div class="tab-content" id="tab-combat">
 
@@ -2106,6 +2024,88 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
   <div class="card" id="sec-player-trading"><h3>直接交易 &amp; 邮件</h3><p>直接交易时，打开对方的交互菜单并选择<strong>交易</strong>。接受前核对双方物品和金币。改过报价后需要重新接受。</p><p>打开<strong>邮箱</strong>阅读信件并领取附件或交易所结算。寄出玩家邮件前先核对收件人和内容。Ironslime 账号不能使用玩家交易或邮件。</p></div>
   <div class="tip">使用交易所不必加入公会。打开玩家交易所服务即可浏览挂单、上架和领取已成交交易。Ironslime 账号不能使用。</div>
+</div>
+
+<div class="tab-content" id="tab-containers">
+  <!-- AUTOGEN:containers START -->
+  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>容器</h2><p>存放采集物品</p></div></div>
+  <div class="card">
+    <p>容器放在背包里会自动收纳对应物品。每个占用 <strong>一格</strong>。右键容器可倒空。</p>
+    <p>每种容器只能拥有一个。掉落不会给你重复的容器。容器不影响 XP、产量或采集速度。</p>
+    <p>下列掉落率为基础概率。<a href="#sec-container-luck">幸运</a>会提高容器掉落和鱼桶升级几率。</p>
+  </div>
+
+  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>狂热袋</h2><p>狂热奖励</p></div></div>
+  <div class="card">
+    <p><strong>存放：</strong> 附魔木材、金块、陨石核心和 <a href="#sec-fish-frenzy">狂热鱼</a>。</p>
+    <p><strong>购买：</strong> 向 <strong>神秘史莱姆</strong> 花费 <strong>1,000,000 金币</strong>。</p>
+    <p><strong>容量：</strong> 100 件，最高 1,000。每完成一项神秘史莱姆任务永久增加 100 格。可按任意顺序完成。</p>
+    <p>右键袋子可查看狂潮符，或开关自动狂潮。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="狂热袋任务（神秘史莱姆）"><table class="guide-table"><caption>狂热袋任务（神秘史莱姆）</caption><thead><tr><th scope="col">任务</th><th scope="col">容量</th></tr></thead><tbody>
+    <tr><th scope="row">为奥术宝珠充能</th><td>+100</td></tr>
+    <tr><th scope="row">10,000 个鸟巢</th><td>+100</td></tr>
+    <tr><th scope="row">5,000 个未切割宝石</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 个苹果</th><td>+100</td></tr>
+    <tr><th scope="row">给 10 名玩家点赞</th><td>+100</td></tr>
+    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
+    <tr><th scope="row">各 5 个：蓝宝石 → 缟玛瑙</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 个紫色法石</th><td>+100</td></tr>
+    <tr><th scope="row">达到总等级 3,000</th><td>+100</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>原木篮</h2><p>600 级以上原木</p></div></div>
+  <div class="card">
+    <p><strong>存放：</strong> 全部 <a href="#sec-woodcutting">600 级以上原木</a>。</p>
+    <p><strong>获取：</strong> 成功砍伐这些树时 1/100，或每次击杀 <strong>沼泽蛙</strong> 1/100。</p>
+    <p><strong>容量：</strong> 100 根原木。用钻石向 <strong>伐木工</strong> 购买永久升级。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="原木篮升级"><table class="guide-table"><caption>原木篮升级</caption><thead><tr><th scope="col">容量</th><th scope="col">消耗</th><th scope="col">累计消耗</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>25 个钻石</td><td>25 个钻石</td></tr>
+    <tr><th scope="row">200</th><td>75 个钻石</td><td>100 个钻石</td></tr>
+    <tr><th scope="row">250</th><td>150 个钻石</td><td>250 个钻石</td></tr>
+    <tr><th scope="row">300</th><td>300 个钻石</td><td>550 个钻石</td></tr>
+    <tr><th scope="row">400</th><td>600 个钻石</td><td>1,150 个钻石</td></tr>
+    <tr><th scope="row">500</th><td>1,000 个钻石</td><td>2,150 个钻石</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>矿石袋</h2><p>600 级以上矿石</p></div></div>
+  <div class="card">
+    <p><strong>存放：</strong> 全部 <a href="#sec-mining">600 级以上矿石</a>。</p>
+    <p><strong>购买：</strong> 采矿 600 时向 <strong>煤矿工</strong> 购买 1 个珍珠。也会从 <strong>岩石魔像</strong> 掉落：每次击杀 1/100。</p>
+    <p><strong>容量：</strong> 100 块矿石。用珍珠向 <strong>煤矿工</strong> 购买永久升级。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="矿石袋升级"><table class="guide-table"><caption>矿石袋升级</caption><thead><tr><th scope="col">容量</th><th scope="col">消耗</th><th scope="col">累计消耗</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>2 个珍珠</td><td>2 个珍珠</td></tr>
+    <tr><th scope="row">200</th><td>5 个珍珠</td><td>7 个珍珠</td></tr>
+    <tr><th scope="row">250</th><td>10 个珍珠</td><td>17 个珍珠</td></tr>
+    <tr><th scope="row">300</th><td>20 个珍珠</td><td>37 个珍珠</td></tr>
+    <tr><th scope="row">400</th><td>35 个珍珠</td><td>72 个珍珠</td></tr>
+    <tr><th scope="row">500</th><td>60 个珍珠</td><td>132 个珍珠</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>鱼桶</h2><p>600 级以上洞穴鱼</p></div></div>
+  <div class="card">
+    <p><strong>存放：</strong> 全部 <a href="#sec-cave-fishing">600 级以上洞穴鱼</a>。</p>
+    <p><strong>获取：</strong> 在那些洞穴钓鱼点每次渔获 1/100。</p>
+    <p><strong>容量：</strong> 100 条鱼。继续在洞穴钓鱼有机会把桶升级到下方的下一档容量。</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="鱼桶升级"><table class="guide-table"><caption>鱼桶升级</caption><thead><tr><th scope="col">容量</th><th scope="col">每次洞穴渔获基础几率</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>1/200</td></tr>
+    <tr><th scope="row">200</th><td>1/400</td></tr>
+    <tr><th scope="row">250</th><td>1/800</td></tr>
+    <tr><th scope="row">300</th><td>1/1,600</td></tr>
+    <tr><th scope="row">400</th><td>1/3,200</td></tr>
+    <tr><th scope="row">500</th><td>1/6,400</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>幸运</h2><p>掉落与升级几率</p></div></div>
+  <div class="card">
+    <p>幸运会提高容器掉落率和鱼桶升级几率。例如，+50% 幸运会把 1% 几率提到 1.5%。幸运鸭会提到 3%。</p>
+    <p>幸运加成会叠加：装备潜能词条（各 2–10%）、<strong>幸运鸭</strong>（10分钟 +200%）和 <strong>道场冠军</strong> 戒指。</p>
+    <p>困难模式不会提高沼泽蛙或岩石魔像的容器掉落率。幸运也会提高狂热频率，但不影响狂热袋的价格或升级。</p>
+  </div>
+  <!-- AUTOGEN:containers END -->
 </div>
 
 <div class="tab-content" id="tab-clans">

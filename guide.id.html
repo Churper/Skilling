@@ -495,7 +495,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
 <!-- ═══ TABS ═══ -->
 <div class="tabs" id="tabs">
-  <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>Dasar</button> <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>Kumpul</button> <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>Combat</button> <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>Gear</button> <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>Makanan</button> <button class="tab-btn" data-tab="skills"><span class="tab-icon">&#x2B50;</span>Skill</button> <button class="tab-btn" data-tab="islands"><span class="tab-icon">&#x26F5;</span>Pulau</button> <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>Dunia</button> <button class="tab-btn" data-tab="clans"><span class="tab-icon">&#x1F3F0;</span>Klan</button> <button class="tab-btn" data-tab="tips"><span class="tab-icon">&#x1F4A1;</span>Tip</button> <button class="tab-btn" data-tab="faq"><span class="tab-icon">&#x2753;</span>Tanya Jawab</button> <button class="tab-btn" data-tab="submit"><span class="tab-icon">&#x1F4DD;</span>Saran</button>
+  <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>Dasar</button> <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>Kumpul</button> <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>Combat</button> <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>Gear</button> <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>Makanan</button> <button class="tab-btn" data-tab="skills"><span class="tab-icon">&#x2B50;</span>Skill</button> <button class="tab-btn" data-tab="islands"><span class="tab-icon">&#x26F5;</span>Pulau</button> <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>Dunia</button> <button class="tab-btn" data-tab="trading"><span class="tab-icon">&#x1F4B1;</span>Bursa</button> <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>Kontainer</button> <button class="tab-btn" data-tab="clans"><span class="tab-icon">&#x1F3F0;</span>Klan</button> <button class="tab-btn" data-tab="tips"><span class="tab-icon">&#x1F4A1;</span>Tip</button> <button class="tab-btn" data-tab="faq"><span class="tab-icon">&#x2753;</span>Tanya Jawab</button> <button class="tab-btn" data-tab="submit"><span class="tab-icon">&#x1F4DD;</span>Saran</button>
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -1812,6 +1812,111 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <!-- ═══════════════════════════════════════ -->
 <!-- ═══ CLANS ════════════════════════════ -->
 <!-- ═══════════════════════════════════════ -->
+<div class="tab-content" id="tab-trading">
+  <div class="sec-head" id="sec-exchange"><div class="sec-icon" style="background:rgba(255,200,80,.10);border-color:rgba(255,200,80,.22)">&#x1F4B1;</div><div><h2>Bursa</h2><p>Bursa lintas server untuk item &amp; gear</p></div></div>
+
+  <div class="card">
+    <p style="color:var(--ink-2);margin-bottom:8px"><strong>Bursa</strong> adalah pasar tukar global. Pemain terdaftar, bukan Ironslime, bisa <strong>post item untuk dijual</strong> atau <strong>pasang order beli</strong> - listing muncul secara global dan pemain mana pun bisa memenuhinya. Tidak seperti brankas klan, Bursa menangani <strong>gear dengan SlimePower dan baris potensi</strong>, jadi ini tempat yang tepat untuk pindah equipment yang di-enchant.</p>
+    <div class="tier-strip">
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--accent)"></span><span class="tier-name"><strong>Post Jual</strong></span><span class="tier-meta">Pasang item dari tas/bank kamu dengan harga per unit</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--blue)"></span><span class="tier-name"><strong>Post Beli</strong></span><span class="tier-meta">Tawar koin untuk item yang kamu mau; penjual penuhi dari tas mereka</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--gold)"></span><span class="tier-name"><strong>Biaya post</strong></span><span class="tier-meta">Dipotong di awal saat kamu post - <strong>dikembalikan</strong> jika kamu batal tawaran yang belum terisi</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--purple)"></span><span class="tier-name"><strong>Hasil</strong></span><span class="tier-meta">Hasil dari tawaran terpenuhi masuk kotak surat tertunda - klaim kapan saja</span></div>
+      <div class="tier-item"><span class="tier-swatch" style="background:var(--red)"></span><span class="tier-name"><strong>Batal kapan saja</strong></span><span class="tier-meta">Tawaran terbuka bisa ditarik; item titipan kembali ke tas kamu</span></div>
+    </div>
+    <div class="tip">&#x1F4A1; Pakai Bursa untuk <strong>gear</strong> (SlimePower + baris potensi tetap aman) dan tukar bahan borongan. Pakai <strong>Brankas</strong> klan untuk stok bersama di klanmu.</div>
+  </div>
+
+
+  <div class="card" id="sec-player-trading"><h3>Tukar langsung &amp; surat</h3><p>Untuk tukar langsung, buka menu interaksi pemain lain dan pilih <strong>Tukar</strong>. Cek tawaran item dan jumlah koin kedua belah pihak sebelum terima. Ubah tawaran berarti harus diterima lagi.</p><p>Buka <strong>Kotak surat</strong> untuk baca pesan dan klaim lampiran atau hasil Bursa. Cek penerima dan isi sebelum kirim surat pemain. Akun Ironslime tidak bisa pakai tukar pemain atau surat.</p></div>
+  <div class="tip">Kamu tidak perlu gabung klan untuk pakai Bursa. Buka layanan Bursa untuk lihat tawaran, post listing, dan klaim tukar yang selesai. Akun Ironslime tidak bisa memakainya.</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- ═══ CONTAINERS ═══════════════════════ -->
+
+<div class="tab-content" id="tab-containers">
+  <!-- AUTOGEN:containers START -->
+  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>Kontainer</h2><p>Penyimpanan item hasil kumpul</p></div></div>
+  <div class="card">
+    <p>Kontainer otomatis simpan item yang cocok saat dibawa di tas. Masing-masing pakai <strong>satu slot</strong>. Klik kanan kontainer untuk mengosongkannya.</p>
+    <p>Kamu hanya bisa punya satu dari tiap kontainer. Kamu tidak bisa dapat duplikat sebagai drop. Kontainer tidak memengaruhi XP, hasil, atau kecepatan kumpul.</p>
+    <p>Rate drop di bawah adalah rate dasar. <a href="#sec-container-luck">Luck</a> menaikkan peluang drop kontainer dan upgrade Ember Ikan.</p>
+  </div>
+
+  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>Tas Frenzy</h2><p>Hadiah Frenzy</p></div></div>
+  <div class="card">
+    <p><strong>Isi:</strong> kayu enchanted, keping emas, Inti Meteor dan <a href="#sec-fish-frenzy">ikan Frenzy</a>.</p>
+    <p><strong>Beli:</strong> <strong>1,000,000 koin</strong> dari <strong>Mystic Slime</strong>.</p>
+    <p><strong>Kapasitas:</strong> 100 item, sampai 1,000. Tiap tugas Mystic Slime permanen menambah 100 ruang. Selesaikan dalam urutan apa pun.</p>
+    <p>Klik kanan tas untuk lihat Jimat Frenzy-mu atau nyalakan/matikan Auto Frenzy.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Tugas Tas Frenzy (Mystic Slime)"><table class="guide-table"><caption>Tugas Tas Frenzy (Mystic Slime)</caption><thead><tr><th scope="col">Tugas</th><th scope="col">Kapasitas</th></tr></thead><tbody>
+    <tr><th scope="row">Isi Orb Mystic</th><td>+100</td></tr>
+    <tr><th scope="row">10,000 Sarang Burung</th><td>+100</td></tr>
+    <tr><th scope="row">5,000 Permata Mentah</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 Apel</th><td>+100</td></tr>
+    <tr><th scope="row">Beri pamor ke 10 pemain</th><td>+100</td></tr>
+    <tr><th scope="row">Tongkat Mystic 15 bintang</th><td>+100</td></tr>
+    <tr><th scope="row">5 masing-masing: Safir → Oniks</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 Spellstone Ungu</th><td>+100</td></tr>
+    <tr><th scope="row">Capai 3,000 total level</th><td>+100</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>Keranjang Kayu</h2><p>Kayu level 600+</p></div></div>
+  <div class="card">
+    <p><strong>Isi:</strong> semua <a href="#sec-woodcutting">kayu level 600+</a>.</p>
+    <p><strong>Didapat:</strong> 1/100 per tebang sukses pohon itu, atau 1/100 per kill <strong>Katak Rawa</strong>.</p>
+    <p><strong>Kapasitas:</strong> 100 kayu. Beli upgrade permanen dari <strong>Penebang</strong> dengan Berlian.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Upgrade Keranjang Kayu"><table class="guide-table"><caption>Upgrade Keranjang Kayu</caption><thead><tr><th scope="col">Kapasitas</th><th scope="col">Biaya</th><th scope="col">Total terpakai</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>25 Berlian</td><td>25 Berlian</td></tr>
+    <tr><th scope="row">200</th><td>75 Berlian</td><td>100 Berlian</td></tr>
+    <tr><th scope="row">250</th><td>150 Berlian</td><td>250 Berlian</td></tr>
+    <tr><th scope="row">300</th><td>300 Berlian</td><td>550 Berlian</td></tr>
+    <tr><th scope="row">400</th><td>600 Berlian</td><td>1,150 Berlian</td></tr>
+    <tr><th scope="row">500</th><td>1,000 Berlian</td><td>2,150 Berlian</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>Kantong Bijih</h2><p>Bijih level 600+</p></div></div>
+  <div class="card">
+    <p><strong>Isi:</strong> semua <a href="#sec-mining">bijih level 600+</a>.</p>
+    <p><strong>Beli:</strong> 1 Mutiara dari <strong>Penambang Batu Bara</strong> di Tambang 600. Juga drop dari <strong>Golem Batu</strong>: 1/100 per kill.</p>
+    <p><strong>Kapasitas:</strong> 100 bijih. Beli upgrade permanen dari <strong>Penambang Batu Bara</strong> dengan Mutiara.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Upgrade Kantong Bijih"><table class="guide-table"><caption>Upgrade Kantong Bijih</caption><thead><tr><th scope="col">Kapasitas</th><th scope="col">Biaya</th><th scope="col">Total terpakai</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>2 Mutiara</td><td>2 Mutiara</td></tr>
+    <tr><th scope="row">200</th><td>5 Mutiara</td><td>7 Mutiara</td></tr>
+    <tr><th scope="row">250</th><td>10 Mutiara</td><td>17 Mutiara</td></tr>
+    <tr><th scope="row">300</th><td>20 Mutiara</td><td>37 Mutiara</td></tr>
+    <tr><th scope="row">400</th><td>35 Mutiara</td><td>72 Mutiara</td></tr>
+    <tr><th scope="row">500</th><td>60 Mutiara</td><td>132 Mutiara</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>Ember Ikan</h2><p>Ikan gua level 600+</p></div></div>
+  <div class="card">
+    <p><strong>Isi:</strong> semua <a href="#sec-cave-fishing">ikan gua level 600+</a>.</p>
+    <p><strong>Didapat:</strong> 1/100 per tangkapan di spot mancing gua itu.</p>
+    <p><strong>Kapasitas:</strong> 100 ikan. Tangkapan gua berikutnya bisa upgrade ember ke kapasitas berikutnya di bawah.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Upgrade Ember Ikan"><table class="guide-table"><caption>Upgrade Ember Ikan</caption><thead><tr><th scope="col">Kapasitas</th><th scope="col">Peluang dasar per tangkapan gua</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>1/200</td></tr>
+    <tr><th scope="row">200</th><td>1/400</td></tr>
+    <tr><th scope="row">250</th><td>1/800</td></tr>
+    <tr><th scope="row">300</th><td>1/1,600</td></tr>
+    <tr><th scope="row">400</th><td>1/3,200</td></tr>
+    <tr><th scope="row">500</th><td>1/6,400</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>Luck</h2><p>Peluang drop dan upgrade</p></div></div>
+  <div class="card">
+    <p>Luck menaikkan rate drop kontainer dan peluang upgrade Ember Ikan. Contoh, +50% Luck menaikkan peluang 1% menjadi 1.5%. Bebek Hoki menaikkannya ke 3%.</p>
+    <p>Bonus Luck dijumlahkan: baris potensi gear (2-10% masing-masing), <strong>Bebek Hoki</strong> (+200% selama 10min) dan cincin <strong>Juara Dojo</strong>.</p>
+    <p>Hard mode tidak menaikkan rate drop kontainer dari Katak Rawa atau Golem Batu. Luck juga menaikkan frekuensi Frenzy, tapi tidak memengaruhi harga atau upgrade Tas Frenzy.</p>
+  </div>
+  <!-- AUTOGEN:containers END -->
+</div>
+
 <div class="tab-content" id="tab-clans">
 
   <div class="sec-head" style="margin-top:4px"><div class="sec-icon" style="background:rgba(80,232,120,.10);border-color:rgba(80,232,120,.20)">&#x1F3F0;</div><div><h2>Klan</h2><p>Bentuk klan slime — warna, brankas, tujuan bersama.</p></div></div>

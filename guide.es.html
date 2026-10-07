@@ -476,7 +476,6 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <div class="tabs" id="tabs">
   <button class="tab-btn active" data-tab="start"><span class="tab-icon">&#x1F3E0;</span>Básicos</button>
   <button class="tab-btn" data-tab="gather"><span class="tab-icon">&#x26CF;&#xFE0F;</span>Recolección</button>
-  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>Contenedores</button>
   <button class="tab-btn" data-tab="combat"><span class="tab-icon">&#x2694;&#xFE0F;</span>Combate</button>
   <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>Equipo</button>
   <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>Comida</button>
@@ -484,6 +483,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <button class="tab-btn" data-tab="islands"><span class="tab-icon">&#x26F5;</span>Islas</button>
   <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>Mundo</button>
   <button class="tab-btn" data-tab="trading"><span class="tab-icon">&#x1F4B1;</span>Lonja</button>
+  <button class="tab-btn" data-tab="containers"><span class="tab-icon">&#x1F9FA;</span>Contenedores</button>
   <button class="tab-btn" data-tab="clans"><span class="tab-icon">&#x1F3F0;</span>Clanes</button>
   <button class="tab-btn" data-tab="tips"><span class="tab-icon">&#x1F4A1;</span>Consejos</button>
   <button class="tab-btn" data-tab="faq"><span class="tab-icon">&#x2753;</span>FAQ</button>
@@ -803,88 +803,6 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 </div>
 
 <!-- COMBATE -->
-
-<div class="tab-content" id="tab-containers">
-  <!-- AUTOGEN:containers START -->
-  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>Contenedores</h2><p>Guarda lo recolectado</p></div></div>
-  <div class="card">
-    <p>Los contenedores guardan solos los ítems que coinciden si los llevas en la bolsa. Cada uno usa <strong>un slot</strong>. Clic derecho en un contenedor para vaciarlo.</p>
-    <p>Puedes tener uno de cada contenedor. No te puede caer un duplicado. Los contenedores no afectan XP, cantidad ni la velocidad de recolección.</p>
-    <p>Las tasas de drop de abajo son tasas base. La <a href="#sec-container-luck">Suerte</a> sube el drop de contenedores y las chances de mejora de la Cubeta de peces.</p>
-  </div>
-
-  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>Cesta de troncos</h2><p>Troncos level 600+</p></div></div>
-  <div class="card">
-    <p><strong>Guarda:</strong> todos los <a href="#sec-woodcutting">troncos level 600+</a>.</p>
-    <p><strong>Se obtiene:</strong> 1/100 por tala exitosa de esos árboles, o 1/100 por kill de <strong>Rana de pantano</strong>.</p>
-    <p><strong>Capacidad:</strong> 100 troncos. Compra mejoras permanentes al <strong>Leñador</strong> con diamantes.</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Mejoras de Cesta de troncos"><table class="guide-table"><caption>Mejoras de Cesta de troncos</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Coste</th><th scope="col">Total gastado</th></tr></thead><tbody>
-    <tr><th scope="row">150</th><td>25 diamantes</td><td>25 diamantes</td></tr>
-    <tr><th scope="row">200</th><td>75 diamantes</td><td>100 diamantes</td></tr>
-    <tr><th scope="row">250</th><td>150 diamantes</td><td>250 diamantes</td></tr>
-    <tr><th scope="row">300</th><td>300 diamantes</td><td>550 diamantes</td></tr>
-    <tr><th scope="row">400</th><td>600 diamantes</td><td>1,150 diamantes</td></tr>
-    <tr><th scope="row">500</th><td>1,000 diamantes</td><td>2,150 diamantes</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>Bolsa de mineral</h2><p>Minerales level 600+</p></div></div>
-  <div class="card">
-    <p><strong>Guarda:</strong> todos los <a href="#sec-mining">minerales level 600+</a>.</p>
-    <p><strong>Comprar:</strong> 1 Perla del <strong>Minero de carbón</strong> en Minería 600. También drop de <strong>Gólem de roca</strong>: 1/100 por kill.</p>
-    <p><strong>Capacidad:</strong> 100 minerales. Compra mejoras permanentes al <strong>Minero de carbón</strong> con perlas.</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Mejoras de Bolsa de mineral"><table class="guide-table"><caption>Mejoras de Bolsa de mineral</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Coste</th><th scope="col">Total gastado</th></tr></thead><tbody>
-    <tr><th scope="row">150</th><td>2 Perlas</td><td>2 Perlas</td></tr>
-    <tr><th scope="row">200</th><td>5 Perlas</td><td>7 Perlas</td></tr>
-    <tr><th scope="row">250</th><td>10 Perlas</td><td>17 Perlas</td></tr>
-    <tr><th scope="row">300</th><td>20 Perlas</td><td>37 Perlas</td></tr>
-    <tr><th scope="row">400</th><td>35 Perlas</td><td>72 Perlas</td></tr>
-    <tr><th scope="row">500</th><td>60 Perlas</td><td>132 Perlas</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>Cubeta de peces</h2><p>Peces de cueva level 600+</p></div></div>
-  <div class="card">
-    <p><strong>Guarda:</strong> todos los <a href="#sec-cave-fishing">peces de cueva level 600+</a>.</p>
-    <p><strong>Se obtiene:</strong> 1/100 por captura en esos spots de pesca de cueva.</p>
-    <p><strong>Capacidad:</strong> 100 peces. Más capturas de cueva pueden mejorar la cubeta a la siguiente capacidad de abajo.</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Mejoras de Cubeta de peces"><table class="guide-table"><caption>Mejoras de Cubeta de peces</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Chance base por pesca en cueva</th></tr></thead><tbody>
-    <tr><th scope="row">150</th><td>1/200</td></tr>
-    <tr><th scope="row">200</th><td>1/400</td></tr>
-    <tr><th scope="row">250</th><td>1/800</td></tr>
-    <tr><th scope="row">300</th><td>1/1,600</td></tr>
-    <tr><th scope="row">400</th><td>1/3,200</td></tr>
-    <tr><th scope="row">500</th><td>1/6,400</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>Bolsa Frenzy</h2><p>Recompensas Frenzy</p></div></div>
-  <div class="card">
-    <p><strong>Guarda:</strong> madera encantada, piezas de oro, Núcleos de meteoro y <a href="#sec-fish-frenzy">peces Frenzy</a>.</p>
-    <p><strong>Comprar:</strong> <strong>1,000,000 monedas</strong> de <strong>Slime místico</strong>.</p>
-    <p><strong>Capacidad:</strong> 100 ítems, hasta 1,000. Cada tarea del Slime místico suma 100 espacios para siempre. Complétalas en cualquier orden.</p>
-    <p>Clic derecho en la bolsa para ver tus Amuletos Frenzy o para prender o apagar Auto Frenzy.</p>
-  </div>
-  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Tareas de Bolsa Frenzy (Slime místico)"><table class="guide-table"><caption>Tareas de Bolsa Frenzy (Slime místico)</caption><thead><tr><th scope="col">Tarea</th><th scope="col">Capacidad</th></tr></thead><tbody>
-    <tr><th scope="row">Cargar orbe místico</th><td>+100</td></tr>
-    <tr><th scope="row">10,000 nidos de ave</th><td>+100</td></tr>
-    <tr><th scope="row">5,000 gemas en bruto</th><td>+100</td></tr>
-    <tr><th scope="row">1,000 manzanas</th><td>+100</td></tr>
-    <tr><th scope="row">Da fama a 10 jugadores</th><td>+100</td></tr>
-    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
-    <tr><th scope="row">5 de cada: Zafiro → Ónice</th><td>+100</td></tr>
-    <tr><th scope="row">1,000 piedras mágicas moradas</th><td>+100</td></tr>
-    <tr><th scope="row">Alcanza 3,000 de nivel total</th><td>+100</td></tr>
-  </tbody></table></div>
-
-  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>Suerte</h2><p>Chances de drop y mejora</p></div></div>
-  <div class="card">
-    <p>La Suerte sube las tasas de drop de contenedores y las chances de mejora de la Cubeta de peces. Por ejemplo, +50% Suerte sube un 1% a 1.5%. Pato de la suerte lo sube a 3%.</p>
-    <p>Los bonus de Suerte se suman: líneas de potencial de gear (2–10% cada una), <strong>Pato de la suerte</strong> (+200% por 10min) y el anillo <strong>Campeón del Dojo</strong>.</p>
-    <p>El modo difícil no sube las tasas de drop de contenedores de Rana de pantano ni Gólem de roca. La Suerte también sube la frecuencia Frenzy, pero no cambia el precio ni las mejoras de la Bolsa Frenzy.</p>
-  </div>
-  <!-- AUTOGEN:containers END -->
-</div>
 
 <div class="tab-content" id="tab-combat">
 
@@ -1729,6 +1647,88 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 
   <div class="card" id="sec-player-trading"><h3>Intercambios directos &amp; correo</h3><p>Para un intercambio directo, abre el menú de interacción de otro jugador y elige <strong>Intercambiar</strong>. Revisa las ofertas de objetos y las cantidades de monedas antes de aceptar. Si cambias una oferta, hay que aceptarla otra vez.</p><p>Abre el <strong>Buzón</strong> para leer mensajes y reclamar adjuntos o pagos de la Lonja. Revisa el destinatario y el contenido antes de enviar correo a un jugador. Las cuentas Ironslime no pueden usar intercambios ni correo entre jugadores.</p></div>
   <div class="tip">No necesitas unirte a un clan para usar la Lonja. Abre el servicio Lonja para ver ofertas, postear un listado y reclamar intercambios listos. Las cuentas Ironslime no pueden usarla.</div>
+</div>
+
+<div class="tab-content" id="tab-containers">
+  <!-- AUTOGEN:containers START -->
+  <div class="sec-head" id="sec-containers"><div class="sec-icon">🧺</div><div><h2>Contenedores</h2><p>Guarda lo recolectado</p></div></div>
+  <div class="card">
+    <p>Los contenedores guardan solos los ítems que coinciden si los llevas en la bolsa. Cada uno usa <strong>un slot</strong>. Clic derecho en un contenedor para vaciarlo.</p>
+    <p>Puedes tener uno de cada contenedor. No te puede caer un duplicado. Los contenedores no afectan XP, cantidad ni la velocidad de recolección.</p>
+    <p>Las tasas de drop de abajo son tasas base. La <a href="#sec-container-luck">Suerte</a> sube el drop de contenedores y las chances de mejora de la Cubeta de peces.</p>
+  </div>
+
+  <div class="sec-head" id="sec-frenzy-bag"><div class="sec-icon" data-guide-icon data-icon="Frenzy Bag">🌀</div><div><h2>Bolsa Frenzy</h2><p>Recompensas Frenzy</p></div></div>
+  <div class="card">
+    <p><strong>Guarda:</strong> madera encantada, piezas de oro, Núcleos de meteoro y <a href="#sec-fish-frenzy">peces Frenzy</a>.</p>
+    <p><strong>Comprar:</strong> <strong>1,000,000 monedas</strong> de <strong>Slime místico</strong>.</p>
+    <p><strong>Capacidad:</strong> 100 ítems, hasta 1,000. Cada tarea del Slime místico suma 100 espacios para siempre. Complétalas en cualquier orden.</p>
+    <p>Clic derecho en la bolsa para ver tus Amuletos Frenzy o para prender o apagar Auto Frenzy.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Tareas de Bolsa Frenzy (Slime místico)"><table class="guide-table"><caption>Tareas de Bolsa Frenzy (Slime místico)</caption><thead><tr><th scope="col">Tarea</th><th scope="col">Capacidad</th></tr></thead><tbody>
+    <tr><th scope="row">Cargar orbe místico</th><td>+100</td></tr>
+    <tr><th scope="row">10,000 nidos de ave</th><td>+100</td></tr>
+    <tr><th scope="row">5,000 gemas en bruto</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 manzanas</th><td>+100</td></tr>
+    <tr><th scope="row">Da fama a 10 jugadores</th><td>+100</td></tr>
+    <tr><th scope="row">15-star Mystic's Wand</th><td>+100</td></tr>
+    <tr><th scope="row">5 de cada: Zafiro → Ónice</th><td>+100</td></tr>
+    <tr><th scope="row">1,000 piedras mágicas moradas</th><td>+100</td></tr>
+    <tr><th scope="row">Alcanza 3,000 de nivel total</th><td>+100</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-log-basket"><div class="sec-icon" data-guide-icon data-icon="Log Basket">🪵</div><div><h2>Cesta de troncos</h2><p>Troncos level 600+</p></div></div>
+  <div class="card">
+    <p><strong>Guarda:</strong> todos los <a href="#sec-woodcutting">troncos level 600+</a>.</p>
+    <p><strong>Se obtiene:</strong> 1/100 por tala exitosa de esos árboles, o 1/100 por kill de <strong>Rana de pantano</strong>.</p>
+    <p><strong>Capacidad:</strong> 100 troncos. Compra mejoras permanentes al <strong>Leñador</strong> con diamantes.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Mejoras de Cesta de troncos"><table class="guide-table"><caption>Mejoras de Cesta de troncos</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Coste</th><th scope="col">Total gastado</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>25 diamantes</td><td>25 diamantes</td></tr>
+    <tr><th scope="row">200</th><td>75 diamantes</td><td>100 diamantes</td></tr>
+    <tr><th scope="row">250</th><td>150 diamantes</td><td>250 diamantes</td></tr>
+    <tr><th scope="row">300</th><td>300 diamantes</td><td>550 diamantes</td></tr>
+    <tr><th scope="row">400</th><td>600 diamantes</td><td>1,150 diamantes</td></tr>
+    <tr><th scope="row">500</th><td>1,000 diamantes</td><td>2,150 diamantes</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-ore-pouch"><div class="sec-icon" data-guide-icon data-icon="Ore Pouch">⛏️</div><div><h2>Bolsa de mineral</h2><p>Minerales level 600+</p></div></div>
+  <div class="card">
+    <p><strong>Guarda:</strong> todos los <a href="#sec-mining">minerales level 600+</a>.</p>
+    <p><strong>Comprar:</strong> 1 Perla del <strong>Minero de carbón</strong> en Minería 600. También drop de <strong>Gólem de roca</strong>: 1/100 por kill.</p>
+    <p><strong>Capacidad:</strong> 100 minerales. Compra mejoras permanentes al <strong>Minero de carbón</strong> con perlas.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Mejoras de Bolsa de mineral"><table class="guide-table"><caption>Mejoras de Bolsa de mineral</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Coste</th><th scope="col">Total gastado</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>2 Perlas</td><td>2 Perlas</td></tr>
+    <tr><th scope="row">200</th><td>5 Perlas</td><td>7 Perlas</td></tr>
+    <tr><th scope="row">250</th><td>10 Perlas</td><td>17 Perlas</td></tr>
+    <tr><th scope="row">300</th><td>20 Perlas</td><td>37 Perlas</td></tr>
+    <tr><th scope="row">400</th><td>35 Perlas</td><td>72 Perlas</td></tr>
+    <tr><th scope="row">500</th><td>60 Perlas</td><td>132 Perlas</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-fish-bucket"><div class="sec-icon" data-guide-icon data-icon="Fish Bucket">🪣</div><div><h2>Cubeta de peces</h2><p>Peces de cueva level 600+</p></div></div>
+  <div class="card">
+    <p><strong>Guarda:</strong> todos los <a href="#sec-cave-fishing">peces de cueva level 600+</a>.</p>
+    <p><strong>Se obtiene:</strong> 1/100 por captura en esos spots de pesca de cueva.</p>
+    <p><strong>Capacidad:</strong> 100 peces. Más capturas de cueva pueden mejorar la cubeta a la siguiente capacidad de abajo.</p>
+  </div>
+  <div class="guide-table-wrap" tabindex="0" role="region" aria-label="Mejoras de Cubeta de peces"><table class="guide-table"><caption>Mejoras de Cubeta de peces</caption><thead><tr><th scope="col">Capacidad</th><th scope="col">Chance base por pesca en cueva</th></tr></thead><tbody>
+    <tr><th scope="row">150</th><td>1/200</td></tr>
+    <tr><th scope="row">200</th><td>1/400</td></tr>
+    <tr><th scope="row">250</th><td>1/800</td></tr>
+    <tr><th scope="row">300</th><td>1/1,600</td></tr>
+    <tr><th scope="row">400</th><td>1/3,200</td></tr>
+    <tr><th scope="row">500</th><td>1/6,400</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-container-luck"><div class="sec-icon">🍀</div><div><h2>Suerte</h2><p>Chances de drop y mejora</p></div></div>
+  <div class="card">
+    <p>La Suerte sube las tasas de drop de contenedores y las chances de mejora de la Cubeta de peces. Por ejemplo, +50% Suerte sube un 1% a 1.5%. Pato de la suerte lo sube a 3%.</p>
+    <p>Los bonus de Suerte se suman: líneas de potencial de gear (2–10% cada una), <strong>Pato de la suerte</strong> (+200% por 10min) y el anillo <strong>Campeón del Dojo</strong>.</p>
+    <p>El modo difícil no sube las tasas de drop de contenedores de Rana de pantano ni Gólem de roca. La Suerte también sube la frecuencia Frenzy, pero no cambia el precio ni las mejoras de la Bolsa Frenzy.</p>
+  </div>
+  <!-- AUTOGEN:containers END -->
 </div>
 
 <div class="tab-content" id="tab-clans">
