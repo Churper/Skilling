@@ -1,5 +1,23 @@
 [
   {
+    "version": "v2275",
+    "date": "2026-10-08",
+    "title": "House Salvager, Croc Scroll & Arena Remakes",
+    "entries": [
+      "New house furniture: the Salvager (15 Cozy Coupons). Click it, highlight gear from your Bag, then salvage it all at once.",
+      "New house painting: Bold and Blobby.",
+      "Alch Pot now has inventory tooltips, full-cell highlights and a wider desktop Bag.",
+      "Croc Scroll has a perk now: Croc Jaws (J) salvages gear you pick up from kills for 5 minutes, straight into your inventory. Right-click it to filter tiers.",
+      "Salvage now puts the materials in your inventory instead of the bank.",
+      "Jelly Bean drops Sunbaked Dragon Scales instead of Molten Dragon Scales, and Snoot Eggs, Enchanted Wax and Chomper Teeth make Blue Spellstones instead of Red.",
+      "Slime Flight bubbles now pay 1 SC for every 3 bubbles.",
+      "Remade the Yeti arena, Dark Wizard's place.",
+      "The Rat and Skele got an updated look.",
+      "Attacking the Yeti while it's frozen no longer spams text.",
+      "Crypt monsters never spawn under or on each other and don't clip into each other anymore."
+    ]
+  },
+  {
     "version": "v2274",
     "date": "2026-10-08",
     "title": "Crypt Leaderboards & Croc Den Fix",
