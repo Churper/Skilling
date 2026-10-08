@@ -1,5 +1,15 @@
 [
   {
+    "version": "v2274",
+    "date": "2026-10-08",
+    "title": "Crypt Leaderboards & Croc Den Fix",
+    "entries": [
+      "Added a separate Crypt leaderboard with weekly and all-time rankings.",
+      "Fixed the croc disappearing after the fifth feed.",
+      "Fixed the new Crypt drops not going into your bag when you picked them up."
+    ]
+  },
+  {
     "version": "v2273",
     "date": "2026-10-07",
     "title": "Crypt Remake, Jelly Bean & Weekly Crypt Board",
