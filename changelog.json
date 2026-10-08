@@ -1,5 +1,17 @@
 [
   {
+    "version": "v2276",
+    "date": "2026-10-08",
+    "title": "Crypt HP & Eating Speed",
+    "entries": [
+      "Crypt monster HP scales with your combat level or your best attack style, whichever is lower.",
+      "The demis Jelly Bean summons have less health for higher level players.",
+      "Eating speed no longer depends on your ping: one 0.25 second timer for all food. Holding the quick-eat key eats once.",
+      "Bold and Blobby painting is 5 Cozy Coupons, not 50.",
+      "Added boats, upgrades and costs under Islands in the guide."
+    ]
+  },
+  {
     "version": "v2275",
     "date": "2026-10-08",
     "title": "House Salvager, Croc Scroll & Arena Remakes",

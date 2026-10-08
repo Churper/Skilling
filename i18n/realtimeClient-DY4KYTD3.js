@@ -1,0 +1,1 @@
+import{qg as a,rg as b}from"./chunk-X63H7K24.js";import"./chunk-ALG5RZFT.js";import"./chunk-KU6R7M5O.js";import"./chunk-D4AW37IU.js";import"./chunk-67HMQSYL.js";import"./chunk-OZ43X6TY.js";import"./chunk-K5SGBPYX.js";import"./chunk-7MI2BWQZ.js";export{b as createRealtimeClient,a as resolveOnlineConfig};
