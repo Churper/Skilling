@@ -1,5 +1,26 @@
 [
   {
+    "version": "v2273",
+    "date": "2026-10-07",
+    "title": "Crypt Remake, Jelly Bean & Weekly Crypt Board",
+    "entries": [
+      "Remade the crypt arena and mobs.",
+      "Added final boss at wave 18 crypt.",
+      "Crypt waves come one at a time; the bell is gone.",
+      "In the Crypt, the right protection prayer blocks all damage, and blocked hits don't count as hits taken.",
+      "Crypt SC was changed: each wave pays once/day, the Jelly Bean is worth 20 of the 50.",
+      "Added crypt leaderboards.",
+      "Comet Shower and Giga Mode end when you enter the Crypt and can't hurt Crypt mobs.",
+      "Added a weekly Crypt leaderboard: beat the Jelly Bean with the fewest hits taken.",
+      "Remade the dojo colosseum arena.",
+      "Remade the Spider Queen lair.",
+      "Clicking to walk somewhere no longer auto-retaliates until you get hit after arriving.",
+      "Fixed the Dojo HUD getting stuck in the overworld if you left while the Dojo was loading.",
+      "Fixed pressing Enter in chat leaving the cursor in the chat box.",
+      "Fixed a selection box showing on prayer buttons when using quick eat or other hotkeys."
+    ]
+  },
+  {
     "version": "v2272",
     "date": "2026-10-07",
     "title": "Croc Den & Horse Hotfix",
