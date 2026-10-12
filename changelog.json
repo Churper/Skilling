@@ -1,5 +1,32 @@
 [
   {
+    "version": "v2277",
+    "date": "2026-10-12",
+    "title": "Hunting, Wisps & Bank Tabs",
+    "entries": [
+      "Catch animals with berry bowls for Hunting XP and essence.",
+      "Hunt for 12 minutes AFK, or an hour at level 600.",
+      "Craft, refine and salvage Wisps at the Wisp Well; attach them to gear for bonuses.",
+      "Upgrade box traps with Trappy and wear your older box skins.",
+      "Lure Fire and Ore Trap burn logs and ore offline for Critter Fur and Latches.",
+      "Find Amber while Hunting; it sells for 10,000 coins.",
+      "Trappy gives the Hunter Name Badge at 300, Hunter Aura at 500 and Hunter Cape at 1000, and trims it at 2000.",
+      "Dupey upgrades Wisps to Mythic at twice gear odds.",
+      "Lucky Pebbles and Carved Whales each give Dupey a .5% chance each.",
+      "Added Hunting, Wisps and Dupey to the guide.",
+      "The Bank has a third row of tabs.",
+      "Bank tabs sorting improved.",
+      "The Bank grows with your window size.",
+      "Your custom Bank arrangement resets once so the new sorting can take over; you can rearrange it afterward.",
+      "Buy a Wisp Well for your house for 25 Cozy Coupons.",
+      "Floor decorations fit under furniture without blocking doors or walking.",
+      "Turn weapons in with the Hitpoints master for peaceful mode with no combat styles; take them back anytime.",
+      "Salvaging shows your upgraded spool, a closer seat, and hook movement to other players.",
+      "Fixed auto attacking stopping sometimes on dragon.",
+      "Remade the Lucky Duck."
+    ]
+  },
+  {
     "version": "v2276",
     "date": "2026-10-08",
     "title": "Crypt HP & Eating Speed",
