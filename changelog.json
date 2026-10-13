@@ -1,5 +1,15 @@
 [
   {
+    "version": "v2280",
+    "date": "2026-10-13",
+    "title": "Kit & cosmetic fixes",
+    "entries": [
+      "Fixed badges in Kit being reclaimed into your inventory after refreshing.",
+      "Fixed Sleepy Cap showing as an empty slot when equipped.",
+      "Made the Refresh Charm, Frenzy Charm, Item Lock and Nametag icons smaller."
+    ]
+  },
+  {
     "version": "v2279",
     "date": "2026-10-13",
     "title": "Sleepy Cap, Kit & Hunting",
