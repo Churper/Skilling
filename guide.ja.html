@@ -460,6 +460,45 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   .boss-icon{margin:0 auto}
   .tab-icon{display:none}
 }
+/* Translated Wisp table presentation */
+#tab-wisps .guide-table-wrap{max-width:100%;overflow-x:auto;margin:14px 0;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-sm)}
+#tab-wisps .guide-table{width:100%;border-collapse:collapse;text-align:left;font-size:.84rem}
+#tab-wisps .guide-table caption{text-align:left;padding:12px;font-weight:700;color:var(--gold);background:var(--bg-surface)}
+#tab-wisps .guide-table th,#tab-wisps .guide-table td{padding:10px 12px;border-top:1px solid var(--border);vertical-align:top}
+#tab-wisps .guide-table thead th{color:var(--ink-1);background:var(--bg-surface)}
+#tab-wisps .guide-table tbody th{font-weight:600;color:var(--ink-1)}
+#tab-wisps .guide-table td{color:var(--ink-2)}
+#tab-wisps .guide-item-icon{display:inline-flex;width:28px;height:28px;vertical-align:middle;margin-right:6px}
+#tab-wisps .guide-item-icon img{width:28px;height:28px;object-fit:contain}
+/* Wisps: one baked sheet (guide_wisps.webp, 27 icons at 80 px: 22 Legendary Wisps, then Goo Gecko Common to Legendary) */
+.wisp-ic{display:block;width:40px;height:40px;flex-shrink:0;background:url(guide_wisps.webp) calc(var(--i) * -40px) 0/1120px 40px no-repeat}
+.tier-swatch.wisp-ic{border:0;border-radius:0;box-shadow:none}
+.wisp-rarities{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));padding:0}
+.wisp-rarities > div{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 4px;font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wisp-rarities > div + div{border-left:1px solid var(--border)}
+.wisp-table .guide-table{min-width:600px}
+.wisp-table .guide-table th,.wisp-table .guide-table td{vertical-align:middle}
+.wisp-table tr > * + *{border-left:1px solid var(--border)}
+.wisp-table tr > :first-child{position:sticky;left:0;z-index:1;background:var(--bg-surface);box-shadow:1px 0 0 var(--border)}
+.wisp-cell{display:flex;align-items:center;gap:10px}
+.wisp-cell b{display:block;font-weight:600;color:var(--ink-1);white-space:nowrap}
+.wisp-cell .wisp-eff{display:block;margin-top:2px;font-size:.8rem;font-weight:500;color:var(--ink-2)}
+.wisp-cell small{display:block;margin-top:2px;font-size:.72rem;font-weight:500;color:var(--ink-3)}
+.wisp-cell .wisp-ic{width:36px;height:36px;background-position:calc(var(--i) * -36px) 0;background-size:1008px 36px}
+.wisp-table .wisp-num{text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;width:1%}
+.wisp-table td.wisp-num{color:var(--ink-1);font-weight:600}
+.wisp-cost .guide-table{min-width:0}
+.wisp-cost .guide-table th,.wisp-cost .guide-table td{padding-left:7px;padding-right:7px}
+.wisp-cost thead th{font-size:.76rem}
+.wisp-cost .wisp-cell{width:172px}
+.wisp-cost .wisp-cell b{white-space:normal}
+@media(max-width:600px){.wisp-cost .wisp-cell{width:150px}}
+.wisp-cell .wisp-lvl{display:inline-block;white-space:nowrap;margin-left:6px;font-size:.72rem;font-weight:600;color:var(--ink-3)}
+.wisp-table thead th small{display:block;font-size:.7rem;font-weight:500;color:var(--ink-3)}
+@media(max-width:600px){.wisp-table .guide-table{min-width:0;width:auto}.wisp-cell{width:150px}.wisp-table .guide-table th,.wisp-table .guide-table td{padding:8px 7px}.wisp-cell .wisp-ic{width:28px;height:28px;background-position:calc(var(--i) * -28px) 0;background-size:784px 28px}.wisp-cell{gap:8px}.wisp-cell b{white-space:normal}}
+.wisp-rarities .wisp-odds{margin-top:-2px;font-size:.84rem;font-weight:700;color:var(--ink-1);font-variant-numeric:tabular-nums}
+.wisp-rarities .wisp-ic{width:48px;height:48px;background-position:calc(var(--i) * -48px) 0;background-size:1344px 48px}
+
 </style>
 </head>
 <body>
@@ -482,6 +521,7 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
   <button class="tab-btn" data-tab="gear"><span class="tab-icon">&#x1F6E1;&#xFE0F;</span>装備</button>
   <button class="tab-btn" data-tab="food"><span class="tab-icon">&#x1F372;</span>食料</button>
   <button class="tab-btn" data-tab="skills"><span class="tab-icon">&#x2B50;</span>スキル</button>
+  <button class="tab-btn" data-tab="wisps"><span class="tab-icon">&#x1F535;</span>ウィスプ</button>
   <button class="tab-btn" data-tab="islands"><span class="tab-icon">&#x26F5;</span>島々</button>
   <button class="tab-btn" data-tab="world"><span class="tab-icon">&#x1F30D;</span>世界</button>
   <button class="tab-btn" data-tab="trading"><span class="tab-icon">&#x1F4B1;</span>取引所</button>
@@ -1551,6 +1591,134 @@ table.star-tbl{width:100%;border-collapse:collapse;margin:8px 0 12px;font-size:.
 <!-- ═══════════════════════════════════════ -->
 <!-- ═══ ISLANDS ══════════════════════════ -->
 <!-- ═══════════════════════════════════════ -->
+<div class="tab-content" id="tab-wisps">
+
+  <div class="sec-head" id="sec-hunting"><div class="sec-icon">🏹</div><div><h2>狩猟</h2><p>箱わな、ベリーボウル、エッセンス</p></div></div>
+  <div class="card"><p>狩猟スポットの動物をクリックすると捕獲が始まります。捕獲のたびにバッグのベリーボウルを1個使い（売値が安いものから）、エッセンスを1つ得ます。トラッピーはコインと次の箱のつっかえ棒で箱わなを強化します。</p>
+  <p style="margin-top:8px">同じレベルでの採掘と比べ、箱のティアと失敗を含めた狩猟の基本XP/時はおよそ50%です。おかえりなさいの捕獲もバッグのボウルを使い、尽きると止まります。各捕獲は通常の基本エッセンスとXPを与えます。</p>
+  </div>
+  <div class="guide-table-wrap wisp-table" tabindex="0" role="region" aria-label="狩猟の捕獲"><table class="guide-table"><caption>狩猟の捕獲</caption><thead><tr><th scope="col">動物</th><th scope="col">レベル</th><th scope="col">エッセンス</th><th scope="col">捕獲あたりの基本XP</th><th scope="col">基本サイクル</th></tr></thead><tbody>
+    <tr><th scope="row">ウサギ</th><td class="wisp-num">1</td><td>ウサギのエッセンス</td><td class="wisp-num">759</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">フェレット</th><td class="wisp-num">40</td><td>フェレットのエッセンス</td><td class="wisp-num">848</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">ビーバー</th><td class="wisp-num">80</td><td>ビーバーのエッセンス</td><td class="wisp-num">1,092</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">アライグマ</th><td class="wisp-num">120</td><td>アライグマのエッセンス</td><td class="wisp-num">1,188</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">子鹿</th><td class="wisp-num">160</td><td>子鹿のエッセンス</td><td class="wisp-num">1,345</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">アナグマ</th><td class="wisp-num">200</td><td>アナグマのエッセンス</td><td class="wisp-num">1,871</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">キツネ</th><td class="wisp-num">250</td><td>キツネのエッセンス</td><td class="wisp-num">2,256</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">フラミンゴ</th><td class="wisp-num">300</td><td>フラミンゴのエッセンス</td><td class="wisp-num">2,615</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">イノシシ</th><td class="wisp-num">350</td><td>イノシシのエッセンス</td><td class="wisp-num">3,595</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">シカ</th><td class="wisp-num">400</td><td>シカのエッセンス</td><td class="wisp-num">4,215</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">オオヤマネコ</th><td class="wisp-num">450</td><td>オオヤマネコのエッセンス</td><td class="wisp-num">4,889</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">オオカミ</th><td class="wisp-num">500</td><td>オオカミのエッセンス</td><td class="wisp-num">5,495</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">クマ</th><td class="wisp-num">550</td><td>クマのエッセンス</td><td class="wisp-num">5,495</td><td class="wisp-num">20s</td></tr>
+    <tr><th scope="row">ストームスカンク</th><td class="wisp-num">600</td><td>ストームのエッセンス</td><td class="wisp-num">6,429</td><td class="wisp-num">21s</td></tr>
+    <tr><th scope="row">リヴァイアサントカゲ</th><td class="wisp-num">700</td><td>リヴァイアサンのエッセンス</td><td class="wisp-num">7,835</td><td class="wisp-num">21.5s</td></tr>
+    <tr><th scope="row">グーヤモリ</th><td class="wisp-num">800</td><td>グーのエッセンス</td><td class="wisp-num">9,649</td><td class="wisp-num">22s</td></tr>
+    <tr><th scope="row">プリズムクジャク</th><td class="wisp-num">900</td><td>プリズムのエッセンス</td><td class="wisp-num">11,431</td><td class="wisp-num">22.5s</td></tr>
+    <tr><th scope="row">インフィニティイグアナ</th><td class="wisp-num">1,000</td><td>インフィニティのエッセンス</td><td class="wisp-num">13,166</td><td class="wisp-num">23s</td></tr>
+    <tr><th scope="row">プラズマカモノハシ</th><td class="wisp-num">1,250</td><td>プラズマのエッセンス</td><td class="wisp-num">17,385</td><td class="wisp-num">23.5s</td></tr>
+    <tr><th scope="row">クラウドカピバラ</th><td class="wisp-num">1,500</td><td>クラウドのエッセンス</td><td class="wisp-num">21,748</td><td class="wisp-num">24s</td></tr>
+    <tr><th scope="row">フュージョンカエル</th><td class="wisp-num">1,750</td><td>フュージョンのエッセンス</td><td class="wisp-num">26,278</td><td class="wisp-num">24.5s</td></tr>
+    <tr><th scope="row">反物質アルマジロ</th><td class="wisp-num">2,000</td><td>反物質のエッセンス</td><td class="wisp-num">30,977</td><td class="wisp-num">25s</td></tr>
+  </tbody></table></div>
+  <div class="card"><p>捕獲中に特別な動物が現れることがあります。その動物をクリックするか、Frenzyチャームを使うと、報酬と捕獲1.5回分のボーナスXPが入ります。報酬は洗濯機に預けると、下のチャージになります。</p></div>
+  <div class="guide-table-wrap wisp-table" tabindex="0" role="region" aria-label="狩猟フレンジー報酬"><table class="guide-table"><caption>狩猟フレンジー報酬</caption><thead><tr><th scope="col">狩猟レベル</th><th scope="col">報酬</th><th scope="col">洗濯機チャージ</th></tr></thead><tbody>
+    <tr><th scope="row">1–99</th><td><span class="guide-item-icon" data-guide-icon data-icon="Twig" aria-hidden="true"></span>小枝</td><td class="wisp-num">1</td></tr>
+    <tr><th scope="row">100–199</th><td><span class="guide-item-icon" data-guide-icon data-icon="Acorn" aria-hidden="true"></span>どんぐり</td><td class="wisp-num">2</td></tr>
+    <tr><th scope="row">200–299</th><td><span class="guide-item-icon" data-guide-icon data-icon="Pine Cone" aria-hidden="true"></span>松ぼっくり</td><td class="wisp-num">3</td></tr>
+    <tr><th scope="row">300–399</th><td><span class="guide-item-icon" data-guide-icon data-icon="Maple Leaf" aria-hidden="true"></span>カエデの葉</td><td class="wisp-num">4</td></tr>
+    <tr><th scope="row">400+</th><td><span class="guide-item-icon" data-guide-icon data-icon="Lily Pad" aria-hidden="true"></span>睡蓮の葉</td><td class="wisp-num">5</td></tr>
+  </tbody></table></div>
+
+  <div class="card"><p><strong><span data-guide-icon data-icon="Amber">🟠</span> アンバー</strong>は狩猟のレア捕獲で、<strong>10,000コイン</strong>の価値があります。各動物の必要レベルで使える箱ティアなら、ボーナス前のその場での狩猟でおよそ<strong>15分</strong>に1個です。幸運とプリズムウィスプで確率が上がります。銀行のウィスプタブにあります。トラッピーは興味を持っていますが、まだ使い道はありません。地図と巣穴は後日です。</p></div>
+
+  <div class="sec-head" id="sec-wisps" style="margin-top:4px"><div class="sec-icon gold">&#x1F535;</div><div><h2>ウィスプ</h2><p>狩猟で得られる光るエネルギー。装備にボーナス行を追加</p></div></div>
+  <div class="card">
+    <ol class="guide-steps">
+      <li><strong>動物を捕まえる。</strong> わなから飛び出した動物は、ウサギのエッセンスのようなエッセンスを少し残します。</li>
+      <li><strong>ウィスプの井戸でエッセンスからウィスプをクラフト。</strong> クラフトのたびにレアリティが決まります。</li>
+      <li><strong>ウィスプをアイテムにつける。</strong> バッグのウィスプをクリックして装備を選びます。そのアイテムにボーナス行が1つ付きます。アイテム1つにつきウィスプは1つ：新しいものをつけると古いものはバッグに戻ります。アイテムを右クリックして「ウィスプを外す」で外せます。レアリティが変えるのは数値だけで、効果の種類は変わりません。</li>
+      <li><strong>いらないものは分解。</strong> 余ったウィスプはエッセンスに戻ります。</li>
+    </ol>
+  </div>
+
+  <div class="sec-head" id="sec-wisp-rarity"><div class="sec-icon purple">&#x1F48E;</div><div><h2>レアリティ</h2><p>各レアリティのグーウィスプと、その出る確率。レアリティが高いほどウィスプは明るく、ボーナスも大きい。グーはコモンから神話まで回避が1%、2%、3%、4%、5%、6%。装備中のグーウィスプは加算され、神話を9つで最大54%。神話はDupeyから入手。ウィスプの井戸ではクラフトも精錬もできません。</p></div></div>
+  <div class="card wisp-rarities">
+    <div><span class="wisp-ic" style="--i:22" role="img" aria-label="コモンのグーウィスプ"></span><span style="color:#b0b0b0">コモン</span><span class="wisp-odds">50%</span></div>
+    <div><span class="wisp-ic" style="--i:23" role="img" aria-label="アンコモンのグーウィスプ"></span><span style="color:#4ade80">アンコモン</span><span class="wisp-odds">25%</span></div>
+    <div><span class="wisp-ic" style="--i:24" role="img" aria-label="レアのグーウィスプ"></span><span style="color:#60a5fa">レア</span><span class="wisp-odds">15%</span></div>
+    <div><span class="wisp-ic" style="--i:25" role="img" aria-label="エピックのグーウィスプ"></span><span style="color:#c084fc">エピック</span><span class="wisp-odds">8%</span></div>
+    <div><span class="wisp-ic" style="--i:26" role="img" aria-label="伝説のグーウィスプ"></span><span style="color:#fbbf24">伝説</span><span class="wisp-odds">2%</span></div>
+    <div><span class="wisp-ic" style="--i:27" role="img" aria-label="神話のグーウィスプ"></span><span style="color:#ed5bb5">神話</span><span class="wisp-odds">Dupey</span></div>
+  </div>
+
+  <div class="sec-head" id="sec-wisp-craft"><div class="sec-icon purple">&#x1F52E;</div><div><h2>ウィスプのクラフト</h2><p>ウィスプの井戸で、その動物のエッセンスから</p></div></div>
+  <div class="card">
+    <p>クラフト1回でウィスプが1つでき、上のレアリティ確率で決まります。クラフトにはその動物の狩猟レベルが必要です。どのレアリティのウィスプを分解しても、かかったエッセンスの半分が戻ります。</p>
+    <p style="margin-top:8px"><strong>精錬</strong>は持っているウィスプを1段階上げ、そのエッセンスを追加で使います。<strong style="color:#4ade80">アンコモン</strong>はクラフト1.5回分、<strong style="color:#60a5fa">レア</strong>は2.5、<strong style="color:#c084fc">エピック</strong>は5、<strong style="color:#fbbf24">伝説</strong>は12.5。コモンから伝説まで上げると、エッセンスはクラフト21.5回分です。</p>
+    <div class="tip">捕獲時間は、その狩猟レベルで最良の箱わなを使い、失敗込みでクラフト1回分のエッセンスを集める時間です。</div>
+    <p style="margin-top:8px">エッセンスの価格は、同じレベルでの通常の伐採と採掘の平均ゴールド/時を目安にし、捕獲ごとに普通のベリーボウル代を引いたものです。ウィスプの価格は、クラフトのレアリティ確率を通してもその期待収入を保ちます。表はコモンウィスプの売値です。高いレアリティほど高く売れます。</p>
+  </div>
+  <div class="guide-table-wrap wisp-table wisp-cost" tabindex="0" role="region" aria-label="ウィスプのクラフト・分解・精錬・売値"><table class="guide-table"><thead><tr><th scope="col" rowspan="2">ウィスプと効果、コモン &rarr; 伝説</th><th scope="col" rowspan="2" class="wisp-num">捕獲<br>時間<small>クラフト1回</small></th><th scope="colgroup" colspan="2" class="wisp-num">エッセンス</th><th scope="colgroup" colspan="4" class="wisp-num">精錬先（エッセンス）</th><th scope="colgroup" colspan="2" class="wisp-num">売値</th></tr><tr><th scope="col" class="wisp-num">クラフト</th><th scope="col" class="wisp-num">分解<br><small>戻る量</small></th><th scope="col" class="wisp-num" style="color:#4ade80">アンコモン</th><th scope="col" class="wisp-num" style="color:#60a5fa">レア</th><th scope="col" class="wisp-num" style="color:#c084fc">エピック</th><th scope="col" class="wisp-num" style="color:#fbbf24">伝説</th><th scope="col" class="wisp-num">エッセンス<br><small>1個</small></th><th scope="col" class="wisp-num">ウィスプ<br><small>コモン</small></th></tr></thead><tbody>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:0" role="img" aria-label="ウサギウィスプ"></span><span><b>ウサギウィスプ <span class="wisp-lvl">Lvl 1</span></b><span class="wisp-eff">収穫量 3% &rarr; 12%</span></span></span></th><td class="wisp-num">10m</td><td class="wisp-num">17</td><td class="wisp-num">8</td><td class="wisp-num">26</td><td class="wisp-num">43</td><td class="wisp-num">85</td><td class="wisp-num">213</td><td class="wisp-num">65c</td><td class="wisp-num">1,009c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:1" role="img" aria-label="フェレットウィスプ"></span><span><b>フェレットウィスプ <span class="wisp-lvl">Lvl 40</span></b><span class="wisp-eff">鉱石1つ追加の確率 1% &rarr; 4%</span></span></span></th><td class="wisp-num">14m</td><td class="wisp-num">37</td><td class="wisp-num">18</td><td class="wisp-num">56</td><td class="wisp-num">93</td><td class="wisp-num">185</td><td class="wisp-num">463</td><td class="wisp-num">87c</td><td class="wisp-num">2,940c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:2" role="img" aria-label="ビーバーウィスプ"></span><span><b>ビーバーウィスプ <span class="wisp-lvl">Lvl 80</span></b><span class="wisp-eff">原木1つ追加の確率 1% &rarr; 4%</span></span></span></th><td class="wisp-num">17m</td><td class="wisp-num">63</td><td class="wisp-num">31</td><td class="wisp-num">95</td><td class="wisp-num">158</td><td class="wisp-num">315</td><td class="wisp-num">788</td><td class="wisp-num">129c</td><td class="wisp-num">7,423c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:3" role="img" aria-label="アライグマウィスプ"></span><span><b>アライグマウィスプ <span class="wisp-lvl">Lvl 120</span></b><span class="wisp-eff">魚1つ追加の確率 1% &rarr; 4%</span></span></span></th><td class="wisp-num">21m</td><td class="wisp-num">90</td><td class="wisp-num">45</td><td class="wisp-num">135</td><td class="wisp-num">225</td><td class="wisp-num">450</td><td class="wisp-num">1,125</td><td class="wisp-num">126c</td><td class="wisp-num">10,358c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:4" role="img" aria-label="子鹿ウィスプ"></span><span><b>子鹿ウィスプ <span class="wisp-lvl">Lvl 160</span></b><span class="wisp-eff">装備中ペットXP +2% &rarr; +10%</span></span></span></th><td class="wisp-num">24m</td><td class="wisp-num">123</td><td class="wisp-num">61</td><td class="wisp-num">185</td><td class="wisp-num">308</td><td class="wisp-num">615</td><td class="wisp-num">1,538</td><td class="wisp-num">147c</td><td class="wisp-num">16,515c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:5" role="img" aria-label="アナグマウィスプ"></span><span><b>アナグマウィスプ <span class="wisp-lvl">Lvl 200</span></b><span class="wisp-eff">ダメージ 1% &rarr; 6%</span></span></span></th><td class="wisp-num">28m</td><td class="wisp-num">167</td><td class="wisp-num">83</td><td class="wisp-num">251</td><td class="wisp-num">418</td><td class="wisp-num">835</td><td class="wisp-num">2,088</td><td class="wisp-num">175c</td><td class="wisp-num">26,694c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:6" role="img" aria-label="キツネウィスプ"></span><span><b>キツネウィスプ <span class="wisp-lvl">Lvl 250</span></b><span class="wisp-eff">クリ率 1% &rarr; 5%</span></span></span></th><td class="wisp-num">33m</td><td class="wisp-num">203</td><td class="wisp-num">101</td><td class="wisp-num">305</td><td class="wisp-num">508</td><td class="wisp-num">1,015</td><td class="wisp-num">2,538</td><td class="wisp-num">213c</td><td class="wisp-num">39,495c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:7" role="img" aria-label="フラミンゴウィスプ"></span><span><b>フラミンゴウィスプ <span class="wisp-lvl">Lvl 300</span></b><span class="wisp-eff">調理済み食料1つ追加の確率 1% &rarr; 4%</span></span></span></th><td class="wisp-num">37m</td><td class="wisp-num">240</td><td class="wisp-num">120</td><td class="wisp-num">360</td><td class="wisp-num">600</td><td class="wisp-num">1,200</td><td class="wisp-num">3,000</td><td class="wisp-num">235c</td><td class="wisp-num">51,516c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:8" role="img" aria-label="イノシシウィスプ"></span><span><b>イノシシウィスプ <span class="wisp-lvl">Lvl 350</span></b><span class="wisp-eff">探検タスク進行2倍の確率 1% &rarr; 10%</span></span></span></th><td class="wisp-num">42m</td><td class="wisp-num">283</td><td class="wisp-num">141</td><td class="wisp-num">425</td><td class="wisp-num">708</td><td class="wisp-num">1,415</td><td class="wisp-num">3,538</td><td class="wisp-num">327c</td><td class="wisp-num">84,528c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:9" role="img" aria-label="シカウィスプ"></span><span><b>シカウィスプ <span class="wisp-lvl">Lvl 400</span></b><span class="wisp-eff">エッセンス1つ追加の確率 1% &rarr; 4%</span></span></span></th><td class="wisp-num">46m</td><td class="wisp-num">327</td><td class="wisp-num">163</td><td class="wisp-num">491</td><td class="wisp-num">818</td><td class="wisp-num">1,635</td><td class="wisp-num">4,088</td><td class="wisp-num">356c</td><td class="wisp-num">106,332c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:10" role="img" aria-label="オオヤマネコウィスプ"></span><span><b>オオヤマネコウィスプ <span class="wisp-lvl">Lvl 450</span></b><span class="wisp-eff">テンポ +1 &rarr; +3</span></span></span></th><td class="wisp-num">52m</td><td class="wisp-num">367</td><td class="wisp-num">183</td><td class="wisp-num">551</td><td class="wisp-num">918</td><td class="wisp-num">1,835</td><td class="wisp-num">4,588</td><td class="wisp-num">373c</td><td class="wisp-num">125,037c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:11" role="img" aria-label="オオカミウィスプ"></span><span><b>オオカミウィスプ <span class="wisp-lvl">Lvl 500</span></b><span class="wisp-eff">ボスダメージ 3% &rarr; 12%</span></span></span></th><td class="wisp-num">54m</td><td class="wisp-num">383</td><td class="wisp-num">191</td><td class="wisp-num">575</td><td class="wisp-num">958</td><td class="wisp-num">1,915</td><td class="wisp-num">4,788</td><td class="wisp-num">448c</td><td class="wisp-num">156,726c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:12" role="img" aria-label="クマウィスプ"></span><span><b>クマウィスプ <span class="wisp-lvl">Lvl 550</span></b><span class="wisp-eff">ライフスティール 1% &rarr; 4%</span></span></span></th><td class="wisp-num">59m</td><td class="wisp-num">417</td><td class="wisp-num">208</td><td class="wisp-num">626</td><td class="wisp-num">1,043</td><td class="wisp-num">2,085</td><td class="wisp-num">5,213</td><td class="wisp-num">448c</td><td class="wisp-num">170,639c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:13" role="img" aria-label="ストームウィスプ"></span><span><b>ストームウィスプ <span class="wisp-lvl">Lvl 600</span></b><span class="wisp-eff">幸運 1% &rarr; 5%</span></span></span></th><td class="wisp-num">1h 11m</td><td class="wisp-num">500</td><td class="wisp-num">250</td><td class="wisp-num">750</td><td class="wisp-num">1,250</td><td class="wisp-num">2,500</td><td class="wisp-num">6,250</td><td class="wisp-num">3,100c</td><td class="wisp-num">1,568,323c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:14" role="img" aria-label="リヴァイアサンウィスプ"></span><span><b>リヴァイアサンウィスプ <span class="wisp-lvl">Lvl 700</span></b><span class="wisp-eff">サルベージの戦利品追加確率 1% &rarr; 4%</span></span></span></th><td class="wisp-num">1h 45m</td><td class="wisp-num">750</td><td class="wisp-num">375</td><td class="wisp-num">1,125</td><td class="wisp-num">1,875</td><td class="wisp-num">3,750</td><td class="wisp-num">9,375</td><td class="wisp-num">3,900c</td><td class="wisp-num">2,875,183c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:15" role="img" aria-label="グーウィスプ"></span><span><b>グーウィスプ <span class="wisp-lvl">Lvl 800</span></b><span class="wisp-eff">回避率 +1% &rarr; +5%</span></span></span></th><td class="wisp-num">2h 16m</td><td class="wisp-num">983</td><td class="wisp-num">491</td><td class="wisp-num">1,475</td><td class="wisp-num">2,458</td><td class="wisp-num">4,915</td><td class="wisp-num">12,288</td><td class="wisp-num">4,900c</td><td class="wisp-num">4,601,640c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:16" role="img" aria-label="プリズムウィスプ"></span><span><b>プリズムウィスプ <span class="wisp-lvl">Lvl 900</span></b><span class="wisp-eff">レアドロップ率 +5% &rarr; +25%</span></span></span></th><td class="wisp-num">2h 46m</td><td class="wisp-num">1,217</td><td class="wisp-num">608</td><td class="wisp-num">1,826</td><td class="wisp-num">3,043</td><td class="wisp-num">6,085</td><td class="wisp-num">15,213</td><td class="wisp-num">5,950c</td><td class="wisp-num">6,898,705c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:17" role="img" aria-label="インフィニティウィスプ"></span><span><b>インフィニティウィスプ <span class="wisp-lvl">Lvl 1,000</span></b><span class="wisp-eff">鉱石・原木・魚1つ追加の確率 2% &rarr; 6%</span></span></span></th><td class="wisp-num">3h 11m</td><td class="wisp-num">1,417</td><td class="wisp-num">708</td><td class="wisp-num">2,126</td><td class="wisp-num">3,543</td><td class="wisp-num">7,085</td><td class="wisp-num">17,713</td><td class="wisp-num">7,250c</td><td class="wisp-num">9,637,360c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:18" role="img" aria-label="プラズマウィスプ"></span><span><b>プラズマウィスプ <span class="wisp-lvl">Lvl 1,250</span></b><span class="wisp-eff">クリダメージ +5% &rarr; +25%</span></span></span></th><td class="wisp-num">3h 38m</td><td class="wisp-num">1,633</td><td class="wisp-num">816</td><td class="wisp-num">2,450</td><td class="wisp-num">4,083</td><td class="wisp-num">8,165</td><td class="wisp-num">20,413</td><td class="wisp-num">12,050c</td><td class="wisp-num">17,670,945c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:19" role="img" aria-label="クラウドウィスプ"></span><span><b>クラウドウィスプ <span class="wisp-lvl">Lvl 1,500</span></b><span class="wisp-eff">AFKタイマー延長 +5% &rarr; +25%</span></span></span></th><td class="wisp-num">4h 8m</td><td class="wisp-num">1,883</td><td class="wisp-num">941</td><td class="wisp-num">2,825</td><td class="wisp-num">4,708</td><td class="wisp-num">9,415</td><td class="wisp-num">23,538</td><td class="wisp-num">15,350c</td><td class="wisp-num">26,098,504c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:20" role="img" aria-label="フュージョンウィスプ"></span><span><b>フュージョンウィスプ <span class="wisp-lvl">Lvl 1,750</span></b><span class="wisp-eff">XPブースト 1% &rarr; 2%</span></span></span></th><td class="wisp-num">4h 42m</td><td class="wisp-num">2,167</td><td class="wisp-num">1,083</td><td class="wisp-num">3,251</td><td class="wisp-num">5,418</td><td class="wisp-num">10,835</td><td class="wisp-num">27,088</td><td class="wisp-num">19,700c</td><td class="wisp-num">38,658,821c</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:21" role="img" aria-label="反物質ウィスプ"></span><span><b>反物質ウィスプ <span class="wisp-lvl">Lvl 2,000</span></b><span class="wisp-eff">幸運 2% &rarr; 10%</span></span></span></th><td class="wisp-num">5h 18m</td><td class="wisp-num">2,467</td><td class="wisp-num">1,233</td><td class="wisp-num">3,701</td><td class="wisp-num">6,168</td><td class="wisp-num">12,335</td><td class="wisp-num">30,838</td><td class="wisp-num">25,500c</td><td class="wisp-num">57,084,866c</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-wisp-list"><div class="sec-icon gold">&#x1F43E;</div><div><h2>すべてのウィスプ</h2><p>各レアリティで各ウィスプが与えるボーナス</p></div></div>
+  <div class="guide-table-wrap wisp-table" tabindex="0" role="region" aria-label="各レアリティのウィスプボーナス"><table class="guide-table"><thead><tr><th scope="col">ウィスプと効果</th><th scope="col" class="wisp-num" style="color:#b0b0b0">コモン</th><th scope="col" class="wisp-num" style="color:#4ade80">アンコモン</th><th scope="col" class="wisp-num" style="color:#60a5fa">レア</th><th scope="col" class="wisp-num" style="color:#c084fc">エピック</th><th scope="col" class="wisp-num" style="color:#fbbf24">伝説</th><th scope="col" class="wisp-num" style="color:#ed5bb5">神話</th></tr></thead><tbody>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:0" role="img" aria-label="ウサギウィスプ"></span><span><b>ウサギウィスプ</b><span class="wisp-eff">収穫量</span><small>Lv 1 &middot; 農耕</small></span></span></th><td class="wisp-num">+3%</td><td class="wisp-num">+4.5%</td><td class="wisp-num">+6%</td><td class="wisp-num">+9%</td><td class="wisp-num">+12%</td><td class="wisp-num">+15%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:1" role="img" aria-label="フェレットウィスプ"></span><span><b>フェレットウィスプ</b><span class="wisp-eff">鉱石1つ追加の確率</span><small>Lv 40 &middot; 採掘</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">1.5%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:2" role="img" aria-label="ビーバーウィスプ"></span><span><b>ビーバーウィスプ</b><span class="wisp-eff">原木1つ追加の確率</span><small>Lv 80 &middot; 伐採</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">1.5%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:3" role="img" aria-label="アライグマウィスプ"></span><span><b>アライグマウィスプ</b><span class="wisp-eff">魚1つ追加の確率</span><small>Lv 120 &middot; 釣り</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">1.5%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:4" role="img" aria-label="子鹿ウィスプ"></span><span><b>子鹿ウィスプ</b><span class="wisp-eff">装備中ペットXP</span><small>Lv 160 &middot; ペット</small></span></span></th><td class="wisp-num">+2%</td><td class="wisp-num">+4%</td><td class="wisp-num">+6%</td><td class="wisp-num">+8%</td><td class="wisp-num">+10%</td><td class="wisp-num">+12%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:5" role="img" aria-label="アナグマウィスプ"></span><span><b>アナグマウィスプ</b><span class="wisp-eff">ダメージ</span><small>Lv 200 &middot; どれでも</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">6%</td><td class="wisp-num">8%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:6" role="img" aria-label="キツネウィスプ"></span><span><b>キツネウィスプ</b><span class="wisp-eff">クリ率</span><small>Lv 250 &middot; どれでも</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td><td class="wisp-num">6%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:7" role="img" aria-label="フラミンゴウィスプ"></span><span><b>フラミンゴウィスプ</b><span class="wisp-eff">調理済み食料1つ追加の確率</span><small>Lv 300 &middot; 料理</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">1.5%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:8" role="img" aria-label="イノシシウィスプ"></span><span><b>イノシシウィスプ</b><span class="wisp-eff">探検タスク進行2倍の確率</span><small>Lv 350 &middot; 探検</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">3%</td><td class="wisp-num">5%</td><td class="wisp-num">7%</td><td class="wisp-num">10%</td><td class="wisp-num">13%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:9" role="img" aria-label="シカウィスプ"></span><span><b>シカウィスプ</b><span class="wisp-eff">エッセンス1つ追加の確率</span><small>Lv 400 &middot; 狩猟</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">1.5%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:10" role="img" aria-label="オオヤマネコウィスプ"></span><span><b>オオヤマネコウィスプ</b><span class="wisp-eff">テンポ</span><small>Lv 450 &middot; どれでも</small></span></span></th><td class="wisp-num">+1</td><td class="wisp-num">+1.5</td><td class="wisp-num">+2</td><td class="wisp-num">+2.5</td><td class="wisp-num">+3</td><td class="wisp-num">+3.5</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:11" role="img" aria-label="オオカミウィスプ"></span><span><b>オオカミウィスプ</b><span class="wisp-eff">ボスダメージ</span><small>Lv 500 &middot; どれでも</small></span></span></th><td class="wisp-num">3%</td><td class="wisp-num">5%</td><td class="wisp-num">7%</td><td class="wisp-num">9%</td><td class="wisp-num">12%</td><td class="wisp-num">15%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:12" role="img" aria-label="クマウィスプ"></span><span><b>クマウィスプ</b><span class="wisp-eff">ライフスティール</span><small>Lv 550 &middot; どれでも</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">1.5%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:13" role="img" aria-label="ストームウィスプ"></span><span><b>ストームウィスプ</b><span class="wisp-eff">幸運</span><small>Lv 600 &middot; どれでも</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td><td class="wisp-num">6%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:14" role="img" aria-label="リヴァイアサンウィスプ"></span><span><b>リヴァイアサンウィスプ</b><span class="wisp-eff">サルベージの戦利品追加確率</span><small>Lv 700 &middot; サルベージ</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">1.5%</td><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:15" role="img" aria-label="グーウィスプ"></span><span><b>グーウィスプ</b><span class="wisp-eff">回避率</span><small>Lv 800 &middot; どれでも</small></span></span></th><td class="wisp-num">+1%</td><td class="wisp-num">+2%</td><td class="wisp-num">+3%</td><td class="wisp-num">+4%</td><td class="wisp-num">+5%</td><td class="wisp-num">+6%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:16" role="img" aria-label="プリズムウィスプ"></span><span><b>プリズムウィスプ</b><span class="wisp-eff">レアドロップ率</span><small>Lv 900 &middot; スキルリング</small></span></span></th><td class="wisp-num">+5%</td><td class="wisp-num">+10%</td><td class="wisp-num">+15%</td><td class="wisp-num">+20%</td><td class="wisp-num">+25%</td><td class="wisp-num">+30%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:17" role="img" aria-label="インフィニティウィスプ"></span><span><b>インフィニティウィスプ</b><span class="wisp-eff">鉱石・原木・魚1つ追加の確率</span><small>Lv 1000 &middot; スキルリング</small></span></span></th><td class="wisp-num">2%</td><td class="wisp-num">3%</td><td class="wisp-num">4%</td><td class="wisp-num">5%</td><td class="wisp-num">6%</td><td class="wisp-num">7%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:18" role="img" aria-label="プラズマウィスプ"></span><span><b>プラズマウィスプ</b><span class="wisp-eff">クリダメージ</span><small>Lv 1250 &middot; どれでも</small></span></span></th><td class="wisp-num">+5%</td><td class="wisp-num">+10%</td><td class="wisp-num">+15%</td><td class="wisp-num">+20%</td><td class="wisp-num">+25%</td><td class="wisp-num">+30%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:19" role="img" aria-label="クラウドウィスプ"></span><span><b>クラウドウィスプ</b><span class="wisp-eff">AFKタイマー延長</span><small>Lv 1500 &middot; スキルリング</small></span></span></th><td class="wisp-num">+5%</td><td class="wisp-num">+10%</td><td class="wisp-num">+15%</td><td class="wisp-num">+20%</td><td class="wisp-num">+25%</td><td class="wisp-num">+30%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:20" role="img" aria-label="フュージョンウィスプ"></span><span><b>フュージョンウィスプ</b><span class="wisp-eff">XPブースト</span><small>Lv 1750 &middot; どれでも</small></span></span></th><td class="wisp-num">1%</td><td class="wisp-num">1.25%</td><td class="wisp-num">1.5%</td><td class="wisp-num">1.75%</td><td class="wisp-num">2%</td><td class="wisp-num">2.5%</td></tr>
+    <tr><th scope="row"><span class="wisp-cell"><span class="wisp-ic" style="--i:21" role="img" aria-label="反物質ウィスプ"></span><span><b>反物質ウィスプ</b><span class="wisp-eff">幸運</span><small>Lv 2000 &middot; どれでも</small></span></span></th><td class="wisp-num">2%</td><td class="wisp-num">4%</td><td class="wisp-num">6%</td><td class="wisp-num">8%</td><td class="wisp-num">10%</td><td class="wisp-num">12%</td></tr>
+  </tbody></table></div>
+
+  <div class="sec-head" id="sec-lodge-fuel"><div class="sec-icon">🔥</div><div><h2>誘い火 &amp; 鉱石トラップ</h2><p>燃料を入れ、動物の綿毛を回収し、箱を強化</p></div></div>
+  <div class="card">
+    <p><strong>わな強化の素材はどう入手する？</strong> <strong>ビーバーのそばの誘い火と鉱石トラップ</strong>を探す。余った丸太を誘い火へ、鉱石を鉱石トラップへ預け、燃料を燃やします。戻って<strong>次の箱のつっかえ棒</strong>を受け取り、<strong>トラッピーの店</strong>へコイン手数料と一緒に持っていくとわなが強化されます。</p>
+    <p style="margin-top:8px">各装置は燃料を100,000まで入れられ、離席中も燃えます。高い燃料ほど燃焼が速くなります。好きなときに受け取れます。報酬に期限はありません。</p>
+    <p style="margin-top:8px"><strong>動物の綿毛</strong>は1個100コイン、アルクすると150です。燃料では狩猟XPは入りません。</p>
+    <p style="margin-top:8px">燃料が燃えている間、つっかえ棒は積み上がり続けます。すでに受け取り待ちのものや、バッグ・銀行に保管しているものがあっても同じです。</p>
+  </div>
+</div>
+
 <div class="tab-content" id="tab-islands">
 
   <div class="sec-head" style="margin-top:4px"><div class="sec-icon blue">&#x26F5;</div><div><h2>プロシージャル群島</h2><p>65以上のユニークな島々を探検 &bull; 港から出航</p></div></div>
@@ -2505,6 +2673,12 @@ window.addEventListener("hashchange",_handleHash);
 /* ── Load cached item icons and replace emoji/swatches ── */
 fetch("icons.json").then(r=>r.ok?r.json():null).then(data=>{
   if(!data)return;
+  // New translated Hunting tables retain canonical item identities in data-icon.
+  document.querySelectorAll('#tab-wisps [data-guide-icon]').forEach(el=>{
+    const url=data[el.dataset.icon];if(!url)return;
+    const img=document.createElement('img');img.src=url;img.alt='';img.width=28;img.height=28;
+    img.style.objectFit='contain';el.replaceChildren(img);
+  });
   /* Food items — replace emoji with icon */
   document.querySelectorAll(".food-item").forEach(row=>{
     const nameEl=row.querySelector(".food-name");

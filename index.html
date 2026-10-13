@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2278">
+  <link rel="stylesheet" href="./style.css?v=2279">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -764,17 +764,22 @@
             <div class="ui-cosmetic-slot" data-face-style-cat="cheeks"><span class="ui-worn-label">Cheeks</span></div>
             <div class="ui-cosmetic-slot" data-face-style-cat="mouth"><span class="ui-worn-label">Mouth</span></div>
           </div>
-          <div class="ui-worn-skin-section">
-            <p class="ui-worn-skin-heading">Skin</p>
+          <details id="ui-kit-badges" class="ui-worn-skin-section">
+            <summary class="ui-worn-skin-heading">Badges</summary>
+            <div id="ui-worn-badge-grid" class="ui-worn-skin-grid"></div>
+          </details>
+          <details id="ui-kit-skins" class="ui-worn-skin-section">
+            <summary class="ui-worn-skin-heading">Skins</summary>
             <div id="ui-worn-skin-slot" class="ui-worn-skin-slot"></div>
             <div id="ui-worn-skin-grid" class="ui-worn-skin-grid"></div>
-          </div>
+          </details>
           <div class="ui-toolbelt-section">
             <p class="ui-worn-skin-heading">Toolbelt</p>
             <div class="ui-toolbelt-grid">
-              <div class="ui-toolbelt-slot" data-toolbelt="axe"><span class="ui-toolbelt-icon">🪓</span><span class="ui-toolbelt-name" id="ui-tb-axe">Wood Axe</span></div>
-              <div class="ui-toolbelt-slot" data-toolbelt="pickaxe"><span class="ui-toolbelt-icon">⛏️</span><span class="ui-toolbelt-name" id="ui-tb-pickaxe">Wood Pickaxe</span></div>
-              <div class="ui-toolbelt-slot" data-toolbelt="fishing"><span class="ui-toolbelt-icon">🎣</span><span class="ui-toolbelt-name" id="ui-tb-fishing">Fishing Pole +0</span></div>
+              <div class="ui-toolbelt-slot" data-toolbelt="axe"><img class="ui-toolbelt-icon" src="assets/toolbelt/axe_wood.webp" alt="" draggable="false"><span class="ui-toolbelt-name" id="ui-tb-axe">Wood Axe</span></div>
+              <div class="ui-toolbelt-slot" data-toolbelt="pickaxe"><img class="ui-toolbelt-icon" src="assets/toolbelt/pickaxe_wood.webp" alt="" draggable="false"><span class="ui-toolbelt-name" id="ui-tb-pickaxe">Wood Pickaxe</span></div>
+              <div class="ui-toolbelt-slot" data-toolbelt="fishing"><img class="ui-toolbelt-icon" src="assets/toolbelt/fishing_wood.webp" alt="" draggable="false"><span class="ui-toolbelt-name" id="ui-tb-fishing">Wood Fishing Pole</span></div>
+              <div class="ui-toolbelt-slot" data-toolbelt="box_trap"><img class="ui-toolbelt-icon" src="assets/toolbelt/box_trap_wood.webp" alt="" draggable="false"><span class="ui-toolbelt-name" id="ui-tb-box_trap">Wood Box Trap</span></div>
             </div>
           </div>
         </div>
@@ -1980,6 +1985,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2278"></script>
+  <script type="module" src="./main.js?v=2279"></script>
 </body>
 </html>

@@ -1,5 +1,29 @@
 [
   {
+    "version": "v2279",
+    "date": "2026-10-13",
+    "title": "Sleepy Cap, Kit & Hunting",
+    "entries": [
+      "Added Sleepy Cap for 200 SC.",
+      "Refresh Charm, Frenzy Charm, Item Lock and Nametag have new 3D models and icons.",
+      "Add name badges to Kit to keep them out of your inventory and bank and broadcast them.",
+      "You can broadcast your worn stars and bonuses.",
+      "The toolbelt shows your trap tier and icons; broadcasts have pictures and colored material names.",
+      "Wisp broadcasts show what they do and how much they give.",
+      "The welcome back box uses the hunter emoji.",
+      "More Latches can stack up in your traps.",
+      "Fixed the Hunting XP tracker hanging at a level until the XP settled.",
+      "Hunting frenzies just say “Frenzy!”.",
+      "Hunting broadcasts show the skill name in its color.",
+      "The guide explains where to get trap upgrade Latches and removes the outdated Luck and XP Wisp tip.",
+      "Hunting and Wisps have translated bonuses and guide pages in Spanish, Indonesian, Japanese and Chinese.",
+      "Right-clicking Skele's shield now lets you pick up drops underneath it.",
+      "Completed Explorer quests stay on your tracker until you turn them in.",
+      "Default bank sorting improved.",
+      "Fixed Transpose failing on fresh equipment in your bag."
+    ]
+  },
+  {
     "version": "v2278",
     "date": "2026-10-12",
     "title": "Hunting & Wisp Updates",
