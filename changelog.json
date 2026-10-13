@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2278",
+    "date": "2026-10-12",
+    "title": "Hunting & Wisp Updates",
+    "entries": [
+      "Fixed Hunting XP tracking and level 0 highscores.",
+      "Fixed Trappy's trap preview and badge wording.",
+      "Cut Wisp costs, salvage returns and sell prices to about one-third.",
+      "Added Wisp Well, Lure Fire and Ore Trap to map Services."
+    ]
+  },
+  {
     "version": "v2277",
     "date": "2026-10-12",
     "title": "Hunting, Wisps & Bank Tabs",
