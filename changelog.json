@@ -1,5 +1,21 @@
 [
   {
+    "version": "v2282",
+    "date": "2026-10-13",
+    "title": "Lodge & Item Updates",
+    "entries": [
+      "Lure Fire and Ore Trap move on to the next Latch instead of giving duplicates.",
+      "Both fuel machines burn 10,000 pieces a day, with mixed fuels burning together.",
+      "Wisp bonuses show in the tooltip instead of cluttering the broadcast message.",
+      "Tool broadcasts use the tool's tier color for the whole name.",
+      "Worn bonuses show on hover without repeating every stat in chat.",
+      "Broadcasting an item now matches what your Bag shows, even right after withdrawing it.",
+      "Shroomfish sorts under Fish in the Bank and Exchange.",
+      "Fixed gear swaps moving the piece you were wearing to the first open Bag slot instead of the slot you clicked.",
+      "Fixed Hunter's name badge, aura and cape not granting."
+    ]
+  },
+  {
     "version": "v2281",
     "date": "2026-10-13",
     "title": "Frenzy & XP fixes",
