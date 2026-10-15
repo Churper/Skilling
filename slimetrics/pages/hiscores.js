@@ -21,6 +21,7 @@ const BOSS_KCS = [
   { id: "alien_kc", label: "Alien", bossKey: bossKeyForKc("alien_kc") },
   { id: "bee_kc", label: "Bee", bossKey: bossKeyForKc("bee_kc") },
   { id: "croc_kc", label: "Crocodile", icon: "🐊" },
+  { id: "snail_kc", label: "Snail Boss", bossKey: bossKeyForKc("snail_kc") },
   { id: "frog_kc", label: "Frog", bossKey: bossKeyForKc("frog_kc") },
   { id: "rat_kc", label: "Rat", bossKey: bossKeyForKc("rat_kc") },
 ];

@@ -144,6 +144,7 @@ function renderHero(o) {
         </div>
         ${o._formerName ? `<div class="st-hero-aka" style="font-size:11px;color:var(--ui-ink-3);margin-top:-2px">previously seen as <code>${escapeHtml(o._formerName)}</code></div>` : ""}
         <div class="st-hero-sub">Total Level <strong>${nf(totalLvl)}</strong> · Total XP <strong>${nf(o.total_xp || 0)}</strong></div>
+        ${o.boss_kills?.snail_boss > 0 ? `<div class="st-hero-sub">🐌 Snail Boss kills <strong>${nf(o.boss_kills.snail_boss)}</strong></div>` : ""}
         <div class="st-hero-meta">
           <span>First tracked ${dateLabel(o.first_tracked)}</span>
           <span>Last checked ${timeAgo(o.last_snapshot)}</span>

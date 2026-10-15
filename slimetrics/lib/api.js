@@ -99,7 +99,7 @@ export const api = {
   heatmap:      (name)                               => rpc("slimetrics_player_heatmap", { p_name: name }, { ttlMs: 60_000 }),
   /* Leaderboards derive from the ~3h snapshot cadence, so a few minutes of
      cache is invisible to users and cuts repeat DB hits hard. */
-  hiscores:     (skill, type, offset = 0, limit = 50)=> rpc("slimetrics_hiscores", { p_skill: skill, p_type: type, p_offset: offset, p_limit: limit }, { ttlMs: 300_000 }),
+  hiscores:     (skill, type, offset = 0, limit = 50)=> skill === "snail_kc" ? rpc("slimetrics_snail_hiscores", { p_type: type, p_offset: offset, p_limit: limit }, { ttlMs: 300_000 }) : rpc("slimetrics_hiscores", { p_skill: skill, p_type: type, p_offset: offset, p_limit: limit }, { ttlMs: 300_000 }),
   gainers:      (period, skill, type, limit = 50)    => rpc("slimetrics_gainers", { p_period: period, p_skill: skill, p_type: type, p_limit: limit }, { ttlMs: 300_000 }),
   records:      (skill, type, limit = 50)            => rpc("slimetrics_records", { p_skill: skill, p_type: type, p_limit: limit }, { ttlMs: 600_000 }),
   highlights:   (limit = 12)                         => rpc("slimetrics_recent_highlights", { p_limit: limit }, { ttlMs: 30_000 }),

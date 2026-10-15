@@ -1,0 +1,365 @@
+@font-face {
+  font-family: "Comma Crisp";
+  src: url("fonts/baloo2-400-latin.woff2") format("woff2");
+  unicode-range: U+002C;
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Patrick Hand";
+  src: url("fonts/patrickhand-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+.wiki-badge-preview .nametag{
+  position: absolute;
+  left: 0; top: 0;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 8;
+  
+  will-change: transform;
+}
+.wiki-badge-preview .nametag-name{
+  color: #fff;
+}
+.wiki-badge-preview .nametag.is-badged .nametag-name{
+  color: var(--nametag-accent, #ffe999);
+  font-weight: 850;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+}
+.wiki-badge-preview .nametag-level{
+  display: inline-block;
+  margin-top: 1px;
+  padding: 1px 7px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.45);
+  font-family: var(--ui-font-heading);
+  font-size: 10px;
+  color: #ffe999;
+  letter-spacing: 0.03em;
+}
+.wiki-badge-preview .nametag.is-badged .nametag-level{
+  color: var(--nametag-accent, #ffe999);
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.86);
+  background: rgba(6,17,21,0.78);
+  padding-inline: 9px;
+  border-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 64%, rgba(255,255,255,0.28));
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.72),
+    inset 0 0 0 1px color-mix(in srgb, var(--nametag-accent, #ffe999) 20%, rgba(255,255,255,0.06));
+}
+.wiki-badge-preview .nametag-clan{
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: fit-content;
+  margin: -1px auto 0;
+  font-family: var(--ui-font-heading);
+  font-size: 10px;
+  color: #d8ffe2;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.7);
+}
+.wiki-badge-preview .nametag-clan-emblem{ display: inline-flex; line-height: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
+.wiki-badge-preview .nametag-clan-emblem svg{ width: 19px; height: 19px; }
+.wiki-badge-preview .nametag-clan-tag{ font-weight: 700; }
+.wiki-badge-preview .nametag.is-local .nametag-level{ font-size: 12px; padding: 2px 9px; }
+.wiki-badge-preview .nametag.is-local .nametag-clan{ font-size: 11px; gap: 3px; margin-top: 0; }
+.wiki-badge-preview .nametag.is-local .nametag-clan-emblem svg{ width: 23px; height: 23px; }
+.wiki-badge-preview .nametag.nt-condensed .nametag-clan{ display: none; }
+.wiki-badge-preview .nametag-clanline{
+  position: absolute;
+  left: 0; top: 0;
+  pointer-events: none;
+  z-index: 8;
+  will-change: transform;
+  white-space: nowrap;
+  font-family: var(--ui-font-heading);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: #d8ffe2;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.7);
+}
+.wiki-badge-preview .nametag-chip{
+  position: absolute;
+  left: 0; top: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 9;
+  will-change: transform;
+  font-family: var(--ui-font-heading);
+  font-size: 11px;
+  line-height: 1;
+  color: #cfe8ff;
+  background: rgba(22, 44, 72, 0.85);
+  border: 1px solid rgba(140, 200, 255, 0.45);
+  border-radius: 9px;
+  padding: 3px 8px;
+  text-shadow: 0 1px 2px rgba(0, 10, 25, 0.8);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.wiki-badge-preview .nametag-chip:hover{
+  background: rgba(36, 66, 102, 0.92);
+  border-color: rgba(170, 216, 255, 0.65);
+}
+.wiki-badge-preview .nametag-crowd-panel{
+  position: absolute;
+  left: 0; top: 0;
+  pointer-events: auto;
+  z-index: 30;
+  min-width: 150px;
+  max-width: 230px;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: rgba(14, 30, 52, 0.92);
+  border: 1px solid rgba(140, 200, 255, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 8px;
+  font-family: var(--ui-font-heading);
+  font-size: 11px;
+  color: #e8f4ff;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 200, 255, 0.35) transparent;
+}
+.wiki-badge-preview .nametag-crowd-panel::-webkit-scrollbar{ width: 5px; }
+.wiki-badge-preview .nametag-crowd-panel::-webkit-scrollbar-track{ background: transparent; }
+.wiki-badge-preview .nametag-crowd-panel::-webkit-scrollbar-thumb{ background: rgba(140, 200, 255, 0.35); border-radius: 3px; }
+.wiki-badge-preview .nametag-crowd-panel::-webkit-scrollbar-thumb:hover{ background: rgba(140, 200, 255, 0.55); }
+.wiki-badge-preview .nametag-crowd-panel .ncp-row{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-top: 1px solid rgba(150, 205, 255, 0.18);
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 10, 25, 0.7);
+}
+.wiki-badge-preview .nametag-crowd-panel .ncp-row:first-child{ border-top: 0; }
+.wiki-badge-preview .nametag-crowd-panel .ncp-row.ncp-click{ cursor: pointer; }
+.wiki-badge-preview .nametag-crowd-panel .ncp-row.ncp-click:hover{ background: rgba(140, 200, 255, 0.16); }
+.wiki-badge-preview .nametag-ctx{ min-width: 130px; max-height: none; overflow: visible; z-index: 31; }
+.wiki-badge-preview .nametag-ctx .ncp-head{ background: rgba(140, 200, 255, 0.08); }
+.wiki-badge-preview .nametag.is-badged .nametag-level{ font-size: 11px; padding: 2px 8px; }
+.wiki-badge-preview .nametag.is-local.is-badged .nametag-level{ font-size: 12px; padding: 2px 9px; }
+.wiki-badge-preview .nametag.is-badged .nametag-clan{ font-size: 10px; gap: 2px; margin-top: -1px; }
+.wiki-badge-preview .nametag.is-local.is-badged .nametag-clan{ font-size: 11px; gap: 3px; margin-top: 0; }
+.wiki-badge-preview .nametag.is-badged .nametag-clan-emblem svg{ width: 19px; height: 19px; }
+.wiki-badge-preview .nametag.is-local.is-badged .nametag-clan-emblem svg{ width: 23px; height: 23px; }
+.wiki-badge-preview .nametag.is-badged.nametag-style-framed .nametag-level,.wiki-badge-preview .nametag.is-badged.nametag-style-bottom-dash .nametag-level,.wiki-badge-preview .nametag.is-badged.nametag-style-double-dash .nametag-level,.wiki-badge-preview .nametag.is-badged.nametag-style-diagonal .nametag-level,.wiki-badge-preview .nametag.is-badged.nametag-style-stitched .nametag-level{
+  --nt-base-font-size: 11px;
+  --nt-border-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 86%, transparent);
+  --nt-rail-top-color: transparent;
+  --nt-rail-bottom-color: transparent;
+  --nt-diag-color: transparent;
+  --nt-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 18%, transparent);
+  --nt-name-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 30%, transparent);
+  --nt-inner-color: rgba(255,255,255,0.14);
+  --nt-pad-x: 8px;
+  --nt-pad-y: 2px;
+  --nt-radius: 8px;
+  --nt-font-scale: 1;
+  --nt-line-width: 1px;
+  --nt-dash-len: 5px;
+  --nt-dash-gap: 4px;
+  --nt-rail-top: 3px;
+  --nt-rail-bottom: 3px;
+  --nt-rail-edge: 8px;
+  --nt-diag-gap: 5px;
+  --nt-diag-space: 5px;
+  --nt-diag-angle: 135deg;
+  --nt-center-alpha: 0.12;
+  --nt-edge-alpha: 0.16;
+  --nt-edge-mid-alpha: 0.093;
+  --nt-gloss-alpha: 0.069;
+  --nt-bg-alpha: 0.82;
+  --nt-glow-size: 8px;
+  --nt-name-glow: 6px;
+  position: relative;
+  overflow: hidden;
+  padding: var(--nt-pad-y) var(--nt-pad-x);
+  border: 1px solid var(--nt-border-color);
+  border-radius: var(--nt-radius);
+  font-size: calc(var(--nt-base-font-size) * var(--nt-font-scale));
+  background:
+    repeating-linear-gradient(var(--nt-diag-angle), transparent 0 var(--nt-diag-gap), var(--nt-diag-color) var(--nt-diag-gap) calc(var(--nt-diag-gap) + var(--nt-line-width)), transparent calc(var(--nt-diag-gap) + var(--nt-line-width)) calc(var(--nt-diag-gap) + var(--nt-line-width) + var(--nt-diag-space))),
+    linear-gradient(180deg, transparent 0 25%, rgba(6,17,21,var(--nt-center-alpha)) 25% 75%, transparent 75%),
+    linear-gradient(90deg, rgba(6,17,21,var(--nt-edge-alpha)), rgba(6,17,21,var(--nt-edge-mid-alpha)) 18%, rgba(6,17,21,var(--nt-edge-mid-alpha)) 82%, rgba(6,17,21,var(--nt-edge-alpha))),
+    linear-gradient(180deg, rgba(255,255,255,var(--nt-gloss-alpha)), transparent 45%),
+    rgba(6,17,21,var(--nt-bg-alpha));
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-position: center, center, center, center, center;
+  background-size: auto, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.72),
+    0 0 var(--nt-glow-size) var(--nt-glow-color),
+    inset 0 0 0 1px var(--nt-inner-color);
+}
+.wiki-badge-preview .nametag.is-local.is-badged.nametag-style-framed .nametag-level,.wiki-badge-preview .nametag.is-local.is-badged.nametag-style-bottom-dash .nametag-level,.wiki-badge-preview .nametag.is-local.is-badged.nametag-style-double-dash .nametag-level,.wiki-badge-preview .nametag.is-local.is-badged.nametag-style-diagonal .nametag-level,.wiki-badge-preview .nametag.is-local.is-badged.nametag-style-stitched .nametag-level{
+  --nt-base-font-size: 12px;
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-framed .nametag-name,.wiki-badge-preview .nametag.is-badged.nametag-style-bottom-dash .nametag-name,.wiki-badge-preview .nametag.is-badged.nametag-style-double-dash .nametag-name,.wiki-badge-preview .nametag.is-badged.nametag-style-diagonal .nametag-name{
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-framed .nametag-level::before,.wiki-badge-preview .nametag.is-badged.nametag-style-framed .nametag-level::after,.wiki-badge-preview .nametag.is-badged.nametag-style-bottom-dash .nametag-level::before,.wiki-badge-preview .nametag.is-badged.nametag-style-bottom-dash .nametag-level::after,.wiki-badge-preview .nametag.is-badged.nametag-style-double-dash .nametag-level::before,.wiki-badge-preview .nametag.is-badged.nametag-style-double-dash .nametag-level::after,.wiki-badge-preview .nametag.is-badged.nametag-style-diagonal .nametag-level::before,.wiki-badge-preview .nametag.is-badged.nametag-style-diagonal .nametag-level::after{
+  content: "";
+  position: absolute;
+  left: var(--nt-rail-edge);
+  right: var(--nt-rail-edge);
+  height: var(--nt-line-width);
+  pointer-events: none;
+  background-repeat: repeat-x;
+  background-size: calc(var(--nt-dash-len) + var(--nt-dash-gap)) var(--nt-line-width);
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-framed .nametag-level::before,.wiki-badge-preview .nametag.is-badged.nametag-style-bottom-dash .nametag-level::before,.wiki-badge-preview .nametag.is-badged.nametag-style-double-dash .nametag-level::before,.wiki-badge-preview .nametag.is-badged.nametag-style-diagonal .nametag-level::before{
+  top: var(--nt-rail-top);
+  background-image: repeating-linear-gradient(90deg, var(--nt-rail-top-color) 0 var(--nt-dash-len), transparent var(--nt-dash-len) calc(var(--nt-dash-len) + var(--nt-dash-gap)));
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-framed .nametag-level::after,.wiki-badge-preview .nametag.is-badged.nametag-style-bottom-dash .nametag-level::after,.wiki-badge-preview .nametag.is-badged.nametag-style-double-dash .nametag-level::after,.wiki-badge-preview .nametag.is-badged.nametag-style-diagonal .nametag-level::after{
+  bottom: var(--nt-rail-bottom);
+  background-image: repeating-linear-gradient(90deg, var(--nt-rail-bottom-color) 0 var(--nt-dash-len), transparent var(--nt-dash-len) calc(var(--nt-dash-len) + var(--nt-dash-gap)));
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-framed .nametag-level{
+  --nt-border-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 86%, transparent);
+  --nt-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 18%, transparent);
+  --nt-name-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 30%, transparent);
+  --nt-inner-color: rgba(255,255,255,0.14);
+  --nt-center-alpha: 0.12;
+  --nt-edge-alpha: 0.16;
+  --nt-edge-mid-alpha: 0.093;
+  --nt-gloss-alpha: 0.069;
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-bottom-dash .nametag-level{
+  --nt-border-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 90%, transparent);
+  --nt-rail-bottom-color: var(--nametag-accent, #ffe999);
+  --nt-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 20%, transparent);
+  --nt-name-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 32%, transparent);
+  --nt-inner-color: rgba(255,255,255,0.14);
+  --nt-dash-len: 4px;
+  --nt-dash-gap: 4px;
+  --nt-rail-bottom: 2px;
+  --nt-center-alpha: 0.52;
+  --nt-edge-alpha: 0.28;
+  --nt-edge-mid-alpha: 0.162;
+  --nt-gloss-alpha: 0.072;
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-double-dash .nametag-level{
+  --nt-border-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 94%, transparent);
+  --nt-rail-top-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 86%, transparent);
+  --nt-rail-bottom-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 86%, transparent);
+  --nt-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 26%, transparent);
+  --nt-name-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 38%, transparent);
+  --nt-inner-color: rgba(255,255,255,0.15);
+  --nt-pad-x: 7px;
+  --nt-dash-len: 4px;
+  --nt-dash-gap: 5px;
+  --nt-rail-top: 2px;
+  --nt-rail-bottom: 2px;
+  --nt-center-alpha: 0.82;
+  --nt-edge-alpha: 0.46;
+  --nt-edge-mid-alpha: 0.267;
+  --nt-gloss-alpha: 0.075;
+  --nt-glow-size: 10px;
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-diagonal .nametag-level{
+  background:
+    linear-gradient(90deg, rgba(6,17,21,var(--nt-edge-alpha)), rgba(6,17,21,var(--nt-edge-mid-alpha)) 18%, rgba(6,17,21,var(--nt-edge-mid-alpha)) 82%, rgba(6,17,21,var(--nt-edge-alpha))),
+    linear-gradient(180deg, transparent 0 25%, rgba(6,17,21,var(--nt-center-alpha)) 25% 75%, transparent 75%),
+    repeating-linear-gradient(135deg, transparent 0 var(--nt-diag-gap), var(--nt-diag-color) var(--nt-diag-gap) calc(var(--nt-diag-gap) + var(--nt-line-width)), transparent calc(var(--nt-diag-gap) + var(--nt-line-width)) calc(var(--nt-diag-gap) + var(--nt-line-width) + var(--nt-diag-space))),
+    rgba(6,17,21,var(--nt-bg-alpha));
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
+  background-position: center, center, center, center;
+  background-size: 100% 100%, 100% 100%, auto, 100% 100%;
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-diagonal .nametag-level{
+  --nt-border-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 96%, transparent);
+  --nt-diag-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 42%, transparent);
+  --nt-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 32%, transparent);
+  --nt-name-glow-color: color-mix(in srgb, var(--nametag-accent, #ffe999) 44%, transparent);
+  --nt-inner-color: rgba(255,255,255,0.15);
+  --nt-pad-x: 7px;
+  --nt-diag-gap: 4px;
+  --nt-diag-space: 4px;
+  --nt-center-alpha: 0.72;
+  --nt-edge-alpha: 0.20;
+  --nt-edge-mid-alpha: 0.116;
+  --nt-gloss-alpha: 0.077;
+  --nt-glow-size: 11px;
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-stitched .nametag-level{
+  --nameplate-ink: var(--nametag-accent, var(--badge-color, #ffe999));
+  position: relative;
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--nameplate-ink) 96%, #061115);
+  border-radius: 8px;
+  background: #061115;
+  box-shadow: 0 1px 0 rgba(0,0,0,.72), inset 0 0 0 1px rgba(255,255,255,.06);
+  text-shadow: 0 1px 1px rgba(0,0,0,.82);
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-stitched .nametag-level::after{
+  content: "";
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  border-radius: 5px;
+  background: linear-gradient(180deg, rgba(255,255,255,.035), transparent 50%), #061115;
+  pointer-events: none;
+}
+.wiki-badge-preview .nametag.is-badged.nametag-style-stitched .nametag-name{ text-shadow: 0 1px 1px rgba(0,0,0,.82); }
+.wiki-badge-preview .nameplate-stitch{
+  position: absolute;
+  inset: 2px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  z-index: 0;
+  pointer-events: none;
+}
+.wiki-badge-preview .nameplate-stitch > svg{ display: block; width: 100%; height: 100%; }
+.wiki-badge-preview .nameplate-stitch rect{
+  x: .5px;
+  y: .5px;
+  width: calc(100% - 1px);
+  height: calc(100% - 1px);
+  rx: 5px;
+  fill: none;
+  stroke: color-mix(in srgb, var(--nameplate-ink) 50%, #fff0d6);
+  stroke-width: 1px;
+  stroke-dasharray: 3 9;
+}
+.wiki-badge-preview .nameplate-stitch rect + rect{ stroke: color-mix(in srgb, var(--nameplate-ink) 76%, #95afc4); stroke-dashoffset: -6; }
+.wiki-badge-preview .nametag-level{
+  font-family: "Comma Crisp", "Patrick Hand", var(--ui-font-emoji), cursive;
+}
+
+.wiki-badge-preview{display:inline-block;min-width:150px;min-height:34px;vertical-align:middle;--ui-font-heading:"Comma Crisp","Patrick Hand",cursive}
+.wiki-badge-preview .nametag{position:relative;left:auto;top:auto;display:inline-block;z-index:0;will-change:auto}
+.wiki-badge-cell{display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.wiki-badge-milestone{font-size:11px;white-space:nowrap;font-weight:500}
+#name-badge-rewards{table-layout:fixed}
+#name-badge-rewards thead th:first-child{width:230px}
+#name-badge-rewards tbody th{vertical-align:top;padding-top:20px}
+#name-badge-rewards tbody td{padding:18px}
+.wiki-badge-styles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px 16px}
+.wiki-badge-styles .wiki-badge-cell{min-width:0}
+.wiki-badge-styles .wiki-badge-milestone{white-space:normal;color:var(--muted)}
+.wiki-badge-style-name{font-size:12px;font-weight:600}
+@media(max-width:1100px){
+  #name-badge-rewards,#name-badge-rewards tbody,#name-badge-rewards tbody tr,#name-badge-rewards tbody th,#name-badge-rewards tbody td{display:block;width:100%}
+  #name-badge-rewards thead{display:none}
+  #name-badge-rewards tbody th{padding:16px 12px 8px;border-bottom:0}
+  #name-badge-rewards tbody td{border-left:0;padding:12px 12px 20px}
+}
+@media(max-width:700px){.wiki-badge-styles{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}}
+@media(max-width:380px){.wiki-badge-styles{grid-template-columns:1fr}}

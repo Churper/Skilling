@@ -1753,7 +1753,14 @@ function drawFrog(ctx) {
   ellipse(ctx, 51, 44, 2, 1, cheek);
 }
 
+function drawSnail(ctx) {
+  floorShadow(ctx); ellipse(ctx,32,48,25,8,'#557c38'); ellipse(ctx,32,45,25,6,'#a2c774');
+  disc(ctx,30,31,19,'#3a4226'); disc(ctx,30,30,17,'#d4bc82');
+  let old=null;for(let i=0;i<=100;i++){const a=i/100*Math.PI*4.5,r=1+i/100*13,p={x:30+Math.cos(a)*r,y:30+Math.sin(a)*r};if(old)line(ctx,old.x,old.y,p.x,p.y,'#78613e');old=p;}
+  line(ctx,48,43,49,27,'#a2c774');line(ctx,54,44,59,31,'#a2c774');disc(ctx,49,26,3,'#d5e99a');disc(ctx,59,30,3,'#d5e99a');px(ctx,50,26,'#27351f');px(ctx,60,30,'#27351f');
+}
 export const BOSS_SPRITES = {
+  snail_boss: { label: 'Snail Boss', draw: drawSnail },
   snake_boss: { label: 'Snake Boss', draw: drawCobra },
   cobra: { label: 'Snake Boss', draw: drawCobra },
   rock_golem: { label: 'Rock Golem', draw: drawGolem },
@@ -1784,6 +1791,7 @@ export const BOSS_SPRITES = {
 };
 
 const KC_TO_BOSS_KEY = {
+  snail_kc: 'snail_boss',
   snake_kc: 'snake_boss',
   golem_kc: 'rock_golem',
   slime_daddy_kc: 'slime_daddy',

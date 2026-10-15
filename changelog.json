@@ -1,8 +1,33 @@
 [
   {
+    "version": "v2283",
+    "date": "2026-10-15",
+    "title": "New Wiki, Gathering & Housing",
+    "entries": [
+      "Rebuilt the wiki.",
+      "Bear catches give 6,000 Hunting XP, up from 5,495.",
+      "Fixed delays when refilling baskets, banking and getting back to gathering.",
+      "Fixed right-click Deposit All leaving matching items behind after crafting, refining or withdrawing.",
+      "Wisp Refine and Salvage show how many of each you have and stay accurate after withdrawing from the bank.",
+      "Deposited items go straight to their sorted bank slot.",
+      "Excess Frenzy rewards and resources drop to the ground when your bags are full.",
+      "Clicking Frenzy on grown Pet Garden trees no longer stops gathering.",
+      "Common Celestial gear no longer looks legendary or changes name color when SlimePowered.",
+      "Gather potions no longer double extra drops from wisp bonus.",
+      "Removed Trappy's Hunter Name Badge chat option.",
+      "Fixed the stall when starting Hunting and placing the first box trap.",
+      "You can put lava lamps and jars of slime inside the center of Slime Chairs.",
+      "Force Desktop Layout keeps the desktop buttons, map controls and sizing when the window is small.",
+      "Fixed getting blocked halfway through long hallways in player houses.",
+      "Rotating a spotlight on a table no longer changes its size.",
+      "Refresh Charms retry after temporary server interruptions, and recovered players can resume gathering while others reconnect.",
+      "Improved backend diagnostics for Cloudflare outages."
+    ]
+  },
+  {
     "version": "v2282",
     "date": "2026-10-13",
-    "title": "Lodge & Item Updates",
+    "title": "Lure Fire, Ore Trap & Item Updates",
     "entries": [
       "Lure Fire and Ore Trap move on to the next Latch instead of giving duplicates.",
       "Both fuel machines burn 10,000 pieces a day, with mixed fuels burning together.",
