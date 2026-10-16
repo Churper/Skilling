@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2285",
+    "date": "2026-10-16",
+    "title": "Essence Swarm Fixes",
+    "entries": [
+      "Right-click Hallowscale and other palette skins in Kit to switch Triangle/Square.",
+      "Fixed swarm catches stopping in some cases.",
+      "Charging your net no longer stops your catch.",
+      "Fixed Kit tab highlight in multi window."
+    ]
+  },
+  {
     "version": "v2284",
     "date": "2026-10-16",
     "title": "Halloween, Essence Swarms & Pet Hunting",
