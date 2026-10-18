@@ -1,5 +1,18 @@
 [
   {
+    "version": "v2286",
+    "date": "2026-10-18",
+    "title": "Crypt Badge, Swarm Stones & Kit Auras",
+    "entries": [
+      "New Crypt Name Badge for placing top 3 on the weekly Crypt leaderboard. Last week counts.",
+      "Trappy now sells Swarm Stones for 35,000 Critter Furs each. Click one in your Bag to teleport to the Essence Swarm.",
+      "Auras now have their own Kit section, like badges.",
+      "The Kraken pool now counts Hunting frenzy drops.",
+      "A full Bag now says \"Bag is full - make room first.\" instead of \"refused\".",
+      "Fixed an issue when depositing frenzy drops into the washer quickly."
+    ]
+  },
+  {
     "version": "v2285",
     "date": "2026-10-16",
     "title": "Essence Swarm Fixes",
