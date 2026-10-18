@@ -1,5 +1,25 @@
 [
   {
+    "version": "v2287",
+    "date": "2026-10-18",
+    "title": "Ammo Balance, Bank Loot & Guest Saves",
+    "entries": [
+      "Bee Ring costs less per hit and has 3 new settings.",
+      "Spellstones hit harder: +10% per color, up to Purple +90% (was +60%).",
+      "Arrows made from bars (Storm and up) now make 100 per craft instead of 10.",
+      "Cloud, Fusion and Antimatter Arrows now give +115%, +120% and +125% (were +130%, +135% and +140%).",
+      "Improved Collection Pouch UI with \"Collect Loot\" (to your bag) or \"Bank Loot\" (straight to your bank).",
+      "New look for the Pet Garden Hatch, Paint and Release popups.",
+      "Guests get a daily reminder to register so they do not lose their progress.",
+      "The Ironslime option on the Register form is now folded away so it is not ticked by mistake.",
+      "The tutorial's \"Hit a Training Dummy\" step now shows the arrow to the nearest training dummy.",
+      "The game now opens in your browser's language: Indonesian, Spanish, Japanese or Chinese.",
+      "The Register form is now translated.",
+      "Fixed the Crypt Name Badge not arriving.",
+      "New bacon 🥓 emoji in the emoji picker."
+    ]
+  },
+  {
     "version": "v2286",
     "date": "2026-10-18",
     "title": "Crypt Badge, Swarm Stones & Kit Auras",

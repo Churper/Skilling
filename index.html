@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2286">
+  <link rel="stylesheet" href="./style.css?v=2287">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -150,8 +150,10 @@
              confirmation step are all built by docs/game/systems/accountMode.js
              so the glyph/name live in exactly one file and the copy can be
              translated; leaving it empty here means a stale cached page shows a
-             blank row rather than untranslated English. -->
-        <label id="start-auth-iron" class="start-auth-tos start-auth-iron" hidden><input type="checkbox" id="start-auth-iron-cb"><span id="start-auth-iron-text"></span></label>
+             blank row rather than untranslated English. The row sits folded
+             under a "Want to play without trading?" line so a guest never
+             mistakes it for a box they must tick. -->
+        <details id="start-auth-iron-wrap" class="start-auth-iron-wrap" hidden><summary class="start-auth-iron-toggle"></summary><label id="start-auth-iron" class="start-auth-tos start-auth-iron"><input type="checkbox" id="start-auth-iron-cb"><span id="start-auth-iron-text"></span></label></details>
         <p id="start-auth-error" class="start-auth-error" hidden></p>
         <div class="start-auth-actions">
           <button type="button" id="start-auth-back" class="start-auth-back-btn">Back</button>
@@ -867,7 +869,7 @@
           <button type="button" id="setting-adventure-btn" class="stg-reset-btn" style="background:rgba(140,100,50,.14);color:#c89860;border-color:rgba(140,100,50,.35)">&#x1F4D6; Adventure Book</button>
           <div style="margin-top:auto;padding-top:6px">
             <p style="margin:0 0 2px;font-size:12px;color:rgba(255,255,255,0.35);line-height:1.4">Created by <span style="color:rgba(255,255,255,0.55)">Burga</span></p>
-            <p style="margin:0 0 0;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.4;text-align:justify;text-wrap:pretty">Testing: Swaay · Treeman · AdmiralCrunch · MrPaulie · Ryan · Tomb · Izzy · Bagingle · Plopi · Cranile · zeme · Jorkeff · Cyrater · Catsu · Dasin · Goddess Lilisama · Insvght · Oblong · RiggedyRekt · observer · yoxr · niwa · yuma · mirayray · froggie · ThePunisher · mrtwigs · Green · MapleKitten · Purple · Trygve86 · littleseven · Lore · DazingAI · Yves · EVIL · ayzen · Walen · fart · Mrowka · Lyron · <a href="https://www.twitch.tv/Commonvirus" target="_blank" rel="noopener" class="stg-tester-twitch" title="CommonVirus on Twitch">CommonVirus</a> · Tank · TimMad · Slime de Lime · KcXD · disambo · TRIGGERED · SlimySam · Chainsaw · Dardas · Herm · Goo · Serriah · Sarugobu · Citrusy · Chunce · ImThe13055 · SlimeMaiden · Flubber · <a href="https://gityx.com/" target="_blank" rel="noopener" class="stg-tester-twitch" title="gityx.com">Gityx</a> · zzzhl · Hua Tuo · SKDSK · Carrotkie · Huck · Isomer · Dome_Fossil · Camel_Teo · N2KK · Jhougio · Beelzebeb · Rare · koalaclumsy · Alcyone · CH2O · wjj001</p>
+            <p style="margin:0 0 0;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.4;text-align:justify;text-wrap:pretty">Testing: Swaay · Treeman · AdmiralCrunch · MrPaulie · Ryan · Tomb · Izzy · Bagingle · Plopi · Cranile · zeme · Jorkeff · Cyrater · Catsu · Dasin · Goddess Lilisama · Insvght · Oblong · RiggedyRekt · observer · yoxr · niwa · yuma · mirayray · froggie · ThePunisher · mrtwigs · Green · MapleKitten · Purple · Trygve86 · littleseven · Lore · DazingAI · Yves · EVIL · ayzen · Walen · fart · Mrowka · Lyron · <a href="https://www.twitch.tv/Commonvirus" target="_blank" rel="noopener" class="stg-tester-twitch" title="CommonVirus on Twitch">CommonVirus</a> · Tank · TimMad · Slime de Lime · KcXD · disambo · TRIGGERED · SlimySam · Chainsaw · Dardas · Herm · Goo · Serriah · Sarugobu · Citrusy · Chunce · ImThe13055 · SlimeMaiden · Flubber · <a href="https://gityx.com/" target="_blank" rel="noopener" class="stg-tester-twitch" title="gityx.com">Gityx</a> · zzzhl · Hua Tuo · SKDSK · Carrotkie · Huck · Bacon · Dome_Fossil · Camel_Teo · N2KK · Jhougio · Beelzebeb · Rare · koalaclumsy · Alcyone · CH2O · wjj001 · Sanvek · Krulux · ShiNoragami</p>
           </div>
         </div>
         <!-- Audio -->
@@ -1990,6 +1992,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2286"></script>
+  <script type="module" src="./main.js?v=2287"></script>
 </body>
 </html>
