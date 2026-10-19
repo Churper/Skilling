@@ -1,5 +1,15 @@
 [
   {
+    "version": "v2288",
+    "date": "2026-10-18",
+    "title": "Farm Timer & Item Action Fixes",
+    "entries": [
+      "Fixed crops showing \"Done\" for players whose PC clock is out of sync.",
+      "Fixed a rare case of \"Reconnecting - item actions paused\".",
+      "Improved backend logging for stalled item actions."
+    ]
+  },
+  {
     "version": "v2287",
     "date": "2026-10-18",
     "title": "Ammo Balance, Bank Loot & Guest Saves",
