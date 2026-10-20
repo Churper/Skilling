@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2289",
+    "date": "2026-10-20",
+    "title": "Goo Wisp XP, Swarm Buff & ScapeLikes Reminders",
+    "entries": [
+      "Goo Wisp gives XP now instead of dodge chance: 0.25% to 1.5% from Common to Mythic. Fusion Wisp XP now goes up to 3% at Mythic.",
+      "Essence Swarms buffed: a catch every 45 seconds (was 60) and 50% of your trapping XP rate (was 40%).",
+      "New ScapeLikes Reminder Settings: Off, SL Button Dot, Settings Icon Dot, or Open Vote Panel.",
+      "Voting on ScapeLikes now pays a random 7 to 10 SC.",
+      "Fixed frenzies only showing for a split second and ending in some cases.",
+      "Pet XP bar now moves right away.",
+      "Improved mod tools / bans / slur filter.",
+      "Fishing wiki guide: Koi now has its picture, and the list keeps going past Bluefish."
+    ]
+  },
+  {
     "version": "v2288",
     "date": "2026-10-18",
     "title": "Farm Timer & Item Action Fixes",
