@@ -12,7 +12,7 @@ const _COMBAT_CURVE_SKILLS = new Set(["melee", "bow", "mage", "hitpoints"]);
   _combatDisplayToXp[1] = 0;
   for (let lv = 2; lv <= _MAX_DISPLAY; lv++) {
     const mult = lv <= 100 ? 1 : Math.min(10, 1 + Math.pow((lv - 1 - 100) / 60, 1.8));
-    raw += mult;
+    raw += lv <= 2250 ? mult : 10 + Math.pow((lv - 1 - 2250) / 60, 1.8);
     const r = Math.round(raw);
     _displayToXp[lv] = 34 * (r - 1) * (r - 1);
     combatRaw += lv <= 1000 ? mult : 10 + Math.pow((lv - 1 - 1000) / 60, 1.8);

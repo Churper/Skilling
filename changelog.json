@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2290",
+    "date": "2026-10-21",
+    "title": "Deluxe Farmer Pie & Skill Curve Past 2250",
+    "entries": [
+      "New Deluxe Farmer Pie at Cooking 1000: 2 crops from Golden Sugarplum up plus any berry. It sells for 5,000, heals 1,300 HP + 8% max HP, and gives 3,150 to 5,400 cooking XP.",
+      "New Sacred Grove Alerts setting: turn off the banner and messages.",
+      "Skills past level 2250 now take more XP per level to make room for new methods (combat skills unchanged).",
+      "Nobody loses any XP; levels above 2250 are recalculated on the new curve.",
+      "Lure Fire and Ore Trap fuel below level 600 now gives Fur worth 2x its sell price. Latch progress is unchanged, and fuel already loaded keeps the old rate.",
+      "Pets in the Slime Garden now gain 7 Hunting XP per essence instead of 1, same as other skills. Essence rate is unchanged.",
+      "Hunting frenzy animals from 200-400 now turn blue instead of light purple.",
+      "Improved the Lure Fire, Ore Trap and Latches wiki pages with tables, and added a Lure Fire & Ore Trap calculator."
+    ]
+  },
+  {
     "version": "v2289",
     "date": "2026-10-20",
     "title": "Goo Wisp XP, Swarm Buff & ScapeLikes Reminders",
