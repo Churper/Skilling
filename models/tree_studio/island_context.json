@@ -1,0 +1,269 @@
+{
+  "note": "Local approval preview. Resolved from current world model paths and numeric scale overrides, 2026-10-22.",
+  "assets": {
+    "Slime_Statue": {
+      "url": "models/terrain/Slime_Statue.glb"
+    },
+    "Island_Bank": {
+      "url": "models/terrain/Chest.glb"
+    },
+    "Slime_Fountain": {
+      "url": "models/terrain/Slime_Fountain.glb"
+    },
+    "Slime_Birdbath": {
+      "url": "models/terrain/Slime_Birdbath.glb"
+    },
+    "Bush": {
+      "url": "models/terrain/Bush.glb"
+    },
+    "Rocks_Ore_Void": {
+      "url": "models/terrain/Rocks_Ore_Void.glb"
+    },
+    "Elder_Tree": {
+      "url": "models/terrain/Elder_Tree.glb",
+      "multiplier": 1.8
+    },
+    "Star_Ore": {
+      "url": "models/terrain/Star_Ore.glb"
+    },
+    "Astral_Tree": {
+      "url": "models/terrain/Astral_Tree.glb",
+      "multiplier": 2.1
+    },
+    "Astral_Berry_Bush": {
+      "url": "models/terrain/Astral_Berry_Bush.glb"
+    },
+    "Shroombark": {
+      "url": "models/terrain/Shroombark_Tree.glb"
+    },
+    "Emberheart_Tree": {
+      "url": "models/terrain/Emberheart_Tree.glb",
+      "scale": 2.5,
+      "multiplier": 0.9
+    },
+    "Dusk_Tree": {
+      "url": "models/terrain/Dusk_Tree.glb",
+      "multiplier": 1.8
+    },
+    "Nebula_Fruit_Plant": {
+      "url": "models/terrain/Nebula_Fruit_Plant.glb"
+    },
+    "Void_Blossom_Bush": {
+      "url": "models/terrain/Void_Blossom_Bush.glb"
+    },
+    "Rocks_Ore_Twilight": {
+      "url": "models/terrain/Rocks_Ore_Twilight.glb"
+    },
+    "Toon_Oak": {
+      "url": "models/terrain/Toon_Oak.glb"
+    },
+    "Infinity_Berry_Bush": {
+      "url": "models/terrain/Infinity_Berry_Bush.glb"
+    },
+    "Rock_2_A": {
+      "url": "models/Rock_2_A_Color1.glb"
+    },
+    "Rock_3_A": {
+      "url": "models/Rock_3_A_Color1.glb"
+    },
+    "Prop_Branch_3": {
+      "url": "models/terrain/Prop_Branch_3.glb"
+    },
+    "Prop_Tree_Oak_2": {
+      "url": "models/terrain/Prop_Tree_Oak_2.glb",
+      "scale": 0.85
+    },
+    "Crystal_2": {
+      "url": "models/terrain/Crystal_2.glb"
+    },
+    "Rock_3_G": {
+      "url": "models/Rock_3_G_Color1.glb"
+    },
+    "Prop_Bush_3": {
+      "url": "models/terrain/Prop_Bush_3.glb"
+    },
+    "Toon_Pine": {
+      "url": "models/terrain/Tree_05.glb"
+    },
+    "Prop_Branch_2": {
+      "url": "models/terrain/Prop_Branch_2.glb"
+    },
+    "Prop_Bush_1": {
+      "url": "models/terrain/Prop_Bush_1.glb"
+    },
+    "Crystal_3": {
+      "url": "models/terrain/Crystal_3.glb"
+    },
+    "Prop_Bush_2": {
+      "url": "models/terrain/Prop_Bush_2.glb"
+    },
+    "Rock_3_E": {
+      "url": "models/Rock_3_E_Color1.glb"
+    },
+    "Prop_Branch_1": {
+      "url": "models/terrain/Prop_Branch_1.glb"
+    },
+    "Crystal_1": {
+      "url": "models/terrain/Crystal_1.glb"
+    },
+    "Prop_Stump": {
+      "url": "models/terrain/Prop_Stump.glb"
+    },
+    "Prismberry_Bush": {
+      "url": "models/terrain/Prismberry_Bush.glb"
+    },
+    "Prop_Tree_Oak_1": {
+      "url": "models/terrain/Prop_Tree_Oak_1.glb",
+      "scale": 0.85
+    },
+    "Toon_Willow": {
+      "url": "models/terrain/Toon_Willow.glb"
+    },
+    "Plasmaberry_Bush": {
+      "url": "models/terrain/Plasmaberry_Bush.glb"
+    },
+    "Cloudberry_Bush": {
+      "url": "models/terrain/Cloudberry_Bush.glb"
+    },
+    "Stormberry_Bush": {
+      "url": "models/terrain/Stormberry_Bush.glb"
+    },
+    "Leviathan_Berry_Bush": {
+      "url": "models/terrain/Leviathan_Berry_Bush.glb"
+    },
+    "Sludgeberry_Bush": {
+      "url": "models/terrain/Sludgeberry_Bush.glb"
+    },
+    "Fusion_Berry_Bush": {
+      "url": "models/terrain/Fusion_Berry_Bush.glb"
+    },
+    "Antimatter_Berry_Bush": {
+      "url": "models/terrain/Antimatter_Berry_Bush.glb"
+    },
+    "Rock_1_A": {
+      "url": "models/Rock_1_A_Color1.glb"
+    },
+    "Prop_Hollow_Trunk": {
+      "url": "models/terrain/Prop_Hollow_Trunk.glb"
+    },
+    "Rock_3_C": {
+      "url": "models/Rock_3_C_Color1.glb"
+    },
+    "Rocks_Ore_Glowstone": {
+      "url": "models/terrain/TinRock.glb",
+      "scale": 1.5
+    },
+    "Crystal_Bloom": {
+      "url": "models/terrain/Crystal_Bloom.glb"
+    },
+    "Petrified_Tree": {
+      "url": "models/terrain/Petrified_Tree.glb"
+    },
+    "Tree_Spiral_1": {
+      "url": "models/terrain/Ribbon_Tree_Remake.glb"
+    },
+    "Rocks_Ore_Starite": {
+      "url": "models/terrain/Rocks_Ore_Starite.glb"
+    },
+    "Candy_Spire": {
+      "url": "models/terrain/Candy_Spire.glb"
+    },
+    "Berry_Bush": {
+      "url": "models/terrain/Berry_Bush.glb"
+    },
+    "Starbloom_Bush": {
+      "url": "models/terrain/Starbloom_Bush.glb"
+    },
+    "Svc_Forage_Crystal": {
+      "url": "models/terrain/Bush.glb"
+    },
+    "Tree_Spiral_3": {
+      "url": "models/terrain/Ribbon_Tree_Remake.glb"
+    },
+    "Mossy_Log": {
+      "url": "models/terrain/Mossy_Log.glb"
+    },
+    "Svc_Forage_Void": {
+      "url": "models/terrain/Bush.glb"
+    },
+    "Tree_Spiral_2": {
+      "url": "models/terrain/Ribbon_Tree_Remake.glb"
+    },
+    "Spiritwood": {
+      "url": "models/terrain/Spiritwood_Tree.glb"
+    },
+    "Roots": {
+      "url": "models/terrain/Roots_Remake_E.glb",
+      "multiplier": 1.2
+    },
+    "Rocks_Ore_Holystone": {
+      "url": "models/terrain/TinRock.glb",
+      "scale": 1.55
+    },
+    "Rocks_Ore_Moonstone": {
+      "url": "models/terrain/TinRock.glb",
+      "scale": 1.5
+    },
+    "Prop_Tree_Oak_3": {
+      "url": "models/terrain/Prop_Tree_Oak_3.glb",
+      "scale": 1.4
+    },
+    "Prop_Tree_Cedar_1": {
+      "url": "models/terrain/Prop_Tree_Cedar_1.glb"
+    },
+    "Birch_Tree": {
+      "url": "models/terrain/Birch_Tree_m_01.glb",
+      "multiplier": 0.7
+    },
+    "Rocks_Ore_Sunstone": {
+      "url": "models/terrain/TinRock.glb",
+      "scale": 1.5
+    },
+    "Svc_Forage_Elder": {
+      "url": "models/terrain/Bush.glb"
+    },
+    "Prop_Rock_2": {
+      "url": "models/terrain/Prop_Rock_2.glb"
+    },
+    "Steelbark": {
+      "url": "models/terrain/Steelbark_Tree.glb"
+    },
+    "Rocks_Ore_Copper": {
+      "url": "models/terrain/TinRock.glb",
+      "scale": 2.2
+    },
+    "Prop_Tree_Cedar_2": {
+      "url": "models/terrain/Prop_Tree_Cedar_2.glb"
+    },
+    "Rock_4": {
+      "url": "models/terrain/Rock_4.glb"
+    },
+    "Rocks_Ore_Silver": {
+      "url": "models/terrain/TinRock.glb",
+      "scale": 2.2
+    },
+    "Autumn_Tree": {
+      "url": "models/terrain/Autumn_Tree.glb"
+    },
+    "Prop_Rock_1": {
+      "url": "models/terrain/Prop_Rock_1.glb"
+    },
+    "Mossy_Rock": {
+      "url": "models/terrain/Mossy_Rock.glb"
+    },
+    "Rocks_Ore_Platinum": {
+      "url": "models/terrain/TinRock.glb",
+      "scale": 2.2
+    },
+    "Rocks_Ore_Celestial": {
+      "url": "models/terrain/TinRock.glb",
+      "scale": 2.2
+    },
+    "Svc_Forage_Golden": {
+      "url": "models/terrain/Bush.glb"
+    },
+    "Wildflower_Patch": {
+      "url": "models/terrain/Wildflower_Patch.glb"
+    }
+  }
+}

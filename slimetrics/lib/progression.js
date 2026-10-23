@@ -8,14 +8,18 @@ const _combatDisplayToXp = new Float64Array(_MAX_DISPLAY + 1);
 const _COMBAT_CURVE_SKILLS = new Set(["melee", "bow", "mage", "hitpoints"]);
 {
   let raw = 1, combatRaw = 1;
+  const combatStepAt1500 = 10 + Math.pow((1500 - 1001) / 60, 1.8);
   _displayToXp[1] = 0;
   _combatDisplayToXp[1] = 0;
   for (let lv = 2; lv <= _MAX_DISPLAY; lv++) {
     const mult = lv <= 100 ? 1 : Math.min(10, 1 + Math.pow((lv - 1 - 100) / 60, 1.8));
-    raw += lv <= 2250 ? mult : 10 + Math.pow((lv - 1 - 2250) / 60, 1.8);
+    const generalTail = (lv - 2251) / 60;
+    raw += lv <= 2250 ? mult : 10 + Math.min(Math.pow(generalTail, 1.8), Math.pow(generalTail, 1.025));
     const r = Math.round(raw);
     _displayToXp[lv] = 34 * (r - 1) * (r - 1);
-    combatRaw += lv <= 1000 ? mult : 10 + Math.pow((lv - 1 - 1000) / 60, 1.8);
+    const liveCombatStep = lv <= 1000 ? mult : 10 + Math.pow((lv - 1001) / 60, 1.8);
+    combatRaw += lv <= 1500 ? liveCombatStep
+      : Math.min(liveCombatStep, combatStepAt1500 + Math.pow((lv - 1501) / 60, 1.025));
     const cr = Math.round(combatRaw);
     _combatDisplayToXp[lv] = 34 * (cr - 1) * (cr - 1);
   }

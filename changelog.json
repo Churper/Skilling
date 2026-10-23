@@ -1,5 +1,33 @@
 [
   {
+    "version": "v2291",
+    "date": "2026-10-23",
+    "title": "New Islands, Softer Levels and Boat Tubing",
+    "entries": [
+      "New islands: Ghost Shore (2250), Glass Isle (2500), Gummy Grove (2750) and Holo Harbor (3000).",
+      "New trees, rocks, bushes, fishing spots and Hunting animals.",
+      "New crops and Crop Pies for all four tiers.",
+      "New tools, weapons, armour and rings.",
+      "Levels get easier after 2250, and combat levels after 1500. Your XP stays the same and nobody loses levels.",
+      "New Crop Pies: Plasma Pickle Pie (Cooking Lvl 1250), Puff Peach Pie (1500), Fusion Fig Pie (1750) and Antimatter Acorn Pie (2000).",
+      "Chef Hat, Flower Crown and Miner Helmet added to the SC shop, 160 SC each.",
+      "Right-click a player in a boat to ride behind them in a tube.",
+      "You can walk up the dock stairs, along the piers and underneath them.",
+      "New Ghost, Glass, Gummy and Holo Wisps have no perks yet.",
+      "Unfinished Explorer collection jobs on the four converted islands are cancelled for free.",
+      "Wolves now live on Wobble Knoll, Bears on Bloop Spit and Lynx on Wobble Pier.",
+      "Updated leaderboard profiles with full-width skill and boss-kill grids.",
+      "Fixed the Lucky Duck floating above the water.",
+      "Fixed Nearby Actions menu sometimes picking the wrong animal for frenzy.",
+      "Fixed Refresh Charms and the AFK timer when your computer's clock is wrong.",
+      "Fixed Dupey (and other crafting) sometimes saying it failed when it actually worked.",
+      "Fixed pet Hunting progress appearing to reset after refreshing the game.",
+      "Stopped old item and pickup history from filling browser storage.",
+      "Milestone announcements now check your saved level.",
+      "Bank search and tab changes now scroll to the top. Scrollbars only appear when needed."
+    ]
+  },
+  {
     "version": "v2290",
     "date": "2026-10-21",
     "title": "Deluxe Farmer Pie & Skill Curve Past 2250",
