@@ -1,5 +1,14 @@
 [
   {
+    "version": "v2292",
+    "date": "2026-10-23",
+    "title": "Frenzy Colors and Hat Purchases",
+    "entries": [
+      "Fixed frenzy colors on the new trees and rocks.",
+      "Fixed the new hats getting purchases stuck and pausing item actions."
+    ]
+  },
+  {
     "version": "v2291",
     "date": "2026-10-23",
     "title": "New Islands, Softer Levels and Boat Tubing",
