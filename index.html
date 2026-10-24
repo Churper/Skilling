@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2292">
+  <link rel="stylesheet" href="./style.css?v=2293">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -1052,6 +1052,7 @@
             <div class="stg-row"><span class="stg-label">Skip Skin Animation</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-skip-skin-anim"><span class="stg-tog-track"></span></label></span></div>
           </div>
           <div class="stg-section-title">World Effects</div>
+          <div class="stg-row"><span class="stg-label">Highlight Hunting Frenzies</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hunter-frenzy-highlight"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row-pair">
             <div class="stg-row"><span class="stg-label">Disable Click Marks</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-no-ground-fx"><span class="stg-tog-track"></span></label></span></div>
             <div class="stg-row"><span class="stg-label">Disable Shoreline Foam</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-no-foam"><span class="stg-tog-track"></span></label></span></div>
@@ -1724,15 +1725,21 @@
       </div><!-- .ui-bank-main -->
       <!-- Preset sidebar (left) -->
       <div id="ui-bank-preset-sidebar" class="ui-bank-preset-sidebar">
-        <div class="ui-preset-tabs">
+        <div class="ui-preset-header">
+          <button type="button" class="ui-preset-tab ui-preset-favorites" id="ui-bank-favorites-side" data-bank-favorites-toggle title="Favorites">&#x2605;</button>
+        </div>
+        <div class="ui-preset-tabs" aria-label="Equipment presets">
           <button type="button" class="ui-preset-tab" data-preset="0" title="Preset 1">1</button>
           <button type="button" class="ui-preset-tab" data-preset="1" title="Preset 2">2</button>
           <button type="button" class="ui-preset-tab" data-preset="2" title="Preset 3">3</button>
           <button type="button" class="ui-preset-tab" data-preset="3" title="Preset 4">4</button>
           <button type="button" class="ui-preset-tab" data-preset="4" title="Preset 5">5</button>
-          <button type="button" class="ui-preset-tab ui-preset-best" id="ui-equip-best" title="Equip Best - auto-equip highest DPS gear">B</button>
-          <button type="button" class="ui-preset-tab ui-preset-favorites" id="ui-bank-favorites-side" data-bank-favorites-toggle title="Favorites">&#x2605;</button>
         </div>
+        <div class="ui-preset-sidebar-actions">
+          <button type="button" class="ui-preset-tab ui-preset-add" data-add-preset title="Add preset" aria-label="Add preset" disabled>+</button>
+          <button type="button" class="ui-preset-tab ui-preset-best" id="ui-equip-best" title="Equip Best - auto-equip highest DPS gear">B</button>
+        </div>
+        <button type="button" class="ui-preset-scroll" data-scroll-presets title="Scroll presets" aria-label="Scroll presets" hidden><span aria-hidden="true">&#x25BE;</span></button>
       </div>
     </div>
   </div>
@@ -1995,6 +2002,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2292"></script>
+  <script type="module" src="./main.js?v=2293"></script>
 </body>
 </html>
