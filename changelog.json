@@ -1,5 +1,25 @@
 [
   {
+    "version": "v2295",
+    "date": "2026-10-26",
+    "title": "More Gathering XP, Cheaper Charms and New Hats",
+    "entries": [
+      "Logs and ores from level 200 normal gather XP increased to 1.3x, and level 600+ logs, ores and fish give 1.4x (Welcome Back too). Frenzy XP is unchanged.",
+      "Cheaper charms: Refresh Charms now cost 5 SC for 3 charges, and Frenzy Charms give 3 for 1 SC. Anyone who bought charms in the last week gets the difference by mail.",
+      "5 new hats in the SlimeCoin shop, 100 SC each: Sun Hat, Sunflower Hat, Bonnet, Mushroom Hat and Tiara.",
+      "New Trapper Hat cosmetic: a rare one-time drop from Swarms (about one per 25 hours of swarming, one per account).",
+      "Fixed hats clipping and changing size when crouching, riding or attacking.",
+      "Pipe and Niu Lia stay in place better during animations.",
+      "Jellyfish hat is more see-through and forms better during animations.",
+      "Fixed the candle hat not showing its flame.",
+      "Fixed mobile camera and taps getting stuck after interrupted touches.",
+      "Long-press now opens item and HUD menus on iPhone.",
+      "Podium Name Badges and new badge styles now show up when the weekly podium letter comes.",
+      "Fixed rare case of repeating level up celebration.",
+      "Fixed the Sacred Grove sometimes not showing up."
+    ]
+  },
+  {
     "version": "v2294",
     "date": "2026-10-25",
     "title": "13 New Cosmetics",
