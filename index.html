@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2297">
+  <link rel="stylesheet" href="./style.css?v=2298">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -909,7 +909,10 @@
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Chat &amp; Inventory Over HUD</span><span class="stg-hint">Let chat and inventory windows cover trackers, quick-fire controls, pet buttons, and other HUD widgets</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-panels-over-hud"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Map Over HUD</span><span class="stg-hint">Draw the big map above trackers, buff bars, and other HUD widgets instead of under them</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-map-over-hud"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">EXP Tracker (Auto)</span><span class="stg-hint">Draggable XP/EXP tracker chip auto-follows the skill you're training - shows level progress, actions left, XP per hour and time to level. Left-click to pin or close full stats; right-click to choose the view</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-auto-track-skill"><span class="stg-tog-track"></span></label></span></div>
-          <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Force Desktop Layout</span><span class="stg-hint">Always use the desktop UI, even on touchscreens. Fixes convertible/2-in-1 laptops that get stuck in the mobile layout</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-force-desktop-ui"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label-block"><label class="stg-label" for="setting-layout-mode">Layout</label><span class="stg-hint">Panel arrangement on this device. Mobile overrides Classic Layout.</span></span><span class="stg-ctrl"><select id="setting-layout-mode" class="stg-sel"><option value="auto">Auto</option><option value="mobile">Mobile</option><option value="desktop">Desktop</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><label class="stg-label" for="setting-controls-mode">Controls</label><span class="stg-hint">Touch menus and buttons on this device, independent of layout.</span></span><span class="stg-ctrl"><select id="setting-controls-mode" class="stg-sel"><option value="auto">Auto</option><option value="touch">Touch</option><option value="mouse">Mouse</option></select></span></div>
+          <div class="stg-row"><span class="stg-label-block"><label class="stg-label" for="setting-virtual-joystick">Virtual Joystick</label><span class="stg-hint">Show a thumbstick for walking. Saved on this device.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-virtual-joystick"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row"><span class="stg-label">Joystick Position</span><span class="stg-ctrl"><button type="button" id="setting-move-joystick" class="stg-btn" disabled>Move Joystick</button></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Classic Layout</span><span class="stg-hint">Locked OSRS-style fixed layout (right column with minimap, panel, tabs)</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-classic-layout"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Always Show HP Number</span><span class="stg-hint">Classic Layout only: keep the HP number beside the bar on screen at all times instead of letting it fade out after combat</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-classic-hp-always"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label">UI Theme</span><span class="stg-ctrl"><select id="setting-classic-theme" class="stg-sel"><option value="default">Default</option><option value="wood">Wood</option><option value="glass">Glass</option><option value="stained">Stained Glass</option><option value="frost">Frost</option><option value="verdant">Verdant</option><option value="sunset">Sunset</option><option value="arcane">Arcane</option><option value="volcanic">Volcanic</option><option value="royal">Royal</option><option value="cyber">Cyber</option><option value="bone">Bone</option></select></span></div>
@@ -2002,6 +2005,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2297"></script>
+  <script type="module" src="./main.js?v=2298"></script>
 </body>
 </html>

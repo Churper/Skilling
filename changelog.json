@@ -1,5 +1,19 @@
 [
   {
+    "version": "v2298",
+    "date": "2026-10-27",
+    "title": "8 New Cosmetics, Hunter Cape Perk and Virtual Joystick",
+    "entries": [
+      "8 new cosmetics in the SlimeCoin Shop: Shutter Shades 100, Band-Aid 140, Umbrella 100, Disguise Glasses 200, Chocolate 160, Icepop 160, Snout 80, Clown Nose 80.",
+      "Hunter Cape perk: +25% extra essence chance per catch, and a 50% chance of 1 extra essence per hunting Frenzy. Works worn or in your Bag.",
+      "Matching Wisps share one row in the Wisp Well. Check the box to salvage multiple, or the row for one at a time.",
+      "Top crops sell for more: Puff Peach 5,050, Fusion Fig 6,350, Antimatter Acorn 7,950, Ghost Tangerine 9,900, Glass Olive 12,300, Gummy Bean 15,200, Holo Yam 18,700.",
+      "New Layout (Auto, Mobile, Desktop) and Controls (Auto, Touch, Mouse) options in Settings.",
+      "New Virtual Joystick setting for walking. Place it with Move Joystick setting.",
+      "Fixed frenzies disappearing early in some cases."
+    ]
+  },
+  {
     "version": "v2297",
     "date": "2026-10-27",
     "title": "Frenzy Charm Price",
