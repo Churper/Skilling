@@ -1,5 +1,23 @@
 [
   {
+    "version": "v2300",
+    "date": "2026-10-29",
+    "title": "Snail Cape Imbues and Amulet Fusion",
+    "entries": [
+      "Drag a Melee, Bow or Mage Cape onto a Snail Cape to give it that cape's ammo save. Your cape stays, the Snail Cape gets a trim.",
+      "Binding a cape to a new Snail Cape takes it off the old one. Right-click a Snail Cape in your Bag and pick Remove Imbue to take one off.",
+      "Permanent amulet fusion: choose the lines and keep the higher SlimePower.",
+      "Dragon Tusk Amulet: +20% Attack and Defense.",
+      "Dragon Tusk Amulets can be washed, transposed and SlimePowered.",
+      "Dupey no longer upgrades the Dragon Tusk Amulet.",
+      "Updated look for the Ladybug skin.",
+      "Adventure Log signatures looks improved and include your pet.",
+      "The Adventure Book's close button is now at the top right of its header.",
+      "Defense Potion and Shell Plate hits now show whole numbers instead of long decimals.",
+      "Croc Scrolls no longer skip salvaging gear in rare cases."
+    ]
+  },
+  {
     "version": "v2299",
     "date": "2026-10-29",
     "title": "Hippy the Hippo and the Snail Boss",
