@@ -1,5 +1,23 @@
 [
   {
+    "version": "v2299",
+    "date": "2026-10-29",
+    "title": "Hippy the Hippo and the Snail Boss",
+    "entries": [
+      "New bosses: Hippy the Hippo and Snails.",
+      "Crocodile and Crocodile (Hard) now have one task board card. Right-click it to switch.",
+      "Hippy drops a Hippo Tusk every kill, plus Solar gear, Defense Potions, a Tusk Amulet (+15% Luck) and a Hippo Paintbrush. Hippy is on the highscores too.",
+      "Fuse a Tusk Amulet with a Dragon Amulet of the same rarity at the Blacksmith.",
+      "It keeps your Dragon Amulet's stars and lines, and split it back any time.",
+      "The Snail Paintbrush now paints your pet like the other boss paintbrushes, and the Snail Boss is in the in-game Boss KC highscores.",
+      "Snail drop rates depend on how many snails you fight. The Snail Shell still drops from every snail.",
+      "Dupey takes the Snail and Hippo Paintbrushes, the Snail Cape and the Tusk Amulet, like the other boss drops.",
+      "The pet perk panel now shows the Snail Scroll and Hippo Scroll as Coming Soon.",
+      "Fixed Snout and Band-Aid clipping during animations, steadied Chocolate and Icepop, and raised both to mouth level.",
+      "Fixed frenzies disappearing early when inventory syncing runs into a problem."
+    ]
+  },
+  {
     "version": "v2298",
     "date": "2026-10-27",
     "title": "8 New Cosmetics, Hunter Cape Perk and Virtual Joystick",

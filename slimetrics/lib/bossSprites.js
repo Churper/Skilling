@@ -1759,7 +1759,18 @@ function drawSnail(ctx) {
   let old=null;for(let i=0;i<=100;i++){const a=i/100*Math.PI*4.5,r=1+i/100*13,p={x:30+Math.cos(a)*r,y:30+Math.sin(a)*r};if(old)line(ctx,old.x,old.y,p.x,p.y,'#78613e');old=p;}
   line(ctx,48,43,49,27,'#a2c774');line(ctx,54,44,59,31,'#a2c774');disc(ctx,49,26,3,'#d5e99a');disc(ctx,59,30,3,'#d5e99a');px(ctx,50,26,'#27351f');px(ctx,60,30,'#27351f');
 }
+/* Hippy: a planted pond hippo, wide muzzle and an underbite of two tusks. */
+function drawHippo(ctx) {
+  floorShadow(ctx); ellipse(ctx,30,40,22,15,'#5f5673'); ellipse(ctx,30,38,21,13,'#8d82a6');
+  rect(ctx,13,46,7,8,'#5f5673'); rect(ctx,38,46,7,8,'#5f5673');
+  ellipse(ctx,46,32,13,11,'#5f5673'); ellipse(ctx,46,31,12,10,'#9a8fb3'); ellipse(ctx,50,37,11,7,'#eba8c6');
+  disc(ctx,38,21,3,'#5f5673'); disc(ctx,49,20,3,'#5f5673'); disc(ctx,38,21,1,'#d9a7b4'); disc(ctx,49,20,1,'#d9a7b4');
+  disc(ctx,42,27,2,'#1e1a26'); disc(ctx,52,27,2,'#1e1a26'); px(ctx,42,26,'#ffffff'); px(ctx,52,26,'#ffffff');
+  px(ctx,52,34,'#3d3650'); px(ctx,57,34,'#3d3650'); line(ctx,42,40,59,40,'#3d3650');
+  rect(ctx,45,36,2,4,'#efe6cf'); rect(ctx,55,36,2,4,'#efe6cf');
+}
 export const BOSS_SPRITES = {
+  hippo_boss: { label: 'Hippy', draw: drawHippo },
   snail_boss: { label: 'Snail Boss', draw: drawSnail },
   snake_boss: { label: 'Snake Boss', draw: drawCobra },
   cobra: { label: 'Snake Boss', draw: drawCobra },
@@ -1792,6 +1803,7 @@ export const BOSS_SPRITES = {
 
 const KC_TO_BOSS_KEY = {
   snail_kc: 'snail_boss',
+  hippo_kc: 'hippo_boss',
   snake_kc: 'snake_boss',
   golem_kc: 'rock_golem',
   slime_daddy_kc: 'slime_daddy',
