@@ -1,5 +1,33 @@
 [
   {
+    "version": "v2301",
+    "date": "2026-11-01",
+    "title": "Loch Slime Isle, Wisp Bags and Weapon Skins",
+    "entries": [
+      "Loch Slime Isle added with a skilling boss, travel statue, bank and Wisperator.",
+      "Thorn gathering and five launchers to expose Loch Ness Slime for head gathering, tail slaps and dangerous nodes to dodge.",
+      "Skill XP and team contribution rewards, and a searchable loot pile to spend reward points on.",
+      "Fill, name and color Wisp bags from your inventory, bank them, see their bonuses, and switch whole Wisp sets at your house Wisperator for 20 Cozy Coupons or Loch Slime Isle.",
+      "Wisp Wells in houses now animate like the mainland well.",
+      "Eleven new weapon skins in the SlimeCoin Shop Weapons tab, 400 SC each.",
+      "Cheeks and Mouth now share one SlimeCoin Shop tab, and a new Weapons tab has been added.",
+      "The Scythe now shows on bows and staffs too, not just swords.",
+      "Broadcasting an imbued Snail Cape shows its trims and ammo-saving bonuses.",
+      "The Sacrificial Pool is now a stylized Kraken altar with tentacle torches. The pool stays calm until someone summons a Kraken, then the torches light and the pool glows until it is gone.",
+      "New Cargo Stall, keeper and nearby bank, with a Delivery Slime quest entry and an \"Opening up soon!\" greeting.",
+      "Dupey's wiki now lists every accepted offering, and each item's page shows its contribution to Mythic upgrades.",
+      "Skins, badges and auras can be returned from Kit to your inventory again.",
+      "Resizing the Kit panel is smoother, including with Badges expanded.",
+      "Fixed long-pressing a player's name in chat to view their info on iPhone.",
+      "Fixed Snail Cape imbues disappearing after banking or changing gear presets.",
+      "Fixed false bot flags from delayed click reports and overlapping Refresh Charms.",
+      "Old crafting and SlimeCoin reward database history history clears automatically without allowing duplicate rewards.",
+      "Adventure Log signatures are back to their original size.",
+      "Snail loot no longer gets skipped in rare cases.",
+      "Fixed Amber pickups occasionally glitching."
+    ]
+  },
+  {
     "version": "v2300",
     "date": "2026-10-29",
     "title": "Snail Cape Imbues and Amulet Fusion",
