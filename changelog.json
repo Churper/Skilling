@@ -1,5 +1,18 @@
 [
   {
+    "version": "v2302",
+    "date": "2026-11-01",
+    "title": "Loch XP and Wisp Swaps",
+    "entries": [
+      "You can swap Wisps on locked gear.",
+      "Loch Potion lasts 30 minutes.",
+      "Reduced Loch Ness ending kill XP drop in teams.",
+      "Moved half of Loch Ness head-gathering XP into loading and gathering ammunition.",
+      "Loch Ness's HP bar says Defeated on a kill and shows his remaining HP when he retreats.",
+      "Depleted Thorn resources pay their remaining items and XP promptly."
+    ]
+  },
+  {
     "version": "v2301",
     "date": "2026-11-01",
     "title": "Loch Slime Isle, Wisp Bags and Weapon Skins",
