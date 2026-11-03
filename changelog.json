@@ -1,5 +1,19 @@
 [
   {
+    "version": "v2304",
+    "date": "2026-11-03",
+    "title": "Vote Rewards, Auto-buff and SC Resets",
+    "entries": [
+      "ScapeLikes votes now let you play a round of plinko.",
+      "Loch Gem is now 1/500, with an option to sacrifice your loot rolls for a 3x chance.",
+      "Boss, Crypt and Explorer SC reset together at 5:00 AM EST / 10:00 UTC",
+      "Daily boss SC caps are now 20 for Hippy and Snail, 25 for Bee and Frog, and 30 for Crocodile.",
+      "Hippo Scroll gives Auto-buff: pick potions to automatically drink when they expire, using 1 charge each.",
+      "Fixed pocket banking getting stuck while farming bosses.",
+      "Gathering keeps going when new potions wear off."
+    ]
+  },
+  {
     "version": "v2303",
     "date": "2026-11-02",
     "title": "Loch XP and Catching",
