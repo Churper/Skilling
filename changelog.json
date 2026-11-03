@@ -1,5 +1,17 @@
 [
   {
+    "version": "v2303",
+    "date": "2026-11-02",
+    "title": "Loch XP and Catching",
+    "entries": [
+      "Loch gives 40% less XP, with four catches per fishing spot and two per hedgehog.",
+      "Fixed bank withdrawals skipping empty bag slots.",
+      "Fixed potion timers restoring incorrectly after logging in.",
+      "Fixed Loch Gem XP missing from combined worn bonuses and broadcasts.",
+      "Fixed ammo save text missing from imbued Snail Cape broadcasts."
+    ]
+  },
+  {
     "version": "v2302",
     "date": "2026-11-01",
     "title": "Loch XP and Wisp Swaps",

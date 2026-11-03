@@ -1,4 +1,4 @@
-import{a as U,c as le}from"./chunk-LGIN7MZL.js";import{C as Me,D as Oe,E as Le,F as Re,a as J,d as Te,e as q,k as xe,q as c,s as Fe,w as De}from"./chunk-M23SWWIZ.js";var vr=`  float y=vLocalPos.y;
+import{a as U,c as le}from"./chunk-LGIN7MZL.js";import{C as Me,D as Oe,E as Le,F as Re,a as J,d as Te,e as q,k as xe,q as c,s as Fe,w as De}from"./chunk-MTJJIKMM.js";var vr=`  float y=vLocalPos.y;
   /* Color breaks follow the slime's latitude rings, including the amber stripe
      below its widest point. Keep only a light gradient within each band. */
   vec3 cream=vec3(1.0,0.95,0.82),orange=vec3(1.0,0.48,0.065);
