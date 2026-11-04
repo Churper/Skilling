@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2305",
+    "date": "2026-11-04",
+    "title": "EXP Trackers and Gathering Fixes",
+    "entries": [
+      "The Halloween event has concluded, and the Ville has returned to normal.",
+      "EXP trackers now keep accurate sessions through Frenzy, skill switches, alt-tab, minimize and refresh, with instant XP updates.",
+      "Fixed gathering items and XP drops getting stuck after Frenzy loot overflowed onto the ground.",
+      "Auto-buff now works while alt-tabbed or minimized, remembers your potions across devices, and stops when your AFK time runs out.",
+      "Fixed boss loot pickups getting stuck during very fast kills.",
+      "Croc Shield broadcasts now show the boss damage bonus from fed jaws.",
+      "Fresh rare gear now shows its correct rarity and color in the washing machine's transpose picker.",
+      "Fixed Plinko skipping straight to the result with reduced motion enabled."
+    ]
+  },
+  {
     "version": "v2304",
     "date": "2026-11-03",
     "title": "Vote Rewards, Auto-buff and SC Resets",
