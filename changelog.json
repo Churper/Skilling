@@ -1,5 +1,15 @@
 [
   {
+    "version": "v2306",
+    "date": "2026-11-04",
+    "title": "Shell Plates, Houses and Potion Icons",
+    "entries": [
+      "Fixed Shell Plates doing nothing when clicked in your bag.",
+      "Fixed getting stuck outside houses while riding a horse.",
+      "Gathering Speed and Loch Potion effects now have their own emojis."
+    ]
+  },
+  {
     "version": "v2305",
     "date": "2026-11-04",
     "title": "EXP Trackers and Gathering Fixes",
