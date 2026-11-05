@@ -1,5 +1,18 @@
 [
   {
+    "version": "v2307",
+    "date": "2026-11-04",
+    "title": "Gathering Recovery and Boss Loot",
+    "entries": [
+      "Added the EXP books emoji as an option for bank tabs.",
+      "Fixed gathering errors that could leave you stuck.",
+      "Boss loot no longer waits on inventory refreshes or appears in the wrong arena.",
+      "Snail fights keep working after the party leader dies and comes back, with health bars and rewards updating again.",
+      "Hippo Scroll keeps renewing potions when Refresh Charms extend your gathering time.",
+      "Saplings can see and loot Ironslime drops. Ironslimes still can't loot other players' items."
+    ]
+  },
+  {
     "version": "v2306",
     "date": "2026-11-04",
     "title": "Shell Plates, Houses and Potion Icons",
