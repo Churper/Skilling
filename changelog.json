@@ -1,5 +1,28 @@
 [
   {
+    "version": "v2308",
+    "date": "2026-11-06",
+    "title": "Weapon Cosmetics and Private Boss Loot",
+    "entries": [
+      "New weapon cosmetics in the SC shop: Spider Stick, Seal Pillow (pick white, pink or blue), Crayon, Laptop and Plush Alien.",
+      "New house decoration: Giant Plush Alien (3 Cozy Coupons).",
+      "Baguette, Cat Hammer, Plush Whale, Lollipop and Star Rod are now held up and swing like the Scythe on a sword.",
+      "Star Rod shoots a star, Plush Alien fires a beam, and Spider Stick shoots a web.",
+      "Marshmallow Stick and Fish Skewer are now held up like the Scythe on a sword, with the same sword attack.",
+      "Boss drops are private to the player who earned them.",
+      "Reduced data usage from ground loot.",
+      "Fixed extra pickup pauses and status messages when killing bosses quickly.",
+      "Loch gives 25% less XP for firing and finishing fights.",
+      "Loch Gem on both rings now shows both +3% in gear stats, and combat XP counts the second gem too.",
+      "Loch Gem can now transpose from one ring to another.",
+      "Registered non-Ironslimes, including Saplings, can win Ironslime Drop Party donations.",
+      "Fixed gathering EXP arriving in batches after gathering same node for a very long time.",
+      "Fixed depleted Meat Trees looking ready to chop after travelling or reconnecting.",
+      "Fixed Cooking milestone broadcast messages.",
+      "Fixed equipment names in shop sale messages."
+    ]
+  },
+  {
     "version": "v2307",
     "date": "2026-11-04",
     "title": "Gathering Recovery and Boss Loot",
