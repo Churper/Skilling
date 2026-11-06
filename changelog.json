@@ -1,5 +1,16 @@
 [
   {
+    "version": "v2309",
+    "date": "2026-11-06",
+    "title": "Loch Personal Resources",
+    "entries": [
+      "Other players can no longer deplete your Loch resources or move your fishing spot.",
+      "Loch berries now take 16 seconds to gather before speed bonuses.",
+      "Reverted the latest 25% cut to Loch firing and finish XP for hunting and survival.",
+      "Loch Potion no longer boosts cooking or scribing XP."
+    ]
+  },
+  {
     "version": "v2308",
     "date": "2026-11-06",
     "title": "Weapon Cosmetics and Private Boss Loot",
