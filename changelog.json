@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2310",
+    "date": "2026-11-09",
+    "title": "Spider Mount and Plush Weapons",
+    "entries": [
+      "New spider mount for 400 SC + 1,000 Spider Fangs.",
+      "New weapon cosmetic: Plush Capybara for 400 SC.",
+      "Hitting 20 SP now broadcasts your item with party emojis and matching SP colors.",
+      "The wiki now shows Mythic Wisp bonuses beside crafting and upgrade costs.",
+      "Fixed older pets making the Pet Garden appear empty and blocking the pet quest.",
+      "Fixed ground loot data usage.",
+      "Fixed the shop preview jumping when switching weapon skins.",
+      "Fixed automatic database cleanup."
+    ]
+  },
+  {
     "version": "v2309",
     "date": "2026-11-06",
     "title": "Loch Personal Resources",
