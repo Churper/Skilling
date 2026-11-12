@@ -1,5 +1,20 @@
 [
   {
+    "version": "v2311",
+    "date": "2026-11-11",
+    "title": "Loot Tracker and Loot Log",
+    "entries": [
+      "New Loot tracker with saved drop totals and item values.",
+      "New Loot log tracks boss drops and missing uniques.",
+      "Loch Reward Pile searches now show your all-time total.",
+      "Log Basket, Ore Pouch and Fish Bucket gain 750 and 1,000 capacity upgrades.",
+      "Wisp bag broadcasts now show the bag's name and contents.",
+      "Fixed blocked messages returning after reconnecting or refreshing.",
+      "Fixed house Wisp click boxes and made the Wisperator smaller.",
+      "Fixed database cleanup getting stuck on empty balances."
+    ]
+  },
+  {
     "version": "v2310",
     "date": "2026-11-09",
     "title": "Spider Mount and Plush Weapons",

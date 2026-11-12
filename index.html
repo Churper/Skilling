@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2310">
+  <link rel="stylesheet" href="./style.css?v=2311">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -234,6 +234,8 @@
       <div class="ui-nearby-resize" data-resize="sw" aria-hidden="true"></div>
       <div class="ui-nearby-resize" data-resize="se" aria-hidden="true"></div>
     </section>
+    <button type="button" id="ui-loot-launcher" hidden aria-expanded="false" aria-controls="ui-loot-panel" aria-label="Loot tracker" title="Loot tracker. Drag to move; Alt-drag to resize.">💰</button>
+    <section id="ui-loot-panel" hidden aria-label="Loot tracker" data-i18n-skip></section>
     <button type="button" id="ui-notepad-launcher" hidden aria-expanded="false" aria-controls="ui-notepad-panel" title="Notepad">
       <span class="ui-notepad-launcher-icon" aria-hidden="true">&#x1F4DD;</span>
     </button>
@@ -868,7 +870,10 @@
           <div class="stg-row"><span class="stg-label">Invite Friends</span><span class="stg-ctrl"><button type="button" id="setting-invite-btn" class="stg-btn">&#x1F381; Invite</button></span></div>
           <button type="button" id="setting-home-tp-btn" class="stg-reset-btn" style="background:rgba(140,120,230,.14);color:#c8b8ff;border-color:rgba(140,120,230,.40)">&#x1F3E0; Home Teleport <span id="setting-home-tp-cd" style="font-size:11px;opacity:.7;margin-left:6px"></span></button>
           <button type="button" id="setting-slimetrics-btn" class="stg-reset-btn" style="background:rgba(80,232,120,.12);color:#79f0b2;border-color:rgba(80,232,120,.4)">&#x1F9EA; Slimetrics</button>
-          <button type="button" id="setting-adventure-btn" class="stg-reset-btn" style="background:rgba(140,100,50,.14);color:#c89860;border-color:rgba(140,100,50,.35)">&#x1F4D6; Adventure Book</button>
+          <div class="stg-log-actions">
+            <button type="button" id="setting-adventure-btn" class="stg-reset-btn" style="background:rgba(140,100,50,.14);color:#c89860;border-color:rgba(140,100,50,.35)">&#x1F4D6; Adventure Book</button>
+            <button type="button" id="setting-loot-log-btn" class="stg-reset-btn" aria-label="Loot log" aria-controls="ui-collection-panel" style="background:rgba(100,150,210,.12);color:#91b4db;border-color:rgba(100,150,210,.35)">&#x1F4D6; Loot log</button>
+          </div>
           <div style="margin-top:auto;padding-top:6px">
             <p style="margin:0 0 2px;font-size:12px;color:rgba(255,255,255,0.35);line-height:1.4">Created by <span style="color:rgba(255,255,255,0.55)">Burga</span></p>
             <p style="margin:0 0 0;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.4;text-align:justify;text-wrap:pretty">Testing: Swaay · Treeman · AdmiralCrunch · MrPaulie · Ryan · Tomb · Izzy · Bagingle · Plopi · Cranile · zeme · Jorkeff · Cyrater · Catsu · Dasin · Goddess Lilisama · Insvght · Oblong · RiggedyRekt · observer · yoxr · niwa · yuma · mirayray · froggie · ThePunisher · mrtwigs · Green · MapleKitten · Purple · Trygve86 · littleseven · Lore · DazingAI · Yves · EVIL · ayzen · Walen · fart · Mrowka · Lyron · <a href="https://www.twitch.tv/Commonvirus" target="_blank" rel="noopener" class="stg-tester-twitch" title="CommonVirus on Twitch">CommonVirus</a> · Tank · TimMad · Slime de Lime · KcXD · disambo · TRIGGERED · SlimySam · Chainsaw · Dardas · Herm · Goo · Serriah · Sarugobu · Citrusy · Chunce · ImThe13055 · SlimeMaiden · Flubber · <a href="https://gityx.com/" target="_blank" rel="noopener" class="stg-tester-twitch" title="gityx.com">Gityx</a> · zzzhl · Hua Tuo · SKDSK · Carrotkie · Huck · Bacon · Dome_Fossil · Camel_Teo · N2KK · Jhougio · Beelzebeb · Rare · koalaclumsy · Alcyone · CH2O · wjj001 · Sanvek · Krulux · ShiNoragami</p>
@@ -943,6 +948,9 @@
           <div class="stg-row"><span class="stg-label">Hide Game Hub Button</span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-hide-hub"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Quick Eat HUD Button</span><span class="stg-hint">Show a draggable quick-eat button on the game HUD.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-mobile-quick-eat-button"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Nearby Actions HUD</span><span class="stg-hint">Show the draggable nearby items, enemies, and resources launcher. F6 opens it while enabled.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-nearby-actions-hud"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row" data-search="loot tracker drops rewards session loch"><span class="stg-label-block"><span class="stg-label">Loot tracker HUD</span><span class="stg-hint">Show a draggable loot popout. Loot keeps counting while hidden and stays saved for this account on this device. Choose New session to reset it.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-loot-tracker-hud"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row" data-search="loot log boss unique drops"><span class="stg-label-block"><span class="stg-label">Loot log HUD</span><span class="stg-hint">Show a loot log button. Your recorded drops stay saved on your account.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-collection-log-hud"><span class="stg-tog-track"></span></label></span></div>
+          <div class="stg-row" data-search="loot log popup notification"><span class="stg-label-block"><span class="stg-label">New loot log item popups</span><span class="stg-hint">Show a popup when you receive an item for the first time.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-collection-log-popups"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row" data-search="notepad notes note pad jot memo scratch"><span class="stg-label-block"><span class="stg-label">Notepad HUD</span><span class="stg-hint">Show a draggable chip that pops out a notepad. Notes are saved on this device.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-notepad-hud"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row" data-search="status log history messages feed record"><span class="stg-label-block"><span class="stg-label">Status Log HUD</span><span class="stg-hint">Show a draggable chip that pops out a history of your status messages. Kept on this device.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-status-log-hud"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row" data-search="quick gear emoji icon badge emblem fire preset equip best dock button"><span class="stg-label-block"><span class="stg-label">Quick Gear Icon</span><span class="stg-hint">Show the active Quick Gear emoji-or B for Equip Best-on the Equip button.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-quick-gear-dock-emblem"><span class="stg-tog-track"></span></label></span></div>
@@ -2008,6 +2016,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2310"></script>
+  <script type="module" src="./main.js?v=2311"></script>
 </body>
 </html>
