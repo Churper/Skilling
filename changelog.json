@@ -1,5 +1,13 @@
 [
   {
+    "version": "v2312",
+    "date": "2026-11-15",
+    "title": "Upgraded bag fix",
+    "entries": [
+      "Fixed upgraded bags getting stuck when gathering or banking."
+    ]
+  },
+  {
     "version": "v2311",
     "date": "2026-11-11",
     "title": "Loot Tracker and Loot Log",
