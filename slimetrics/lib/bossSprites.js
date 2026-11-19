@@ -1769,7 +1769,123 @@ function drawHippo(ctx) {
   px(ctx,52,34,'#3d3650'); px(ctx,57,34,'#3d3650'); line(ctx,42,40,59,40,'#3d3650');
   rect(ctx,45,36,2,4,'#efe6cf'); rect(ctx,55,36,2,4,'#efe6cf');
 }
+// Fill between integer pixel edges so pointed tails, fur and claws stay crisp.
+function pixelPolygon(ctx, color, points) {
+  const ys = points.map(([, y]) => y);
+  const bottom = Math.max(...ys);
+  ctx.fillStyle = color;
+  for (let y = Math.min(...ys); y < bottom; y++) {
+    const scan = y + 0.5;
+    const edges = [];
+    for (let i = 0; i < points.length; i++) {
+      const [x1, y1] = points[i];
+      const [x2, y2] = points[(i + 1) % points.length];
+      if ((y1 <= scan && scan < y2) || (y2 <= scan && scan < y1)) {
+        edges.push(x1 + (scan - y1) * (x2 - x1) / (y2 - y1));
+      }
+    }
+    edges.sort((a, b) => a - b);
+    for (let i = 0; i < edges.length; i += 2) {
+      const x = Math.ceil(edges[i] - 0.5);
+      ctx.fillRect(x, y, Math.ceil(edges[i + 1] - 0.5) - x, 1);
+    }
+  }
+}
+
+function drawDino(ctx) {
+  const ink = '#22423c', shade = '#367853', green = '#64b778', mint = '#91d694';
+  const cream = '#f2dfa3', ochre = '#bc9c66', ridge = '#dd733f';
+  floorShadow(ctx);
+  // The low tail balances the big head. The far foot peeks out past the belly.
+  pixelPolygon(ctx, ink, [[1,31],[10,36],[24,34],[30,42],[23,48],[12,46],[5,41]]);
+  pixelPolygon(ctx, green, [[3,34],[12,38],[25,35],[24,44],[14,44],[7,40]]);
+  ellipse(ctx, 36, 49, 5, 9, ink); rect(ctx, 34, 55, 10, 4, ink);
+  ellipse(ctx, 36, 49, 4, 7, shade);
+  for (const [x,y] of [[17,34],[22,30],[27,27],[32,22],[36,15],[40,11]]) {
+    pixelPolygon(ctx, '#9b4d35', [[x-3,y+3],[x-2,y-4],[x+4,y+2]]);
+    line(ctx,x-2,y-3,x+1,y,ridge);
+  }
+  ellipse(ctx, 29, 39, 14, 12, ink); ellipse(ctx, 29, 38, 13, 11, green);
+  ellipse(ctx, 37, 30, 9, 15, ink); ellipse(ctx, 37, 30, 8, 14, green);
+  ellipse(ctx, 39, 32, 5, 13, ochre); ellipse(ctx, 40, 31, 4, 12, cream);
+  ellipse(ctx, 25, 44, 8, 9, shade); ellipse(ctx, 25, 43, 6, 8, green);
+  pixelPolygon(ctx, ink, [[20,47],[29,47],[27,54],[33,56],[34,60],[19,60],[21,54]]);
+  pixelPolygon(ctx, shade, [[22,46],[28,47],[25,55],[31,57],[31,58],[21,58]]);
+  rect(ctx, 26, 57, 2, 2, cream); rect(ctx, 30, 57, 2, 2, cream);
+  lineW(ctx,39,35,43,39,shade,2); lineW(ctx,43,39,47,36,mint,2);
+  ellipse(ctx, 42, 18, 11, 10, ink); ellipse(ctx, 42, 17, 10, 9, green);
+  ellipse(ctx, 42, 14, 7, 4, mint);
+  ellipse(ctx, 50, 22, 10, 6, ink); ellipse(ctx, 50, 23, 9, 4, cream);
+  ellipse(ctx, 51, 19, 10, 5, ink); ellipse(ctx, 51, 19, 9, 4, green);
+  rect(ctx, 54, 16, 4, 1, mint); rect(ctx, 57, 18, 2, 2, ink);
+  ellipse(ctx, 43, 15, 3, 4, ink); px(ctx, 44, 13, '#fffbe5');
+  rect(ctx, 50, 24, 2, 2, '#fff9d9');
+}
+
+function drawLion(ctx) {
+  const ink = '#513324', mane = '#a24d26', copper = '#d57935';
+  const gold = '#dfa148', light = '#f6c77a', cream = '#ffe1a5';
+  floorShadow(ctx);
+  // Raised tail with a dark tuft, visible beyond the back.
+  lineW(ctx,45,38,54,34,ink,3); lineW(ctx,54,34,58,21,ink,3);
+  lineW(ctx,46,38,54,34,gold,1); lineW(ctx,55,33,59,21,gold,1);
+  pixelPolygon(ctx,ink,[[55,22],[54,17],[59,11],[62,15],[62,19],[58,24]]);
+  pixelPolygon(ctx,copper,[[56,20],[56,17],[59,13],[61,16],[60,19]]);
+  ellipse(ctx, 39, 40, 15, 11, ink); ellipse(ctx, 39, 39, 14, 10, gold);
+  ellipse(ctx, 40, 36, 10, 4, light);
+  for (const [x,y] of [[46,44],[31,45]]) {
+    rect(ctx,x,y,6,12,ink); rect(ctx,x+1,y,4,10,gold);
+    ellipse(ctx,x+1,y+11,5,3,ink); ellipse(ctx,x+1,y+10,4,2,light);
+  }
+  pixelPolygon(ctx,ink,[[5,19],[14,18],[12,10],[20,13],[24,5],[28,10],[36,6],[35,14],[44,13],
+    [41,21],[48,24],[42,30],[46,36],[37,37],[39,45],[32,43],[27,51],[22,44],[16,47],[15,39],[7,40],[10,32],[3,28],[9,24]]);
+  pixelPolygon(ctx,mane,[[7,20],[16,20],[15,13],[21,16],[24,8],[27,13],[34,9],[32,17],[41,15],
+    [38,22],[45,25],[39,30],[42,34],[34,35],[36,42],[31,40],[27,47],[23,41],[17,44],[17,37],[10,38],[13,31],[6,28],[12,24]]);
+  pixelPolygon(ctx,copper,[[10,21],[19,19],[16,15],[23,18],[25,11],[27,17],[33,13],[30,21],[16,29],[10,27],[14,24]]);
+  disc(ctx, 15, 21, 4, ink); disc(ctx, 15, 21, 3, light);
+  disc(ctx, 30, 19, 4, ink); disc(ctx, 30, 19, 3, light); px(ctx, 30, 19, mane);
+  ellipse(ctx, 22, 27, 11, 10, ink); ellipse(ctx, 22, 26, 10, 9, gold);
+  ellipse(ctx, 20, 23, 8, 4, light);
+  lineW(ctx,13,24,17,26,ink,2); lineW(ctx,23,26,27,23,ink,2);
+  ellipse(ctx, 17, 31, 5, 3, cream); ellipse(ctx, 22, 31, 4, 3, cream);
+  pixelPolygon(ctx,ink,[[15,28],[22,28],[20,31],[18,32]]);
+  line(ctx,19,32,19,34,ink);
+}
+
+function drawSlimeFoot(ctx) {
+  const ink = '#4b342c', dark = '#78432d', coat = '#ae6741', copper = '#d58955';
+  const face = '#edb77f', light = '#f7d39a';
+  floorShadow(ctx);
+  ellipse(ctx, 23, 55, 9, 5, ink); ellipse(ctx, 40, 55, 10, 5, ink);
+  ellipse(ctx, 22, 54, 8, 4, coat); ellipse(ctx, 40, 54, 9, 4, coat);
+  for (const x of [16,20,24,36,40,44]) rect(ctx,x,55,3,2,face);
+  ellipse(ctx, 32, 39, 18, 17, ink); ellipse(ctx,32,38,17,16,coat);
+  ellipse(ctx,32,42,12,12,face); ellipse(ctx,30,40,8,9,light);
+  for (const side of [-1,1]) {
+    const x = 32 + side*18;
+    ellipse(ctx,x,37,8,13,ink); ellipse(ctx,x,36,7,12,coat);
+    ellipse(ctx,x-side,33,5,8,copper);
+    ellipse(ctx,x+side*3,45,6,5,ink); ellipse(ctx,x+side*3,44,5,4,dark);
+    line(ctx,x+side*4,43,x+side*5,45,coat);
+  }
+  pixelPolygon(ctx,ink,[[13,25],[17,19],[16,16],[23,10],[31,6],[40,8],[47,14],[50,22],[47,23],
+    [53,31],[45,30],[47,36],[39,33],[38,37],[31,34],[26,38],[23,34],[16,36],[18,30],[12,31]]);
+  pixelPolygon(ctx,coat,[[16,24],[20,18],[18,17],[24,12],[31,8],[39,10],[45,15],[48,21],[44,22],
+    [49,29],[42,27],[44,33],[37,30],[37,34],[30,31],[26,35],[24,32],[19,33],[21,28],[16,29]]);
+  ellipse(ctx, 31, 23, 11, 9, dark); ellipse(ctx,31,23,10,8,face);
+  ellipse(ctx,30,26,8,4,light);
+  pixelPolygon(ctx,copper,[[18,18],[23,12],[31,8],[38,10],[42,15],[38,14],[40,19],[34,16],
+    [33,21],[29,17],[24,20],[24,17]]);
+  rect(ctx,25,21,2,3,ink); rect(ctx,35,21,2,3,ink);
+  ellipse(ctx,30,25,2,1,dark);
+  line(ctx,24,27,27,29,ink); line(ctx,27,29,34,29,ink); line(ctx,34,29,37,27,ink);
+  rect(ctx,25,26,1,2,'#fff2cf'); rect(ctx,35,26,1,2,'#fff2cf');
+}
+
 export const BOSS_SPRITES = {
+  dino_boss: { label: 'Dino', draw: drawDino },
+  lion_boss: { label: 'Lion', draw: drawLion },
+  slimefoot: { label: 'SlimeFoot', draw: drawSlimeFoot },
   hippo_boss: { label: 'Hippy', draw: drawHippo },
   snail_boss: { label: 'Snail Boss', draw: drawSnail },
   snake_boss: { label: 'Snake Boss', draw: drawCobra },
@@ -1802,6 +1918,7 @@ export const BOSS_SPRITES = {
 };
 
 const KC_TO_BOSS_KEY = {
+  dino_kc:'dino_boss',lion_kc:'lion_boss',slimefoot_kc:'slimefoot',
   snail_kc: 'snail_boss',
   hippo_kc: 'hippo_boss',
   snake_kc: 'snake_boss',
@@ -1859,7 +1976,7 @@ export function bossSpriteHtml(key, className = '') {
 export function drawBossSprite(canvas, key) {
   const k = normalizeBossKey(key);
   const meta = BOSS_SPRITES[k];
-  if (!meta || !canvas) return false;
+  if (!meta?.draw || !canvas) return false;
 
   canvas.width = W;
   canvas.height = H;

@@ -1,5 +1,24 @@
 [
   {
+    "version": "v2313",
+    "date": "2026-11-19",
+    "title": "Dino, Lion and SlimeFoot",
+    "entries": [
+      "New Dino boss, drops a gathering body and a Dino Spike for increased weapon range.",
+      "New Lion Boss, Eclipse gear, Lion's Fork for a 10% chance to hit twice, and a reusable Lion Heart that boosts Magic.",
+      "Better Rarity Hearts give stronger boosts and shorter cooldown.",
+      "SlimeFoot can spawn after a Slimeshroom for a five-minute rampage, with optional desktop alerts.",
+      "Land hits for EXP and SlimeCoins. Stay until the end for Coal, Refresh and Frenzy Charms, plus chances at a Refine Catalyst and paintbrush.",
+      "Added Dino, Lion and SlimeFoot on the hiscores. Updated wiki.",
+      "Loch Gems earned from sacrificing loot now count in the Loot log, including missed rewards still on record.",
+      "Sacred Groves have a 25% chance to appear as enhanced groves, giving double Faith EXP on random islands.",
+      "New birthday cake hat in the SC shop for 200 SC.",
+      "Fixed the shop showing a sell price on items you couldn't sell.",
+      "Fixed the Bonfire Cook button getting stuck at 1 after cooking a whole stack.",
+      "The bar between the bottom buttons no longer shows through transparent themes."
+    ]
+  },
+  {
     "version": "v2312",
     "date": "2026-11-15",
     "title": "Upgraded bag fix",

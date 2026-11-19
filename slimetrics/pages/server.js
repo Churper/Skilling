@@ -88,7 +88,7 @@ function paint($page, { overview, chart, heatmap, bosses, islands, welcome, sign
       <div class="grid-2" style="margin-top:14px">
         <div class="st-card srv-boss-card">
           <div class="st-card-head">
-            <div class="st-card-title">Recent Boss Kills</div>
+            <div class="st-card-title">Recent Boss Activity</div>
             <div class="eyebrow">last 24h</div>
           </div>
           ${renderBossList(bosses)}
@@ -684,12 +684,12 @@ function compactBossRows(rows, maxRows = 12) {
 function renderBossList(rows) {
   if (rows == null) return PANEL_FAILED;
   const compact = compactBossRows(rows);
-  if (!compact.length) return `<div class="st-empty">No boss kills yet today.</div>`;
+  if (!compact.length) return `<div class="st-empty">No boss activity yet today.</div>`;
   return compact.map(r => `
     <div class="srv-feed-row">
       <div class="srv-feed-icon is-boss">${bossSpriteHtml(r.boss, "is-feed")}</div>
       <div class="srv-feed-body">
-        <div class="srv-feed-line">${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> killed <b>${escapeHtml(prettyBoss(r.boss))}</b>${r.count > 1 ? ` <b>×${nf(r.count)}</b>` : ""}</div>
+        <div class="srv-feed-line">${accountMark(r)}<a href="#player?name=${encodeURIComponent(r.name)}">${escapeHtml(r.name)}</a> ${r.boss === "slimefoot" ? "completed" : "killed"} <b>${escapeHtml(prettyBoss(r.boss))}</b>${r.count > 1 ? ` <b>×${nf(r.count)}</b>` : ""}</div>
         <div class="srv-feed-meta">${timeAgo(Number(r.t) * 1000)}${r.count > 1 && Number(r.firstT) !== Number(r.t) ? ` · since ${timeAgo(Number(r.firstT) * 1000)}` : ""}</div>
       </div>
     </div>`).join("");

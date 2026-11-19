@@ -146,6 +146,7 @@ function renderHero(o) {
         <div class="st-hero-sub">Total Level <strong>${nf(totalLvl)}</strong> · Total XP <strong>${nf(o.total_xp || 0)}</strong></div>
         ${o.boss_kills?.snail_boss > 0 ? `<div class="st-hero-sub">🐌 Snail Boss kills <strong>${nf(o.boss_kills.snail_boss)}</strong></div>` : ""}
         ${o.boss_kills?.hippo_boss > 0 ? `<div class="st-hero-sub">🦛 Hippy kills <strong>${nf(o.boss_kills.hippo_boss)}</strong></div>` : ""}
+        ${[['dino_boss','Dino kills'],['lion_boss','Lion kills'],['slimefoot','SlimeFoot completions']].map(([key,label])=>o.boss_kills?.[key]>0?`<div class="st-hero-sub">${label} <strong>${nf(o.boss_kills[key])}</strong></div>`:'').join('')}
         <div class="st-hero-meta">
           <span>First tracked ${dateLabel(o.first_tracked)}</span>
           <span>Last checked ${timeAgo(o.last_snapshot)}</span>
