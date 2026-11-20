@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Patrick+Hand&family=Nunito:wght@500;600;700;800&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=2314">
+  <link rel="stylesheet" href="./style.css?v=2315">
 </head>
 <body>
   <canvas id="game-canvas" aria-label="Skilling 3D"></canvas>
@@ -1025,6 +1025,7 @@
           <div class="stg-row" hidden><span class="stg-label-block"><span class="stg-label">Translate Chat</span><span class="stg-hint">Show messages written in another language in yours. Your browser does the translating, so nothing you read or send leaves your device. First use takes a moment to get ready. Chrome and Edge only</span></span><span class="stg-ctrl"><select id="setting-chat-translate" class="stg-sel"><option value="auto" selected>Automatic</option><option value="tap">Tap To Translate</option><option value="off">Off</option></select></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Pop-out Channel Chat</span><span class="stg-hint">Right-click the chat channel dropdown to pop out a floating, draggable chat window for one channel (Clan, DMs, etc). Keeps your main chat as-is</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-classic-chat-popout"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Level-Up Broadcasts</span><span class="stg-hint">Choose where player congrats messages appear locally</span></span><span class="stg-ctrl"><select id="setting-levelup-broadcasts" class="stg-sel"><option value="all">Chat + Screen</option><option value="screen">Screen Only</option><option value="chat">Chat Only</option><option value="off">Off</option></select></span></div>
+          <div class="stg-row" data-search="dino body triple yield gathering messages"><span class="stg-label-block"><label class="stg-label" for="setting-dino-body-messages">Dino Body Messages</label><span class="stg-hint" id="dino-body-messages-hint">Show a chat message when your Dino Body gives you extra materials.</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-dino-body-messages" aria-describedby="dino-body-messages-hint" checked><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">Game Updates In Chat</span><span class="stg-hint">Mirror inventory status updates into the Game chat channel</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-game-updates"><span class="stg-tog-track"></span></label></span></div>
           <div class="stg-row"><span class="stg-label-block"><span class="stg-label">New Line Per Update</span><span class="stg-hint">Each game update posts its own line; repeats collapse into ×N. Needs Game Updates In Chat</span></span><span class="stg-ctrl"><label class="stg-tog"><input type="checkbox" id="setting-chat-status-log"><span class="stg-tog-track"></span></label></span></div>
         </div>
@@ -2021,6 +2022,6 @@
       <div id="changelog-body" class="changelog-body"></div>
     </div>
   </div>
-  <script type="module" src="./main.js?v=2314"></script>
+  <script type="module" src="./main.js?v=2315"></script>
 </body>
 </html>
