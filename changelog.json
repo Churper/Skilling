@@ -1,5 +1,21 @@
 [
   {
+    "version": "v2314",
+    "date": "2026-11-20",
+    "title": "Midnight furniture and SlimeFoot sightings",
+    "entries": [
+      "New Midnight furniture set for houses.",
+      "SlimeFoot sightings appear in Game chat.",
+      "Lifesteal and party EXP work at SlimeFoot. Earning SC shows the coin popup and plays the jingle.",
+      "After you earn 20 SC from Dino or Lion in a day, hits on that boss can earn SC like normal combat.",
+      "You get a personal Game chat message when your Dino Body triples your yield.",
+      "The Dino and Lion wiki pages explain whose Luck affects a drop and how the party picks a winner.",
+      "Other players see your full size when you use the Frog’s Giga Mode.",
+      "Hover over a Wisp Bag to see its total bonuses. Matching Wisps share one line in their rarity color.",
+      "Picking up noted resources keeps them in your Bag."
+    ]
+  },
+  {
     "version": "v2313",
     "date": "2026-11-19",
     "title": "Dino, Lion and SlimeFoot",

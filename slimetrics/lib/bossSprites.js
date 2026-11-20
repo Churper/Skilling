@@ -1793,63 +1793,115 @@ function pixelPolygon(ctx, color, points) {
 }
 
 function drawDino(ctx) {
-  const ink = '#22423c', shade = '#367853', green = '#64b778', mint = '#91d694';
-  const cream = '#f2dfa3', ochre = '#bc9c66', ridge = '#dd733f';
-  floorShadow(ctx);
-  // The low tail balances the big head. The far foot peeks out past the belly.
-  pixelPolygon(ctx, ink, [[1,31],[10,36],[24,34],[30,42],[23,48],[12,46],[5,41]]);
-  pixelPolygon(ctx, green, [[3,34],[12,38],[25,35],[24,44],[14,44],[7,40]]);
-  ellipse(ctx, 36, 49, 5, 9, ink); rect(ctx, 34, 55, 10, 4, ink);
-  ellipse(ctx, 36, 49, 4, 7, shade);
-  for (const [x,y] of [[17,34],[22,30],[27,27],[32,22],[36,15],[40,11]]) {
-    pixelPolygon(ctx, '#9b4d35', [[x-3,y+3],[x-2,y-4],[x+4,y+2]]);
-    line(ctx,x-2,y-3,x+1,y,ridge);
+  const ink='#244539', deep='#38724e', fern='#54a466', green='#78c581', lit='#a2dfa0';
+  const sand='#b79d70', cream='#e5cea0', ivory='#fff2cd', flame='#ee8746', rust='#a85032';
+  const fill=(color,...points)=>pixelPolygon(ctx,color,points);
+  ellipse(ctx,37,59,18,2,'rgba(0,0,0,0.42)');
+
+  // Far leg under the hip, with the foot pointing toward the muzzle.
+  fill(ink,[31,36],[39,36],[40,43],[35,49],[34,54],[31,56],[21,56],[22,53],[28,51],[29,45]);
+  fill(deep,[32,38],[37,38],[38,43],[33,49],[32,53],[24,54],[30,50],[31,44]);
+
+  // Back, swept tail and throat share one contour. The tail narrows to a single upturned tip.
+  fill(ink,[20,17],[29,17],[34,23],[39,27],[46,29],[51,34],[55,39],[59,41],[63,37],
+    [62,43],[59,46],[53,46],[46,44],[39,48],[33,48],[25,43],[21,36],[17,30]);
+  fill(fern,[21,18],[28,18],[34,25],[41,29],[47,31],[53,37],[57,42],[61,41],[59,44],
+    [54,45],[46,42],[40,46],[32,46],[26,41],[22,34],[18,28]);
+  fill(green,[21,18],[28,19],[33,25],[39,29],[44,30],[46,34],[39,34],[35,38],[27,38],[21,31]);
+  fill(deep,[46,34],[49,36],[53,41],[58,44],[54,44],[47,41],[43,40]);
+  fill(cream,[18,25],[24,27],[26,32],[32,37],[36,39],[35,43],[30,42],[25,38],[21,33]);
+  fill(sand,[18,26],[21,28],[23,33],[28,38],[33,40],[34,43],[29,41],[24,37],[20,32]);
+
+  // The little forelimb is tucked high on the chest. Leave daylight below its claws.
+  fill(deep,[28,29],[31,30],[30,34],[27,37],[23,37],[23,35],[26,33]);
+  fill(green,[28,29],[30,30],[28,33],[25,35],[23,35],[26,32]);
+  rect(ctx,22,35,2,2,ivory);
+  // Near thigh, folded hock and broad three-toed foot.
+  fill(ink,[36,35],[43,33],[48,36],[49,42],[46,47],[43,50],[45,54],[43,58],[39,60],
+    [30,60],[29,58],[31,55],[37,53],[36,50],[33,47],[32,41]);
+  fill(fern,[36,36],[42,35],[46,37],[47,41],[44,46],[40,49],[43,54],[41,57],[32,58],
+    [34,56],[39,54],[38,49],[34,46],[33,41]);
+  fill(green,[36,36],[41,35],[45,37],[44,40],[39,44],[35,45],[34,41]);
+  fill(lit,[36,37],[41,36],[42,37],[38,39],[35,41]);
+  fill(deep,[44,41],[46,40],[45,45],[41,49],[43,54],[40,55],[38,48]);
+  fill(cream,[31,56],[35,55],[33,58],[29,59]);fill(ivory,[36,57],[39,56],[37,59],[34,59]);
+
+  // Amber plates follow the nape, with three dark bands wrapping the back.
+  for(const [x,y] of [[19,10],[24,10],[29,13],[33,18],[37,23],[42,26]]){
+    fill(rust,[x-2,y+2],[x-1,y-2],[x+2,y-3],[x+5,y+3]);
+    fill(flame,[x-1,y+1],[x,y-2],[x+2,y-2],[x+3,y+1]);
   }
-  ellipse(ctx, 29, 39, 14, 12, ink); ellipse(ctx, 29, 38, 13, 11, green);
-  ellipse(ctx, 37, 30, 9, 15, ink); ellipse(ctx, 37, 30, 8, 14, green);
-  ellipse(ctx, 39, 32, 5, 13, ochre); ellipse(ctx, 40, 31, 4, 12, cream);
-  ellipse(ctx, 25, 44, 8, 9, shade); ellipse(ctx, 25, 43, 6, 8, green);
-  pixelPolygon(ctx, ink, [[20,47],[29,47],[27,54],[33,56],[34,60],[19,60],[21,54]]);
-  pixelPolygon(ctx, shade, [[22,46],[28,47],[25,55],[31,57],[31,58],[21,58]]);
-  rect(ctx, 26, 57, 2, 2, cream); rect(ctx, 30, 57, 2, 2, cream);
-  lineW(ctx,39,35,43,39,shade,2); lineW(ctx,43,39,47,36,mint,2);
-  ellipse(ctx, 42, 18, 11, 10, ink); ellipse(ctx, 42, 17, 10, 9, green);
-  ellipse(ctx, 42, 14, 7, 4, mint);
-  ellipse(ctx, 50, 22, 10, 6, ink); ellipse(ctx, 50, 23, 9, 4, cream);
-  ellipse(ctx, 51, 19, 10, 5, ink); ellipse(ctx, 51, 19, 9, 4, green);
-  rect(ctx, 54, 16, 4, 1, mint); rect(ctx, 57, 18, 2, 2, ink);
-  ellipse(ctx, 43, 15, 3, 4, ink); px(ctx, 44, 13, '#fffbe5');
-  rect(ctx, 50, 24, 2, 2, '#fff9d9');
+  for(const [x,y] of [[35,25],[41,28],[47,32]])
+    fill(deep,[x,y],[x+3,y+1],[x+5,y+4],[x+4,y+6],[x+2,y+3]);
+  // Tall skull and a stepped, rounded snout, with the eye above the jaw line.
+  fill(ink,[3,18],[7,15],[13,15],[16,10],[20,8],[25,9],[29,12],[31,18],[30,23],
+    [26,27],[21,27],[17,30],[9,30],[4,28],[2,25],[2,21]);
+  fill(green,[4,19],[8,16],[15,16],[17,12],[21,10],[25,10],[28,13],[29,18],[27,23],
+    [20,25],[14,26],[6,25],[3,23]);
+  fill(lit,[5,18],[9,16],[15,16],[17,13],[20,11],[23,11],[24,13],[19,14],[17,18],[8,19],[4,21]);
+  fill(fern,[23,19],[28,16],[28,21],[25,24],[19,25],[15,24]);
+  fill(sand,[3,23],[8,24],[15,24],[23,22],[25,23],[21,26],[16,29],[9,29],[4,27]);
+  fill(cream,[3,23],[8,24],[15,24],[21,23],[18,26],[13,28],[8,28],[4,26]);
+  line(ctx,4,23,13,24,ink);line(ctx,14,24,21,22,deep);
+  fill(ivory,[6,23],[9,24],[8,26]);fill(ivory,[16,23],[18,23],[17,25]);
+  rect(ctx,5,19,2,2,deep);px(ctx,7,19,fern);
+  ellipse(ctx,22,16,3,4,ink);ellipse(ctx,22,16,2,3,'#2c3239');
+  rect(ctx,21,14,2,2,'#fff7db');px(ctx,23,18,'#777c70');
 }
 
 function drawLion(ctx) {
-  const ink = '#513324', mane = '#a24d26', copper = '#d57935';
-  const gold = '#dfa148', light = '#f6c77a', cream = '#ffe1a5';
-  floorShadow(ctx);
-  // Raised tail with a dark tuft, visible beyond the back.
-  lineW(ctx,45,38,54,34,ink,3); lineW(ctx,54,34,58,21,ink,3);
-  lineW(ctx,46,38,54,34,gold,1); lineW(ctx,55,33,59,21,gold,1);
-  pixelPolygon(ctx,ink,[[55,22],[54,17],[59,11],[62,15],[62,19],[58,24]]);
-  pixelPolygon(ctx,copper,[[56,20],[56,17],[59,13],[61,16],[60,19]]);
-  ellipse(ctx, 39, 40, 15, 11, ink); ellipse(ctx, 39, 39, 14, 10, gold);
-  ellipse(ctx, 40, 36, 10, 4, light);
-  for (const [x,y] of [[46,44],[31,45]]) {
-    rect(ctx,x,y,6,12,ink); rect(ctx,x+1,y,4,10,gold);
-    ellipse(ctx,x+1,y+11,5,3,ink); ellipse(ctx,x+1,y+10,4,2,light);
+  const ink='#553220', dark='#794027', rust='#a14f2b', copper='#c16a35', amber='#e0944b';
+  const tawny='#ce9044', gold='#edb75e', light='#ffcf7e', cream='#ffe3ab', nose='#74402e';
+  const fill=(color,...points)=>pixelPolygon(ctx,color,points);
+  ellipse(ctx,34,59,21,2,'rgba(0,0,0,0.42)');
+
+  // Cat's tail curves away from the hindquarter. The russet tuft has its own silhouette.
+  lineW(ctx,49,35,57,30,dark,3);lineW(ctx,57,30,59,20,dark,2);
+  line(ctx,51,35,58,29,gold);line(ctx,58,29,60,19,gold);
+  fill(dark,[56,18],[57,14],[60,10],[63,14],[63,18],[60,22],[58,21]);
+  fill(copper,[57,18],[58,15],[60,12],[62,15],[61,18],[59,19]);
+  fill(ink,[34,24],[44,22],[51,24],[55,29],[57,36],[55,43],[51,49],[52,54],[49,56],[42,55],
+    [41,50],[42,45],[35,43],[31,50],[24,49],[25,38]);
+  fill(tawny,[35,26],[44,24],[50,25],[54,30],[55,36],[53,42],[49,47],[50,53],[44,54],
+    [43,49],[45,43],[39,40],[33,43]);
+  fill(gold,[37,26],[44,24],[50,26],[53,29],[51,33],[46,36],[38,34]);
+  fill(light,[38,26],[44,24],[49,25],[50,27],[44,28],[38,29]);
+  fill(ink,[20,40],[28,41],[27,53],[24,57],[17,56],[16,53],[19,49]);
+  fill(tawny,[20,43],[26,43],[25,52],[22,55],[18,54],[20,49]);
+  fill(ink,[30,40],[38,40],[37,48],[36,54],[33,58],[25,58],[24,55],[28,52]);
+  fill(gold,[31,43],[36,42],[35,49],[34,54],[32,56],[26,56],[29,53]);
+  rect(ctx,26,55,3,2,light);rect(ctx,30,55,2,2,cream);rect(ctx,44,52,3,2,light);
+
+  // The locks sweep back from the face and down under the chin, as on the boss.
+  fill(ink,[4,26],[7,19],[6,16],[12,16],[12,10],[19,12],[21,5],[27,10],[33,4],[33,11],
+    [41,7],[39,15],[47,13],[43,20],[51,21],[46,26],[52,29],[45,33],[49,38],[42,39],
+    [44,45],[36,43],[35,51],[30,48],[25,55],[21,48],[16,50],[15,44],[9,44],[10,39],[5,36],[7,31]);
+  fill(rust,[6,26],[9,20],[8,18],[15,19],[14,13],[21,15],[22,8],[27,13],[32,7],[31,15],
+    [39,10],[36,18],[44,15],[39,22],[48,22],[42,27],[49,29],[42,33],[46,36],[39,37],
+    [42,43],[34,41],[34,48],[29,45],[25,52],[22,45],[17,48],[17,42],[11,42],[12,37],[7,35],[10,30]);
+  fill(copper,[7,25],[10,19],[16,20],[15,14],[21,16],[23,10],[26,15],[30,10],[29,18],[20,22],[15,27]);
+  fill(amber,[13,17],[15,15],[18,18],[16,20]);fill(amber,[21,15],[23,10],[25,14],[24,17]);
+  // Each visible lock has a lit ridge and a shadowed tip.
+  for(const [x,y,tx,ty] of [[29,17,39,11],[33,21,44,17],[35,25,47,23],[35,28,48,30],
+    [34,32,45,36],[32,36,40,42],[29,39,33,48],[23,41,25,51],[17,39,17,47]]){
+    fill(dark,[x-2,y+2],[x+2,y-2],[tx,ty],[x+2,y+5]);
+    fill(copper,[x-2,y],[x+1,y-2],[tx,ty],[x+2,y+1]);
   }
-  pixelPolygon(ctx,ink,[[5,19],[14,18],[12,10],[20,13],[24,5],[28,10],[36,6],[35,14],[44,13],
-    [41,21],[48,24],[42,30],[46,36],[37,37],[39,45],[32,43],[27,51],[22,44],[16,47],[15,39],[7,40],[10,32],[3,28],[9,24]]);
-  pixelPolygon(ctx,mane,[[7,20],[16,20],[15,13],[21,16],[24,8],[27,13],[34,9],[32,17],[41,15],
-    [38,22],[45,25],[39,30],[42,34],[34,35],[36,42],[31,40],[27,47],[23,41],[17,44],[17,37],[10,38],[13,31],[6,28],[12,24]]);
-  pixelPolygon(ctx,copper,[[10,21],[19,19],[16,15],[23,18],[25,11],[27,17],[33,13],[30,21],[16,29],[10,27],[14,24]]);
-  disc(ctx, 15, 21, 4, ink); disc(ctx, 15, 21, 3, light);
-  disc(ctx, 30, 19, 4, ink); disc(ctx, 30, 19, 3, light); px(ctx, 30, 19, mane);
-  ellipse(ctx, 22, 27, 11, 10, ink); ellipse(ctx, 22, 26, 10, 9, gold);
-  ellipse(ctx, 20, 23, 8, 4, light);
-  lineW(ctx,13,24,17,26,ink,2); lineW(ctx,23,26,27,23,ink,2);
-  ellipse(ctx, 17, 31, 5, 3, cream); ellipse(ctx, 22, 31, 4, 3, cream);
-  pixelPolygon(ctx,ink,[[15,28],[22,28],[20,31],[18,32]]);
-  line(ctx,19,32,19,34,ink);
+  // Broad three-quarter face. Angular brows, dark nose and two pale whisker pads.
+  ellipse(ctx,12,20,4,5,dark);ellipse(ctx,12,20,3,4,light);rect(ctx,11,19,2,3,tawny);
+  ellipse(ctx,30,20,4,5,dark);ellipse(ctx,30,20,3,4,light);rect(ctx,29,19,2,3,tawny);
+  fill(dark,[9,20],[15,16],[23,16],[29,19],[32,24],[32,30],[29,35],[24,40],[17,42],[10,40],[5,36],[4,29]);
+  fill(gold,[10,21],[15,18],[23,17],[28,20],[30,24],[30,30],[27,35],[23,38],[16,40],[10,38],[6,35],[6,28]);
+  fill(light,[11,21],[16,18],[22,18],[27,20],[26,23],[21,23],[16,22],[9,25]);
+  fill(tawny,[26,24],[30,23],[30,30],[27,34],[24,35],[22,32]);
+  fill(nose,[8,24],[15,25],[14,28],[12,29],[10,27]);
+  fill(ink,[18,25],[26,23],[25,26],[22,29],[20,28]);
+  px(ctx,12,26,light);px(ctx,22,26,cream);
+  fill(tawny,[14,26],[18,26],[20,31],[15,32],[12,31]);
+  ellipse(ctx,12,34,6,4,cream);ellipse(ctx,19,34,6,4,light);
+  fill(nose,[11,30],[15,29],[19,30],[18,32],[15,34],[13,33]);rect(ctx,13,30,3,1,'#b26d49');
+  line(ctx,15,34,15,36,dark);line(ctx,15,36,12,37,dark);line(ctx,15,36,19,37,dark);
+  px(ctx,9,34,tawny);px(ctx,21,34,tawny);px(ctx,23,33,tawny);
 }
 
 function drawSlimeFoot(ctx) {
