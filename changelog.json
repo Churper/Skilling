@@ -1,5 +1,18 @@
 [
   {
+    "version": "v2316",
+    "date": "2026-11-21",
+    "title": "Home gym",
+    "entries": [
+      "10 home gym pieces added to player owned house catalogue. All interactable.",
+      "Wisp Bags sort first in the Wisps bank tab. Their names match their bag color in inventory and chat broadcasts.",
+      "Picking a boss with a click or tap clears the focus outline in the Loot Log.",
+      "The Lifesteal Potion timer uses a red heart.",
+      "Weapon tooltips show Dino Spike and Lion’s Fork next to their bonuses like Kraken.",
+      "Refreshing after SlimeFoot has left no longer shows “SlimeFoot has wandered off.”"
+    ]
+  },
+  {
     "version": "v2315",
     "date": "2026-11-20",
     "title": "Dino Body chat setting",
