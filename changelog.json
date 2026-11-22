@@ -1,5 +1,23 @@
 [
   {
+    "version": "v2317",
+    "date": "2026-11-22",
+    "title": "Ville Bridges, Midnight Furniture & New Cosmetics",
+    "entries": [
+      "You can walk or ride across the bridge to the next Ville neighborhood.",
+      "New Midnight house furniture: Midnight Throne, Coffin Shelf, Brazier, Fireplace, Chandelier and Grandfather Clock.",
+      "Three new skins in the SC shop: Kidd, Hex and Doe, 100 SC each.",
+      "New hat in the SC shop: Domino Crown, 120 SC.",
+      "Classic Oval eyes and a Classic Smile mouth are available in the SC shop for 200 SC each.",
+      "Skill milestones pay SlimeCoins as soon as you level up, and any unpaid milestone rewards are credited automatically.",
+      "Lion Heart is now account-bound.",
+      "Ground loot takes less work to draw and refresh, and Lion and Dino run more smoothly in parties.",
+      "Salvaging shows the correct number of finds in the status message.",
+      "The Dragon Tusk Amulet now shows its correct sell price of 94 Coins.",
+      "Thorn items can no longer be mailed, listed on the exchange or put in party storage. Loch Potion can no longer be traded directly."
+    ]
+  },
+  {
     "version": "v2316",
     "date": "2026-11-21",
     "title": "Home gym",
