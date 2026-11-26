@@ -1,5 +1,24 @@
 [
   {
+    "version": "v2318",
+    "date": "2026-11-26",
+    "title": "New Cosmetics, Amulet Split & Fixes",
+    "entries": [
+      "New skins in the SC shop: Volt, Cinder and Origin, 200 SC each.",
+      "New hats in the SC shop: Electric Ears and Cinder Wings, 200 SC each.",
+      "Fixed some new skins changing your face, covering faces, or moving eyes.",
+      "Split your Dragon Tusk Amulet at the Blacksmith again. The Dragon keeps its imbues, potentials and SP, and the Tusk comes back plain at the same rarity.",
+      "The Attach Shell Plate window now matches the game's other pickers.",
+      "Ignore: Bank on a Lion Heart or other individual gear now applies to that one only.",
+      "Planted trees now keep chopping until the patch runs out, instead of stopping after 12 minutes of AFK.",
+      "Fixed Cloud Wisps: worn Cloud Wisps of any rarity add together for a longer AFK timer on everything, Refresh Charm included, instead of stopping gathering.",
+      "Hunter Cape (t) now adds a 35% chance of an extra essence per catch, up from 25%.",
+      "Housing: Curtains can now hang over a Window.",
+      "Salvage bulk loot popups sorts the most valuable items first.",
+      "Firefox now remembers account settings when you log back in better."
+    ]
+  },
+  {
     "version": "v2317",
     "date": "2026-11-22",
     "title": "Ville Bridges, Midnight Furniture & New Cosmetics",
